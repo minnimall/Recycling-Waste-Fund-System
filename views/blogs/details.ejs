@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+    <%- include('../partials/head.ejs') %>
+<body>
+    
+    <%- include('../partials/nav.ejs') %>
+
+    <div class="details content">
+        <h2><%= blog.title %></h2>
+        <div class="content">
+            <p><%= blog.snippet %></p>
+        </div>
+        <!-- ปุ่มแก้ไข -->
+        <a class="edit" href="/blogs/<%= blog._id %>/edit">
+            <img src="/edit.png" alt="edit icon" width="40" height="40">
+        </a>
+        
+        <!-- ปุ่มลบ -->
+        <a class="delete" data-id="<%= blog._id %>">
+            <img src="/bin.png" alt="bin icon" width="40" height="40">
+        </a>
+    </div>
+    <%- include('../partials/footer.ejs') %>
+
+    <script src="/js/bootstrap.min.js"></script>
+
+    <script>
+        const delblog = document.querySelector('a.delete') // querySelector('a.delete') คือเข้าถึง tag a class delete
+
+        delblog.addEventListener('click', (e) => {
+            const endpoint = `/blogs/${delblog.dataset.id}`
+
+            fetch(endpoint, {
+                method: 'DELETE' 
+            })
+            .then(response => response.json ())
+            .then(data => window.location.href = data.redirect)
+            .catch(err => console.log(err))
+        })
+    </script>
+</body>
+</html>
