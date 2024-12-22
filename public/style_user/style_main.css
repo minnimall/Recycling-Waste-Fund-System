@@ -1,0 +1,84 @@
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@500&display=swap');
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Prompt', sans-serif;
+    color: black;
+    scroll-behavior: smooth;
+}
+
+/* ส่วน navbar */
+ul{
+    list-style-type: none;
+}
+nav {
+    display: flex;
+    align-items: center;
+    height: 100px;
+    top: 0;
+    width: 100%;
+    box-shadow: 5px 5px 10px gray;
+}
+.nav-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1;
+}
+nav ul li a:hover{
+    /* border-bottom: 3px solid #33691e; */
+    color: #8bc34a;
+    transition: 0.3s;
+}
+nav ul li a{
+    font-size: 1.1rem;
+}
+li a{
+    text-decoration: none;
+    color: black;
+}
+.menu {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+ul li a{
+    margin-left: 30px;
+}
+.logo{
+    width: 90px;
+    height: auto;
+}
+.select a{
+    color: #558b2f;
+    border-bottom: 3px solid #33691e;
+    /* border: 1px solid black;
+    border-radius: 10px;
+    padding: 5px 10px; */
+    
+}
+
+/* ส่วน section */
+.cartoon{
+    width: 400px;
+    max-width: 100%;
+    min-width: 50px;
+    height: auto;
+}
+.title{
+    font-size: 2rem;
+}
+.show-time{
+    border: 3px solid #33691e;
+    padding: 10px 20px;
+    border-radius: 10px;
+}
+
+/* ส่วนของ footer */
+footer{
+    background-color: #f1f8e9;
+}
+.cp{
+    text-align: center;
+}

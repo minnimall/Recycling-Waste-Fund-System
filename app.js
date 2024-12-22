@@ -3,6 +3,7 @@ const express = require('express')
 const morgan = require('morgan')
 const mongoose = require('mongoose')
 const blogRoutes = require('./routes/blogRoutes')
+const userRouter = require('./routes/userRoutes')
 const methodOverride = require('method-override'); //สำหรับแก้ไขข้อมูล
 
 //ทำการเรียก module หรือ function "express" ขึ้นมาทำงานและสร้าง
@@ -40,16 +41,17 @@ app.use(morgan('dev'))
 
 //ทำการรอรับ get request จาก Browser 
 app.get('/', (req,res)=>{
-    res.redirect('/blogs')
+    res.redirect('/user')
 })
+
+app.use('/user',userRouter)
+app.use('/blogs',blogRoutes)
 
 app.get('/about', (req,res)=>{
     //res.send('<h1>This is about page</h1>')
     //res.sendFile('./blog/about.html', {root: __dirname})
     res.render('about', { mytitle: 'About'})
 })
-
-app.use('/blogs',blogRoutes)
 
 app.get('/salad', (req, res)=>{
     res.render('salad', { menutitle: 'Food Menu',website: 'Healthy Food',menu1: 'Fruit Salad'})
