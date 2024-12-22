@@ -74,6 +74,12 @@ ul li a{
     padding: 10px 20px;
     border-radius: 10px;
 }
+.col {
+    border: 1px solid #ccc; /* กรอบรอบๆ แต่ละช่อง */
+    padding: 10px; /* เพิ่มช่องว่างภายใน */
+    text-align: center; /* จัดข้อความให้อยู่กลาง */
+    background-color: #f8f9fa; /* เปลี่ยนสีพื้นหลัง */
+}
 
 /* ส่วนของ footer */
 footer{
