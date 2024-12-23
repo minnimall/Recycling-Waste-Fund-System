@@ -5,4 +5,6 @@ const router = express.Router()
 
 router.get('/', userController.user_index)
 
+router.get('/wastetype', userController.user_wastetype)
+
 module.exports = router

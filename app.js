@@ -47,16 +47,6 @@ app.get('/', (req,res)=>{
 app.use('/user',userRouter)
 app.use('/blogs',blogRoutes)
 
-app.get('/about', (req,res)=>{
-    //res.send('<h1>This is about page</h1>')
-    //res.sendFile('./blog/about.html', {root: __dirname})
-    res.render('about', { mytitle: 'About'})
-})
-
-app.get('/salad', (req, res)=>{
-    res.render('salad', { menutitle: 'Food Menu',website: 'Healthy Food',menu1: 'Fruit Salad'})
-})
-
 app.use((req,res) => {
     //res.status(404).sendFile('./blog/404.html', {root: __dirname})
     res.status(404).render('404', { mytitle: '404'})
