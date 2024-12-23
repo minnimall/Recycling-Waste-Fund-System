@@ -40,12 +40,15 @@ app.use(methodOverride('_method'));
 app.use(morgan('dev'))
 
 //ทำการรอรับ get request จาก Browser 
-app.get('/', (req,res)=>{
-    res.redirect('/user')
-})
+app.get('/', (req, res) => {
+    res.redirect('/main');
+});
 
-app.use('/user',userRouter)
+app.use('/main', userRouter);
 app.use('/blogs',blogRoutes)
+
+// Add direct route for wastetype
+app.get('/wastetype', userRouter);
 
 app.use((req,res) => {
     //res.status(404).sendFile('./blog/404.html', {root: __dirname})
