@@ -1,5 +1,12 @@
 const myMedia = require('../models/media')
-
+const multer = require('multer');
+const storage = multer.diskStorage({
+    destination: './public/uploads/media/',
+    filename: function (req, file, cb) {
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+    }
+});
+const upload = multer({ storage: storage }).single('image'); // รับเฉพาะไฟล์เดียวจากฟิลด์ 'image'
 const mediaIndex = (req, res)=> {
     myMedia.find().sort( {createdAt: -1} )
     .then((result)=> {
