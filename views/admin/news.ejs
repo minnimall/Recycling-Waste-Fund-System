@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/adminPartials/doctype.ejs') %>
+        <title><%= mytitle %></title>
+</head>
+
+<body>
+    <%- include('../partials/adminPartials/adminHeader.ejs') %>
+
+        <%- include('../partials/adminPartials/adminSidebar.ejs') %>
+            <!-- Main content -->
+            <div class="content">
+                <div class="content-header">
+                    <h1>การจัดการข่าวสาร (2 รายการ)</h1>
+                    <div class="add-media">เพิ่มสื่อ</div>
+                </div>
+                <div class="news-container">
+                    <div class="news-header">
+                        <div>ข่าวสารล่าสุด</div>
+                        <form action="">
+                            <input type="text" placeholder="ค้นหา">
+                            <button>ค้นหา</button>
+                        </form>
+                    </div>
+                    <div class="news-content">
+
+                        <!-- card 1 -->
+                        <div class="news-card">
+                            <div class="news-detail">
+                                <h3>Lorem ipsum odor amet</h3>
+                                <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Etiam ex lobortis ullamcorper
+                                    porta integer mattis fusce. Vulputate dolor accumsan arcu himenaeos congue</p>
+                                <div class="news-date">2022-01-01</div>
+                            </div>
+                            <div class="news-action">
+                                <span>Edit</span>
+                                <span>Delete</span>
+                            </div>
+                        </div>
+
+                        <!-- card 1 -->
+                        <div class="news-card">
+                            <div class="news-detail">
+                                <h3>Lorem ipsum odor amet</h3>
+                                <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Etiam ex lobortis ullamcorper
+                                    porta integer mattis fusce. Vulputate dolor accumsan arcu himenaeos congue</p>
+                                <div class="news-date">2022-01-01</div>
+                            </div>
+                            <div class="news-action">
+                                <span>Edit</span>
+                                <span>Delete</span>
+                            </div>
+                        </div>
+
+                        <!-- card 1 -->
+                        <div class="news-card">
+                            <div class="news-detail">
+                                <h3>Lorem ipsum odor amet</h3>
+                                <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Etiam ex lobortis ullamcorper
+                                    porta integer mattis fusce. Vulputate dolor accumsan arcu himenaeos congue</p>
+                                <div class="news-date">2022-01-01</div>
+                            </div>
+                            <div class="news-action">
+                                <span>Edit</span>
+                                <span>Delete</span>
+                            </div>
+                        </div>
+
+                        <!-- card 1 -->
+                        <div class="news-card">
+                            <div class="news-detail">
+                                <h3>Lorem ipsum odor amet</h3>
+                                <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Etiam ex lobortis ullamcorper
+                                    porta integer mattis fusce. Vulputate dolor accumsan arcu himenaeos congue</p>
+                                <div class="news-date">2022-01-01</div>
+                            </div>
+                            <div class="news-action">
+                                <span>Edit</span>
+                                <span>Delete</span>
+                            </div>
+                        </div>
+
+                        <div class="readmore">
+                            <button class="read-btn">เพิ่มเติม</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+</body>
+<%- include('../partials/adminPartials/adminFooter.ejs') %>
+
+</html>

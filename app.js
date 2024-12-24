@@ -4,6 +4,7 @@ const morgan = require('morgan')
 const mongoose = require('mongoose')
 const blogRoutes = require('./routes/blogRoutes')
 const userRouter = require('./routes/userRoutes')
+const adminRoutes = require('./routes/adminRoutes')
 const methodOverride = require('method-override'); //สำหรับแก้ไขข้อมูล
 
 //ทำการเรียก module หรือ function "express" ขึ้นมาทำงานและสร้าง
@@ -45,7 +46,8 @@ app.get('/', (req, res) => {
 });
 
 app.use('/main', userRouter);
-app.use('/blogs',blogRoutes)
+app.use('/blogs',blogRoutes);
+app.use('/admin',adminRoutes);
 
 // Add direct route for wastetype
 app.get('/wastetype', userRouter);
