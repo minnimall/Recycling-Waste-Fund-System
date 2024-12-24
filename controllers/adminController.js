@@ -17,15 +17,29 @@ const mediaIndex = (req, res)=> {
     })
 }
 const mediaPost = (req, res) => {
-    const media = new myMedia(req.body)
+    upload(req, res, (err) => {
+        if (err) {
+            res.status(400).send({ err });
+        } else {
+            let imagePath = req.file ? `uploads/news/${req.file.filename}` : `img/no_image.jpg`;
 
-    media.save()
-        .then((result)=> {
-            res.redirect('/admin')
-        })
-        .catch((err)=> {
-            console.log(err)
-        })
+            const media = new myMedia({
+                title: req.body.title,
+                content: req.body.content,
+                img: imagePath
+            });
+            // เพิ่มการแสดงค่า postNews ก่อนบันทึก
+            console.log('Media to save:', media);
+
+            media.save()
+                .then((result)=> {
+                    res.redirect('/admin')
+                })
+                .catch((err)=> {
+                    console.log(err)
+                })
+        }
+    });
 }
 
 const newsIndex = (req, res)=> {
