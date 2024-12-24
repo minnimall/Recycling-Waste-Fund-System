@@ -22,6 +22,8 @@
 }
 
 body {
+    display: flex;
+    flex-wrap: wrap;
     margin: 0;
     font-family: kanit;
     background-color: var(--bg-color);
@@ -29,6 +31,7 @@ body {
 
   /* Header */
   header {
+    width: 100%;
     background-color: var(--header-bg);
     color: var(--white);
     padding: 10px 20px;
@@ -53,10 +56,10 @@ body {
 
   /* Sidebar */
   .sidebar {
-    width: 200px;
+    width: 15%;
+    height: 92.7vh;
     background-color: var(--side-bar-bg);
     color: var(--white);
-    position: fixed;
     top: 70px;
     bottom: 0;
     padding: 20px;
@@ -99,8 +102,14 @@ body {
 
   /* Main content */
   .content {
-    margin-left: 220px;
+    height: 92.7vh;
+    width: 85%;
     padding: 20px;
+     
+      .card-container {
+        height: 80vh;
+        overflow-y: scroll;
+      }
   }
   .content-header {
     width: 100%;
@@ -138,7 +147,7 @@ body {
     background-color: var(--white);
     border: 1px solid var(--card-border);
     border-radius: 8px;
-    width: 300px;
+    width: 295px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     display: flex;
