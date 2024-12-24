@@ -80,7 +80,11 @@ ul li a{
     text-align: center; /* จัดข้อความให้อยู่กลาง */
     background-color: #f8f9fa; /* เปลี่ยนสีพื้นหลัง */
 }
-
+.recycle {
+    width: 50vw;
+    max-width: 150px;
+    height: auto;
+}
 /* ส่วนของ footer */
 footer{
     background-color: #f1f8e9;
