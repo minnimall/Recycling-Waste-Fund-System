@@ -13,7 +13,7 @@
         <%- include('../partials/adminPartials/adminSidebar.ejs') %>
 
         <div class="screen" id="modal">
-            <form class="add-media-form" action="/admin/mediaPost" method="POST">
+            <form class="add-media-form" action="/admin/mediaPost" method="POST" enctype="multipart/form-data">
                 <div class="media-form-head">
                     <h1>เพิ่มสื่อเนื้อหา</h1>
                 </div>
@@ -53,27 +53,27 @@
                 </div>
                 <div class="card-container">
                     <!-- Card 1 -->
-                    <div class="card">
+                    <!-- <div class="card">
                         <img src="img/admin/258830905_center.jpg" alt="Media 1">
                         <div class="card-content">
                             <h3>แยกขยะให้ถูกถัง ถังให้ถูกสี ติดต่อชุมชน</h3>
                             <p>lorem lorem lorem lorem lorem ...</p>
                         </div>
-                    </div>
+                    </div> -->
 
                     <% if (media.length>0) {  %>
-                        <% media.forEach(ablog => { %>
+                        <% media.forEach(amedia => { %>
                     <!-- Card 2 -->
                     <div class="card">
-                        <img src="img/admin/258830905_center.jpg" alt="Media 2">
+                        <img src="<%= amedia.img %>" alt="Media 2">
                         <div class="card-content">
-                            <h3><%= ablog.title %></h3>
-                            <p><%= ablog.content %></p>
+                            <h3><%= amedia.title %></h3>
+                            <p><%= amedia.content %></p>
                         </div>
                     </div>
                     <% }) %>
                     <% } else { %>
-                        <p>There are no blogs to display ....</p>
+                        <p>There are no media    to display ....</p>
                     <% } %>
                 </div>
             </div>

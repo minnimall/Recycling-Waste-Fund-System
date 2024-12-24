@@ -173,6 +173,7 @@ body {
     border: 1px solid var(--card-border);
     border-radius: 8px;
     width: 295px;
+    height: 340px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     display: flex;
