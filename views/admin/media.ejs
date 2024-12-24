@@ -60,86 +60,21 @@
                             <p>lorem lorem lorem lorem lorem ...</p>
                         </div>
                     </div>
+
+                    <% if (media.length>0) {  %>
+                        <% media.forEach(ablog => { %>
                     <!-- Card 2 -->
                     <div class="card">
                         <img src="img/admin/258830905_center.jpg" alt="Media 2">
                         <div class="card-content">
-                            <h3>แนวคิด 3Rs รักษ์โลก</h3>
-                            <p>lorem lorem lorem lorem lorem ...</p>
+                            <h3><%= ablog.title %></h3>
+                            <p><%= ablog.content %></p>
                         </div>
                     </div>
-                    <!-- Card 2 -->
-                    <div class="card">
-                        <img src="img/admin/258830905_center.jpg" alt="Media 2">
-                        <div class="card-content">
-                            <h3>แนวคิด 3Rs รักษ์โลก</h3>
-                            <p>lorem lorem lorem lorem lorem ...</p>
-                        </div>
-                    </div>
-                    <!-- Card 2 -->
-                    <div class="card">
-                        <img src="img/admin/258830905_center.jpg" alt="Media 2">
-                        <div class="card-content">
-                            <h3>แนวคิด 3Rs รักษ์โลก</h3>
-                            <p>lorem lorem lorem lorem lorem ...</p>
-                        </div>
-                    </div>
-                    <!-- Card 2 -->
-                    <div class="card">
-                        <img src="img/admin/258830905_center.jpg" alt="Media 2">
-                        <div class="card-content">
-                            <h3>แนวคิด 3Rs รักษ์โลก</h3>
-                            <p>lorem lorem lorem lorem lorem ...</p>
-                        </div>
-                    </div>
-                    <!-- Card 2 -->
-                    <div class="card">
-                        <img src="img/admin/258830905_center.jpg" alt="Media 2">
-                        <div class="card-content">
-                            <h3>แนวคิด 3Rs รักษ์โลก</h3>
-                            <p>lorem lorem lorem lorem lorem ...</p>
-                        </div>
-                    </div>
-                    <!-- Card 2 -->
-                    <div class="card">
-                        <img src="img/admin/258830905_center.jpg" alt="Media 2">
-                        <div class="card-content">
-                            <h3>แนวคิด 3Rs รักษ์โลก</h3>
-                            <p>lorem lorem lorem lorem lorem ...</p>
-                        </div>
-                    </div>
-                    <!-- Card 2 -->
-                    <div class="card">
-                        <img src="img/admin/258830905_center.jpg" alt="Media 2">
-                        <div class="card-content">
-                            <h3>แนวคิด 3Rs รักษ์โลก</h3>
-                            <p>lorem lorem lorem lorem lorem ...</p>
-                        </div>
-                    </div>
-                    <!-- Card 2 -->
-                    <div class="card">
-                        <img src="img/admin/258830905_center.jpg" alt="Media 2">
-                        <div class="card-content">
-                            <h3>แนวคิด 3Rs รักษ์โลก</h3>
-                            <p>lorem lorem lorem lorem lorem ...</p>
-                        </div>
-                    </div>
-                    <!-- Card 2 -->
-                    <div class="card">
-                        <img src="img/admin/258830905_center.jpg" alt="Media 2">
-                        <div class="card-content">
-                            <h3>แนวคิด 3Rs รักษ์โลก</h3>
-                            <p>lorem lorem lorem lorem lorem ...</p>
-                        </div>
-                    </div>
-                    <!-- Card 2 -->
-                    <div class="card">
-                        <img src="img/admin/258830905_center.jpg" alt="Media 2">
-                        <div class="card-content">
-                            <h3>แนวคิด 3Rs รักษ์โลก</h3>
-                            <p>lorem lorem lorem lorem lorem ...</p>
-                        </div>
-                    </div>
+                    <% }) %>
+                    <% } else { %>
+                        <p>There are no blogs to display ....</p>
+                    <% } %>
                 </div>
             </div>
 </body>

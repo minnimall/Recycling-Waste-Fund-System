@@ -1,7 +1,13 @@
 const myMedia = require('../models/media')
 
 const mediaIndex = (req, res)=> {
-    res.render('admin/media', { mytitle: 'Admindashboard | Medie' })
+    myMedia.find().sort( {createdAt: -1} )
+    .then((result)=> {
+        res.render('admin/media', { mytitle: 'Admindashboard | Medie', media: result })
+    })
+    .catch((err) => {
+        console.log(err)
+    })
 }
 const mediaPost = (req, res) => {
     const media = new myMedia(req.body)
