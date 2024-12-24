@@ -11,7 +11,7 @@ const methodOverride = require('method-override'); //สำหรับแก้
 const app = express()
 
 //Connect to MongoDB Atlas
-const dbURI = 'mongodb+srv://dullapaht:18072546@cluster0.xyho3qt.mongodb.net/NodeJSDB1?retryWrites=true&w=majority&appName=Cluster0'
+const dbURI = 'mongodb+srv://dullapaht:18072546@cluster0.xyho3qt.mongodb.net/RecyclingWasteFundSystem?retryWrites=true&w=majority&appName=Cluster0'
 
 mongoose.connect(dbURI)
     .then((result) => app.listen(3000))
