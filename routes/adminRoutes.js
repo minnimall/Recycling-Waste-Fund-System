@@ -9,4 +9,10 @@ router.get('/news', adminController.newsIndex)
 
 router.get('/employee', adminController.employeeIndex)
 
+router.get('/wasteType', adminController.wasteTypeIndex)
+
+router.get('/wastePrice', adminController.wastePriceIndex)
+
+router.get('/round', adminController.RoundIndex)
+
 module.exports = router

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/adminPartials/doctype.ejs') %>
+        <title><%= mytitle %></title>
+        <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+    <%- include('../partials/adminPartials/adminHeader.ejs') %>
+
+        <%- include('../partials/adminPartials/adminSidebar.ejs') %>
+            <!-- Main content -->
+            <div class="content">
+                <div class="content-header">
+                    <h1>ประเภทขยะ (2 รายการ)</h1>
+                    <div class="add-media">เพิ่มประเภทขยะ</div>
+                </div>
+                <div class="was-container">
+                    <table class="table-auto">
+                        <thead>
+                            <tr>
+                                <th class="table-was-index">ลำดับ</th>
+                                <th class="table-was-id">รหัสประเภท</th>
+                                <th class="table-was-id">ชื่อประเภท</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="table-was-index">1</td>
+                                <td class="table-was-id">T0001</td>
+                                <td class="table-was-name">พลาสติก</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="was-form">
+                        <form>
+                            <div class="form-head">
+                                <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
+                                <span>รายละเอียดบัญชีผู้ใช้</span>
+                            </div>
+                            <div class="input-group">
+                                <div>รหัสประเภท</div>
+                                <input type="text" placeholder="TXXXX">
+                                <div>ชื่อประเภท</div>
+                                <input type="text" placeholder="โลหะ พลาสติก etc.">
+                                <div class="submit-btn">
+                                    <button type="submit" class="submit">บันทึก</button>
+                                    <button type="button" class="cancel">ยกเลิก</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+</body>
+<%- include('../partials/adminPartials/adminFooter.ejs') %>
+
+</html>

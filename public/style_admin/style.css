@@ -15,6 +15,9 @@
     --card-border: #ddd;
     --btn-submit: #00923f;
     --btn-cancel: #e20000;
+
+    /* form */
+    --form-body: #ddd;
 }
 
 * {
@@ -315,6 +318,7 @@ body {
     border: 1px solid var(--header-bg);
     thead {
       text-align: center;
+      color: var(--white);
       tr {
         background-color: var(--header-bg);
       }
@@ -360,7 +364,7 @@ body {
   }
   .emp-form {
     margin-left: 1em;
-    background-color: var(--card-border);
+    background-color: var(--form-body);
     padding: 1em;
     width: 40%;
     height: max-content;
@@ -411,12 +415,213 @@ body {
           margin: 0.5em .3em;
           padding: .4em 1.3em;
         }
-        .submit {
-          background-color: var(--btn-submit);
-        }
-        .cancel {
-          background-color: var(--btn-cancel);
-        }
+
       }
   }
+  .submit {
+    background-color: var(--btn-submit);
+  }
+  .cancel {
+    background-color: var(--btn-cancel);
+  }
+.was-container {
+  display: flex;
+  table {
+    height: max-content;
+    width: 100%;
+    margin-top: 2rem;
+    border: 1px solid var(--header-bg);
+    thead {
+      text-align: center;
+      color: var(--white);
+      tr {
+        background-color: var(--header-bg);
+      }
+    }
+    tbody {
+      text-align: center;
+      tr {
+        border-bottom: 1px solid var(--card-border);
+        transition: .5s;
+      }
+      tr:hover {
+        background-color: var(--card-border);
+      }
+      tr:active {
+        background-color: #8EDBA4;
+      }
+    }
+    }
+    .table-was-index {
+      width: 5%;
+      padding: 10px;
+    }
+    .table-was-id {
+      width: 15%;
+      padding: 10px;
+    }
+    .table-was-name {
+      width: 35%;
+      padding: 10px;
+    }
 
+    .was-form {
+      margin-left: 1em;
+      background-color: var(--form-body);
+      padding: 1em;
+      width: 40%;
+      .form-head {
+        padding: 1em;
+        align-items: center;
+        justify-content: center;
+        display: flex;
+        .head-logo {
+          font-size: 2em;
+        }
+        span {
+          margin-left: .2em;
+          font-size: 1.7em;
+        }
+      }
+        input {
+          border-radius: 5px;
+          margin: .2em 0;
+          margin-bottom: 1em;
+          width: 100%;
+          padding: .4em 1em;
+        }
+        .password-change {
+          width: 100%;
+          margin: 0.5em 0;
+          padding: .4em 0;
+          background-color: var(--header-bg);
+          color: var(--white);
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+        }
+        .img-input {
+          border-radius: 5px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: var(--white);
+          height: 100px;
+          margin-bottom: 1em;
+        }
+        .submit-btn {
+          display: flex;
+          color: var(--white);
+          .submit,.cancel {
+            border-radius: 5px;
+            margin: 0.5em .3em;
+            padding: .4em 1.3em;
+          }
+  
+        }
+    }
+}
+
+.price-container {
+  display: flex;
+  table {
+    height: max-content;
+    width: 100%;
+    margin-top: 2rem;
+    border: 1px solid var(--header-bg);
+    thead {
+      text-align: center;
+      color: var(--white);
+      tr {
+        background-color: var(--header-bg);
+      }
+    }
+    tbody {
+      text-align: center;
+      tr {
+        border-bottom: 1px solid var(--card-border);
+        transition: .5s;
+      }
+      tr:hover {
+        background-color: var(--card-border);
+      }
+      tr:active {
+        background-color: #8EDBA4;
+      }
+    }
+    }
+    .table-price-index {
+      width: 5%;
+      padding: 10px;
+    }
+    .table-price-id {
+      width: 15%;
+      padding: 10px;
+    }
+    .table-price-name {
+      width: 35%;
+      padding: 10px;
+    }
+    .table-price-price {
+      width: 20%;
+      padding: 10px;
+    }
+    .table-price-amount {
+      width: 10%;
+      padding: 10px;
+    }
+
+    .price-form {
+      margin-left: 1em;
+      background-color: var(--form-body);
+      padding: 1em;
+      width: 40%;
+      .form-head {
+        padding: 1em;
+        align-items: center;
+        justify-content: center;
+        display: flex;
+        .head-logo {
+          font-size: 2em;
+        }
+        span {
+          margin-left: .2em;
+          font-size: 1.7em;
+        }
+      }
+      
+        input {
+          border-radius: 5px;
+          margin: .2em 0;
+          margin-bottom: 1em;
+          width: 100%;
+          padding: .4em 1em;
+        }
+        .img-input {
+          border-radius: 5px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: var(--white);
+          height: 100px;
+          margin-bottom: 1em;
+        }
+        
+        .submit-btn {
+          display: flex;
+          color: var(--white);
+          .submit,.cancel {
+            border-radius: 5px;
+            margin: 0.5em .3em;
+            padding: .4em 1.3em;
+          }
+  
+        }
+    }
+    .select {
+      width: 100%;
+      border-radius: 5px;
+      padding: .4em .6em;
+      margin: 0.5em 0;
+    }
+}

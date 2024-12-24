@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/adminPartials/doctype.ejs') %>
+        <title><%= mytitle %></title>
+        <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+    <%- include('../partials/adminPartials/adminHeader.ejs') %>
+
+        <%- include('../partials/adminPartials/adminSidebar.ejs') %>
+            <!-- Main content -->
+            <div class="content">
+                <div class="content-header">
+                    <h1>สินค้า (2 รายการ)</h1>
+                    <div class="add-media">เพิ่มสินค้า</div>
+                </div>
+                <div class="price-container">
+                    <table class="table-auto">
+                        <thead>
+                            <tr>
+                                <th class="table-price-index">ลำดับ</th>
+                                <th class="table-price-id">รหัสสินค้า</th>
+                                <th class="table-price-name">ชื่อสินค้า</th>
+                                <th class="table-price-price">ราคา</th>
+                                <th class="table-price-amount">จำนวน</th>
+                                <th class="table-price-type">ประเภท</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="table-price-index">1</td>
+                                <td class="table-price-id">PD0001</td>
+                                <td class="table-price-name">ขวดพลาสติก</td>
+                                <td class="table-price-price">20</td>
+                                <td class="table-price-amount">199 กก.</td>
+                                <td class="table-price-type">โลหะ</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="emp-form">
+                        <form>
+                            <div class="form-head">
+                                <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
+                                <span>รายละเอียด</span>
+                            </div>
+                            <div class="input-group">
+                                <div>รหัสสินค้า</div>
+                                <input type="text" value="PD0001" disabled>
+                                <div>ชื่อ</div>
+                                <input type="text" value="ขวดพลาสติก">
+                                <div>ราคาขาย (บาท)</div>
+                                <input type="text" value="20">
+                                <div>ประเภท</div>
+                                <select class="select">
+                                    <option value="">พลาสติก</option>
+                                    <option value="">พลาสติก</option>
+                                    <option value="">พลาสติก</option>
+                                    <option value="">พลาสติก</option>
+                                  </select>
+                                <div>ภาพสินค้า</div>
+                                <div class="img-input">
+                                    <label class="block">
+                                        <span class="sr-only">Choose profile photo</span>
+                                        <input type="file" class="block w-full text-sm text-slate-500
+                                          file:mr-4 file:py-2 file:px-4
+                                          file:rounded-full file:border-0
+                                          file:text-sm file:font-semibold
+                                          file:bg-violet-50 file:text-violet-700
+                                          hover:file:bg-violet-100
+                                        "/>
+                                    </label>
+                                </div>
+                                <div class="submit-btn">
+                                    <button type="submit" class="submit">บันทึก</button>
+                                    <button type="button" class="cancel">ยกเลิก</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+</body>
+<%- include('../partials/adminPartials/adminFooter.ejs') %>
+
+</html>

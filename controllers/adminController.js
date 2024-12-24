@@ -9,8 +9,23 @@ const newsIndex = (req, res)=> {
 const employeeIndex = (req, res)=> {
     res.render('admin/employee', { mytitle: 'Admindashboard | Employee'})
 }
+
+const wasteTypeIndex = (req, res)=> {
+    res.render('admin/wasteType', { mytitle: 'Admindashboard | WasteType'})
+}
+
+const wastePriceIndex = (req, res)=> {
+    res.render('admin/wastePrice', { mytitle: 'Admindashboard | WasteType'})
+}
+
+const RoundIndex = (req, res)=> {
+    res.render('admin/round', { mytitle: 'Admindashboard | Round'})
+}
 module.exports = {
     mediaIndex,
     newsIndex,
-    employeeIndex
+    employeeIndex,
+    wasteTypeIndex,
+    wastePriceIndex,
+    RoundIndex
 }
