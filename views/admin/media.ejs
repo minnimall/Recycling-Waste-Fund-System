@@ -7,13 +7,12 @@
         <link rel="stylesheet" href="style_admin/media.css">
         <script src="https://cdn.tailwindcss.com"></script>
 </head>
-
 <body>
     <%- include('../partials/adminPartials/adminHeader.ejs') %>
 
         <%- include('../partials/adminPartials/adminSidebar.ejs') %>
 
-        <div class="screen">
+        <div class="screen" id="modal">
             <form class="add-media-form" action="/admin/mediaPost" method="POST">
                 <div class="media-form-head">
                     <h1>เพิ่มสื่อเนื้อหา</h1>
@@ -39,7 +38,7 @@
                 </div>
                 <div class="media-form-action">
                     <button type="submit" class="submit">โพส</button>
-                    <button class="cancel">ปิด</button>
+                    <button class="cancel" onclick="closeModal()">ปิด</button>
                 </div>
                 
             </form>
@@ -50,7 +49,7 @@
             <div class="content">
                 <div class="content-header">
                     <h1>สื่อความรู้ (2 รายการ)</h1>
-                    <div class="add-media">เพิ่มสื่อ</div>
+                    <div class="add-media" onclick="openModal()">เพิ่มสื่อ</div>
                 </div>
                 <div class="card-container">
                     <!-- Card 1 -->
@@ -146,5 +145,15 @@
 </body>
 
 <%- include('../partials/adminPartials/adminFooter.ejs') %>
+<script>
+    const modal = document.getElementById('modal');
 
+    function openModal() {
+        modal.style.display = 'block';
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+    }
+</script>
 </html>
