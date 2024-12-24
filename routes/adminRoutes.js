@@ -4,6 +4,7 @@ const adminController = require('../controllers/adminController')
 const router = express.Router()
 
 router.get('/', adminController.mediaIndex)
+router.post('/mediaPost', adminController.mediaPost)
 
 router.get('/news', adminController.newsIndex)
 

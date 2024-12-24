@@ -1,5 +1,18 @@
+const myMedia = require('../models/media')
+
 const mediaIndex = (req, res)=> {
     res.render('admin/media', { mytitle: 'Admindashboard | Medie' })
+}
+const mediaPost = (req, res) => {
+    const media = new myMedia(req.body)
+
+    media.save()
+        .then((result)=> {
+            res.redirect('/admin')
+        })
+        .catch((err)=> {
+            console.log(err)
+        })
 }
 
 const newsIndex = (req, res)=> {
@@ -23,6 +36,7 @@ const RoundIndex = (req, res)=> {
 }
 module.exports = {
     mediaIndex,
+    mediaPost,
     newsIndex,
     employeeIndex,
     wasteTypeIndex,
