@@ -7,4 +7,6 @@ router.get('/', adminController.mediaIndex)
 
 router.get('/news', adminController.newsIndex)
 
+router.get('/employee', adminController.employeeIndex)
+
 module.exports = router

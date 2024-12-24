@@ -13,6 +13,8 @@
 
     /* card */
     --card-border: #ddd;
+    --btn-submit: #00923f;
+    --btn-cancel: #e20000;
 }
 
 * {
@@ -283,3 +285,118 @@ body {
 
     
 }
+
+.emp-container {
+  display: flex;
+  table {
+    height: max-content;
+    width: 100%;
+    margin-top: 2rem;
+    border: 1px solid var(--header-bg);
+    thead {
+      text-align: center;
+      tr {
+        background-color: var(--header-bg);
+      }
+    }
+    tbody {
+      text-align: center;
+      tr {
+        border-bottom: 1px solid var(--card-border);
+        transition: .5s;
+      }
+      tr:hover {
+        background-color: var(--card-border);
+      }
+      tr:active {
+        background-color: #8EDBA4;
+      }
+    }
+    }
+    .table-emp-index {
+      width: 5%;
+      padding: 10px;
+    }
+    .table-emp-id {
+      width: 15%;
+      padding: 10px;
+    }
+    .table-emp-img {
+      width: 5%;
+      img {
+        object-fit: contain;
+        width: 50px;
+        height: 50px;
+      }
+    }
+    .table-emp-name {
+      width: 35%;
+      padding: 10px;
+    }
+    .table-emp-tel {
+      width: 20%;
+      padding: 10px;
+    }
+  }
+  .emp-form {
+    margin-left: 1em;
+    background-color: var(--card-border);
+    padding: 1em;
+    width: 40%;
+    height: max-content;
+    .form-head {
+      padding: 1em;
+      align-items: center;
+      justify-content: center;
+      display: flex;
+      .head-logo {
+        font-size: 2em;
+      }
+      span {
+        margin-left: .2em;
+        font-size: 1.7em;
+      }
+    }
+      input {
+        border-radius: 5px;
+        margin: .2em 0;
+        margin-bottom: 1em;
+        width: 100%;
+        padding: .4em 1em;
+      }
+      .password-change {
+        width: 100%;
+        margin: 0.5em 0;
+        padding: .4em 0;
+        background-color: var(--header-bg);
+        color: var(--white);
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .img-input {
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--white);
+        height: 100px;
+        margin-bottom: 1em;
+      }
+      .submit-btn {
+        display: flex;
+        color: var(--white);
+        .submit,.cancel {
+          border-radius: 5px;
+          margin: 0.5em .3em;
+          padding: .4em 1.3em;
+        }
+        .submit {
+          background-color: var(--btn-submit);
+        }
+        .cancel {
+          background-color: var(--btn-cancel);
+        }
+      }
+  }
+

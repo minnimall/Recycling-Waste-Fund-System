@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/adminPartials/doctype.ejs') %>
+        <title><%= mytitle %></title>
+        <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+    <%- include('../partials/adminPartials/adminHeader.ejs') %>
+
+        <%- include('../partials/adminPartials/adminSidebar.ejs') %>
+            <!-- Main content -->
+            <div class="content">
+                <div class="content-header">
+                    <h1>พนักงาน (2 รายการ)</h1>
+                    <div class="add-media">เพิ่มพนักงาน</div>
+                </div>
+                <div class="emp-container">
+                    <table class="table-auto">
+                        <thead>
+                            <tr>
+                                <th class="table-emp-index">ลำดับ</th>
+                                <th class="table-emp-id">รหัสพนักงาน</th>
+                                <th class="table-emp-img">รูป</th>
+                                <th class="table-emp-name">ชื่อ-สกุล</th>
+                                <th class="table-emp-email">อีเมล</th>
+                                <th class="table-emp-tel">เบอร์โทร</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="table-emp-index">1</td>
+                                <td class="table-emp-id">65333333</td>
+                                <td class="table-emp-img"><img src="../img/admin/logo.png" alt="../img/admin/logo.png"></td>
+                                <td class="table-emp-name">Johnny walker</td>
+                                <td class="table-emp-email">Johnny@mail.com</td>
+                                <td class="table-emp-tel">094333333</td>
+                            </tr>
+                            <tr>
+                                <td class="table-emp-index">1</td>
+                                <td class="table-emp-id">65333333</td>
+                                <td class="table-emp-img"><img src="../img/admin/logo.png" alt="../img/admin/logo.png"></td>
+                                <td class="table-emp-name">Johnny walker</td>
+                                <td class="table-emp-email">Johnny@mail.com</td>
+                                <td class="table-emp-tel">094333333</td>
+                            </tr>
+                            <tr>
+                                <td class="table-emp-index">1</td>
+                                <td class="table-emp-id">65333333</td>
+                                <td class="table-emp-img"><img src="../img/admin/logo.png" alt="../img/admin/logo.png"></td>
+                                <td class="table-emp-name">Johnny walker</td>
+                                <td class="table-emp-email">Johnny@mail.com</td>
+                                <td class="table-emp-tel">094333333</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="emp-form">
+                        <form>
+                            <div class="form-head">
+                                <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
+                                <span>รายละเอียดบัญชีผู้ใช้</span>
+                            </div>
+                            <div class="input-group">
+                                <div>อีเมล</div>
+                                <input type="text" placeholder="emp@mail.com">
+                                <button class="password-change">เปลี่ยนรหัสผ่าน</button>
+                                <div>รหัสพนักงาน</div>
+                                <input type="text" placeholder="6533XXX-6">
+                                <div>ชื่อ</div>
+                                <input type="text" placeholder="Anny Walker">
+                                <div>เบอร์โทร</div>
+                                <input type="text" placeholder="094-XXXXXXX">
+                                <div>รูป</div>
+                                <div class="img-input">
+                                    <label class="block">
+                                        <span class="sr-only">Choose profile photo</span>
+                                        <input type="file" class="block w-full text-sm text-slate-500
+                                          file:mr-4 file:py-2 file:px-4
+                                          file:rounded-full file:border-0
+                                          file:text-sm file:font-semibold
+                                          file:bg-violet-50 file:text-violet-700
+                                          hover:file:bg-violet-100
+                                        "/>
+                                    </label>
+                                </div>
+                                <div class="submit-btn">
+                                    <button type="submit" class="submit">บันทึก</button>
+                                    <button type="button" class="cancel">ยกเลิก</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+</body>
+<%- include('../partials/adminPartials/adminFooter.ejs') %>
+
+</html>
