@@ -80,6 +80,11 @@ ul li a{
     text-align: center; /* จัดข้อความให้อยู่กลาง */
     background-color: #f8f9fa; /* เปลี่ยนสีพื้นหลัง */
 }
+.card:hover{
+    transform: scale(1.02);
+    transition: 0.5s;
+    box-shadow: 1px 5px 5px rgb(212, 212, 212);
+}
 
 /* ส่วนของ footer */
 footer{

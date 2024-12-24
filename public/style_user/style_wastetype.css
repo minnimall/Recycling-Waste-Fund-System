@@ -85,6 +85,14 @@ ul li a{
     max-width: 150px;
     height: auto;
 }
+.card:hover{
+    transform: scale(1.02);
+    transition: 0.5s;
+    box-shadow: 1px 5px 5px rgb(212, 212, 212);
+}
+
+
+
 /* ส่วนของ footer */
 footer{
     background-color: #f1f8e9;
