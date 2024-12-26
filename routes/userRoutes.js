@@ -7,4 +7,8 @@ router.get('/', userController.user_index)
 
 router.get('/wastetype', userController.user_wastetype)
 
+router.get('/knowledge', userController.user_knowledge)
+
+router.get('/saleHistory', userController.user_saleHistory)
+
 module.exports = router

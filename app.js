@@ -42,15 +42,12 @@ app.use(morgan('dev'))
 
 //ทำการรอรับ get request จาก Browser 
 app.get('/', (req, res) => {
-    res.redirect('/main');
+    res.redirect('/user');
 });
 
-app.use('/main', userRouter);
+app.use('/user', userRouter);
 app.use('/blogs',blogRoutes);
 app.use('/admin',adminRoutes);
-
-// Add direct route for wastetype
-app.get('/wastetype', userRouter);
 
 app.use((req,res) => {
     //res.status(404).sendFile('./blog/404.html', {root: __dirname})

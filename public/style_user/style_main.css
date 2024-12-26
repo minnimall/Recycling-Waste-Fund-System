@@ -8,6 +8,16 @@
     scroll-behavior: smooth;
 }
 
+html, body {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* เนื้อหาเว็บไซต์ */
+.content {
+    flex: 1; /* ให้พื้นที่นี้ยืดหยุ่นได้ */
+}
 /* ส่วน navbar */
 ul{
     list-style-type: none;
@@ -87,8 +97,11 @@ ul li a{
 }
 
 /* ส่วนของ footer */
-footer{
+footer {
     background-color: #f1f8e9;
+    text-align: center;
+    padding: 10px 0;
+    margin-top: 60px;
 }
 .cp{
     text-align: center;

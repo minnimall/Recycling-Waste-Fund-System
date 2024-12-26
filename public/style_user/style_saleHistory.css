@@ -80,6 +80,9 @@ ul li a{
 .title{
     font-size: 2rem;
 }
+.title-sale{
+    font-size: 1.3rem;
+}
 .show-time{
     border: 3px solid #33691e;
     padding: 10px 20px;
@@ -91,9 +94,9 @@ ul li a{
     text-align: center; /* จัดข้อความให้อยู่กลาง */
     background-color: #f8f9fa; /* เปลี่ยนสีพื้นหลัง */
 }
-.recycle {
+.money {
     width: 50vw;
-    max-width: 150px;
+    max-width: 100px;
     height: auto;
 }
 .card:hover{
@@ -101,6 +104,26 @@ ul li a{
     transition: 0.5s;
     box-shadow: 1px 5px 5px rgb(212, 212, 212);
 }
+.money{
+    margin-right: 40px;
+}
+.total-money{
+    border-radius: 10px;
+    background-color: #f1f8e9;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+table th, table td {
+    border: 1px solid rgb(212, 212, 212);
+    padding: 8px;
+    text-align: center;
+}
+thead {
+    background-color: #81ce9b;
+}
+
 
 
 /* ส่วนของ footer */
