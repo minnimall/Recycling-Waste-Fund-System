@@ -95,18 +95,6 @@ ul li a{
     transition: 0.5s;
     box-shadow: 1px 5px 5px rgb(212, 212, 212);
 }
-.title-waste{
-    background-color: rgb(130, 185, 130);
-    padding: 0px 10px;
-}
-.price-waste{
-    background-color: rgb(226, 255, 226);
-    padding: 0px 10px;
-}
-.img-allnews{
-    width: 200px;
-    height: auto;
-}
 
 /* ส่วนของ footer */
 footer {

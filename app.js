@@ -49,6 +49,10 @@ app.use('/user', userRouter);
 app.use('/blogs',blogRoutes);
 app.use('/admin',adminRoutes);
 
+app.get('/login', (req, res) => {
+    res.render('login');
+});
+
 app.use((req,res) => {
     //res.status(404).sendFile('./blog/404.html', {root: __dirname})
     res.status(404).render('404', { mytitle: '404'})
