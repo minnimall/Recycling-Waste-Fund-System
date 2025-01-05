@@ -1,22 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400&display=swap');
 *{
-    margin: 0;
-    padding: 0;
     box-sizing: border-box;
+	font-family: 'Prompt', sans-serif;
+}
+body {
+    margin: 0;
     font-family: 'Prompt', sans-serif;
-    color: black;
-    scroll-behavior: smooth;
-}
-
-html, body {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-/* เนื้อหาเว็บไซต์ */
-.content {
-    flex: 1; /* ให้พื้นที่นี้ยืดหยุ่นได้ */
+    background-color: #e8f5ec;
+    height: 100vh;
 }
 /* ส่วน navbar */
 ul{
@@ -25,10 +16,11 @@ ul{
 nav {
     display: flex;
     align-items: center;
-    height: 100px;
+    height: 80px;
     top: 0;
     width: 100%;
-    box-shadow: 5px 5px 10px gray;
+    box-shadow: 3px 3px 10px rgb(173, 173, 173);
+    background-color: #00923f;
 }
 .nav-content {
     display: flex;
@@ -38,7 +30,7 @@ nav {
 }
 nav ul li a:hover{
     /* border-bottom: 3px solid #33691e; */
-    color: #8bc34a;
+    color: #cae6ac;
     transition: 0.3s;
 }
 nav ul li a{
@@ -55,46 +47,92 @@ li a{
 }
 ul li a{
     margin-left: 30px;
+    color: white;
 }
 .logo{
     width: 90px;
     height: auto;
 }
-.select a{
-    color: #558b2f;
-    border-bottom: 3px solid #33691e;
-    /* border: 1px solid black;
-    border-radius: 10px;
-    padding: 5px 10px; */
-    
-}
 
-/* ส่วน section */
-.cartoon{
-    width: 400px;
-    max-width: 100%;
-    min-width: 50px;
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
     height: auto;
 }
-.title{
-    font-size: 2rem;
+.login-form {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+    margin-top: 120px;
 }
-.show-time{
-    border: 3px solid #33691e;
-    padding: 10px 20px;
-    border-radius: 10px;
+
+.login-form h1 {
+    margin-bottom: 30px;
+    font-size: 1.5rem;
+    font-weight: bolder;
+    color: #333;
 }
-.col {
-    border: 1px solid #ccc; /* กรอบรอบๆ แต่ละช่อง */
-    padding: 10px; /* เพิ่มช่องว่างภายใน */
-    text-align: center; /* จัดข้อความให้อยู่กลาง */
-    background-color: #f8f9fa; /* เปลี่ยนสีพื้นหลัง */
+
+.input-box {
+    margin-bottom: 20px;
+    text-align: left;
 }
-.card:hover{
-    transform: scale(1.02);
-    transition: 0.5s;
-    box-shadow: 1px 5px 5px rgb(212, 212, 212);
+
+.input-box label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333;
 }
+
+.input-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon i {
+    position: absolute;
+    left: 10px;
+    color: #aaa;
+}
+
+.input-icon input {
+    width: 100%;
+    padding: 10px 10px 10px 35px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.input-icon input:focus {
+    outline: none;
+    border-color: #c6e0d2;
+    box-shadow: 0 0 5px rgba(96, 158, 123, 0.5);
+}
+.btnn {
+    width: 100%;
+    padding: 10px;
+    background-color: #00923f;
+    border: none;
+    color: white;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.btnn:hover {
+    background-color: #007c32;
+}
+.icon-green {
+    color: green;
+}
+
 
 /* ส่วนของ footer */
 footer {
