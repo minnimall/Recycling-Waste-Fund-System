@@ -5,10 +5,19 @@ const mongoose = require('mongoose')
 const blogRoutes = require('./routes/blogRoutes')
 const userRouter = require('./routes/userRoutes')
 const adminRoutes = require('./routes/adminRoutes')
+const bcrypt = require('bcryptjs');
+const session = require('express-session');
+const bodyParser = require('body-parser'); // เพิ่มการนำเข้า body-parser
+const Admin = require('./models/admin')
+
 const methodOverride = require('method-override'); //สำหรับแก้ไขข้อมูล
 
 //ทำการเรียก module หรือ function "express" ขึ้นมาทำงานและสร้าง
 const app = express()
+
+// ตั้งค่า middleware
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 //Connect to MongoDB Atlas
 const dbURI = 'mongodb+srv://dullapaht:18072546@cluster0.xyho3qt.mongodb.net/RecyclingWasteFundSystem?retryWrites=true&w=majority&appName=Cluster0'
@@ -40,6 +49,30 @@ app.use(methodOverride('_method'));
 //เรียกใช้ middleware "morgan"
 app.use(morgan('dev'))
 
+app.use(session({
+    secret: 'your_secret_key',
+    resave: false,
+    saveUninitialized: true
+}));
+
+// Middleware ตรวจสอบการเข้าสู่ระบบ
+const checkAuth = (req, res, next) => {
+    if (req.session.username) {
+        next();
+    } else {
+        res.redirect('/login'); // ถ้า session ไม่มี
+    }
+};
+
+// ตรวจสอบว่าเป็น admin หรือไม่
+const checkAdmin = (req, res, next) => {
+    if (req.session.role === 'admin') { // ตรวจสอบ role ของผู้ใช้
+        next(); // อนุญาตให้เข้าถึงหากเป็น admin
+    } else {
+        res.redirect('/user');
+    }
+}
+
 //ทำการรอรับ get request จาก Browser 
 app.get('/', (req, res) => {
     res.redirect('/user');
@@ -47,11 +80,89 @@ app.get('/', (req, res) => {
 
 app.use('/user', userRouter);
 app.use('/blogs',blogRoutes);
-app.use('/admin',adminRoutes);
 
+// เพิ่ม middleware checkAdmin สำหรับเส้นทาง /admin
+app.use('/admin', checkAdmin, adminRoutes);
+
+//เส้นทางไปหน้า login
 app.get('/login', (req, res) => {
     res.render('login');
 });
+
+//เส้นทางไปหน้า register
+app.get('/register', (req, res) => {
+    res.render('register');
+});
+
+//บันทึกการ register
+app.post('/register', async (req, res) => {
+    const { username, password, confirmPassword, tel, email } = req.body;
+
+    try {
+        // ตรวจสอบว่ารหัสผ่านและยืนยันรหัสผ่านตรงกันหรือไม่
+        if (password !== confirmPassword) {
+            return res.redirect('/register?error=รหัสผ่านและยืนยันรหัสผ่านไม่ตรงกัน');
+        }
+
+        // ตรวจสอบว่ามีผู้ใช้งานในระบบแล้วหรือไม่
+        let user = await Admin.findOne({ username });
+        if (user) {
+            return res.redirect('/register?error=ผู้ใช้นี้มีอยู่แล้ว');
+        }
+
+        // แฮชรหัสผ่าน
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // สร้างผู้ใช้งานใหม่
+        user = new Admin({
+            username,
+            password: hashedPassword,
+            tel,
+            email,
+            role: 'admin' // กำหนด role เป็น 'admin'
+        });
+
+        await user.save();
+        res.redirect('/login');
+        
+    } catch (err) {
+        console.error('Registration error:', err);
+        res.redirect('/register?error=เกิดข้อผิดพลาดในระบบ');
+    }
+});
+
+//รับค่าจากการ login
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+
+    try {
+        const user = await Admin.findOne({ username });
+        if (!user) {
+            return res.redirect('/login?error=ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
+        }
+
+        // เปรียบเทียบรหัสผ่านที่ผู้ใช้กรอกกับแฮชในฐานข้อมูล
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.redirect('/login?error=ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
+        }
+
+        // ตั้งค่า session
+        req.session.username = user.username;
+        req.session.role = user.role;
+
+        if (user.role === 'admin') {
+            res.redirect('/admin');
+        } else {
+            res.status(403).render('error', { errorMessage: 'กรุณาตรวจสอบสิทธิ์ของคุณ หรือกลับไปที่หน้า Login' });
+        }
+    } catch (err) {
+        console.error('Login error:', err);
+        res.status(500).send('เกิดข้อผิดพลาด');
+    }
+});
+
 
 app.use((req,res) => {
     //res.status(404).sendFile('./blog/404.html', {root: __dirname})

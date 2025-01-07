@@ -28,32 +28,61 @@
     </nav>
     <div class="container">
         <div class="login-form">
-            <form action="">
+            <form action="/login" method="POST">
                 <h1>
-                    <i class="fa fa-recycle icon-green"></i> 
-                    เข้าสู่ระบบกองทุนขยะรีไซเคิล
+                    <i class="fa fa-recycle icon-green"></i> เข้าสู่ระบบกองทุนขยะรีไซเคิล
                 </h1>
                 <div class="input-box">
                     <label>ชื่อผู้ใช้งาน</label>
                     <div class="input-icon">
                         <i class="fa fa-user"></i>
-                        <input type="text" name="name" placeholder=" ชื่อผู้ใช้งาน" required>
+                        <input type="text" name="username" placeholder=" ชื่อผู้ใช้งาน" required>
                     </div>
                 </div>
                 <div class="input-box">
                     <label>รหัสผ่าน</label>
-                    <div class="input-icon">
-                        <i class="fa fa-lock"></i>
-                        <input type="password" name="password" placeholder=" รหัสผ่าน" required>
+                    <div class="input-group">
+                        <input type="password" id="password" name="password" placeholder="รหัสผ่าน" required>
+                        <button type="button" id="togglePassword1" class="btn btn-outline-secondary">
+                            <i class="fa fa-eye"></i>
+                        </button>
                     </div>
                 </div>
                 <div class="d-flex justify-content-end">
                     <a href=""><p class="forgot-pass text-end text-primary fw-bold">ลืมรหัสผ่าน</p></a>
                 </div>
                 <button type="submit" class="btnn">เข้าสู่ระบบ</button>
+                <hr class="mt-3">
+                <div class="mt-3 d-flex justify-content-center">
+                    <a class="create-account" href="/register"><p class="forgot-pass text-end fw-bold">-- สร้างบัญชีใหม่ --</p></a>
+                </div>
             </form>
         </div>
     </div>
-    
+
+    <script>
+        // สำหรับช่องรหัสผ่าน
+        const togglePassword1 = document.querySelector("#togglePassword1");
+        const passwordInput = document.querySelector("#password");
+
+        togglePassword1.addEventListener("click", () => {
+            const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+            passwordInput.setAttribute("type", type);
+            togglePassword1.innerHTML = type === "password" 
+                ? '<i class="fa fa-eye"></i>' 
+                : '<i class="fa fa-eye-slash"></i>';
+        });
+    </script>
+
+<script>
+    // ตรวจสอบ query string ว่ามี error หรือไม่
+    const urlParams = new URLSearchParams(window.location.search);
+    const error = urlParams.get('error');
+
+    // หากมี error ให้แสดง alert
+    if (error) {
+        alert(error);
+    }
+</script>
 </body>
 </html>

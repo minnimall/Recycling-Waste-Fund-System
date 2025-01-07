@@ -65,11 +65,12 @@ ul li a{
     background: white;
     padding: 30px;
     border-radius: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 600px;
     text-align: center;
-    margin-top: 120px;
+    margin-top: 100px;
 }
 
 .login-form h1 {
@@ -111,11 +112,13 @@ ul li a{
     font-size: 1rem;
 }
 
-.input-icon input:focus {
+.input-icon input:focus,
+.input-group input:focus {
     outline: none;
     border-color: #c6e0d2;
     box-shadow: 0 0 5px rgba(96, 158, 123, 0.5);
 }
+
 .btnn {
     width: 100%;
     padding: 10px;
@@ -133,6 +136,44 @@ ul li a{
     color: green;
 }
 
+/* ให้ icon ตาอยู่ในช่อง input */
+.input-group {
+    display: flex;
+    align-items: center; /* จัดให้อยู่ในแนวเดียวกัน */
+    border: 1px solid #ced4da; /* ใช้ขอบเดียวกันกับ input */
+    border-radius: 4px; /* มุมโค้งเหมือน input */
+    overflow: hidden; /* ตัดส่วนที่เกิน */
+}
+
+.input-group input {
+    flex: 1; /* ให้ input กินพื้นที่ที่เหลือ */
+    border: none; /* เอาขอบของ input ออก */
+    padding: 0.5rem; /* เพิ่มช่องว่างใน input */
+}
+
+.input-group button {
+    background: #f8f9fa; /* สีพื้นหลังของปุ่ม */
+    border: none; /* เอาขอบของปุ่มออก */
+    padding: 0.5rem; /* เพิ่มช่องว่างในปุ่ม */
+    cursor: pointer;
+}
+
+.input-group button:hover {
+    background: #e9ecef; /* เปลี่ยนสีปุ่มเมื่อ hover */
+}
+
+.input-group button i {
+    font-size: 1rem; /* ขนาดไอคอน */
+    color: #6c757d; /* สีของไอคอน */
+}
+
+.have-account{
+    margin-right: 10px;
+}
+.create-account {
+    color: #33691e;
+    text-decoration: none;
+}
 
 /* ส่วนของ footer */
 footer {

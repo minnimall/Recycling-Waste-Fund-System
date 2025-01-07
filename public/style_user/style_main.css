@@ -108,6 +108,7 @@ ul li a{
     height: auto;
 }
 
+
 /* ส่วนของ footer */
 footer {
     background-color: #f1f8e9;
@@ -118,3 +119,34 @@ footer {
 .cp{
     text-align: center;
 }
+
+
+/* Default .carousel-inner img rule for larger screens */
+.carousel-inner img {
+    width: 100%;
+    height: 550px; /* Default height */
+    object-fit: cover;
+}
+
+/* Media query for tablet-sized devices */
+@media (max-width: 1024px) {
+    .carousel-inner img {
+        height: 500px; /* Adjusted height for tablets */
+    }
+}
+
+/* Media query for small tablets or large phones */
+@media (max-width: 768px) {
+    .carousel-inner img {
+        height: 400px; /* Adjusted height for smaller tablets */
+    }
+}
+
+/* Media query for mobile devices */
+@media (max-width: 480px) {
+    .carousel-inner img {
+        height: 250px; /* Adjusted height for mobile */
+    }
+}
+
+
