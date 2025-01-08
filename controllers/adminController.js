@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const myMedia = require('../models/media');
+const MyAdmin = require('../models/admin');
 const path = require('path');
 
 
@@ -60,8 +61,15 @@ const newsIndex = (req, res)=> {
     res.render('admin/news', { mytitle: 'Admindashboard | News'})
 }
 
+//หน้า employee
 const employeeIndex = (req, res)=> {
-    res.render('admin/employee', { mytitle: 'Admindashboard | Employee'})
+    MyAdmin.find().sort({ createdAt: 1 })
+    .then((result) => {
+        res.render('admin/employee', { mytitle: 'Admindashboard | Employee', emp: result });
+    })
+    .catch((err) => {
+        console.log(err);
+    });
 }
 
 const wasteTypeIndex = (req, res)=> {

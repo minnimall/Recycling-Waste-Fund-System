@@ -94,9 +94,8 @@ app.get('/register', (req, res) => {
     res.render('register');
 });
 
-//บันทึกการ register
 app.post('/register', async (req, res) => {
-    const { username, password, confirmPassword, tel, email } = req.body;
+    const { username, password, confirmPassword, tel, email, role } = req.body;
 
     try {
         // ตรวจสอบว่ารหัสผ่านและยืนยันรหัสผ่านตรงกันหรือไม่
@@ -114,17 +113,22 @@ app.post('/register', async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
+        // กำหนดค่า role (admin หรือ employee) จากฟอร์มที่เลือก
+        if (role !== 'admin' && role !== 'employee') {
+            return res.redirect('/register?error=บทบาทไม่ถูกต้อง');
+        }
+
         // สร้างผู้ใช้งานใหม่
         user = new Admin({
             username,
             password: hashedPassword,
             tel,
             email,
-            role: 'admin' // กำหนด role เป็น 'admin'
+            role,
         });
 
         await user.save();
-        res.redirect('/login');
+        res.redirect('/admin');
         
     } catch (err) {
         console.error('Registration error:', err);
@@ -152,10 +156,11 @@ app.post('/login', async (req, res) => {
         req.session.username = user.username;
         req.session.role = user.role;
 
+        // ทำการ redirect ไปยังหน้า admin หรือ employee ตาม role ของผู้ใช้
         if (user.role === 'admin') {
             res.redirect('/admin');
-        } else {
-            res.status(403).render('error', { errorMessage: 'กรุณาตรวจสอบสิทธิ์ของคุณ หรือกลับไปที่หน้า Login' });
+        } else if (user.role === 'employee') {
+            res.redirect('/employee');
         }
     } catch (err) {
         console.error('Login error:', err);
@@ -165,17 +170,13 @@ app.post('/login', async (req, res) => {
 
 // Route สำหรับ Logout
 app.get('/logout', (req, res) => {
-    req.session.destroy((err) => { // หากคุณใช้ session
+    req.session.destroy((err) => {
         if (err) {
-            console.error('Error during logout:', err);
-            return res.status(500).send('เกิดข้อผิดพลาดในการออกจากระบบ');
+            return res.status(500).send('Error destroying session');
         }
-
-        // Redirect ไปยังหน้า login หลังจาก logout
         res.redirect('/user');
     });
 });
-
 
 app.use((req,res) => {
     //res.status(404).sendFile('./blog/404.html', {root: __dirname})
