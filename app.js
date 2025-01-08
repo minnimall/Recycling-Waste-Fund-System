@@ -163,6 +163,19 @@ app.post('/login', async (req, res) => {
     }
 });
 
+// Route สำหรับ Logout
+app.get('/logout', (req, res) => {
+    req.session.destroy((err) => { // หากคุณใช้ session
+        if (err) {
+            console.error('Error during logout:', err);
+            return res.status(500).send('เกิดข้อผิดพลาดในการออกจากระบบ');
+        }
+
+        // Redirect ไปยังหน้า login หลังจาก logout
+        res.redirect('/user');
+    });
+});
+
 
 app.use((req,res) => {
     //res.status(404).sendFile('./blog/404.html', {root: __dirname})

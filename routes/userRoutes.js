@@ -11,4 +11,6 @@ router.get('/knowledge', userController.user_knowledge)
 
 router.get('/saleHistory', userController.user_saleHistory)
 
+router.get('/contact', userController.user_contact)
+
 module.exports = router

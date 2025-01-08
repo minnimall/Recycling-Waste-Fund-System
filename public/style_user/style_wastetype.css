@@ -93,7 +93,7 @@ ul li a{
 }
 .recycle {
     width: 50vw;
-    max-width: 150px;
+    max-width: 100px;
     height: auto;
 }
 .card:hover{
@@ -101,7 +101,9 @@ ul li a{
     transition: 0.5s;
     box-shadow: 1px 5px 5px rgb(212, 212, 212);
 }
-
+.icon-green{
+    color: #33691e;
+}
 
 /* ส่วนของ footer */
 footer {

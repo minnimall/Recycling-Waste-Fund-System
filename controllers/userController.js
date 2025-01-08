@@ -18,10 +18,16 @@ const user_saleHistory = (req, res)=> {
     res.render('user/saleHistory')
 }
 
+// user_contact
+const user_contact = (req, res)=> {
+    res.render('user/contact')
+}
+
 // exports เพื่อให้ไฟล์อื่นสามารถเรียกใช้งานได้
 module.exports = {
     user_index,
     user_wastetype,
     user_knowledge,
-    user_saleHistory
+    user_saleHistory,
+    user_contact
 }
