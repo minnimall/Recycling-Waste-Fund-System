@@ -161,6 +161,8 @@ app.post('/login', async (req, res) => {
             res.redirect('/admin');
         } else if (user.role === 'employee') {
             res.redirect('/employee');
+        }else{
+            res.status(403).render('error', { errorMessage: 'กรุณาตรวจสอบสิทธิ์ของคุณ หรือกลับไปที่หน้า Login' });
         }
     } catch (err) {
         console.error('Login error:', err);
