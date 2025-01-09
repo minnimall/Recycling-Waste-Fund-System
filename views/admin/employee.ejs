@@ -4,7 +4,7 @@
 <head>
     <%- include('../partials/adminPartials/doctype.ejs') %>
         <title><%= mytitle %></title>
-        <link rel="stylesheet" href="style_admin/employee.css">
+        <link rel="stylesheet" href="/style_admin/employee.css">
         <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
@@ -80,6 +80,7 @@
                                 <!-- Role -->
                                 <label>บทบาท</label>
                                 <select name="role" required>
+                                    <option value="" disabled selected>เลือกบทบาท</option>
                                     <option value="admin">Admin</option>
                                     <option value="employee">Employee</option>
                                 </select>
@@ -87,7 +88,6 @@
                                 <!-- Submit and Cancel Buttons -->
                                 <div class="submit-btn">
                                     <button type="submit" class="submit">บันทึก</button>
-                                    <button type="button" class="cancel">ยกเลิก</button>
                                 </div>
                             </div>
                         </form>

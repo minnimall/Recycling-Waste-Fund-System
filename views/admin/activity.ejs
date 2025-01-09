@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/adminPartials/doctype.ejs') %>
+        <title><%= mytitle %></title>
+        <link rel="stylesheet" href="/style_admin/activity.css">
+        <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+    <%- include('../partials/adminPartials/adminHeader.ejs') %>
+
+        <%- include('../partials/adminPartials/adminSidebar.ejs') %>
+            <!-- Main content -->
+            <div class="screen" id="modal">
+                <form class="add-media-form" action="/admin/activityPost" method="POST" enctype="multipart/form-data">
+                    <div class="media-form-head">
+                        <h1>เพิ่มกิจกรรม</h1>
+                    </div>
+                    <div class="media-form-content">
+                        <div>ชื่อหัวข้อ</div>
+                        <input type="text" name="title" placeholder="ใส่ชื่อหัวข้อ ...">
+                        <div>เนื้อหา</div>
+                        <textarea type="text" name="content" placeholder="ใส่เนื้อหา ..."></textarea>
+                        <div>รูปภาพกิจกรรม</div>
+                        <div class="img-input">
+                            <label class="block">
+                                <span class="sr-only">Choose profile photo</span>
+                                <input type="file" name="img" accept="image/png, image/gif, image/jpeg" class="block w-full text-sm text-slate-500
+                                    file:mr-4 file:py-2 file:px-4
+                                    file:rounded-full file:border-0
+                                    file:text-sm file:font-semibold
+                                    file:bg-violet-50 file:text-violet-700
+                                    hover:file:bg-violet-100
+                                "/>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="media-form-action">
+                        <button type="submit" class="submit">โพส</button>
+                        <span class="cancel" onclick="closeModal()">ปิด</span>
+                    </div>
+                    
+                </form>
+            </div>
+                
+    
+            <!-- Main content -->
+            <div class="content">
+                <div class="content-header">
+                    <h1>กิจกรรม</h1>
+                    <div class="add-media" onclick="openModal()">เพิ่มกิจกรรม</div>
+                </div>
+                <div class="card-container">
+                    <% if (activity.length>0) {  %>
+                        <% activity.forEach(act => { %>
+                        <div class="card">
+                            <img src="<%= act.img %>" alt="รูปภาพกิจกรรม">
+                            <div class="card-content">
+                                <h3><%= act.title %></h3>
+                            </div>
+                        </div>
+                    <% }) %>
+                    <% } else { %>
+                        <p>There are no Activity    to display ....</p>
+                    <% } %>
+            </div>
+        </div>
+</body>
+<%- include('../partials/adminPartials/adminFooter.ejs') %>
+<script>
+    const modal = document.getElementById('modal');
+
+    function openModal() {
+        modal.style.display = 'block';
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+    }
+</script>
+</html>

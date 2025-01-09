@@ -14,7 +14,7 @@
             <!-- Main content -->
             <div class="content">
                 <div class="content-header">
-                    <h1>ประเภทขยะ (2 รายการ)</h1>
+                    <h1>ประเภทขยะ (<%= wastetype.length %> รายการ)</h1>
                     <div class="add-media">เพิ่มประเภทขยะ</div>
                 </div>
                 <div class="was-container">
@@ -37,7 +37,7 @@
                                 <% }) %>
                             <% } else { %>
                                 <tr>
-                                    <td colspan="6">ไม่พบข้อมูลพนักงาน</td>
+                                    <td colspan="6">ไม่พบข้อมูลประเภทขยะ</td>
                                 </tr>
                             <% } %>
                         </tbody>
@@ -55,15 +55,13 @@
                                 <label for="wasteTypeName">ชื่อประเภท</label>
                                 <input type="text" name="wasteTypeName" id="wasteTypeName" placeholder="โลหะ พลาสติก etc." required>
                                 
-                                <div class="submit-btn">
+                                <div class="submit-btn flex justify-end">
                                     <button type="submit" class="submit">บันทึก</button>
-                                    <button type="button" class="cancel" onclick="closeMenu()">ยกเลิก</button>
                                 </div>
                             </div>
                         </form>
                     </div>
                 </div>
-
             </div>
 </body>
 <%- include('../partials/adminPartials/adminFooter.ejs') %>

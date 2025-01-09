@@ -1,82 +1,67 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 
 <head>
     <%- include('../partials/adminPartials/doctype.ejs') %>
-        <title><%= mytitle %></title>
-        <link rel="stylesheet" href="style_admin/media.css">
-        <script src="https://cdn.tailwindcss.com"></script>
+    <title><%= mytitle %></title>
+    <link rel="stylesheet" href="style_admin/media.css">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body>
     <%- include('../partials/adminPartials/adminHeader.ejs') %>
+    <%- include('../partials/adminPartials/adminSidebar.ejs') %>
 
-        <%- include('../partials/adminPartials/adminSidebar.ejs') %>
-
-        <div class="screen" id="modal">
-            <form class="add-media-form" action="/admin/mediaPost" method="POST" enctype="multipart/form-data">
-                <div class="media-form-head">
-                    <h1>เพิ่มสื่อเนื้อหา</h1>
-                </div>
-                <div class="media-form-content">
-                    <div>ชื่อหัวข้อ</div>
-                    <input type="text" name="title" placeholder="ใส่ชื่อหัวข้อ ...">
-                    <div>เนื้อหา</div>
-                    <textarea type="text" name="content" placeholder="ใส่เนื้อหา ..."></textarea>
-                    <div>เนื้อหา</div>
-                    <div class="img-input">
-                        <label class="block">
-                            <span class="sr-only">Choose profile photo</span>
-                            <input type="file" name="img" accept="image/png, image/gif, image/jpeg" class="block w-full text-sm text-slate-500
-                              file:mr-4 file:py-2 file:px-4
-                              file:rounded-full file:border-0
-                              file:text-sm file:font-semibold
-                              file:bg-violet-50 file:text-violet-700
-                              hover:file:bg-violet-100
-                            "/>
-                        </label>
-                    </div>
-                </div>
-                <div class="media-form-action">
-                    <button type="submit" class="submit">โพส</button>
-                    <span class="cancel" onclick="closeModal()">ปิด</span>
-                </div>
-                
-            </form>
-        </div>
-            
-
-            <!-- Main content -->
-            <div class="content">
-                <div class="content-header">
-                    <h1>สื่อความรู้ (2 รายการ)</h1>
-                    <div class="add-media" onclick="openModal()">เพิ่มสื่อ</div>
-                </div>
-                <div class="card-container">
-                    <!-- Card 1 -->
-                    <!-- <div class="card">
-                        <img src="img/admin/258830905_center.jpg" alt="Media 1">
-                        <div class="card-content">
-                            <h3>แยกขยะให้ถูกถัง ถังให้ถูกสี ติดต่อชุมชน</h3>
-                            <p>lorem lorem lorem lorem lorem ...</p>
-                        </div>
-                    </div> -->
-
-                    <% if (media.length>0) {  %>
-                        <% media.forEach(amedia => { %>
-                    <!-- Card 2 -->
-                    <div class="card">
-                        <img src="<%= amedia.img %>" alt="Media 2">
-                        <div class="card-content">
-                            <h3><%= amedia.title %></h3>
-                            <p><%= amedia.content %></p>
-                        </div>
-                    </div>
-                    <% }) %>
-                    <% } else { %>
-                        <p>There are no media    to display ....</p>
-                    <% } %>
-                </div>
+    <div class="screen" id="modal">
+        <form class="add-media-form" action="/admin/mediaPost" method="POST">
+            <div class="media-form-head">
+                <h1>เพิ่มสื่อเนื้อหา</h1>
             </div>
+            <div class="media-form-content">
+                <div>ชื่อหัวข้อ</div>
+                <input type="text" name="title" placeholder="ใส่ชื่อหัวข้อ ..." required>
+                
+                <div>URL คลิป YouTube</div>
+                <input type="url" name="youtubeUrl" placeholder="ใส่ URL คลิป YouTube ..." required>
+            </div>
+            <div class="media-form-action">
+                <button type="submit" class="submit">โพส</button>
+                <span class="cancel" onclick="closeModal()">ปิด</span>
+            </div>
+        </form>
+    </div>        
+
+    <!-- Main content -->
+    <div class="content">
+        <div class="content-header">
+            <h1>สื่อความรู้ (<%= media.length %> รายการ)</h1>
+            <div class="add-media" onclick="openModal()">เพิ่มสื่อ</div>
+        </div>
+        <div class="card-container">
+            <% if (media.length > 0) { %>
+                <% media.forEach(amedia => { %>
+                <!-- Card -->
+                <div class="card">
+                    <!-- ตรวจสอบว่ามี youtubeUrl แล้วแสดงคลิป -->
+                    <% if (amedia.youtubeUrl) { %>
+                        <div class="video-container">
+                            <iframe width="360" height="315" src="https://www.youtube.com/embed/<%= amedia.youtubeUrl %>" 
+                                frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen></iframe>
+                        </div>
+                    <% } else { %>
+                        <p>No video available</p>
+                    <% } %>
+                    <div class="card-content">
+                        <h3><%= amedia.title %></h3>
+                    </div>
+                </div>
+                <% }) %>
+            <% } else { %>
+                <p>There are no media to display ....</p>
+            <% } %>
+        </div>
+    </div>
 </body>
 
 <%- include('../partials/adminPartials/adminFooter.ejs') %>

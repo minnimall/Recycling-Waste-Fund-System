@@ -10,7 +10,13 @@ router.post('/mediaPost', adminController.mediaPost)
 router.get('/news', adminController.newsIndex)
 router.post('/newsPost', adminController.newsPost)
 
+
+router.get('/activity', adminController.activityIndex)
+router.post('/activityPost', adminController.activityPost)
+
 router.get('/employee', adminController.employeeIndex)
+
+router.get('/waste', adminController.wasteIndex)
 
 // wasteType
 router.get('/wasteType', adminController.wasteTypeIndex)

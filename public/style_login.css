@@ -136,19 +136,6 @@ ul li a{
 .icon-green {
     color: green;
 }
-.btnn2 {
-    width: 100%;
-    padding: 10px;
-    border: 2px solid #00923f;
-    border: none;
-    color: white;
-    font-size: 1rem;
-    border-radius: 5px;
-    cursor: pointer;
-}
-.btnn2:hover {
-    background-color: #007c32;
-}
 
 /* ให้ icon ตาอยู่ในช่อง input */
 .input-group {
@@ -210,23 +197,6 @@ ul li a{
     text-transform: uppercase;
 }
 
-.btn-bordered {
-    display: inline-block;
-    padding: 10px 20px;
-    font-size: 16px;
-    font-weight: bold;
-    text-align: center;
-    text-decoration: none;
-    color: #00bfff;
-    border: 2px solid #00bfff;
-    border-radius: 25px;
-    transition: all 0.3s ease;
-}
-
-.btn-bordered:hover {
-    background-color: #00bfff;
-    color: #fff;
-}
 
 
 /* ส่วนของ footer */

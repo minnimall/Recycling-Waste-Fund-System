@@ -3,7 +3,6 @@
     width: 100%; /* ใช้ความกว้างเต็มพื้นที่ของ container */
     padding: 10px; /* ระยะห่างภายใน */
     font-size: 1rem; /* ขนาดตัวอักษร */
-    border: 1px solid #ccc; /* เส้นกรอบ */
     border-radius: 5px; /* มุมโค้ง */
     box-sizing: border-box; /* รวม padding ในความกว้าง */
 }
@@ -14,11 +13,8 @@
     margin-top: 10px;
 }
 .submit:hover {
-    background-color: #007506; /* สีเมื่อ hover */
-}
-
-.cancel:hover {
-    background-color: #e53935;
+    background-color: #19851e; /* สีเมื่อ hover */
+    transition: 0.5s;
 }
 
 
