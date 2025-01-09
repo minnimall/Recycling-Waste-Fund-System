@@ -3,7 +3,12 @@
 
 <head>
     <%- include('../partials/adminPartials/doctype.ejs') %>
-        <title><%= mytitle %></title>
+        <title>
+            <%= mytitle %>
+        </title>
+        <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+        <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+        <link rel="stylesheet" href="/style_admin/news.css">
 </head>
 
 <body>
@@ -11,10 +16,30 @@
 
         <%- include('../partials/adminPartials/adminSidebar.ejs') %>
             <!-- Main content -->
+            <div class="screen" id="modal">
+                <form class="new-form" action="/admin/newsPost" method="POST"
+                    enctype="application/x-www-form-urlencoded">
+                    <h1>เพิ่มกิจกรรม/ข่าวสาร</h1>
+                    <div class="new-form-content">
+                        <label for="activityTitle">หัวข้อกิจกรรม</label> <br>
+                        <input type="text" name="activityTitle" id="activityTitle" required
+                            placeholder="ระบุหัวข้อกิจกรรม">
+    
+                        <label for="editor">รายละเอียดกิจกรรม</label> <br>
+                        <div id="editor"></div><br><br>
+                        <input type="hidden" name="activityDetails" id="activityDetails">
+                    </div>
+
+                    <div class="new-form-action">
+                        <button class="submit" type="submit">โพสต์กิจกรรม</button>
+                        <span class="cancel" onclick="closeModal()">ปิด</span>
+                    </div>
+                </form>
+            </div>
             <div class="content">
                 <div class="content-header">
                     <h1>การจัดการข่าวสาร (2 รายการ)</h1>
-                    <div class="add-media">เพิ่มสื่อ</div>
+                    <div class="add-media" onclick="openModal()">เพิ่มสื่อ</div>
                 </div>
                 <div class="news-container">
                     <div class="news-header">
@@ -26,70 +51,80 @@
                     </div>
                     <div class="news-content">
 
-                        <!-- card 1 -->
-                        <div class="news-card">
-                            <div class="news-detail">
-                                <h3>Lorem ipsum odor amet</h3>
-                                <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Etiam ex lobortis ullamcorper
-                                    porta integer mattis fusce. Vulputate dolor accumsan arcu himenaeos congue</p>
-                                <div class="news-date">2022-01-01</div>
-                            </div>
-                            <div class="news-action">
-                                <span>Edit</span>
-                                <span>Delete</span>
-                            </div>
-                        </div>
-
-                        <!-- card 1 -->
-                        <div class="news-card">
-                            <div class="news-detail">
-                                <h3>Lorem ipsum odor amet</h3>
-                                <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Etiam ex lobortis ullamcorper
-                                    porta integer mattis fusce. Vulputate dolor accumsan arcu himenaeos congue</p>
-                                <div class="news-date">2022-01-01</div>
-                            </div>
-                            <div class="news-action">
-                                <span>Edit</span>
-                                <span>Delete</span>
-                            </div>
-                        </div>
-
-                        <!-- card 1 -->
-                        <div class="news-card">
-                            <div class="news-detail">
-                                <h3>Lorem ipsum odor amet</h3>
-                                <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Etiam ex lobortis ullamcorper
-                                    porta integer mattis fusce. Vulputate dolor accumsan arcu himenaeos congue</p>
-                                <div class="news-date">2022-01-01</div>
-                            </div>
-                            <div class="news-action">
-                                <span>Edit</span>
-                                <span>Delete</span>
-                            </div>
-                        </div>
-
-                        <!-- card 1 -->
-                        <div class="news-card">
-                            <div class="news-detail">
-                                <h3>Lorem ipsum odor amet</h3>
-                                <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Etiam ex lobortis ullamcorper
-                                    porta integer mattis fusce. Vulputate dolor accumsan arcu himenaeos congue</p>
-                                <div class="news-date">2022-01-01</div>
-                            </div>
-                            <div class="news-action">
-                                <span>Edit</span>
-                                <span>Delete</span>
-                            </div>
-                        </div>
-
+                        <% if (news && news.length > 0) { %>
+                            <% news.forEach((newsItem, index) => { %>
+                                <!-- card 1 -->
+                                <div class="news-card">
+                                    <div class="news-detail">
+                                        <h3><%= newsItem.activityTitle %></h3>
+                                        <p><%= newsItem.activityDetails %></p>
+                                        <div class="news-date"><%= newsItem.updatedAt %></div>
+                                    </div>
+                                    <div class="news-action">
+                                        <span>Edit</span>
+                                        <span>Delete</span>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <p>There are no media to display ....</p>
+                        <% } %>
+                        
+                    
                         <div class="readmore">
                             <button class="read-btn">เพิ่มเติม</button>
                         </div>
-
                     </div>
                 </div>
             </div>
 </body>
 <%- include('../partials/adminPartials/adminFooter.ejs') %>
+    <script>
+        function formatDateToThai(date) {
+            const monthNames = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+                                'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+            const thaiYears = date.getFullYear() + 543;
+            const day = date.getDate();
+            const month = monthNames[date.getMonth()];
+
+            return `${day} ${month} ${thaiYears}`;
+        }
+        var quill = new Quill('#editor', {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, 4, 5] }],
+                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                    [{ 'align': [] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    ['link', 'image'],
+                    [{ 'color': [] }, { 'background': [] }],
+                    ['blockquote', 'code-block']
+                ],
+                history: {
+                    delay: 2000,
+                    maxStack: 500,
+                    userOnly: true
+                },
+            }
+        });
+
+        document.querySelector('form').onsubmit = function () {
+            var activityDetails = document.querySelector('#activityDetails');
+            if (!quill.root.innerHTML.trim()) {
+                alert('กรุณากรอกรายละเอียดกิจกรรม');
+                return false;
+            }
+            activityDetails.value = quill.root.innerHTML;
+        };
+
+        const modal = document.getElementById('modal');
+        function openModal() {
+            modal.style.display = 'block';
+        }
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+    </script>
 
 </html>

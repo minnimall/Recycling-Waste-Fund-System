@@ -8,6 +8,7 @@ router.get('/', adminController.mediaIndex)
 router.post('/mediaPost', adminController.mediaPost)
 
 router.get('/news', adminController.newsIndex)
+router.post('/newsPost', adminController.newsPost)
 
 router.get('/employee', adminController.employeeIndex)
 

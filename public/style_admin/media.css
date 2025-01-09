@@ -40,7 +40,7 @@
     .media-form-action {
         margin-top: 1em;
         text-align: right;
-        button {
+        button,span {
             padding: 5px 20px;
             color: var(--white);
             border: none;

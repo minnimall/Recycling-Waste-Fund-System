@@ -1,0 +1,54 @@
+:root {
+    --input-border: #BBBBBB;
+    --primary-color: #00923f;
+}
+
+.screen {
+    display: none;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.397);
+}
+.new-form {
+    border-radius: 10px;
+    padding: 1.5em;
+    height: max-content;
+    width: 60%;
+    position: absolute;
+    background-color: var(--white);  
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    h1 {
+        font-size: 2em;
+        font-weight: 400;
+    }
+    #activityTitle {
+        font-size: 1.2em;
+        margin: 10px 0;
+        padding: 8px;
+        border-radius: 5px;
+        width: 100%;
+        border: 1px solid var(--input-border);
+    }
+    .new-form-content {
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    .new-form-action {
+        margin-top: 1em;
+        text-align: right;
+        button,span {
+            font-family: kanit;
+            font-size: 1em;
+            padding: 5px 20px;
+            color: var(--white);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+    }
+}
