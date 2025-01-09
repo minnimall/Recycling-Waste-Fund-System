@@ -11,7 +11,10 @@ router.get('/news', adminController.newsIndex)
 
 router.get('/employee', adminController.employeeIndex)
 
+// wasteType
 router.get('/wasteType', adminController.wasteTypeIndex)
+
+router.post('/wasteTypePost', adminController.wasteTypePost)
 
 router.get('/wastePrice', adminController.wastePriceIndex)
 

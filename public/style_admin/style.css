@@ -11,6 +11,8 @@
     --news-content-text: #505050;
     --news-date-text: #B9B9B9;
 
+    /* table */
+    --row-active-color: #8EDBA4;
     /* card */
     --card-border: #ddd;
     --btn-submit: #00923f;
@@ -61,6 +63,7 @@ body {
 
   /* Sidebar */
   .sidebar {
+    font-size: 1.2em;
     width: 15%;
     height: 92.7vh;
     background-color: var(--side-bar-bg);
@@ -135,6 +138,7 @@ body {
       ::-webkit-scrollbar-thumb:hover {
         background: var(--add-medie-hover);
       }
+
   }
   .content-header {
     width: 100%;
@@ -467,6 +471,7 @@ body {
     }
 
     .was-form {
+      /* display: none; */
       margin-left: 1em;
       background-color: var(--form-body);
       padding: 1em;
@@ -547,7 +552,7 @@ body {
         background-color: var(--card-border);
       }
       tr:active {
-        background-color: #8EDBA4;
+        background-color: var(--row-active-color);
       }
     }
     }

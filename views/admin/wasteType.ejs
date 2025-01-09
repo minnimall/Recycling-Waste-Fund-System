@@ -27,27 +27,37 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td class="table-was-index">1</td>
-                                <td class="table-was-id">T0001</td>
-                                <td class="table-was-name">พลาสติก</td>
+                            <% if (wastetype && wastetype.length > 0) { %>
+                                <% wastetype.forEach((wastetypee, index) => { %>
+                            <tr class="was-row-<%= index+1 %> row-active" onclick="setWasteTypeForm('<%= index + 1%>','<%= wastetypee.wasteTypeId %>','<%= wastetypee.wasteTypeName %>')">
+                                <td class="table-was-index"><%= index + 1%></td>
+                                <td class="table-was-id"><%= wastetypee.wasteTypeId %></td>
+                                <td class="table-was-name"><%= wastetypee.wasteTypeName %></td>
                             </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="6">ไม่พบข้อมูลพนักงาน</td>
+                                </tr>
+                            <% } %>
                         </tbody>
                     </table>
-                    <div class="was-form">
-                        <form>
+                    <div class="was-form" id="edit_Form">
+                        <form  action="/admin/wasteTypePost" method="POST" enctype="application/x-www-form-urlencoded">
                             <div class="form-head">
                                 <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
-                                <span>รายละเอียดบัญชีผู้ใช้</span>
-                            </div>
+                                <span>รายละเอียดประเภทขยะ</span>
+                            </div>        
                             <div class="input-group">
-                                <div>รหัสประเภท</div>
-                                <input type="text" placeholder="TXXXX">
-                                <div>ชื่อประเภท</div>
-                                <input type="text" placeholder="โลหะ พลาสติก etc.">
+                                <label for="wasteTypeId">รหัสประเภท</label>
+                                <input type="text" name="wasteTypeId" id="wasteTypeId" placeholder="TXXXX" required>
+                                
+                                <label for="wasteTypeName">ชื่อประเภท</label>
+                                <input type="text" name="wasteTypeName" id="wasteTypeName" placeholder="โลหะ พลาสติก etc." required>
+                                
                                 <div class="submit-btn">
                                     <button type="submit" class="submit">บันทึก</button>
-                                    <button type="button" class="cancel">ยกเลิก</button>
+                                    <button type="button" class="cancel" onclick="closeMenu()">ยกเลิก</button>
                                 </div>
                             </div>
                         </form>
@@ -58,4 +68,33 @@
 </body>
 <%- include('../partials/adminPartials/adminFooter.ejs') %>
 
+<script>
+    let lastClickedRow = null;
+
+    function setWasteTypeForm(Index, Id, Name) {
+
+        const InputWasteTypeId = document.getElementById('wasteTypeId');
+        const InputWasteTypeName = document.getElementById('wasteTypeName');
+
+        const edieForm = document.getElementById('edit_Form');
+
+        InputWasteTypeId.value = Id;
+        InputWasteTypeName.value = Name;       
+        edieForm.style.display = 'block';
+
+        const selectedRow = document.querySelector(`.was-row-${Index}`);
+
+        if (lastClickedRow === selectedRow) {
+            selectedRow.style.backgroundColor = '';
+            
+            lastClickedRow = null;
+        } else {
+            if (lastClickedRow) {
+                lastClickedRow.style.backgroundColor = '';
+            }
+            selectedRow.style.backgroundColor = '#8EDBA4';
+            lastClickedRow = selectedRow;
+        }
+    }
+</script>
 </html>

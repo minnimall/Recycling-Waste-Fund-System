@@ -128,7 +128,7 @@ app.post('/register', async (req, res) => {
         });
 
         await user.save();
-        res.redirect('/admin');
+        res.redirect('/admin/employee');
         
     } catch (err) {
         console.error('Registration error:', err);
