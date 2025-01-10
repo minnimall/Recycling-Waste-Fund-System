@@ -53,12 +53,19 @@
                     <div class="add-media" onclick="openModal()">เพิ่มกิจกรรม</div>
                 </div>
                 <div class="card-container">
+                    
                     <% if (activity.length>0) {  %>
                         <% activity.forEach(act => { %>
                         <div class="card">
                             <img src="<%= act.img %>" alt="รูปภาพกิจกรรม">
                             <div class="card-content">
                                 <h3><%= act.title %></h3>
+                                <div class="flex justify-end">
+                                    <form action="/admin/deleteActivity/<%= act._id %>" method="POST" onsubmit="return confirm('ยืนยันการลบกิจกรรมนี้?')">
+                                        <button type="submit" class="delete-btn">ลบ</button>
+                                    </form>
+                                </div>
+                                
                             </div>
                         </div>
                     <% }) %>

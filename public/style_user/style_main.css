@@ -118,6 +118,10 @@ footer {
 .cp{
     text-align: center;
 }
+.card-title{
+    font-size: 1.1rem;
+    font-weight: bold;
+}
 
 
 /* Default .carousel-inner img rule for larger screens */

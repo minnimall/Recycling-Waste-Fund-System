@@ -25,6 +25,7 @@
                                 <th class="table-was-index">ลำดับ</th>
                                 <th class="table-was-name">ชื่อรายการขยะ</th>
                                 <th class="table-was-price">ราคา (ราคา/กก.)</th>
+                                <th class="table-was-type">ประเภทขยะ</th>
                                 <th class="table-was-img">รูป</th>
                             </tr>
                         </thead>
@@ -51,9 +52,9 @@
                                 <label for="wasteType">ประเภทขยะ</label>
                                 <select name="wasteType" id="wasteType" required>
                                     <option value="" disabled selected>เลือกประเภทขยะ</option>
-                                    <option value="1">โลหะ</option>
-                                    <option value="2">พลาสติก</option>
-                                    <option value="3">กระดาษ</option>
+                                    <% wasteTypes.forEach((type) => { %>
+                                        <option value="<%= type._id %>"><%= type.wasteTypeName %></option> <!-- Assuming wasteType has 'name' field -->
+                                    <% }); %>
                                 </select>
 
                                 <!-- รูปภาพขยะ -->

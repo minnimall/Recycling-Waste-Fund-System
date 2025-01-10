@@ -53,5 +53,19 @@
 
 .card{
     width: 360px;
-    height: 400px;
+    height: 450px;
 }
+.delete-btn {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.delete-btn:hover {
+    background-color: #e11d48;
+}
+

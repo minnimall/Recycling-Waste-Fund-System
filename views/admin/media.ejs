@@ -54,6 +54,12 @@
                     <% } %>
                     <div class="card-content">
                         <h3><%= amedia.title %></h3>
+                        <div class="flex justify-end">
+                            <form action="/admin/mediaDelete/<%= amedia._id %>" method="POST" class="delete-form" onsubmit="return confirm('ยืนยันการลบสื่อความรู้นี้?')">
+                                <button type="submit" class="delete-btn">ลบ</button>
+                            </form>
+                        </div>
+                        
                     </div>
                 </div>
                 <% }) %>

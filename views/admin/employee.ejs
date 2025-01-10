@@ -28,6 +28,7 @@
                                 <th class="table-emp-email">อีเมล</th>
                                 <th class="table-emp-tel">เบอร์โทร</th>
                                 <th class="table-emp-role">บทบาท</th>
+                                <th class="table-emp-delete">จัดการ</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -39,7 +40,12 @@
                                         <td class="table-emp-name"><%= employee.username %></td>
                                         <td class="table-emp-email"><%= employee.email %></td>
                                         <td class="table-emp-tel"><%= employee.tel %></td>
-                                        <td class="table-emp-tel"><%= employee.role %></td>
+                                        <td class="table-emp-role"><%= employee.role %></td>
+                                        <td class="table-emp-delete">
+                                            <form action="/admin/employeeDelete/<%= employee._id %>" method="POST">
+                                                <button type="submit" class="delete-btn">ลบ</button>
+                                            </form>
+                                        </td>
                                     </tr>
                                 <% }) %>
                             <% } else { %>
