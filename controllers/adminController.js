@@ -15,12 +15,13 @@ router.use(express.static(path.join(__dirname, '../public')));
 const mediaIndex = (req, res) => {
     myMedia.find().sort({ createdAt: -1 })
         .then((result) => {
-            res.render('admin/media', { mytitle: 'Admindashboard | Media', media: result })
+            res.render('admin/media', { mytitle: 'Admindashboard | Media', media: result});
         })
         .catch((err) => {
-            console.log(err)
-        })
-}
+            console.log(err);
+        });
+};
+
 //เพิ่มสื่อ
 const mediaPost = (req, res) => {
     const { title, youtubeUrl } = req.body;
@@ -253,7 +254,6 @@ const wasteTypeIndex = (req, res)=> {
         console.log(err);
     });
 }
-
 const wasteTypePost = async (req, res) => {
     try {
         console.log('Request Body:', req.body);

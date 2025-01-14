@@ -60,18 +60,28 @@ const checkAuth = (req, res, next) => {
     if (req.session.username) {
         next();
     } else {
-        res.redirect('/login'); // ถ้า session ไม่มี
+        res.redirect('/login');
     }
 };
 
 // ตรวจสอบว่าเป็น admin หรือไม่
 const checkAdmin = (req, res, next) => {
-    if (req.session.role === 'admin') { // ตรวจสอบ role ของผู้ใช้
-        next(); // อนุญาตให้เข้าถึงหากเป็น admin
+    if (req.session.role === 'admin') {
+        next();
     } else {
         res.redirect('/user');
     }
 }
+
+// Middleware สำหรับเก็บชื่อ admin ใน session และส่งไปยังทุกหน้า
+const setName = (req, res, next) => {
+    if (req.session && req.session.username) {
+        res.locals.username = req.session.username; // ส่ง adminName ให้ทุกหน้า
+    } else {
+        res.locals.username = "Admin"; // กำหนดค่าเริ่มต้นถ้าไม่มีชื่อ admin
+    }
+    next(); // ส่งต่อไปยัง middleware ถัดไป
+};
 
 //ทำการรอรับ get request จาก Browser 
 app.get('/', (req, res) => {
@@ -82,7 +92,7 @@ app.use('/user', userRouter);
 app.use('/blogs',blogRoutes);
 
 // เพิ่ม middleware checkAdmin สำหรับเส้นทาง /admin
-app.use('/admin', checkAdmin, adminRoutes);
+app.use('/admin', checkAdmin, setName, adminRoutes);
 
 //เส้นทางไปหน้า login
 app.get('/login', (req, res) => {
@@ -179,6 +189,8 @@ app.get('/logout', (req, res) => {
         res.redirect('/user');
     });
 });
+
+
 
 app.use((req,res) => {
     //res.status(404).sendFile('./blog/404.html', {root: __dirname})
