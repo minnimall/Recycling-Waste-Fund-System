@@ -50,10 +50,10 @@
                             <a href="https://www.khampom.go.th/" target="_blank"><img class="d-block w-100" src="./img/bg_kp.png" alt="พื้นหลัง"></a>
                         </div>
                         <div class="carousel-item">
-                            <img class="d-block w-100" src="./img/1.png" alt="พื้นหลัง">
+                            <img class="d-block w-100" src="./img/วิสัยทัศน์.png" alt="พื้นหลัง">
                         </div>
                         <div class="carousel-item">
-                            <img class="d-block w-100" src="./img/2.png" alt="พื้นหลัง">
+                            <img class="d-block w-100" src="./img/เก็บภาษีที่ดิน68.png" alt="พื้นหลัง">
                         </div>
                     </div>
                     <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev" aria-label="Previous">
@@ -72,35 +72,25 @@
                                 <p class="mb-3 title">ข่าวกิจกรรม</p>
                             </div>
                             <div class="d-flex justify-content-end">
-                                <b><a href="">ดูข่าวกิจกรรมทั้งหมด</a></b>
+                                <b><a href="/user/allActivity">ดูข่าวกิจกรรมทั้งหมด</a></b>
                             </div>
                         </div>
                         
                         <div class="row">
+                            <% if (activity.length=3) {  %>
+                                <% activity.forEach(act => { %>
                             <div class="col-4">
                                 <div class="card">
-                                    <img class="d-block w-100" src="/img/img_3R.png" alt="พื้นหลัง">
+                                    <img class="d-block w-100" src="<%= act.img %>" alt="รูปภาพกิจกรรม">
                                     <div class="card-body">
-                                        <p class="card-title">โครงการรณรงค์การคัดแยกขยะจากต้นทางตามหลัก 3R (Reduce Reuse Recycle) ประจำปีงบประมาณ พ.ศ. 2567</ย>
+                                        <p class="card-title"><%= act.title %></p>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-4">
-                                <div class="card">
-                                    <img class="d-block w-100" src="/img/รำบวงสรวง.png" alt="พื้นหลัง">
-                                    <div class="card-body">
-                                        <p class="card-title">รำบวงสรวงศาลหลักเมืองขอนแก่น ครบรอบ 227 ปี</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="card">
-                                    <img class="d-block w-100" src="/img/img_3R.png" alt="พื้นหลัง">
-                                    <div class="card-body">
-                                        <p class="card-title">โครงการรณรงค์การคัดแยกขยะจากต้นทางตามหลัก 3R (Reduce Reuse Recycle) ประจำปีงบประมาณ พ.ศ. 2567</p>
-                                    </div>
-                                </div>
-                            </div>
+                                <% }) %>
+                            <% } else { %>
+                                <p>ยังไม่มีกิจกรรม ณ ขณะนี้ ....</p>
+                            <% } %>
                         </div>
                     </div>                    
                     <div class="col-4 mt-5">

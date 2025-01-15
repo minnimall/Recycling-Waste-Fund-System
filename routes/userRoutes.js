@@ -13,4 +13,6 @@ router.get('/saleHistory', userController.user_saleHistory)
 
 router.get('/contact', userController.user_contact)
 
+router.get('/allActivity', userController.user_allActivity)
+
 module.exports = router

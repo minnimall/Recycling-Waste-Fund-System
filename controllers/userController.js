@@ -2,12 +2,29 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const myMedia = require('../models/media');
+const myActivity = require('../models/activity');
 const path = require('path');
+const moment = require('moment');
 
 // user_index
-const user_index = (req, res)=> {
-    res.render('user/main')
-}
+const user_index = (req, res) => {
+    myActivity.find().sort({ createdAt: -1 })
+        .then((result) => {
+            // แปลงวันที่ในแต่ละกิจกรรม
+            const activities = result.map(activity => ({
+                ...activity._doc, // ดึงข้อมูลทั้งหมดในเอกสาร
+                formattedDate: moment(activity.createdAt).format('YYYY-MM-DD') // เพิ่มฟิลด์ formattedDate
+            }));
+
+            res.render('user/main', { 
+                mytitle: 'Admindashboard | Activity', 
+                activity: activities 
+            });
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+};
 
 // user_typewaste
 const user_wastetype = (req, res)=> {
@@ -36,11 +53,32 @@ const user_contact = (req, res)=> {
     res.render('user/contact')
 }
 
+// user_allActivity
+const user_allActivity = (req, res) => {
+    myActivity.find().sort({ createdAt: -1 })
+        .then((result) => {
+            // แปลงวันที่ในแต่ละกิจกรรม
+            const activities = result.map(activity => ({
+                ...activity._doc, // ดึงข้อมูลทั้งหมดในเอกสาร
+                formattedDate: moment(activity.createdAt).format('YYYY-MM-DD') // เพิ่มฟิลด์ formattedDate
+            }));
+
+            res.render('user/allActivity', { 
+                mytitle: 'Admindashboard | Activity', 
+                activity: activities 
+            });
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+};
+
 // exports เพื่อให้ไฟล์อื่นสามารถเรียกใช้งานได้
 module.exports = {
     user_index,
     user_wastetype,
     user_knowledge,
     user_saleHistory,
-    user_contact
+    user_contact,
+    user_allActivity
 }
