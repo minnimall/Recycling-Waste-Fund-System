@@ -55,17 +55,34 @@
     width: 360px;
     height: 450px;
 }
+
 .delete-btn {
-    background-color: #f44336;
+    background-color: #f44336; /* สีแดง */
     color: white;
     border: none;
-    padding: 10px 15px;
-    cursor: pointer;
+    padding: 8px 12px;
     border-radius: 5px;
+    cursor: pointer;
     font-size: 14px;
+    transition: background-color 0.3s ease;
 }
 
 .delete-btn:hover {
-    background-color: #e11d48;
+    background-color: #d32f2f; /* สีแดงเข้ม */
+}
+
+.edit-btn {
+    background-color: #007bff; /* สีฟ้าสำหรับแก้ไข */
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.edit-btn:hover {
+    background-color: #0155ad;
 }
 

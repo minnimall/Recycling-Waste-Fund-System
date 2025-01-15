@@ -1,3 +1,9 @@
+const express = require('express');
+const router = express.Router();
+const multer = require('multer');
+const myMedia = require('../models/media');
+const path = require('path');
+
 // user_index
 const user_index = (req, res)=> {
     res.render('user/main')
@@ -9,9 +15,16 @@ const user_wastetype = (req, res)=> {
 }
 
 // user_knowledge
-const user_knowledge = (req, res)=> {
-    res.render('user/knowledge')
-}
+const user_knowledge = (req, res) => {
+    myMedia.find().sort({ createdAt: -1 })
+        .then((result) => {
+            res.render('user/knowledge', { mytitle: 'Admindashboard | Media', media: result});
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+};
+
 
 // user_saleHistory
 const user_saleHistory = (req, res)=> {

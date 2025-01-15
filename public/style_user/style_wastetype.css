@@ -109,6 +109,13 @@ ul li a{
     object-fit: cover;
     border-bottom: 1px solid #ddd;
 }
+.card-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    width: 100%;
+}
 
 
 /* ส่วนของ footer */

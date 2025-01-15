@@ -43,86 +43,27 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-3 mt-3">
-                        <div class="card">
-                            <img class="d-block w-100 card-img-custom" src="/img/2.png" alt="พื้นหลัง">
-                            <div class="card-body">
-                                <h5 class="card-title">Card title</h5>
-                                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                <a href="#" class="btn btn-success">Go somewhere</a>
+                    <% if (media && media.length > 0) { %>
+                        <% media.forEach(amedia => { %>
+                            <div class="col-3 mt-3">
+                                <div class="card">
+                                    <!-- แสดงวิดีโอจาก YouTube -->
+                                    <iframe class="d-block w-100 card-img-custom" 
+                                        src="https://www.youtube.com/embed/<%= amedia.youtubeUrl %>" 
+                                        frameborder="0" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                        allowfullscreen>
+                                    </iframe>
+                                    <div class="card-body">
+                                        <!-- แสดงชื่อคลิป -->
+                                        <p class="card-title"><%= amedia.title %></p>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="col-3 mt-3">
-                        <div class="card">
-                            <img class="d-block w-100 card-img-custom" src="/img/2.png" alt="พื้นหลัง">
-                            <div class="card-body">
-                                <h5 class="card-title">Card title</h5>
-                                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                <a href="#" class="btn btn-success">Go somewhere</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-3 mt-3">
-                        <div class="card">
-                            <img class="d-block w-100 card-img-custom" src="/img/2.png" alt="พื้นหลัง">
-                            <div class="card-body">
-                                <h5 class="card-title">Card title</h5>
-                                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                <a href="#" class="btn btn-success">Go somewhere</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-3 mt-3">
-                        <div class="card">
-                            <img class="d-block w-100 card-img-custom" src="/img/2.png" alt="พื้นหลัง">
-                            <div class="card-body">
-                                <h5 class="card-title">Card title</h5>
-                                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                <a href="#" class="btn btn-success">Go somewhere</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-3 mt-3">
-                        <div class="card">
-                            <img class="d-block w-100 card-img-custom" src="/img/2.png" alt="พื้นหลัง">
-                            <div class="card-body">
-                                <h5 class="card-title">Card title</h5>
-                                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                <a href="#" class="btn btn-success">Go somewhere</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-3 mt-3">
-                        <div class="card">
-                            <img class="d-block w-100 card-img-custom" src="/img/2.png" alt="พื้นหลัง">
-                            <div class="card-body">
-                                <h5 class="card-title">Card title</h5>
-                                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                <a href="#" class="btn btn-success">Go somewhere</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-3 mt-3">
-                        <div class="card">
-                            <img class="d-block w-100 card-img-custom" src="/img/2.png" alt="พื้นหลัง">
-                            <div class="card-body">
-                                <h5 class="card-title">Card title</h5>
-                                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                <a href="#" class="btn btn-success">Go somewhere</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-3 mt-3">
-                        <div class="card">
-                            <img class="d-block w-100 card-img-custom" src="/img/2.png" alt="พื้นหลัง">
-                            <div class="card-body">
-                                <h5 class="card-title">Card title</h5>
-                                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                <a href="#" class="btn btn-success">Go somewhere</a>
-                            </div>
-                        </div>
-                    </div>
+                        <% }); %>
+                    <% } else { %>
+                        <p>ไม่มีสื่อความรู้ที่พร้อมแสดง</p>
+                    <% } %>
                 </div>
             </section>
         </div>

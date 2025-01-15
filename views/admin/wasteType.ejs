@@ -4,6 +4,7 @@
 <head>
     <%- include('../partials/adminPartials/doctype.ejs') %>
         <title><%= mytitle %></title>
+        <link rel="stylesheet" href="/style_admin/waste.css">
         <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
@@ -24,6 +25,7 @@
                                 <th class="table-was-index">ลำดับ</th>
                                 <th class="table-was-id">รหัสประเภท</th>
                                 <th class="table-was-id">ชื่อประเภท</th>
+                                <th class="table-emp-delete">จัดการ</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -33,6 +35,15 @@
                                 <td class="table-was-index"><%= index + 1%></td>
                                 <td class="table-was-id"><%= wastetypee.wasteTypeId %></td>
                                 <td class="table-was-name"><%= wastetypee.wasteTypeName %></td>
+                                <td class="table-emp-delete">
+                                    <form action="/admin/deletewasteType/<%= wastetypee._id %>" method="POST" onsubmit="return confirm('ยืนยันการลบประเภทขยะนี้?')">
+                                        <div>
+                                            <button type="submit" class="delete-btn">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </td>
                             </tr>
                                 <% }) %>
                             <% } else { %>

@@ -24,6 +24,7 @@ router.post('/wastePost', adminController.wastePost)
 // ประเภทขยะ
 router.get('/wasteType', adminController.wasteTypeIndex)
 router.post('/wasteTypePost', adminController.wasteTypePost)
+router.post('/deletewasteType/:id', adminController.deletewasteType);
 
 // ราคาขยะ
 router.get('/wastePrice', adminController.wastePriceIndex)

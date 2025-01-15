@@ -56,16 +56,23 @@
                         <h3><%= amedia.title %></h3>
                         <div class="flex justify-end">
                             <form action="/admin/mediaDelete/<%= amedia._id %>" method="POST" class="delete-form" onsubmit="return confirm('ยืนยันการลบสื่อความรู้นี้?')">
-                                <button type="submit" class="delete-btn">ลบ</button>
+                                <div>
+                                    <button type="button" class="edit-btn">
+                                        <i class="fa fa-edit"></i>
+                                    </button>
+                                    <button type="submit" class="delete-btn">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </div>
                             </form>
                         </div>
                         
                     </div>
                 </div>
                 <% }) %>
-            <% } else { %>
-                <p>There are no media to display ....</p>
-            <% } %>
+                <% } else { %>
+                    <p>There are no media to display ....</p>
+                <% } %>
         </div>
     </div>
 </body>

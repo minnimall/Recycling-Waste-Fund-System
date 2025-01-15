@@ -162,7 +162,7 @@ const deleteActivity = (req, res) => {
     myActivity.findByIdAndDelete(id)
         .then(() => {
             console.log(`Activity with ID ${id} has been deleted.`);
-            res.redirect('/admin/activity'); // เปลี่ยนเส้นทางกลับไปยังหน้ารายการพนักงาน
+            res.redirect('/admin/activity');
         })
         .catch(err => {
             console.error(err);
@@ -277,6 +277,19 @@ const wasteTypePost = async (req, res) => {
         res.redirect('/admin/wasteType?error=เกิดข้อผิดพลาดในระบบ');
     }
 };
+const deletewasteType = (req, res) => {
+    const id = req.params.id;
+
+    myWasteType.findByIdAndDelete(id)
+        .then(() => {
+            console.log(`wasteType with ID ${id} has been deleted.`);
+            res.redirect('/admin/wasteType');
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).send('เกิดข้อผิดพลาดในการลบข้อมูลประเภทขยะ');
+        });
+};
 
 // ราคาขยะ
 const wastePriceIndex = (req, res)=> {
@@ -320,6 +333,7 @@ module.exports = {
     employeeIndex,
     wasteTypeIndex,
     wasteTypePost,
+    deletewasteType,
     wastePriceIndex,
     RoundIndex,
     wasteIndex,

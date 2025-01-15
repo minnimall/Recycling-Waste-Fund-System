@@ -118,9 +118,12 @@ footer {
 .cp{
     text-align: center;
 }
-.card-title{
-    font-size: 1.1rem;
-    font-weight: bold;
+.card-title {
+    white-space: nowrap; /* ป้องกันข้อความแตกเป็นหลายบรรทัด */
+    overflow: hidden; /* ซ่อนข้อความส่วนเกิน */
+    text-overflow: ellipsis; /* แสดง ... ท้ายข้อความที่ยาวเกิน */
+    display: block; /* ต้องกำหนดให้เป็น block หรือ inline-block */
+    width: 100%; /* จำกัดความกว้าง */
 }
 
 

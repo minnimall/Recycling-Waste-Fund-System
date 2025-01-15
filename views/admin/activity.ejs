@@ -62,7 +62,14 @@
                                 <h3><%= act.title %></h3>
                                 <div class="flex justify-end">
                                     <form action="/admin/deleteActivity/<%= act._id %>" method="POST" onsubmit="return confirm('ยืนยันการลบกิจกรรมนี้?')">
-                                        <button type="submit" class="delete-btn">ลบ</button>
+                                        <div>
+                                            <button type="button" class="edit-btn">
+                                                <i class="fa fa-edit"></i>
+                                            </button>
+                                            <button type="submit" class="delete-btn">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </div>
                                     </form>
                                 </div>
                                 
