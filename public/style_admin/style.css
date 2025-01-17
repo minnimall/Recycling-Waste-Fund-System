@@ -1,5 +1,5 @@
 :root {
-    --bg-color: #f8f8f8;
+    --bg-color: #e5e7eb;
     --side-bar-bg: #1E1E1E;
     --site-bar-active: #00923f;
     --site-bar-hover: transparent;
@@ -14,6 +14,7 @@
     /* table */
     --row-active-color: #8EDBA4;
     /* card */
+    --card-author: #b0b0b0;
     --card-border: #ddd;
     --btn-submit: #00923f;
     --btn-cancel: #e20000;
@@ -34,6 +35,27 @@ body {
     margin: 0;
     font-family: kanit;
     background-color: var(--bg-color);
+
+                /* width */
+                ::-webkit-scrollbar {
+                  width: 8px;
+                }
+          
+                /* Track */
+                ::-webkit-scrollbar-track {
+                  background: transparent;
+                }
+          
+                /* Handle */
+                ::-webkit-scrollbar-thumb {
+                  border-radius: 20px;
+                  background: var(--add-medie);
+                }
+          
+                /* Handle on hover */
+                ::-webkit-scrollbar-thumb:hover {
+                  background: var(--add-medie-hover);
+                }
   }
 
   /* Header */
@@ -113,6 +135,8 @@ body {
     height: 92.7vh;
     width: 85%;
     padding: 20px;
+    height: 92vh;
+    overflow-y: scroll;
      
       .card-container {
         height: 80vh;
@@ -211,8 +235,7 @@ body {
   }
 
 .news-container {
-    background-color: #F3EFEC;
-    margin-top: 2rem;
+    padding: 1em;
 
     .news-header {
       width: 100%;
@@ -233,12 +256,16 @@ body {
 
         input {
           width: 80%;
-          border-radius: 3px;
+          margin-right: 1em;
+          border-radius: 20px;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
           border: 0;
           padding: 10px;
         }
         button {
+          color: white;
           background-color: var(--header-bg);
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
           border: 0;
           border-radius: 3px;
           padding: 5px 10px;
@@ -247,9 +274,10 @@ body {
     }
     .news-card {
       margin-top: 10px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       margin: 10px 0;
       background-color: var(--white);
-      border-left: 5px solid var(--add-medie);
       display: flex;
       padding: 10px;
 
@@ -260,6 +288,10 @@ body {
               font-size: 1.5em;
               font-weight: 400;
               margin: 5px 5px;
+                span {
+                  color: var(--card-author);
+                  font-size: .8em;
+                }
             }
             p {  
               color: var(--news-content-text);
@@ -359,12 +391,14 @@ body {
       }
     }
     .table-emp-name {
-      width: 35%;
+      width:35%;
       padding: 10px;
     }
     .table-emp-tel {
       width: 20%;
       padding: 10px;
+    }
+    .table-emp-delete {
     }
   }
   .emp-form {
@@ -469,9 +503,12 @@ body {
       width: 35%;
       padding: 10px;
     }
+    .table-was-delete {
+      width: 5%;
+    }
 
     .was-form {
-      /* display: none; */
+      display: none;
       margin-left: 1em;
       background-color: var(--form-body);
       padding: 1em;
@@ -526,6 +563,11 @@ body {
   
         }
     }
+    .was-form.active {
+      display: block;
+      opacity: 1;
+      transform: scale(1);
+  }
 }
 
 .price-container {
