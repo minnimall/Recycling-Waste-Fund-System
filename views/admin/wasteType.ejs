@@ -3,7 +3,9 @@
 
 <head>
     <%- include('../partials/adminPartials/doctype.ejs') %>
-        <title><%= mytitle %></title>
+        <title>
+            <%= mytitle %>
+        </title>
         <link rel="stylesheet" href="/style_admin/waste.css">
         <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -16,7 +18,7 @@
             <div class="content">
                 <div class="content-header">
                     <h1>ประเภทขยะ (<%= wastetype.length %> รายการ)</h1>
-                    <div class="add-media">เพิ่มประเภทขยะ</div>
+                    <div class="add-media" onclick="wasFormToggle()">เพิ่มประเภทขยะ</div>
                 </div>
                 <div class="was-container">
                     <table class="table-auto">
@@ -25,47 +27,77 @@
                                 <th class="table-was-index">ลำดับ</th>
                                 <th class="table-was-id">รหัสประเภท</th>
                                 <th class="table-was-id">ชื่อประเภท</th>
-                                <th class="table-emp-delete">จัดการ</th>
+                                <th class="table-was-delete">จัดการ</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <% if (wastetype && wastetype.length > 0) { %>
-                                <% wastetype.forEach((wastetypee, index) => { %>
-                            <tr class="was-row-<%= index+1 %> row-active" onclick="setWasteTypeForm('<%= index + 1%>','<%= wastetypee.wasteTypeId %>','<%= wastetypee.wasteTypeName %>')">
-                                <td class="table-was-index"><%= index + 1%></td>
-                                <td class="table-was-id"><%= wastetypee.wasteTypeId %></td>
-                                <td class="table-was-name"><%= wastetypee.wasteTypeName %></td>
-                                <td class="table-emp-delete">
-                                    <form action="/admin/deletewasteType/<%= wastetypee._id %>" method="POST" onsubmit="return confirm('ยืนยันการลบประเภทขยะนี้?')">
-                                        <div>
-                                            <button type="submit" class="delete-btn">
-                                                <i class="fa fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </form>
-                                </td>
-                            </tr>
-                                <% }) %>
-                            <% } else { %>
-                                <tr>
-                                    <td colspan="6">ไม่พบข้อมูลประเภทขยะ</td>
-                                </tr>
-                            <% } %>
+                            <% if (wastetype && wastetype.length> 0) { %>
+                                <% wastetype.forEach((wastetypee, index)=> { %>
+                                    <tr class="was-row-<%= index+1 %> row-active"
+                                        onclick="setWasteTypeForm('<%= index + 1%>','<%= wastetypee.wasteTypeId %>','<%= wastetypee.wasteTypeName %>')">
+                                        <td class="table-was-index">
+                                            <%= index + 1%>
+                                        </td>
+                                        <td class="table-was-id">
+                                            <%= wastetypee.wasteTypeId %>
+                                        </td>
+                                        <td class="table-was-name">
+                                            <%= wastetypee.wasteTypeName %>
+                                        </td>
+                                        <td class="table-was-delete">
+                                            <form action="/admin/deletewasteType/<%= wastetypee._id %>" method="POST"
+                                                onsubmit="return confirm('ยืนยันการลบประเภทขยะนี้?')">
+                                                <div>
+                                                    <button type="submit" class="delete-btn">
+                                                        <i class="fa fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    <% }) %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td colspan="6">ไม่พบข้อมูลประเภทขยะ</td>
+                                            </tr>
+                                            <% } %>
                         </tbody>
                     </table>
                     <div class="was-form" id="edit_Form">
-                        <form  action="/admin/wasteTypePost" method="POST" enctype="application/x-www-form-urlencoded">
+                        <form action="/admin/wasteTypePost" method="POST" enctype="application/x-www-form-urlencoded">
                             <div class="form-head">
                                 <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
                                 <span>รายละเอียดประเภทขยะ</span>
-                            </div>        
+                            </div>
                             <div class="input-group">
                                 <label for="wasteTypeId">รหัสประเภท</label>
                                 <input type="text" name="wasteTypeId" id="wasteTypeId" placeholder="TXXXX" required>
-                                
+
                                 <label for="wasteTypeName">ชื่อประเภท</label>
-                                <input type="text" name="wasteTypeName" id="wasteTypeName" placeholder="โลหะ พลาสติก etc." required>
-                                
+                                <input type="text" name="wasteTypeName" id="wasteTypeName"
+                                    placeholder="โลหะ พลาสติก etc." required>
+
+                                <div class="submit-btn flex justify-end">
+                                    <button type="submit" class="submit">บันทึก</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="was-form" id="add_Form">
+                        <form action="/admin/wasteTypePost" method="POST" enctype="application/x-www-form-urlencoded">
+                            <div class="form-head">
+                                <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
+                                <span>รายละเอียดประเภทขยะ</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="wasteTypeId">รหัสประเภท</label>
+                                <input type="text" name="wasteTypeId" id="wasteTypeId" placeholder="TXXXX" required>
+
+                                <label for="wasteTypeName">ชื่อประเภท</label>
+                                <input type="text" name="wasteTypeName" id="wasteTypeName"
+                                    placeholder="โลหะ พลาสติก etc." required>
+
                                 <div class="submit-btn flex justify-end">
                                     <button type="submit" class="submit">บันทึก</button>
                                 </div>
@@ -77,33 +109,55 @@
 </body>
 <%- include('../partials/adminPartials/adminFooter.ejs') %>
 
-<script>
-    let lastClickedRow = null;
+    <script>
+        let lastClickedRow = null;
 
-    function setWasteTypeForm(Index, Id, Name) {
+        function setWasteTypeForm(Index, Id, Name) {
 
-        const InputWasteTypeId = document.getElementById('wasteTypeId');
-        const InputWasteTypeName = document.getElementById('wasteTypeName');
+            const InputWasteTypeId = document.getElementById('wasteTypeId');
+            const InputWasteTypeName = document.getElementById('wasteTypeName');
 
-        const edieForm = document.getElementById('edit_Form');
-
-        InputWasteTypeId.value = Id;
-        InputWasteTypeName.value = Name;       
-        edieForm.style.display = 'block';
-
-        const selectedRow = document.querySelector(`.was-row-${Index}`);
-
-        if (lastClickedRow === selectedRow) {
-            selectedRow.style.backgroundColor = '';
             
-            lastClickedRow = null;
-        } else {
-            if (lastClickedRow) {
-                lastClickedRow.style.backgroundColor = '';
+            const addForm = document.getElementById('add_Form');
+            const edieForm = document.getElementById('edit_Form');
+
+            InputWasteTypeId.value = Id;
+            InputWasteTypeName.value = Name;
+            edieForm.style.display = 'block';
+            addForm.style.display = 'none';
+
+            const selectedRow = document.querySelector(`.was-row-${Index}`);
+
+            if (lastClickedRow === selectedRow) {
+                selectedRow.style.backgroundColor = '';
+                if (edieForm.style.display === 'block') {
+                    edieForm.style.display = 'none';
+                } else {
+                    edieForm.style.display = 'block';
+                }
+
+                lastClickedRow = null;
+            } else {
+                if (lastClickedRow) {
+                    lastClickedRow.style.backgroundColor = '';
+                }
+                selectedRow.style.backgroundColor = '#8EDBA4';
+                lastClickedRow = selectedRow;
             }
-            selectedRow.style.backgroundColor = '#8EDBA4';
-            lastClickedRow = selectedRow;
+
         }
-    }
-</script>
+        function wasFormToggle() {
+            const editForm = document.getElementById('edit_Form');
+            const addForm = document.getElementById('add_Form');
+
+            editForm.style.display = 'none';
+            if (add_Form.style.display === 'block') {
+                add_Form.style.display = 'none';
+            }
+            else {
+                add_Form.style.display = 'block';
+            }
+        }
+    </script>
+
 </html>
