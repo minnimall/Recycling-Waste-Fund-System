@@ -190,8 +190,6 @@ app.get('/logout', (req, res) => {
     });
 });
 
-
-
 app.use((req,res) => {
     //res.status(404).sendFile('./blog/404.html', {root: __dirname})
     res.status(404).render('404', { mytitle: '404'})
