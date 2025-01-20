@@ -72,7 +72,6 @@
     color: white;
     border: none;
     margin-top: 10px;
-    margin-right: 4px;
     padding: 8px 12px;
     border-radius: 5px;
     cursor: pointer;
@@ -82,11 +81,6 @@
 
 .edit-btn:hover {
     background-color: #0155ad;
-}
-
-.card img{
-    width: 220px;
-    height: 125px;
 }
 
 .card{

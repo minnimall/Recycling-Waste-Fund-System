@@ -11,6 +11,11 @@ const path = require('path');
 
 router.use(express.static(path.join(__dirname, '../public')));
 
+//แดชบอร์ด
+const dashboardIndex = (req, res)=> {
+    res.render('admin/dashboard', { mytitle: 'Admindashboard | Dashboard'})
+}
+
 // สื่อ
 const mediaIndex = (req, res) => {
     myMedia.find().sort({ createdAt: -1 })
@@ -21,7 +26,6 @@ const mediaIndex = (req, res) => {
             console.log(err);
         });
 };
-
 //เพิ่มสื่อ
 const mediaPost = (req, res) => {
     const { title, youtubeUrl } = req.body;
@@ -29,13 +33,10 @@ const mediaPost = (req, res) => {
     // ตรวจสอบว่า youtubeUrl มีค่าและมี URL ของ YouTube
     const validYoutubeUrl = youtubeUrl && youtubeUrl.includes('youtube.com/watch?v=');
 
-    // ถ้ามี YouTube URL ที่ถูกต้อง ให้แยก video ID
-    const videoId = validYoutubeUrl ? youtubeUrl.split('v=')[1].split('&')[0] : '';
-
-    // สร้าง media ใหม่
+    // สร้าง media ใหม่ โดยเก็บ youtubeUrl แบบเต็มๆ
     const media = new myMedia({
         title: title || 'Untitled',
-        youtubeUrl: videoId, // บันทึกแค่ video ID
+        youtubeUrl: validYoutubeUrl ? youtubeUrl : '', // บันทึก URL เต็มๆ ถ้า valid
     });
 
     console.log('Media to save:', media);
@@ -64,6 +65,21 @@ const mediaDelete = (req, res) => {
             res.status(500).send('Error deleting media');
         });
 };
+//แก้ไข
+const mediaEdit = (req, res) => {
+    const { title, youtubeUrl } = req.body;
+    const mediaId = req.params.id;
+
+    myMedia.findByIdAndUpdate(mediaId, { title, youtubeUrl })
+        .then(result => {
+            res.redirect('/admin'); // เปลี่ยนเส้นทางกลับไปยังหน้าแสดงสื่อ
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send('Error updating media');
+        });
+};
+
 
 // ข่าวสาร
 const newsIndex = (req, res) => {
@@ -127,6 +143,7 @@ const activityIndex = (req, res)=> {
         console.log(err)
     })
 }
+//เพิ่มกิจกรรม
 const activityPost = (req, res) => {
     upload(req, res, (err) => {
         if (err) {
@@ -156,6 +173,7 @@ const activityPost = (req, res) => {
             });
     });
 };
+//ลบกิจกรรม
 const deleteActivity = (req, res) => {
     const id = req.params.id;
 
@@ -169,17 +187,46 @@ const deleteActivity = (req, res) => {
             res.status(500).send('เกิดข้อผิดพลาดในการลบข้อมูลกิจกรรม');
         });
 };
+// แก้ไขกิจกรรม
+const activityEdit = (req, res) => {
+    upload(req, res, (err) => {
+        if (err) {
+            console.error('Error uploading file:', err);
+            return res.status(400).send({ error: 'File upload failed', details: err });
+        }
+
+        const imagePath = req.file
+            ? `/uploads/activity/${req.file.filename}` // ใช้ไฟล์ใหม่หากอัปโหลด
+            : req.body.img; // ใช้รูปเดิมหากไม่ได้อัปโหลดใหม่
+
+        const updatedActivity = {
+            title: req.body.title || 'Untitled',
+            content: req.body.content || '',
+            img: imagePath
+        };
+
+        myActivity.findByIdAndUpdate(req.params.id, updatedActivity, { new: true })
+            .then((result) => {
+                console.log('Activity updated successfully:', result);
+                res.redirect('/admin/activity');
+            })
+            .catch((err) => {
+                console.error('Error updating activity:', err);
+                res.status(500).send('Error updating activity');
+            });
+    });
+};
 
 
 
-// สำหรับเก็บรูปภาพที่อัปโหลดจาก activity
+
+// สำหรับเก็บรูปภาพที่อัปโหลดจาก waste
 const storage2 = multer.diskStorage({
     destination: './public/upload_imgwaste',
     filename: function (req, file, cb) {
         cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
     }
 });
-
 const upload2 = multer({
     storage,
     limits: { fileSize: 50 * 1024 * 1024 }
@@ -254,6 +301,7 @@ const wasteTypeIndex = (req, res)=> {
         console.log(err);
     });
 }
+//เพิ่มประเภทขยะ
 const wasteTypePost = async (req, res) => {
     try {
         console.log('Request Body:', req.body);
@@ -277,6 +325,7 @@ const wasteTypePost = async (req, res) => {
         res.redirect('/admin/wasteType?error=เกิดข้อผิดพลาดในระบบ');
     }
 };
+//ลบประเภทขยะ
 const deletewasteType = (req, res) => {
     const id = req.params.id;
 
@@ -291,12 +340,8 @@ const deletewasteType = (req, res) => {
         });
 };
 
-// ราคาขยะ
-const wastePriceIndex = (req, res)=> {
-    res.render('admin/wastePrice', { mytitle: 'Admindashboard | WastePrice'})
-}
 
-//หน้า employee
+//หน้า employee(พนักงาน)
 const employeeIndex = (req, res)=> {
     MyAdmin.find().sort({ createdAt: 1 })
     .then((result) => {
@@ -321,26 +366,26 @@ const employeeDelete = (req, res) => {
         });
 };
 
+
 const RoundIndex = (req, res)=> {
     res.render('admin/round', { mytitle: 'Admindashboard | Round'})
 }
 
 module.exports = {
-    mediaIndex,
-    mediaPost,
-    newsIndex,
-    newsPost,
-    employeeIndex,
-    wasteTypeIndex,
-    wasteTypePost,
-    deletewasteType,
-    wastePriceIndex,
+    //แดชบอร์ด
+    dashboardIndex,
+    //สื่อ
+    mediaIndex,mediaPost,mediaEdit,mediaDelete,
+    //ข่าวสาร
+    newsIndex,newsPost,
+    //กิจกรรม
+    activityIndex,activityPost,activityEdit,deleteActivity,
+    //ขยะ
+    wasteIndex,wastePost,
+    //ประเภทขยะ
+    wasteTypeIndex,wasteTypePost,deletewasteType,
+    //พนักงาน
+    employeeIndex,employeeDelete,
+    //รอบการรับซื้อขยะ
     RoundIndex,
-    wasteIndex,
-    activityIndex,
-    activityPost,
-    mediaDelete,
-    employeeDelete,
-    deleteActivity,
-    wastePost
 }

@@ -3,94 +3,108 @@
 
 <head>
     <%- include('../partials/adminPartials/doctype.ejs') %>
-        <title><%= mytitle %></title>
-        <link rel="stylesheet" href="/style_admin/activity.css">
-        <script src="https://cdn.tailwindcss.com"></script>
+    <title><%= mytitle %></title>
+    <link rel="stylesheet" href="/style_admin/activity.css">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body>
     <%- include('../partials/adminPartials/adminHeader.ejs') %>
 
-        <%- include('../partials/adminPartials/adminSidebar.ejs') %>
-            <!-- Main content -->
-            <div class="screen" id="modal">
-                <form class="add-media-form" action="/admin/activityPost" method="POST" enctype="multipart/form-data">
-                    <div class="media-form-head">
-                        <h1>เพิ่มกิจกรรม</h1>
-                    </div>
-                    <div class="media-form-content">
-                        <div>ชื่อหัวข้อ</div>
-                        <input type="text" name="title" placeholder="ใส่ชื่อหัวข้อ ...">
-                        <div>เนื้อหา</div>
-                        <textarea type="text" name="content" placeholder="ใส่เนื้อหา ..."></textarea>
-                        <div>รูปภาพกิจกรรม</div>
-                        <div class="img-input">
-                            <label class="block">
-                                <span class="sr-only">Choose profile photo</span>
-                                <input type="file" name="img" accept="image/png, image/gif, image/jpeg" class="block w-full text-sm text-slate-500
-                                    file:mr-4 file:py-2 file:px-4
-                                    file:rounded-full file:border-0
-                                    file:text-sm file:font-semibold
-                                    file:bg-violet-50 file:text-violet-700
-                                    hover:file:bg-violet-100
-                                "/>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="media-form-action">
-                        <button type="submit" class="submit">โพส</button>
-                        <span class="cancel" onclick="closeModal()">ปิด</span>
-                    </div>
-                    
-                </form>
+    <%- include('../partials/adminPartials/adminSidebar.ejs') %>
+
+    <!-- Modal for Adding and Editing Activity -->
+    <div class="screen" id="modal">
+        <form class="add-media-form" action="/admin/activityPost" method="POST" id="activityForm" enctype="multipart/form-data">
+            <div class="media-form-head">
+                <h1>เพิ่มกิจกรรม</h1>
             </div>
-                
-    
-            <!-- Main content -->
-            <div class="content">
-                <div class="content-header">
-                    <h1>กิจกรรม</h1>
-                    <div class="add-media" onclick="openModal()">เพิ่มกิจกรรม</div>
+            <div class="media-form-content">
+                <div>ชื่อหัวข้อ</div>
+                <input type="text" name="title" id="title" placeholder="ใส่ชื่อหัวข้อ ..." required>
+                <div>เนื้อหา</div>
+                <textarea name="content" id="content" placeholder="ใส่เนื้อหา ..." required></textarea>
+                <div>รูปภาพกิจกรรม</div>
+                <div class="img-input">
+                    <label class="block">
+                        <span class="sr-only">Choose profile photo</span>
+                        <input type="file" name="img" id="img" accept="image/png, image/gif, image/jpeg" class="block w-full text-sm text-slate-500
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-full file:border-0
+                            file:text-sm file:font-semibold
+                            file:bg-violet-50 file:text-violet-700
+                            hover:file:bg-violet-100
+                        "/>
+                    </label>
                 </div>
-                <div class="card-container">
-                    <% if (activity.length>0) {  %>
-                        <% activity.forEach(act => { %>
-                        <div class="card">
-                            <img src="<%= act.img %>" alt="รูปภาพกิจกรรม">
-                            <div class="card-content">
-                                <p class="card-title"><%= act.title %></p>
-                                <div class="flex justify-end">
-                                    <form action="/admin/deleteActivity/<%= act._id %>" method="POST" onsubmit="return confirm('ยืนยันการลบกิจกรรมนี้?')">
-                                        <div>
-                                            <button type="button" class="edit-btn">
-                                                <i class="fa fa-edit"></i>
-                                            </button>
-                                            <button type="submit" class="delete-btn">
-                                                <i class="fa fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                                
+            </div>
+            <div class="media-form-action">
+                <button type="submit" class="submit">โพส</button>
+                <span class="cancel" onclick="closeModal()">ปิด</span>
+            </div>
+        </form>
+    </div>
+
+    <!-- Main content -->
+    <div class="content">
+        <div class="content-header">
+            <h1>กิจกรรม</h1>
+            <div class="add-media" onclick="openModal()">เพิ่มกิจกรรม</div>
+        </div>
+        <div class="card-container">
+            <% if (activity.length > 0) { %>
+                <% activity.forEach(act => { %>
+                    <div class="card">
+                        <img src="<%= act.img %>" alt="รูปภาพกิจกรรม">
+                        <div class="card-content">
+                            <p class="card-title"><%= act.title %></p>
+                            <div class="flex justify-end">
+                                <button class="edit-btn" onclick="openEditModal('<%= act._id %>', '<%= act.title %>', '<%= act.content %>', '<%= act.img %>')">
+                                    <i class="fa fa-edit"></i>
+                                </button>
+                                <form action="/admin/deleteActivity/<%= act._id %>" method="POST" onsubmit="return confirm('ยืนยันการลบกิจกรรมนี้?')">
+                                    <button type="submit" class="delete-btn">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </form>
                             </div>
                         </div>
-                    <% }) %>
-                    <% } else { %>
-                        <p>There are no Activity    to display ....</p>
-                    <% } %>
-            </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <p>There are no activities to display...</p>
+            <% } %>
         </div>
+    </div>
+
+    <%- include('../partials/adminPartials/adminFooter.ejs') %>
+
+    <script>
+        const modal = document.getElementById('modal');
+        let formAction = "/admin/activityPost";
+
+        function openModal() {
+            modal.style.display = 'block';
+            formAction =  "/admin/activityPost"
+            document.getElementById('activityForm').setAttribute('action', formAction);
+            document.getElementById('title').value = '';
+            document.getElementById('content').value = '';
+            document.getElementById('img').value = '';
+        }
+
+        function openEditModal(id, title, content, img) {
+            modal.style.display = 'block';
+            formAction = '/admin/activityEdit/' + id;
+            document.getElementById('activityForm').setAttribute('action', formAction);
+            document.getElementById('title').value = title;
+            document.getElementById('content').value = content;
+            document.getElementById('img').value = img;
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+    </script>
+
 </body>
-<%- include('../partials/adminPartials/adminFooter.ejs') %>
-<script>
-    const modal = document.getElementById('modal');
-
-    function openModal() {
-        modal.style.display = 'block';
-    }
-
-    function closeModal() {
-        modal.style.display = 'none';
-    }
-</script>
 </html>

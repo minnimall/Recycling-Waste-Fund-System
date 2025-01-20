@@ -46,14 +46,17 @@
                     <% if (media && media.length > 0) { %>
                         <% media.forEach(amedia => { %>
                             <div class="col-3 mt-3">
-                                <div class="card">
-                                    <!-- แสดงวิดีโอจาก YouTube -->
+                                <div class="card ">
+                                    <% if (amedia.youtubeUrl && amedia.youtubeUrl.includes('v=')) { %>
                                     <iframe class="d-block w-100 card-img-custom" 
-                                        src="https://www.youtube.com/embed/<%= amedia.youtubeUrl %>" 
+                                        src="<%= 'https://www.youtube.com/embed/' + amedia.youtubeUrl.split('v=')[1].split('&')[0] %>" 
                                         frameborder="0" 
                                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                         allowfullscreen>
                                     </iframe>
+                                    <% } else { %>
+                                        <p>No video available</p>
+                                    <% } %>
                                     <div class="card-body">
                                         <!-- แสดงชื่อคลิป -->
                                         <p class="card-title"><%= amedia.title %></p>

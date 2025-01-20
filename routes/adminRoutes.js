@@ -3,10 +3,14 @@ const express = require('express')
 const adminController = require('../controllers/adminController')
 const router = express.Router()
 
+// แดชบอร์ด
+router.get('/dashboard', adminController.dashboardIndex)
+
 // สื่อ
 router.get('/', adminController.mediaIndex)
 router.post('/mediaPost', adminController.mediaPost)
 router.post('/mediaDelete/:id', adminController.mediaDelete);
+router.post('/mediaEdit/:id', adminController.mediaEdit);
 
 // ข่าวสาร
 router.get('/news', adminController.newsIndex)
@@ -16,6 +20,8 @@ router.post('/newsPost', adminController.newsPost)
 router.get('/activity', adminController.activityIndex)
 router.post('/activityPost', adminController.activityPost)
 router.post('/deleteActivity/:id', adminController.deleteActivity);
+router.post('/activityEdit/:id', adminController.activityEdit);
+
 
 // ขยะ
 router.get('/waste', adminController.wasteIndex)
@@ -25,9 +31,6 @@ router.post('/wastePost', adminController.wastePost)
 router.get('/wasteType', adminController.wasteTypeIndex)
 router.post('/wasteTypePost', adminController.wasteTypePost)
 router.post('/deletewasteType/:id', adminController.deletewasteType);
-
-// ราคาขยะ
-router.get('/wastePrice', adminController.wastePriceIndex)
 
 // พนักงาน
 router.get('/employee', adminController.employeeIndex)
