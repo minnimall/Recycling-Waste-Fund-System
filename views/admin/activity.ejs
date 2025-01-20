@@ -58,7 +58,7 @@
                         <div class="card">
                             <img src="<%= act.img %>" alt="รูปภาพกิจกรรม">
                             <div class="card-content">
-                                <h3><%= act.title %></h3>
+                                <p class="card-title"><%= act.title %></p>
                                 <div class="flex justify-end">
                                     <form action="/admin/deleteActivity/<%= act._id %>" method="POST" onsubmit="return confirm('ยืนยันการลบกิจกรรมนี้?')">
                                         <div>

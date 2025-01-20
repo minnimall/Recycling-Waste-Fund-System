@@ -45,7 +45,7 @@
                     <!-- ตรวจสอบว่ามี youtubeUrl แล้วแสดงคลิป -->
                     <% if (amedia.youtubeUrl) { %>
                         <div class="video-container">
-                            <iframe width="360" height="315" src="https://www.youtube.com/embed/<%= amedia.youtubeUrl %>" 
+                            <iframe src="https://www.youtube.com/embed/<%= amedia.youtubeUrl %>" 
                                 frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                 allowfullscreen></iframe>
                         </div>
@@ -53,7 +53,7 @@
                         <p>No video available</p>
                     <% } %>
                     <div class="card-content">
-                        <h3><%= amedia.title %></h3>
+                        <p class="card-title"><%= amedia.title %></p>
                         <div class="flex justify-end">
                             <form action="/admin/mediaDelete/<%= amedia._id %>" method="POST" class="delete-form" onsubmit="return confirm('ยืนยันการลบสื่อความรู้นี้?')">
                                 <div>
