@@ -7,30 +7,31 @@ const router = express.Router()
 router.get('/dashboard', adminController.dashboardIndex)
 
 // สื่อ
-router.get('/', adminController.mediaIndex)
-router.post('/mediaPost', adminController.mediaPost)
+router.get('/', adminController.mediaIndex);
+router.post('/mediaPost', adminController.mediaPost);
 router.post('/mediaDelete/:id', adminController.mediaDelete);
 router.post('/mediaEdit/:id', adminController.mediaEdit);
 
 // ข่าวสาร
-router.get('/news', adminController.newsIndex)
-router.post('/newsPost', adminController.newsPost)
+router.get('/news', adminController.newsIndex);
+router.post('/newsPost', adminController.newsPost);
 
 // กิจกรรม
-router.get('/activity', adminController.activityIndex)
-router.post('/activityPost', adminController.activityPost)
+router.get('/activity', adminController.activityIndex);
+router.post('/activityPost', adminController.activityPost);
 router.post('/deleteActivity/:id', adminController.deleteActivity);
 router.post('/activityEdit/:id', adminController.activityEdit);
 
 
 // ขยะ
-router.get('/waste', adminController.wasteIndex)
-router.post('/wastePost', adminController.wastePost)
+router.get('/waste', adminController.wasteIndex);
+router.post('/wastePost', adminController.wastePost);
 
 // ประเภทขยะ
-router.get('/wasteType', adminController.wasteTypeIndex)
-router.post('/wasteTypePost', adminController.wasteTypePost)
-router.post('/deletewasteType/:id', adminController.deletewasteType);
+router.get('/wasteType', adminController.wasteTypeIndex);
+router.post('/wasteTypePost', adminController.wasteTypePost);
+router.post('/wasteTypeEdit', adminController.wasteTypeEdit);
+router.delete('/deletewasteType/:id', adminController.wasteTypeDelete);
 
 // พนักงาน
 router.get('/employee', adminController.employeeIndex)

@@ -234,16 +234,15 @@ const upload2 = multer({
 
 // ขยะ
 const wasteIndex = (req, res) => {
-    // Fetch both waste and waste types
     Promise.all([
-        myWaste.find().sort({ createdAt: -1 }),  // Waste data
-        myWasteType.find()  // WasteType data
+        myWaste.find().sort({ createdAt: -1 }),
+        myWasteType.find()
     ])
     .then(([wasteData, wasteTypeData]) => {
         res.render('admin/waste', {
             mytitle: 'Admindashboard | Waste',
             waste: wasteData,
-            wasteTypes: wasteTypeData  // Passing the waste types to the view
+            wasteTypes: wasteTypeData
         });
     })
     .catch((err) => {
@@ -257,33 +256,27 @@ const wastePost = async (req, res) => {
                 return res.status(400).send('Error in file upload');
             }
 
-            // Extract form data
             const { wasteName, pricePerUnit, wasteType } = req.body;
-            const img = req.file ? req.file.path : null; // Save the path of the uploaded image
+            const img = req.file ? req.file.path : null;
 
             if (!wasteName || !pricePerUnit || !wasteType) {
                 return res.status(400).send('กรุณากรอกข้อมูลให้ครบถ้วน');
             }
 
-            // Check if the wasteType exists in the WasteType collection
             const wasteTypeDoc = await myWasteType.findById(wasteType);
             if (!wasteTypeDoc) {
                 return res.status(400).send('ประเภทขยะไม่ถูกต้อง');
             }
-
-            // Create new Waste record
             const newWaste = new myWaste({
                 wasteName,
                 pricePerUnit,
                 wasteType: wasteTypeDoc._id,
                 img
             });
-
-            // Save the record to the database
             const savedWaste = await newWaste.save();
             console.log('Waste saved successfully:', savedWaste);
 
-            res.redirect('/admin/waste'); // Redirect to the waste list page after saving
+            res.redirect('admin/wasteType');
         });
     } catch (err) {
         console.error('Error saving waste:', err);
@@ -306,39 +299,70 @@ const wasteTypePost = async (req, res) => {
     try {
         console.log('Request Body:', req.body);
 
-        const wasteTypeId = req.body.wasteTypeId.trim();
-        const wasteTypeName = req.body.wasteTypeName;
+        const { wasteTypeName } = req.body;
 
-        if (!wasteTypeId || !wasteTypeName) {
+        if (!wasteTypeName || wasteTypeName.trim() === '') {
             console.log('Missing required fields');
-            return res.status(400).send('กรุณากรอกข้อมูลให้ครบถ้วน');
+            return res.status(400).send('กรุณากรอกข้อมูลชื่อประเภทขยะ');
         }
 
-        const wasteType = new myWasteType({ wasteTypeId, wasteTypeName });
+        const existingWasteType = await myWasteType.findOne({ wasteTypeName: wasteTypeName.trim() });
+        if (existingWasteType) {
+            console.log('Duplicate wasteTypeName:', wasteTypeName);
+            return res.redirect('/admin/wasteType?error=ชื่อประเภทขยะนี้มีอยู่ในระบบแล้ว');
+        }
 
+        const wasteType = new myWasteType({ wasteTypeName: wasteTypeName.trim() });
         const result = await wasteType.save();
         console.log('WasteType saved successfully:', result);
 
-        res.redirect('/admin/wasteType');
+        res.redirect('/admin/wasteType?message=เพิ่มประเภทขยะสำเร็จ');
     } catch (err) {
         console.error('Error saving WasteType:', err);
-        res.redirect('/admin/wasteType?error=เกิดข้อผิดพลาดในระบบ');
+        res.redirect('/admin/wasteType?error=เกิดข้อผิดพลาดในระบบ')
     }
 };
-//ลบประเภทขยะ
-const deletewasteType = (req, res) => {
-    const id = req.params.id;
 
-    myWasteType.findByIdAndDelete(id)
-        .then(() => {
-            console.log(`wasteType with ID ${id} has been deleted.`);
-            res.redirect('/admin/wasteType');
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).send('เกิดข้อผิดพลาดในการลบข้อมูลประเภทขยะ');
-        });
+
+//แก้ไขประเภทขยะ
+const wasteTypeEdit = async (req, res) => {
+    try {
+        const { _id, wasteTypeName } = req.body;
+        if (!_id || !wasteTypeName) {
+            return res.status(400).redirect('/admin/wasteType?error=ข้อมูลไม่ครบถ้วน');
+        }
+        const updatedWasteType = await myWasteType.findByIdAndUpdate(
+            _id,
+            { wasteTypeName: wasteTypeName.trim() },
+            { new: true }
+        );
+        if (!updatedWasteType) {
+            return res.status(404).redirect('/admin/wasteType?error=ไม่พบข้อมูลประเภทขยะที่ต้องการอัปเดต');
+        }
+        res.redirect('/admin/wasteType?message=แก้ไขประเภทขยะสำเร็จ');
+    } catch (error) {
+        console.error("Error editing waste type:", error);
+        res.status(500).redirect('/admin/wasteType?error=เกิดข้อผิดพลาดในการแก้ไขประเภทขยะ');
+    }
 };
+
+//ลบประเภทขยะ
+const wasteTypeDelete = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const result = await myWasteType.findByIdAndDelete(id);
+
+        if (!result) {
+            return res.status(404).redirect('/admin/wasteType?message=ไม่พบข้อมูลประเภทขยะที่ต้องการลบ');
+        }
+        res.redirect('/admin/wasteType?message=ลบประเภทขยะสำเร็จ');
+    } catch (err) {
+        console.error('Error deleting WasteType:', err);
+        res.status(500).redirect('/admin/wasteType?message=เกิดข้อผิดพลาดในการลบข้อมูลประเภทขยะ');
+    }
+};
+
 
 
 //หน้า employee(พนักงาน)
@@ -381,9 +405,9 @@ module.exports = {
     //กิจกรรม
     activityIndex,activityPost,activityEdit,deleteActivity,
     //ขยะ
-    wasteIndex,wastePost,
+    wasteIndex,wastePost,wasteTypeEdit,
     //ประเภทขยะ
-    wasteTypeIndex,wasteTypePost,deletewasteType,
+    wasteTypeIndex,wasteTypePost,wasteTypeDelete,
     //พนักงาน
     employeeIndex,employeeDelete,
     //รอบการรับซื้อขยะ

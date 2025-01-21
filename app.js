@@ -92,7 +92,8 @@ app.use('/user', userRouter);
 app.use('/blogs',blogRoutes);
 
 // เพิ่ม middleware checkAdmin สำหรับเส้นทาง /admin
-app.use('/admin', checkAdmin, setName, adminRoutes);
+// app.use('/admin', checkAdmin, setName, adminRoutes);
+app.use('/admin', setName, adminRoutes);
 
 //เส้นทางไปหน้า login
 app.get('/login', (req, res) => {

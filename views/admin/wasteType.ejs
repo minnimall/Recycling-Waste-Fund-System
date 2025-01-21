@@ -11,6 +11,38 @@
 </head>
 
 <body>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // เช็คข้อความที่ส่งมาจาก URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const successMessage = urlParams.get('message');
+        const errorMessage = urlParams.get('error');
+
+        if (successMessage) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: successMessage,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
+
+        if (errorMessage) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: errorMessage,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
+
+    </script>
+
+
     <%- include('../partials/adminPartials/adminHeader.ejs') %>
 
         <%- include('../partials/adminPartials/adminSidebar.ejs') %>
@@ -25,7 +57,6 @@
                         <thead>
                             <tr>
                                 <th class="table-was-index">ลำดับ</th>
-                                <th class="table-was-id">รหัสประเภท</th>
                                 <th class="table-was-id">ชื่อประเภท</th>
                                 <th class="table-was-delete">จัดการ</th>
                             </tr>
@@ -34,25 +65,27 @@
                             <% if (wastetype && wastetype.length> 0) { %>
                                 <% wastetype.forEach((wastetypee, index)=> { %>
                                     <tr class="was-row-<%= index+1 %> row-active"
-                                        onclick="setWasteTypeForm('<%= index + 1%>','<%= wastetypee.wasteTypeId %>','<%= wastetypee.wasteTypeName %>')">
+                                        onclick="setWasteTypeForm('<%= index + 1 %>','<%= wastetypee._id %>','<%= wastetypee.wasteTypeName %>')">
                                         <td class="table-was-index">
                                             <%= index + 1%>
-                                        </td>
-                                        <td class="table-was-id">
-                                            <%= wastetypee.wasteTypeId %>
                                         </td>
                                         <td class="table-was-name">
                                             <%= wastetypee.wasteTypeName %>
                                         </td>
                                         <td class="table-was-delete">
-                                            <form action="/admin/deletewasteType/<%= wastetypee._id %>" method="POST"
+                                            <!-- <form action="/admin/deletewasteType/<%= wastetypee._id %>" method="POST"
                                                 onsubmit="return confirm('ยืนยันการลบประเภทขยะนี้?')">
                                                 <div>
                                                     <button type="submit" class="delete-btn">
                                                         <i class="fa fa-trash"></i>
                                                     </button>
                                                 </div>
-                                            </form>
+                                            </form> -->
+                                            <button
+                                                onclick="deleteWasteType(['<%= index+1 %>', '<%= wastetypee._id %>'])"
+                                                class="delete-btn">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                     <% }) %>
@@ -63,36 +96,35 @@
                                             <% } %>
                         </tbody>
                     </table>
-                    <div class="was-form" id="edit_Form">
-                        <form action="/admin/wasteTypePost" method="POST" enctype="application/x-www-form-urlencoded">
+                    <div class="was-form" id="edit_Form" style="display: none;">
+                        <form action="/admin/wasteTypeEdit" method="POST" enctype="application/x-www-form-urlencoded">
                             <div class="form-head">
                                 <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
-                                <span>รายละเอียดประเภทขยะ</span>
+                                <span>แก้ไขประเภทขยะ</span>
                             </div>
                             <div class="input-group">
-                                <label for="wasteTypeId">รหัสประเภท</label>
-                                <input type="text" name="wasteTypeId" id="wasteTypeId" placeholder="TXXXX" required>
+                                <!-- ส่งค่า _id -->
+                                <input type="hidden" name="_id" id="hiddenWasteTypeId" value="">
 
-                                <label for="wasteTypeName">ชื่อประเภท</label>
-                                <input type="text" name="wasteTypeName" id="wasteTypeName"
+                                <!-- ฟิลด์สำหรับชื่อประเภทขยะ -->
+                                <label for="editWasteTypeName">ชื่อประเภท</label>
+                                <input type="text" name="wasteTypeName" id="editWasteTypeName"
                                     placeholder="โลหะ พลาสติก etc." required>
 
                                 <div class="submit-btn flex justify-end">
-                                    <button type="submit" class="submit">บันทึก</button>
+                                    <button type="submit" class="submit">บันทึกการเปลี่ยนแปลง</button>
                                 </div>
                             </div>
                         </form>
                     </div>
 
-                    <div class="was-form" id="add_Form">
+                    <div class="was-form" id="add_Form" style="display: none;">
                         <form action="/admin/wasteTypePost" method="POST" enctype="application/x-www-form-urlencoded">
                             <div class="form-head">
                                 <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
                                 <span>รายละเอียดประเภทขยะ</span>
                             </div>
                             <div class="input-group">
-                                <label for="wasteTypeId">รหัสประเภท</label>
-                                <input type="text" name="wasteTypeId" id="wasteTypeId" placeholder="TXXXX" required>
 
                                 <label for="wasteTypeName">ชื่อประเภท</label>
                                 <input type="text" name="wasteTypeName" id="wasteTypeName"
@@ -113,38 +145,30 @@
         let lastClickedRow = null;
 
         function setWasteTypeForm(Index, Id, Name) {
-
-            const InputWasteTypeId = document.getElementById('wasteTypeId');
-            const InputWasteTypeName = document.getElementById('wasteTypeName');
-
-            
+            const editForm = document.getElementById('edit_Form');
             const addForm = document.getElementById('add_Form');
-            const edieForm = document.getElementById('edit_Form');
 
+            const InputWasteTypeId = document.getElementById('hiddenWasteTypeId');
             InputWasteTypeId.value = Id;
+
+            console.log("ID:", Id); // Debug
+            const InputWasteTypeName = document.getElementById('editWasteTypeName');
+
             InputWasteTypeName.value = Name;
-            edieForm.style.display = 'block';
+
+            editForm.style.display = 'block';
             addForm.style.display = 'none';
 
             const selectedRow = document.querySelector(`.was-row-${Index}`);
 
             if (lastClickedRow === selectedRow) {
                 selectedRow.style.backgroundColor = '';
-                if (edieForm.style.display === 'block') {
-                    edieForm.style.display = 'none';
-                } else {
-                    edieForm.style.display = 'block';
-                }
-
                 lastClickedRow = null;
             } else {
-                if (lastClickedRow) {
-                    lastClickedRow.style.backgroundColor = '';
-                }
+                if (lastClickedRow) lastClickedRow.style.backgroundColor = '';
                 selectedRow.style.backgroundColor = '#8EDBA4';
                 lastClickedRow = selectedRow;
             }
-
         }
         function wasFormToggle() {
             const editForm = document.getElementById('edit_Form');
@@ -158,6 +182,44 @@
                 add_Form.style.display = 'block';
             }
         }
+        function deleteWasteType(data) {
+            Swal.fire({
+                title: `ลบข้อมูลลำดับที่ ${data[0]} หรือไม่?`,
+                text: "หากคุณลบแล้วจะไม่สามารถกู้คืนได้!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "ยืนยัน",
+                cancelButtonText: "ยกเลิก"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('/admin/deletewasteType/' + data[1], {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                        .then(result => {
+                            if (result.isConfirmed) {
+                                Swal.fire('ลบข้อมูลไม่สำเร็จ', 'ข้อมูลประเภทขยะถูกลบเรียบร้อยแล้ว', 'error')
+                                    .then(() => {
+                                        location.reload();
+                                    });
+                            } else {
+                                Swal.fire('ลบข้อมูลสำเร็จ', 'ข้อมูลประเภทขยะถูกลบเรียบร้อยแล้ว', 'success')
+                                .then(() => {
+                                        location.reload();
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้', 'error');
+                        });
+                }
+            });
+        }
+
     </script>
 
 </html>

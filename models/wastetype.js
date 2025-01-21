@@ -2,19 +2,19 @@ const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
-const wasteTypeSchema = new Schema(
+const wasteTypeSchema = new mongoose.Schema(
     {
         wasteTypeId: {
             type: String,
-            required: true,
-            trim: true,
-            minlength: 4, // ต้องมีอย่างน้อย 4 ตัวอักษร
+            unique: true, // ป้องกันค่าซ้ำ
+            required: true, // บังคับให้ต้องมีค่า
+            default: () => new mongoose.Types.ObjectId().toString(), // กำหนดค่าเริ่มต้น
         },
         wasteTypeName: {
             type: String,
-            required: true,
+            required: [true, 'กรุณาระบุชื่อประเภทขยะ'],
             trim: true,
-            maxlength: 50,
+            maxlength: [50, 'ชื่อประเภทขยะต้องไม่เกิน 50 ตัวอักษร'],
         },
     },
     { timestamps: true }
