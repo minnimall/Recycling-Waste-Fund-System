@@ -7,6 +7,11 @@ const NewsSchema = new Schema( {
         required: true, // หัวข้อกิจกรรมต้องการ
         trim: true
     },
+    activityDescription: {
+        type: String,
+        required: true,
+        trim: true
+    },
     activityDetails: {
         type: String, // เก็บเนื้อหากิจกรรมเป็น HTML
         required: true

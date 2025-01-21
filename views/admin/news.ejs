@@ -24,6 +24,9 @@
                         <label for="activityTitle">หัวข้อกิจกรรม</label> <br>
                         <input type="text" name="activityTitle" id="activityTitle" required
                             placeholder="ระบุหัวข้อกิจกรรม">
+                        <label for="activityDescription">คำอธิบาย</label> <br>
+                        <input type="text" name="activityDescription" id="activityDescription" required
+                            placeholder="คำอธิบาย">
     
                         <label for="editor">รายละเอียดกิจกรรม</label> <br>
                         <div id="editor"></div><br><br>
@@ -57,7 +60,7 @@
                                 <div class="news-card">
                                     <div class="news-detail">
                                         <h3><%= newsItem.activityTitle %> <span>by Sittichai</span></h3>
-                                        <p><%= newsItem.activityDetails %></p>
+                                        <p><%= newsItem.activityDescription %></p>
                                         <div class="news-date"><%= newsItem.updatedAt %></div>
                                     </div>
                                     <div class="news-action">
@@ -108,7 +111,28 @@
                 },
             }
         });
+        // Add custom image handler for uploading large images
+        var toolbar = quill.getModule('toolbar');
+        toolbar.addHandler('image', function() {
+            var fileInput = document.createElement('input');
+            fileInput.setAttribute('type', 'file');
+            fileInput.setAttribute('accept', 'image/*');
+            fileInput.click();
 
+            fileInput.onchange = function() {
+                var file = fileInput.files[0];
+                if (file && file.size < 10000000) { // Limit file size (e.g. 10MB)
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        var range = quill.getSelection();
+                        quill.insertEmbed(range.index, 'image', e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    alert('กรุณาอัพโหลดรูปภาพที่มีขนาดไม่เกิน 10MB');
+                }
+            };
+        });
         document.querySelector('form').onsubmit = function () {
             var activityDetails = document.querySelector('#activityDetails');
             if (!quill.root.innerHTML.trim()) {

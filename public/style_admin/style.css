@@ -3,8 +3,8 @@
     --side-bar-bg: #1E1E1E;
     --site-bar-active: #00923f;
     --site-bar-hover: transparent;
-    --header-bg: #00923f;
-    --add-medie: #00923f;
+    --header-bg: linear-gradient(to right,#175028,#00923f);
+    --add-medie: linear-gradient(to bottom,#348F50,#56B4D3);
     --add-medie-hover: #007a34;
     --white: white;
     --news-head-text: #000000;
@@ -16,10 +16,11 @@
     /* card */
     --card-author: #b0b0b0;
     --card-border: #ddd;
-    --btn-submit: #00923f;
-    --btn-cancel: #e20000;
+    --btn-submit: linear-gradient(to right,#175028,#00923f);
+    --btn-cancel: linear-gradient(to right,#8c0000,#e20000);
 
     /* form */
+    --form-border: #c1c1c1;
     --form-body: #ddd;
 }
 
@@ -61,7 +62,7 @@ body {
   /* Header */
   header {
     width: 100%;
-    background-color: var(--header-bg);
+    background: var(--header-bg);
     color: var(--white);
     padding: 10px 20px;
     display: flex;
@@ -142,6 +143,32 @@ body {
         height: 80vh;
         overflow-y: scroll;
       }
+      .search {
+        form {
+          display: flex;
+          font-size: .8em;
+          justify-content: space-evenly;
+          width: 30%;
+    
+          input {
+            width: 80%;
+            margin-right: 1em;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border: 0;
+            padding: 10px 20px;
+          }
+          button {
+            color: white;
+            background: var(--header-bg);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border: 0;
+            border-radius: 3px;
+            padding: 5px 10px;
+          }
+        }
+      }
+
 
             /* width */
       ::-webkit-scrollbar {
@@ -166,12 +193,13 @@ body {
   }
   .content-header {
     width: 100%;
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: space-between;
 
       div.add-media {
-        background-color: var(--add-medie);
+        background: var(--header-bg);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         color: var(--white);
         border: none;
         margin: 10px 0;
@@ -264,7 +292,7 @@ body {
         }
         button {
           color: white;
-          background-color: var(--header-bg);
+          background: var(--header-bg);
           box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
           border: 0;
           border-radius: 3px;
@@ -357,7 +385,7 @@ body {
       text-align: center;
       color: var(--white);
       tr {
-        background-color: var(--header-bg);
+        background: var(--header-bg);
       }
     }
     tbody {
@@ -431,7 +459,7 @@ body {
         width: 100%;
         margin: 0.5em 0;
         padding: .4em 0;
-        background-color: var(--header-bg);
+        background: var(--header-bg);
         color: var(--white);
         border: none;
         border-radius: 5px;
@@ -458,13 +486,22 @@ body {
       }
   }
   .submit {
-    background-color: var(--btn-submit);
+    background: var(--btn-submit);
   }
   .cancel {
-    background-color: var(--btn-cancel);
+    background: var(--btn-cancel);
   }
 .was-container {
   display: flex;
+  .table-con {
+    width: 100%;
+    
+    .search {
+      width: 100%;
+      display: flex;
+      justify-content: end;
+    }
+  }
   table {
     height: max-content;
     width: 100%;
@@ -474,7 +511,7 @@ body {
       text-align: center;
       color: var(--white);
       tr {
-        background-color: var(--header-bg);
+        background: var(--header-bg);
       }
     }
     tbody {
@@ -492,14 +529,11 @@ body {
     }
     }
     .table-was-index {
-      width: 5%;
-      padding: 10px;
-    }
-    .table-was-id {
-      width: 15%;
+      width: 3%;
       padding: 10px;
     }
     .table-was-name {
+      text-align: left;
       width: 35%;
       padding: 10px;
     }
@@ -508,9 +542,12 @@ body {
     }
 
     .was-form {
+      height: max-content;
       display: none;
       margin-left: 1em;
       background-color: var(--form-body);
+      border: 1px solid var(--form-border);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       padding: 1em;
       width: 40%;
       .form-head {
@@ -537,7 +574,7 @@ body {
           width: 100%;
           margin: 0.5em 0;
           padding: .4em 0;
-          background-color: var(--header-bg);
+          background: var(--header-bg);
           color: var(--white);
           border: none;
           border-radius: 5px;
@@ -581,7 +618,7 @@ body {
       text-align: center;
       color: var(--white);
       tr {
-        background-color: var(--header-bg);
+        background: var(--header-bg);
       }
     }
     tbody {

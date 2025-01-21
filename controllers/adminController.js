@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const bodyParser = require('body-parser');
 const multer = require('multer');
 const myMedia = require('../models/media');
 const MyAdmin = require('../models/admin');
@@ -10,6 +11,14 @@ const myActivity = require('../models/activity');
 const path = require('path');
 
 router.use(express.static(path.join(__dirname, '../public')));
+
+router.use(bodyParser.json({ limit: '10mb' }));  // เพิ่มขนาด payload สูงสุด 10MB
+router.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
+
+router.post('/upload-image', (req, res) => {
+    // โค้ดสำหรับจัดการการอัพโหลด
+    res.send('ไฟล์ถูกอัพโหลด');
+});
 
 //แดชบอร์ด
 const dashboardIndex = (req, res)=> {
@@ -93,16 +102,17 @@ const newsIndex = (req, res) => {
 };
 const newsPost = async (req, res) => {
     try {
-        const { activityTitle, activityDetails } = req.body;
+        const { activityTitle, activityDetails ,activityDescription} = req.body;
 
         // ตรวจสอบข้อมูลที่ได้จากฟอร์ม
-        if (!activityTitle || !activityDetails) {
+        if (!activityTitle || !activityDetails || !activityDescription) {
             return res.status(400).send('กรุณากรอกข้อมูลให้ครบถ้วน');
         }
 
         // สร้างกิจกรรมใหม่
         const news = new myNews({
             activityTitle,
+            activityDescription,
             activityDetails
         });
 
@@ -285,15 +295,41 @@ const wastePost = async (req, res) => {
 };
 
 // ประเภทขยะ
-const wasteTypeIndex = (req, res)=> {
-    myWasteType.find().sort({ createdAt: 1 })
-    .then((result) => {
-        res.render('admin/wasteType', { mytitle: 'Admindashboard | WasteType', wastetype: result})
-    })
-    .catch((err) => {
-        console.log(err);
-    });
-}
+const wasteTypeIndex = async function (req, res, next) {
+    try {
+        const search = req.query.search || ''; // รับค่าการค้นหาจาก query string
+        const page = parseInt(req.query.page) || 1; // รับค่าหน้าปัจจุบันจาก query string
+        const limit = 5; // จำนวนข้อมูลที่จะแสดงต่อหน้า
+        const startIndex = (page - 1) * limit;
+
+        // เงื่อนไขการค้นหา
+        const searchOptions = search
+            ? {
+                  $or: [
+                      { wasteTypeName: { $regex: search, $options: 'i' } }, // ค้นหาจาก wasteTypeName แบบไม่สนใจตัวพิมพ์
+                  ],
+              }
+            : {};
+        const totalDocuments = await myWasteType.countDocuments(searchOptions); // นับจำนวนเอกสารทั้งหมด
+        const wasteTypeList = await myWasteType
+            .find(searchOptions)
+            .sort({ createdAt: 1 }) // เรียงตามวันที่สร้าง
+            .skip(startIndex)
+            .limit(limit);
+
+        res.render('admin/wasteType', {
+            mytitle: 'Admindashboard | WasteType',
+            wastetype: wasteTypeList,
+            currentPage: page,
+            totalPages: Math.ceil(totalDocuments / limit),
+            search, // ส่งค่าการค้นหาปัจจุบันกลับไป
+        });
+    } catch (err) {
+        console.error('Error fetching WasteType:', err);
+        res.status(500).send('เกิดข้อผิดพลาดในระบบ');
+    }
+};
+
 //เพิ่มประเภทขยะ
 const wasteTypePost = async (req, res) => {
     try {

@@ -26,7 +26,7 @@
         font-size: 2em;
         font-weight: 400;
     }
-    #activityTitle {
+    #activityTitle , #activityDescription {
         font-size: 1.2em;
         margin: 10px 0;
         padding: 8px;

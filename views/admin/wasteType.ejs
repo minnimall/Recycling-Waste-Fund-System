@@ -53,49 +53,73 @@
                     <div class="add-media" onclick="wasFormToggle()">เพิ่มประเภทขยะ</div>
                 </div>
                 <div class="was-container">
-                    <table class="table-auto">
-                        <thead>
-                            <tr>
-                                <th class="table-was-index">ลำดับ</th>
-                                <th class="table-was-id">ชื่อประเภท</th>
-                                <th class="table-was-delete">จัดการ</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% if (wastetype && wastetype.length> 0) { %>
-                                <% wastetype.forEach((wastetypee, index)=> { %>
-                                    <tr class="was-row-<%= index+1 %> row-active"
-                                        onclick="setWasteTypeForm('<%= index + 1 %>','<%= wastetypee._id %>','<%= wastetypee.wasteTypeName %>')">
-                                        <td class="table-was-index">
-                                            <%= index + 1%>
-                                        </td>
-                                        <td class="table-was-name">
-                                            <%= wastetypee.wasteTypeName %>
-                                        </td>
-                                        <td class="table-was-delete">
-                                            <!-- <form action="/admin/deletewasteType/<%= wastetypee._id %>" method="POST"
-                                                onsubmit="return confirm('ยืนยันการลบประเภทขยะนี้?')">
-                                                <div>
-                                                    <button type="submit" class="delete-btn">
-                                                        <i class="fa fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </form> -->
-                                            <button
-                                                onclick="deleteWasteType(['<%= index+1 %>', '<%= wastetypee._id %>'])"
-                                                class="delete-btn">
-                                                <i class="fa fa-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
+                    <div class="table-con">
+                        <div class="search">
+                            <form action="" method="get">
+                                <input type="text" placeholder="ค้นหา" name="search" value="<%= search %>">
+                                <button>ค้นหา</button>
+                            </form>
+                        </div>
+                        <table class="table-auto">
+                            <thead>
+                                <tr>
+                                    <th class="table-was-index">ลำดับ</th>
+                                    <th class="table-was-name">ชื่อประเภท</th>
+                                    <th class="table-was-delete">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (wastetype && wastetype.length > 0) { %>
+                                    <% wastetype.forEach((wastetypee, index) => { %>
+                                        <tr class="was-row-<%= index + 1 %> row-active"
+                                            onclick="setWasteTypeForm('<%= index + 1 %>', '<%= wastetypee._id %>', '<%= wastetypee.wasteTypeName %>')">
+                                            <td class="table-was-index">
+                                                <%= (currentPage - 1) * 5 + index + 1 %>
+                                            </td>
+                                            <td class="table-was-name">
+                                                <%= wastetypee.wasteTypeName %>
+                                            </td>
+                                            <td class="table-was-delete">
+                                                <button
+                                                    onclick="deleteWasteType(['<%= (currentPage - 1) * 5 + index + 1 %>', '<%= wastetypee._id %>'])"
+                                                    class="delete-btn">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
                                     <% }) %>
-                                        <% } else { %>
-                                            <tr>
-                                                <td colspan="6">ไม่พบข้อมูลประเภทขยะ</td>
-                                            </tr>
-                                            <% } %>
-                        </tbody>
-                    </table>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="6">ไม่พบข้อมูลประเภทขยะ</td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                        <!-- Pagination -->
+                        <div class="pagination flex justify-center items-center mt-4 space-x-2">
+                            <% if (currentPage > 1) { %>
+                                <a href="?page=<%= currentPage - 1 %>&search=<%= search %>"
+                                    class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                                    ก่อนหน้า
+                                </a>
+                            <% } %>
+                            <% for (let i = 1; i <= totalPages; i++) { %>
+                                <a href="?page=<%= i %>&search=<%= search %>"
+                                    class="px-3 py-1 border border-gray-300 rounded-md 
+                                           <%= currentPage === i ? 'bg-blue-500 text-white' : 'text-gray-700 hover:bg-gray-100' %>">
+                                    <%= i %>
+                                </a>
+                            <% } %>
+                            <% if (currentPage < totalPages) { %>
+                                <a href="?page=<%= currentPage + 1 %>&search=<%= search %>"
+                                    class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                                    ถัดไป
+                                </a>
+                            <% } %>
+                        </div>
+                        
+                    </div>
+                    
                     <div class="was-form" id="edit_Form" style="display: none;">
                         <form action="/admin/wasteTypeEdit" method="POST" enctype="application/x-www-form-urlencoded">
                             <div class="form-head">
@@ -156,17 +180,17 @@
 
             InputWasteTypeName.value = Name;
 
-            editForm.style.display = 'block';
             addForm.style.display = 'none';
-
             const selectedRow = document.querySelector(`.was-row-${Index}`);
 
             if (lastClickedRow === selectedRow) {
                 selectedRow.style.backgroundColor = '';
                 lastClickedRow = null;
+                editForm.style.display = 'none';
             } else {
                 if (lastClickedRow) lastClickedRow.style.backgroundColor = '';
                 selectedRow.style.backgroundColor = '#8EDBA4';
+                editForm.style.display = 'block';
                 lastClickedRow = selectedRow;
             }
         }
