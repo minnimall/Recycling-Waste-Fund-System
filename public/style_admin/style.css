@@ -225,11 +225,32 @@ body {
       }
 
   }
+  .content-header2 {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: end;      
+    
+    div.add-media {
+      background: var(--header-bg);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      color: var(--white);
+      border: none;
+      margin: 10px 0;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    div.add-media:hover {
+      background-color: var(--add-medie-hover);
+    }
+  }
   .content-header {
     width: 100%;
     display: flex;
     align-items: center;
-    justify-content: end;
+    justify-content: space-between;
 
       div.add-media {
         background: var(--header-bg);
