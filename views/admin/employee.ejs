@@ -3,7 +3,9 @@
 
 <head>
     <%- include('../partials/adminPartials/doctype.ejs') %>
-        <title><%= mytitle %></title>
+        <title>
+            <%= mytitle %>
+        </title>
         <link rel="stylesheet" href="/style_admin/employee.css">
         <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -16,10 +18,10 @@
             <div class="content">
                 <div class="content-header">
                     <h1>พนักงาน (<%= emp.length %> รายการ)</h1>
-                    <div class="add-media">เพิ่มพนักงาน</div>
+                    <div class="add-media" onclick="empFormToggle()">เพิ่มพนักงาน</div>
                 </div>
                 <div class="emp-container">
-                    <table class="table-auto"> 
+                    <table class="table-auto">
                         <thead>
                             <tr>
                                 <th class="table-emp-index">ลำดับ</th>
@@ -32,21 +34,29 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <% if (emp && emp.length > 0) { %>
-                                <% emp.forEach((employee, index) => { %>
+                            <% if (emp && emp.length> 0) { %>
+                                <% emp.forEach((employee, index)=> { %>
                                     <tr>
-                                        <td class="table-emp-index"><%= index + 1 %></td>
+                                        <td class="table-emp-index">
+                                            <%= index + 1 %>
+                                        </td>
                                         <!-- <td class="table-emp-img"><img src="../img/admin/logo.png" alt="Employee Image"></td>  -->
-                                        <td class="table-emp-name"><%= employee.username %></td>
-                                        <td class="table-emp-email"><%= employee.email %></td>
-                                        <td class="table-emp-tel"><%= employee.tel %></td>
-                                        <td class="table-emp-role"><%= employee.role %></td>
+                                        <td class="table-emp-username">
+                                            <%= employee.username %>
+                                        </td>
+                                        <td class="table-emp-email">
+                                            <%= employee.email %>
+                                        </td>
+                                        <td class="table-emp-tel">
+                                            <%= employee.tel %>
+                                        </td>
+                                        <td class="table-emp-role">
+                                            <%= employee.role %>
+                                        </td>
                                         <td class="table-emp-delete">
-                                            <form action="/admin/employeeDelete/<%= employee._id %>" method="POST" onsubmit="return confirm('ยืนยันการพนักงานคนนี้?')">
+                                            <form action="/admin/employeeDelete/<%= employee._id %>" method="POST"
+                                                onsubmit="return confirm('ยืนยันการพนักงานคนนี้?')">
                                                 <div>
-                                                    <!-- <button type="button" class="edit-btn">
-                                                        <i class="fa fa-edit"></i>
-                                                    </button> -->
                                                     <button type="submit" class="delete-btn">
                                                         <i class="fa fa-trash"></i>
                                                     </button>
@@ -54,16 +64,16 @@
                                             </form>
                                         </td>
                                     </tr>
-                                <% }) %>
-                            <% } else { %>
-                                <tr>
-                                    <td colspan="6">ไม่พบข้อมูลพนักงาน</td>
-                                </tr>
-                            <% } %>
+                                    <% }) %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td colspan="6">ไม่พบข้อมูลพนักงาน</td>
+                                            </tr>
+                                            <% } %>
                         </tbody>
-                    </table>                    
-                    
-                    <div class="emp-form">
+                    </table>
+
+                    <div class="emp-form" id="add_form" style="display: none;">
                         <form action="/register" method="POST">
                             <div class="form-head">
                                 <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
@@ -73,7 +83,7 @@
                                 <!-- Username -->
                                 <label>ชื่อผู้ใช้</label>
                                 <input type="text" name="username" placeholder="username" required>
-                    
+
                                 <!-- Password -->
                                 <label>รหัสผ่าน</label>
                                 <input type="password" name="password" placeholder="password" required>
@@ -81,15 +91,16 @@
                                 <!-- ConfirmPassword -->
                                 <label>ยืนยันรหัสผ่าน</label>
                                 <input type="password" name="confirmPassword" placeholder="confirmPassword" required>
-                    
+
                                 <!-- Tel -->
                                 <label>เบอร์โทร</label>
-                                <input type="tel" name="tel" placeholder="094-XXXXXXX" pattern="[0-9]{3}-[0-9]{7}" required>
-                    
+                                <input type="tel" name="tel" placeholder="094-XXXXXXX" pattern="[0-9]{3}-[0-9]{7}"
+                                    required>
+
                                 <!-- Email -->
                                 <label>อีเมล</label>
                                 <input type="email" name="email" placeholder="emp@mail.com" required>
-                    
+
                                 <!-- Role -->
                                 <label>บทบาท</label>
                                 <select name="role" required>
@@ -97,17 +108,95 @@
                                     <option value="admin">Admin</option>
                                     <option value="employee">Employee</option>
                                 </select>
-                    
+
                                 <!-- Submit and Cancel Buttons -->
                                 <div class="submit-btn">
                                     <button type="submit" class="submit">บันทึก</button>
                                 </div>
                             </div>
                         </form>
-                    </div>                    
+                    </div>
+                    <div class="emp-form" id="edit_form" style="display: block;">
+                        <form action="/register" method="POST">
+                            <div class="form-head">
+                                <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
+                                <span>แก้ไขบัญชีผู้ใช้</span>
+                            </div>
+                            <div class="input-group">
+                                <!-- Username -->
+                                <label>ชื่อผู้ใช้</label>
+                                <input type="text" name="username" placeholder="username" id="empUsername" required>
+
+                                <!-- Tel -->
+                                <label>เบอร์โทร</label>
+                                <input type="tel" name="tel" placeholder="094-XXXXXXX" pattern="[0-9]{3}-[0-9]{7}" id="empTel"
+                                    required>
+
+                                <!-- Email -->
+                                <label>อีเมล</label>
+                                <input type="email" name="email" placeholder="emp@mail.com" required id="emailEmp">
+
+                                <!-- Role -->
+                                <label>บทบาท</label>
+                                <select name="role" required>
+                                    <option value="" disabled selected>เลือกบทบาท</option>
+                                    <option value="admin">Admin</option>
+                                    <option value="employee">Employee</option>
+                                </select>
+
+                                <!-- Submit and Cancel Buttons -->
+                                <div class="submit-btn">
+                                    <button type="submit" class="submit">บันทึก</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
 </body>
 <%- include('../partials/adminPartials/adminFooter.ejs') %>
+    <script>
+        let lastClickedRow = null;
+
+        function setEmpForm() {
+
+        }
+
+        function setWasteTypeForm(Index, Id, Name) {
+            const editForm = document.getElementById('edit_Form');
+            const addForm = document.getElementById('add_Form');
+
+            const InputWasteTypeId = document.getElementById('hiddenWasteTypeId');
+            InputWasteTypeId.value = Id;
+
+            console.log("ID:", Id); // Debug
+            const InputWasteTypeName = document.getElementById('editWasteTypeName');
+
+            InputWasteTypeName.value = Name;
+
+            addForm.style.display = 'none';
+            const selectedRow = document.querySelector(`.was-row-${Index}`);
+
+            if (lastClickedRow === selectedRow) {
+                selectedRow.style.backgroundColor = '';
+                lastClickedRow = null;
+                editForm.style.display = 'none';
+            } else {
+                if (lastClickedRow) lastClickedRow.style.backgroundColor = '';
+                selectedRow.style.backgroundColor = '#8EDBA4';
+                editForm.style.display = 'block';
+                lastClickedRow = selectedRow;
+            }
+        }
+        function empFormToggle() {
+            const addForm = document.getElementById('add_form');
+            if (addForm.style.display === 'block') {
+                addForm.style.display = 'none';
+            }
+            else {
+                addForm.style.display = 'block';
+            }
+        }
+    </script>
 
 </html>

@@ -406,7 +406,13 @@ body {
       width: 5%;
       padding: 10px;
     }
-    .table-emp-id {
+    .table-emp-username {
+      text-align: left;
+      width: 15%;
+      padding: 10px;
+    }
+    .table-emp-email {
+      text-align: left;
       width: 15%;
       padding: 10px;
     }
@@ -709,4 +715,8 @@ body {
       padding: .4em .6em;
       margin: 0.5em 0;
     }
+}
+
+.page-current {
+  background: var(--header-bg);
 }

@@ -12,6 +12,36 @@
     <%- include('../partials/adminPartials/adminHeader.ejs') %>
     <%- include('../partials/adminPartials/adminSidebar.ejs') %>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // เช็คข้อความที่ส่งมาจาก URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const successMessage = urlParams.get('message');
+        const errorMessage = urlParams.get('error');
+
+        if (successMessage) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: successMessage,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
+
+        if (errorMessage) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: errorMessage,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
+
+    </script>
     <!-- Modal for Adding/Editing Media -->
     <div class="screen" id="modal" style="display: none;">
         <form class="add-media-form" action="/admin/mediaPost" method="POST" id="mediaForm">
@@ -26,8 +56,8 @@
                 <input type="url" name="youtubeUrl" id="youtubeUrl" placeholder="ใส่ URL คลิป YouTube ..." required>
             </div>
             <div class="media-form-action">
-                <button type="submit" class="submit">โพส</button>
                 <span class="cancel" onclick="closeModal()">ปิด</span>
+                <button type="submit" class="submit">โพส</button>
             </div>
         </form>
     </div>
@@ -40,7 +70,7 @@
         </div>
         <div class="card-container">
             <% if (media.length > 0) { %>
-                <% media.forEach(amedia => { %>
+                <% media.forEach((amedia ,index)=> { %>
                 <!-- Card -->
                 <div class="card">
                     <!-- ตรวจสอบว่ามี youtubeUrl แล้วแสดงคลิป -->
@@ -62,11 +92,11 @@
                             <button type="button" class="edit-btn" onclick="openEditModal('<%= amedia._id %>', '<%= amedia.title %>', '<%= amedia.youtubeUrl %>')">
                                 <i class="fa fa-edit"></i>
                             </button>
-                            <form action="/admin/mediaDelete/<%= amedia._id %>" method="POST" class="delete-form" onsubmit="return confirm('ยืนยันการลบสื่อความรู้นี้?')">
-                                <button type="submit" class="delete-btn">
-                                    <i class="fa fa-trash"></i>
-                                </button>
-                            </form>
+                            <button
+                                onclick="deleteEmp(['<%= index + 1 %>', '<%= amedia._id %>'])"
+                                class="delete-btn">
+                                <i class="fa fa-trash"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -103,6 +133,44 @@
 
         function closeModal() {
             modal.style.display = 'none';
+        }
+
+        function deleteEmp(data) {
+            Swal.fire({
+                title: `ลบข้อมูลลำดับที่ ${data[0]} หรือไม่?`,
+                text: "หากคุณลบแล้วจะไม่สามารถกู้คืนได้!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "ยืนยัน",
+                cancelButtonText: "ยกเลิก"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('/admin/mediaDelete/' + data[1], {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                        .then(result => {
+                            if (result.isConfirmed) {
+                                Swal.fire('ลบข้อมูลไม่สำเร็จ', 'ข้อมูลสื่อความรู้ถูกลบเรียบร้อยแล้ว', 'error')
+                                    .then(() => {
+                                        location.reload();
+                                    });
+                            } else {
+                                Swal.fire('ลบข้อมูลสำเร็จ', 'ข้อมูลสื่อความรู้ถูกลบเรียบร้อยแล้ว', 'success')
+                                .then(() => {
+                                        location.reload();
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้', 'error');
+                        });
+                }
+            });
         }
     </script>
 </body>

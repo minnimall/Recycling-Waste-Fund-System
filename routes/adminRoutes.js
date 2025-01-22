@@ -9,8 +9,8 @@ router.get('/dashboard', adminController.dashboardIndex)
 // สื่อ
 router.get('/', adminController.mediaIndex);
 router.post('/mediaPost', adminController.mediaPost);
-router.post('/mediaDelete/:id', adminController.mediaDelete);
 router.post('/mediaEdit/:id', adminController.mediaEdit);
+router.delete('/mediaDelete/:id', adminController.mediaDelete);
 
 // ข่าวสาร
 router.get('/news', adminController.newsIndex);
@@ -19,8 +19,8 @@ router.post('/newsPost', adminController.newsPost);
 // กิจกรรม
 router.get('/activity', adminController.activityIndex);
 router.post('/activityPost', adminController.activityPost);
-router.post('/deleteActivity/:id', adminController.deleteActivity);
 router.post('/activityEdit/:id', adminController.activityEdit);
+router.delete('/deleteActivity/:id', adminController.deleteActivity);
 
 
 // ขยะ

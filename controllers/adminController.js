@@ -53,26 +53,27 @@ const mediaPost = (req, res) => {
     media.save()
         .then((result) => {
             console.log('Media saved successfully:', result);
-            res.redirect('/admin');
+            res.redirect('/admin?message=เพิ่มสื่อความรู้สำเร็จ');
         })
         .catch((err) => {
             console.error('Error saving media:', err);
-            res.status(500).send('Error saving media');
+            res.status(500).redirect('/admin?error=เพิ่มสื่อความรู้ไม่สำเร็จ');
         });
 };
-//ลบสื่อ
-const mediaDelete = (req, res) => {
-    const id = req.params.id; // รับ ID จาก URL
+const mediaDelete = async (req, res) => {
+    try {
+        const { id } = req.params;
 
-    myMedia.findByIdAndDelete(id)
-        .then((result) => {
-            console.log(`Media with ID ${id} deleted successfully.`);
-            res.redirect('/admin'); // เปลี่ยนเส้นทางกลับไปยังหน้าแสดงสื่อ
-        })
-        .catch((err) => {
-            console.error('Error deleting media:', err);
-            res.status(500).send('Error deleting media');
-        });
+        const result = await myMedia.findByIdAndDelete(id);
+
+        if (!result) {
+            return res.status(404).redirect('/admin?message=ไม่พบข้อมูลสื่อความรู้ที่ต้องการลบ');
+        }
+        res.redirect('/admin?message=ลบสื่อความรู้สำเร็จ');
+    } catch (err) {
+        console.error('Error deleting media:', err);
+        res.status(500).redirect('/admin?message=เกิดข้อผิดพลาดในการลบข้อมูลสื่อความรู้');
+    }
 };
 //แก้ไข
 const mediaEdit = (req, res) => {
@@ -81,11 +82,12 @@ const mediaEdit = (req, res) => {
 
     myMedia.findByIdAndUpdate(mediaId, { title, youtubeUrl })
         .then(result => {
-            res.redirect('/admin'); // เปลี่ยนเส้นทางกลับไปยังหน้าแสดงสื่อ
+            res.redirect('/admin?message=แก้ไขสื่อความรู้สำเร็จ'); // เปลี่ยนเส้นทางกลับไปยังหน้าแสดงสื่อ
+            
         })
         .catch(err => {
             console.log(err);
-            res.status(500).send('Error updating media');
+            res.status(500).redirect('/admin?error=ลบสื่อความรู้ไม่สำเร็จ');
         });
 };
 
@@ -175,27 +177,30 @@ const activityPost = (req, res) => {
         activity.save()
             .then((result) => {
                 console.log('Activity saved successfully:', result);
-                res.redirect('/admin/activity');
+                res.redirect('/admin/activity?message=เพิ่มกิจกรรมรู้สำเร็จ');
             })
             .catch((err) => {
                 console.error('Error saving activity:', err);
-                res.status(500).send('Error saving activity');
+                res.status(500).redirect('/admin/activity?error=เพิ่มกิจกรรมรู้ไม่สำเร็จ');
             });
     });
 };
 //ลบกิจกรรม
-const deleteActivity = (req, res) => {
-    const id = req.params.id;
+const deleteActivity = async (req, res) => {
+    try {
+        const { id } = req.params;
 
-    myActivity.findByIdAndDelete(id)
-        .then(() => {
+        const result = await myActivity.findByIdAndDelete(id);
+
+        if (!result) {
             console.log(`Activity with ID ${id} has been deleted.`);
-            res.redirect('/admin/activity');
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).send('เกิดข้อผิดพลาดในการลบข้อมูลกิจกรรม');
-        });
+            return res.status(404).redirect('/admin/activity?error=ไม่พบข้อมูลที่ต้องการลบ');
+        }
+        res.redirect('/admin/activity?message=ลบกิจกรรมรู้สำเร็จ');
+    } catch (err) {
+        console.error('Error deleting activity:',err);
+        res.status(500).redirect('/admin/activity?error=ลบกิจกรรมรู้ไม่สำเร็จ');
+    }
 };
 // แก้ไขกิจกรรม
 const activityEdit = (req, res) => {
@@ -218,11 +223,11 @@ const activityEdit = (req, res) => {
         myActivity.findByIdAndUpdate(req.params.id, updatedActivity, { new: true })
             .then((result) => {
                 console.log('Activity updated successfully:', result);
-                res.redirect('/admin/activity');
+                res.redirect('/admin/activity?message=แก้ไขกิจกรรมรู้สำเร็จ');
             })
             .catch((err) => {
                 console.error('Error updating activity:', err);
-                res.status(500).send('Error updating activity');
+                res.status(500).redirect('/admin/activity?error=แก้ไขกิจกรรมรู้ไม่สำเร็จ');
             });
     });
 };
