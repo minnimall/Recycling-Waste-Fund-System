@@ -124,6 +124,7 @@ footer {
     text-overflow: ellipsis; /* แสดง ... ท้ายข้อความที่ยาวเกิน */
     display: block; /* ต้องกำหนดให้เป็น block หรือ inline-block */
     width: 100%; /* จำกัดความกว้าง */
+    font-size: 0.9rem;
 }
 
 

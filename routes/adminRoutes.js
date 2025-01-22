@@ -26,6 +26,7 @@ router.delete('/deleteActivity/:id', adminController.deleteActivity);
 // ขยะ
 router.get('/waste', adminController.wasteIndex);
 router.post('/wastePost', adminController.wastePost);
+router.delete('/wasteDelete/:id', adminController.wasteDelete);
 
 // ประเภทขยะ
 router.get('/wasteType', adminController.wasteTypeIndex);

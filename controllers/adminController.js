@@ -234,24 +234,23 @@ const activityEdit = (req, res) => {
 };
 
 
-
-
-// สำหรับเก็บรูปภาพที่อัปโหลดจาก waste
+/// สำหรับเก็บรูปภาพที่อัปโหลดจาก waste
 const storage2 = multer.diskStorage({
     destination: './public/upload_imgwaste',
     filename: function (req, file, cb) {
         cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
     }
 });
+
 const upload2 = multer({
-    storage,
+    storage: storage2, // ใช้ storage2 แทน storage
     limits: { fileSize: 50 * 1024 * 1024 }
 }).single('img');
 
 // ขยะ
 const wasteIndex = (req, res) => {
     Promise.all([
-        myWaste.find().sort({ createdAt: -1 }),
+        myWaste.find().populate('wasteType', 'wasteTypeName'), // Populate wasteType with wasteTypeName
         myWasteType.find()
     ])
     .then(([wasteData, wasteTypeData]) => {
@@ -265,40 +264,65 @@ const wasteIndex = (req, res) => {
         console.log(err);
     });
 };
+// เพิ่มขยะ
 const wastePost = async (req, res) => {
-    try {
-        upload.single('img')(req, res, async (err) => {
-            if (err) {
-                return res.status(400).send('Error in file upload');
-            }
+    upload2(req, res, async (err) => { // ใช้ upload2 แทน upload
+        if (err) {
+            console.error('Error in file upload:', err);
+            return res.status(400).send('เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ');
+        }
 
-            const { wasteName, pricePerUnit, wasteType } = req.body;
-            const img = req.file ? req.file.path : null;
+        // ตรวจสอบรูปภาพที่อัปโหลด
+        const imagePath = req.file
+            ? `/upload_imgwaste/${req.file.filename}` // ใช้ backticks สำหรับการแทรกค่า
+            : '/img/no_image.jpg';
 
-            if (!wasteName || !pricePerUnit || !wasteType) {
-                return res.status(400).send('กรุณากรอกข้อมูลให้ครบถ้วน');
-            }
+        const { wasteName, pricePerUnit, wasteType } = req.body;
 
+        // ตรวจสอบข้อมูลที่จำเป็น
+        if (!wasteName || !pricePerUnit || !wasteType) {
+            return res.status(400).send('กรุณากรอกข้อมูลให้ครบถ้วน');
+        }
+
+        try {
             const wasteTypeDoc = await myWasteType.findById(wasteType);
             if (!wasteTypeDoc) {
                 return res.status(400).send('ประเภทขยะไม่ถูกต้อง');
             }
+
             const newWaste = new myWaste({
                 wasteName,
-                pricePerUnit,
-                wasteType: wasteTypeDoc._id,
-                img
+                pricePerUnit: parseFloat(pricePerUnit), // ตรวจสอบว่าเป็นตัวเลข
+                wasteType,
+                img: imagePath
             });
-            const savedWaste = await newWaste.save();
-            console.log('Waste saved successfully:', savedWaste);
 
-            res.redirect('admin/wasteType');
-        });
+            await newWaste.save();
+            console.log('Waste saved successfully');
+            res.redirect('/admin/waste'); // ทำการเปลี่ยนเส้นทางไปที่หน้า waste
+        } catch (error) {
+            console.error('Error saving waste:', error);
+            res.redirect('/admin/waste?error=เกิดข้อผิดพลาดในระบบ');
+        }
+    });
+};
+//ลบขยะ
+const wasteDelete = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const result = await myWaste.findByIdAndDelete(id);
+
+        if (!result) {
+            return res.status(404).redirect('/admin/waste?error=ไม่พบข้อมูลขยะที่ต้องการลบ');
+        }
+        res.redirect('/admin/waste?message=ลบขยะสำเร็จ');
     } catch (err) {
-        console.error('Error saving waste:', err);
-        res.redirect('/admin/waste?error=เกิดข้อผิดพลาดในระบบ');
+        console.error('Error deleting Waste:', err);
+        res.status(500).redirect('/admin/waste?error=เกิดข้อผิดพลาดในการลบข้อมูลผู้ใช้');
     }
 };
+
 
 // ประเภทขยะ
 const wasteTypeIndex = async function (req, res, next) {
@@ -311,10 +335,10 @@ const wasteTypeIndex = async function (req, res, next) {
         // เงื่อนไขการค้นหา
         const searchOptions = search
             ? {
-                  $or: [
+                $or: [
                       { wasteTypeName: { $regex: search, $options: 'i' } }, // ค้นหาจาก wasteTypeName แบบไม่สนใจตัวพิมพ์
-                  ],
-              }
+                ],
+            }
             : {};
         const totalDocuments = await myWasteType.countDocuments(searchOptions); // นับจำนวนเอกสารทั้งหมด
         const wasteTypeList = await myWasteType
@@ -364,8 +388,6 @@ const wasteTypePost = async (req, res) => {
         res.redirect('/admin/wasteType?error=เกิดข้อผิดพลาดในระบบ')
     }
 };
-
-
 //แก้ไขประเภทขยะ
 const wasteTypeEdit = async (req, res) => {
     try {
@@ -387,7 +409,6 @@ const wasteTypeEdit = async (req, res) => {
         res.status(500).redirect('/admin/wasteType?error=เกิดข้อผิดพลาดในการแก้ไขประเภทขยะ');
     }
 };
-
 //ลบประเภทขยะ
 const wasteTypeDelete = async (req, res) => {
     try {
@@ -462,9 +483,9 @@ module.exports = {
     //กิจกรรม
     activityIndex,activityPost,activityEdit,deleteActivity,
     //ขยะ
-    wasteIndex,wastePost,wasteTypeEdit,
+    wasteIndex,wastePost,wasteDelete,
     //ประเภทขยะ
-    wasteTypeIndex,wasteTypePost,wasteTypeDelete,
+    wasteTypeIndex,wasteTypePost,wasteTypeEdit,wasteTypeDelete,
     //พนักงาน
     employeeIndex,employeeDelete,
     //รอบการรับซื้อขยะ
