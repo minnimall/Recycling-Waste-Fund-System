@@ -67,7 +67,7 @@
                                         <td class="table-was-type"><%= item.wasteType.wasteTypeName %></td>
                                         <td class="table-was-img">
                                             <% if (item.img) { %>
-                                                <img src="<%= item.img %>" alt="<%= item.wasteName %>" class="waste-img">
+                                                <img src="<%= item.img %>" alt="รูป <%= item.img %>" class="waste-img">
                                             <% } else { %>
                                                 <span>ไม่มีรูปภาพ</span>
                                             <% } %>
@@ -106,7 +106,7 @@
                                 <select name="wasteType" id="wasteType" required>
                                     <option value="" disabled selected>เลือกประเภทขยะ</option>
                                     <% wasteTypes.forEach((type) => { %>
-                                        <option value="<%= type._id %>"><%= type.wasteTypeName %></option> <!-- Assuming wasteType has 'name' field -->
+                                        <option value="<%= type._id %>"><%= type.wasteTypeName %></option>
                                     <% }); %>
                                 </select>
 

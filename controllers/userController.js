@@ -3,6 +3,8 @@ const router = express.Router();
 const multer = require('multer');
 const myMedia = require('../models/media');
 const myActivity = require('../models/activity');
+const myWaste = require('../models/waste');
+const myWasteType = require('../models/wastetype');
 const path = require('path');
 const moment = require('moment');
 
@@ -28,7 +30,20 @@ const user_index = (req, res) => {
 
 // user_typewaste
 const user_wastetype = (req, res)=> {
-    res.render('user/wastetype')
+    Promise.all([
+        myWaste.find().populate('wasteType', 'wasteTypeName'), // Populate wasteType with wasteTypeName
+        myWasteType.find()
+    ])
+    .then(([wasteData, wasteTypeData]) => {
+        res.render('user/wastetype', {
+            mytitle: 'Admindashboard | Waste',
+            waste: wasteData,
+            wasteTypes: wasteTypeData
+        });
+    })
+    .catch((err) => {
+        console.log(err);
+    });
 }
 
 // user_knowledge

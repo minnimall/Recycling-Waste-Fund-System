@@ -44,95 +44,27 @@
                     <div class="col-6 mt-5">
                         <select id="wasteType" name="wasteType" class="form-select">
                             <option value="" disabled selected>-- กรุณาเลือกประเภทขยะ --</option>
-                            <option value="plastic">ขยะพลาสติก</option>
-                            <option value="metal">ขยะโลหะ</option>
-                            <option value="glass">ขวดแก้ว</option>
-                            <option value="paper">กระดาษ</option>
-                            <option value="organic">ขยะอินทรีย์</option>
-                            <option value="hazardous">ขยะอันตราย</option>
+                            <% wasteTypes.forEach((type) => { %>
+                                <option value="<%= type._id %>"><%= type.wasteTypeName %></option>
+                            <% }); %>
                         </select>
                     </div>
-
+                    <% if (waste.length > 0) { %>
+                        <% waste.forEach((item, index) => { %>
                     <div class="col-3 mt-3">
                         <div class="card">
-                            <img class="d-block w-100 card-img-custom" src="/img/shoe_bin.png" alt="พื้นหลัง">
+                            <img class="d-block w-100 card-img-custom" src="<%= item.img %>" alt="รูป <%= item.img %>">
                             <div class="card-body">
-                                <h5 class="card-title">Card title</h5>
-                                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                <a href="#" class="btn btn-success">Go somewhere</a>
+                                <p class="card-title"><%= item.wasteName %></p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-3 mt-3">
-                        <div class="card">
-                            <img class="d-block w-100 card-img-custom" src="/img/shoe_bin.png" alt="พื้นหลัง">
-                            <div class="card-body">
-                                <h5 class="card-title">Card title</h5>
-                                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                <a href="#" class="btn btn-success">Go somewhere</a>
-                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <div>
+                            <span>ยังไม่มีข้อมูล</span>
                         </div>
-                    </div>
-                    <div class="col-3 mt-3">
-                        <div class="card">
-                            <img class="d-block w-100 card-img-custom" src="/img/shoe_bin.png" alt="พื้นหลัง">
-                            <div class="card-body">
-                                <h5 class="card-title">Card title</h5>
-                                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                <a href="#" class="btn btn-success">Go somewhere</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-3 mt-3">
-                        <div class="card">
-                            <img class="d-block w-100 card-img-custom" src="/img/shoe_bin.png" alt="พื้นหลัง">
-                            <div class="card-body">
-                                <h5 class="card-title">Card title</h5>
-                                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                <a href="#" class="btn btn-success">Go somewhere</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-3 mt-3">
-                        <div class="card">
-                            <img class="d-block w-100 card-img-custom" src="/img/idea-recycle.png" alt="พื้นหลัง">
-                            <div class="card-body">
-                                <h5 class="card-title">Card title</h5>
-                                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                <a href="#" class="btn btn-success">Go somewhere</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-3 mt-3">
-                        <div class="card">
-                            <img class="d-block w-100 card-img-custom" src="/img/eco-bricks.png" alt="พื้นหลัง">
-                            <div class="card-body">
-                                <h5 class="card-title">Card title</h5>
-                                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                <a href="#" class="btn btn-success">Go somewhere</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-3 mt-3">
-                        <div class="card">
-                            <img class="d-block w-100 card-img-custom" src="/img/idea-recycle.png" alt="พื้นหลัง">
-                            <div class="card-body">
-                                <h5 class="card-title">Card title</h5>
-                                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                <a href="#" class="btn btn-success">Go somewhere</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-3 mt-3">
-                        <div class="card">
-                            <img class="d-block w-100 card-img-custom" src="/img/eco-bricks.png" alt="พื้นหลัง">
-                            <div class="card-body">
-                                <h5 class="card-title">Card title</h5>
-                                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                <a href="#" class="btn btn-success">Go somewhere</a>
-                            </div>
-                        </div>
-                    </div>
+                    <% } %>
                 </div>
             </section>
         </div>
