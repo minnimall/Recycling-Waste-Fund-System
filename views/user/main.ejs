@@ -99,10 +99,18 @@
                             <p>รายการ</p>
                             <p>ราคา/กก.</p>
                         </div>
+                        <% if (waste.length > 0) { %>
+                            <% waste.forEach((item, index) => { %>
                         <div class="price-waste d-flex justify-content-between align-items-center">
-                            <p>กระดาษ ขาว-ดำ</p>
-                            <p>4.00</p>
+                            <p><%= item.wasteName %></p>
+                            <p><%= item.pricePerUnit %></p>
                         </div>
+                            <% }); %>
+                        <% } else { %>
+                            <div>
+                                <span>ยังไม่มีข้อมูล</span>
+                            </div>
+                        <% } %>
                     </div>
                 </div>
 

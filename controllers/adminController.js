@@ -322,6 +322,7 @@ const wasteDelete = async (req, res) => {
         res.status(500).redirect('/admin/waste?error=เกิดข้อผิดพลาดในการลบข้อมูลผู้ใช้');
     }
 };
+//แก้ไขประเภทขยะ
 
 
 // ประเภทขยะ
@@ -359,7 +360,6 @@ const wasteTypeIndex = async function (req, res, next) {
         res.status(500).send('เกิดข้อผิดพลาดในระบบ');
     }
 };
-
 //เพิ่มประเภทขยะ
 const wasteTypePost = async (req, res) => {
     try {

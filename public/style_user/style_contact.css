@@ -107,6 +107,23 @@ ul li a{
 .title{
     font-size: 2rem;
 }
+.title2{
+    font-size: 1.5rem;
+}
+
+.profile-img {
+    width: 100px;
+
+    object-fit: cover;
+}
+.profile-info h5 {
+    font-size: 1.25rem;
+    margin-bottom: 10px;
+}
+.profile-info p {
+    font-size: 1rem;
+    margin-bottom: 5px;
+}
 
 /* ส่วนของ footer */
 footer {

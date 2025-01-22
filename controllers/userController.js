@@ -10,17 +10,21 @@ const moment = require('moment');
 
 // user_index
 const user_index = (req, res) => {
-    myActivity.find().sort({ createdAt: -1 })
-        .then((result) => {
-            // แปลงวันที่ในแต่ละกิจกรรม
-            const activities = result.map(activity => ({
+    Promise.all([
+        myActivity.find().sort({ createdAt: -1 }), // ดึงข้อมูลกิจกรรม
+        myWaste.find().sort({ createdAt: 1 }) // ดึงข้อมูลขยะ
+    ])
+        .then(([activitiesResult, wasteResult]) => {
+            // แปลงวันที่ในกิจกรรม
+            const activities = activitiesResult.map(activity => ({
                 ...activity._doc, // ดึงข้อมูลทั้งหมดในเอกสาร
                 formattedDate: moment(activity.createdAt).format('YYYY-MM-DD') // เพิ่มฟิลด์ formattedDate
             }));
 
             res.render('user/main', { 
                 mytitle: 'Admindashboard | Activity', 
-                activity: activities 
+                activity: activities, 
+                waste: wasteResult // ส่งข้อมูล myWaste โดยตรงไปยัง view
             });
         })
         .catch((err) => {
