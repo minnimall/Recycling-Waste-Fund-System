@@ -396,6 +396,15 @@ body {
           justify-content: space-evenly;
           width: 10%;
           display: flex;
+          span {
+            font-size: 1.5em;
+          }
+          .edit-icon {
+            color: #ffa600;
+          } 
+          .delete-icon {
+            color: #d50000;
+          } 
         }
     }
     @keyframes test {
