@@ -15,4 +15,6 @@ router.get('/contact', userController.user_contact)
 
 router.get('/allActivity', userController.user_allActivity)
 
+router.get('/detailActivity/:id', userController.user_detailActivity);
+
 module.exports = router

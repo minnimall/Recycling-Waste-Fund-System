@@ -117,6 +117,7 @@ ul li a{
     display: block;
     width: 100%;
     font-size: 0.9rem;
+    text-decoration: none;
 }
 .modal-dialog {
     max-width: 90%;
@@ -124,6 +125,11 @@ ul li a{
 .date{
     font-size: 0.7rem;
 }
+.card-link {
+    text-decoration: none; /* ลบเส้นใต้จากลิงก์ใน card */
+    color: black;
+}
+
 
 /* ส่วนของ footer */
 footer {

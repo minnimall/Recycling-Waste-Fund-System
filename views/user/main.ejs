@@ -80,12 +80,14 @@
                             <% if (activity.length=3) {  %>
                                 <% activity.forEach(act => { %>
                             <div class="col-4">
+                                <a href="/user/detailActivity/<%= act._id %>" class="card-link">
                                 <div class="card border-0">
                                     <img class="d-block w-100" src="<%= act.img %>" alt="รูปภาพกิจกรรม">
                                     <div class="card-body">
                                         <p class="card-title"><%= act.title %></p>
                                     </div>
                                 </div>
+                                </a>
                             </div>
                                 <% }) %>
                             <% } else { %>

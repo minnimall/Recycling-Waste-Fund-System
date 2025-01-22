@@ -126,6 +126,10 @@ footer {
     width: 100%; /* จำกัดความกว้าง */
     font-size: 0.9rem;
 }
+.card-link {
+    text-decoration: none; /* ลบเส้นใต้จากลิงก์ใน card */
+    color: black;
+}
 
 
 /* Default .carousel-inner img rule for larger screens */
