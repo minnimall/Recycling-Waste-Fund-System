@@ -93,7 +93,7 @@
                                 <i class="fa fa-edit"></i>
                             </button>
                             <button
-                                onclick="deleteEmp(['<%= index + 1 %>', '<%= amedia._id %>'])"
+                                onclick="deleteMedia(['<%= index + 1 %>', '<%= amedia._id %>'])"
                                 class="delete-btn">
                                 <i class="fa fa-trash"></i>
                             </button>
@@ -135,7 +135,7 @@
             modal.style.display = 'none';
         }
 
-        function deleteEmp(data) {
+        function deleteMedia(data) {
             Swal.fire({
                 title: `ลบข้อมูลลำดับที่ ${data[0]} หรือไม่?`,
                 text: "หากคุณลบแล้วจะไม่สามารถกู้คืนได้!",

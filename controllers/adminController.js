@@ -60,6 +60,7 @@ const mediaPost = (req, res) => {
             res.status(500).redirect('/admin?error=เพิ่มสื่อความรู้ไม่สำเร็จ');
         });
 };
+
 const mediaDelete = async (req, res) => {
     try {
         const { id } = req.params;
@@ -407,30 +408,45 @@ const wasteTypeDelete = async (req, res) => {
 
 
 //หน้า employee(พนักงาน)
-const employeeIndex = (req, res)=> {
-    MyAdmin.find().sort({ createdAt: 1 })
-    .then((result) => {
-        res.render('admin/employee', { mytitle: 'Admindashboard | Employee', emp: result });
-    })
-    .catch((err) => {
-        console.log(err);
-    });
-}
-//ลบพนักงาน
-const employeeDelete = (req, res) => {
-    const id = req.params.id;
-
-    MyAdmin.findByIdAndDelete(id)
-        .then(() => {
-            console.log(`Employee with ID ${id} has been deleted.`);
-            res.redirect('/admin/employee'); // เปลี่ยนเส้นทางกลับไปยังหน้ารายการพนักงาน
+const employeeIndex = (req, res) => {
+    const { role, search } = req.query;
+    let filter = {};
+    if (role) {
+        filter.role = role;
+    }
+    if (search) {
+        filter.$or = [
+            { username: { $regex: search, $options: 'i' } },
+            { email: { $regex: search, $options: 'i' } },
+            { tel: { $regex: search, $options: 'i' } }
+        ];
+    }
+    MyAdmin.find(filter).sort({ createdAt: 1 })
+        .then((result) => {
+            res.render('admin/employee', { mytitle: 'Admindashboard | Employee', emp: result, role, search  });
         })
-        .catch(err => {
-            console.error(err);
-            res.status(500).send('เกิดข้อผิดพลาดในการลบข้อมูลพนักงาน');
+        .catch((err) => {
+            console.error('Error fetching employees:', err);
+            res.status(500).send('เกิดข้อผิดพลาดในการดึงข้อมูลพนักงาน');
         });
 };
 
+//ลบพนักงาน
+const employeeDelete = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const result = await MyAdmin.findByIdAndDelete(id);
+
+        if (!result) {
+            return res.status(404).redirect('/admin/employee?error=ไม่พบข้อมูลผู้ใช้ที่ต้องการลบ');
+        }
+        res.redirect('/admin/employee?message=ลบผู้ใช้สำเร็จ');
+    } catch (err) {
+        console.error('Error deleting Employee:', err);
+        res.status(500).redirect('/admin/employee?error=เกิดข้อผิดพลาดในการลบข้อมูลผู้ใช้');
+    }
+};
 
 const RoundIndex = (req, res)=> {
     res.render('admin/round', { mytitle: 'Admindashboard | Round'})

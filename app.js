@@ -139,7 +139,7 @@ app.post('/register', async (req, res) => {
         });
 
         await user.save();
-        res.redirect('/admin/employee');
+        res.redirect('/admin/employee?message=เพิ่มสมาชิกสำเร็จ');
         
     } catch (err) {
         console.error('Registration error:', err);

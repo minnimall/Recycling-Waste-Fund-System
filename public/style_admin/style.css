@@ -22,6 +22,11 @@
     /* form */
     --form-border: #c1c1c1;
     --form-body: #ddd;
+
+    /* role */
+    --admin-color: linear-gradient(to right,#8c0000,#e20000);
+    --employee-color: linear-gradient(to right,#175028,#00923f);
+    --user-color: linear-gradient(to right,#0070d9,#329cff);
 }
 
 * {
@@ -143,6 +148,10 @@ body {
         height: 80vh;
         overflow-y: scroll;
       }
+      .xtop-container {
+        display: flex;
+        margin-bottom: 1em;
+      }
       .search {
         form {
           display: flex;
@@ -168,7 +177,32 @@ body {
           }
         }
       }
-
+      .count-con {
+        color: var(--white);
+        display: flex;
+        margin-bottom: 10px;
+        .box {
+          border-radius: 15px;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+          border: 1px solid var(--card-border);
+          width: 320px;
+          padding: 15px 30px;
+          margin: 0 10px;
+          span {
+            font-size: 2em;
+            margin-right: 10px;
+          }
+        }
+        .user-box {
+          background: var(--user-color);
+        }
+        .employee-box {
+          background: var(--employee-color);
+        }
+        .admin-box {
+          background: var(--admin-color);
+        }
+      }
 
             /* width */
       ::-webkit-scrollbar {
@@ -195,7 +229,7 @@ body {
     width: 100%;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: end;
 
       div.add-media {
         background: var(--header-bg);
@@ -376,6 +410,22 @@ body {
 
 .emp-container {
   display: flex;
+  .table-con {
+    width: 100%;
+    
+    .search {
+      width: 100%;
+      display: flex;
+      justify-content: end;
+      
+      select {
+        border-radius: 50px;
+        margin-right: 10px;
+        padding: 0 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+    }
+  }
   table {
     height: max-content;
     width: 100%;
@@ -427,6 +477,24 @@ body {
     .table-emp-name {
       width:35%;
       padding: 10px;
+    }
+    .table-emp-role {
+      color: white;
+      padding: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      .role-tag {
+        font-size: .8em;
+        border-radius: 4px;
+        padding: 3px 6px;
+      }
+      .admin-role-bg {
+        background: var(--admin-color);
+      }
+      .employee-role-bg {
+        background: var(--employee-color);
+      }
     }
     .table-emp-tel {
       width: 20%;
