@@ -56,21 +56,14 @@
             <div class="mt-5">
                 <p><strong>กิจกรรมอื่นๆ</strong></p>
                 <div class="row">
-                    <% if (activity.length>0) {  %>
-                        <% activity.forEach(act => { %>
-                            <div class="col-md-4">
-                                <div class="card">
-                                    <a href="/user/detailActivity/<%= act._id %>" class="card-link">
-                                        <img class="card-img-top" src="<%= act.img %>" alt="รูปภาพกิจกรรมอื่นๆ">
-                                        <div class="card-body">
-                                            <p class="card-title"><%= act.title %></p>
-                                        </div>
-                                    </a>
-                                </div>
-                            </div>
+                    <% if (otherActivities.length=5) {  %>
+                        <% otherActivities.forEach(act => { %>
+                            <a href="/user/detailActivity/<%= act._id %>" class="card-link">
+                                <p class="card-title"><%= act.title %></p>
+                            </a>
                         <% }) %>
                         <% } else { %>
-                                <p>ยังไม่มีกิจกรรม ณ ขณะนี้ ....</p>
+                            <p>ยังไม่มีกิจกรรม ณ ขณะนี้ ....</p>
                     <% } %>
                 </div>
             </div>

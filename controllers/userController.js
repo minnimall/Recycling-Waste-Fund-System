@@ -92,17 +92,27 @@ const user_allActivity = (req, res) => {
         });
 };
 
-const user_detailActivity = async (req, res) => {
-    try {
-        const activity = await myActivity.findById(req.params.id); // Fetch activity by ID
-        if (!activity) {
-            return res.status(404).send('Activity not found');
-        }
-        res.render('user/detailActivity', { activity }); // Render activityDetail.ejs
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Error fetching activity details');
-    }
+const user_detailActivity = (req, res) => {
+    // ค้นหากิจกรรมที่เลือกโดยใช้ ID
+    myActivity.findById(req.params.id)
+        .then(activity => {
+            if (!activity) {
+                return res.status(404).send('Activity not found');
+            }
+
+            myActivity.find().sort({ createdAt: -1 })
+                .then(otherActivities => {
+                    res.render('user/detailActivity', { activity, otherActivities });
+                })
+                .catch(err => {
+                    console.error(err);
+                    res.status(500).send('Error fetching other activities');
+                });
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).send('Error fetching activity details');
+        });
 };
 
 // exports เพื่อให้ไฟล์อื่นสามารถเรียกใช้งานได้

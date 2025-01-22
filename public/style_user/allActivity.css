@@ -129,6 +129,9 @@ ul li a{
     text-decoration: none; /* ลบเส้นใต้จากลิงก์ใน card */
     color: black;
 }
+.card-link:Hover{
+    color: #8bc34a;
+}
 
 
 /* ส่วนของ footer */
