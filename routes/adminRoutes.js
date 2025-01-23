@@ -39,6 +39,7 @@ router.delete('/deletewasteType/:id', adminController.wasteTypeDelete);
 router.get('/employee', adminController.employeeIndex)
 router.delete('/employeeDelete/:id', adminController.employeeDelete);
 
+// รอบการรับซื้อ
 router.get('/round', adminController.RoundIndex)
 
 module.exports = router

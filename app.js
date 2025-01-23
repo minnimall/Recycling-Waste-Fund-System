@@ -65,25 +65,42 @@ const checkAuth = (req, res, next) => {
 };
 
 // ตรวจสอบว่าเป็น admin หรือไม่
-const checkAdmin = (req, res, next) => {
-    if (req.session.role === 'admin') {
-        next();
-    } else {
-        res.redirect('/user');
-    }
-}
+// const checkAdmin = (req, res, next) => {
+//     if (req.session.role === 'admin') {
+//         next();
+//     } else {
+//         res.redirect('/user');
+//     }
+// }
 
-// Middleware สำหรับเก็บชื่อ admin ใน session และส่งไปยังทุกหน้า
-const setName = (req, res, next) => {
+// // Middleware สำหรับเก็บชื่อ admin ใน session และส่งไปยังทุกหน้า
+// const setName = (req, res, next) => {
+//     if (req.session && req.session.username) {
+//         res.locals.username = req.session.username; // ส่ง adminName ให้ทุกหน้า
+//     } else {
+//         res.locals.username = "Admin"; // กำหนดค่าเริ่มต้นถ้าไม่มีชื่อ admin
+//     }
+//     next(); // ส่งต่อไปยัง middleware ถัดไป
+// };
+
+
+const checkAdminAndSetName = (req, res, next) => {
+    // ตั้งค่า username สำหรับ res.locals
     if (req.session && req.session.username) {
-        res.locals.username = req.session.username; // ส่ง adminName ให้ทุกหน้า
+        res.locals.username = req.session.username;
     } else {
-        res.locals.username = "Admin"; // กำหนดค่าเริ่มต้นถ้าไม่มีชื่อ admin
+        res.locals.username = "Admin";
     }
-    next(); // ส่งต่อไปยัง middleware ถัดไป
+
+    // ตรวจสอบสิทธิ์การเป็น admin
+    if (req.session.role === 'admin') {
+        next(); // หากเป็น admin ให้ไป middleware ถัดไป
+    } else {
+        res.redirect('/user'); // ถ้าไม่ใช่ admin ให้ redirect ไปยังหน้าอื่น
+    }
 };
 
-//ทำการรอรับ get request จาก Browser 
+
 app.get('/', (req, res) => {
     res.redirect('/user');
 });
@@ -93,7 +110,7 @@ app.use('/blogs',blogRoutes);
 
 // เพิ่ม middleware checkAdmin สำหรับเส้นทาง /admin
 // app.use('/admin', checkAdmin, setName, adminRoutes);
-app.use('/admin', setName, adminRoutes);
+app.use('/admin', checkAdminAndSetName, adminRoutes);
 
 //เส้นทางไปหน้า login
 app.get('/login', (req, res) => {

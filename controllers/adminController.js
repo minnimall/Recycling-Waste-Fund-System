@@ -35,7 +35,7 @@ const mediaIndex = (req, res) => {
             console.log(err);
         });
 };
-//เพิ่มสื่อ
+// เพิ่มสื่อ
 const mediaPost = (req, res) => {
     const { title, youtubeUrl } = req.body;
 
@@ -60,7 +60,7 @@ const mediaPost = (req, res) => {
             res.status(500).redirect('/admin?error=เพิ่มสื่อความรู้ไม่สำเร็จ');
         });
 };
-
+// ลบสื่อ
 const mediaDelete = async (req, res) => {
     try {
         const { id } = req.params;
@@ -76,7 +76,7 @@ const mediaDelete = async (req, res) => {
         res.status(500).redirect('/admin?message=เกิดข้อผิดพลาดในการลบข้อมูลสื่อความรู้');
     }
 };
-//แก้ไข
+// แก้ไขสื่อ
 const mediaEdit = (req, res) => {
     const { title, youtubeUrl } = req.body;
     const mediaId = req.params.id;
@@ -186,7 +186,7 @@ const activityPost = (req, res) => {
             });
     });
 };
-//ลบกิจกรรม
+// ลบกิจกรรม
 const deleteActivity = async (req, res) => {
     try {
         const { id } = req.params;
@@ -306,7 +306,7 @@ const wastePost = async (req, res) => {
         }
     });
 };
-//ลบขยะ
+// ลบขยะ
 const wasteDelete = async (req, res) => {
     try {
         const { id } = req.params;
@@ -322,7 +322,7 @@ const wasteDelete = async (req, res) => {
         res.status(500).redirect('/admin/waste?error=เกิดข้อผิดพลาดในการลบข้อมูลผู้ใช้');
     }
 };
-//แก้ไขขยะ
+// แก้ไขขยะ
 const wasteEdit = async (req, res) => {
     upload2(req, res, async (err) => {
         if (err) {
@@ -403,7 +403,7 @@ const wasteTypeIndex = async function (req, res, next) {
         res.status(500).send('เกิดข้อผิดพลาดในระบบ');
     }
 };
-//เพิ่มประเภทขยะ
+// เพิ่มประเภทขยะ
 const wasteTypePost = async (req, res) => {
     try {
         console.log('Request Body:', req.body);
@@ -431,7 +431,7 @@ const wasteTypePost = async (req, res) => {
         res.redirect('/admin/wasteType?error=เกิดข้อผิดพลาดในระบบ')
     }
 };
-//แก้ไขประเภทขยะ
+// แก้ไขประเภทขยะ
 const wasteTypeEdit = async (req, res) => {
     try {
         const { _id, wasteTypeName } = req.body;
@@ -452,7 +452,7 @@ const wasteTypeEdit = async (req, res) => {
         res.status(500).redirect('/admin/wasteType?error=เกิดข้อผิดพลาดในการแก้ไขประเภทขยะ');
     }
 };
-//ลบประเภทขยะ
+// ลบประเภทขยะ
 const wasteTypeDelete = async (req, res) => {
     try {
         const { id } = req.params;
@@ -470,8 +470,7 @@ const wasteTypeDelete = async (req, res) => {
 };
 
 
-
-//หน้า employee(พนักงาน)
+// หน้า employee(พนักงาน)
 const employeeIndex = (req, res) => {
     const { role, search } = req.query;
     let filter = {};
@@ -495,7 +494,7 @@ const employeeIndex = (req, res) => {
         });
 };
 
-//ลบพนักงาน
+// ลบพนักงาน
 const employeeDelete = async (req, res) => {
     try {
         const { id } = req.params;
@@ -512,6 +511,7 @@ const employeeDelete = async (req, res) => {
     }
 };
 
+// รอบการรับซื้อ
 const RoundIndex = (req, res)=> {
     res.render('admin/round', { mytitle: 'Admindashboard | Round'})
 }
