@@ -23,109 +23,107 @@
                     <div class="p-6 bg-white rounded-lg shadow-md space-y-6">
                         <!-- Header -->
                         <h2 class="text-lg font-semibold">เพิ่มรอบการรับซื้อขยะ</h2>
-                      
+    
                         <!-- ชื่อรอบการรับซื้อ -->
                         <div>
-                          <label for="round-name" class="block font-medium mb-2">ชื่อรอบการรับซื้อ</label>
-                          <input type="text" id="round-name" class="w-full p-2 border rounded-md" placeholder="เช่น รอบรับซื้อครั้งที่ 1">
+                            <label for="round-name" class="block font-medium mb-2">ชื่อรอบการรับซื้อ</label>
+                            <input type="text" id="round-name" class="w-full p-2 border rounded-md" placeholder="เช่น รอบรับซื้อครั้งที่ 1">
                         </div>
-                      
+                        
                         <!-- วันที่รับซื้อ -->
                         <div>
-                          <label for="pickup-date" class="block font-medium mb-2">วันที่รับซื้อ</label>
-                          <input type="date" id="pickup-date" class="w-full p-2 border rounded-md">
+                            <label for="pickup-date" class="block font-medium mb-2">วันที่รับซื้อ</label>
+                            <input type="date" id="pickup-date" class="w-full p-2 border rounded-md">
                         </div>
-                      
+
                         <!-- เวลา -->
                         <div class="grid grid-cols-2 gap-4">
-                          <div>
-                            <label for="start-time" class="block font-medium mb-2">เวลาเริ่มต้น</label>
-                            <input type="time" id="start-time" class="w-full p-2 border rounded-md">
-                          </div>
-                          <div>
-                            <label for="end-time" class="block font-medium mb-2">เวลาสิ้นสุด</label>
-                            <input type="time" id="end-time" class="w-full p-2 border rounded-md">
-                          </div>
+                            <div>
+                                <label for="start-time" class="block font-medium mb-2">เวลาเริ่มต้น</label>
+                                <input type="time" id="start-time" class="w-full p-2 border rounded-md">
                         </div>
-                      
-<!-- เลือกหมู่บ้าน -->
-<div>
-  <label class="block font-medium mb-2">เลือกหมู่บ้าน</label>
-  <div class="grid grid-cols-5 gap-2">
-      <!-- ปุ่มหมู่บ้าน -->
-      <button
-          class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
-          data-village="หมู่บ้านที่ 1"
-          onclick="toggleVillage(this)">
-          หมู่บ้านที่ 1
-      </button>
-      <button
-          class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
-          data-village="หมู่บ้านที่ 2"
-          onclick="toggleVillage(this)">
-          หมู่บ้านที่ 2
-      </button>
-      <button
-          class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
-          data-village="หมู่บ้านที่ 3"
-          onclick="toggleVillage(this)">
-          หมู่บ้านที่ 3
-      </button>
-      <button
-          class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
-          data-village="หมู่บ้านที่ 4"
-          onclick="toggleVillage(this)">
-          หมู่บ้านที่ 4
-      </button>
-      <button
-          class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
-          data-village="หมู่บ้านที่ 5"
-          onclick="toggleVillage(this)">
-          หมู่บ้านที่ 5
-      </button>
-      <button
-          class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
-          data-village="หมู่บ้านที่ 6"
-          onclick="toggleVillage(this)">
-          หมู่บ้านที่ 6
-      </button>
-      <button
-          class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
-          data-village="หมู่บ้านที่ 7"
-          onclick="toggleVillage(this)">
-          หมู่บ้านที่ 7
-      </button>
-      <button
-          class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
-          data-village="หมู่บ้านที่ 8"
-          onclick="toggleVillage(this)">
-          หมู่บ้านที่ 8
-      </button>
-      <button
-          class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
-          data-village="หมู่บ้านที่ 9"
-          onclick="toggleVillage(this)">
-          หมู่บ้านที่ 9
-      </button>
-      <button
-          class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
-          data-village="หมู่บ้านที่ 10"
-          onclick="toggleVillage(this)">
-          หมู่บ้านที่ 10
-      </button>
-  </div>
-</div>
+                        <div>
+                                <label for="end-time" class="block font-medium mb-2">เวลาสิ้นสุด</label>
+                                <input type="time" id="end-time" class="w-full p-2 border rounded-md">
+                        </div>
+                </div>
 
-                      
-                        <!-- ปุ่มบันทึก -->
-                        <div class="flex justify-end space-x-4">
-                          <button class="px-4 py-2 bg-gray-300 text-black rounded-md">ยกเลิก</button>
-                          <button class="px-4 py-2 bg-blue-500 text-white rounded-md">บันทึก</button>
-                        </div>
-                      </div>
-                      
+                <!-- เลือกหมู่บ้าน -->
+                <div>
+                <label class="block font-medium mb-2">เลือกหมู่บ้าน</label>
+                <div class="grid grid-cols-5 gap-2">
+                    <!-- ปุ่มหมู่บ้าน -->
+                    <button
+                        class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
+                        data-village="หมู่บ้านที่ 1"
+                        onclick="toggleVillage(this)">
+                        หมู่บ้านที่ 1
+                    </button>
+                    <button
+                        class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
+                        data-village="หมู่บ้านที่ 2"
+                        onclick="toggleVillage(this)">
+                        หมู่บ้านที่ 2
+                    </button>
+                    <button
+                        class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
+                        data-village="หมู่บ้านที่ 3"
+                        onclick="toggleVillage(this)">
+                        หมู่บ้านที่ 3
+                    </button>
+                    <button
+                        class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
+                        data-village="หมู่บ้านที่ 4"
+                        onclick="toggleVillage(this)">
+                        หมู่บ้านที่ 4
+                    </button>
+                    <button
+                        class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
+                        data-village="หมู่บ้านที่ 5"
+                        onclick="toggleVillage(this)">
+                        หมู่บ้านที่ 5
+                    </button>
+                    <button
+                        class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
+                        data-village="หมู่บ้านที่ 6"
+                        onclick="toggleVillage(this)">
+                        หมู่บ้านที่ 6
+                    </button>
+                    <button
+                        class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
+                        data-village="หมู่บ้านที่ 7"
+                        onclick="toggleVillage(this)">
+                        หมู่บ้านที่ 7
+                    </button>
+                    <button
+                        class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
+                        data-village="หมู่บ้านที่ 8"
+                        onclick="toggleVillage(this)">
+                        หมู่บ้านที่ 8
+                    </button>
+                    <button
+                        class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
+                        data-village="หมู่บ้านที่ 9"
+                        onclick="toggleVillage(this)">
+                        หมู่บ้านที่ 9
+                    </button>
+                    <button
+                        class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
+                        data-village="หมู่บ้านที่ 10"
+                        onclick="toggleVillage(this)">
+                        หมู่บ้านที่ 10
+                    </button>
+                </div>
+                </div>
+
+                    <!-- ปุ่มบันทึก -->
+                <div class="flex justify-end space-x-4">
+                    <button class="px-4 py-2 bg-gray-300 text-black rounded-md">ยกเลิก</button>
+                    <button class="px-4 py-2 bg-blue-500 text-white rounded-md">บันทึก</button>
                 </div>
             </div>
+        </div>
+    </div>
 </body>
 <script>
     let selectedVillages = []; // เก็บข้อมูลหมู่บ้านที่เลือก

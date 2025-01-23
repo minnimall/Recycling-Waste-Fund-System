@@ -63,12 +63,11 @@
                                     <tr class="was-row-<%= index + 1 %> row-active" 
                                         onclick="setWasteForm('<%= index + 1 %>', '<%= wastes._id %>', '<%= wastes.wasteName %>',
                                                             '<%= wastes.pricePerUnit %>', '<%= wastes.wasteType._id %>', '<%= wastes.img %>')">
-                                    
                                         <td class="table-was-index"><%= index + 1 %></td>
                                         <td class="table-was-name"><%= wastes.wasteName %></td>
                                         <td class="table-was-price"><%= wastes.pricePerUnit %></td>
                                         <td class="table-was-type"><%= wastes.wasteType.wasteTypeName %></td>
-                                        <td class="table-was-img">
+                                        <td class="table-was-imgg">
                                             <% if (wastes.img) { %>
                                                 <img src="<%= wastes.img %>" alt="รูป <%= wastes.img %>" class="waste-img">
                                             <% } else { %>

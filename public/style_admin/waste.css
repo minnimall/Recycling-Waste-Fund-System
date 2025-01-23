@@ -65,3 +65,8 @@ table tbody{
     margin-left: 5px;
 }
 
+.table-was-imgg{
+    display: flex;
+    justify-content: center;
+}
+
