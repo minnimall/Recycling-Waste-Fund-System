@@ -181,7 +181,7 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// Route สำหรับ Logout
+//logout
 app.get('/logout', (req, res) => {
     req.session.destroy((err) => {
         if (err) {

@@ -322,7 +322,50 @@ const wasteDelete = async (req, res) => {
         res.status(500).redirect('/admin/waste?error=เกิดข้อผิดพลาดในการลบข้อมูลผู้ใช้');
     }
 };
-//แก้ไขประเภทขยะ
+//แก้ไขขยะ
+const wasteEdit = async (req, res) => {
+    upload2(req, res, async (err) => {
+        if (err) {
+            console.error('Error in file upload:', err);
+            return res.status(400).send('เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ');
+        }
+
+        const { _id, wasteName, pricePerUnit, wasteType } = req.body;
+
+        // ตรวจสอบข้อมูลที่จำเป็น
+        if (!_id || !wasteName || !pricePerUnit || !wasteType) {
+            return res.status(400).send('กรุณากรอกข้อมูลให้ครบถ้วน');
+        }
+
+        try {
+            const waste = await myWaste.findById(_id);
+
+            if (!waste) {
+                return res.status(404).send('ไม่พบข้อมูลขยะที่ต้องการแก้ไข');
+            }
+
+            // ตรวจสอบว่ามีการอัปโหลดรูปภาพใหม่หรือไม่
+            const updatedImagePath = req.file
+                ? `/upload_imgwaste/${req.file.filename}`
+                : waste.img; // ใช้รูปเดิมถ้าไม่มีการอัปโหลดใหม่
+
+            // อัปเดตข้อมูลขยะ
+            waste.wasteName = wasteName;
+            waste.pricePerUnit = parseFloat(pricePerUnit);
+            waste.wasteType = wasteType;
+            waste.img = updatedImagePath;
+
+            await waste.save();
+
+            console.log('Waste updated successfully');
+            res.redirect('/admin/waste?message=แก้ไขข้อมูลขยะสำเร็จ');
+        } catch (error) {
+            console.error('Error updating waste:', error);
+            res.redirect('/admin/waste?error=เกิดข้อผิดพลาดในระบบ');
+        }
+    });
+};
+
 
 
 // ประเภทขยะ
@@ -483,7 +526,7 @@ module.exports = {
     //กิจกรรม
     activityIndex,activityPost,activityEdit,deleteActivity,
     //ขยะ
-    wasteIndex,wastePost,wasteDelete,
+    wasteIndex,wastePost,wasteDelete,wasteEdit,
     //ประเภทขยะ
     wasteTypeIndex,wasteTypePost,wasteTypeEdit,wasteTypeDelete,
     //พนักงาน
