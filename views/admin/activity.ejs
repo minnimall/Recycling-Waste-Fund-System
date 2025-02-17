@@ -97,11 +97,9 @@
                                         <i class="fa fa-trash"></i>
                                     </button>
                                 </form> -->
-                                <button
-                                    onclick="deleteActivity(['<%= index + 1 %>', '<%= act._id %>'])"
-                                    class="delete-btn">
+                                <button onclick="deleteActivity('<%= act._id %>', '<%= act.title %>')" class="delete-btn">
                                     <i class="fa fa-trash"></i>
-                            </button>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -140,9 +138,9 @@
             modal.style.display = 'none';
         }
 
-        function deleteActivity(data) {
+        function deleteActivity(id, title) {
             Swal.fire({
-                title: `ลบข้อมูลลำดับที่ ${data[0]} หรือไม่?`,
+                title: `ลบ "${title}" หรือไม่?`,
                 text: "หากคุณลบแล้วจะไม่สามารถกู้คืนได้!",
                 icon: "warning",
                 showCancelButton: true,
@@ -152,7 +150,7 @@
                 cancelButtonText: "ยกเลิก"
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch('/admin/deleteActivity/' + data[1], {
+                    fetch('/admin/deleteActivity/' + id, {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json',

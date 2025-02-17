@@ -71,8 +71,7 @@
                             <tbody>
                                 <% if (wastetype && wastetype.length > 0) { %>
                                     <% wastetype.forEach((wastetypee, index) => { %>
-                                        <tr class="was-row-<%= index + 1 %> row-active"
-                                            onclick="setWasteTypeForm('<%= index + 1 %>', '<%= wastetypee._id %>', '<%= wastetypee.wasteTypeName %>')">
+                                        <tr>
                                             <td class="table-was-index">
                                                 <%= (currentPage - 1) * 5 + index + 1 %>
                                             </td>
@@ -80,8 +79,12 @@
                                                 <%= wastetypee.wasteTypeName %>
                                             </td>
                                             <td class="table-was-delete">
+                                                <button type="button" class="was-row-<%= index + 1 %> row-active edit-btn" 
+                                                    onclick="setWasteTypeForm('<%= index + 1 %>', '<%= wastetypee._id %>', '<%= wastetypee.wasteTypeName %>')">
+                                                    <i class="fa fa-edit"></i>
+                                                </button>
                                                 <button
-                                                    onclick="deleteWasteType(['<%= (currentPage - 1) * 5 + index + 1 %>', '<%= wastetypee._id %>'])"
+                                                    onclick="deleteWasteType(['<%= (currentPage - 1) * 5 + index + 1 %>', '<%= wastetypee._id %>','<%= wastetypee.wasteTypeName %>'])"
                                                     class="delete-btn">
                                                     <i class="fa fa-trash"></i>
                                                 </button>

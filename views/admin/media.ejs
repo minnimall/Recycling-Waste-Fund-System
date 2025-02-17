@@ -92,11 +92,10 @@
                             <button type="button" class="edit-btn" onclick="openEditModal('<%= amedia._id %>', '<%= amedia.title %>', '<%= amedia.youtubeUrl %>')">
                                 <i class="fa fa-edit"></i>
                             </button>
-                            <button
-                                onclick="deleteMedia(['<%= index + 1 %>', '<%= amedia._id %>'])"
-                                class="delete-btn">
+                            <button onclick="deleteMedia('<%= amedia._id %>', '<%= amedia.title %>')" class="delete-btn">
                                 <i class="fa fa-trash"></i>
                             </button>
+                            
                         </div>
                     </div>
                 </div>
@@ -135,9 +134,9 @@
             modal.style.display = 'none';
         }
 
-        function deleteMedia(data) {
+        function deleteMedia(id, title) {
             Swal.fire({
-                title: `ลบข้อมูลลำดับที่ ${data[0]} หรือไม่?`,
+                title: `ลบ "${title}" หรือไม่?`,
                 text: "หากคุณลบแล้วจะไม่สามารถกู้คืนได้!",
                 icon: "warning",
                 showCancelButton: true,
@@ -147,20 +146,20 @@
                 cancelButtonText: "ยกเลิก"
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch('/admin/mediaDelete/' + data[1], {
+                    fetch('/admin/mediaDelete/' + id, {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json',
                         },
                     })
-                        .then(result => {
+                    .then(result => {
                             if (result.isConfirmed) {
-                                Swal.fire('ลบข้อมูลไม่สำเร็จ', 'ข้อมูลสื่อความรู้ถูกลบเรียบร้อยแล้ว', 'error')
+                                Swal.fire('ลบข้อมูลไม่สำเร็จ', 'ข้อมูลกิจกรรมถูกลบเรียบร้อยแล้ว', 'error')
                                     .then(() => {
                                         location.reload();
                                     });
                             } else {
-                                Swal.fire('ลบข้อมูลสำเร็จ', 'ข้อมูลสื่อความรู้ถูกลบเรียบร้อยแล้ว', 'success')
+                                Swal.fire('ลบข้อมูลสำเร็จ', 'ข้อมูลกิจกรรมถูกลบเรียบร้อยแล้ว', 'success')
                                 .then(() => {
                                         location.reload();
                                 });
@@ -168,10 +167,9 @@
                         })
                         .catch(error => {
                             Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้', 'error');
-                        });
+                    });
                 }
             });
         }
     </script>
 </body>
-</html>

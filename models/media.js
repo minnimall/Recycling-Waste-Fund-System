@@ -9,7 +9,7 @@ const mediaSchema = new Schema({
     youtubeUrl: {
         type: String,
         required: true
-    }
+    },
 }, { timestamps: true })
 
 const myMedia = mongoose.model('Media', mediaSchema)

@@ -60,9 +60,7 @@
                         <tbody>
                             <% if (waste.length > 0) { %>
                                 <% waste.forEach((wastes, index) => { %>
-                                    <tr class="was-row-<%= index + 1 %> row-active" 
-                                        onclick="setWasteForm('<%= index + 1 %>', '<%= wastes._id %>', '<%= wastes.wasteName %>',
-                                                            '<%= wastes.pricePerUnit %>', '<%= wastes.wasteType._id %>', '<%= wastes.img %>')">
+                                    <tr>
                                         <td class="table-was-index"><%= index + 1 %></td>
                                         <td class="table-was-name"><%= wastes.wasteName %></td>
                                         <td class="table-was-price"><%= wastes.pricePerUnit %></td>
@@ -75,6 +73,11 @@
                                             <% } %>
                                         </td>
                                         <td>
+                                            <button type="button" class="was-row-<%= index + 1 %> row-active edit-btn" 
+                                                onclick="setWasteForm('<%= index + 1 %>', '<%= wastes._id %>', '<%= wastes.wasteName %>',
+                                                            '<%= wastes.pricePerUnit %>', '<%= wastes.wasteType._id %>', '<%= wastes.img %>')">
+                                                <i class="fa fa-edit"></i>
+                                            </button>
                                             <button onclick="deleteEmp(['<%= index + 1 %>', '<%= wastes._id %>'])" class="delete-btn">
                                                 <i class="fa fa-trash"></i>
                                             </button>
