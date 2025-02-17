@@ -9,6 +9,7 @@ const myWasteType = require('../models/wastetype');
 const myNews = require('../models/news');
 const myActivity = require('../models/activity');
 const path = require('path');
+const moment = require('moment');
 
 router.use(express.static(path.join(__dirname, '../public')));
 
@@ -29,7 +30,10 @@ const dashboardIndex = (req, res)=> {
 const mediaIndex = (req, res) => {
     myMedia.find().sort({ createdAt: -1 })
         .then((result) => {
-            res.render('admin/media', { mytitle: 'Admindashboard | Media', media: result});
+            result.forEach(item => {
+                item.formattedDate = moment(item.createdAt).format('YYYY-MM-DD');
+            });
+            res.render('admin/media', { mytitle: 'Admindashboard | Media', media: result });
         })
         .catch((err) => {
             console.log(err);
@@ -150,6 +154,9 @@ const upload = multer({
 const activityIndex = (req, res)=> {
     myActivity.find().sort( {createdAt: -1} )
     .then((result)=> {
+        result.forEach(item => {
+            item.formattedDate = moment(item.createdAt).format('YYYY-MM-DD');
+        });
         res.render('admin/activity', { mytitle: 'Admindashboard | Activity', activity: result })
     })
     .catch((err) => {
