@@ -120,7 +120,6 @@
                                 </a>
                             <% } %>
                         </div>
-                        
                     </div>
                     
                     <div class="was-form" id="edit_Form" style="display: none;">
@@ -210,7 +209,7 @@
         }
         function deleteWasteType(data) {
             Swal.fire({
-                title: `ลบข้อมูลลำดับที่ ${data[0]} หรือไม่?`,
+                title: `ลบ "${data[2]}" หรือไม่?`,
                 text: "หากคุณลบแล้วจะไม่สามารถกู้คืนได้!",
                 icon: "warning",
                 showCancelButton: true,

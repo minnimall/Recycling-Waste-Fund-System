@@ -122,48 +122,6 @@ app.get('/register', (req, res) => {
     res.render('register');
 });
 
-app.post('/register', async (req, res) => {
-    const { username, password, confirmPassword, tel, email, role } = req.body;
-
-    try {
-        // ตรวจสอบว่ารหัสผ่านและยืนยันรหัสผ่านตรงกันหรือไม่
-        if (password !== confirmPassword) {
-            return res.redirect('/register?error=รหัสผ่านและยืนยันรหัสผ่านไม่ตรงกัน');
-        }
-
-        // ตรวจสอบว่ามีผู้ใช้งานในระบบแล้วหรือไม่
-        let user = await Admin.findOne({ username });
-        if (user) {
-            return res.redirect('/register?error=ผู้ใช้นี้มีอยู่แล้ว');
-        }
-
-        // แฮชรหัสผ่าน
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        // กำหนดค่า role (admin หรือ employee) จากฟอร์มที่เลือก
-        if (role !== 'admin' && role !== 'employee') {
-            return res.redirect('/register?error=บทบาทไม่ถูกต้อง');
-        }
-
-        // สร้างผู้ใช้งานใหม่
-        user = new Admin({
-            username,
-            password: hashedPassword,
-            tel,
-            email,
-            role,
-        });
-
-        await user.save();
-        res.redirect('/admin/employee?message=เพิ่มสมาชิกสำเร็จ');
-        
-    } catch (err) {
-        console.error('Registration error:', err);
-        res.redirect('/register?error=เกิดข้อผิดพลาดในระบบ');
-    }
-});
-
 //รับค่าจากการ login
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;

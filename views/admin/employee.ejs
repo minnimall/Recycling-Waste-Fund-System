@@ -76,7 +76,7 @@
                             <thead>
                                 <tr>
                                     <th class="table-emp-index">ลำดับ</th>
-                                    <th class="table-emp-username">ชื่อ</th>
+                                    <th class="table-emp-username">ชื่อผู้ใช้</th>
                                     <th class="table-emp-email">อีเมล</th>
                                     <th class="table-emp-tel">เบอร์โทร</th>
                                     <th class="table-emp-role">บทบาท</th>
@@ -97,13 +97,14 @@
                                                 </div>
                                             </td>
                                             <td class="table-emp-delete">
-                                                <!-- <form action="/admin/employeeDelete/<%= employee._id %>" method="POST" onsubmit="return confirm('ยืนยันการลบพนักงานคนนี้?')">
-                                                    <button type="submit" class="delete-btn">
-                                                        <i class="fa fa-trash"></i>
-                                                    </button>
-                                                </form> -->
+                                                <button type="button" class="was-row-<%= index + 1 %> row-active edit-btn" 
+                                                    onclick="setEmpEditForm('<%= index + 1 %>', '<%= employee._id %>', '<%= employee.username %>',
+                                                                '<%= employee.firstname %>', '<%= employee.lastname %>', '<%= employee.tel %>',
+                                                                '<%= employee.email %>','<%= employee.role %>')">
+                                                    <i class="fa fa-edit"></i>
+                                                </button>
                                                 <button
-                                                    onclick="deleteEmp(['<%= index + 1 %>', '<%= employee._id %>'])"
+                                                    onclick="deleteEmp(['<%= index + 1 %>', '<%= employee._id %>','<%= employee.username %>'])"
                                                     class="delete-btn">
                                                     <i class="fa fa-trash"></i>
                                                 </button>
@@ -120,26 +121,34 @@
                     </div>                    
                     
 
-                    <div class="emp-form" id="add_form" style="display: none;">
-                        <form action="/register" method="POST">
+                    <div class="emp-form" id="add_emp" style="display: none;">
+                        <form action="/admin/employeeRegister" method="POST">
                             <div class="form-head">
                                 <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
-                                <span>รายละเอียดบัญชีผู้ใช้</span>
+                                <span>เพิ่มบัญชีผู้ใช้</span>
                             </div>
                             <div class="input-group">
                                 <!-- Username -->
                                 <label>ชื่อผู้ใช้</label>
-                                <input type="text" name="username" placeholder="username" required>
+                                <input type="text" name="username" placeholder="ชื่อผู้ใช้" required>
 
                                 <!-- Password -->
                                 <label>รหัสผ่าน</label>
-                                <input type="password" name="password" placeholder="password" required>
+                                <input type="password" name="password" placeholder="รหัสผ่าน" required>
 
                                 <!-- ConfirmPassword -->
                                 <label>ยืนยันรหัสผ่าน</label>
-                                <input type="password" name="confirmPassword" placeholder="confirmPassword" required>
+                                <input type="password" name="confirmPassword" placeholder="ยืนยันรหัสผ่าน" required>
 
-                                <!-- Tel -->
+                                <!-- ชื่อจริง -->
+                                <label>ชื่อจริง</label>
+                                <input type="text" name="firstname" placeholder="ชื่อจริง" required>
+
+                                <!-- นามสกุล -->
+                                <label>นามสกุล</label>
+                                <input type="text" name="lastname" placeholder="นามสกุล" required>
+
+                                <!-- เบอร์ -->
                                 <label>เบอร์โทร</label>
                                 <input type="tel" name="tel" placeholder="094-XXXXXXX" pattern="[0-9]{3}-[0-9]{7}"
                                     required>
@@ -163,29 +172,38 @@
                             </div>
                         </form>
                     </div>
-                    <div class="emp-form" id="edit_form" style="display: block;">
-                        <form action="/register" method="POST">
+                    <div class="emp-form" id="edit_emp" style="display: block;">
+                        <form action="/admin/employeeEdit" method="POST">
                             <div class="form-head">
                                 <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
                                 <span>แก้ไขบัญชีผู้ใช้</span>
                             </div>
                             <div class="input-group">
+                                <input type="hidden" name="_id" id="hiddenEmpId" value="">
                                 <!-- Username -->
                                 <label>ชื่อผู้ใช้</label>
-                                <input type="text" name="username" placeholder="username" id="empUsername" required>
+                                <input type="text" name="username" id="empUsername" placeholder="username"  required>
+
+                                <!-- ชื่อจริง -->
+                                <label>ชื่อจริง</label>
+                                <input type="text" name="firstname" id="empFirstname" placeholder="ชื่อจริง" required>
+
+                                <!-- นามสกุล -->
+                                <label>นามสกุล</label>
+                                <input type="text" name="lastname" id="empLastname" placeholder="นามสกุล" required>
 
                                 <!-- Tel -->
                                 <label>เบอร์โทร</label>
-                                <input type="tel" name="tel" placeholder="094-XXXXXXX" pattern="[0-9]{3}-[0-9]{7}" id="empTel"
+                                <input type="tel" name="tel" id="empTel"  placeholder="094-XXXXXXX" pattern="[0-9]{3}-[0-9]{7}" id="empTel"
                                     required>
 
                                 <!-- Email -->
                                 <label>อีเมล</label>
-                                <input type="email" name="email" placeholder="emp@mail.com" required id="emailEmp">
+                                <input type="email" name="email" id="empEmail" placeholder="emp@mail.com" required id="emailEmp">
 
                                 <!-- Role -->
                                 <label>บทบาท</label>
-                                <select name="role" required>
+                                <select name="role" id="empRole" required>
                                     <option value="" disabled selected>เลือกบทบาท</option>
                                     <option value="admin">Admin</option>
                                     <option value="employee">Employee</option>
@@ -205,25 +223,35 @@
     <script>
         let lastClickedRow = null;
 
-        function setEmpForm() {
+        function setEmpEditForm(Index, Id, Username, Firstname, Lastname, Tel, Email, Role) {
+            const editForm = document.getElementById('edit_emp');
+            const addForm = document.getElementById('add_emp');
 
-        }
-
-        function setWasteTypeForm(Index, Id, Name) {
-            const editForm = document.getElementById('edit_Form');
-            const addForm = document.getElementById('add_Form');
-
-            const InputWasteTypeId = document.getElementById('hiddenWasteTypeId');
-            InputWasteTypeId.value = Id;
-
+            const InputEmpTypeId = document.getElementById('hiddenEmpId');
+            InputEmpTypeId.value = Id;
             console.log("ID:", Id); // Debug
-            const InputWasteTypeName = document.getElementById('editWasteTypeName');
 
-            InputWasteTypeName.value = Name;
+            const InputUsername = document.getElementById('empUsername');
+            InputUsername.value = Username;
+
+            const InputFirstname = document.getElementById('empFirstname');
+            InputFirstname.value = Firstname;
+
+            const InputLastname = document.getElementById('empLastname');
+            InputLastname.value = Lastname;
+
+            const InputTel = document.getElementById('empTel');
+            InputTel.value = Tel;
+
+            const InputEmail = document.getElementById('empEmail');
+            InputEmail.value = Email;
+
+            const InputRole = document.getElementById('empRole');
+            InputRole.value = Role;
 
             addForm.style.display = 'none';
+            
             const selectedRow = document.querySelector(`.was-row-${Index}`);
-
             if (lastClickedRow === selectedRow) {
                 selectedRow.style.backgroundColor = '';
                 lastClickedRow = null;
@@ -235,9 +263,10 @@
                 lastClickedRow = selectedRow;
             }
         }
+        //ปุ่มแสดงฟอร์มเพิ่มพนักงาน
         function empFormToggle() {
-            const addForm = document.getElementById('add_form');
-            const editForm = document.getElementById('edit_form');
+            const addForm = document.getElementById('add_emp');
+            const editForm = document.getElementById('edit_emp');
 
             editForm.style.display = 'none';
 
@@ -248,9 +277,10 @@
                 addForm.style.display = 'block';
             }
         }
+        //ลบหนักงาน
         function deleteEmp(data) {
             Swal.fire({
-                title: `ลบข้อมูลลำดับที่ ${data[0]} หรือไม่?`,
+                title: `ลบพนักงาน "${data[2]}" หรือไม่?`,
                 text: "หากคุณลบแล้วจะไม่สามารถกู้คืนได้!",
                 icon: "warning",
                 showCancelButton: true,
@@ -286,5 +316,4 @@
             });
         }
     </script>
-
 </html>

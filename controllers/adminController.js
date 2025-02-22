@@ -9,6 +9,8 @@ const myWasteType = require('../models/wastetype');
 const myNews = require('../models/news');
 const myActivity = require('../models/activity');
 const path = require('path');
+const bcrypt = require('bcryptjs');
+const session = require('express-session');
 const moment = require('moment');
 
 router.use(express.static(path.join(__dirname, '../public')));
@@ -292,6 +294,12 @@ const wastePost = async (req, res) => {
         }
 
         try {
+            // ตรวจสอบว่ามี wasteName นี้ในฐานข้อมูลแล้วหรือไม่
+            const existingWaste = await myWaste.findOne({ wasteName });
+            if (existingWaste) {
+                return res.redirect('/admin/waste?error=ขยะนี้มีอยู่แล้ว');
+            }
+            // ตรวจสอบประเภทขยะ
             const wasteTypeDoc = await myWasteType.findById(wasteType);
             if (!wasteTypeDoc) {
                 return res.status(400).send('ประเภทขยะไม่ถูกต้อง');
@@ -306,7 +314,7 @@ const wastePost = async (req, res) => {
 
             await newWaste.save();
             console.log('Waste saved successfully');
-            res.redirect('/admin/waste'); // ทำการเปลี่ยนเส้นทางไปที่หน้า waste
+            res.redirect('/admin/waste?message=เพิ่มขยะสำเร็จ');
         } catch (error) {
             console.error('Error saving waste:', error);
             res.redirect('/admin/waste?error=เกิดข้อผิดพลาดในระบบ');
@@ -500,7 +508,59 @@ const employeeIndex = (req, res) => {
             res.status(500).send('เกิดข้อผิดพลาดในการดึงข้อมูลพนักงาน');
         });
 };
+// ลงทะเบียนพนักงานหรือแอดมิน
+const employeeRegister = async (req, res) => {
+    const { username, password, confirmPassword, firstname, lastname, tel, email, role } = req.body;
 
+    try {
+        // ตรวจสอบว่ารหัสผ่านและยืนยันรหัสผ่านตรงกันหรือไม่
+        if (password !== confirmPassword) {
+            return res.redirect('/admin/employee?error=รหัสผ่านและยืนยันรหัสผ่านไม่ตรงกัน');
+        }
+
+        // ตรวจสอบว่ามีผู้ใช้งานที่ใช้ username, email หรือ tel ซ้ำกันหรือไม่
+        let existingUser = await MyAdmin.findOne({ $or: [{ username }, { email }, { tel }] });
+
+        if (existingUser) {
+            if (existingUser.username === username) {
+                return res.redirect('/admin/employee?error=ชื่อผู้ใช้นี้มีอยู่แล้ว');
+            }
+            if (existingUser.email === email) {
+                return res.redirect('/admin/employee?error=อีเมลนี้ถูกใช้งานแล้ว');
+            }
+            if (existingUser.tel === tel) {
+                return res.redirect('/admin/employee?error=เบอร์โทรนี้ถูกใช้งานแล้ว');
+            }
+        }
+
+        // แฮชรหัสผ่าน
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // ตรวจสอบค่า role (admin หรือ employee)
+        if (role !== 'admin' && role !== 'employee') {
+            return res.redirect('/admin/employee?error=บทบาทไม่ถูกต้อง');
+        }
+
+        // สร้างผู้ใช้งานใหม่
+        const newUser = new MyAdmin({
+            username,
+            password: hashedPassword,
+            firstname,
+            lastname,
+            tel,
+            email,
+            role,
+        });
+
+        await newUser.save();
+        res.redirect('/admin/employee?message=เพิ่มสมาชิกสำเร็จ');
+
+    } catch (err) {
+        console.error('Registration error:', err);
+        res.redirect('/admin/employee?error=เกิดข้อผิดพลาดในระบบ');
+    }
+};
 // ลบพนักงาน
 const employeeDelete = async (req, res) => {
     try {
@@ -517,6 +577,28 @@ const employeeDelete = async (req, res) => {
         res.status(500).redirect('/admin/employee?error=เกิดข้อผิดพลาดในการลบข้อมูลผู้ใช้');
     }
 };
+// แก้ไขข้อมูลพนักงาน
+const editEmployee = async (req, res) => {
+    const { _id, username, firstname, lastname, tel, email, role } = req.body;
+
+    try {
+        const updatedEmployee = await MyAdmin.findByIdAndUpdate(
+            _id,
+            { username, firstname, lastname, tel, email, role },
+            { new: true }  // return document ที่ถูกอัปเดต
+        );
+
+        if (!updatedEmployee) {
+            return res.status(404).send('ไม่พบข้อมูลพนักงาน');
+        }
+
+        res.redirect('/admin/employee?message=แก้ไขข้อมูลพนักงานสำเร็จ');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('เกิดข้อผิดพลาดที่เซิร์ฟเวอร์');
+    }
+};
+
 
 // รอบการรับซื้อ
 const RoundIndex = (req, res)=> {
@@ -537,7 +619,7 @@ module.exports = {
     //ประเภทขยะ
     wasteTypeIndex,wasteTypePost,wasteTypeEdit,wasteTypeDelete,
     //พนักงาน
-    employeeIndex,employeeDelete,
+    employeeIndex,employeeRegister,employeeDelete,editEmployee,
     //รอบการรับซื้อขยะ
     RoundIndex,
 }

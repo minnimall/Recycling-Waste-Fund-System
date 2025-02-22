@@ -78,7 +78,7 @@
                                                             '<%= wastes.pricePerUnit %>', '<%= wastes.wasteType._id %>', '<%= wastes.img %>')">
                                                 <i class="fa fa-edit"></i>
                                             </button>
-                                            <button onclick="deleteEmp(['<%= index + 1 %>', '<%= wastes._id %>'])" class="delete-btn">
+                                            <button onclick="deleteEmp(['<%= index + 1 %>', '<%= wastes._id %>','<%= wastes.wasteName %>'])" class="delete-btn">
                                                 <i class="fa fa-trash"></i>
                                             </button>
                                         </td>
@@ -254,7 +254,7 @@
     
     function deleteEmp(data) {
             Swal.fire({
-                title: `ลบข้อมูลลำดับที่ ${data[0]} หรือไม่?`,
+                title: `ลบ "${data[2]}" หรือไม่?`,
                 text: "หากคุณลบแล้วจะไม่สามารถกู้คืนได้!",
                 icon: "warning",
                 showCancelButton: true,
@@ -288,22 +288,6 @@
                     });
             }
         });
-    }
-
-    function editFormToggle(waste) {
-        const editForm = document.getElementById('edit_Form');
-
-        if (editForm.style.display === 'block') {
-            editForm.style.display = 'none';
-        } else {
-            // Populate form fields with waste data
-            document.getElementById('editWasteId').value = waste._id;
-            document.getElementById('editWasteName').value = waste.wasteName;
-            document.getElementById('editPricePerUnit').value = waste.pricePerUnit;
-            document.getElementById('editWasteType').value = waste.wasteType._id;
-
-            editForm.style.display = 'block';
-        }
     }
 </script>
 

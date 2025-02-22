@@ -37,7 +37,9 @@ router.delete('/deletewasteType/:id', adminController.wasteTypeDelete);
 
 // พนักงาน
 router.get('/employee', adminController.employeeIndex)
+router.post('/employeeRegister', adminController.employeeRegister)
 router.delete('/employeeDelete/:id', adminController.employeeDelete);
+router.post('/employeeEdit', adminController.editEmployee);
 
 // รอบการรับซื้อ
 router.get('/round', adminController.RoundIndex)
