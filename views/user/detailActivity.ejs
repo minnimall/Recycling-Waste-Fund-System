@@ -47,7 +47,7 @@
                 <div class="col-md-7">
                     <h3><%= activity.title %></h3>
                     <p><%= activity.content %></p>
-                    <p><strong>วันที่:</strong> <%= activity.createdAt.toLocaleDateString() %></p>
+                    <p><strong>วันที่:</strong> <%= activity.formattedDate %></p>
                     <a href="/">กลับหน้าหลัก</a>
                 </div>
             </div>
@@ -59,7 +59,7 @@
                     <% if (otherActivities.length=5) {  %>
                         <% otherActivities.forEach(act => { %>
                             <a href="/user/detailActivity/<%= act._id %>" class="card-link">
-                                <p class="card-title"><%= act.title %></p>
+                                <p class="card-title"><%= act.formattedDate %> <%= act.title %></p>
                             </a>
                         <% }) %>
                         <% } else { %>

@@ -42,7 +42,7 @@
             <!-- Main content -->
             <div class="content">
                 <div class="content-header">
-                    <h1 class="title">ขยะทั้งหมด (<%= waste.length %> รายการ)</h1>
+                    <h1 class="title">ขยะทั้งหมด (<%= waste.length %>)</h1>
                     <div class="add-media" onclick="wasFormToggle()">เพิ่มรายการขยะ</div>
                 </div>
                 <div class="was-container">
@@ -135,6 +135,7 @@
                     
                                 <div class="submit-btn">
                                     <button type="submit" class="submit">บันทึก</button>
+                                    <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
                                 </div>
                             </div>
                         </form>
@@ -189,6 +190,7 @@
                     
                                 <div class="submit-btn">
                                     <button type="submit" class="submit">บันทึกการเปลี่ยนแปลง</button>
+                                    <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
                                 </div>
                             </div>
                         </form>
@@ -289,6 +291,21 @@
             }
         });
     }
+    function cancelForm() {
+        const addForm = document.getElementById('add_Form');
+        const editForm = document.getElementById('edit_Form');
+
+        // ซ่อนฟอร์มทั้งสองเมื่อกดปุ่มยกเลิก
+        addForm.style.display = 'none';
+        editForm.style.display = 'none';
+
+        // รีเซ็ตค่าในฟอร์ม (ถ้าต้องการ)
+        document.getElementById('wasteName').value = '';
+        document.getElementById('pricePerUnit').value = '';
+        document.getElementById('wasteType').value = '';
+        document.getElementById('img').value = '';  // ลบรูปภาพที่เลือก
+    }
+
 </script>
 
 </html>

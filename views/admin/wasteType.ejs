@@ -49,7 +49,7 @@
             <!-- Main content -->
             <div class="content">
                 <div class="content-header">
-                    <h1>ประเภทขยะ (<%= wastetype.length %> รายการ)</h1>
+                    <h1>ประเภทขยะ (<%= wastetype.length %>)</h1>
                     <div class="add-media" onclick="wasFormToggle()">เพิ่มประเภทขยะ</div>
                 </div>
                 <div class="was-container">
@@ -139,6 +139,7 @@
 
                                 <div class="submit-btn flex justify-end">
                                     <button type="submit" class="submit">บันทึกการเปลี่ยนแปลง</button>
+                                    <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
                                 </div>
                             </div>
                         </form>
@@ -158,6 +159,7 @@
 
                                 <div class="submit-btn flex justify-end">
                                     <button type="submit" class="submit">บันทึก</button>
+                                    <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
                                 </div>
                             </div>
                         </form>
@@ -243,6 +245,18 @@
                         });
                 }
             });
+        }
+        function cancelForm() {
+            const editForm = document.getElementById('edit_Form');
+            const addForm = document.getElementById('add_Form');
+
+            // Hide both forms when cancel is clicked
+            editForm.style.display = 'none';
+            addForm.style.display = 'none';
+
+            // Optionally reset the forms
+            editForm.reset();
+            addForm.reset();
         }
     </script>
 </html>

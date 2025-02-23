@@ -168,6 +168,7 @@
                                 <!-- Submit and Cancel Buttons -->
                                 <div class="submit-btn">
                                     <button type="submit" class="submit">บันทึก</button>
+                                    <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
                                 </div>
                             </div>
                         </form>
@@ -212,6 +213,7 @@
                                 <!-- Submit and Cancel Buttons -->
                                 <div class="submit-btn">
                                     <button type="submit" class="submit">บันทึก</button>
+                                    <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
                                 </div>
                             </div>
                         </form>
@@ -314,6 +316,19 @@
                         });
                 }
             });
+        }
+        function cancelForm() {
+            const addForm = document.getElementById('add_emp');
+            const editForm = document.getElementById('edit_emp');
+
+            // Hide both the add and edit forms
+            addForm.style.display = 'none';
+            editForm.style.display = 'none';
+
+            // Reset any changes made in the form (optional)
+            if (editForm.style.display === 'block') {
+                editForm.reset();  // Reset form fields if in edit mode
+            }
         }
     </script>
 </html>

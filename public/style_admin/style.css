@@ -818,3 +818,64 @@ body {
 .page-current {
   background: var(--header-bg);
 }
+
+
+
+
+
+
+
+
+/* ตกแต่ง dropdown */
+.languages {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ปุ่ม dropdown */
+.dropbtn {
+  background-color: #165320;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+/* กล่องเมนู dropdown */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+/* เนื้อหาของ dropdown */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: white;
+  min-width: 150px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+  z-index: 1;
+  right: 0;
+}
+
+/* ปุ่มด้านใน dropdown */
+.dropdown-content a {
+  color: black;
+  padding: 10px;
+  text-decoration: none;
+  display: block;
+}
+
+/* เปลี่ยนสีเมื่อ hover */
+.dropdown-content a:hover {
+  background-color: #f1f1f1;
+}
+
+/* แสดง dropdown เมื่อ hover หรือคลิก */
+.show {
+  display: block;
+}

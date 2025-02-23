@@ -10,7 +10,6 @@ const myNews = require('../models/news');
 const myActivity = require('../models/activity');
 const path = require('path');
 const bcrypt = require('bcryptjs');
-const session = require('express-session');
 const moment = require('moment');
 
 router.use(express.static(path.join(__dirname, '../public')));

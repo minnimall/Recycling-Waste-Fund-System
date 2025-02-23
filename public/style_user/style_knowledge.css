@@ -18,6 +18,7 @@ html, body {
 .content {
     flex: 1; /* ให้พื้นที่นี้ยืดหยุ่นได้ */
 }
+
 /* ส่วน navbar */
 ul{
     list-style-type: none;
@@ -37,6 +38,7 @@ nav {
     flex: 1;
 }
 nav ul li a:hover{
+    /* border-bottom: 3px solid #33691e; */
     color: #8bc34a;
     transition: 0.3s;
 }
@@ -62,6 +64,10 @@ ul li a{
 .select a{
     color: #558b2f;
     border-bottom: 3px solid #33691e;
+    /* border: 1px solid black;
+    border-radius: 10px;
+    padding: 5px 10px; */
+    
 }
 
 /* ส่วน section */
@@ -85,28 +91,49 @@ ul li a{
     text-align: center; /* จัดข้อความให้อยู่กลาง */
     background-color: #f8f9fa; /* เปลี่ยนสีพื้นหลัง */
 }
+.recycle {
+    width: 50vw;
+    max-width: 100px;
+    height: auto;
+}
 .card:hover{
     transform: scale(1.02);
     transition: 0.5s;
     box-shadow: 1px 5px 5px rgb(212, 212, 212);
 }
-.title-waste{
-    background-color: rgb(130, 185, 130);
-    padding: 0px 10px;
-}
-.price-waste{
-    background-color: rgb(246, 252, 246);
-    padding: 0px 10px;
-}
-.img-allnews{
-    width: 200px;
-    height: auto;
+.icon-green{
+    color: #33691e;
 }
 .card-img-custom {
-    height: 200px;
+    height: 160px;
     object-fit: cover;
     border-bottom: 1px solid #ddd;
 }
+.card-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    width: 100%;
+}
+.no-data-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 150px; /* ความสูงที่เหมาะสม */
+    background-color: #f8f9fa; /* สีพื้นหลังอ่อน */
+    border-radius: 8px;
+    border: 1px solid #ccc; /* ขอบบางๆ */
+    margin-top: 20px;
+}
+
+.no-data-container span {
+    font-size: 18px;
+    font-weight: bold;
+    color: #6c757d; /* สีเทาอ่อน */
+    text-align: center;
+}
+
 
 /* ส่วนของ footer */
 footer {
@@ -118,53 +145,3 @@ footer {
 .cp{
     text-align: center;
 }
-.card-title {
-    white-space: nowrap; /* ป้องกันข้อความแตกเป็นหลายบรรทัด */
-    overflow: hidden; /* ซ่อนข้อความส่วนเกิน */
-    text-overflow: ellipsis; /* แสดง ... ท้ายข้อความที่ยาวเกิน */
-    display: block; /* ต้องกำหนดให้เป็น block หรือ inline-block */
-    width: 100%; /* จำกัดความกว้าง */
-    font-size: 0.9rem;
-}
-.card-link {
-    text-decoration: none; /* ลบเส้นใต้จากลิงก์ใน card */
-    color: black;
-}
-
-.price-list-container {
-    max-height: 150px; /* กำหนดความสูงสูงสุดที่คุณต้องการ */
-    overflow-y: auto; /* ทำให้สามารถเลื่อน (scroll) ได้เมื่อมีข้อมูลเกิน */
-    border: 1px solid #ddd; /* เพิ่มเส้นขอบให้ดูชัดเจน */
-    border-radius: 5px; /* เพิ่มมุมโค้งให้สวยงาม */
-}
-
-
-/* Default .carousel-inner img rule for larger screens */
-.carousel-inner img {
-    width: 100%;
-    height: 550px; /* Default height */
-    object-fit: cover;
-}
-
-/* Media query for tablet-sized devices */
-@media (max-width: 1024px) {
-    .carousel-inner img {
-        height: 500px; /* Adjusted height for tablets */
-    }
-}
-
-/* Media query for small tablets or large phones */
-@media (max-width: 768px) {
-    .carousel-inner img {
-        height: 400px; /* Adjusted height for smaller tablets */
-    }
-}
-
-/* Media query for mobile devices */
-@media (max-width: 480px) {
-    .carousel-inner img {
-        height: 250px; /* Adjusted height for mobile */
-    }
-}
-
-

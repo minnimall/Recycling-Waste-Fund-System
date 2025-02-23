@@ -43,14 +43,15 @@
         }
 
     </script>
-    <!-- Modal for Adding and Editing Activity -->
+
+    <!-- สำหรับแก้ไขกิจกรรม -->
     <div class="screen" id="modal">
         <form class="add-media-form" action="/admin/activityPost" method="POST" id="activityForm" enctype="multipart/form-data">
             <div class="media-form-head">
-                <h1>เพิ่มกิจกรรม</h1>
+                <h1>แก้ไขกิจกรรม</h1>
             </div>
             <div class="media-form-content">
-                <div>ชื่อหัวข้อ</div>
+                <div class="mt-3">ชื่อหัวข้อ</div>
                 <input type="text" name="title" id="title" placeholder="ใส่ชื่อหัวข้อ ..." required>
                 <div>เนื้อหา</div>
                 <textarea name="content" id="content" placeholder="ใส่เนื้อหา ..." required></textarea>
@@ -78,7 +79,7 @@
     <!-- Main content -->
     <div class="content">
         <div class="content-header">
-            <h1>กิจกรรม</h1>
+            <h1>กิจกรรม (<%= activity.length %>)</h1>
             <div class="add-media" onclick="openModal()">เพิ่มกิจกรรม</div>
         </div>
         <div class="card-container">
@@ -93,11 +94,6 @@
                                 <button class="edit-btn" onclick="openEditModal('<%= act._id %>', '<%= act.title %>', '<%= act.content %>', '<%= act.img %>')">
                                     <i class="fa fa-edit"></i>
                                 </button>
-                                <!-- <form action="/admin/deleteActivity/<%= act._id %>" method="POST" onsubmit="return confirm('ยืนยันการลบกิจกรรมนี้?')">
-                                    <button type="submit" class="delete-btn">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </form> -->
                                 <button onclick="deleteActivity('<%= act._id %>', '<%= act.title %>')" class="delete-btn">
                                     <i class="fa fa-trash"></i>
                                 </button>
