@@ -173,7 +173,7 @@
                             </div>
                         </form>
                     </div>
-                    <div class="emp-form" id="edit_emp" style="display: block;">
+                    <div class="emp-form" id="edit_emp" style="display: none;">
                         <form action="/admin/employeeEdit" method="POST">
                             <div class="form-head">
                                 <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
@@ -321,13 +321,11 @@
             const addForm = document.getElementById('add_emp');
             const editForm = document.getElementById('edit_emp');
 
-            // Hide both the add and edit forms
             addForm.style.display = 'none';
             editForm.style.display = 'none';
 
-            // Reset any changes made in the form (optional)
             if (editForm.style.display === 'block') {
-                editForm.reset();  // Reset form fields if in edit mode
+                editForm.reset();
             }
         }
     </script>

@@ -152,18 +152,22 @@ const upload = multer({
 
 
 // กิจกรรม
-const activityIndex = (req, res)=> {
-    myActivity.find().sort( {createdAt: -1} )
-    .then((result)=> {
-        result.forEach(item => {
-            item.formattedDate = moment(item.createdAt).format('YYYY-MM-DD');
+const activityIndex = (req, res) => {
+    const searchQuery = req.query.search || ''; // ดึงค่าคำค้นหาจาก query string
+    const filter = searchQuery ? { title: { $regex: searchQuery, $options: 'i' } } : {}; // ใช้ regex เพื่อค้นหาตรงกับคำค้นหาหรือไม่
+
+    myActivity.find(filter).sort({ createdAt: -1 })
+        .then((result) => {
+            result.forEach(item => {
+                item.formattedDate = moment(item.createdAt).format('YYYY-MM-DD');
+            });
+            res.render('admin/activity', { mytitle: 'Admindashboard | Activity', activity: result, searchQuery: searchQuery });
+        })
+        .catch((err) => {
+            console.log(err);
         });
-        res.render('admin/activity', { mytitle: 'Admindashboard | Activity', activity: result })
-    })
-    .catch((err) => {
-        console.log(err)
-    })
-}
+};
+
 //เพิ่มกิจกรรม
 const activityPost = (req, res) => {
     upload(req, res, (err) => {
