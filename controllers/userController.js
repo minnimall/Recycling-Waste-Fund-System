@@ -5,31 +5,58 @@ const myMedia = require('../models/media');
 const myActivity = require('../models/activity');
 const myWaste = require('../models/waste');
 const myWasteType = require('../models/wastetype');
+const Village = require('../models/village');
+const Round = require('../models/round');
 const path = require('path');
 const moment = require('moment');
 
 // หน้าหลัก
-const user_index = (req, res) => {
-    Promise.all([
-        myActivity.find().sort({ createdAt: -1 }), // ดึงข้อมูลกิจกรรม
-        myWaste.find().sort({ createdAt: 1 }) // ดึงข้อมูลขยะ
-    ])
-        .then(([activitiesResult, wasteResult]) => {
-            // แปลงวันที่ในกิจกรรม
-            const activities = activitiesResult.map(activity => ({
-                ...activity._doc, // ดึงข้อมูลทั้งหมดในเอกสาร
-                formattedDate: moment(activity.createdAt).format('YYYY-MM-DD') // เพิ่มฟิลด์ formattedDate
-            }));
+const formatDate = (date) => moment(date).locale('th').format('ddddที่ D MMMM YYYY');
 
-            res.render('user/main', { 
-                mytitle: 'Admindashboard | Activity', 
-                activity: activities, 
-                waste: wasteResult // ส่งข้อมูล myWaste โดยตรงไปยัง view
-            });
-        })
-        .catch((err) => {
-            console.log(err);
+const user_index = async (req, res) => {
+    try {
+        const [activitiesResult, wasteResult, villageResult, roundResult] = await Promise.all([
+            myActivity.find().sort({ createdAt: -1 }),
+            myWaste.find().sort({ createdAt: 1 }),
+            Village.find().sort({ villageNumber: 1 }),
+            Round.find().populate('village').sort({ date: 1 })
+        ]);
+
+        const currentDate = moment().format('YYYY-MM-DD');
+        const currentTime = moment().format('HH:mm');
+
+        const roundsByVillage = roundResult.reduce((acc, round) => {
+            const roundDate = moment(round.date).format('YYYY-MM-DD');
+            const startTime = round.startTime;
+            const endTime = round.endTime;
+
+            const isActive = 
+                roundDate === currentDate && 
+                currentTime >= startTime && 
+                currentTime <= endTime;
+
+            acc[round.village._id] = {
+                roundName: round.roundName,
+                formattedDateYYMMDD: new Date(round.date).toISOString().split('T')[0], // รูปแบบ YY-MM-DD
+                formattedDateThai: formatDate(round.date), // วันที่ภาษาไทย
+                startTime,
+                endTime,
+                isActive
+            };
+            return acc;
+        }, {});
+
+        res.render('user/main', { 
+            mytitle: 'Admindashboard | Activity', 
+            activity: activitiesResult, 
+            waste: wasteResult,
+            village: villageResult,
+            roundsByVillage
         });
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("เกิดข้อผิดพลาดในการโหลดข้อมูล");
+    }
 };
 
 // หน้าประเภทขยะ

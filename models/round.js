@@ -1,0 +1,32 @@
+const mongoose = require('mongoose');
+
+const Schema = mongoose.Schema
+const RoundSchema = new mongoose.Schema({
+    roundName: {
+        type: String, 
+        required: true 
+    }, 
+    village: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Village', required: true 
+    },
+    date: { 
+        type: Date, 
+        required: true 
+    },
+    startTime: { 
+        type: String, 
+        required: true 
+    },
+    endTime: { 
+        type: String, 
+        required: true 
+    },
+    createdAt: { 
+        type: Date, 
+        default: Date.now 
+    }
+});
+
+const Round = mongoose.model('round', RoundSchema)
+module.exports = Round

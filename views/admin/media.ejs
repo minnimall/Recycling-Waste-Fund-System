@@ -56,8 +56,8 @@
                 <input type="url" name="youtubeUrl" id="youtubeUrl" placeholder="ใส่ URL คลิป YouTube ..." required>
             </div>
             <div class="media-form-action">
-                <button type="submit" class="submit">โพส</button>
-                <span class="cancel" onclick="closeModal()">ปิด</span>
+                <span class="cancel" onclick="closeModal()">ยกเลิก</span>
+                <button type="submit" class="submit">ยืนยัน</button>
             </div>
         </form>
     </div>
@@ -67,6 +67,13 @@
         <div class="content-header">
             <h1>สื่อความรู้ (<%= media.length %>)</h1>
             <div class="add-media" onclick="openModal()">เพิ่มสื่อ</div>
+        </div>
+        <div class="search-container">
+            <!-- ช่องค้นหากิจกรรม -->
+            <form action="/admin" method="GET" class="search-form">
+                <input type="text" name="search" value="<%= searchQuery %>" placeholder="ค้นหาสื่อ" class="search-input">
+                <button type="submit" class="search-button">ค้นหา</button>
+            </form>
         </div>
         <div class="card-container">
             <% if (media.length > 0) { %>
@@ -92,11 +99,10 @@
                         <div class="flex justify-end">
                             <button type="button" class="edit-btn" onclick="openEditModal('<%= amedia._id %>', '<%= amedia.title %>', '<%= amedia.youtubeUrl %>')">
                                 <i class="fa fa-edit"></i>
-                            </button>
+                            </button>  
                             <button onclick="deleteMedia('<%= amedia._id %>', '<%= amedia.title %>')" class="delete-btn">
                                 <i class="fa fa-trash"></i>
                             </button>
-                            
                         </div>
                     </div>
                 </div>
@@ -143,8 +149,8 @@
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
                 cancelButtonColor: "#d33",
-                confirmButtonText: "ยืนยัน",
-                cancelButtonText: "ยกเลิก"
+                cancelButtonText: "ยกเลิก",
+                confirmButtonText: "ยืนยัน"
             }).then((result) => {
                 if (result.isConfirmed) {
                     fetch('/admin/mediaDelete/' + id, {

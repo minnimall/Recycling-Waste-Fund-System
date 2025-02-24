@@ -8,6 +8,8 @@ const myWaste= require('../models/waste');
 const myWasteType = require('../models/wastetype');
 const myNews = require('../models/news');
 const myActivity = require('../models/activity');
+const Village = require('../models/village')
+const Round = require('../models/round');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const moment = require('moment');
@@ -29,12 +31,15 @@ const dashboardIndex = (req, res)=> {
 
 // สื่อ
 const mediaIndex = (req, res) => {
-    myMedia.find().sort({ createdAt: -1 })
+    const searchQuery = req.query.search || ''; // ดึงค่าคำค้นหาจาก query string
+    const filter = searchQuery ? { title: { $regex: searchQuery, $options: 'i' } } : {}; // ใช้ regex เพื่อค้นหาตรงกับคำค้นหาหรือไม่
+
+    myMedia.find(filter).sort({ createdAt: -1 })
         .then((result) => {
             result.forEach(item => {
                 item.formattedDate = moment(item.createdAt).format('YYYY-MM-DD');
             });
-            res.render('admin/media', { mytitle: 'Admindashboard | Media', media: result });
+            res.render('admin/media', { mytitle: 'Admindashboard | Media', media: result,searchQuery: searchQuery });
         })
         .catch((err) => {
             console.log(err);
@@ -190,11 +195,11 @@ const activityPost = (req, res) => {
         activity.save()
             .then((result) => {
                 console.log('Activity saved successfully:', result);
-                res.redirect('/admin/activity?message=เพิ่มกิจกรรมรู้สำเร็จ');
+                res.redirect('/admin/activity?message=เพิ่มกิจกรรมสำเร็จ');
             })
             .catch((err) => {
                 console.error('Error saving activity:', err);
-                res.status(500).redirect('/admin/activity?error=เพิ่มกิจกรรมรู้ไม่สำเร็จ');
+                res.status(500).redirect('/admin/activity?error=เพิ่มกิจกรรมไม่สำเร็จ');
             });
     });
 };
@@ -209,10 +214,10 @@ const deleteActivity = async (req, res) => {
             console.log(`Activity with ID ${id} has been deleted.`);
             return res.status(404).redirect('/admin/activity?error=ไม่พบข้อมูลที่ต้องการลบ');
         }
-        res.redirect('/admin/activity?message=ลบกิจกรรมรู้สำเร็จ');
+        res.redirect('/admin/activity?message=ลบกิจกรรมสำเร็จ');
     } catch (err) {
         console.error('Error deleting activity:',err);
-        res.status(500).redirect('/admin/activity?error=ลบกิจกรรมรู้ไม่สำเร็จ');
+        res.status(500).redirect('/admin/activity?error=ลบกิจกรรมไม่สำเร็จ');
     }
 };
 // แก้ไขกิจกรรม
@@ -236,11 +241,11 @@ const activityEdit = (req, res) => {
         myActivity.findByIdAndUpdate(req.params.id, updatedActivity, { new: true })
             .then((result) => {
                 console.log('Activity updated successfully:', result);
-                res.redirect('/admin/activity?message=แก้ไขกิจกรรมรู้สำเร็จ');
+                res.redirect('/admin/activity?message=แก้ไขกิจกรรมสำเร็จ');
             })
             .catch((err) => {
                 console.error('Error updating activity:', err);
-                res.status(500).redirect('/admin/activity?error=แก้ไขกิจกรรมรู้ไม่สำเร็จ');
+                res.status(500).redirect('/admin/activity?error=แก้ไขกิจกรรมไม่สำเร็จ');
             });
     });
 };
@@ -602,11 +607,175 @@ const editEmployee = async (req, res) => {
     }
 };
 
+//หมู่บ้าน
+const villageIndex = async (req, res) => {
+    try {
+        const villages = await Village.find();
 
-// รอบการรับซื้อ
-const RoundIndex = (req, res)=> {
-    res.render('admin/round', { mytitle: 'Admindashboard | Round'})
-}
+        res.render('admin/village', { 
+            mytitle: 'Admindashboard | Village',
+            villages: villages
+        });
+    } catch (err) {
+        console.error('เกิดข้อผิดพลาดในการดึงข้อมูลหมู่บ้าน:', err);
+        res.status(500).send('เกิดข้อผิดพลาดในระบบ');
+    }
+};
+//เพิ่มหมู่บ้าน
+const villagePost = async (req, res) => {
+    try {
+        const { villageNumber, villageName, location } = req.body;
+
+        // ตรวจสอบว่ามีหมู่บ้านที่มีหมายเลขหรือชื่อเดียวกันอยู่แล้วหรือไม่
+        const existingVillage = await Village.findOne({ $or: [{ villageNumber }, { villageName }] });
+        if (existingVillage) {
+            return res.redirect('/admin/village?error=หมู่บ้านนี้มีอยู่แล้ว');
+        }
+
+        const newVillage = new Village({
+            villageNumber,
+            villageName,
+            location
+        });
+
+        await newVillage.save();
+        res.redirect('/admin/village?message=เพิ่มข้อมูลหมู่บ้านสำเร็จ');
+    } catch (err) {
+        console.error('เกิดข้อผิดพลาดในการเพิ่มหมู่บ้าน:', err);
+        res.status(500).send('เกิดข้อผิดพลาดในระบบ');
+    }
+};
+//แก้ไขหมู่บ้าน
+const villageEdit = async (req, res) => {
+    try {
+        const { _id, villageNumber, villageName, location } = req.body;
+
+        const village = await Village.findById(_id);
+
+        if (!village) {
+            return res.redirect('/admin/village?error=ไม่พบหมู่บ้านที่ต้องการแก้ไข');
+        }
+
+        // อัปเดตข้อมูลหมู่บ้าน
+        village.villageNumber = villageNumber;
+        village.villageName = villageName;
+        village.location = location;
+
+        await village.save();
+        res.redirect('/admin/village?message=แก้ไขข้อมูลหมู่บ้านสำเร็จ');
+    } catch (err) {
+        console.error('เกิดข้อผิดพลาดในการแก้ไขหมู่บ้าน:', err);
+        res.status(500).send('เกิดข้อผิดพลาดในระบบ');
+    }
+};
+//ลบหมู่บ้าน
+const villageDelete = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // ค้นหาหมู่บ้านตาม ID และลบ
+        const village = await Village.findByIdAndDelete(id);
+
+        if (!village) {
+            return res.status(404).send('ไม่พบหมู่บ้านที่ต้องการลบ');
+        }
+
+        res.redirect('/admin/village');
+    } catch (err) {
+        console.error('เกิดข้อผิดพลาดในการลบหมู่บ้าน:', err);
+        res.status(500).send('เกิดข้อผิดพลาดในระบบ');
+    }
+};
+
+//หน้ารอบการรับซื้อขยะ
+const roundIndex = (req, res) => {
+    const formatDate = (date) => {
+        if (!date) return '';
+        const options = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Bangkok' };
+        return new Date(date).toLocaleDateString('th-TH', options); 
+    };
+
+    Promise.all([
+        Village.find().sort({ createdAt: 1 }),
+        Round.find().populate('village').sort({ date: 1 })
+    ])
+    .then(([villageResult, roundResult]) => {
+        // แปลงวันที่ก่อนส่งไปยัง EJS
+        roundResult = roundResult.map(round => ({
+            ...round.toObject(), 
+            formattedDateYYMMDD: new Date(round.date).toISOString().split('T')[0], // YY-MM-DD
+            formattedDateThai: formatDate(round.date) // วันที่ภาษาไทย
+        }));
+
+        res.render('admin/round', {
+            mytitle: 'Admindashboard | Round',
+            village: villageResult,
+            rounds: roundResult  
+        });
+    })
+    .catch((err) => {
+        console.log(err);
+        res.status(500).send('Error retrieving village and round data');
+    });
+};
+//เพิ่มรอบรับซื้อขยะ
+const roundPost = (req, res) => {
+    const { roundName, village, date, startTime, endTime } = req.body;
+
+    const newRound = new Round({
+        roundName,
+        village, // ใช้ ID ของหมู่บ้านจากฟอร์ม
+        date,
+        startTime,
+        endTime
+    });
+
+    newRound.save()
+        .then(() => {
+            res.redirect('/admin/round?message=เพิ่มรอบการรับซื้อสำเร็จ');
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send('Error saving round data');
+        });
+};
+// แก้ไขรอบรับซื้อขยะ
+const roundEdit = async (req, res) => {
+    try {
+        const { _id, roundName, village, date, startTime, endTime } = req.body;
+
+        // ตรวจสอบว่าข้อมูลที่ส่งมาครบหรือไม่
+        if (!_id || !roundName || !village || !date || !startTime || !endTime) {
+            return res.redirect('/admin/round?error=กรอกข้อมูลให้ครบ');
+        }
+
+        // ค้นหาและอัปเดตรอบรับซื้อขยะในฐานข้อมูล
+        await Round.findByIdAndUpdate(_id, {
+            roundName,
+            village,
+            date,
+            startTime,
+            endTime
+        });
+
+        res.redirect('/admin/round?message=แก้ไขรอบการรับซื้อสำเร็จ'); // กลับไปหน้าจัดการรอบรับซื้อขยะ
+    } catch (error) {
+        console.error(error);
+        req.flash('error_msg', 'เกิดข้อผิดพลาดในการแก้ไขรอบรับซื้อขยะ');
+        res.redirect('/admin/manageRounds');
+    }
+};
+// ลบรอบรับซื้อขยะ
+const roundDelete = (req, res) => {
+    const { id } = req.params;
+
+    Round.findByIdAndDelete(id)
+        .then(() => res.redirect('/admin/round?message=ลบรอบการรับซื้อสำเร็จ'))
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send('Error deleting round data');
+        });
+};
 
 module.exports = {
     //แดชบอร์ด
@@ -623,6 +792,8 @@ module.exports = {
     wasteTypeIndex,wasteTypePost,wasteTypeEdit,wasteTypeDelete,
     //พนักงาน
     employeeIndex,employeeRegister,employeeDelete,editEmployee,
+    //หมู่บ้าน
+    villageIndex,villagePost,villageEdit,villageDelete,
     //รอบการรับซื้อขยะ
-    RoundIndex,
+    roundIndex,roundPost,roundEdit,roundDelete,
 }

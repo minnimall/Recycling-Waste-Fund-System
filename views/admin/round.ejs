@@ -3,149 +3,291 @@
 
 <head>
     <%- include('../partials/adminPartials/doctype.ejs') %>
-        <title><%= mytitle %></title>
+        <title>
+            <%= mytitle %>
+        </title>
+        <link rel="stylesheet" href="/style_admin/round.css">
         <script src="https://cdn.tailwindcss.com"></script>
-        <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp,container-queries"></script>
 </head>
 
 <body>
     <%- include('../partials/adminPartials/adminHeader.ejs') %>
+    <%- include('../partials/adminPartials/adminSidebar.ejs') %>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // เช็คข้อความที่ส่งมาจาก URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const successMessage = urlParams.get('message');
+        const errorMessage = urlParams.get('error');
 
-        <%- include('../partials/adminPartials/adminSidebar.ejs') %>
+        if (successMessage) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: successMessage,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
 
+        if (errorMessage) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: errorMessage,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
 
-            <!-- Main content -->
-            <div class="content">
-                <div class="content-header">
-                    <h1>รอบการรับซื้อขยะ</h1>
-                </div>
-                <div class="card-container">
-                    <div class="p-6 bg-white rounded-lg shadow-md space-y-6">
-                        <!-- Header -->
-                        <h2 class="text-lg font-semibold">เพิ่มรอบการรับซื้อขยะ</h2>
-    
-                        <!-- ชื่อรอบการรับซื้อ -->
-                        <div>
-                            <label for="round-name" class="block font-medium mb-2">ชื่อรอบการรับซื้อ</label>
-                            <input type="text" id="round-name" class="w-full p-2 border rounded-md" placeholder="เช่น รอบรับซื้อครั้งที่ 1">
+    </script>
+
+    <!-- Main content -->
+    <div class="content">
+        <div id="loadingIndicator" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
+            <div class="loader"></div>
+        </div>
+        
+        <div class="content-header">
+            <h1 class="">รอบการรับซื้อขยะ</h1>
+            <div class="add-media" onclick="wasFormToggle()">เพิ่มรอบรับซื้อ</div>
+        </div>
+
+        <div class="">
+            <h2 class="text-2xl font-bold text-gray-800 bg-green-200 py-2 px-4 rounded-lg inline-block shadow-md">
+                ประวัติรอบรับซื้อขยะ
+            </h2>
+        </div>
+        
+        <div class="was-container">
+            <div class="table-con">
+                <table class="table-auto">
+                    <thead>
+                        <tr>
+                            <th class="table-was-index">ลำดับ</th>
+                            <th class="table-was-name">ชื่อรอบ</th>
+                            <th class="table-was-villageNum">หมู่ที่</th>
+                            <th class="table-was-village">หมู่บ้าน</th>
+                            <th class="table-was-date">รอบวันที่</th>
+                            <th class="table-was-start">เวลาเริ่มต้น</th>
+                            <th class="table-was-end">เวลาสิ้นสุด</th>
+                            <th class="table-was-delete">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (rounds.length > 0) { %>
+                            <% rounds.forEach((round, index) => { %>
+                            <tr>
+                                <td class="table-was-index"><%= index + 1 %></td>
+                                <td class="table-was-name"><%= round.roundName %></td>
+                                <td class="table-was-village"><%= round.village.villageNumber %></td>
+                                <td class="table-was-village"><%= round.village.villageName %></td>
+                                <td class="table-was-date"><%= round.formattedDateThai %></td>
+                                <td class="table-was-start"><%= round.startTime %> น.</td>
+                                <td class="table-was-delete"><%= round.endTime %> น.</td>
+                                <td class="table-was-delete">
+                                    <button type="button" class="was-row-<%= index + 1 %> row-active edit-btn" 
+                                        onclick="setRoundForm('<%= index + 1 %>', '<%= round._id %>', '<%= round.roundName %>', '<%= round.village._id %>', '<%= round.date %>', '<%= round.startTime %>', '<%= round.endTime %>')">                                                
+                                        <i class="fa fa-edit"></i>
+                                    </button>
+                                    <button type="button" class="delete-btn" 
+                                        onclick="deleteRound(['<%= index + 1 %>', '<%= round._id %>', '<%= round.roundName %>', '<%= round.village._id %>', '<%= round.date %>', '<%= round.startTime %>', '<%= round.endTime %>'])">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="8" class="text-center py-2 px-4">ไม่พบข้อมูลหมู่บ้าน</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- เพิ่มรอบรับซื้อ -->
+            <div class="was-form" id="add_Form" style="display: none;">
+                <form action="/admin/roundPost" method="POST" enctype="application/x-www-form-urlencoded">
+                    <div class="form-head">
+                        <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
+                        <span>เพิ่มรอบการรับซื้อขยะ</span>
+                    </div>
+                    <div class="input-group">
+                        <label for="roundName">ชื่อรอบ</label>
+                        <input type="text" name="roundName" placeholder="ชื่อรอบการรับซื้อขยะ" required>
+
+                        <label for="village">หมู่บ้าน</label>
+                        <select name="village" required>
+                            <option value="">เลือกหมู่บ้าน</option>
+                            <% village.forEach(v => { %>
+                                <option value="<%= v._id %>"><%= v.villageName %></option>
+                            <% }) %>
+                        </select>
+
+                        <label for="date">วันที่</label>
+                        <input type="date" name="date" required>
+
+                        <label for="startTime">เวลาเริ่มต้น</label>
+                        <input type="time" name="startTime" required>
+
+                        <label for="endTime" >เวลาสิ้นสุด</label>
+                        <input type="time" name="endTime" required>
+            
+                        <div class="submit-btn flex justify-end">
+                            <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
+                            <button type="submit" class="submit">บันทึก</button>
                         </div>
-                        
-                        <!-- วันที่รับซื้อ -->
-                        <div>
-                            <label for="pickup-date" class="block font-medium mb-2">วันที่รับซื้อ</label>
-                            <input type="date" id="pickup-date" class="w-full p-2 border rounded-md">
-                        </div>
+                    </div>
+                </form>
+            </div>
 
-                        <!-- เวลา -->
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label for="start-time" class="block font-medium mb-2">เวลาเริ่มต้น</label>
-                                <input type="time" id="start-time" class="w-full p-2 border rounded-md">
-                        </div>
-                        <div>
-                                <label for="end-time" class="block font-medium mb-2">เวลาสิ้นสุด</label>
-                                <input type="time" id="end-time" class="w-full p-2 border rounded-md">
-                        </div>
-                </div>
+            <!-- แก้ไขรอบรับซื้อ -->
+            <div class="was-form" id="edit_Form" style="display: none;">
+                <form action="/admin/roundEdit" method="POST" enctype="application/x-www-form-urlencoded">
+                    <div class="form-head">
+                        <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
+                        <span>แก้ไขรอบการรับซื้อขยะ</span>
+                    </div>
+                    <div class="input-group">
+                        <input type="hidden" name="_id" id="_id" value="">
 
-                <!-- เลือกหมู่บ้าน -->
-                <div>
-                <label class="block font-medium mb-2">เลือกหมู่บ้าน</label>
-                <div class="grid grid-cols-5 gap-2">
-                    <!-- ปุ่มหมู่บ้าน -->
-                    <button
-                        class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
-                        data-village="หมู่บ้านที่ 1"
-                        onclick="toggleVillage(this)">
-                        หมู่บ้านที่ 1
-                    </button>
-                    <button
-                        class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
-                        data-village="หมู่บ้านที่ 2"
-                        onclick="toggleVillage(this)">
-                        หมู่บ้านที่ 2
-                    </button>
-                    <button
-                        class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
-                        data-village="หมู่บ้านที่ 3"
-                        onclick="toggleVillage(this)">
-                        หมู่บ้านที่ 3
-                    </button>
-                    <button
-                        class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
-                        data-village="หมู่บ้านที่ 4"
-                        onclick="toggleVillage(this)">
-                        หมู่บ้านที่ 4
-                    </button>
-                    <button
-                        class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
-                        data-village="หมู่บ้านที่ 5"
-                        onclick="toggleVillage(this)">
-                        หมู่บ้านที่ 5
-                    </button>
-                    <button
-                        class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
-                        data-village="หมู่บ้านที่ 6"
-                        onclick="toggleVillage(this)">
-                        หมู่บ้านที่ 6
-                    </button>
-                    <button
-                        class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
-                        data-village="หมู่บ้านที่ 7"
-                        onclick="toggleVillage(this)">
-                        หมู่บ้านที่ 7
-                    </button>
-                    <button
-                        class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
-                        data-village="หมู่บ้านที่ 8"
-                        onclick="toggleVillage(this)">
-                        หมู่บ้านที่ 8
-                    </button>
-                    <button
-                        class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
-                        data-village="หมู่บ้านที่ 9"
-                        onclick="toggleVillage(this)">
-                        หมู่บ้านที่ 9
-                    </button>
-                    <button
-                        class="p-4 border rounded-lg bg-gray-200 text-center hover:bg-green-500 hover:text-white transition"
-                        data-village="หมู่บ้านที่ 10"
-                        onclick="toggleVillage(this)">
-                        หมู่บ้านที่ 10
-                    </button>
-                </div>
-                </div>
+                        <label for="roundName">ชื่อรอบ</label>
+                        <input type="text" id="roundName" name="roundName" placeholder="ชื่อรอบการรับซื้อขยะ" required>
 
-                    <!-- ปุ่มบันทึก -->
-                <div class="flex justify-end space-x-4">
-                    <button class="px-4 py-2 bg-gray-300 text-black rounded-md">ยกเลิก</button>
-                    <button class="px-4 py-2 bg-blue-500 text-white rounded-md">บันทึก</button>
-                </div>
+                        <label for="village">หมู่บ้าน</label>
+                        <select id="village" name="village" required>
+                            <option value="">เลือกหมู่บ้าน</option>
+                            <% village.forEach(v => { %>
+                                <option value="<%= v._id %>"><%= v.villageName %></option>
+                            <% }) %>
+                        </select>
+
+                        <label for="date">วันที่</label>
+                        <input type="date" id="date" name="date" required>
+
+                        <label for="startTime">เวลาเริ่มต้น</label>
+                        <input type="time" id="startTime" name="startTime" required>
+
+                        <label for="endTime" >เวลาสิ้นสุด</label>
+                        <input type="time" id="endTime" name="endTime" required>
+            
+                        <div class="submit-btn flex justify-end">
+                            <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
+                            <button type="submit" class="submit">บันทึก</button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </body>
 <script>
-    let selectedVillages = []; // เก็บข้อมูลหมู่บ้านที่เลือก
+    // function showLoading() {
+    // document.getElementById('loadingIndicator').classList.remove('hidden');
+    // }
 
-    function toggleVillage(button) {
-    const villageName = button.getAttribute('data-village');
+    // function hideLoading() {
+    //     document.getElementById('loadingIndicator').classList.add('hidden');
+    // }
 
-    if (selectedVillages.includes(villageName)) {
-        // ถ้าเลือกอยู่แล้วให้เอาออก
-        selectedVillages = selectedVillages.filter(v => v !== villageName);
-        button.classList.remove('bg-green-500', 'text-white');
-        button.classList.add('bg-gray-200');
-    } else {
-        // ถ้ายังไม่เลือก ให้เพิ่ม
-        selectedVillages.push(villageName);
-        button.classList.remove('bg-gray-200');
-        button.classList.add('bg-green-500', 'text-white');
+    // // ดักจับการกดปุ่ม Submit ใน Form
+    // document.querySelectorAll("form").forEach(form => {
+    //     form.addEventListener("submit", function() {
+    //         showLoading();
+    //     });
+    // });
+
+    let lastClickedRow = null;
+    function setRoundForm(Index, Id, Name, Village, Date, Start, End) {
+        const editForm = document.getElementById('edit_Form');
+        const addForm = document.getElementById('add_Form');
+
+        const InputRoundId = document.getElementById('_id');
+        InputRoundId.value = Id;
+
+        const InputRoundName = document.getElementById('roundName');
+        InputRoundName.value = Name;
+
+        const InputVillage = document.getElementById('village');
+        InputVillage.value = Village;
+
+        const InputDate = document.getElementById('date');
+        InputDate.value = Date;
+
+        const InputStartTime = document.getElementById('startTime');
+        InputStartTime.value = Start;
+
+        const InputEndTime = document.getElementById('endTime');
+        InputEndTime.value = End;
+        
+        addForm.style.display = 'none';
+        const selectedRow = document.querySelector(`.was-row-${Index}`);
+        if (lastClickedRow === selectedRow) {
+            selectedRow.style.backgroundColor = '';
+            lastClickedRow = null;
+            editForm.style.display = 'none';
+        } else {
+            if (lastClickedRow) lastClickedRow.style.backgroundColor = '';
+            selectedRow.style.backgroundColor = '#8EDBA4';
+            editForm.style.display = 'block';
+            lastClickedRow = selectedRow;
+        }
     }
-    
-    console.log('Selected Villages:', selectedVillages);
-    }
+    function wasFormToggle() {
+        const editForm = document.getElementById('edit_Form');
+        const addForm = document.getElementById('add_Form');
 
+        editForm.style.display = 'none';
+        if (addForm.style.display === 'block') {
+            addForm.style.display = 'none';
+        }
+        else {
+            addForm.style.display = 'block';
+        }
+    }
+    function deleteRound(data) {
+        Swal.fire({
+            title: `ลบ "${data[2]}" หรือไม่?`,
+            text: "หากคุณลบแล้วจะไม่สามารถกู้คืนได้!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "ยืนยัน",
+            cancelButtonText: "ยกเลิก"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('/admin/roundDelete/' + data[1], {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(result => {
+                    Swal.fire('ลบข้อมูลสำเร็จ', 'ข้อมูลหมู่บ้านถูกลบเรียบร้อยแล้ว', 'success')
+                    .then(() => {
+                        location.reload();
+                    });
+                })
+                .catch(error => {
+                    Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้', 'error');
+                });
+            }
+        });
+    }
+    function cancelForm() {
+        const editForm = document.getElementById('edit_Form');
+        const addForm = document.getElementById('add_Form');
+
+        editForm.style.display = 'none';
+        addForm.style.display = 'none';
+
+        editForm.reset();
+        addForm.reset();
+    }
 </script>
 <%- include('../partials/adminPartials/adminFooter.ejs') %>
 

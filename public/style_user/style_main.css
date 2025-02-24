@@ -80,11 +80,22 @@ ul li a{
     border-radius: 10px;
 }
 .col {
-    border: 1px solid #ccc; /* กรอบรอบๆ แต่ละช่อง */
-    padding: 10px; /* เพิ่มช่องว่างภายใน */
+    border: 1px solid #ddd; /* กรอบบางๆ สีเทาอ่อน */
+    padding: 20px; /* เพิ่มช่องว่างภายในให้มากขึ้น */
     text-align: center; /* จัดข้อความให้อยู่กลาง */
-    background-color: #f8f9fa; /* เปลี่ยนสีพื้นหลัง */
+    background-color: #f0f8ff; /* พื้นหลังสีน้ำเงินอ่อน */
+    border-radius: 10px; /* ขอบโค้งให้ดูนุ่มนวล */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* เงาเบาๆ ทำให้ดูมีมิติ */
+    transition: all 0.3s ease; /* เพิ่มการเปลี่ยนแปลงอย่างนุ่มนวล */
 }
+
+.col:hover {
+    background-color: rgb(130, 185, 130); /* เปลี่ยนสีพื้นหลังเมื่อ hover */
+    transform: translateY(-0px); /* ยกเล็กน้อยเมื่อ hover */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* เพิ่มเงาเมื่อ hover */
+    border: 5px solid white;
+}
+
 .card:hover{
     transform: scale(1.02);
     transition: 0.5s;
@@ -107,6 +118,74 @@ ul li a{
     object-fit: cover;
     border-bottom: 1px solid #ddd;
 }
+
+
+/* คำสั่งจัดระเบียบและตกแต่ง village box */
+.village-box {
+    padding: 20px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: 1px solid #ddd; /* เส้นขอบสีอ่อน */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* เงาด้านหลังให้ดูลึก */
+    transition: background-color 0.3s ease, transform 0.3s ease; /* เพิ่มการเปลี่ยนแปลงแบบ smooth */
+}
+
+/* กรอบรอบหมู่บ้านที่มีสถานะ active */
+.village-box.active {
+    background-color: #558b2f; /* สีพื้นหลังสำหรับสถานะ active */
+}
+
+/* กรอบรอบหมู่บ้านที่มีสถานะ inactive */
+.village-box.inactive {
+    background-color: white; /* สีพื้นหลังสำหรับสถานะ inactive */
+    color: #414141; /* ตัวหนังสือเป็นสีเทา */
+}
+
+.village-box:hover {
+    transform: translateY(-5px); /* เพิ่มเอฟเฟกต์ให้ตัวการ์ดยกขึ้นเล็กน้อย */
+    background-color: #ffffff; /* เมื่อเอาเมาส์ไปวางพื้นหลังจะเปลี่ยนเป็นสีเทาอ่อน */
+}
+
+.village-box.active:hover {
+    transform: translateY(-5px); /* เพิ่มเอฟเฟกต์ให้ตัวการ์ดยกขึ้นเล็กน้อย */
+    background-color: #8bc34a; /* เมื่อเอาเมาส์ไปวางพื้นหลังจะเปลี่ยนเป็นสีเทาอ่อน */
+}
+
+/* เพิ่มระยะห่างระหว่างชื่อหมู่บ้านและข้อมูล */
+.village-box h3 {
+    font-size: 24px;
+    color: inherit; /* ใช้สีตัวหนังสือจาก .village-box (สีขาวเมื่อ active, สีเทาเมื่อ inactive) */
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.village-box p {
+    font-size: 16px;
+    color: inherit; /* ใช้สีตัวหนังสือจาก .village-box */
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+/* ทำให้สถานะดูเด่น */
+.village-box p strong {
+    font-weight: bold;
+}
+
+.village-box p p {
+    font-style: italic;
+}
+
+/* สไตล์สำหรับสถานะเปิดรับซื้อขยะ */
+.village-box p[style="color: green;"] {
+    color: green;
+}
+
+/* สไตล์สำหรับสถานะปิดรับซื้อขยะ */
+.village-box p[style="color: red;"] {
+    color: red;
+}
+
+
 
 /* ส่วนของ footer */
 footer {

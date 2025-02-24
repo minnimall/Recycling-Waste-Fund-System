@@ -9,7 +9,7 @@ const bcrypt = require('bcryptjs');
 const session = require('express-session');
 const bodyParser = require('body-parser'); // เพิ่มการนำเข้า body-parser
 const Admin = require('./models/admin')
-
+const village = require('./models/village')
 const methodOverride = require('method-override'); //สำหรับแก้ไขข้อมูล
 
 //ทำการเรียก module หรือ function "express" ขึ้นมาทำงานและสร้าง
@@ -165,6 +165,21 @@ app.get('/logout', (req, res) => {
         res.redirect('/user');
     });
 });
+
+// app.get('/add-village', (req,res) => {
+//     const village = new Village({
+//         villageNumber: 10,
+//         villageName: 'บ้านหนองนก',
+//         location: 'ยังไม่รู้'
+//     })
+//     village.save()
+//     .then((result) => {
+//         res.send(result)
+//     })
+//     .catch((err) => {
+//         console.log(err)
+//     })
+// })
 
 app.use((req,res) => {
     //res.status(404).sendFile('./blog/404.html', {root: __dirname})

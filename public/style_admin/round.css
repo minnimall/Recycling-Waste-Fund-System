@@ -1,0 +1,89 @@
+.input-group input, 
+.input-group select {
+    width: 100%; /* ใช้ความกว้างเต็มพื้นที่ของ container */
+    padding: 10px; /* ระยะห่างภายใน */
+    font-size: 1rem; /* ขนาดตัวอักษร */
+    border-radius: 5px; /* มุมโค้ง */
+    box-sizing: border-box; /* รวม padding ในความกว้าง */
+}
+
+.submit-btn {
+    display: flex;
+    justify-content: flex-end; /* จัดปุ่มไปทางขวาสุด */
+    margin-top: 10px;
+}
+.submit:hover {
+    background-color: #19851e; /* สีเมื่อ hover */
+    transition: 0.5s;
+}
+
+.delete-btn {
+    background-color: #f44336; /* สีแดง */
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.delete-btn:hover {
+    background-color: #d32f2f; /* สีแดงเข้ม */
+}
+
+.edit-btn {
+    background-color: #007bff; /* สีฟ้าสำหรับแก้ไข */
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.edit-btn:hover {
+    background-color: #0155ad;
+}
+
+table tbody{
+    background-color: white;
+}
+
+.waste-img{
+    width: 50px;
+    height: 50px;
+    margin: 5px 0px;
+    object-fit: cover; /* ให้รูปเต็มกรอบโดยไม่เสียสัดส่วน */
+}
+
+.img-edit{
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    margin-left: 5px;
+}
+
+.table-was-imgg{
+    display: flex;
+    justify-content: center;
+}
+
+.hidden {
+    display: none;
+}
+
+.loader {
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #3498db;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

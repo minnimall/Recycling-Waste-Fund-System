@@ -106,3 +106,64 @@ iframe{
 .date{
     font-size: 0.7rem;
 }
+
+/* กำหนดให้ฟอร์มค้นหามีการจัดวางที่สวยงาม */
+.search-container {
+    display: flex;
+    justify-content: flex-end; /* จัดให้อยู่ขวาสุด */
+    align-items: center; /* จัดให้แนวกลางแนวตั้ง */
+    width: 100%; /* ให้ครอบคลุมทั้งความกว้าง */
+    margin-top: 15px;
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+    background-color: #f7f7f7;
+    padding: 6px; /* ลด padding ให้เล็กลง */
+    border-radius: 30px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+/* กำหนดลักษณะอินพุต */
+.search-input {
+    width: 250px; /* ลดความกว้างของช่องค้นหา */
+    padding: 8px 12px; /* ลด padding เพื่อให้ความสูงลดลง */
+    border: 2px solid #ddd;
+    border-radius: 30px;
+    font-size: 14px; /* ลดขนาดฟอนต์เล็กลง */
+    transition: all 0.3s ease;
+}
+
+/* การโต้ตอบเมื่อมีการโฟกัส (focus) */
+.search-input:focus {
+    border-color: #4CAF50;
+    outline: none;
+    box-shadow: 0px 0px 5px rgba(76, 175, 80, 0.3);
+}
+
+/* ปุ่มค้นหา */
+.search-button {
+    padding: 8px 16px; /* ลดขนาด padding ของปุ่ม */
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 14px; /* ลดขนาดฟอนต์ของปุ่ม */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+/* การโต้ตอบเมื่อ hover บนปุ่มค้นหา */
+.search-button:hover {
+    background-color: #45a049;
+    transform: translateY(-2px); /* เพิ่มการเคลื่อนไหวเล็กน้อย */
+}
+
+/* การโต้ตอบเมื่อคลิกบนปุ่มค้นหา */
+.search-button:active {
+    transform: translateY(1px); /* ทำให้ปุ่มหดลงเล็กน้อย */
+}

@@ -163,18 +163,28 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col">หมู่ที่ 1</div>
-                    <div class="col">หมู่ที่ 2</div>
-                    <div class="col">หมู่ที่ 3</div>
-                    <div class="col">หมู่ที่ 4</div>
-                    <div class="col">หมู่ที่ 5</div>
-                    <div class="col">หมู่ที่ 6</div>
-                    <div class="col">หมู่ที่ 7</div>
-                    <div class="col">หมู่ที่ 8</div>
-                    <div class="col">หมู่ที่ 9</div>
-                    <div class="col">หมู่ที่ 10</div>
+                    <% village.forEach(v => { %>
+                        <% 
+                            const round = roundsByVillage[v._id];
+                        %>
+                        <div class="col village-box <%= round && round.isActive ? 'active' : 'inactive' %>">
+                            <p><strong>หมู่ที่ <%= v.villageNumber %></strong></p>
+                            <p><%= v.villageName %></p>
+                            <% if (round) { %>
+                                <p><strong>รอบการรับซื้อ:</strong> <%= round.roundName %></p>
+                                <p><strong>วัน:</strong> <%= round.formattedDateThai %></p> <!-- วันที่แบบภาษาไทย -->
+                                <p><strong>เวลา:</strong> <%= round.startTime %> - <%= round.endTime %></p>
+                                <% if (round.isActive) { %>
+                                    <p style="color: green;"><strong>สถานะ: กำลังเปิดรับซื้อขยะ</strong></p>
+                                <% } else { %>
+                                    <p style="color: red;"><strong>สถานะ: ปิดรับซื้อขยะ</strong></p>
+                                <% } %>
+                            <% } else { %>
+                                <p>ไม่มีรอบการรับซื้อขยะ</p>
+                            <% } %>
+                        </div>
+                    <% }) %>                                        
                 </div>
-                
             </section>
         </div>
     </div>

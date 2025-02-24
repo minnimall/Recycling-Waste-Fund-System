@@ -4,7 +4,7 @@ const adminController = require('../controllers/adminController')
 const router = express.Router()
 
 // แดชบอร์ด
-router.get('/dashboard', adminController.dashboardIndex)
+router.get('/dashboard', adminController.dashboardIndex);
 
 // สื่อ
 router.get('/', adminController.mediaIndex);
@@ -36,12 +36,21 @@ router.post('/wasteTypeEdit', adminController.wasteTypeEdit);
 router.delete('/deletewasteType/:id', adminController.wasteTypeDelete);
 
 // พนักงาน
-router.get('/employee', adminController.employeeIndex)
-router.post('/employeeRegister', adminController.employeeRegister)
+router.get('/employee', adminController.employeeIndex);
+router.post('/employeeRegister', adminController.employeeRegister);
 router.delete('/employeeDelete/:id', adminController.employeeDelete);
 router.post('/employeeEdit', adminController.editEmployee);
 
+// หมู่บ้าน
+router.get('/village', adminController.villageIndex);
+router.post('/villagePost', adminController.villagePost);
+router.post('/villageEdit', adminController.villageEdit);
+router.delete('/villageDelete/:id', adminController.villageDelete);
+
 // รอบการรับซื้อ
-router.get('/round', adminController.RoundIndex)
+router.get('/round', adminController.roundIndex);
+router.post('/roundPost', adminController.roundPost);
+router.post('/roundEdit', adminController.roundEdit);
+router.delete('/roundDelete/:id', adminController.roundDelete)
 
 module.exports = router

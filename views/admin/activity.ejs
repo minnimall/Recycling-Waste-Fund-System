@@ -70,8 +70,8 @@
                 </div>
             </div>
             <div class="media-form-action">
-                <button type="submit" class="submit">โพส</button>
                 <span class="cancel" onclick="closeModal()">ปิด</span>
+                <button type="submit" class="submit">โพสต์</button>
             </div>
         </form>
     </div>
@@ -86,7 +86,7 @@
         <div class="search-container">
             <!-- ช่องค้นหากิจกรรม -->
             <form action="/admin/activity" method="GET" class="search-form">
-                <input type="text" name="search" value="<%= searchQuery %>" placeholder="ค้นหากิจกรรม..." class="search-input">
+                <input type="text" name="search" value="<%= searchQuery %>" placeholder="ค้นหากิจกรรม" class="search-input">
                 <button type="submit" class="search-button">ค้นหา</button>
             </form>
         </div>

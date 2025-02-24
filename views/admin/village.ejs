@@ -6,7 +6,7 @@
         <title>
             <%= mytitle %>
         </title>
-        <link rel="stylesheet" href="/style_admin/waste.css">
+        <link rel="stylesheet" href="/style_admin/village.css">
         <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
@@ -49,43 +49,34 @@
             <!-- Main content -->
             <div class="content">
                 <div class="content-header">
-                    <h1>ประเภทขยะ (<%= wastetype.length %>)</h1>
-                    <div class="add-media" onclick="wasFormToggle()">เพิ่มประเภทขยะ</div>
+                    <h1>หมู่บ้าน ( <%= villages.length %>)</h1>
+                    <div class="add-media" onclick="wasFormToggle()">เพิ่มหมู่บ้าน</div>
                 </div>
                 <div class="was-container">
                     <div class="table-con">
-                        <div class="search">
-                            <form action="" method="get">
-                                <input type="text" placeholder="ค้นหา" name="search" value="<%= search %>">
-                                <button>ค้นหา</button>
-                            </form>
-                        </div>
                         <table class="table-auto">
                             <thead>
                                 <tr>
-                                    <th class="table-was-index">ลำดับ</th>
-                                    <th class="table-was-name">ชื่อประเภท</th>
+                                    <th class="table-was-number">หมู่ที่</th>
+                                    <th class="table-was-name">ชื่อหมู่บ้าน</th>
+                                    <th class="table-was-location">ตำแหน่ง</th>
                                     <th class="table-was-delete">จัดการ</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <% if (wastetype && wastetype.length > 0) { %>
-                                    <% wastetype.forEach((wastetypee, index) => { %>
+                                <% if (villages.length > 0) { %>
+                                    <% villages.forEach((village, index) => { %>
                                         <tr>
-                                            <td class="table-was-index">
-                                                <%= (currentPage - 1) * 5 + index + 1 %>
-                                            </td>
-                                            <td class="table-was-name">
-                                                <%= wastetypee.wasteTypeName %>
-                                            </td>
+                                            <td class="table-was-number"><%= village.villageNumber %></td>
+                                            <td class="table-was-name"><%= village.villageName %></td>
+                                            <td class="table-was-location"><%= village.location %></td>
                                             <td class="table-was-delete">
                                                 <button type="button" class="was-row-<%= index + 1 %> row-active edit-btn" 
-                                                    onclick="setWasteTypeForm('<%= index + 1 %>', '<%= wastetypee._id %>', '<%= wastetypee.wasteTypeName %>')">
+                                                    onclick="setVillageForm('<%= index + 1 %>', '<%= village._id %>', '<%= village.villageNumber %>', '<%= village.villageName %>', '<%= village.location %>')">                                                
                                                     <i class="fa fa-edit"></i>
                                                 </button>
-                                                <button
-                                                    onclick="deleteWasteType(['<%= (currentPage - 1) * 5 + index + 1 %>', '<%= wastetypee._id %>','<%= wastetypee.wasteTypeName %>'])"
-                                                    class="delete-btn">
+                                                <button type="button" class="delete-btn" 
+                                                    onclick="deleteVillage(['<%= index + 1 %>', '<%= village._id %>', '<%= village.villageNumber %>', '<%= village.villageName %>', '<%= village.location %>'])">
                                                     <i class="fa fa-trash"></i>
                                                 </button>
                                             </td>
@@ -93,69 +84,57 @@
                                     <% }) %>
                                 <% } else { %>
                                     <tr>
-                                        <td colspan="3" class="text-center py-2 px-4">ไม่พบข้อมูลประเภทขยะ</td>
+                                        <td colspan="4" class="text-center py-2 px-4">ไม่พบข้อมูลหมู่บ้าน</td>
                                     </tr>
                                 <% } %>
                             </tbody>
                         </table>
-                        <!-- Pagination -->
-                        <div class="pagination flex justify-center items-center mt-4 space-x-2">
-                            <% if (currentPage > 1) { %>
-                                <a href="?page=<%= currentPage - 1 %>&search=<%= search %>"
-                                    class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                                    ก่อนหน้า
-                                </a>
-                            <% } %>
-                            <% for (let i = 1; i <= totalPages; i++) { %>
-                                <a href="?page=<%= i %>&search=<%= search %>"
-                                    class="px-3 py-1 border border-gray-300 rounded-md 
-                                        <%= currentPage === i ? 'page-current text-white' : 'text-gray-700 hover:bg-gray-100' %>">
-                                    <%= i %>
-                                </a>
-                            <% } %>
-                            <% if (currentPage < totalPages) { %>
-                                <a href="?page=<%= currentPage + 1 %>&search=<%= search %>"
-                                    class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                                    ถัดไป
-                                </a>
-                            <% } %>
-                        </div>
                     </div>
-                    
-                    <div class="was-form" id="edit_Form" style="display: none;">
-                        <form action="/admin/wasteTypeEdit" method="POST" enctype="application/x-www-form-urlencoded">
+
+                    <!-- เพิ่มหมู่บ้าน -->
+                    <div class="was-form" id="add_Form" style="display: none;">
+                        <form action="/admin/villagePost" method="POST" enctype="application/x-www-form-urlencoded">
                             <div class="form-head">
                                 <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
-                                <span>แก้ไขประเภทขยะ</span>
+                                <span>เพิ่มหมู่บ้าน</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="villageNumber">หมู่ที่</label>
+                                <input type="text" name="villageNumber" id="villageNumber" placeholder="เช่น 1, 2, 3, ..." required>
+                    
+                                <label for="villageName">ชื่อหมู่บ้าน</label>
+                                <input type="text" name="villageName" id="villageName" placeholder="เช่น บ้านหนองแวง" required>
+                    
+                                <label for="location">ตำแหน่ง</label>
+                                <input type="text" name="location" id="location" placeholder="เช่น ตำบล xxx อำเภอ xxx" required>
+                    
+                                <div class="submit-btn flex justify-end">
+                                    <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
+                                    <button type="submit" class="submit">บันทึก</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- แก้ไขหมู่บ้าน -->
+                    <div class="was-form" id="edit_Form" style="display: none;">
+                        <form action="/admin/villageEdit" method="POST" enctype="application/x-www-form-urlencoded">
+                            <div class="form-head">
+                                <ion-icon class="head-logo" name="create-outline"></ion-icon>
+                                <span>แก้ไขหมู่บ้าน</span>
                             </div>
                             <div class="input-group">
                                 <!-- ส่งค่า _id -->
-                                <input type="hidden" name="_id" id="hiddenWasteTypeId" value="">
+                                <input type="hidden" name="_id" id="hiddenVillageId" value="">
 
-                                <!-- ฟิลด์สำหรับชื่อประเภทขยะ -->
-                                <label for="editWasteTypeName">ชื่อประเภท</label>
-                                <input type="text" name="wasteTypeName" id="editWasteTypeName"
-                                    placeholder="โลหะ พลาสติก etc." required>
+                                <label for="editvillageNumber">หมู่ที่</label>
+                                <input type="text" name="villageNumber" id="editvillageNumber" placeholder="เช่น 1, 2, 3, ..." required>
 
-                                <div class="submit-btn flex justify-end">
-                                    <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
-                                    <button type="submit" class="submit">บันทึก</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
+                                <label for="editvillageName">ชื่อหมู่บ้าน</label>
+                                <input type="text" name="villageName" id="editvillageName" placeholder="เช่น บ้านหนองแวง" required>
 
-                    <div class="was-form" id="add_Form" style="display: none;">
-                        <form action="/admin/wasteTypePost" method="POST" enctype="application/x-www-form-urlencoded">
-                            <div class="form-head">
-                                <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
-                                <span>รายละเอียดประเภทขยะ</span>
-                            </div>
-                            <div class="input-group">
-
-                                <label for="wasteTypeName">ชื่อประเภท</label>
-                                <input type="text" name="wasteTypeName" id="wasteTypeName"
-                                    placeholder="โลหะ พลาสติก etc." required>
+                                <label for="editlocation">ตำแหน่ง</label>
+                                <input type="text" name="location" id="editlocation" placeholder="เช่น ตำบล xxx อำเภอ xxx" required>
 
                                 <div class="submit-btn flex justify-end">
                                     <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
@@ -163,7 +142,7 @@
                                 </div>
                             </div>
                         </form>
-                    </div>
+                    </div>                    
                 </div>
             </div>
 </body>
@@ -172,20 +151,24 @@
     <script>
         let lastClickedRow = null;
 
-        function setWasteTypeForm(Index, Id, Name) {
+        function setVillageForm(Index, Id, Number, Name, location) {
             const editForm = document.getElementById('edit_Form');
             const addForm = document.getElementById('add_Form');
 
-            const InputWasteTypeId = document.getElementById('hiddenWasteTypeId');
-            InputWasteTypeId.value = Id;
+            const InputVillageId = document.getElementById('hiddenVillageId');
+            InputVillageId.value = Id;
 
-            console.log("ID:", Id); // Debug
-            const InputWasteTypeName = document.getElementById('editWasteTypeName');
-            InputWasteTypeName.value = Name;
+            const InputVillageNumber = document.getElementById('editvillageNumber');
+            InputVillageNumber.value = Number;
+
+            const InputVillageName = document.getElementById('editvillageName');
+            InputVillageName.value = Name;
+
+            const InputVillagelocation = document.getElementById('editlocation');
+            InputVillagelocation.value = location;
 
             addForm.style.display = 'none';
             const selectedRow = document.querySelector(`.was-row-${Index}`);
-
             if (lastClickedRow === selectedRow) {
                 selectedRow.style.backgroundColor = '';
                 lastClickedRow = null;
@@ -202,16 +185,16 @@
             const addForm = document.getElementById('add_Form');
 
             editForm.style.display = 'none';
-            if (add_Form.style.display === 'block') {
-                add_Form.style.display = 'none';
+            if (addForm.style.display === 'block') {
+                addForm.style.display = 'none';
             }
             else {
-                add_Form.style.display = 'block';
+                addForm.style.display = 'block';
             }
         }
-        function deleteWasteType(data) {
+        function deleteVillage(data) {
             Swal.fire({
-                title: `ลบ "${data[2]}" หรือไม่?`,
+                title: `ลบ "${data[3]}" หรือไม่?`,
                 text: "หากคุณลบแล้วจะไม่สามารถกู้คืนได้!",
                 icon: "warning",
                 showCancelButton: true,
@@ -221,24 +204,17 @@
                 cancelButtonText: "ยกเลิก"
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch('/admin/deletewasteType/' + data[1], {
+                    fetch('/admin/villageDelete/' + data[1], {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json',
                         },
                     })
                         .then(result => {
-                            if (result.isConfirmed) {
-                                Swal.fire('ลบข้อมูลไม่สำเร็จ', 'ข้อมูลประเภทขยะถูกลบเรียบร้อยแล้ว', 'error')
-                                    .then(() => {
-                                        location.reload();
-                                    });
-                            } else {
-                                Swal.fire('ลบข้อมูลสำเร็จ', 'ข้อมูลประเภทขยะถูกลบเรียบร้อยแล้ว', 'success')
-                                .then(() => {
-                                        location.reload();
-                                });
-                            }
+                            Swal.fire('ลบข้อมูลสำเร็จ', 'ข้อมูลหมู่บ้านถูกลบเรียบร้อยแล้ว', 'success')
+                            .then(() => {
+                                location.reload();
+                            });
                         })
                         .catch(error => {
                             Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้', 'error');
