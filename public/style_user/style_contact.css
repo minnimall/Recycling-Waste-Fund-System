@@ -104,9 +104,33 @@ ul li a{
 .icon-green{
     color: green;
 }
-.title{
-    font-size: 2rem;
+.title {
+    font-size: 2.5rem; /* ขนาดตัวอักษรใหญ่ขึ้น */
+    font-weight: bold;
+    text-align: center;
+    color: #33691e; /* สีเขียว */
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+    padding-bottom: 10px;
 }
+
+/* เส้นขีดใต้ที่มีเอฟเฟกต์ */
+.title::after {
+    content: "";
+    display: block;
+    width: 60px;
+    height: 5px;
+    background: linear-gradient(to right, #4caf50, #2e7d32);
+    margin: 8px auto 0;
+    border-radius: 3px;
+}
+
+/* เพิ่มเงาให้อ่านง่ายขึ้น */
+.title-idea {
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
 .title2{
     font-size: 1.5rem;
 }

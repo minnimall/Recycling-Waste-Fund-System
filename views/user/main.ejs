@@ -96,7 +96,10 @@
                         </div>
                     </div>                    
                     <div class="col-4 mt-5">
-                        <p class="mb-3 title">ราคากลางรับซื้อขยะ</p>
+                        <p class="title">ราคากลางรับซื้อขยะ</p>
+                        <div class="d-flex justify-content-start align-items-center">
+                            <p class="time2">วันที่</p><p id="time" class="time"></p>
+                        </div>
                         <div class="title-waste d-flex justify-content-between align-items-center">
                             <p>รายการ</p>
                             <p>ราคา/กก.</p>
@@ -167,12 +170,12 @@
                         <% 
                             const round = roundsByVillage[v._id];
                         %>
-                        <div class="col village-box <%= round && round.isActive ? 'active' : 'inactive' %>">
+                        <div class="village-box <%= round && round.isActive ? 'active' : 'inactive' %>"> <!-- col -->
                             <p><strong>หมู่ที่ <%= v.villageNumber %></strong></p>
                             <p><%= v.villageName %></p>
                             <% if (round) { %>
                                 <p><strong>รอบการรับซื้อ:</strong> <%= round.roundName %></p>
-                                <p><strong>วัน:</strong> <%= round.formattedDateThai %></p> <!-- วันที่แบบภาษาไทย -->
+                                <p><strong>วัน:</strong> <%= round.formattedDateThai %></p>
                                 <p><strong>เวลา:</strong> <%= round.startTime %> - <%= round.endTime %></p>
                                 <% if (round.isActive) { %>
                                     <p style="color: green;"><strong>สถานะ: กำลังเปิดรับซื้อขยะ</strong></p>
@@ -192,11 +195,8 @@
     <%- include('../partials/footer.ejs') %>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // ตรวจสอบ query string ว่ามี error หรือไม่
         const urlParams = new URLSearchParams(window.location.search);
         const error = urlParams.get('error');
-
-        // หากมี error ให้แสดง alert
         if (error) {
             alert(error);
         }
@@ -219,12 +219,29 @@
             const timeString = currentDate.toLocaleString('th-TH', options);
             // แสดงเวลาในส่วนที่มี id="current-time"
             document.getElementById('current-time').textContent = timeString;
+            document.getElementById('time').textContent = timeString;
         }
 
         // เรียกใช้ฟังก์ชัน updateTime ทุกๆ 1 วินาที
         setInterval(updateTime, 1000);
 
         // เรียกใช้ฟังก์ชัน updateTime ทันทีเมื่อโหลดหน้าเว็บ
+        updateTime();
+    </script>
+
+    <script>
+        function updateTime() {
+            const currentDate = new Date();
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour12: true 
+            };
+            const timeString = currentDate.toLocaleString('th-TH', options);
+            document.getElementById('time').textContent = timeString;
+        }
+        setInterval(updateTime, 1000);
         updateTime();
     </script>
 

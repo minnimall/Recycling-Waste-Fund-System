@@ -12,6 +12,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 <body>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <nav>
         <div class="container">
             <div class="nav-content">
@@ -76,15 +77,22 @@
         });
     </script>
 
-<script>
-    // ตรวจสอบ query string ว่ามี error หรือไม่
-    const urlParams = new URLSearchParams(window.location.search);
-    const error = urlParams.get('error');
+    <script>
+        // ตรวจสอบ query string ว่ามี error หรือไม่
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
 
-    // หากมี error ให้แสดง alert
-    if (error) {
-        alert(error);
-    }
-</script>
+        // หากมี error ให้แสดง alert สวยงาม
+        if (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด!',
+                text: error,
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#d33',
+                timer: 3000
+            });
+        }
+    </script>
 </body>
 </html>
