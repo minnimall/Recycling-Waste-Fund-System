@@ -5,6 +5,7 @@ const mongoose = require('mongoose')
 const blogRoutes = require('./routes/blogRoutes')
 const userRouter = require('./routes/userRoutes')
 const adminRoutes = require('./routes/adminRoutes')
+const employeeRoutes = require('./routes/employeeRoutes')
 const bcrypt = require('bcryptjs');
 const session = require('express-session');
 const bodyParser = require('body-parser'); // เพิ่มการนำเข้า body-parser
@@ -83,7 +84,7 @@ const checkAuth = (req, res, next) => {
 //     next(); // ส่งต่อไปยัง middleware ถัดไป
 // };
 
-
+//สำหรับ admin
 const checkAdminAndSetName = (req, res, next) => {
     // ตั้งค่า username สำหรับ res.locals
     if (req.session && req.session.username) {
@@ -100,16 +101,33 @@ const checkAdminAndSetName = (req, res, next) => {
     }
 };
 
+//สำหรับ พนักงาน
+const checkEmpAndSetName = (req, res, next) => {
+    if (req.session && req.session.username) {
+        res.locals.username = req.session.username;
+    } else {
+        res.locals.username = "Admin";
+    }
+
+    // ตรวจสอบสิทธิ์การเป็น employee
+    if (req.session.role === 'employee') {
+        next();
+    } else {
+        res.redirect('/user');
+    }
+};
 
 app.get('/', (req, res) => {
     res.redirect('/user');
 });
 
-app.use('/user', userRouter);
 app.use('/blogs',blogRoutes);
 
-// เพิ่ม middleware checkAdmin สำหรับเส้นทาง /admin
-// app.use('/admin', checkAdmin, setName, adminRoutes);
+//ผู้ใช้ทั่วไป(user)
+app.use('/user', userRouter);
+//พนักงานอบต.ขามป้อม(employee)
+app.use('/employee', checkEmpAndSetName, employeeRoutes);
+//ผู้ดูแลระบบ(admin)
 app.use('/admin', checkAdminAndSetName, adminRoutes);
 
 //เส้นทางไปหน้า login
@@ -182,6 +200,5 @@ app.get('/logout', (req, res) => {
 // })
 
 app.use((req,res) => {
-    //res.status(404).sendFile('./blog/404.html', {root: __dirname})
     res.status(404).render('404', { mytitle: '404'})
 }) 

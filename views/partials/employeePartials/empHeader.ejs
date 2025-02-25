@@ -1,0 +1,58 @@
+<header>
+    <div>
+        <img src="../img/admin/logo.png" alt="Logo">
+    </div>
+    <div class="languages">
+        <div class="dropdown">
+            <button class="dropbtn">ยินดีต้อนรับ :  ▾</button>
+            <div class="dropdown-content" id="dropdownMenu">
+                <a href="/logout" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const dropbtn = document.querySelector('.dropbtn');
+    const dropdownContent = document.getElementById('dropdownMenu');
+
+    // กดปุ่ม dropdown ให้แสดง/ซ่อนเมนู
+    dropbtn.addEventListener('click', function (event) {
+        event.stopPropagation();
+        dropdownContent.classList.toggle('show');
+    });
+
+    // คลิกที่ไหนก็ได้ให้ปิด dropdown
+    window.addEventListener('click', function (event) {
+        if (!event.target.matches('.dropbtn')) {
+            dropdownContent.classList.remove('show');
+        }
+    });
+
+    // ปุ่มออกจากระบบ
+    document.getElementById('logoutBtn').addEventListener('click', function (event) {
+        event.preventDefault();
+
+        Swal.fire({
+        title: "คุณต้องการออกจากระบบหรือไม่?",
+        text: "หากออกจากระบบ คุณต้องเข้าสู่ระบบใหม่",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "ออกจากระบบ",
+        cancelButtonText: "ยกเลิก"
+        }).then((result) => {
+            if (result.isConfirmed) {
+            window.location.href = "/logout";
+            }
+        });
+        });
+    });
+</script>
