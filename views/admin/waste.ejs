@@ -51,8 +51,8 @@
                             <tr>
                                 <th class="table-was-index">ลำดับ</th>
                                 <th class="table-was-name">ชื่อรายการขยะ</th>
-                                <th class="table-was-price">ราคา (ราคา/กก.)</th>
                                 <th class="table-was-type">ประเภทขยะ</th>
+                                <th class="table-was-price">ราคา (ราคา/กก.)</th>
                                 <th class="table-was-img">รูป</th>
                                 <th class="table-was-delete">จัดการ</th>
                             </tr>
@@ -63,8 +63,8 @@
                                     <tr>
                                         <td class="table-was-index"><%= index + 1 %></td>
                                         <td class="table-was-name"><%= wastes.wasteName %></td>
-                                        <td class="table-was-price"><%= wastes.pricePerUnit %></td>
                                         <td class="table-was-type"><%= wastes.wasteType.wasteTypeName %></td>
+                                        <td class="table-was-price"><%= wastes.pricePerUnit %></td>
                                         <td class="table-was-imgg">
                                             <% if (wastes.img) { %>
                                                 <img src="<%= wastes.img %>" alt="รูป <%= wastes.img %>" class="waste-img">
@@ -102,11 +102,7 @@
                                 <!-- ชื่อขยะ -->
                                 <label for="wasteName">ชื่อขยะ</label>
                                 <input type="text" name="wasteName" id="wasteName" placeholder="ขวด PET ใส, โลหะ ฯลฯ" required>
-                                
-                                <!-- ราคาขยะ -->
-                                <label for="pricePerUnit">ราคาขยะ (ราคา/กก.)</label>
-                                <input type="text" name="pricePerUnit" id="pricePerUnit" placeholder="เช่น 6 บาท/กิโลกรัม" required>
-                    
+
                                 <!-- ประเภทขยะ -->
                                 <label for="wasteType">ประเภทขยะ</label>
                                 <select name="wasteType" id="wasteType" required>
@@ -115,6 +111,10 @@
                                         <option value="<%= type._id %>"><%= type.wasteTypeName %></option>
                                     <% }); %>
                                 </select>
+
+                                <!-- ราคาขยะ -->
+                                <label for="pricePerUnit">ราคาขยะ (ราคา/กก.)</label>
+                                <input type="text" name="pricePerUnit" id="pricePerUnit" placeholder="เช่น 6 บาท/กิโลกรัม" required>
 
                                 <!-- รูปภาพขยะ -->
                                 <div class="mt-3">
@@ -153,11 +153,7 @@
                                 <!-- ชื่อขยะ -->
                                 <label for="editWasteName">ชื่อขยะ</label>
                                 <input type="text" name="wasteName" id="editWasteName" placeholder="ขวด PET ใส, โลหะ ฯลฯ" required>
-                    
-                                <!-- ราคาขยะ -->
-                                <label for="editPricePerUnit">ราคาขยะ (ราคา/กก.)</label>
-                                <input type="text" name="pricePerUnit" id="editPricePerUnit" placeholder="เช่น 6 บาท/กิโลกรัม" required>
-                    
+
                                 <!-- ประเภทขยะ -->
                                 <label for="editWasteType">ประเภทขยะ</label>
                                 <select name="wasteType" id="editWasteType" required>
@@ -166,7 +162,11 @@
                                         <option  value="<%= type._id %>"><%= type.wasteTypeName %></option>
                                     <% }); %>
                                 </select>
-                    
+
+                                <!-- ราคาขยะ -->
+                                <label for="editPricePerUnit">ราคาขยะ (ราคา/กก.)</label>
+                                <input type="text" name="pricePerUnit" id="editPricePerUnit" placeholder="เช่น 6 บาท/กิโลกรัม" required>
+
                                 <!-- รูปภาพขยะ -->
                                 <div class="mt-3">
                                     <label class="title-img" for="img">รูปภาพขยะ</label>
@@ -212,11 +212,11 @@
     const InputWasteName = document.getElementById('editWasteName');
     InputWasteName.value = Name;
 
-    const InputPricePerUnit = document.getElementById('editPricePerUnit');
-    InputPricePerUnit.value = Price;
-
     const InputWasteType = document.getElementById('editWasteType');
     InputWasteType.value = Type;
+
+    const InputPricePerUnit = document.getElementById('editPricePerUnit');
+    InputPricePerUnit.value = Price;
 
     // Update the image preview
     const currentImg = document.querySelector('.current-img img');

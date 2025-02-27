@@ -4,23 +4,111 @@
 <head>
     <%- include('../partials/employeePartials/doctype.ejs') %>
         <title><%= mytitle %></title>
-        <link rel="stylesheet" href="/style_admin/dashboard.css">
+        <link rel="stylesheet" href="/style_employee/wastePurchase.css">
         <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body>
     <%- include('../partials/employeePartials/empHeader.ejs') %>
     <%- include('../partials/employeePartials/empSidebar.ejs') %>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // เช็คข้อความที่ส่งมาจาก URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const successMessage = urlParams.get('message');
+        const errorMessage = urlParams.get('error');
+        if (successMessage) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: successMessage,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
+        if (errorMessage) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: errorMessage,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
+    </script>
                 
     <!-- Main content -->
     <div class="content">
         <div class="content-header">
-            <h1>รับซื้อขยะรีไซเคิล</h1>
-                
+            <h1 class="head-title">รับซื้อขยะรีไซเคิล</h1>
+            <p id="time" class="show-time">วันที่ <span id="date-time"></span></p>
         </div>
         <div class="card-container">
-         </div>
+            <div class="row">
+                <% if (waste.length > 0) { %>
+                    <% waste.forEach((item, index) => { %>
+                        <div class="col-2 mt-3">
+                            <div class="card">
+                                <img class="d-block w-100 card-img-custom" src="<%= item.img %>" alt="รูป <%= item.img %>">
+                                <div class="card-body d-flex justify-content-between align-items-center">
+                                    <p class="card-title text-center "><%= item.wasteName %></p>
+                                    <p class="card-title text-center ms-5"><%= item.pricePerUnit %> บาท/กก.</p>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="mt-3 no-data-container">
+                        <span>ยังไม่มีข้อมูล</span>
+                    </div>
+                <% } %>
+            </div>
+        </div>
     </div>
     <%- include('../partials/employeePartials/empFooter.ejs') %>
 </body>
+    <!-- JavaScript สำหรับแสดงวันเวลา -->
+    <script>
+        function updateTime() {
+            const currentDate = new Date(); // ดึงวันและเวลาปัจจุบัน
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit', 
+                hour12: true 
+            };
+            // แปลงเวลาให้อยู่ในรูปแบบที่ต้องการ
+            const timeString = currentDate.toLocaleString('th-TH', options);
+            // แสดงเวลาในส่วนที่มี id="current-time"
+            document.getElementById('current-time').textContent = timeString;
+            document.getElementById('time').textContent = timeString;
+        }
+
+        // เรียกใช้ฟังก์ชัน updateTime ทุกๆ 1 วินาที
+        setInterval(updateTime, 1000);
+
+        // เรียกใช้ฟังก์ชัน updateTime ทันทีเมื่อโหลดหน้าเว็บ
+        updateTime();
+    </script>
+
+    <script>
+        function updateTime() {
+            const currentDate = new Date();
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour12: true 
+            };
+            const timeString = currentDate.toLocaleString('th-TH', options);
+            document.getElementById('date-time').textContent = timeString;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+    </script>
 </html>

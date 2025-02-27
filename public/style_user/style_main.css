@@ -155,35 +155,35 @@ ul li a{
 }
 
 
-/* คำสั่งจัดระเบียบและตกแต่ง village box */
 .village-box {
     padding: 20px;
     margin: 10px 0;
     border-radius: 8px;
-    border: 1px solid #ddd; /* เส้นขอบสีอ่อน */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* เงาด้านหลังให้ดูลึก */
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s ease, transform 0.3s ease; /* เพิ่มการเปลี่ยนแปลงแบบ smooth */
 }
 
 /* กรอบรอบหมู่บ้านที่มีสถานะ active */
 .village-box.active {
-    background-color: #558b2f; /* สีพื้นหลังสำหรับสถานะ active */
+    background-color: rgba(51, 105, 30, 0.8);
+    color: white;
 }
 
 /* กรอบรอบหมู่บ้านที่มีสถานะ inactive */
 .village-box.inactive {
-    background-color: white; /* สีพื้นหลังสำหรับสถานะ inactive */
-    color: #414141; /* ตัวหนังสือเป็นสีเทา */
+    background-color: white;
+    color: #414141;
 }
 
 .village-box:hover {
-    transform: translateY(-5px); /* เพิ่มเอฟเฟกต์ให้ตัวการ์ดยกขึ้นเล็กน้อย */
-    background-color: #ffffff; /* เมื่อเอาเมาส์ไปวางพื้นหลังจะเปลี่ยนเป็นสีเทาอ่อน */
+    transform: translateY(-5px);
+    background-color: #ffffff;
 }
 
 .village-box.active:hover {
-    transform: translateY(-5px); /* เพิ่มเอฟเฟกต์ให้ตัวการ์ดยกขึ้นเล็กน้อย */
-    background-color: #8bc34a; /* เมื่อเอาเมาส์ไปวางพื้นหลังจะเปลี่ยนเป็นสีเทาอ่อน */
+    transform: translateY(-5px);
+    background-color: rgba(51, 105, 30, 1);
 }
 
 /* เพิ่มระยะห่างระหว่างชื่อหมู่บ้านและข้อมูล */

@@ -26,7 +26,20 @@ const dashboardIndex = (req, res)=> {
 
 //หน้ารับซื้อขยะรีไซเคิล
 const wastePurchaseIndex = (req, res)=> {
-    res.render('employee/wastePurchase', { mytitle: 'Employeedashboard | WastePurchase'})
+    Promise.all([
+        myWaste.find().populate('wasteType', 'wasteTypeName'),
+        myWasteType.find()
+    ])
+    .then(([wasteData, wasteTypeData]) => {
+        res.render('employee/wastePurchase', {
+            mytitle: 'Employeedashboard | WastePurchase',
+            waste: wasteData,
+            wasteTypes: wasteTypeData
+        });
+    })
+    .catch((err) => {
+        console.log(err);
+    });
 }
 
 module.exports = {

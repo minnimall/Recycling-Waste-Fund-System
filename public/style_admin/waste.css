@@ -24,7 +24,7 @@
     padding: 8px 12px;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 10px;
+    font-size: 14px;
     transition: background-color 0.3s ease;
 }
 
@@ -39,7 +39,7 @@
     padding: 8px 12px;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 10px;
+    font-size: 14px;
     transition: background-color 0.3s ease;
 }
 
@@ -70,3 +70,6 @@ table tbody{
     justify-content: center;
 }
 
+.no-data{
+    padding: 10px 0px 10px 0px;
+}

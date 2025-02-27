@@ -167,3 +167,22 @@ iframe{
 .search-button:active {
     transform: translateY(1px); /* ทำให้ปุ่มหดลงเล็กน้อย */
 }
+
+.no-data-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 150px; /* ความสูงที่เหมาะสม */
+    background-color: #f8f9fa; /* สีพื้นหลังอ่อน */
+    border-radius: 8px;
+    border: 1px solid #ccc; /* ขอบบางๆ */
+    margin-top: 20px;
+    width: 100%;
+}
+
+.no-data-container span {
+    font-size: 18px;
+    font-weight: bold;
+    color: #6c757d; /* สีเทาอ่อน */
+    text-align: center;
+}
