@@ -82,8 +82,6 @@ const user_wastetype = (req, res) => {
 };
 
 
-
-
 // หน้าสื่อความรู้
 const user_knowledge = (req, res) => {
     myMedia.find().sort({ createdAt: -1 })
@@ -99,6 +97,11 @@ const user_knowledge = (req, res) => {
 // หน้าประวัติการขายขยะของครัวเรือน
 const user_saleHistory = (req, res)=> {
     res.render('user/saleHistory')
+}
+
+// หน้าข้อมูลติดต่อ
+const user_wasteSaleRequest = (req, res)=> {
+    res.render('user/wasteSaleRequest')
 }
 
 // หน้าข้อมูลติดต่อ
@@ -182,6 +185,7 @@ module.exports = {
     user_wastetype,
     user_knowledge,
     user_saleHistory,
+    user_wasteSaleRequest,
     user_contact,
     user_allActivity,user_detailActivity
 }

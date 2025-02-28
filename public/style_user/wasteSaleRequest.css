@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400&display=swap');
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Prompt', sans-serif;
+    color: black;
+    scroll-behavior: smooth;
+}
+
+html, body {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* เนื้อหาเว็บไซต์ */
+.content {
+    flex: 1; /* ให้พื้นที่นี้ยืดหยุ่นได้ */
+}
+/* ส่วน navbar */
+ul{
+    list-style-type: none;
+}
+nav {
+    display: flex;
+    align-items: center;
+    height: 100px;
+    top: 0;
+    width: 100%;
+    box-shadow: 5px 5px 10px gray;
+}
+.nav-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1;
+}
+nav ul li a:hover{
+    color: #8bc34a;
+    transition: 0.3s;
+}
+nav ul li a{
+    font-size: 1.1rem;
+}
+li a{
+    text-decoration: none;
+    color: black;
+}
+.menu {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+ul li a{
+    margin-left: 30px;
+}
+.logo{
+    width: 90px;
+    height: auto;
+}
+.select a{
+    color: #558b2f;
+    border-bottom: 3px solid #33691e;
+}
+.show-time {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    transition: all 0.3s ease-in-out;
+}
+
+
+
+

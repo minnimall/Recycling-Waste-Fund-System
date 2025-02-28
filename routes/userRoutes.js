@@ -15,6 +15,8 @@ router.get('/knowledge', userController.user_knowledge)
 // หน้าประวัติการขายขยะชองครัวเรือน
 router.get('/saleHistory', userController.user_saleHistory)
 
+router.get('/wasteSaleRequest', userController.user_wasteSaleRequest)
+
 // หน้าข้อมูลติดต่อของอบต.
 router.get('/contact', userController.user_contact)
 
