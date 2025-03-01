@@ -17,7 +17,16 @@
         <div class="flex gap-6 p-6">
             <!-- ฝั่งซ้าย: รายการขยะ -->
             <div class="border p-4 rounded-lg shadow-lg left-box">
-                <h2 class="mb-4">เลือกขยะรีไซเคิล</h2>
+                <div class="flex justify-between items-center mb-5">
+                    <h2 class="text-lg font-bold mb-4">เลือกขยะรีไซเคิล</h2>
+                    <div class="search-container">
+                        <!-- ช่องค้นหากิจกรรม -->
+                        <form action="/employee/wastePurchase" method="GET" class="search-form">
+                            <input type="text" name="search" value="<%= searchQuery %>" placeholder="ค้นหากิจกรรม" class="search-input">
+                            <button type="submit" class="search-button">ค้นหา</button>
+                        </form>
+                    </div>
+                </div>
                 <div class="grid grid-cols-4 gap-4">
                     <% if (waste.length > 0) { %>
                         <% waste.forEach((item, index) => { %>
@@ -31,7 +40,7 @@
                         <p class="text-center text-gray-500">ยังไม่มีข้อมูล</p>
                     <% } %>
                 </div>
-            </div>
+            </div>            
 
             <!-- ฝั่งขวา: ฟอร์มและรายการขยะที่เลือก -->
             <div class="border p-4 rounded-lg shadow-lg right-box">

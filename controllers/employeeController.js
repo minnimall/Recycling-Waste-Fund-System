@@ -26,15 +26,18 @@ const dashboardIndex = (req, res)=> {
 
 //หน้ารับซื้อขยะรีไซเคิล
 const wastePurchaseIndex = (req, res)=> {
+    const searchQuery = req.query.search || ''; // ดึงค่าคำค้นหาจาก query string
+    const filter = searchQuery ? { wasteName: { $regex: searchQuery, $options: 'i' } } : {}; // ใช้ regex เพื่อค้นหาตรงกับคำค้นหาหรือไม่
     Promise.all([
-        myWaste.find().populate('wasteType', 'wasteTypeName'),
+        myWaste.find(filter).populate('wasteType', 'wasteTypeName'),
         myWasteType.find()
     ])
     .then(([wasteData, wasteTypeData]) => {
         res.render('employee/wastePurchase', {
             mytitle: 'Employeedashboard | WastePurchase',
             waste: wasteData,
-            wasteTypes: wasteTypeData
+            wasteTypes: wasteTypeData,
+            searchQuery: searchQuery
         });
     })
     .catch((err) => {
