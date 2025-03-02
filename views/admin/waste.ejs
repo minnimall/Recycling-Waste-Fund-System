@@ -105,7 +105,7 @@
 
                                 <!-- ประเภทขยะ -->
                                 <label for="wasteType">ประเภทขยะ</label>
-                                <select name="wasteType" id="wasteType" required>
+                                <select class="mb-5" name="wasteType" id="wasteType" required>
                                     <option value="" disabled selected>เลือกประเภทขยะ</option>
                                     <% wasteTypes.forEach((type) => { %>
                                         <option value="<%= type._id %>"><%= type.wasteTypeName %></option>
@@ -113,7 +113,7 @@
                                 </select>
 
                                 <!-- ราคาขยะ -->
-                                <label for="pricePerUnit">ราคาขยะ (ราคา/กก.)</label>
+                                <label class="pp" for="pricePerUnit">ราคาขยะ (ราคา/กก.)</label>
                                 <input type="text" name="pricePerUnit" id="pricePerUnit" placeholder="เช่น 6 บาท/กิโลกรัม" required>
 
                                 <!-- รูปภาพขยะ -->
@@ -156,7 +156,7 @@
 
                                 <!-- ประเภทขยะ -->
                                 <label for="editWasteType">ประเภทขยะ</label>
-                                <select name="wasteType" id="editWasteType" required>
+                                <select class="mb-5" name="wasteType" id="editWasteType" required>
                                     <option value="" disabled selected>เลือกประเภทขยะ</option>
                                     <% wasteTypes.forEach((type) => { %>
                                         <option  value="<%= type._id %>"><%= type.wasteTypeName %></option>

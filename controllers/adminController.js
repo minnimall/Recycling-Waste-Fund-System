@@ -696,8 +696,8 @@ const roundIndex = (req, res) => {
     };
 
     Promise.all([
-        Village.find().sort({ createdAt: 1 }),
-        Round.find().populate('village').sort({ date: 1 })
+        Village.find().sort({ createdAt: -1 }),
+        Round.find().populate('village').sort({ date: -1 })
     ])
     .then(([villageResult, roundResult]) => {
         // แปลงวันที่ก่อนส่งไปยัง EJS

@@ -20,7 +20,7 @@ nav {
     top: 0;
     width: 100%;
     box-shadow: 3px 3px 10px rgb(173, 173, 173);
-    background-color: #00923f;
+    background-color: #376939;
 }
 .nav-content {
     display: flex;
@@ -106,7 +106,7 @@ ul li a{
 
 .input-icon input {
     width: 100%;
-    padding: 10px 10px 10px 35px;
+    padding: 10px 10px 10px 0px;
     border: 1px solid #ddd;
     border-radius: 5px;
     font-size: 1rem;

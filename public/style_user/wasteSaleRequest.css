@@ -28,7 +28,8 @@ nav {
     height: 100px;
     top: 0;
     width: 100%;
-    box-shadow: 5px 5px 10px gray;
+    box-shadow: 3px 3px 10px gray;
+    background-color: #376939;
 }
 .nav-content {
     display: flex;
@@ -37,15 +38,15 @@ nav {
     flex: 1;
 }
 nav ul li a:hover{
-    color: #8bc34a;
-    transition: 0.3s;
+    color: white;
+    border-bottom: 2px solid whitesmoke;
 }
 nav ul li a{
     font-size: 1.1rem;
 }
 li a{
     text-decoration: none;
-    color: black;
+    color: white;
 }
 .menu {
     display: flex;
@@ -60,9 +61,17 @@ ul li a{
     height: auto;
 }
 .select a{
-    color: #558b2f;
-    border-bottom: 3px solid #33691e;
+    color: white;
+    border-bottom: 2px solid whitesmoke;
+    /* border: 2px solid whitesmoke;
+    border-radius: 3px;
+    padding: 5px; */
 }
+.icon{
+    color: white;
+}
+
+
 .show-time {
     display: flex;
     align-items: center;
@@ -78,6 +87,31 @@ ul li a{
     transition: all 0.3s ease-in-out;
 }
 
+.title {
+    font-size: 2.5rem; /* ขนาดตัวอักษรใหญ่ขึ้น */
+    font-weight: bold;
+    text-align: center;
+    color: #33691e; /* สีเขียว */
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+    padding-bottom: 10px;
+}
 
+/* เส้นขีดใต้ที่มีเอฟเฟกต์ */
+.title::after {
+    content: "";
+    display: block;
+    width: 60px;
+    height: 5px;
+    background: linear-gradient(to right, #4caf50, #2e7d32);
+    margin: 8px auto 0;
+    border-radius: 3px;
+}
+
+/* เพิ่มเงาให้อ่านง่ายขึ้น */
+.content-header {
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+}
 
 

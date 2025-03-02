@@ -27,7 +27,7 @@
                     <li><a href="/user/contact">ติดต่อ-สอบถาม</a></li>
                     <li>
                         <a href="/login">
-                            <i class="fa fa-user"></i> เข้าสู่ระบบ
+                            <i class="fa fa-user icon"></i> เข้าสู่ระบบ
                         </a>
                     </li>
                 </ul>
@@ -36,10 +36,11 @@
     </nav>
 
     <div class="content">
+        <img class="img-main" src="./img/bg_main.png" alt="พื้นหลัง">
         <div class="container">
             <section class="mt-3">
                 <!-- ส่วนรูปของหน้าหลัก -->
-                <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+                <!-- <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
                     <div class="carousel-indicators">
                         <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
                         <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
@@ -62,11 +63,11 @@
                     <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next" aria-label="Next">
                         <span class="carousel-control-next-icon" aria-hidden="true"></span>
                     </button>
-                </div>
+                </div> -->
 
                 <!-- ส่วนข่าวกิจกรรมกับแสดงราคาขยะ -->
                 <div class="row">
-                    <div class="col-8 mt-5">
+                    <div class="col-8">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <p class="mb-3 title">ข่าวกิจกรรม</p>
@@ -95,7 +96,7 @@
                             <% } %>
                         </div>
                     </div>                    
-                    <div class="col-4 mt-5">
+                    <div class="col-4 ">
                         <p class="title">ราคากลางรับซื้อขยะ</p>
                         <div class="d-flex justify-content-start align-items-center">
                             <p class="time2">วันที่</p><p id="time" class="time"></p>
@@ -121,7 +122,7 @@
                     </div>
 
                 <!-- ส่วนไอเดียการจัดการขยะ -->
-                <div class="row">
+                <div class="row mt-3">
                     <div class="col-12 mt-5">
                         <div class="idea">
                             <div class="mb-3 title-idea d-flex justify-content-between align-items-center">
@@ -157,7 +158,7 @@
                 </div>
 
                 <!-- ส่วนแสดงรอบการรับซื้อ -->
-                <div class="row">
+                <div class="row mt-3">
                     <div class="col-12 mt-5 mb-3">
                         <div class="round">
                             <div class="mb-3 title-idea d-flex justify-content-between align-items-center">
@@ -171,16 +172,15 @@
                             const round = roundsByVillage[v._id];
                         %>
                         <div class="village-box <%= round && round.isActive ? 'active' : 'inactive' %>"> <!-- col -->
-                            <p><strong>หมู่ที่ <%= v.villageNumber %></strong></p>
-                            <p><%= v.villageName %></p>
+                            <p><strong>หมู่ที่ <%= v.villageNumber %></strong> <%= v.villageName %></p>
                             <% if (round) { %>
                                 <p><strong>รอบการรับซื้อ:</strong> <%= round.roundName %></p>
                                 <p><strong>วัน:</strong> <%= round.formattedDateThai %></p>
                                 <p><strong>เวลา:</strong> <%= round.startTime %> - <%= round.endTime %></p>
                                 <% if (round.isActive) { %>
-                                    <p style="color: green;"><strong>สถานะ: กำลังเปิดรับซื้อขยะ</strong></p>
+                                    <p ><strong>สถานะ: กำลังเปิดรับซื้อขยะ</strong></p>
                                 <% } else { %>
-                                    <p style="color: red;"><strong>สถานะ: ปิดรับซื้อขยะ</strong></p>
+                                    <p ><strong>สถานะ: ปิดรับซื้อขยะ</strong></p>
                                 <% } %>
                             <% } else { %>
                                 <p>ไม่มีรอบการรับซื้อขยะ</p>

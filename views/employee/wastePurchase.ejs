@@ -33,7 +33,7 @@
                             <div class="border p-3 rounded-lg shadow-md cursor-pointer" onclick="selectWaste('<%= index %>', '<%= item.wasteName %>', '<%= item.pricePerUnit %>')">
                                 <img class="w-full h-32 object-cover mb-2" src="<%= item.img %>" alt="รูป <%= item.wasteName %>">
                                 <p class="text-center font-semibold"><%= item.wasteName %></p>
-                                <p class="text-center text-sm text-gray-500"><%= item.pricePerUnit %> บาท/กก.</p>
+                                <p class="text-center text-sm text-gray-500">฿ <%= item.pricePerUnit %> บาท/กก.</p>
                             </div>
                         <% }); %>
                     <% } else { %>
@@ -116,10 +116,8 @@
                         <div class="cart-action">
                             <div onclick="editWaste(${index})" class="cart-action-edit"><ion-icon name="create"></ion-icon></div>
                             <div onclick="deleteWaste(${index})" class="cart-action-close"><ion-icon name="close"></ion-icon></div>
-                            </div>
+                        </div>
                     </li>
-                
-
             `;
         });
         document.getElementById('totalAmount').textContent = totalAmount.toFixed(2);

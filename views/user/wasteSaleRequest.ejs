@@ -27,7 +27,7 @@
                     <li><a href="/user/contact">ติดต่อ-สอบถาม</a></li>
                     <li>
                         <a href="/login">
-                            <i class="fa fa-user"></i> เข้าสู่ระบบ
+                            <i class="fa fa-user icon"></i> เข้าสู่ระบบ
                         </a>
                     </li>
                 </ul>
@@ -37,9 +37,39 @@
 
     <div class="content">
         <div class="container">
-            <div class="mt-5 content-header d-flex justify-content-between align-items-center">
-                <h1 class="head-title">แจ้งความประสงค์ขายขยะ</h1>
-                <p id="time" class="show-time">วันที่ <span id="date-time"></span></p>
+            <div class="mt-5 content-header d-flex justify-content-center align-items-center">
+                <h1 class="title">แจ้งความประสงค์ขายขยะ</h1>
+            </div>
+            <div class="mt-5 mb-5 form-saleRequest border rounded p-4 shadow-sm bg-light">
+                <div class="mt-2 d-flex justify-content-between align-items-center">
+                    <h2>ฟอร์มกรอกข้อมูลเบื้องต้น</h2>
+                    <p id="time" class="show-time">วันที่ <span id="date-time"></span></p>
+                </div>
+                <div>
+                    <form id="waste-sale-form" action="/submit-sale" method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="waste-type" class="form-label">ขยะที่ต้องการขาย</label>
+                            <select class="form-select" id="waste-type" name="wasteType" required>
+                                <option value="">เลือกขยะ</option>
+                                <option value="พลาสติก">ขวดใส</option>
+                                <option value="กระดาษ">กระดาษ</option>
+                                <option value="โลหะ">โลหะ</option>
+                                <option value="แก้ว">แก้วน้ำ</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="weight" class="form-label">น้ำหนัก (กิโลกรัม)</label>
+                            <input type="number" class="form-control" id="weight" name="weight" step="0.1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="image" class="form-label">อัปโหลดรูปภาพขยะ</label>
+                            <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
+                        </div>
+                        <div class="d-flex">
+                            <button type="submit" class="btn btn-success ms-auto">ส่งข้อมูล</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
