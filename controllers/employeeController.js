@@ -45,10 +45,16 @@ const wastePurchaseIndex = (req, res)=> {
     });
 }
 
+//หน้าสมาชิกกองทุนขยะรีไซเคิล
+const memberIndex = (req, res)=> {
+    res.render('employee/member', { mytitle: 'Employeedashboard | Member'})
+}
+
 module.exports = {
     //แดชบอร์ด
     dashboardIndex,
-
     //รับซื้อขยะรีไซเคิล
     wastePurchaseIndex,
+    //หน้าสมาชิกกองทุนขยะรีไซเคิล
+    memberIndex,
 }

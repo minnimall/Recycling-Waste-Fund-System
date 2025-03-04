@@ -8,4 +8,7 @@ router.get('/', employeeController.dashboardIndex);
 // รับซื้อขยะรีไซเคิล
 router.get('/wastePurchase', employeeController.wastePurchaseIndex);
 
+// สมาชิกกองทุนขยะรีไซเคิล
+router.get('/member', employeeController.memberIndex);
+
 module.exports = router

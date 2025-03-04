@@ -1,0 +1,66 @@
+.input-group input, 
+.input-group select {
+    width: 100%; /* ใช้ความกว้างเต็มพื้นที่ของ container */
+    padding: 10px; /* ระยะห่างภายใน */
+    font-size: 1rem; /* ขนาดตัวอักษร */
+    border: 1px solid #ccc; /* เส้นกรอบ */
+    border-radius: 5px; /* มุมโค้ง */
+    box-sizing: border-box; /* รวม padding ในความกว้าง */
+}
+
+.submit-btn {
+    display: flex;
+    justify-content: flex-end; /* จัดปุ่มไปทางขวาสุด */
+    margin-top: 10px;
+}
+.submit:hover {
+    background-color: #007506; /* สีเมื่อ hover */
+}
+
+.cancel:hover {
+    background-color: #e53935;
+}
+
+.delete-btn {
+    background-color: #f44336; /* สีแดง */
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.delete-btn:hover {
+    background-color: #d32f2f; /* สีแดงเข้ม */
+}
+
+.edit-btn {
+    background-color: #007bff; /* สีฟ้าสำหรับแก้ไข */
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.edit-btn:hover {
+    background-color: #0155ad;
+}
+
+table tbody{
+    background-color: white;
+}
+
+.household-box{
+    background-color: #376939;
+}
+.member-box{
+    background-color: rgb(206, 206, 62);
+}
+.death-box{
+    background-color: #d62424;
+}
