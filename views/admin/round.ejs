@@ -120,7 +120,7 @@
                         <input type="text" name="roundName" placeholder="ชื่อรอบการรับซื้อขยะ" required>
 
                         <label for="village">หมู่บ้าน</label>
-                        <select name="village" required>
+                        <select class="mb-5" name="village" required>
                             <option value="">เลือกหมู่บ้าน</option>
                             <% village.forEach(v => { %>
                                 <option value="<%= v._id %>"><%= v.villageName %></option>
@@ -158,7 +158,7 @@
                         <input type="text" id="roundName" name="roundName" placeholder="ชื่อรอบการรับซื้อขยะ" required>
 
                         <label for="village">หมู่บ้าน</label>
-                        <select id="village" name="village" required>
+                        <select class="mb-5" id="village" name="village" required>
                             <option value="">เลือกหมู่บ้าน</option>
                             <% village.forEach(v => { %>
                                 <option value="<%= v._id %>"><%= v.villageName %></option>

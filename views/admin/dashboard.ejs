@@ -3,24 +3,108 @@
 
 <head>
     <%- include('../partials/adminPartials/doctype.ejs') %>
-        <title><%= mytitle %></title>
-        <link rel="stylesheet" href="/style_admin/dashboard.css">
-        <script src="https://cdn.tailwindcss.com"></script>
+    <title><%= mytitle %></title>
+    <link rel="stylesheet" href="/style_admin/dashboard.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- แทรก Chart.js สำหรับกราฟ -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
     <%- include('../partials/adminPartials/adminHeader.ejs') %>
     <%- include('../partials/adminPartials/adminSidebar.ejs') %>
-                
+
     <!-- Main content -->
-    <div class="content">
-        <div class="content-header">
-            <h1>แดชบอร์ด</h1>
-                
+    <div class="content px-4 py-6">
+        <div class="content-header mb-6">
+            <h1 class="text-2xl font-semibold">แดชบอร์ด</h1>
         </div>
-        <div class="card-container">
-         </div>
+
+        <!-- Card Container -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Card 1: Pie Chart -->
+            <div class="bg-white shadow-lg rounded-lg p-4">
+                <h2 class="text-xl font-semibold mb-4">กราฟ Pie</h2>
+                <canvas id="pieChart"></canvas>
+            </div>
+
+            <!-- Card 2: Bar Chart -->
+            <div class="bg-white shadow-lg rounded-lg p-4">
+                <h2 class="text-xl font-semibold mb-4">กราฟแท่ง</h2>
+                <canvas id="barChart"></canvas>
+            </div>
+
+            <!-- Card 3: Line Chart -->
+            <div class="bg-white shadow-lg rounded-lg p-4">
+                <h2 class="text-xl font-semibold mb-4">กราฟเส้น</h2>
+                <canvas id="lineChart"></canvas>
+            </div>
+        </div>
     </div>
+
     <%- include('../partials/adminPartials/adminFooter.ejs') %>
+
+    <!-- Script for Charts -->
+    <script>
+        // Pie Chart Example
+        var ctxPie = document.getElementById('pieChart').getContext('2d');
+        var pieChart = new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: ['แดง', 'เขียว', 'น้ำเงิน'],
+                datasets: [{
+                    data: [300, 500, 100],
+                    backgroundColor: ['#FF5733', '#28A745', '#007BFF'],
+                }]
+            }
+        });
+
+        // Bar Chart Example
+        var ctxBar = document.getElementById('barChart').getContext('2d');
+        var barChart = new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม'],
+                datasets: [{
+                    label: 'ยอดขาย',
+                    data: [65, 59, 80, 81, 56],
+                    backgroundColor: '#4CAF50',
+                    borderColor: '#4CAF50',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Line Chart Example
+        var ctxLine = document.getElementById('lineChart').getContext('2d');
+        var lineChart = new Chart(ctxLine, {
+            type: 'line',
+            data: {
+                labels: ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม'],
+                datasets: [{
+                    label: 'ยอดขาย',
+                    data: [65, 59, 80, 81, 56],
+                    fill: false,
+                    borderColor: '#FF5733',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
 </body>
+
 </html>

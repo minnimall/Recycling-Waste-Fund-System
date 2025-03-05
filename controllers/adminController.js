@@ -32,7 +32,11 @@ const dashboardIndex = (req, res)=> {
 // สื่อ
 const mediaIndex = (req, res) => {
     const searchQuery = req.query.search || ''; // ดึงค่าคำค้นหาจาก query string
-    const filter = searchQuery ? { title: { $regex: searchQuery, $options: 'i' } } : {}; // ใช้ regex เพื่อค้นหาตรงกับคำค้นหาหรือไม่
+    const filter = { isDeleted: false };
+    
+    if (searchQuery) {
+        searchQuery ? { title: { $regex: searchQuery, $options: 'i' } } : {}; // ใช้ regex เพื่อค้นหาตรงกับคำค้นหาหรือไม่
+    }
 
     myMedia.find(filter).sort({ createdAt: -1 })
         .then((result) => {
@@ -45,37 +49,44 @@ const mediaIndex = (req, res) => {
             console.log(err);
         });
 };
-// เพิ่มสื่อ
-const mediaPost = (req, res) => {
-    const { title, youtubeUrl } = req.body;
+// เพิ่มสื่อ (ป้องกันสร้างซ้ำ)
+const mediaPost = async (req, res) => {
+    try {
+        const { title, youtubeUrl } = req.body;
 
-    // ตรวจสอบว่า youtubeUrl มีค่าและมี URL ของ YouTube
-    const validYoutubeUrl = youtubeUrl && youtubeUrl.includes('youtube.com/watch?v=');
+        // ตรวจสอบว่า youtubeUrl มีค่าและมี URL ของ YouTube
+        if (!youtubeUrl || !youtubeUrl.includes('youtube.com/watch?v=')) {
+            return res.status(400).redirect('/admin?error=URL ไม่ถูกต้อง');
+        }
 
-    // สร้าง media ใหม่ โดยเก็บ youtubeUrl แบบเต็มๆ
-    const media = new myMedia({
-        title: title || 'Untitled',
-        youtubeUrl: validYoutubeUrl ? youtubeUrl : '', // บันทึก URL เต็มๆ ถ้า valid
-    });
-
-    console.log('Media to save:', media);
-
-    media.save()
-        .then((result) => {
-            console.log('Media saved successfully:', result);
-            res.redirect('/admin?message=เพิ่มสื่อความรู้สำเร็จ');
-        })
-        .catch((err) => {
-            console.error('Error saving media:', err);
-            res.status(500).redirect('/admin?error=เพิ่มสื่อความรู้ไม่สำเร็จ');
+        // ✅ ตรวจสอบว่าชื่อหรือ URL นี้มีอยู่แล้วหรือไม่
+        const existingMedia = await myMedia.findOne({ 
+            $or: [{ title }, { youtubeUrl }] 
         });
+
+        if (existingMedia) {
+            return res.status(400).redirect('/admin?error=มีสื่อนี้อยู่แล้ว');
+        }
+
+        const media = new myMedia({
+            title: title || 'Untitled',
+            youtubeUrl
+        });
+
+        await media.save();
+        console.log('Media saved successfully:', media);
+        res.redirect('/admin?message=เพิ่มสื่อความรู้สำเร็จ');
+    } catch (err) {
+        console.error('Error saving media:', err);
+        res.status(500).redirect('/admin?error=เพิ่มสื่อความรู้ไม่สำเร็จ');
+    }
 };
-// ลบสื่อ
+// ลบสื่อ (softDelete)
 const mediaDelete = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const result = await myMedia.findByIdAndDelete(id);
+        const result = await myMedia.findByIdAndUpdate(id,{ isDeleted: true});
 
         if (!result) {
             return res.status(404).redirect('/admin?message=ไม่พบข้อมูลสื่อความรู้ที่ต้องการลบ');
@@ -158,21 +169,29 @@ const upload = multer({
 
 // กิจกรรม
 const activityIndex = (req, res) => {
-    const searchQuery = req.query.search || ''; // ดึงค่าคำค้นหาจาก query string
-    const filter = searchQuery ? { title: { $regex: searchQuery, $options: 'i' } } : {}; // ใช้ regex เพื่อค้นหาตรงกับคำค้นหาหรือไม่
+    const searchQuery = req.query.search || '';
+    const filter = { isDeleted: false };
+
+    if (searchQuery) {
+        filter.title = { $regex: searchQuery, $options: 'i' };
+    }
 
     myActivity.find(filter).sort({ createdAt: -1 })
         .then((result) => {
             result.forEach(item => {
                 item.formattedDate = moment(item.createdAt).format('YYYY-MM-DD');
             });
-            res.render('admin/activity', { mytitle: 'Admindashboard | Activity', activity: result, searchQuery: searchQuery });
+            res.render('admin/activity', { 
+                mytitle: 'Admindashboard | Activity', 
+                activity: result, 
+                searchQuery: searchQuery 
+            });
         })
         .catch((err) => {
             console.log(err);
+            res.status(500).send('เกิดข้อผิดพลาดในการดึงข้อมูล');
         });
 };
-
 //เพิ่มกิจกรรม
 const activityPost = (req, res) => {
     upload(req, res, (err) => {
@@ -203,20 +222,21 @@ const activityPost = (req, res) => {
             });
     });
 };
-// ลบกิจกรรม
+// ลบกิจกรรม (softDelete)
 const deleteActivity = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const result = await myActivity.findByIdAndDelete(id);
+        const result = await myActivity.findByIdAndUpdate(id, { isDeleted: true });
 
         if (!result) {
-            console.log(`Activity with ID ${id} has been deleted.`);
+            console.log(`Activity with ID ${id} not found.`);
             return res.status(404).redirect('/admin/activity?error=ไม่พบข้อมูลที่ต้องการลบ');
         }
-        res.redirect('/admin/activity?message=ลบกิจกรรมสำเร็จ');
+
+        res.redirect('/admin/activity?message=ลบกิจกรรมสำเร็จ (Soft Delete)');
     } catch (err) {
-        console.error('Error deleting activity:',err);
+        console.error('Error deleting activity:', err);
         res.status(500).redirect('/admin/activity?error=ลบกิจกรรมไม่สำเร็จ');
     }
 };
@@ -281,7 +301,7 @@ const wasteIndex = (req, res) => {
         console.log(err);
     });
 };
-// เพิ่มขยะ
+// เพิ่มขยะ (ป้องกันเพิ่มขยะซ้ำ)
 const wastePost = async (req, res) => {
     upload2(req, res, async (err) => { // ใช้ upload2 แทน upload
         if (err) {
@@ -696,7 +716,7 @@ const roundIndex = (req, res) => {
     };
 
     Promise.all([
-        Village.find().sort({ createdAt: -1 }),
+        Village.find().sort({ createdAt: 1 }),
         Round.find().populate('village').sort({ date: -1 })
     ])
     .then(([villageResult, roundResult]) => {

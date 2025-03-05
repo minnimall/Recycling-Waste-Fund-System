@@ -13,6 +13,10 @@ const activitySchema = new Schema( {
     img: {
         type: String,
         required: false
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false // ✅ ค่าเริ่มต้นเป็น false (ยังไม่ถูกลบ)
     }
 },{ timestamps: true })
 
