@@ -3,6 +3,7 @@
     --form-border: #c1c1c1;
 
     --gradient-color: linear-gradient(to right,#175028,#00923f);
+    --gradient-color-hover: linear-gradient(to right,#0f361b,#017232);
 
     --text-color-price: #00923f;
 }
@@ -348,5 +349,13 @@ table tbody{
         .purchaseAction {
             width: 100px;
         }
+    }
+}
+#itemModal {
+    button {
+        background: var(--gradient-color);
+    }
+    button:hover {
+        background: var(--gradient-color-hover);
     }
 }

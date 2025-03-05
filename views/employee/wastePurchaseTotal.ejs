@@ -12,6 +12,59 @@
 <body>
     <%- include('../partials/employeePartials/empHeader.ejs') %>
     <%- include('../partials/employeePartials/empSidebar.ejs') %>
+    <div id="itemModal" class="fixed inset-0 overflow-y-auto hidden">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-black opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="max-w-full inline-block overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
+                <div class="px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900" id="modal-headline">รายละเอียดการรับซื้อ</h3>
+                    <div class="mt-2">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">รหัสบัญชี</th>
+                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">ชื่อ-สกุล</th>
+                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">ยอดรวมสุทธิ (฿)</th>
+                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">วันที่รับซื้อ</th>
+                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">เวลา</th>
+                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">พนักงาน</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalHeaderInfo" class="bg-white divide-y divide-gray-200">
+                                </tbody>
+                        </table>
+                        <table class="min-w-full divide-y divide-gray-200 mt-4">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">ลำดับที่</th>
+                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">ชื่อสินค้า</th>
+                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">จำนวน/หน่วย</th>
+                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">ราคา/หน่วย</th>
+                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">ยอดรวม (฿)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalItemTable" class="bg-white divide-y divide-gray-200">
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="4" class="px-6 py-4 text-right">ยอดรวมทั้งหมด</td>
+                                        <td id="totalAmount" class="px-6 py-4 text-center"></td>
+                                    </tr>
+                                </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <div class="px-4 py-3 bg-gray-50 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white border border-transparent rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 closeModal">
+                        ปิด
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="content">
         <div class="PurchaseHistoryContainer">
         
@@ -47,6 +100,7 @@
                         <th class="purchaseTotal">ยอดรวม (฿)</th>
                         <th class="purchaseDate">วันที่รับซื้อ</th>
                         <th class="purchaseOrder">รายการขยะ</th>
+                        <th class="purchaseEmp">พนักงาน</th>
                         <th class="purchaseAction">จัดการ</th>
                     </tr>
                 </thead>
@@ -59,12 +113,11 @@
                             <td class="purchaseTotal"><%= purchase.totalAmount.toLocaleString('th-TH') %>฿</td>
                             <td class="purchaseDate"><%= purchase.purchaseDate.toLocaleDateString() %></td>
                             <td class="purchaseOrder">
-                                <ul>
-                                    <% purchase.wasteItems.forEach(item => { %>
-                                        <li><%= item.name %>: <%= item.quantity %> กก. (฿<%= item.pricePerUnit %>)</li>
-                                    <% }); %>
-                                </ul>
+                                <a href="#" data-items="<%= JSON.stringify({ wasteItems: purchase.wasteItems, accountId: purchase.accountId, purchaseDate: purchase.purchaseDate }) %>" class="item-link text-blue-500 hover:underline">
+                                    <%= purchase.wasteItems[0]._id %>
+                                </a>
                             </td>
+                            <td class="purchaseEmp">kb</td>
                             <td class="purchaseAction">
                                 <button onclick="showModalDelete('purchase', <%= purchase._id %>, 'purchaseHistory')">ลบ</button>
                                 <button onclick="showModalEdit('purchase', <%= purchase._id %>, 'purchaseHistory')">แก้ไข</button>
@@ -97,4 +150,66 @@
             </div>
     </div>
 </body>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const itemLinks = document.querySelectorAll('.item-link');
+    const itemModal = document.getElementById('itemModal');
+    const modalHeaderInfo = document.getElementById('modalHeaderInfo');
+    const modalItemTable = document.getElementById('modalItemTable');
+    const closeModalButton = document.querySelector('.closeModal');
+
+    itemLinks.forEach(link => {
+        link.addEventListener('click', function (event) {
+            event.preventDefault();
+            const data = JSON.parse(this.dataset.items);
+            const items = data.wasteItems;
+            const accountId = data.accountId;
+            const purchaseDate = new Date(data.purchaseDate);
+            const formattedDate = purchaseDate.toLocaleDateString();
+            const formattedTime = purchaseDate.toLocaleTimeString();
+
+            // ข้อมูลส่วนหัว
+            const headerRow = `<tr>
+                <td class="px-6 py-4 whitespace-nowrap text-center">${accountId}</td>
+                <td class="px-6 py-4 whitespace-nowrap">สิทธิชัย ผ่องเพิ่ม</td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">${items.reduce((sum, item) => sum + (item.quantity * item.pricePerUnit), 0).toLocaleString('th-TH')}฿</td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">${formattedDate}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">${formattedTime}</td>
+                <td class="px-6 py-4 whitespace-nowrap">kb</td>
+            </tr>`;
+            modalHeaderInfo.innerHTML = headerRow;
+
+            // รายการสินค้า
+            let itemRows = '';
+            let total = 0; // เพิ่มตัวแปรสำหรับคำนวณยอดรวม
+            items.forEach((item, index) => {
+                const subtotal = item.quantity * item.pricePerUnit;
+                total += subtotal;
+                itemRows += `<tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">${index + 1}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${item.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">${item.quantity.toLocaleString('th-TH')} กก.</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">฿${item.pricePerUnit.toLocaleString('th-TH')}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">฿${subtotal.toLocaleString('th-TH')}</td>
+                </tr>`;
+            });
+            modalItemTable.innerHTML = itemRows;
+            // แสดงยอดรวมทั้งหมด
+            document.getElementById('totalAmount').textContent = `฿${total.toLocaleString('th-TH')}`;
+
+            itemModal.classList.remove('hidden');
+        });
+    });
+
+    closeModalButton.addEventListener('click', function () {
+        itemModal.classList.add('hidden'); // ซ่อน Modal
+    });
+
+    window.addEventListener('click', function (event) {
+        if (event.target === itemModal) {
+            itemModal.classList.add('hidden');
+        }
+    });
+});
+</script>
 </html>
