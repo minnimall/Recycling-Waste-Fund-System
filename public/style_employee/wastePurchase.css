@@ -258,3 +258,95 @@ table tbody{
     color: #6c757d; /* สีเทาอ่อน */
     text-align: center;
 }
+
+.PurchaseHistoryContainer {
+    width: 100%;
+    .PurchaseBoard {
+        display: grid;
+        grid-template-columns: auto auto auto;
+        padding: 10px;
+        gap: 10px;
+    }
+    .PurchaseBoard > div {
+        padding: 10px;
+        font-size: 30px;
+        text-align: center;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        box-shadow: #ccc 2px 2px 5px;
+    }
+    .PurchaseCount {
+        background: #D0FFBF;
+        div:first-child {
+            font-size: 1.4em;
+            color: #008C0E;
+        }
+        div:last-child {
+            text-align: left;
+            font-size: .6em;
+        }
+    }
+    .CustomerCount {
+        background: #FEFFC2;
+        div:first-child {
+            font-size: 1.4em;
+            color: #FFE500;
+        }
+        div:last-child {
+            text-align: left;
+            font-size: .6em;
+        }
+    }
+    .PurchaseTotal {
+        background: #FFD9D9;
+        div:first-child {
+            font-size: 1.4em;
+            color: #930000;
+        }
+        div:last-child {
+            text-align: left;
+            font-size: .6em;
+        }
+    }
+    .top-table {
+        display: flex;
+        justify-content: space-between;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid #ccc;
+        margin-top: 10px;
+        thead {
+            background: var(--gradient-color);
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .purchaseIndex {
+            text-align: center;
+            width: 80px;
+        }
+        .purchaseId {
+            width: 150px;
+        }
+        .purchaseFullname {
+            width: 200px;
+        }
+        .purchaseTotal {
+            text-align: center;
+        }
+        .purchaseDate {
+            text-align: center;
+        }
+        .purchaseAction {
+            width: 100px;
+        }
+    }
+}

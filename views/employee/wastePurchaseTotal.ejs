@@ -12,33 +12,89 @@
 <body>
     <%- include('../partials/employeePartials/empHeader.ejs') %>
     <%- include('../partials/employeePartials/empSidebar.ejs') %>
-
-    <h1>ข้อมูลการรับซื้อ</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>รหัสบัญชี</th>
-                <th>ยอดรวม</th>
-                <th>วันที่รับซื้อ</th>
-                <th>รายการขยะ</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% wastePurchases.forEach(purchase => { %>
-                <tr>
-                    <td><%= purchase.accountId %></td>
-                    <td><%= purchase.totalAmount %></td>
-                    <td><%= purchase.purchaseDate.toLocaleDateString() %></td>
-                    <td>
-                        <ul>
-                            <% purchase.wasteItems.forEach(item => { %>
-                                <li><%= item.name %>: <%= item.quantity %> กก. (฿<%= item.pricePerUnit %>)</li>
-                            <% }); %>
-                        </ul>
-                    </td>
-                </tr>
-            <% }); %>
-        </tbody>
-    </table>
+    <div class="content">
+        <div class="PurchaseHistoryContainer">
+        
+            <h1>วันที่ <span>23 / 10 / 2568</span></h1>
+            <div class="PurchaseBoard">
+                <div class="PurchaseCount">
+                    <div class="number"><%= purchaseCount %></div>
+                    <div class="text">จำนวนการรับซื้อ</div>
+                </div>
+                <div class="CustomerCount">
+                    <div><%= customerCount %></div>
+                    <div>จำนวนลูกค้า</div>
+                </div>
+                <div class="PurchaseTotal">
+                    <div><%= totalAmount.toLocaleString('th-TH') %>฿</div>
+                    <div>ยอดการรับซื้อ</div>
+                </div>
+            </div>
+            <div class="top-table">
+                <h1>ข้อมูลการรับซื้อ <span><%= purchaseCount %> รายการ</span></h1>
+                <form action="" method="GET" class="search-form flex gap-1">
+                    <input type="date" name="searchDate" value="<%= searchDate %>" class="search-input">
+                    <input type="text" name="accountId" value="<%= accountId %>" placeholder="รหัสบัญชีลูกค้า" class="search-input">
+                    <button type="submit" class="search-button">ค้นหา</button>
+                </form>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th class="purchaseIndex">ลำดับที่</th>
+                        <th class="purchaseId">รหัสบัญชี</th>
+                        <th class="purchaseFullname">ชื่อ-สกุล</th>
+                        <th class="purchaseTotal">ยอดรวม (฿)</th>
+                        <th class="purchaseDate">วันที่รับซื้อ</th>
+                        <th class="purchaseOrder">รายการขยะ</th>
+                        <th class="purchaseAction">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% wastePurchases.forEach((purchase, index) => { %>
+                        <tr>
+                            <td class="purchaseIndex"><%= index + 1 %></td>
+                            <td class="purchaseId"><%= purchase.accountId %></td>
+                            <td class="purchaseFullname">สิทธิชัย ผ่องเพิ่ม</td>
+                            <td class="purchaseTotal"><%= purchase.totalAmount.toLocaleString('th-TH') %>฿</td>
+                            <td class="purchaseDate"><%= purchase.purchaseDate.toLocaleDateString() %></td>
+                            <td class="purchaseOrder">
+                                <ul>
+                                    <% purchase.wasteItems.forEach(item => { %>
+                                        <li><%= item.name %>: <%= item.quantity %> กก. (฿<%= item.pricePerUnit %>)</li>
+                                    <% }); %>
+                                </ul>
+                            </td>
+                            <td class="purchaseAction">
+                                <button onclick="showModalDelete('purchase', <%= purchase._id %>, 'purchaseHistory')">ลบ</button>
+                                <button onclick="showModalEdit('purchase', <%= purchase._id %>, 'purchaseHistory')">แก้ไข</button>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+            <div class="pagination flex justify-center items-center mt-4 space-x-2">
+                <% if (currentPage > 1) { %>
+                    <a href="?page=<%= currentPage - 1 %><%= search ? '&search=' + search : '' %>"
+                       class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                        ก่อนหน้า
+                    </a>
+                <% } %>
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <a href="?page=<%= i %><%= search ? '&search=' + search : '' %>"
+                       class="px-3 py-1 border border-gray-300 rounded-md 
+                              <%= currentPage === i ? 'bg-blue-500 text-white' : 'text-gray-700 hover:bg-gray-100' %>">
+                        <%= i %>
+                    </a>
+                <% } %>
+                <% if (currentPage < totalPages) { %>
+                    <a href="?page=<%= currentPage + 1 %><%= search ? '&search=' + search : '' %>"
+                       class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                        ถัดไป
+                    </a>
+                <% } %>
+            </div>
+            </div>
+    </div>
 </body>
 </html>

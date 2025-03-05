@@ -60,15 +60,56 @@ const wastePurchaseIndex = (req, res) => {
         console.log(err);
     });
 };
-const wastePurchaseTotalIndex = async (req, res)=> {
+const wastePurchaseTotalIndex = async (req, res) => {
     try {
-        const wastePurchases = await WastePurchase.find().populate('wasteItems');
-        res.render('employee/wastePurchaseTotal', { wastePurchases , mytitle: 'Employeedashboard | wastePurchaseTotal'} ); // ส่งข้อมูลไปยัง template
+        const searchDate = req.query.searchDate;
+        const accountId = req.query.accountId;
+        const page = parseInt(req.query.page) || 1;
+        const limit = 10;
+        const skip = (page - 1) * limit;
+        const search = req.query.search; // รับค่า search จาก query parameters
+        let query = {};
+        if (searchDate) {
+            const startDate = new Date(searchDate);
+            startDate.setHours(0, 0, 0, 0);
+            const endDate = new Date(searchDate);
+            endDate.setHours(23, 59, 59, 999);
+            query.purchaseDate = {
+                $gte: startDate,
+                $lte: endDate
+            };
+        }
+        if (accountId) {
+            query.accountId = accountId;
+        }
+        const wastePurchases = await WastePurchase.find(query)
+            .populate('wasteItems')
+            .populate('accountId')
+            .skip(skip)
+            .limit(limit);
+        const totalCount = await WastePurchase.countDocuments(query);
+        const totalPages = Math.ceil(totalCount / limit);
+        const purchaseCount = await WastePurchase.countDocuments(query);
+        const customerCount = new Set(wastePurchases.map(purchase => purchase.accountId._id)).size;
+        const totalAmount = wastePurchases.reduce((sum, purchase) => sum + purchase.totalAmount, 0);
+        res.render('employee/wastePurchaseTotal', {
+            wastePurchases,
+            mytitle: 'Employeedashboard | wastePurchaseTotal',
+            purchaseCount,
+            customerCount,
+            totalAmount,
+            searchDate: searchDate,
+            accountId: accountId,
+            currentPage: page,
+            totalPages: totalPages,
+            search: search // ส่งค่า search ไปยัง view
+        });
     } catch (error) {
         console.error(error);
         res.status(500).send('เกิดข้อผิดพลาดในการดึงข้อมูล');
     }
-}
+};
+
 const wastePurchasePost = async (req, res) => {
     try {
         const { accountId, wasteItems } = req.body;
