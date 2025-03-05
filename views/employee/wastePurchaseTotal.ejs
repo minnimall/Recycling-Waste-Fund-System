@@ -119,8 +119,8 @@
                             </td>
                             <td class="purchaseEmp">kb</td>
                             <td class="purchaseAction">
-                                <button onclick="showModalDelete('purchase', <%= purchase._id %>, 'purchaseHistory')">ลบ</button>
-                                <button onclick="showModalEdit('purchase', <%= purchase._id %>, 'purchaseHistory')">แก้ไข</button>
+                                <button onclick="showModalDelete('purchase', '<%= purchase._id %>', 'purchaseHistory')">ลบ</button>
+                                <button onclick="showModalEdit('purchase', '<%= purchase._id %>', 'purchaseHistory')">แก้ไข</button>
                             </td>
                         </tr>
                     <% }); %>
@@ -129,20 +129,20 @@
             <div class="pagination flex justify-center items-center mt-4 space-x-2">
                 <% if (currentPage > 1) { %>
                     <a href="?page=<%= currentPage - 1 %><%= search ? '&search=' + search : '' %>"
-                       class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                        class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
                         ก่อนหน้า
                     </a>
                 <% } %>
                 <% for (let i = 1; i <= totalPages; i++) { %>
                     <a href="?page=<%= i %><%= search ? '&search=' + search : '' %>"
-                       class="px-3 py-1 border border-gray-300 rounded-md 
-                              <%= currentPage === i ? 'bg-blue-500 text-white' : 'text-gray-700 hover:bg-gray-100' %>">
+                        class="px-3 py-1 border border-gray-300 rounded-md 
+                            <%= currentPage === i ? 'bg-blue-500 text-white' : 'text-gray-700 hover:bg-gray-100' %>">
                         <%= i %>
                     </a>
                 <% } %>
                 <% if (currentPage < totalPages) { %>
                     <a href="?page=<%= currentPage + 1 %><%= search ? '&search=' + search : '' %>"
-                       class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                        class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
                         ถัดไป
                     </a>
                 <% } %>

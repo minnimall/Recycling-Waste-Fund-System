@@ -40,8 +40,123 @@
             });
         }
     </script>
+    <div class="p-6">
+        <div class="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6">
+            <h1 class="text-2xl font-bold text-gray-700 text-center mb-6">
+                ลงทะเบียนครัวเรือนและสมาชิก
+            </h1>
 
-    <div class="content">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- ฟอร์มลงทะเบียนครัวเรือน -->
+                <form action="/employee/household/register" method="POST" class="bg-gray-50 p-6 rounded-lg shadow">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">ลงทะเบียนครัวเรือน</h2>
+
+                    <div class="mb-4">
+                        <label for="HouseholdName" class="block text-gray-600">ชื่อครัวเรือน</label>
+                        <input type="text" id="HouseholdName" name="HouseholdName" required
+                            class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-400">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="username" class="block text-gray-600">ชื่อผู้ใช้</label>
+                        <input type="text" id="username" name="username" required
+                            class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-400">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="password" class="block text-gray-600">รหัสผ่าน</label>
+                        <input type="password" id="password" name="password" required
+                            class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-400">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="address" class="block text-gray-600">ที่อยู่</label>
+                        <input type="text" id="address" name="address" required
+                            class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-400">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="Village" class="block text-gray-600">หมู่บ้าน</label>
+                        <select name="Village" required
+                            class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-400">
+                            <option value="">เลือกหมู่บ้าน</option>
+                            <option value="1">หมู่ที่ 1</option>
+                            <option value="2">หมู่ที่ 2</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="Type" class="block text-gray-600">ประเภทครัวเรือน</label>
+                        <select name="Type" required
+                            class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-400">
+                            <option value="household">บ้าน</option>
+                            <option value="school">โรงเรียน</option>
+                            <option value="municipality">อปท.</option>
+                            <option value="community">ชุมชน</option>
+                        </select>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition">
+                        ลงทะเบียนครัวเรือน
+                    </button>
+                </form>
+
+                <!-- ฟอร์มเพิ่มสมาชิก -->
+                <form action="/employee/member/add" method="POST" class="bg-gray-50 p-6 rounded-lg shadow">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">เพิ่มสมาชิกครัวเรือน</h2>
+
+                    <div class="mb-4">
+                        <label for="HouseholdID" class="block text-gray-600">เลือกครัวเรือน</label>
+                        <select name="HouseholdID" required
+                            class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-400">
+                                <option value=""></option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="firstname" class="block text-gray-600">ชื่อ</label>
+                        <input type="text" id="firstname" name="firstname" required
+                            class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-400">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="lastname" class="block text-gray-600">นามสกุล</label>
+                        <input type="text" id="lastname" name="lastname" required
+                            class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-400">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="email" class="block text-gray-600">อีเมล</label>
+                        <input type="email" id="email" name="email" required
+                            class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-400">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="tel" class="block text-gray-600">เบอร์โทรศัพท์</label>
+                        <input type="text" id="tel" name="tel" required
+                            class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-400">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="Status" class="block text-gray-600">สถานะ</label>
+                        <select name="Status" required
+                            class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-400">
+                            <option value="living">อยู่</option>
+                            <option value="deceased">เสียชีวิต</option>
+                        </select>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition">
+                        เพิ่มสมาชิก
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- <div class="content">
         <div class="content-header">
             <h1 class="text-2xl font-bold">สมาชิกกองทุนขยะรีไซเคิล</h1>
             
@@ -50,7 +165,6 @@
             <div class="table-con">
                 <div class="flex items-center gap-4 p-2 rounded-lg w-full max-w-2xl">
                     <div class="search-container">
-                        <!-- ช่องค้นหากิจกรรม -->
                         <form action="/employee/wastePurchase" method="GET" class="search-form flex gap-2">
                             <select name="village" class="village">
                                 <option value="">เลือกหมู่บ้าน</option>
@@ -93,7 +207,7 @@
                 </table>
             </div>                    
         </div>
-    </div>
+    </div> -->
 
     <%- include('../partials/employeePartials/empFooter.ejs') %>
 </body>
