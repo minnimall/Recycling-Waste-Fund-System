@@ -64,3 +64,53 @@ table tbody{
 .death-box{
     background-color: #d62424;
 }
+/* กำหนดให้ฟอร์มค้นหามีการจัดวางที่สวยงาม */
+.search-container {
+    display: flex;
+    justify-content: flex-end; /* จัดให้อยู่ขวาสุด */
+    align-items: center; /* จัดให้แนวกลางแนวตั้ง */
+    margin-top: 15px;
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background-color: #f7f7f7;
+    padding: 6px; /* ลด padding ให้เล็กลง */
+    border-radius: 20px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+/* กำหนดลักษณะอินพุต */
+.search-input {
+    width: 250px; /* ลดความกว้างของช่องค้นหา */
+    padding: 8px 12px; /* ลด padding เพื่อให้ความสูงลดลง */
+    border-left: 2px solid #ddd;
+    font-size: 14px; /* ลดขนาดฟอนต์เล็กลง */
+    transition: all 0.3s ease;
+}
+
+.village{
+    background-color: #f7f7f7;
+}
+
+/* การโต้ตอบเมื่อมีการโฟกัส (focus) */
+.search-input:focus {
+    border-color: #4CAF50;
+    outline: none;
+    box-shadow: 0px 0px 5px rgba(76, 175, 80, 0.3);
+}
+
+/* ปุ่มค้นหา */
+.search-button {
+    padding: 8px 16px; /* ลดขนาด padding ของปุ่ม */
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 14px; /* ลดขนาดฟอนต์ของปุ่ม */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}

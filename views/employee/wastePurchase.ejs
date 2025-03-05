@@ -12,6 +12,34 @@
 <body>
     <%- include('../partials/employeePartials/empHeader.ejs') %>
     <%- include('../partials/employeePartials/empSidebar.ejs') %>
+    <script>
+        // เช็คข้อความที่ส่งมาจาก URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const successMessage = urlParams.get('message');
+        const errorMessage = urlParams.get('error');
+
+        if (successMessage) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: successMessage,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
+
+        if (errorMessage) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: errorMessage,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
+    </script>
     
     <div class="content">
         <div class="flex gap-6 p-6">

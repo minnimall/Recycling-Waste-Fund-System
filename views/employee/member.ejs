@@ -44,34 +44,23 @@
     <div class="content">
         <div class="content-header">
             <h1 class="text-2xl font-bold">สมาชิกกองทุนขยะรีไซเคิล</h1>
-            <div class="add-media" onclick="openModal()">เพิ่มสมาชิกกองทุนขยะ</div>
+            
         </div>
         <div class="emp-container">
             <div class="table-con">
                 <div class="flex items-center gap-4 p-2 rounded-lg w-full max-w-2xl">
-                    <!-- ช่องค้นหา -->
-                    <div class="flex items-center bg-white p-2 rounded-lg shadow-sm w-full">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M8 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm6.707 10.293a1 1 0 0 1-1.414 0l-2.827-2.828A6 6 0 1 1 8 2a6 6 0 0 1 4.293 10.293l2.828 2.828a1 1 0 0 1 0 1.414z" clip-rule="evenodd"/>
-                        </svg>
-                        <input type="text" name="search" placeholder="ค้นหาสมาชิก" 
-                            class="bg-transparent w-full p-2 outline-none text-gray-700">
+                    <div class="search-container">
+                        <!-- ช่องค้นหากิจกรรม -->
+                        <form action="/employee/wastePurchase" method="GET" class="search-form flex gap-2">
+                            <select name="village" class="village">
+                                <option value="">เลือกหมู่บ้าน</option>
+                                <option value="">หมู่ที่ 1</option>
+                                <option value="">หมู่ที่ 2</option>
+                            </select>
+                            <input type="text" name="search" value="" placeholder="ค้นหาสมาชิก" class="search-input">
+                            <button type="submit" class="search-button">ค้นหา</button>
+                        </form>                        
                     </div>
-                
-                    <!-- ตัวกรองหมู่บ้าน -->
-                    <select class="bg-white p-2 rounded-lg shadow-sm border border-gray-300 text-gray-700">
-                        <option value="">เลือกหมู่บ้าน</option>
-                        <option value="village1">หมู่ 1</option>
-                        <option value="village2">หมู่ 2</option>
-                        <option value="village3">หมู่ 3</option>
-                        <option value="village4">หมู่ 4</option>
-                        <option value="village5">หมู่ 5</option>
-                        <option value="village6">หมู่ 6</option>
-                        <option value="village7">หมู่ 7</option>
-                        <option value="village8">หมู่ 8</option>
-                        <option value="village9">หมู่ 9</option>
-                        <option value="village10">หมู่ 10</option>
-                    </select>
                 </div>                                
                 <table class="table-auto">
                     <thead>
