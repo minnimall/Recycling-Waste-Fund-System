@@ -25,9 +25,22 @@ const dashboardIndex = (req, res)=> {
 }
 
 //หน้ารับซื้อขยะรีไซเคิล
-const wastePurchaseIndex = (req, res)=> {
-    const searchQuery = req.query.search || ''; // ดึงค่าคำค้นหาจาก query string
-    const filter = searchQuery ? { wasteName: { $regex: searchQuery, $options: 'i' } } : {}; // ใช้ regex เพื่อค้นหาตรงกับคำค้นหาหรือไม่
+const wastePurchaseIndex = (req, res) => {
+    const searchQuery = req.query.search || ''; // รับค่าค้นหา
+    const selectedWasteType = req.query.wasteType || ''; // รับค่าประเภทขยะ
+
+    let filter = {};
+
+    // ถ้ามีค่าค้นหา ให้ใช้ regex ค้นหาขยะ
+    if (searchQuery) {
+        filter.wasteName = { $regex: searchQuery, $options: 'i' };
+    }
+
+    // ถ้ามีประเภทขยะที่เลือก ให้เพิ่ม filter ตาม wasteType
+    if (selectedWasteType) {
+        filter.wasteType = selectedWasteType;
+    }
+
     Promise.all([
         myWaste.find(filter).populate('wasteType', 'wasteTypeName'),
         myWasteType.find()
@@ -37,13 +50,15 @@ const wastePurchaseIndex = (req, res)=> {
             mytitle: 'Employeedashboard | WastePurchase',
             waste: wasteData,
             wasteTypes: wasteTypeData,
-            searchQuery: searchQuery
+            searchQuery: searchQuery,
+            selectedWasteType: selectedWasteType
         });
     })
     .catch((err) => {
         console.log(err);
     });
-}
+};
+
 
 //หน้าสมาชิกกองทุนขยะรีไซเคิล
 const memberIndex = (req, res)=> {

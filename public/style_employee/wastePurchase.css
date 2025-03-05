@@ -192,7 +192,7 @@ table tbody{
     gap: 12px;
     background-color: #f7f7f7;
     padding: 6px; /* ลด padding ให้เล็กลง */
-    border-radius: 30px;
+    border-radius: 20px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
 }
@@ -201,10 +201,13 @@ table tbody{
 .search-input {
     width: 250px; /* ลดความกว้างของช่องค้นหา */
     padding: 8px 12px; /* ลด padding เพื่อให้ความสูงลดลง */
-    border: 2px solid #ddd;
-    border-radius: 30px;
+    border-left: 2px solid #ddd;
     font-size: 14px; /* ลดขนาดฟอนต์เล็กลง */
     transition: all 0.3s ease;
+}
+
+.wasteType{
+    background-color: #f7f7f7;
 }
 
 /* การโต้ตอบเมื่อมีการโฟกัส (focus) */
@@ -226,14 +229,32 @@ table tbody{
     transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
-/* การโต้ตอบเมื่อ hover บนปุ่มค้นหา */
+/* การโต้ตอบเมื่อ hover บนปุ่มค้นหา
 .search-button:hover {
     background-color: #45a049;
-    transform: translateY(-2px); /* เพิ่มการเคลื่อนไหวเล็กน้อย */
-}
+    transform: translateY(-2px); /* เพิ่มการเคลื่อนไหวเล็กน้อย
+} */
 
 /* การโต้ตอบเมื่อคลิกบนปุ่มค้นหา */
-.search-button:active {
-    transform: translateY(1px); /* ทำให้ปุ่มหดลงเล็กน้อย */
+/* .search-button:active {
+    transform: translateY(1px); /* ทำให้ปุ่มหดลงเล็กน้อย 
+} */
+
+.no-data-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 150px; /* ความสูงที่เหมาะสม */
+    background-color: #f8f9fa; /* สีพื้นหลังอ่อน */
+    border-radius: 8px;
+    border: 1px solid #ccc; /* ขอบบางๆ */
+    margin-top: 20px;
+    width: 100%;
 }
 
+.no-data-container span {
+    font-size: 18px;
+    font-weight: bold;
+    color: #6c757d; /* สีเทาอ่อน */
+    text-align: center;
+}
