@@ -55,16 +55,17 @@
             <!-- ฝั่งขวา: ฟอร์มและรายการขยะที่เลือก -->
             <div class="border p-4 rounded-lg shadow-lg right-box">
                 <h2 class="text-lg mb-4">ฟอร์มรับซื้อขยะ</h2>
-                <form action="/employee/wastePost" method="POST">
+                <form action="/employee/wastePurchasePost" method="POST">
                     <label class="block mb-2">รหัสบัญชี:</label>
                     <input type="text" name="accountId" class="w-full p-2 border rounded mb-1" required>
-
+            
                     <p><span class="text-total">ยอดรวม</span> <span id="totalAmount">0</span> <span class="text-unit">บาท</span></p>
                     <button type="submit" class="mt-1 mb-2 bg-green-500 text-white px-4 py-2 rounded">ยืนยันการรับซื้อ</button>
-
+            
                     <h3 class="text-lg mb-2">รายการที่เลือก</h3>
                     <ul id="selectedWasteList" class="mb-4">
                     </ul>
+                    <input type="hidden" name="wasteItems" id="wasteItemsInput">
                 </form>
             </div>
 
@@ -118,29 +119,48 @@
         const list = document.getElementById('selectedWasteList');
         list.innerHTML = '';
         let totalAmount = 0;
+
         selectedWaste.forEach((item, index) => {
             totalAmount += parseFloat(item.totalPrice);
             list.innerHTML += `
-                    <li class="cart">
-                        <span><span>${item.name}</span> <br> <span>${item.weight} กก. (฿${item.totalPrice})</span></span>
-                        <div class="cart-action">
-                            <div onclick="editWaste(${index})" class="cart-action-edit"><ion-icon name="create"></ion-icon></div>
-                            <div onclick="deleteWaste(${index})" class="cart-action-close"><ion-icon name="close"></ion-icon></div>
-                        </div>
-                    </li>
+                <li class="cart">
+                    <span><span>${item.name}</span> <br> <span>${item.weight} กก. (฿${item.totalPrice})</span></span>
+                    <div class="cart-action">
+                        <div onclick="editWaste(${index})" class="cart-action-edit"><ion-icon name="create"></ion-icon></div>
+                        <div onclick="deleteWaste(${index})" class="cart-action-close"><ion-icon name="close"></ion-icon></div>
+                    </div>
+                </li>
             `;
+        
         });
-        document.getElementById('totalAmount').textContent = totalAmount.toFixed(2);
-    }
+        selectedWaste.forEach((item) => {
+            let price = parseFloat(item.totalPrice);
+            if (!isNaN(price)) { // ตรวจสอบว่าเป็นตัวเลขหรือไม่
+                totalAmount += price;
+            } else {
+                console.error("Invalid totalPrice:", item.totalPrice);
+            }
+        });
 
+        document.getElementById('totalAmount').textContent = totalAmount.toFixed(2);
+        document.getElementById('wasteItemsInput').value = JSON.stringify(selectedWaste);
+    }
+    // ตัวอย่างการเพิ่มข้อมูลลงใน selectedWaste
+    function addWaste(name, weight, pricePerUnit) {
+        const totalPrice = weight * pricePerUnit;
+        selectedWaste.push({ name, weight, pricePerUnit, totalPrice });
+        updateSelectedWasteList();
+    }
     function editWaste(index) {
         const item = selectedWaste[index];
         currentIndex = index;
         document.getElementById('weightInput').value = item.weight;
         selectWaste(index, item.name, item.pricePerUnit);
-        document.getElementById('weightModal').classList.remove('hidden');
+        document.getElementById('weightModal').classList.remove('hidden');    
+        updateSelectedWasteList();
     }
 
+    // ตัวอย่างการลบข้อมูลออกจาก selectedWaste
     function deleteWaste(index) {
         selectedWaste.splice(index, 1);
         updateSelectedWasteList();

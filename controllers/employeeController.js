@@ -6,6 +6,8 @@ const myMedia = require('../models/media');
 const MyAdmin = require('../models/admin');
 const myWaste= require('../models/waste');
 const myWasteType = require('../models/wastetype');
+const WastePurchase = require('../models/wastePurchase');
+const WasteItem = require('../models/wasteItem');
 const myNews = require('../models/news');
 const myActivity = require('../models/activity');
 const Village = require('../models/village')
@@ -58,8 +60,51 @@ const wastePurchaseIndex = (req, res) => {
         console.log(err);
     });
 };
+const wastePurchaseTotalIndex = async (req, res)=> {
+    try {
+        const wastePurchases = await WastePurchase.find().populate('wasteItems');
+        res.render('employee/wastePurchaseTotal', { wastePurchases , mytitle: 'Employeedashboard | wastePurchaseTotal'} ); // ส่งข้อมูลไปยัง template
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('เกิดข้อผิดพลาดในการดึงข้อมูล');
+    }
+}
+const wastePurchasePost = async (req, res) => {
+    try {
+        const { accountId, wasteItems } = req.body;
+        const parsedWasteItems = JSON.parse(wasteItems);
+        let totalAmount = 0;
+        const wasteItemIds = [];
 
+        for (const item of parsedWasteItems) {
+            const newWasteItem = new WasteItem({
+                name: item.name,
+                quantity: item.weight,
+                pricePerUnit: item.pricePerUnit,
+            });
+            await newWasteItem.save();
+            wasteItemIds.push(newWasteItem._id);
+            let price = parseFloat(item.totalPrice);
+            if (!isNaN(price)) { //ตรวจสอบว่าเป็นตัวเลขหรือไม่
+                totalAmount += price;
+            } else {
+                console.error("Invalid totalPrice:", item.totalPrice);
+            }
+        }
 
+        const newWastePurchase = new WastePurchase({
+            accountId,
+            totalAmount,
+            wasteItems: wasteItemIds,
+        });
+        await newWastePurchase.save();
+
+        res.redirect('/employee/wastePurchase?message=บันทึกการรับซื้อสำเร็จ');
+    } catch (error) {
+        console.error(error);
+        res.redirect('/employee/wastePurchase?error=เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+    }
+}
 //หน้าสมาชิกกองทุนขยะรีไซเคิล
 const memberIndex = (req, res)=> {
     res.render('employee/member', { mytitle: 'Employeedashboard | Member'})
@@ -69,7 +114,10 @@ module.exports = {
     //แดชบอร์ด
     dashboardIndex,
     //รับซื้อขยะรีไซเคิล
+    wastePurchaseIndex,    
     wastePurchaseIndex,
+    wastePurchaseTotalIndex,
+    wastePurchasePost,
     //หน้าสมาชิกกองทุนขยะรีไซเคิล
     memberIndex,
 }

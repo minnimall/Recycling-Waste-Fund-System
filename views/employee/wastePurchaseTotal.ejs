@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/employeePartials/doctype.ejs') %>
+    <title><%= mytitle %></title>
+    <link rel="stylesheet" href="/style_employee/wastePurchase.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+    <%- include('../partials/employeePartials/empHeader.ejs') %>
+    <%- include('../partials/employeePartials/empSidebar.ejs') %>
+
+    <h1>ข้อมูลการรับซื้อ</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>รหัสบัญชี</th>
+                <th>ยอดรวม</th>
+                <th>วันที่รับซื้อ</th>
+                <th>รายการขยะ</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% wastePurchases.forEach(purchase => { %>
+                <tr>
+                    <td><%= purchase.accountId %></td>
+                    <td><%= purchase.totalAmount %></td>
+                    <td><%= purchase.purchaseDate.toLocaleDateString() %></td>
+                    <td>
+                        <ul>
+                            <% purchase.wasteItems.forEach(item => { %>
+                                <li><%= item.name %>: <%= item.quantity %> กก. (฿<%= item.pricePerUnit %>)</li>
+                            <% }); %>
+                        </ul>
+                    </td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+</body>
+</html>
