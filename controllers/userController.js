@@ -104,10 +104,21 @@ const user_saleHistory = (req, res)=> {
     res.render('user/saleHistory')
 }
 
-// หน้าข้อมูลติดต่อ
-const user_wasteSaleRequest = (req, res)=> {
-    res.render('user/wasteSaleRequest')
-}
+// หน้าแจ้งความประสงค์ขายขยะ
+const user_wasteSaleRequest = (req, res) => {
+    const filter = { isDeleted: false };
+
+    myWaste.find(filter).sort({ createdAt: 1 })
+        .then((result) => {
+            res.render('user/wasteSaleRequest', { 
+                wasteItems: result
+            });
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send('เกิดข้อผิดพลาดในระบบ');
+        });
+};
 
 // หน้าข้อมูลติดต่อ
 const user_contact = (req, res)=> {
@@ -137,9 +148,8 @@ const user_allActivity = (req, res) => {
             }));
 
             res.render('user/allActivity', { 
-                mytitle: 'Admindashboard | Activity', 
                 activity: activities,
-                search: searchQuery // ส่งคำค้นหากลับไปยังฟอร์มค้นหาด้วย
+                search: searchQuery
             });
         })
         .catch((err) => {

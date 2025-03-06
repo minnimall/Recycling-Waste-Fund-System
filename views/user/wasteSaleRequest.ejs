@@ -50,17 +50,16 @@
                         <div class="mb-3">
                             <label for="waste-type" class="form-label">ขยะที่ต้องการขาย</label>
                             <select class="form-select" id="waste-type" name="wasteType" required>
-                                <option value="">เลือกขยะ</option>
-                                <option value="พลาสติก">ขวดใส</option>
-                                <option value="กระดาษ">กระดาษ</option>
-                                <option value="โลหะ">โลหะ</option>
-                                <option value="แก้ว">แก้วน้ำ</option>
+                                <option value="" disabled selected>-- กรุณาเลือกขยะที่ต้อง --</option>
+                                <% wasteItems.forEach((waste) => { %>
+                                <option value="<%= waste._id %>"><%= waste.wasteName %></option>
+                                <% }); %>
                             </select>
                         </div>
-                        <div class="mb-3">
+                        <!-- <div class="mb-3">
                             <label for="weight" class="form-label">น้ำหนัก (กิโลกรัม)</label>
                             <input type="number" class="form-control" id="weight" name="weight" step="0.1" required>
-                        </div>
+                        </div> -->
                         <div class="mb-3">
                             <label for="image" class="form-label">อัปโหลดรูปภาพขยะ</label>
                             <input type="file" class="form-control" id="image" name="image" accept="image/*" required>

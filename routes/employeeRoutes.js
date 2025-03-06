@@ -7,8 +7,11 @@ router.get('/', employeeController.dashboardIndex);
 
 // รับซื้อขยะรีไซเคิล
 router.get('/wastePurchase', employeeController.wastePurchaseIndex);
-router.get('/wastePurchaseTotal', employeeController.wastePurchaseTotalIndex);
 router.post('/wastePurchasePost', employeeController.wastePurchasePost);
+
+// สรุปรายการรับซื้อขยะ
+router.get('/wastePurchaseTotal', employeeController.wastePurchaseTotalIndex);
+router.delete('/wastePurchaseDelete/:id', employeeController.wastePurchaseDelete);
 
 // สมาชิกกองทุนขยะรีไซเคิล
 router.get('/member', employeeController.memberIndex);

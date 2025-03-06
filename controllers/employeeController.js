@@ -31,7 +31,7 @@ const wastePurchaseIndex = (req, res) => {
     const searchQuery = req.query.search || '';
     const selectedWasteType = req.query.wasteType || '';
 
-    let filter = {};
+    let filter = { isDeleted: false };
 
     if (searchQuery) {
         filter.wasteName = { $regex: searchQuery, $options: 'i' };
@@ -43,7 +43,7 @@ const wastePurchaseIndex = (req, res) => {
 
     Promise.all([
         myWaste.find(filter).populate('wasteType', 'wasteTypeName'),
-        myWasteType.find()
+        myWasteType.find({ isDeleted: false })
     ])
     .then(([wasteData, wasteTypeData]) => {
         res.render('employee/wastePurchase', {
@@ -56,6 +56,7 @@ const wastePurchaseIndex = (req, res) => {
     })
     .catch((err) => {
         console.log(err);
+        res.status(500).send('เกิดข้อผิดพลาดในระบบ');
     });
 };
 const wastePurchaseTotalIndex = async (req, res) => {
@@ -155,19 +156,35 @@ const wastePurchasePost = async (req, res) => {
         res.redirect('/employee/wastePurchase?error=เกิดข้อผิดพลาดในการบันทึกข้อมูล');
     }
 };
+// ลบรายการรับซื้อ (softDelete)
+
+const wastePurchaseDelete = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deletedPurchase = await WastePurchase.findByIdAndDelete(id);
+
+        if (!deletedPurchase) {
+            return res.redirect('/employee/wastePurchaseTotal?error=ไม่พบข้อมูลที่ต้องการลบ');
+        }
+
+        res.redirect('/employee/wastePurchaseTotal?message=ลบรายการรับซื้อขยะสำเร็จ');
+    } catch (error) {
+        console.error(error);
+        res.redirect('/employee/wastePurchaseTotal?error=เกิดข้อผิดพลาดในการลบข้อมูล');
+    }
+};
 //หน้าสมาชิกกองทุนขยะรีไซเคิล
 const memberIndex = (req, res)=> {
     res.render('employee/member', { mytitle: 'Employeedashboard | Member'})
 }
 
 module.exports = {
-    //แดชบอร์ด
+    //หน้าแดชบอร์ด
     dashboardIndex,
-    //รับซื้อขยะรีไซเคิล
-    wastePurchaseIndex,    
-    wastePurchaseIndex,
-    wastePurchaseTotalIndex,
-    wastePurchasePost,
+    //หน้ารับซื้อขยะรีไซเคิล
+    wastePurchaseIndex,wastePurchasePost,wastePurchaseDelete,
+    //หน้าสรุปการรับซื้อขยะ
+    wastePurchaseTotalIndex,wastePurchaseDelete,
     //หน้าสมาชิกกองทุนขยะรีไซเคิล
     memberIndex,
 }

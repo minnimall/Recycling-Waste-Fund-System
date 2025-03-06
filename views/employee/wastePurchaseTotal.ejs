@@ -12,6 +12,34 @@
 <body>
     <%- include('../partials/employeePartials/empHeader.ejs') %>
     <%- include('../partials/employeePartials/empSidebar.ejs') %>
+    <script>
+        // เช็คข้อความที่ส่งมาจาก URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const successMessage = urlParams.get('message');
+        const errorMessage = urlParams.get('error');
+
+        if (successMessage) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: successMessage,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
+
+        if (errorMessage) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: errorMessage,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
+    </script>
     <div id="itemModal" class="fixed inset-0 overflow-y-auto hidden">
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 transition-opacity" aria-hidden="true">
@@ -119,7 +147,7 @@
                             </td>
                             <td class="purchaseEmp">kb</td>
                             <td class="purchaseAction">
-                                <button onclick="showModalDelete('purchase', '<%= purchase._id %>', 'purchaseHistory')">ลบ</button>
+                                <button onclick="showModalDelete('<%= index + 1 %>','<%= purchase._id %>')">ลบ</button>
                                 <button onclick="showModalEdit('purchase', '<%= purchase._id %>', 'purchaseHistory')">แก้ไข</button>
                             </td>
                         </tr>
@@ -211,5 +239,48 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+function showModalDelete(index,id) {
+    Swal.fire({
+        title: `ลบ "${index}" หรือไม่?`,
+        text: "คุณจะไม่สามารถกู้คืนข้อมูลนี้ได้!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "ยืนยัน",
+        cancelButtonText: "ยกเลิก"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/employee/wastePurchaseDelete/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;  // If redirected, go to that URL
+                } else {
+                    return response.json(); // Parse JSON if no redirect
+                }
+            })
+            .then(data => {
+                if (data && data.success) {
+                    Swal.fire("ลบสำเร็จ!", "ข้อมูลถูกลบเรียบร้อย", "success")
+                    .then(() => {
+                        location.reload(); // Refresh page after successful deletion
+                    });
+                } else if (data) {
+                    Swal.fire("เกิดข้อผิดพลาด!", data.message || "ไม่สามารถลบข้อมูลได้", "error");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                Swal.fire("เกิดข้อผิดพลาด!", "ไม่สามารถติดต่อเซิร์ฟเวอร์ได้", "error");
+            });
+        }
+    });
+}
+
 </script>
 </html>
