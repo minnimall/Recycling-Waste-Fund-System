@@ -140,9 +140,17 @@
                             <td class="purchaseFullname">สิทธิชัย ผ่องเพิ่ม</td>
                             <td class="purchaseTotal"><%= purchase.totalAmount.toLocaleString('th-TH') %>฿</td>
                             <td class="purchaseDate"><%= purchase.purchaseDate.toLocaleDateString() %></td>
-                            <td class="purchaseOrder">
+                            <!-- อันเก่า -->
+                            <!-- <td class="purchaseOrder">
                                 <a href="#" data-items="<%= JSON.stringify({ wasteItems: purchase.wasteItems, accountId: purchase.accountId, purchaseDate: purchase.purchaseDate }) %>" class="item-link text-blue-500 hover:underline">
                                     <%= purchase.wasteItems[0]._id %>
+                                </a>
+                            </td> -->
+                            <td class="purchaseOrder">
+                                <a href="#" 
+                                    data-items="<%= JSON.stringify({ wasteItems: purchase.wasteItems, accountId: purchase.accountId, purchaseDate: purchase.purchaseDate }) %>" 
+                                    class="item-link text-blue-500 hover:underline">
+                                    <i class="fas fa-receipt"> รายการขยะจากการรับซื้อ</i> <!-- ไอคอนบิลใบเสร็จ -->
                                 </a>
                             </td>
                             <td class="purchaseEmp">kb</td>
