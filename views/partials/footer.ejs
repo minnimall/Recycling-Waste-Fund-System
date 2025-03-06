@@ -12,12 +12,12 @@
             <div class="col-lg-4 col-md-12 text-start">
                 <p class="footer-title">หมวดหมู่</p>
                 <ul class="footer-menu">
-                    <li><a href="/">หน้าหลัก</a></li>
-                    <li><a href="/user/wastetype">ประเภทขยะ</a></li>
-                    <li><a href="/user/knowledge">สื่อความรู้</a></li>
-                    <li><a href="/user/saleHistory">ประวัติการขาย</a></li>
-                    <li><a href="/user/wasteSaleRequest">แจ้งประสงค์ขายขยะ</a></li>
-                    <li><a href="/user/contact">ติดต่อ-สอบถาม</a></li>
+                    <a href="/"><li>- หน้าหลัก</li></a>
+                    <a href="/user/wastetype"><li>- ประเภทขยะ</li></a>
+                    <a href="/user/knowledge"><li>- สื่อความรู้</li></a>
+                    <a href="/user/saleHistory"><li>- ประวัติการขาย</li></a>
+                    <a href="/user/wasteSaleRequest"><li>- แจ้งประสงค์ขายขยะ</li></a>
+                    <a href="/user/contact"><li>- ติดต่อ-สอบถาม</li></a>
                     <!-- <li><a href="/login"><i class="fa fa-user"></i> เข้าสู่ระบบ</a></li> -->
                 </ul>
             </div>
@@ -25,9 +25,9 @@
             <!-- ส่วนที่ 3: ข้อมูลติดต่อ และ โซเชียลมีเดีย -->
             <div class="col-lg-4 col-md-12 text-start">
                 <p class="footer-title">ช่องทางติดต่อ</p>
-                <p>โทรศัพท์: 043-306526</p>
-                <p>E-mail: Khampom2009@gmail.com</p>
-                <a href="https://www.khampom.go.th/" target="_blank"><p>www.khampom.go.th</p></a>
+                <p>- โทรศัพท์: 043-306526</p>
+                <p>- Email: Khampom2009@gmail.com</p>
+                <a href="https://www.khampom.go.th/" target="_blank"><p>- www.khampom.go.th</p></a>
                 <div class="social-icons">
                     <a href="https://www.facebook.com/profile.php?id=100064691290383#" target="_blank"><i class="fab fa-facebook"></i></a>
                     <a href="#"><i class="fab fa-line"></i></a>
@@ -76,7 +76,7 @@
         justify-content: start;
     }
 
-    .footer-menu a {
+    .footer-menu  a {
         text-decoration: none;
         font-size: 16px;
         transition: 0.3s ease;
@@ -84,7 +84,7 @@
 
     .footer-menu a:hover,
     .footer-menu .select {
-        text-decoration: underline;
+        text-decoration: none;
     }
 
     /* ปรับให้ลิงก์ใน footer เป็นสีขาว */
@@ -93,7 +93,7 @@
     }
 
     footer a:hover {
-        text-decoration: underline;
+        text-decoration: none;
     }
 
     /* ปรับสีไอคอนโซเชียลมีเดียให้ตรงกับแพลตฟอร์ม */
