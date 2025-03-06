@@ -22,11 +22,11 @@ const RoundSchema = new mongoose.Schema({
         type: String, 
         required: true 
     },
-    createdAt: { 
-        type: Date, 
-        default: Date.now 
+    isDeleted: {
+        type: Boolean,
+        default: false
     }
-});
+},{ timestamps: true });
 
 const Round = mongoose.model('round', RoundSchema)
 module.exports = Round

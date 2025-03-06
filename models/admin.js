@@ -12,23 +12,31 @@ const adminSchema = new mongoose.Schema({
     },
     firstname:{
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     lastname:{
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     tel: {
         type: String,
-        default: null
+        default: null,
+        unique: true
     },
     email: {
         type: String,
-        default: null
+        default: null,
+        unique: true
     },
     role: {
         type: String,
         default: 'admin'
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
     }
 },{ timestamps: true })
 

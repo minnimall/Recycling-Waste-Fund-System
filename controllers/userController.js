@@ -14,12 +14,13 @@ const moment = require('moment');
 const formatDate = (date) => moment(date).locale('th').format('ddddที่ D MMMM YYYY');
 
 const user_index = async (req, res) => {
+    const filter = { isDeleted: false };
     try {
         const [activitiesResult, wasteResult, villageResult, roundResult] = await Promise.all([
-            myActivity.find().sort({ createdAt: -1 }),
-            myWaste.find().sort({ createdAt: 1 }),
-            Village.find().sort({ villageNumber: 1 }),
-            Round.find().populate('village').sort({ date: 1 })
+            myActivity.find(filter).sort({ createdAt: -1 }),
+            myWaste.find(filter).sort({ createdAt: 1 }),
+            Village.find(filter).sort({ villageNumber: 1 }),
+            Round.find(filter).populate('village').sort({ date: 1 })
         ]);
 
         const currentDate = moment().format('YYYY-MM-DD');
@@ -63,10 +64,13 @@ const user_index = async (req, res) => {
 const user_wastetype = (req, res) => {
     const wasteTypeFilter = req.query.wasteType;
 
-    // ถ้าไม่มีการเลือกประเภทขยะ (wasteTypeFilter) จะดึงข้อมูลทั้งหมด
     Promise.all([
-        myWaste.find(wasteTypeFilter ? { wasteType: wasteTypeFilter } : {}).populate('wasteType', 'wasteTypeName'),
-        myWasteType.find()
+        myWaste.find({
+            ...(wasteTypeFilter ? { wasteType: wasteTypeFilter } : {}), 
+            isDeleted: false // กรองเฉพาะขยะที่ isDeleted: false
+        }).populate('wasteType', 'wasteTypeName'),
+
+        myWasteType.find({ isDeleted: false })
     ])
     .then(([wasteData, wasteTypeData]) => {
         res.render('user/wastetype', {
@@ -78,13 +82,14 @@ const user_wastetype = (req, res) => {
     })
     .catch((err) => {
         console.log(err);
+        res.status(500).send('เกิดข้อผิดพลาดในระบบ');
     });
 };
 
-
 // หน้าสื่อความรู้
 const user_knowledge = (req, res) => {
-    myMedia.find().sort({ createdAt: -1 })
+    const filter = { isDeleted: false };
+    myMedia.find(filter).sort({ createdAt: -1 })
         .then((result) => {
             res.render('user/knowledge', { mytitle: 'Admindashboard | Media', media: result});
         })
@@ -111,13 +116,15 @@ const user_contact = (req, res)=> {
 
 // หน้ากิจกรรมทั้งหมด
 const user_allActivity = (req, res) => {
-    // รับค่าคำค้นหาจาก query parameter
-    const searchQuery = req.query.search?.trim() || "";  // ถ้าไม่มีคำค้นหาก็จะเป็นค่าว่าง
-    // สร้าง query สำหรับการค้นหากิจกรรม
-    let query = {};
-    // ถ้ามีคำค้นหา ก็กรองตามชื่อกิจกรรม (title)
+    const searchQuery = req.query.search?.trim() || "";
+    
+    let query = { isDeleted: false };
+
     if (searchQuery) {
-        query.title = { $regex: new RegExp(searchQuery, "i") }; // ใช้ RegExp สำหรับการค้นหาแบบไม่สนใจตัวพิมพ์ใหญ่/เล็ก
+        query = {
+            ...query, // คงค่า isDeleted: false ไว้
+            title: { $regex: new RegExp(searchQuery, "i") }
+        };
     }
 
     // ดึงข้อมูลกิจกรรมจากฐานข้อมูลตาม query ที่สร้าง
@@ -137,12 +144,14 @@ const user_allActivity = (req, res) => {
         })
         .catch((err) => {
             console.log(err);
+            res.status(500).send('เกิดข้อผิดพลาดในระบบ');
         });
 };
 
+
 // หน้ารายละเอียดกิจกรรม
 const user_detailActivity = (req, res) => {
-    // ค้นหากิจกรรมที่เลือกโดยใช้ ID
+    const filter = { isDeleted: false };
     myActivity.findById(req.params.id)
         .then(activity => {
             if (!activity) {
@@ -155,7 +164,7 @@ const user_detailActivity = (req, res) => {
                 formattedDate: moment(activity.createdAt).format('YYYY-MM-DD')
             };
 
-            myActivity.find().sort({ createdAt: -1 })
+            myActivity.find(filter).sort({ createdAt: -1 })
                 .then(otherActivities => {
                     // เพิ่มฟิลด์ formattedDate ให้กับกิจกรรมอื่น ๆ
                     const formattedOtherActivities = otherActivities.map(activity => ({

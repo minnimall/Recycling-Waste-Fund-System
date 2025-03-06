@@ -4,7 +4,8 @@ const Schema = mongoose.Schema
 const activitySchema = new Schema( {
     title: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     content: {
         type: String,
@@ -16,7 +17,7 @@ const activitySchema = new Schema( {
     },
     isDeleted: {
         type: Boolean,
-        default: false // ✅ ค่าเริ่มต้นเป็น false (ยังไม่ถูกลบ)
+        default: false
     }
 },{ timestamps: true })
 

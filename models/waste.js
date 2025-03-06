@@ -26,6 +26,10 @@ const wasteSchema = new Schema(
             default: 0, // จำนวนเริ่มต้นเป็น 0
             required: true,
             min: 0 // ไม่ให้เป็นค่าลบ
+        },
+        isDeleted: {
+            type: Boolean,
+            default: false
         }
     },
     { timestamps: true }

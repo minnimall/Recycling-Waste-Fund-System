@@ -28,17 +28,15 @@ const dashboardIndex = (req, res)=> {
 
 //หน้ารับซื้อขยะรีไซเคิล
 const wastePurchaseIndex = (req, res) => {
-    const searchQuery = req.query.search || ''; // รับค่าค้นหา
-    const selectedWasteType = req.query.wasteType || ''; // รับค่าประเภทขยะ
+    const searchQuery = req.query.search || '';
+    const selectedWasteType = req.query.wasteType || '';
 
     let filter = {};
 
-    // ถ้ามีค่าค้นหา ให้ใช้ regex ค้นหาขยะ
     if (searchQuery) {
         filter.wasteName = { $regex: searchQuery, $options: 'i' };
     }
 
-    // ถ้ามีประเภทขยะที่เลือก ให้เพิ่ม filter ตาม wasteType
     if (selectedWasteType) {
         filter.wasteType = selectedWasteType;
     }
@@ -67,7 +65,7 @@ const wastePurchaseTotalIndex = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = 10;
         const skip = (page - 1) * limit;
-        const search = req.query.search; // รับค่า search จาก query parameters
+        const search = req.query.search;
         let query = {};
         if (searchDate) {
             const startDate = new Date(searchDate);

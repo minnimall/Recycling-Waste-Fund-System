@@ -49,7 +49,7 @@ const mediaIndex = (req, res) => {
             console.log(err);
         });
 };
-// เพิ่มสื่อ (ป้องกันสร้างซ้ำ)
+// เพิ่มสื่อ (ป้องกันเพิ่มสื่อซ้ำ)
 const mediaPost = async (req, res) => {
     try {
         const { title, youtubeUrl } = req.body;
@@ -192,34 +192,42 @@ const activityIndex = (req, res) => {
             res.status(500).send('เกิดข้อผิดพลาดในการดึงข้อมูล');
         });
 };
-//เพิ่มกิจกรรม
+//เพิ่มกิจกรรม (ป้องกันเพิ่มกิจกรรมซ้ำ)
 const activityPost = (req, res) => {
-    upload(req, res, (err) => {
+    upload(req, res, async (err) => {
         if (err) {
             console.error('Error uploading file:', err);
             return res.status(400).send({ error: 'File upload failed', details: err });
         }
 
-        // Check for uploaded file
-        const imagePath = req.file
-            ? `/uploads/activity/${req.file.filename}` // Use backticks for dynamic strings
-            : '/img/no_image.jpg';
+        try {
+            const { title} = req.body;
 
-        const activity = new myActivity({
-            title: req.body.title || 'Untitled',
-            content: req.body.content || '',
-            img: imagePath
-        });
+            // ตรวจสอบว่ามีกิจกรรมที่มี title และ content ซ้ำกันหรือไม่ (กรณีต้องการให้เนื้อหาไม่ซ้ำด้วย)
+            const existingActivity = await myActivity.findOne({ title, isDeleted: false });
 
-        activity.save()
-            .then((result) => {
-                console.log('Activity saved successfully:', result);
-                res.redirect('/admin/activity?message=เพิ่มกิจกรรมสำเร็จ');
-            })
-            .catch((err) => {
-                console.error('Error saving activity:', err);
-                res.status(500).redirect('/admin/activity?error=เพิ่มกิจกรรมไม่สำเร็จ');
+            if (existingActivity) {
+                return res.status(400).redirect('/admin/activity?error=มีกิจกรรมนี้อยู่แล้ว');
+            }
+
+            // ถ้าไม่มีซ้ำ ให้บันทึก
+            const imagePath = req.file
+                ? `/uploads/activity/${req.file.filename}`
+                : '/img/no_image.jpg';
+
+            const activity = new myActivity({
+                title,
+                content,
+                img: imagePath
             });
+
+            await activity.save();
+            console.log('Activity saved successfully:', activity);
+            res.redirect('/admin/activity?message=เพิ่มกิจกรรมสำเร็จ');
+        } catch (err) {
+            console.error('Error saving activity:', err);
+            res.status(500).redirect('/admin/activity?error=เพิ่มกิจกรรมไม่สำเร็จ');
+        }
     });
 };
 // ลบกิจกรรม (softDelete)
@@ -286,8 +294,10 @@ const upload2 = multer({
 
 // ขยะ
 const wasteIndex = (req, res) => {
+    const filter = { isDeleted: false };
+
     Promise.all([
-        myWaste.find().populate('wasteType', 'wasteTypeName'), // Populate wasteType with wasteTypeName
+        myWaste.find(filter).populate('wasteType', 'wasteTypeName'), // Populate wasteType with wasteTypeName
         myWasteType.find()
     ])
     .then(([wasteData, wasteTypeData]) => {
@@ -349,12 +359,12 @@ const wastePost = async (req, res) => {
         }
     });
 };
-// ลบขยะ
+// ลบขยะ (softDelete)
 const wasteDelete = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const result = await myWaste.findByIdAndDelete(id);
+        const result = await myWaste.findByIdAndUpdate(id, { isDeleted: true });
 
         if (!result) {
             return res.status(404).redirect('/admin/waste?error=ไม่พบข้อมูลขยะที่ต้องการลบ');
@@ -419,17 +429,22 @@ const wasteTypeIndex = async function (req, res, next) {
         const limit = 5; // จำนวนข้อมูลที่จะแสดงต่อหน้า
         const startIndex = (page - 1) * limit;
 
-        // เงื่อนไขการค้นหา
-        const searchOptions = search
-            ? {
+        // กำหนดค่า filter เพื่อแสดงเฉพาะข้อมูลที่ isDeleted: false
+        let filter = { isDeleted: false };
+
+        // ถ้ามีค่าค้นหา ให้เพิ่มเงื่อนไขการค้นหาเข้าไป
+        if (search) {
+            filter = {
+                ...filter, // คงค่า isDeleted: false ไว้
                 $or: [
-                      { wasteTypeName: { $regex: search, $options: 'i' } }, // ค้นหาจาก wasteTypeName แบบไม่สนใจตัวพิมพ์
+                    { wasteTypeName: { $regex: search, $options: 'i' } }, // ค้นหาชื่อประเภทขยะ
                 ],
-            }
-            : {};
-        const totalDocuments = await myWasteType.countDocuments(searchOptions); // นับจำนวนเอกสารทั้งหมด
+            };
+        }
+
+        const totalDocuments = await myWasteType.countDocuments(filter); // นับจำนวนเอกสารทั้งหมดที่ตรงกับเงื่อนไข
         const wasteTypeList = await myWasteType
-            .find(searchOptions)
+            .find(filter)
             .sort({ createdAt: 1 }) // เรียงตามวันที่สร้าง
             .skip(startIndex)
             .limit(limit);
@@ -446,7 +461,7 @@ const wasteTypeIndex = async function (req, res, next) {
         res.status(500).send('เกิดข้อผิดพลาดในระบบ');
     }
 };
-// เพิ่มประเภทขยะ
+// เพิ่มประเภทขยะ (ป้องกันเพิ่มประเภทขยะซ้ำ)
 const wasteTypePost = async (req, res) => {
     try {
         console.log('Request Body:', req.body);
@@ -495,12 +510,12 @@ const wasteTypeEdit = async (req, res) => {
         res.status(500).redirect('/admin/wasteType?error=เกิดข้อผิดพลาดในการแก้ไขประเภทขยะ');
     }
 };
-// ลบประเภทขยะ
+// ลบประเภทขยะ (softDelete)
 const wasteTypeDelete = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const result = await myWasteType.findByIdAndDelete(id);
+        const result = await myWasteType.findByIdAndUpdate(id , { isDeleted : true});
 
         if (!result) {
             return res.status(404).redirect('/admin/wasteType?message=ไม่พบข้อมูลประเภทขยะที่ต้องการลบ');
@@ -516,7 +531,7 @@ const wasteTypeDelete = async (req, res) => {
 // หน้า employee(พนักงาน)
 const employeeIndex = (req, res) => {
     const { role, search } = req.query;
-    let filter = {};
+    const filter = { isDeleted: false };
     if (role) {
         filter.role = role;
     }
@@ -536,7 +551,7 @@ const employeeIndex = (req, res) => {
             res.status(500).send('เกิดข้อผิดพลาดในการดึงข้อมูลพนักงาน');
         });
 };
-// ลงทะเบียนพนักงานหรือแอดมิน
+// ลงทะเบียนพนักงานหรือแอดมิน (ป้องกันเพิ่มแอดมินหรือพนักงานซ้ำ)
 const employeeRegister = async (req, res) => {
     const { username, password, confirmPassword, firstname, lastname, tel, email, role } = req.body;
 
@@ -589,12 +604,12 @@ const employeeRegister = async (req, res) => {
         res.redirect('/admin/employee?error=เกิดข้อผิดพลาดในระบบ');
     }
 };
-// ลบพนักงาน
+// ลบพนักงาน (softDelete)
 const employeeDelete = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const result = await MyAdmin.findByIdAndDelete(id);
+        const result = await MyAdmin.findByIdAndUpdate(id, { isDeleted: true });
 
         if (!result) {
             return res.status(404).redirect('/admin/employee?error=ไม่พบข้อมูลผู้ใช้ที่ต้องการลบ');
@@ -629,8 +644,9 @@ const editEmployee = async (req, res) => {
 
 //หมู่บ้าน
 const villageIndex = async (req, res) => {
+    const filter = { isDeleted: false };
     try {
-        const villages = await Village.find();
+        const villages = await Village.find(filter);
 
         res.render('admin/village', { 
             mytitle: 'Admindashboard | Village',
@@ -641,7 +657,7 @@ const villageIndex = async (req, res) => {
         res.status(500).send('เกิดข้อผิดพลาดในระบบ');
     }
 };
-//เพิ่มหมู่บ้าน
+//เพิ่มหมู่บ้าน (ป้องกันเพิ่มหมู่บ้านซ้ำ)
 const villagePost = async (req, res) => {
     try {
         const { villageNumber, villageName, location } = req.body;
@@ -688,13 +704,13 @@ const villageEdit = async (req, res) => {
         res.status(500).send('เกิดข้อผิดพลาดในระบบ');
     }
 };
-//ลบหมู่บ้าน
+//ลบหมู่บ้าน (softDelete)
 const villageDelete = async (req, res) => {
     try {
         const { id } = req.params;
 
         // ค้นหาหมู่บ้านตาม ID และลบ
-        const village = await Village.findByIdAndDelete(id);
+        const village = await Village.findByIdAndUpdate(id,{ isDeleted: true});
 
         if (!village) {
             return res.status(404).send('ไม่พบหมู่บ้านที่ต้องการลบ');
@@ -707,17 +723,18 @@ const villageDelete = async (req, res) => {
     }
 };
 
-//หน้ารอบการรับซื้อขยะ
+//หน้ารอบการรับซื้อขยะ 
 const roundIndex = (req, res) => {
     const formatDate = (date) => {
         if (!date) return '';
         const options = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Bangkok' };
         return new Date(date).toLocaleDateString('th-TH', options); 
     };
+    const filter = { isDeleted: false };
 
     Promise.all([
-        Village.find().sort({ createdAt: 1 }),
-        Round.find().populate('village').sort({ date: -1 })
+        Village.find(filter).sort({ createdAt: 1 }),
+        Round.find(filter).populate('village').sort({ date: -1 })
     ])
     .then(([villageResult, roundResult]) => {
         // แปลงวันที่ก่อนส่งไปยัง EJS
@@ -738,7 +755,7 @@ const roundIndex = (req, res) => {
         res.status(500).send('Error retrieving village and round data');
     });
 };
-//เพิ่มรอบรับซื้อขยะ
+//เพิ่มรอบรับซื้อขยะ 
 const roundPost = (req, res) => {
     const { roundName, village, date, startTime, endTime } = req.body;
 
@@ -785,11 +802,11 @@ const roundEdit = async (req, res) => {
         res.redirect('/admin/manageRounds');
     }
 };
-// ลบรอบรับซื้อขยะ
+// ลบรอบรับซื้อขยะ (softDelete)
 const roundDelete = (req, res) => {
     const { id } = req.params;
 
-    Round.findByIdAndDelete(id)
+    Round.findByIdAndUpdate(id , { isDeleted : true })
         .then(() => res.redirect('/admin/round?message=ลบรอบการรับซื้อสำเร็จ'))
         .catch((err) => {
             console.log(err);

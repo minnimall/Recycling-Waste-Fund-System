@@ -6,9 +6,9 @@ const wasteTypeSchema = new mongoose.Schema(
     {
         wasteTypeId: {
             type: String,
-            unique: true, // ป้องกันค่าซ้ำ
-            required: true, // บังคับให้ต้องมีค่า
-            default: () => new mongoose.Types.ObjectId().toString(), // กำหนดค่าเริ่มต้น
+            unique: true,
+            required: true,
+            default: () => new mongoose.Types.ObjectId().toString(),
         },
         wasteTypeName: {
             type: String,
@@ -16,6 +16,10 @@ const wasteTypeSchema = new mongoose.Schema(
             trim: true,
             maxlength: [50, 'ชื่อประเภทขยะต้องไม่เกิน 50 ตัวอักษร'],
         },
+        isDeleted: {
+            type: Boolean,
+            default: false
+        }
     },
     { timestamps: true }
 );

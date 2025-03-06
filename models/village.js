@@ -14,7 +14,11 @@ const villageSchema = new Schema({
     }, 
     location: {
         type: String 
-    }, 
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
+    } 
 },{ timestamps: true })
 
 const Village = mongoose.model('Village', villageSchema)
