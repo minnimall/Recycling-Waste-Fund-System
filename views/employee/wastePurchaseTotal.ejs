@@ -147,8 +147,12 @@
                             </td>
                             <td class="purchaseEmp">kb</td>
                             <td class="purchaseAction">
-                                <button onclick="showModalDelete('<%= index + 1 %>','<%= purchase._id %>')">ลบ</button>
-                                <button onclick="showModalEdit('purchase', '<%= purchase._id %>', 'purchaseHistory')">แก้ไข</button>
+                                <button onclick="showModalDelete('<%= index + 1 %>','<%= purchase._id %>')" class="delete-btn">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                                <button onclick="showModalEdit('purchase', '<%= purchase._id %>', 'purchaseHistory')" class="edit-btn">
+                                    <i class="fa fa-edit"></i>
+                                </button>
                             </td>
                         </tr>
                     <% }); %>
