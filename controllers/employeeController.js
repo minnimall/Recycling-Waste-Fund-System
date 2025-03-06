@@ -100,7 +100,7 @@ const wastePurchaseTotalIndex = async (req, res) => {
             accountId: accountId,
             currentPage: page,
             totalPages: totalPages,
-            search: search // ส่งค่า search ไปยัง view
+            search: search
         });
     } catch (error) {
         console.error(error);
@@ -114,21 +114,32 @@ const wastePurchasePost = async (req, res) => {
         const parsedWasteItems = JSON.parse(wasteItems);
         let totalAmount = 0;
         const wasteItemIds = [];
-
-        for (const item of parsedWasteItems) {
-            const newWasteItem = new WasteItem({
-                name: item.name,
-                quantity: item.weight,
-                pricePerUnit: item.pricePerUnit,
-            });
-            await newWasteItem.save();
-            wasteItemIds.push(newWasteItem._id);
-            let price = parseFloat(item.totalPrice);
-            if (!isNaN(price)) { //ตรวจสอบว่าเป็นตัวเลขหรือไม่
-                totalAmount += price;
-            } else {
-                console.error("Invalid totalPrice:", item.totalPrice);
+        if (parsedWasteItems && Array.isArray(parsedWasteItems)) {
+            for (const item of parsedWasteItems) {
+                if (item && item.name) {
+                    const newWasteItem = new WasteItem({
+                        name: item.name,
+                        quantity: item.weight,
+                        pricePerUnit: item.pricePerUnit,
+                    });
+                    await newWasteItem.save();
+                    wasteItemIds.push(newWasteItem._id);
+                    let price = parseFloat(item.totalPrice);
+                    if (!isNaN(price)) {
+                        totalAmount += price;
+                    } else {
+                        console.error("Invalid totalPrice:", item.totalPrice);
+                    }
+                } else {
+                    console.error("Invalid waste item found:", item);
+                    console.log("Entire parsedWasteItems array: ", parsedWasteItems);
+                    continue;
+                }
             }
+        } else {
+            console.error("Invalid wasteItems data:", parsedWasteItems);
+            res.redirect('/employee/wastePurchase?error=Invalid waste items data');
+            return;
         }
 
         const newWastePurchase = new WastePurchase({
@@ -143,7 +154,7 @@ const wastePurchasePost = async (req, res) => {
         console.error(error);
         res.redirect('/employee/wastePurchase?error=เกิดข้อผิดพลาดในการบันทึกข้อมูล');
     }
-}
+};
 //หน้าสมาชิกกองทุนขยะรีไซเคิล
 const memberIndex = (req, res)=> {
     res.render('employee/member', { mytitle: 'Employeedashboard | Member'})
