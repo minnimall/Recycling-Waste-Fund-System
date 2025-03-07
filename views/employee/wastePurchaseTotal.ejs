@@ -135,7 +135,7 @@
                 <tbody>
                     <% wastePurchases.forEach((purchase, index) => { %>
                         <tr>
-                            <td class="purchaseIndex"><%= index + 1 %></td>
+                            <td class="purchaseIndex"><%= startIndex + index + 1 %></td>
                             <td class="purchaseId"><%= purchase.accountId %></td>
                             <td class="purchaseFullname">สิทธิชัย ผ่องเพิ่ม</td>
                             <td class="purchaseTotal"><%= purchase.totalAmount.toLocaleString('th-TH') %>฿</td>

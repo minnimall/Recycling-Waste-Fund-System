@@ -83,8 +83,8 @@
                             <div class="col-4">
                                 <a href="/user/detailActivity/<%= act._id %>" class="card-link">
                                 <div class="card border-0">
-                                    <img class="d-block w-100" src="<%= act.img %>" alt="รูปภาพกิจกรรม">
-                                    <div class="card-body">
+                                    <img class="d-block w-100 rounded-top" src="<%= act.img %>" alt="รูปภาพกิจกรรม">
+                                    <div class="card-body border rounded-bottom shadow-sm">
                                         <p class="card-title"><%= act.title %></p>
                                     </div>
                                 </div>
@@ -101,11 +101,11 @@
                         <div class="d-flex justify-content-start align-items-center">
                             <p class="time2">วันที่</p><p id="time" class="time"></p>
                         </div>
-                        <div class="title-waste d-flex justify-content-between align-items-center">
+                        <div class="title-waste d-flex justify-content-between align-items-center rounded-top">
                             <p>รายการ</p>
                             <p>ราคา/กก.</p>
                         </div>
-                        <div class="price-list-container">
+                        <div class="price-list-container rounded-bottom">
                             <% if (waste.length > 0) { %>
                                 <% waste.forEach((item, index) => { %>
                             <div class="price-waste d-flex justify-content-between align-items-center">
@@ -134,7 +134,7 @@
                     <div class="col-4">
                         <div class="card border-0">
                             <img class="d-block w-100 card-img-custom" src="/img/shoe_bin.png" alt="พื้นหลัง">
-                            <div class="card-body">
+                            <div class="card-body border">
                                 <p class="card-title">นำขยะมาทำเป็นรองเท้า</p>
                             </div>
                         </div>
@@ -142,7 +142,7 @@
                     <div class="col-4">
                         <div class="card border-0">
                             <img class="d-block w-100 card-img-custom" src="/img/idea-recycle.png" alt="พื้นหลัง">
-                            <div class="card-body">
+                            <div class="card-body border">
                                 <p class="card-title">กล่องขยะ DIY</p>
                             </div>
                         </div>
@@ -150,7 +150,7 @@
                     <div class="col-4">
                         <div class="card border-0">
                             <img class="d-block w-100 card-img-custom" src="/img/eco-bricks.png" alt="พื้นหลัง">
-                            <div class="card-body">
+                            <div class="card-body border">
                                 <p class="card-title">อิฐจากขยะพลาสติก</p>
                             </div>
                         </div>

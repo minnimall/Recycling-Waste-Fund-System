@@ -161,14 +161,6 @@
             `;
         
         });
-        selectedWaste.forEach((item) => {
-            let price = parseFloat(item.totalPrice);
-            if (!isNaN(price)) { // ตรวจสอบว่าเป็นตัวเลขหรือไม่
-                totalAmount += price;
-            } else {
-                console.error("Invalid totalPrice:", item.totalPrice);
-            }
-        });
 
         document.getElementById('totalAmount').textContent = totalAmount.toFixed(2);
         document.getElementById('wasteItemsInput').value = JSON.stringify(selectedWaste);

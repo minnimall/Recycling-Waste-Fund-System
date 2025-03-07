@@ -68,6 +68,8 @@ const wastePurchaseTotalIndex = async (req, res) => {
         const skip = (page - 1) * limit;
         const search = req.query.search;
         let query = {};
+        let monthlyQuery = {}; // เพิ่ม query สำหรับกรองตามเดือน
+
         if (searchDate) {
             const startDate = new Date(searchDate);
             startDate.setHours(0, 0, 0, 0);
@@ -77,20 +79,40 @@ const wastePurchaseTotalIndex = async (req, res) => {
                 $gte: startDate,
                 $lte: endDate
             };
+
+            // กรองตามเดือน
+            const year = startDate.getFullYear();
+            const month = startDate.getMonth();
+            const firstDayOfMonth = new Date(year, month, 1);
+            const lastDayOfMonth = new Date(year, month + 1, 0, 23, 59, 59, 999);
+
+            monthlyQuery.purchaseDate = {
+                $gte: firstDayOfMonth,
+                $lte: lastDayOfMonth
+            };
         }
+
         if (accountId) {
             query.accountId = accountId;
         }
+
         const wastePurchases = await WastePurchase.find(query)
             .populate('wasteItems')
             .populate('accountId')
             .skip(skip)
             .limit(limit);
+
         const totalCount = await WastePurchase.countDocuments(query);
         const totalPages = Math.ceil(totalCount / limit);
         const purchaseCount = await WastePurchase.countDocuments(query);
         const customerCount = new Set(wastePurchases.map(purchase => purchase.accountId._id)).size;
-        const totalAmount = wastePurchases.reduce((sum, purchase) => sum + purchase.totalAmount, 0);
+
+        // คำนวณ totalAmount จากข้อมูลที่กรองตามเดือน
+        const monthlyWastePurchases = await WastePurchase.find(monthlyQuery);
+        const totalAmount = monthlyWastePurchases.reduce((sum, purchase) => sum + purchase.totalAmount, 0);
+
+        const startIndex = (page - 1) * limit;
+
         res.render('employee/wastePurchaseTotal', {
             wastePurchases,
             mytitle: 'Employeedashboard | wastePurchaseTotal',
@@ -101,6 +123,8 @@ const wastePurchaseTotalIndex = async (req, res) => {
             accountId: accountId,
             currentPage: page,
             totalPages: totalPages,
+            wastePurchases: wastePurchases,
+            startIndex: startIndex,
             search: search
         });
     } catch (error) {

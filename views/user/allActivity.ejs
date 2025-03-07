@@ -51,11 +51,11 @@
                 <div class="row">
                     <% if (activity && activity.length > 0) {  %>
                         <% activity.forEach(act => { %>
-                            <div class="col-3">
-                                <div class="card mt-3 border-0">
+                            <div class="col-3 ">
+                                <div class="card mt-3 border ">
                                     <a href="/user/detailActivity/<%= act._id %>" class="card-link">
                                     <img class="d-block w-100" src="<%= act.img %>" alt="รูปภาพกิจกรรม">
-                                    <div class="card-body">
+                                    <div class="card-body ">
                                         <p class="card-title"><%= act.title %></p>
                                         <p class="date text-end">วันที่ <%= act.formattedDate %></p>
                                     </div>
