@@ -124,34 +124,50 @@ const newsIndex = (req, res) => {
             console.log(err);
         });
 };
-const newsPost = async (req, res) => {
-    try {
-        const { activityTitle, activityDetails ,activityDescription} = req.body;
 
-        // ตรวจสอบข้อมูลที่ได้จากฟอร์ม
-        if (!activityTitle || !activityDetails || !activityDescription) {
-            return res.status(400).send('กรุณากรอกข้อมูลให้ครบถ้วน');
-        }
-
-        // สร้างกิจกรรมใหม่
-        const news = new myNews({
-            activityTitle,
-            activityDescription,
-            activityDetails
-        });
-
-        // บันทึกข้อมูลในฐานข้อมูล
-        const result = await news.save();
-        console.log('News saved successfully:', result);
-
-        // เปลี่ยนเส้นทางหลังบันทึกข้อมูลสำเร็จ
-        res.redirect('/admin/news');
-    } catch (error) {
-        console.error('เกิดข้อผิดพลาดในการบันทึกกิจกรรม:', error);
-        res.status(500).send('เกิดข้อผิดพลาด');
+const storageNews = multer.diskStorage({
+    destination: './public/uploads/news/PDF/',
+    filename: function (req, file, cb) {
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
     }
-};
+});
 
+const uploadNews = multer({
+    storage: storageNews,
+    limits: { fileSize: 50 * 1024 * 1024 },
+    fileFilter: function (req, file, cb) {
+        if (file.mimetype === 'application/pdf') {
+            cb(null, true);
+        } else {
+            cb(new Error('Only PDF files are allowed!'), false);
+        }
+    }
+}).single('newsFile');
+
+const newsPost = async (req, res) => {
+    uploadNews(req, res, async (err) => {
+        if (err) {
+            console.error('Error uploading file:', err);
+            return res.status(400).send({ error: 'File upload failed', details: err.message });
+        }
+        try {
+            const { newsTitle, newsDescription } = req.body;
+            const fileNews = req.file.filename;
+
+            const newNews = new myNews({
+                newsTitle,
+                newsDescription,
+                newsFile: fileNews,
+            });
+            await newNews.save();
+
+            res.redirect('/admin/news?message=เพิ่มข่าวสารสำเร็จ');
+        } catch (error) {
+            console.error('Error saving news:', error);
+            res.redirect('/admin/news?error=เกิดข้อผิดพลาดในการเพิ่มข่าวสาร');
+        }
+    });
+};
 
 // สำหรับเก็บรูปภาพที่อัปโหลดจาก activity
 const storage = multer.diskStorage({

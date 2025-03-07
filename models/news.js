@@ -1,23 +1,21 @@
 const mongoose = require('mongoose');
 
-const Schema = mongoose.Schema
-const NewsSchema = new Schema( {
-    activityTitle: {
+const Schema = mongoose.Schema;
+const newsSchema = new mongoose.Schema({
+    newsTitle: {
         type: String,
-        required: true, // หัวข้อกิจกรรมต้องการ
-        trim: true
+        required: true
     },
-    activityDescription: {
+    newsDescription: {
+        type: String,
+        required: true
+    },
+    newsFile: {
         type: String,
         required: true,
-        trim: true
-    },
-    activityDetails: {
-        type: String, // เก็บเนื้อหากิจกรรมเป็น HTML
-        required: true
     }
-},{ timestamps: true })
-// สร้าง Model จาก Schema
-const myNews = mongoose.model('news', NewsSchema);
+}, { timestamps: true });
+
+const myNews = mongoose.model('news', newsSchema);
 
 module.exports = myNews;
