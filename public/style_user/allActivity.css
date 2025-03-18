@@ -135,6 +135,9 @@ ul li a{
 .card-linkk:Hover{
     color: #8bc34a;
 }
+.titles{
+    font-size: 2rem;
+}
 .title {
     font-size: 2.5rem; /* ขนาดตัวอักษรใหญ่ขึ้น */
     font-weight: bold;

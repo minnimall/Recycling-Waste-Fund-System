@@ -130,14 +130,15 @@ app.use('/employee', checkEmpAndSetName, employeeRoutes);
 //ผู้ดูแลระบบ(admin)
 app.use('/admin', checkAdminAndSetName, adminRoutes);
 
-//เส้นทางไปหน้า login
-app.get('/login', (req, res) => {
-    res.render('login');
-});
 
 //เส้นทางไปหน้า register
 app.get('/register', (req, res) => {
     res.render('register');
+});
+
+//เส้นทางไปหน้า login
+app.get('/login', (req, res) => {
+    res.render('login');
 });
 
 //รับค่าจากการ login
@@ -160,7 +161,6 @@ app.post('/login', async (req, res) => {
         req.session.username = user.username;
         req.session.role = user.role;
 
-        // ทำการ redirect ไปยังหน้า admin หรือ employee ตาม role ของผู้ใช้
         if (user.role === 'admin') {
             res.redirect('/admin');
         } else if (user.role === 'employee') {

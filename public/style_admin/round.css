@@ -83,6 +83,20 @@ table tbody{
     animation: spin 1s linear infinite;
 }
 
+.time-select {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.time-select select {
+    width: 80px;
+}
+
+.time-select span {
+    margin: 0 10px;
+}
+
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }

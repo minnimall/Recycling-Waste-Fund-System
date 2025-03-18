@@ -7,6 +7,7 @@ const myWaste = require('../models/waste');
 const myWasteType = require('../models/wastetype');
 const Village = require('../models/village');
 const Round = require('../models/round');
+const wasteSaleRequest = require('../models/wasteSaleRequest');
 const path = require('path');
 const moment = require('moment');
 
@@ -120,6 +121,54 @@ const user_wasteSaleRequest = (req, res) => {
         });
 };
 
+const storage = multer.diskStorage({
+    destination: './public/upload_imgWasteSaleRequest',
+    filename: function (req, file, cb) {
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({
+    storage,
+    limits: { fileSize: 50 * 1024 * 1024 }
+}).single('image');
+
+//บันทึกข้อมูลแบบฟอร์มแจ้งความประสงค์ขายขยะ
+const wasteSaleRequestPost = (req, res) => {
+    upload(req, res, (err) => {
+        if (err) {
+            return res.status(500).send('อัปโหลดรูปภาพล้มเหลว');
+        }
+        // ตรวจสอบรูปภาพที่อัปโหลด
+        const imagePath = req.file
+            ? `/upload_imgWasteSaleRequest/${req.file.filename}` // ใช้ backticks สำหรับการแทรกค่า
+            : '/img/no_image.jpg';
+
+        const { waste, weight, date, location } = req.body;
+
+        if (!waste || waste.length === 0) {
+            return res.status(400).send('กรุณาเลือกขยะที่ต้องการขาย');
+        }
+
+        const newSaleRequest = new wasteSaleRequest({
+            waste: Array.isArray(waste) ? waste : [waste], 
+            weight: weight ? parseFloat(weight) : undefined, 
+            date: new Date(date),
+            location,
+            img: imagePath
+        });
+
+        newSaleRequest.save()
+            .then((result) => {
+                res.redirect('/user/wasteSaleRequest?message=ส่งแบบฟอร์มสำเร็จ');
+            })
+            .catch((err) => {
+                console.log(err);
+                res.redirect('/user/wasteSaleRequest?error=เกิดข้อผิดพลาดในระบบ');
+            });
+    });
+};
+
 // หน้าข้อมูลติดต่อ
 const user_contact = (req, res)=> {
     res.render('user/contact')
@@ -204,7 +253,7 @@ module.exports = {
     user_wastetype,
     user_knowledge,
     user_saleHistory,
-    user_wasteSaleRequest,
+    user_wasteSaleRequest, wasteSaleRequestPost,
     user_contact,
     user_allActivity,user_detailActivity
 }

@@ -314,7 +314,7 @@ const wasteIndex = (req, res) => {
 
     Promise.all([
         myWaste.find(filter).populate('wasteType', 'wasteTypeName'), // Populate wasteType with wasteTypeName
-        myWasteType.find()
+        myWasteType.find({ isDeleted: false })
     ])
     .then(([wasteData, wasteTypeData]) => {
         res.render('admin/waste', {
@@ -572,12 +572,12 @@ const employeeRegister = async (req, res) => {
     const { username, password, confirmPassword, firstname, lastname, tel, email, role } = req.body;
 
     try {
-        // ตรวจสอบว่ารหัสผ่านและยืนยันรหัสผ่านตรงกันหรือไม่
+        // ตรวจว่ารหัสผ่านกับยืนยันรหัสผ่านตรงกันหรือมั้ย
         if (password !== confirmPassword) {
             return res.redirect('/admin/employee?error=รหัสผ่านและยืนยันรหัสผ่านไม่ตรงกัน');
         }
 
-        // ตรวจสอบว่ามีผู้ใช้งานที่ใช้ username, email หรือ tel ซ้ำกันหรือไม่
+        // ตรวจว่ามี username, email หรือ tel ซ้ำกันมั้ย
         let existingUser = await MyAdmin.findOne({ $or: [{ username }, { email }, { tel }] });
 
         if (existingUser) {
@@ -601,7 +601,6 @@ const employeeRegister = async (req, res) => {
             return res.redirect('/admin/employee?error=บทบาทไม่ถูกต้อง');
         }
 
-        // สร้างผู้ใช้งานใหม่
         const newUser = new MyAdmin({
             username,
             password: hashedPassword,
