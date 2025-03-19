@@ -12,6 +12,7 @@ const myNews = require('../models/news');
 const myActivity = require('../models/activity');
 const Village = require('../models/village')
 const Round = require('../models/round');
+const wasteSaleRequest = require('../models/wasteSaleRequest');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const moment = require('moment');
@@ -181,7 +182,6 @@ const wastePurchasePost = async (req, res) => {
     }
 };
 // ลบรายการรับซื้อ (softDelete)
-
 const wastePurchaseDelete = async (req, res) => {
     try {
         const { id } = req.params;
@@ -202,6 +202,30 @@ const memberIndex = (req, res)=> {
     res.render('employee/member', { mytitle: 'Employeedashboard | Member'})
 }
 
+//หน้าตรวจสอบความประสงค์ขายขยะ
+const wasteSaleRequestIndex = async (req, res) => {
+    try {
+        const wasteSaleRequests = await wasteSaleRequest
+            .find()
+            .populate('waste') // ดึงข้อมูลขยะจาก ObjectId
+            .sort({ date: -1 });
+
+        console.log(wasteSaleRequests); // Debug เช็คข้อมูล
+
+        res.render('employee/wasteSaleRequest', {
+            mytitle: 'รายการความประสงค์ขายขยะ',
+            wasteSaleRequests // ส่งข้อมูลไปยัง View
+        });
+    } catch (error) {
+        console.error('Error fetching waste sale requests:', error);
+        res.render('employee/wasteSaleRequest', {
+            mytitle: 'รายการความประสงค์ขายขยะ',
+            wasteSaleRequests: [],
+            error: 'ไม่สามารถโหลดข้อมูลได้'
+        });
+    }
+};
+
 module.exports = {
     //หน้าแดชบอร์ด
     dashboardIndex,
@@ -211,4 +235,6 @@ module.exports = {
     wastePurchaseTotalIndex,wastePurchaseDelete,
     //หน้าสมาชิกกองทุนขยะรีไซเคิล
     memberIndex,
+    //หน้าตรวจสอบความประสงค์ขายขยะ
+    wasteSaleRequestIndex,
 }
