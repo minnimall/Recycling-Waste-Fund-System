@@ -215,28 +215,22 @@ const activityPost = (req, res) => {
             console.error('Error uploading file:', err);
             return res.status(400).send({ error: 'File upload failed', details: err });
         }
-
         try {
-            const { title} = req.body;
-
+            const { title, content } = req.body; // แก้ไข: เพิ่ม content ใน destructuring
             // ตรวจสอบว่ามีกิจกรรมที่มี title และ content ซ้ำกันหรือไม่ (กรณีต้องการให้เนื้อหาไม่ซ้ำด้วย)
             const existingActivity = await myActivity.findOne({ title, isDeleted: false });
-
             if (existingActivity) {
                 return res.status(400).redirect('/admin/activity?error=มีกิจกรรมนี้อยู่แล้ว');
             }
-
             // ถ้าไม่มีซ้ำ ให้บันทึก
             const imagePath = req.file
                 ? `/uploads/activity/${req.file.filename}`
                 : '/img/no_image.jpg';
-
             const activity = new myActivity({
                 title,
                 content,
                 img: imagePath
             });
-
             await activity.save();
             console.log('Activity saved successfully:', activity);
             res.redirect('/admin/activity?message=เพิ่มกิจกรรมสำเร็จ');
@@ -246,6 +240,7 @@ const activityPost = (req, res) => {
         }
     });
 };
+
 // ลบกิจกรรม (softDelete)
 const deleteActivity = async (req, res) => {
     try {
