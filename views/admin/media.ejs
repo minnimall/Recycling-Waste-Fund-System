@@ -43,22 +43,21 @@
 
     </script>
     <!-- Modal for Adding/Editing Media -->
-    <div class="screen" id="modal" style="display: none;">
-        <form class="add-media-form" action="/admin/mediaPost" method="POST" id="mediaForm">
-            <div class="media-form-head">
-                <h1>เพิ่มสื่อเนื้อหา</h1>
-            </div>
-            <div class="media-form-content">
-                <div>ชื่อหัวข้อ</div>
-                <input type="text" name="title" id="title" placeholder="ใส่ชื่อหัวข้อ ..." required>
+    <div class="screen z-[10]" id="modal" style="display: none;">
+        <!-- <form class="add-media-form" action="/admin/mediaPost" method="POST" id="mediaForm"> -->
+        <form class="mx-auto mt-[13em] w-1/2 bg-gray-100 border border-gray-300 p-4 rounded-lg shadow-md transition-transform transform relative " action="/admin/mediaPost" method="POST" id="mediaForm">
+                <h1 class="text-bold text-gray-600 text-2xl">เพิ่มสื่อเนื้อหา</h1>
+                <hr class="my-2">
+                <div class="text-bold text-gray-500 text-lg">ชื่อหัวข้อ</div>
+                <input class="w-full p-2 border border-gray-200 rounded-lg" type="text" name="title" id="title" placeholder="ใส่ชื่อหัวข้อ ..." required>
                 
-                <div>URL คลิป YouTube</div>
-                <input type="url" name="youtubeUrl" id="youtubeUrl" placeholder="ใส่ URL คลิป YouTube ..." required>
-            </div>
-            <div class="media-form-action">
-                <span class="cancel" onclick="closeModal()">ยกเลิก</span>
-                <button type="submit" class="submit">ยืนยัน</button>
-            </div>
+                <div class="text-bold text-gray-500 text-lg mt-2">URL คลิป YouTube</div>
+                <input class="w-full p-2 border border-gray-200 rounded-lg" type="url" name="youtubeUrl" id="youtubeUrl" placeholder="ใส่ URL คลิป YouTube ..." required>                
+                <hr class="my-5">
+            <div class="mt-2 flex justify-end">
+                <span class="cancel px-2 py-1 text-white rounded mr-2" onclick="closeModal()">ยกเลิก</span>
+                <button type="submit" class="submit px-2 py-1 text-white rounded">ยืนยัน</button>
+            </div> 
         </form>
     </div>
 
@@ -74,37 +73,33 @@
                 <button type="submit" class="search-button">ค้นหา</button>
             </form>
         </div>
-        <div class="card-container">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-6">
             <% if (media.length > 0) { %>
                 <% media.forEach((amedia ,index)=> { %>
-                <!-- Card -->
-                <div class="card">
-                    <!-- ตรวจสอบว่ามี youtubeUrl แล้วแสดงคลิป -->
-                    <div class="video-container">
-                        <% if (amedia.youtubeUrl && amedia.youtubeUrl.includes('v=')) { %>
-                            <iframe 
-                                src="<%= 'https://www.youtube.com/embed/' + amedia.youtubeUrl.split('v=')[1].split('&')[0] %>"
-                                frameborder="0" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowfullscreen>
-                            </iframe>
-                        <% } else { %>
-                            <p>No video available</p>
-                        <% } %>
-                    </div>
-                    <div class="card-content">
-                        <p class="card-title"><%= amedia.title %></p>
-                        <p class="date">วันที่ <%= amedia.formattedDate %></p>
-                        <div class="flex justify-end">
-                            <button type="button" class="edit-btn" onclick="openEditModal('<%= amedia._id %>', '<%= amedia.title %>', '<%= amedia.youtubeUrl %>')">
-                                <i class="fa fa-edit"></i>
-                            </button>  
-                            <button onclick="deleteMedia('<%= amedia._id %>', '<%= amedia.title %>')" class="delete-btn">
-                                <i class="fa fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
+            <div class="bg-gray-100 border border-gray-300 p-4 rounded-lg shadow-md transition-transform transform hover:scale-105 relative">
+                <!-- <img src="wynncraft_icon.png" alt="Item" class="w-full h-64 object-contain rounded"> -->
+                <% if (amedia.youtubeUrl && amedia.youtubeUrl.includes('v=')) { %>
+                    <iframe class="w-full h-[200px]"
+                        src="<%= 'https://www.youtube.com/embed/' + amedia.youtubeUrl.split('v=')[1].split('&')[0] %>"
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                    </iframe>
+                <% } else { %>
+                    <p>No video available</p>
+                <% } %>
+                <h2 class="text-lg font-medium mt-2 h-[100px] overflow-hidden"><%= amedia.title %></h2>
+                <p class="text-gray-400 text-xs mt-1">วันที่ <%= amedia.formattedDate %></p>
+                <div class="flex flex-auto items-center justify-end">
+                    <button type="button" class="edit-btn" onclick="openEditModal('<%= amedia._id %>', '<%= amedia.title %>', '<%= amedia.youtubeUrl %>')">
+                        <i class="fa fa-edit"></i>
+                    </button>  
+                    <button onclick="deleteMedia('<%= amedia._id %>', '<%= amedia.title %>')" class="delete-btn">
+                        <i class="fa fa-trash"></i>
+                    </button>
                 </div>
+            </div>
                 <% }) %>
             <% } else { %>
                 <div class="mt-3 no-data-container">

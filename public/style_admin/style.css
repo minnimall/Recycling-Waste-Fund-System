@@ -593,6 +593,7 @@ body {
     background: var(--btn-submit);
   }
   .cancel {
+    cursor: pointer;
     background: var(--btn-cancel);
   }
 .was-container {
