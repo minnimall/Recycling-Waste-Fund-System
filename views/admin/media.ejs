@@ -78,7 +78,6 @@
             <% if (media.length > 0) { %>
                 <% media.forEach((amedia ,index)=> { %>
             <div class="bg-gray-100 border border-gray-300 p-4 rounded-lg shadow-md transition-transform transform hover:scale-105 relative">
-                <!-- <img src="wynncraft_icon.png" alt="Item" class="w-full h-64 object-contain rounded"> -->
                 <% if (amedia.youtubeUrl && amedia.youtubeUrl.includes('v=')) { %>
                     <iframe class="w-full h-[200px]"
                         src="<%= 'https://www.youtube.com/embed/' + amedia.youtubeUrl.split('v=')[1].split('&')[0] %>"

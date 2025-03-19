@@ -31,22 +31,25 @@ const dashboardIndex = (req, res)=> {
 
 // สื่อ
 const mediaIndex = (req, res) => {
-    const searchQuery = req.query.search || ''; // ดึงค่าคำค้นหาจาก query string
+    const searchQuery = req.query.search || '';
     const filter = { isDeleted: false };
     
     if (searchQuery) {
-        searchQuery ? { title: { $regex: searchQuery, $options: 'i' } } : {}; // ใช้ regex เพื่อค้นหาตรงกับคำค้นหาหรือไม่
+        filter.$or = [
+            { title: { $regex: searchQuery, $options: 'i' } },
+            { youtubeUrl: { $regex: searchQuery, $options: 'i' } }
+        ];
     }
-
     myMedia.find(filter).sort({ createdAt: -1 })
         .then((result) => {
             result.forEach(item => {
                 item.formattedDate = moment(item.createdAt).format('YYYY-MM-DD');
             });
-            res.render('admin/media', { mytitle: 'Admindashboard | Media', media: result,searchQuery: searchQuery });
+            res.render('admin/media', { mytitle: 'Admindashboard | Media', media: result, searchQuery: searchQuery });
         })
         .catch((err) => {
             console.log(err);
+            res.status(500).send('Internal Server Error');
         });
 };
 // เพิ่มสื่อ (ป้องกันเพิ่มสื่อซ้ำ)
@@ -54,12 +57,10 @@ const mediaPost = async (req, res) => {
     try {
         const { title, youtubeUrl } = req.body;
 
-        // ตรวจสอบว่า youtubeUrl มีค่าและมี URL ของ YouTube
         if (!youtubeUrl || !youtubeUrl.includes('youtube.com/watch?v=')) {
             return res.status(400).redirect('/admin?error=URL ไม่ถูกต้อง');
         }
 
-        // ✅ ตรวจสอบว่าชื่อหรือ URL นี้มีอยู่แล้วหรือไม่
         const existingMedia = await myMedia.findOne({ 
             $or: [{ title }, { youtubeUrl }] 
         });
@@ -148,15 +149,24 @@ const newsPost = async (req, res) => {
     uploadNews(req, res, async (err) => {
         if (err) {
             console.error('Error uploading file:', err);
-            return res.status(400).send({ error: 'File upload failed', details: err.message });
+            if (err instanceof multer.MulterError) {
+                return res.status(400).send({ error: 'File upload failed', details: err.message });
+            } else {
+                return res.status(400).send({ error: 'Invalid file type', details: err.message });
+            }
         }
         try {
-            const { newsTitle, newsDescription } = req.body;
-            const fileNews = req.file.filename;
+            const { newsTitle, newsDescription, newsAuthor } = req.body;
+            let fileNews = '/img/no_image.jpg'; // Default path
+
+            if (req.file) {
+                fileNews = path.join('/uploads/news/PDF/', req.file.filename);
+            }
 
             const newNews = new myNews({
                 newsTitle,
                 newsDescription,
+                newsAuthor,
                 newsFile: fileNews,
             });
             await newNews.save();
@@ -164,7 +174,7 @@ const newsPost = async (req, res) => {
             res.redirect('/admin/news?message=เพิ่มข่าวสารสำเร็จ');
         } catch (error) {
             console.error('Error saving news:', error);
-            res.redirect('/admin/news?error=เกิดข้อผิดพลาดในการเพิ่มข่าวสาร');
+            res.status(500).send({ error: 'Failed to save news', details: error.message });
         }
     });
 };

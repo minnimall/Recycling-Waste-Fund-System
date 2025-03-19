@@ -48,20 +48,31 @@
     
         </script>
             <!-- Main content -->
-            <div class="screen" id="modal">
-                <form class="new-form" action="/admin/newsPost" method="POST" enctype="multipart/form-data">
-                    <h1>เพิ่มกิจกรรม/ข่าวสาร</h1>
-                    <div class="new-form-content">
-                        <label for="activityTitle">หัวข้อกิจกรรม</label> <br>
-                        <input type="text" name="newsTitle" id="newsTitle" required placeholder="ระบุหัวข้อกิจกรรม">
-                        <label for="newsDescription">คำอธิบาย</label> <br>
-                        <input type="text" name="newsDescription" id="newsDescription" required placeholder="คำอธิบาย">
-                        <label for="newsFile">รายละเอียดกิจกรรม (ไฟล์ PDF)</label> <br>
-                        <input type="file" name="newsFile" id="newsFile" accept=".pdf" required>
-                    </div>
-                    <div class="new-form-action">
-                        <button class="submit" type="submit">โพสต์กิจกรรม</button>
-                        <span class="cancel" onclick="closeModal()">ปิด</span>
+            <div class="screen z-[10]" id="modal">
+                <form class="mx-auto mt-[13em] w-1/2 bg-gray-100 border border-gray-300 p-4 rounded-lg shadow-md transition-transform transform relative " action="/admin/newsPost" method="POST" enctype="multipart/form-data">
+                    <h1 class="text-bold text-gray-600 text-2xl">เพิ่มกิจกรรม/ข่าวสาร</h1>
+                    <hr class="my-2">
+                    <label for="activityTitle" class="text-bold text-gray-500 text-lg">หัวข้อกิจกรรม</label> <br>
+                    <input type="text" name="newsTitle" id="newsTitle" class="w-full p-2 border border-gray-200 rounded-lg" required placeholder="ระบุหัวข้อกิจกรรม">
+                    <label for="newsDescription" class="text-bold text-gray-500 text-lg">คำอธิบาย</label> <br>
+                    <input type="text" name="newsDescription" class="w-full p-2 border border-gray-200 rounded-lg" id="newsDescription" required placeholder="คำอธิบาย">
+                    <label for="newsAuthor" class="text-bold text-gray-500 text-lg">ผู้เขียน</label> <br>
+                    <input type="hidden" name="newsAuthor" id="newsAuthor" class="w-full p-2 border border-gray-200 rounded-lg" required placeholder="ระบุชื่อผู้เขียน" value="<%= username %>">
+                    <label for="newsFile" class="text-bold text-gray-500 text-lg">รายละเอียดกิจกรรม (ไฟล์ PDF)</label> <br>
+                    <label class="block w-full p-2 border border-gray-200 rounded-lg">
+                        <span class="sr-only">Choose profile photo</span>
+                        <input type="file" name="newsFile" id="newsFile" accept=".pdf" class="block w-full text-sm text-slate-500
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-full file:border-0
+                            file:text-sm file:font-semibold
+                            file:bg-violet-50 file:text-violet-700
+                            hover:file:bg-violet-100
+                        " required>
+                    </label>
+                    <hr class="my-5">
+                    <div class="mt-2 flex justify-end gap-2">
+                        <button class="submit px-2 py-1 text-white rounded" type="submit">โพสต์กิจกรรม</button>
+                        <span class="cancel px-2 py-1 text-white rounded mr-2" onclick="closeModal()">ปิด</span>
                     </div>
                 </form>
             </div>
@@ -98,7 +109,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-left"><%= newsItem.newsTitle %></td>
                                 <td class="px-6 py-4 whitespace-nowrap text-left"><%= newsItem.newsDescription %></td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center"><%= newsItem.formattedDate %></td>
-                                <td class="px-6 py-4 whitespace-nowrap text-left">31231</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-left"><%= newsItem.newsAuthor%></td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                     <a href="">แก้ไข</a>
                                     <a href="">ลบ</a>

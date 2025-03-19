@@ -13,6 +13,14 @@ const newsSchema = new mongoose.Schema({
     newsFile: {
         type: String,
         required: true,
+    },
+    newsAuthor: {
+        type: String,
+        required: true,
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true });
 
