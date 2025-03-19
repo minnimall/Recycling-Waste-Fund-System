@@ -28,13 +28,11 @@
           </div>
         </div>
       </div>
-      <a href="/logout" id="logoutBtn"
+      <a href="#" id="logoutBtn"
         class="block px-4 py-2 text-red-400 hover:bg-red-800 hover:text-white hover:bg-opacity-30 border-t border-stone-700">
         <i class="fa-solid fa-right-from-bracket mr-2"></i> ออกจากระบบ
       </a>
     </div>
-  </div>
-
   </div>
 </header>
 
@@ -42,7 +40,6 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-
   document.getElementById("user-menu-button").addEventListener("click", function () {
     document.getElementById("user-dropdown").classList.toggle("hidden");
   });
@@ -54,41 +51,31 @@
       dropdown.classList.add("hidden");
     }
   });
+
   document.addEventListener("DOMContentLoaded", function () {
-    const dropbtn = document.querySelector('.dropbtn');
-    const dropdownContent = document.getElementById('dropdownMenu');
+    const logoutBtn = document.getElementById('logoutBtn');
 
-    // กดปุ่ม dropdown ให้แสดง/ซ่อนเมนู
-    dropbtn.addEventListener('click', function (event) {
-      event.stopPropagation();
-      dropdownContent.classList.toggle('show');
-    });
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', function (event) {
+        event.preventDefault();
 
-    // คลิกที่ไหนก็ได้ให้ปิด dropdown
-    window.addEventListener('click', function (event) {
-      if (!event.target.matches('.dropbtn')) {
-        dropdownContent.classList.remove('show');
-      }
-    });
-
-    // ปุ่มออกจากระบบ
-    document.getElementById('logoutBtn').addEventListener('click', function (event) {
-      event.preventDefault();
-
-      Swal.fire({
-        title: "คุณต้องการออกจากระบบหรือไม่?",
-        text: "หากออกจากระบบ คุณต้องเข้าสู่ระบบใหม่",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
-        confirmButtonText: "ออกจากระบบ",
-        cancelButtonText: "ยกเลิก"
-      }).then((result) => {
-        if (result.isConfirmed) {
-          window.location.href = "/logout";
-        }
+        Swal.fire({
+          title: "คุณต้องการออกจากระบบหรือไม่?",
+          text: "หากออกจากระบบ คุณต้องเข้าสู่ระบบใหม่",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+          confirmButtonText: "ออกจากระบบ",
+          cancelButtonText: "ยกเลิก"
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = "/logout";
+          }
+        });
       });
-    });
+    } else {
+      console.error("ไม่พบปุ่มออกจากระบบ (logoutBtn)");
+    }
   });
 </script>
