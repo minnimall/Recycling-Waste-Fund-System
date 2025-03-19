@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="/style_employee/wastePurchase.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
 
 <body>
@@ -154,7 +156,7 @@
                                 </a>
                             </td>
                             <td class="purchaseEmp">kb</td>
-                            <td class="purchaseAction">
+                            <td class="purchaseAction flex gap-1">
                                 <button onclick="showModalDelete('<%= index + 1 %>','<%= purchase._id %>')" class="delete-btn">
                                     <i class="fa fa-trash"></i>
                                 </button>

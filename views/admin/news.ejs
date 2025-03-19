@@ -78,23 +78,38 @@
                             <button>ค้นหา</button>
                         </form>
                     </div>
-                    <% if (news && news.length > 0) { %>
-                        <% news.forEach((newsItem, index) => { %>
-                    <div>
-                        <div class="w-full h-24 flex items-center bg-gray-100 border border-gray-300 p-4 rounded-lg shadow-md transition-transform transform mt-2">
-                            <i class="fa-solid fa-file text-3xl mr-3 ml-1"></i>
-                            <div>
-                                <div class="text-xl"><%= newsItem.newsTitle %></div>
-                                <div class="text-stone-400"><%= newsItem.newsDescription %></div>
-                                <div class="text-stone-400"><%= newsItem.formattedDate %></div>
-                            </div>
-                            
-                        </div>
-                    </div>
-                        <% }) %>
-                    <% } else { %>
-                        <p>There are no media to display ....</p>
-                    <% } %>
+
+                    <table class="min-w-full divide-y divide-gray-200 mt-4">
+                        <thead class="bg-gray-50">
+                            <tr class="bg-green-700 text-white">
+                                <th class="px-6 py-3 text-lg font-medium tracking-wider text-center uppercase">ลำดับที่</th>
+                                <th class="px-6 py-3 text-lg font-medium tracking-wider text-left uppercase">หัวข้อ</th>
+                                <th class="px-6 py-3 text-lg font-medium tracking-wider text-left uppercase">คำอธิบาย</th>
+                                <th class="px-6 py-3 text-lg font-medium tracking-wider text-center uppercase">วันที่โพส</th>
+                                <th class="px-6 py-3 text-lg font-medium tracking-wider text-left uppercase">ผู้ที่โพส</th>
+                                <th class="px-6 py-3 text-lg font-medium tracking-wider text-center uppercase">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modalHeaderInfo" class="bg-white divide-y divide-gray-200">
+                            <% if (news && news.length > 0) { %>
+                                <% news.forEach((newsItem, index) => { %>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">1</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-left"><%= newsItem.newsTitle %></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-left"><%= newsItem.newsDescription %></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center"><%= newsItem.formattedDate %></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-left">31231</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <a href="">แก้ไข</a>
+                                    <a href="">ลบ</a>
+                                </td>
+                            </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <td colspan="5">There are no media to display ....</td>
+                            <% } %>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 </body>

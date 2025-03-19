@@ -1,34 +1,39 @@
 <header>
-    <div>
-      <img src="../img/admin/logo.png" alt="Logo">
-    </div>
+  <div>
+    <img src="../img/admin/logo.png" alt="Logo">
+  </div>
 
-    <div class="relative">
-        <button id="user-menu-button" class="text-m text-white px-4 py-2 rounded-lg shadow-md bg-gray-800 border border-gray-700 flex items-center">
-            <img src="../img/admin/logo.png" class="h-12 mr-2 rounded-full">
-            <div class="text-left">
-                <div class="font-semibold">ยินดีต้อนรับ : <%= username %> ▾</div>
-                <div>
-                  <span class="text-yellow-300">ตำแหน่ง : </span>
-                </div>
-            </div>
-        </button>
-    
-        <!-- Dropdown Content -->
-        <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-stone-900 border border-stone-700 shadow-md rounded-lg overflow-hidden z-[10]">
-            <div class="text-m text-white px-4 py-2 flex items-center">
-                <img src="../img/admin/logo.png" class="h-10 mr-2">
-                <div class="text-xs">
-                    <div class="font-bold"><%= username %></div>
-                    <div><span class="text-yellow-300 mr-2">ตำแหน่ง : </span>
-                    </div>
-                </div>
-            </div>
-            <a href="/logout" id="logoutBtn" class="block px-4 py-2 text-red-400 hover:bg-red-800 hover:text-white hover:bg-opacity-30 border-t border-stone-700">
-                <i class="fa-solid fa-right-from-bracket mr-2"></i> ออกจากระบบ
-            </a>
+  <div class="relative">
+    <button id="user-menu-button"
+      class="text-m text-white px-4 py-2 rounded-lg shadow-md bg-gray-800 border border-gray-700 flex items-center">
+      <img src="../img/admin/logo.png" class="h-12 mr-2 rounded-full">
+      <div class="text-left">
+        <div class="font-semibold">ยินดีต้อนรับ : <%= username %> ▾</div>
+        <div>
+          <span class="text-yellow-300">ตำแหน่ง : </span>
         </div>
+      </div>
+    </button>
+
+    <!-- Dropdown Content -->
+    <div id="user-dropdown"
+      class="hidden absolute right-0 mt-2 w-48 bg-stone-900 border border-stone-700 shadow-md rounded-lg overflow-hidden z-[10]">
+      <div class="text-m text-white px-4 py-2 flex items-center">
+        <img src="../img/admin/logo.png" class="h-10 mr-2">
+        <div class="text-xs">
+          <div class="font-bold">
+            <%= username %>
+          </div>
+          <div><span class="text-yellow-300 mr-2">ตำแหน่ง : </span>
+          </div>
+        </div>
+      </div>
+      <a href="/logout" id="logoutBtn"
+        class="block px-4 py-2 text-red-400 hover:bg-red-800 hover:text-white hover:bg-opacity-30 border-t border-stone-700">
+        <i class="fa-solid fa-right-from-bracket mr-2"></i> ออกจากระบบ
+      </a>
     </div>
+  </div>
 
   </div>
 </header>
@@ -37,17 +42,18 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-      document.getElementById("user-menu-button").addEventListener("click", function () {
-        document.getElementById("user-dropdown").classList.toggle("hidden");
-    });
 
-    document.addEventListener("click", function (event) {
-        const dropdown = document.getElementById("user-dropdown");
-        const button = document.getElementById("user-menu-button");
-        if (!button.contains(event.target) && !dropdown.contains(event.target)) {
-            dropdown.classList.add("hidden");
-        }
-    });
+  document.getElementById("user-menu-button").addEventListener("click", function () {
+    document.getElementById("user-dropdown").classList.toggle("hidden");
+  });
+
+  document.addEventListener("click", function (event) {
+    const dropdown = document.getElementById("user-dropdown");
+    const button = document.getElementById("user-menu-button");
+    if (!button.contains(event.target) && !dropdown.contains(event.target)) {
+      dropdown.classList.add("hidden");
+    }
+  });
   document.addEventListener("DOMContentLoaded", function () {
     const dropbtn = document.querySelector('.dropbtn');
     const dropdownContent = document.getElementById('dropdownMenu');
