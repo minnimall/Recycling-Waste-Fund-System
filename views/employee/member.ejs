@@ -207,20 +207,25 @@
                             
                             <div class="mb-4 text-start">
                                 <label class="block text-gray-700 mb-2">เงื่อนไขการรับเงิน</label>
-                                <div class="flex flex-col space-y-2 items-start">
-                                    <label class="flex items-center justify-start">
-                                        <input type="radio" name="beneficiaries[0][distributionType]" value="full" class="mr-2" checked>
-                                        <span>ให้ได้รับเต็มจำนวน</span>
-                                    </label>
-                                    <label class="flex items-center justify-start">
-                                        <input type="radio" name="beneficiaries[0][distributionType]" value="equal" class="mr-2">
-                                        <span>ให้ได้รับส่วนแบ่งเท่ากัน</span>
-                                    </label>
-                                    <label class="flex items-center justify-start">
-                                        <input type="radio" name="beneficiaries[0][distributionType]" value="other" class="mr-2">
-                                        <span>อื่นๆ</span>
-                                    </label>
-                                    <input type="text" name="beneficiaries[0][distributionDetail]" class="p-2 border rounded w-full md:w-1/2 mt-2" placeholder="โปรดระบุ">
+                                <div class="flex flex-col space-y-3">
+                                    <div class="grid grid-cols-[24px_1fr] items-start gap-2">
+                                        <input type="radio" name="beneficiaries[0][distributionType]" value="full" class="mt-0.5" checked>
+                                        <label class="text-gray-700">ให้ได้รับเต็มจำนวน</label>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-[24px_1fr] items-start gap-2">
+                                        <input type="radio" name="beneficiaries[0][distributionType]" value="equal" class="mt-0.5">
+                                        <label class="text-gray-700">ให้ได้รับส่วนแบ่งเท่ากัน</label>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-[24px_1fr] items-start gap-2">
+                                        <input type="radio" name="beneficiaries[0][distributionType]" value="other" class="mt-0.5">
+                                        <label class="text-gray-700">อื่นๆ</label>
+                                    </div>
+                                    
+                                    <div class="pl-[24px]">
+                                        <input type="text" name="beneficiaries[0][distributionDetail]" class="p-2 border rounded w-full md:w-1/2" placeholder="โปรดระบุ">
+                                    </div>
                                 </div>                                
                             </div>
                         </div>
