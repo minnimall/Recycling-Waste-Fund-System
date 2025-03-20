@@ -2,10 +2,9 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const wasteBankAccountSchema = new Schema({
-    HouseholdID: {
-        type: Schema.Types.ObjectId,
-        ref: 'Household', // เชื่อมกับตาราง Household
-        required: true
+    familyID: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Family', required: true 
     },
     AccountName: {
         type: String,
@@ -16,11 +15,6 @@ const wasteBankAccountSchema = new Schema({
         required: true,
         unique: true
     },
-    Type: { // ชนิดของบัญชี เช่น บ้าน, โรงเรียน, อปท. หรือ ชุมชน
-        type: String,
-        enum: ['household','school', 'municipality', 'community'],
-        required: true
-    },
     Balance: {
         type: Number,
         required: true,
@@ -28,7 +22,12 @@ const wasteBankAccountSchema = new Schema({
     },
     OpenDate: {
         type: Date,
-        required: true
+        required: true,
+        default: Date.now
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true });
 

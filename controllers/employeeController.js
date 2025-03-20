@@ -13,9 +13,13 @@ const myActivity = require('../models/activity');
 const Village = require('../models/village')
 const Round = require('../models/round');
 const wasteSaleRequest = require('../models/wasteSaleRequest');
+const Family = require('../models/family');
+const Member = require('../models/member');
+const WasteBankAccount = require('../models/wasteBankAccount');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const moment = require('moment');
+const mongoose = require('mongoose');
 
 router.use(express.static(path.join(__dirname, '../public')));
 
@@ -197,10 +201,135 @@ const wastePurchaseDelete = async (req, res) => {
         res.redirect('/employee/wastePurchaseTotal?error=เกิดข้อผิดพลาดในการลบข้อมูล');
     }
 };
-//หน้าสมาชิกกองทุนขยะรีไซเคิล
-const memberIndex = (req, res)=> {
-    res.render('employee/member', { mytitle: 'Employeedashboard | Member'})
-}
+const memberIndex = async (req, res) => {
+    try {
+        // ดึงข้อมูล village จากฐานข้อมูล
+        const villages = await Village.find(); // ตรวจสอบให้แน่ใจว่าโมเดล Village ถูก import แล้ว
+        
+        res.render('employee/member', { 
+            mytitle: 'Employeedashboard | Member',
+            villages: villages // ส่ง village ไปยัง view
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+};
+
+// สร้างเลขบัญชีแบบสุ่ม
+const generateAccountNumber = () => {
+    const prefix = 'WB';
+    const random = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+    return `${prefix}${random}`;
+};
+
+// ฟังก์ชันลงทะเบียนครัวเรือนและสมาชิกใหม่
+const memberRegister = async (req, res) => {
+    const session = await mongoose.startSession();  // เริ่ม session
+    session.startTransaction();  // เริ่ม transaction
+
+    try {
+        // ตรวจสอบว่า village ที่ระบุมีอยู่จริงหรือไม่
+        const village = await Village.findById(req.body.village).session(session);
+        if (!village) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.redirect('/employee/member?error=ไม่พบหมู่บ้านที่ระบุ');
+        }
+
+        // ตรวจสอบ username
+        const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+        if (!usernameRegex.test(req.body.username)) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.redirect('/employee/member?error=ชื่อผู้ใช้ต้องมี 3-20 ตัวอักษรและไม่มีอักขระพิเศษ');
+        }
+
+        // ตรวจสอบว่าชื่อผู้ใช้ซ้ำหรือไม่
+        const existingUser = await Family.findOne({ username: req.body.username }).session(session);
+        if (existingUser) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.redirect('/employee/member?error=ชื่อผู้ใช้นี้ถูกใช้ไปแล้ว');
+        }
+
+        // ตรวจสอบว่ามีอีเมลหรือเบอร์โทรซ้ำหรือไม่
+        const existingMember = await Member.findOne({
+            $or: [{ email: req.body.email }, { phone: req.body.phone },{ idCardNumber: req.body.idCardNumber }]
+        }).session(session);
+        if (existingMember) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.redirect('/employee/member?error=อีเมลหรือหมายเลขโทรศัพท์นี้ถูกใช้ไปแล้ว');
+        }
+
+        // 1. สร้างข้อมูลครอบครัว
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+        const family = new Family({
+            familyName: req.body.familyName,
+            username: req.body.username,
+            password: hashedPassword,
+            address: {
+                houseNumber: req.body.houseNumber,
+                moo: req.body.moo,
+                road: req.body.road,
+                subdistrict: req.body.subdistrict,
+                district: req.body.district,
+                province: req.body.province,
+                postalCode: req.body.postalCode
+            },
+            NumFamilyMembers: req.body.NumFamilyMembers, // ✅ (แก้ไขตัวสะกดให้ถูกต้อง)
+            village: village._id, 
+            Type: req.body.Type || 'household'
+        });
+
+        const savedFamily = await family.save({ session });
+
+        // 2. สร้างสมาชิกคนแรก (ตัวแทนครอบครัว)
+        const member = new Member({
+            familyID: savedFamily._id,
+            name: req.body.name,
+            email: req.body.email,
+            phone: req.body.phone,
+            idCardNumber: req.body.idCardNumber,
+            birthDate: req.body.birthDate,
+            occupation: req.body.occupation,
+            age: req.body.age,
+            nationality: req.body.nationality,
+            ethnicity: req.body.ethnicity,
+            religion: req.body.religion,
+            beneficiaries: req.body.beneficiaries || [],
+            Status: 'living'
+        });
+
+        await member.save({ session });
+
+        // 3. สร้างบัญชีธนาคารขยะอัตโนมัติ
+        const accountNumber = generateAccountNumber();
+        const account = new WasteBankAccount({
+            familyID: savedFamily._id,
+            AccountName: savedFamily.familyName,
+            AccountNumber: accountNumber,
+            Balance: 0,
+            OpenDate: new Date()
+        });
+
+        await account.save({ session });
+
+        // ✅ Transaction สำเร็จ
+        await session.commitTransaction();
+        session.endSession();
+
+        res.redirect('/employee/member?message=ลงทะเบียนครัวเรือนสำเร็จ');
+
+    } catch (error) {
+        await session.abortTransaction();  // ❌ Rollback ถ้ามีข้อผิดพลาด
+        session.endSession();
+
+        console.error('Error registering household:', error);
+        res.redirect('/employee/member?error=เกิดข้อผิดพลาดในการลงทะเบียน: ' + error.message);
+    }
+};
 
 //หน้าตรวจสอบความประสงค์ขายขยะ
 const wasteSaleRequestIndex = async (req, res) => {
@@ -234,7 +363,7 @@ module.exports = {
     //หน้าสรุปการรับซื้อขยะ
     wastePurchaseTotalIndex,wastePurchaseDelete,
     //หน้าสมาชิกกองทุนขยะรีไซเคิล
-    memberIndex,
+    memberIndex,memberRegister,
     //หน้าตรวจสอบความประสงค์ขายขยะ
     wasteSaleRequestIndex,
 }

@@ -11,6 +11,7 @@ const session = require('express-session');
 const bodyParser = require('body-parser'); // เพิ่มการนำเข้า body-parser
 const Admin = require('./models/admin')
 const village = require('./models/village')
+const Family = require('./models/family');
 const methodOverride = require('method-override'); //สำหรับแก้ไขข้อมูล
 
 //ทำการเรียก module หรือ function "express" ขึ้นมาทำงานและสร้าง
@@ -146,7 +147,12 @@ app.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
     try {
-        const user = await Admin.findOne({ username });
+        let user = await Admin.findOne({ username });
+
+        if (!user) {
+            user = await Family.findOne({ username });
+        }
+
         if (!user) {
             return res.redirect('/login?error=ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
         }
@@ -165,7 +171,9 @@ app.post('/login', async (req, res) => {
             res.redirect('/admin');
         } else if (user.role === 'employee') {
             res.redirect('/employee');
-        }else{
+        } else if (user.role === 'user') { // เพิ่มการเปลี่ยนเส้นทางสำหรับ user
+            res.redirect('/user');
+        } else {
             res.status(403).render('error', { errorMessage: 'กรุณาตรวจสอบสิทธิ์ของคุณ หรือกลับไปที่หน้า Login' });
         }
     } catch (err) {

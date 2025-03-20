@@ -20,22 +20,22 @@
 
         if (successMessage) {
             Swal.fire({
-                toast: true,
-                position: 'top-end',
                 icon: 'success',
-                title: successMessage,
-                showConfirmButton: false,
+                title: 'สำเร็จ!',
+                text: successMessage,
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#28a745', // สีเขียวสำหรับความสำเร็จ
                 timer: 3000
             });
         }
 
         if (errorMessage) {
             Swal.fire({
-                toast: true,
-                position: 'top-end',
                 icon: 'error',
-                title: errorMessage,
-                showConfirmButton: false,
+                title: 'เกิดข้อผิดพลาด!',
+                text: errorMessage,
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#d33',
                 timer: 3000
             });
         }
@@ -43,210 +43,292 @@
 
     <div class="container mx-auto p-6">
         <div class="bg-white p-6 rounded-lg shadow-md">
-            <h1 class="text-2xl font-bold mb-4">ลงทะเบียนครัวเรือนและสมาชิก</h1>
+            <h1 class="text-2xl font-bold mb-6">สมัครเข้าร่วมกองทุนขยะรีไซเคิล</h1>
             
             <!-- ฟอร์มลงทะเบียนครัวเรือน -->
-            <form action="/employee/household/register" method="POST" class="space-y-4">
-                <!-- ข้อมูลตัวแทนครัวเรือน -->
-                <div>
-                    <label class="block font-medium">ชื่อ-สกุล ตัวแทน</label>
-                    <input type="text" name="representativeName" required class="w-full p-2 border rounded">
-                </div>
-                <div>
-                    <label class="block font-medium">บัตรประชาชน</label>
-                    <input type="text" name="idCard" required class="w-full p-2 border rounded">
-                </div>
+            <form action="/employee/memberRegister" method="POST" class="space-y-6">
                 
-                <!-- ข้อมูลครัวเรือน -->
-                <div>
-                    <label class="block font-medium">ชื่อครัวเรือน</label>
-                    <input type="text" name="householdName" required class="w-full p-2 border rounded">
-                </div>
-                <div>
-                    <label class="block font-medium">ที่อยู่</label>
-                    <input type="text" name="address" required class="w-full p-2 border rounded">
-                </div>
-                <div>
-                    <label class="block font-medium">หมู่บ้าน</label>
-                    <select name="village" required class="w-full p-2 border rounded">
-                        <option value="">เลือกหมู่บ้าน</option>
-                        <option value="1">หมู่ที่ 1</option>
-                        <option value="2">หมู่ที่ 2</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block font-medium">ประเภทครัวเรือน</label>
-                    <select name="householdType" required class="w-full p-2 border rounded">
-                        <option value="household">บ้าน</option>
-                        <option value="school">โรงเรียน</option>
-                        <option value="municipality">อปท.</option>
-                        <option value="community">ชุมชน</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block font-medium">เงื่อนไขการรับเงินสวัสดิการขยะประกันชีวิต (หากข้าพเจ้าถึงแก่กรรม) ขอมอบให้</label>
-
-                </div>
-                
-                <!-- เพิ่มสมาชิกในครัวเรือน -->
-                <div id="members">
-                    <h2 class="text-lg font-bold">สมาชิกในครัวเรือน</h2>
-                    <div class="member-entry space-y-2">
-                        <input type="text" name="members[]" placeholder="ชื่อ-สกุล" class="w-full p-2 border rounded">
+                <!-- ส่วนที่ 1: ข้อมูลครัวเรือน -->
+                <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+                    <h2 class="text-lg font-semibold mb-4 text-green-700">1. ข้อมูลครัวเรือน</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-700 mb-2">ชื่อครัวเรือน</label>
+                            <input type="text" name="familyName" class="w-full p-2 border rounded" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 mb-2">ประเภทครัวเรือน</label>
+                            <select name="Type" class="w-full p-2 border rounded" required>
+                                <option value="household">บ้านเรือน</option>
+                                <option value="school">โรงเรียน</option>
+                                <option value="municipality">อปท.</option>
+                                <option value="community">ชุมชน</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-700 mb-2">ชื่อผู้ใช้ (Username)</label>
+                            <input type="text" name="username" class="w-full p-2 border rounded" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 mb-2">รหัสผ่าน</label>
+                            <input type="password" name="password" class="w-full p-2 border rounded" required>
+                        </div>
+                    </div>
+                    
+                    <h3 class="font-medium text-gray-700 mt-4 mb-2">ที่อยู่</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-gray-700 mb-2">บ้านเลขที่</label>
+                            <input type="text" name="houseNumber" class="w-full p-2 border rounded">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 mb-2">หมู่บ้าน</label>
+                            <select name="village" class="w-full p-2 border rounded">
+                                <% villages.forEach(village => { %>
+                                    <option value="<%= village._id %>">หมู่ <%= village.villageNumber %> - <%= village.villageName %></option>
+                                <% }); %>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 mb-2">ถนน</label>
+                            <input type="text" name="road" class="w-full p-2 border rounded">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                        <div>
+                            <label class="block text-gray-700 mb-2">ตำบล</label>
+                            <input type="text" name="subdistrict" class="w-full p-2 border rounded" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 mb-2">อำเภอ</label>
+                            <input type="text" name="district" class="w-full p-2 border rounded" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 mb-2">จังหวัด</label>
+                            <input type="text" name="province" class="w-full p-2 border rounded" value="ขอนแก่น" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label class="block text-gray-700 mb-2">รหัสไปรษณีย์</label>
+                        <input type="text" name="postalCode" class="w-full md:w-1/3 p-2 border rounded">
                     </div>
                 </div>
-                <button type="button" id="addMember" class="bg-blue-500 text-white px-4 py-2 rounded">เพิ่มสมาชิก</button>
                 
-                <!-- เงื่อนไขการรับเงิน -->
-                <div>
-                    <select name="paymentCondition" required class="w-full p-2 border rounded">
-                        <option value="full">ได้รับเงินเต็มจำนวน</option>
-                        <option value="shared">ได้รับส่วนแบ่งเท่ากัน</option>
-                        <option value="other">อื่นๆ</option>
-                    </select>
+                <!-- ส่วนที่ 2: ข้อมูลสมาชิก (ตัวแทนครอบครัว) -->
+                <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+                    <h2 class="text-lg font-semibold mb-4 text-green-700">2. ข้อมูลสมาชิก (ตัวแทนครอบครัว)</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-700 mb-2">ชื่อ-สกุล</label>
+                            <input type="text" name="name" class="w-full p-2 border rounded" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 mb-2">เลขบัตรประชาชน</label>
+                            <input type="text" name="idCardNumber" class="w-full p-2 border rounded" maxlength="13">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 mb-2">วัน/เดือน/ปีเกิด</label>
+                            <input type="date" name="birthDate" class="w-full p-2 border rounded">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-700 mb-2">อาชีพ</label>
+                            <input type="text" name="occupation" class="w-full p-2 border rounded">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 mb-2">อายุ (ปี)</label>
+                            <input type="text" name="age" class="w-full p-2 border rounded">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 mb-2">สัญชาติ</label>
+                            <input type="text" name="nationality" class="w-full p-2 border rounded" value="ไทย">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-700 mb-2">เชื้อชาติ</label>
+                            <input type="text" name="ethnicity" class="w-full p-2 border rounded" value="ไทย">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 mb-2">ศาสนา</label>
+                            <input type="text" name="religion" class="w-full p-2 border rounded" value="พุทธ">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 mb-2">เบอร์โทรศัพท์</label>
+                            <input type="tel" name="phone" class="w-full p-2 border rounded">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">อีเมล</label>
+                        <input type="email" name="email" class="w-full md:w-1/2 p-2 border rounded">
+                    </div>
                 </div>
                 
-                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded w-full">ลงทะเบียน</button>
+                <!-- ส่วนที่ 3: ผู้รับผลประโยชน์ -->
+                <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+                    <h2 class="text-lg font-semibold mb-4 text-green-700">3. เงื่อนไขการรับสวัสดิการ</h2>
+                    
+                    <div id="beneficiaries-container">
+                        <div class="beneficiary-item border-b pb-4 mb-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-gray-700 mb-2">ชื่อ-สกุล ผู้รับผลประโยชน์</label>
+                                    <input type="text" name="beneficiaries[0][name]" class="w-full p-2 border rounded">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-gray-700 mb-2">ความสัมพันธ์</label>
+                                    <input type="text" name="beneficiaries[0][relation]" class="w-full p-2 border rounded">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4 text-start">
+                                <label class="block text-gray-700 mb-2">เงื่อนไขการรับเงิน</label>
+                                <div class="flex flex-col space-y-2 items-start">
+                                    <label class="flex items-center justify-start">
+                                        <input type="radio" name="beneficiaries[0][distributionType]" value="full" class="mr-2" checked>
+                                        <span>ให้ได้รับเต็มจำนวน</span>
+                                    </label>
+                                    <label class="flex items-center justify-start">
+                                        <input type="radio" name="beneficiaries[0][distributionType]" value="equal" class="mr-2">
+                                        <span>ให้ได้รับส่วนแบ่งเท่ากัน</span>
+                                    </label>
+                                    <label class="flex items-center justify-start">
+                                        <input type="radio" name="beneficiaries[0][distributionType]" value="other" class="mr-2">
+                                        <span>อื่นๆ</span>
+                                    </label>
+                                    <input type="text" name="beneficiaries[0][distributionDetail]" class="p-2 border rounded w-full md:w-1/2 mt-2" placeholder="โปรดระบุ">
+                                </div>                                
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="button" id="add-beneficiary" class="text-blue-500 hover:text-blue-700 font-medium flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+                        </svg>
+                        เพิ่มผู้รับผลประโยชน์
+                    </button>
+                    
+                    <div class="mt-6">
+                        <label class="block text-gray-700 mb-2">จำนวนคนที่อาศัยในครัวเรือน (คน)</label>
+                        <input type="number" name="NumFamilyMembers" class="w-full md:w-1/4 p-2 border rounded">
+                    </div>
+                </div>
+                
+                <div class="p-4 bg-gray-100 rounded-md border border-gray-200">
+                    <p class="mb-4">ข้าพเจ้าได้อ่านเข้าใจในเงื่อนไขและระเบียบกองทุนขยะรีไซเคิลแล้ว ยินดีปฏิบัติตามทุกประการ</p>
+                    <p class="text-gray-600 text-sm mb-4"><strong>หมายเหตุ:</strong> ผู้ที่เข้าร่วมกองทุนฯ ต้องดำเนินการคัดแยกขยะตามประเภท เพื่อเป็นการลดขยะตั้งแต่ต้นทาง</p>
+                </div>
+                
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded font-medium w-full">ลงทะเบียน</button>
             </form>
         </div>
     </div>
 
-    <div>
-        <form class="bg-white rounded-lg shadow-sm m-4 dark:bg-gray-800">
-            <div class="grid gap-6 mb-6 md:grid-cols-2">
-                <div>
-                    <label for="first_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">First name</label>
-                    <input type="text" id="first_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="John" required />
-                </div>
-                <div>
-                    <label for="last_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Last name</label>
-                    <input type="text" id="last_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Doe" required />
-                </div>
-                <div>
-                    <label for="company" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Company</label>
-                    <input type="text" id="company" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Flowbite" required />
-                </div>  
-                <div>
-                    <label for="phone" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Phone number</label>
-                    <input type="tel" id="phone" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="123-45-678" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" required />
-                </div>
-                <div>
-                    <label for="website" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Website URL</label>
-                    <input type="url" id="website" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="flowbite.com" required />
-                </div>
-                <div>
-                    <label for="visitors" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Unique visitors (per month)</label>
-                    <input type="number" id="visitors" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="" required />
-                </div>
-            </div>
-            <div class="mb-6">
-                <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email address</label>
-                <input type="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="john.doe@company.com" required />
-            </div> 
-            <div class="mb-6">
-                <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
-                <input type="password" id="password" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="•••••••••" required />
-            </div> 
-            <div class="mb-6">
-                <label for="confirm_password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Confirm password</label>
-                <input type="password" id="confirm_password" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="•••••••••" required />
-            </div> 
-            <div class="flex items-start mb-6">
-                <div class="flex items-center h-5">
-                <input id="remember" type="checkbox" value="" class="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800" required />
-                </div>
-                <label for="remember" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">I agree with the <a href="#" class="text-blue-600 hover:underline dark:text-blue-500">terms and conditions</a>.</label>
-            </div>
-            <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
-        </form>
-    </div>
-
-        
-
-
-
     <%- include('../partials/employeePartials/empFooter.ejs') %>
 </body>
 <script>
-    document.getElementById('addMember').addEventListener('click', function() {
-        const memberDiv = document.createElement('div');
-        memberDiv.classList.add('member-entry', 'space-y-2');
-        memberDiv.innerHTML = `<input type="text" name="members[]" placeholder="ชื่อ-สกุล" class="w-full p-2 border rounded">`;
-        document.getElementById('members').appendChild(memberDiv);
-    });
-
-    var currentTab = 0; // Current tab is set to be the first tab (0)
-    showTab(currentTab); // Display the current tab
-
-    function showTab(n) {
-    // This function will display the specified tab of the form ...
-    var x = document.getElementsByClassName("tab");
-    x[n].style.display = "block";
-    // ... and fix the Previous/Next buttons:
-    if (n == 0) {
-        document.getElementById("prevBtn").style.display = "none";
-    } else {
-        document.getElementById("prevBtn").style.display = "inline";
-    }
-    if (n == (x.length - 1)) {
-        document.getElementById("nextBtn").innerHTML = "Submit";
-    } else {
-        document.getElementById("nextBtn").innerHTML = "Next";
-    }
-    // ... and run a function that displays the correct step indicator:
-    fixStepIndicator(n)
-    }
-
-    function nextPrev(n) {
-    // This function will figure out which tab to display
-    var x = document.getElementsByClassName("tab");
-    // Exit the function if any field in the current tab is invalid:
-    if (n == 1 && !validateForm()) return false;
-    // Hide the current tab:
-    x[currentTab].style.display = "none";
-    // Increase or decrease the current tab by 1:
-    currentTab = currentTab + n;
-    // if you have reached the end of the form... :
-    if (currentTab >= x.length) {
-        //...the form gets submitted:
-        document.getElementById("regForm").submit();
-        return false;
-    }
-    // Otherwise, display the correct tab:
-    showTab(currentTab);
-    }
-
-    function validateForm() {
-    // This function deals with validation of the form fields
-    var x, y, i, valid = true;
-    x = document.getElementsByClassName("tab");
-    y = x[currentTab].getElementsByTagName("input");
-    // A loop that checks every input field in the current tab:
-    for (i = 0; i < y.length; i++) {
-        // If a field is empty...
-        if (y[i].value == "") {
-        // add an "invalid" class to the field:
-        y[i].className += " invalid";
-        // and set the current valid status to false:
-        valid = false;
+    // JavaScript สำหรับเพิ่มผู้รับผลประโยชน์
+    document.getElementById('add-beneficiary').addEventListener('click', function() {
+        const container = document.getElementById('beneficiaries-container');
+        const beneficiaryCount = container.getElementsByClassName('beneficiary-item').length;
+        const index = beneficiaryCount;
+        
+        const newBeneficiary = document.createElement('div');
+        newBeneficiary.className = 'beneficiary-item border-b pb-4 mb-4';
+        newBeneficiary.innerHTML = `
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="font-medium">ผู้รับผลประโยชน์ ${index + 1}</h3>
+                <button type="button" class="text-red-500 hover:text-red-700 remove-beneficiary">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-gray-700 mb-2">ชื่อ-สกุล ผู้รับผลประโยชน์</label>
+                    <input type="text" name="beneficiaries[${index}][name]" class="w-full p-2 border rounded">
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 mb-2">ความสัมพันธ์</label>
+                    <input type="text" name="beneficiaries[${index}][relation]" class="w-full p-2 border rounded">
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2">เงื่อนไขการรับเงิน</label>
+                <div class="flex flex-col space-y-2">
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="beneficiaries[${index}][distributionType]" value="full" class="mr-2" checked>
+                        <span>ให้ได้รับเต็มจำนวน</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="beneficiaries[${index}][distributionType]" value="equal" class="mr-2">
+                        <span>ให้ได้รับส่วนแบ่งเท่ากัน</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="beneficiaries[${index}][distributionType]" value="other" class="mr-2">
+                        <span>อื่นๆ</span>
+                    </label>
+                    <input type="text" name="beneficiaries[${index}][distributionDetail]" class="p-2 border rounded w-full md:w-1/2 mt-2" placeholder="โปรดระบุ">
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(newBeneficiary);
+        
+        // เพิ่ม event listener สำหรับปุ่มลบ
+        const removeButtons = document.getElementsByClassName('remove-beneficiary');
+        for (let btn of removeButtons) {
+            btn.addEventListener('click', function() {
+                this.closest('.beneficiary-item').remove();
+                // อัพเดต index สำหรับผู้รับผลประโยชน์ที่เหลือ
+                updateBeneficiaryIndexes();
+            });
         }
-    }
-    // If the valid status is true, mark the step as finished and valid:
-    if (valid) {
-        document.getElementsByClassName("step")[currentTab].className += " finish";
-    }
-    return valid; // return the valid status
-    }
-
-    function fixStepIndicator(n) {
-    // This function removes the "active" class of all steps...
-    var i, x = document.getElementsByClassName("step");
-    for (i = 0; i < x.length; i++) {
-        x[i].className = x[i].className.replace(" active", "");
-    }
-    //... and adds the "active" class to the current step:
-    x[n].className += " active";
+    });
+    
+    // ฟังก์ชันอัพเดต index ของผู้รับผลประโยชน์
+    function updateBeneficiaryIndexes() {
+        const beneficiaryItems = document.getElementsByClassName('beneficiary-item');
+        for (let i = 0; i < beneficiaryItems.length; i++) {
+            const inputs = beneficiaryItems[i].querySelectorAll('input[name^="beneficiaries"]');
+            for (let input of inputs) {
+                const name = input.getAttribute('name');
+                input.setAttribute('name', name.replace(/beneficiaries\[\d+\]/, `beneficiaries[${i}]`));
+            }
+            
+            const title = beneficiaryItems[i].querySelector('h3');
+            if (title && i > 0) { // ไม่อัพเดตชื่อผู้รับผลประโยชน์คนแรก
+                title.textContent = `ผู้รับผลประโยชน์ ${i + 1}`;
+            }
+        }
     }
 </script>
 </html>

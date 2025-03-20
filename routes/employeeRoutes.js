@@ -15,6 +15,7 @@ router.delete('/wastePurchaseDelete/:id', employeeController.wastePurchaseDelete
 
 // สมาชิกกองทุนขยะรีไซเคิล
 router.get('/member', employeeController.memberIndex);
+router.post('/memberRegister', employeeController.memberRegister);
 
 // ตรวจสอบความประสงค์ขายขยะ
 router.get('/wasteSaleRequest', employeeController.wasteSaleRequestIndex);
