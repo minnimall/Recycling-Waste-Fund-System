@@ -83,12 +83,12 @@
             <!-- ฝั่งขวา: ฟอร์มและรายการขยะที่เลือก -->
             <div class="border p-4 rounded-lg shadow-lg right-box">
                 <h2 class="text-lg mb-4">ฟอร์มรับซื้อขยะ</h2>
-                <form action="/employee/wastePurchasePost" method="POST">
+                <form id="wastePurchaseForm" action="/employee/wastePurchasePost" method="POST">
                     <label class="block mb-2">รหัสบัญชี:</label>
                     <input type="text" name="accountId" class="w-full p-2 border rounded mb-1" required>
             
                     <p><span class="text-total">ยอดรวม</span> <span id="totalAmount">0</span> <span class="text-unit">บาท</span></p>
-                    <button type="submit" class="mt-1 mb-2 bg-green-500 text-white px-4 py-2 rounded">ยืนยันการรับซื้อ</button>
+                    <button type="button" class="mt-1 mb-2 bg-green-500 text-white px-4 py-2 rounded" onclick="openConfirmModal('<%= username %>')">ยืนยันการรับซื้อ</button>
             
                     <h3 class="text-lg mb-2">รายการที่เลือก</h3>
                     <ul id="selectedWasteList" class="mb-4">
@@ -100,14 +100,75 @@
             <!-- Modal for weight input -->
             <div id="weightModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
                 <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
-                    <h3 class="text-lg font-bold mb-4">กรุณากรอกน้ำหนัก</h3>
-                    <input id="weightInput" type="number" placeholder="น้ำหนัก (กก.)" class="w-full p-2 border rounded mb-4" required>
-                    <p id="modalWasteName" class="mb-2"></p>
-                    <p id="modalWastePrice" class="mb-2"></p>
-                    <button onclick="closeModal()" class="bg-gray-500 text-white px-4 py-2 rounded">ปิด</button>
-                    <button onclick="confirmWeight()" class="bg-blue-500 text-white px-4 py-2 rounded mr-2">ยืนยัน</button>
+                    <h3 class="text-lg font-bold mb-2">กรุณากรอกน้ำหนัก</h3>
+                    <input id="weightInput" type="number" min="0.1" placeholder="น้ำหนัก (กก.)" class="w-full p-2 border rounded mb-4" required>
+                    <div class="flex items-center w-full mb-2"><span class="mr-2">ประเภทขยะ</span> <p id="modalWasteName" class="text-white type-bg-color px-2 py-1 rounded"></p></div>
+                    <div class="flex items-center w-full"><span class="mr-2">ราคา/หน่วย</span> <p id="modalWastePrice" class="text-white unit-bg-color px-2 py-1 rounded"></p></div>
+                    <hr class="my-4">
+                    <div class="flex justify-end">
+                        <button onclick="closeModal()" class="bg-gray-500 text-white px-4 py-2 rounded">ปิด</button>
+                        <button onclick="confirmWeight()" class="main-bg-color text-white px-4 py-2 rounded ml-2">ยืนยัน</button>
+                    </div>
                 </div>
             </div>
+
+             <!-- Modal ยืนยันการรับซื้อ -->
+             <div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+                <form class="bg-white p-3 w-1/2 rounded-lg" action="" method="POST">
+                    <input type="hidden" name="accountId" class="w-full p-2 border rounded mb-1" required>
+
+                    <ul id="selectedWasteList" class="hidden" >
+                    </ul>
+                    <input type="hidden" name="wasteItems" id="wasteItemsInput">
+                    <h2 class="text-xl font-medium leading-6 text-gray-800">รายการการรับซื้อ</h2>
+                    <hr class="my-3">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">รหัสบัญชี</th>
+                                <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">ชื่อ-สกุล</th>
+                                <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">วันที่รับซื้อ</th>
+                                <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">เวลา</th>
+                                <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">พนักงาน</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="user-lists">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-center" id="accountId"></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-left">สิทธิชัย ผ่องเพิ่ม</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center" id="purchaseDate">3/5/2025</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center" id="purchaseTime">9:43</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center" id="employeePost">พนักงาน</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">ลำดับที่</th>
+                                <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">ชื่อสินค้า</th>
+                                <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">จำนวน/หน่วย</th>
+                                <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">ราคา/หน่วย</th>
+                                <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">ยอดรวม(฿)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="items-lists">
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4" class="px-6 py-4 text-right">ยอดรวมทั้งหมด</td>
+                                <td class="px-6 py-4 text-center" id="totalAmount"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <hr class="my-5">
+                    <div class="flex justify-end w-full">
+                        <button type="button" onclick="closeConfirmModal()" class="bg-gray-500 text-white px-4 py-2 rounded">ยกเลิก</button>
+                        <button type="button" class="main-bg-color text-white px-4 py-2 rounded ml-2" onclick="wastePurchasePost()">ยืนยันการรับซื้อ</button>                     
+                    </div>
+                </form>
+            </div>
+
         </div>
     </div>
     <%- include('../partials/employeePartials/empFooter.ejs') %>
@@ -122,8 +183,8 @@
         currentIndex = index;
         currentWasteName = name;
         currentPricePerUnit = pricePerUnit;
-        document.getElementById('modalWasteName').textContent = `ขยะ: ${name}`;
-        document.getElementById('modalWastePrice').textContent = `ราคา: ฿${pricePerUnit}/กก.`;
+        document.getElementById('modalWasteName').textContent = `${name}`;
+        document.getElementById('modalWastePrice').textContent = `${pricePerUnit}/กก.`;
         document.getElementById('weightModal').classList.remove('hidden');
     }
 
@@ -136,16 +197,20 @@
             } else {
                 selectedWaste.push({ name: currentWasteName, pricePerUnit: currentPricePerUnit, weight, totalPrice });
             }
+            document.getElementById('weightInput').value = '';
             updateSelectedWasteList();
             closeModal();
         } else {
-            alert("กรุณากรอกน้ำหนักที่ถูกต้อง");
+            Swal.fire("กรุณากรอกน้ำหนักที่ถูกต้อง", "", "warning");
+            return;
         }
     }
 
     function updateSelectedWasteList() {
-        const list = document.getElementById('selectedWasteList');
-        list.innerHTML = '';
+        const list = document.getElementById('selectedWasteList');               
+        const items_lists = document.getElementById('items-lists'); 
+        list.innerHTML = '';        
+        items_lists.innerHTML = '';
         let totalAmount = 0;
 
         selectedWaste.forEach((item, index) => {
@@ -158,6 +223,15 @@
                         <div onclick="deleteWaste(${index})" class="delete-btn"><i class="fa fa-trash"></i></div>
                     </div>
                 </li>
+            `;
+            items_lists.innerHTML += `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">1</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-left">${item.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">${item.weight} กก.</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">${item.pricePerUnit}฿</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">${item.totalPrice}฿</td>
+                <tr>
             `;
         
         });
@@ -188,6 +262,59 @@
 
     function closeModal() {
         document.getElementById('weightModal').classList.add('hidden');
+    }
+
+    function openConfirmModal(employee) {
+        const accountIdInput = document.querySelector("input[name='accountId']");
+        const selectedWasteListElem = document.getElementById("selectedWasteList");
+        const totalAmountElem = document.getElementById("totalAmount");
+        const confirmModal = document.getElementById("confirmModal");
+        const items_lists = document.getElementById('items-lists');
+
+        if (!accountIdInput || !selectedWasteListElem || !totalAmountElem || !confirmModal) {
+            console.error("Element not found!");
+            return;
+        }
+
+        const accountId = accountIdInput.value.trim();
+        const selectedWasteList = selectedWasteListElem.innerHTML.trim();
+        const totalAmount = totalAmountElem.innerText.trim();
+
+        if (!accountId) {
+            Swal.fire("กรุณากรอกรหัสบัญชี", "", "warning");
+            return;
+        }
+
+        // กำหนดเวลาเป็นโซนประเทศไทย (UTC+7)
+        const now = new Date();
+        const options = { timeZone: "Asia/Bangkok", hour12: false };
+
+        const purchaseDate = now.toLocaleDateString("th-TH", options); // วันที่ไทย
+        const purchaseTime = now.toLocaleTimeString("th-TH", options); // เวลาไทย
+
+        // อัปเดตข้อมูลใน ConfirmModal
+        document.querySelector("#confirmModal input[name='accountId']").value = accountId;
+        document.querySelector("#confirmModal #accountId").textContent = accountId;
+        document.querySelector("#confirmModal #selectedWasteList").innerHTML = selectedWasteList;
+        document.querySelector("#confirmModal #totalAmount").textContent = totalAmount;
+        document.querySelector("#confirmModal #employeePost").textContent = employee;
+        document.querySelector("#confirmModal #purchaseDate").textContent = purchaseDate;
+        document.querySelector("#confirmModal #purchaseTime").textContent = purchaseTime;
+
+        // ตรวจสอบว่า wasteItems มีข้อมูลหรือไม่
+        const wasteItems = Array.from(document.querySelectorAll("#selectedWasteList li"))
+            .map(li => li.textContent)
+            .filter(text => text.trim() !== ""); // กรองค่าเว้นว่างออก
+        // ถ้าไม่มีข้อมูล ให้ส่งค่า `[]` แทน `""`
+        document.querySelector("#confirmModal #wasteItemsInput").value = wasteItems.length > 0 ? JSON.stringify(wasteItems) : "[]";
+        // แสดง ConfirmModal
+        confirmModal.classList.remove("hidden");
+    }
+    function wastePurchasePost() {
+        document.getElementById("wastePurchaseForm").submit();
+    }
+    function closeConfirmModal() {
+        document.getElementById("confirmModal").classList.add("hidden");
     }
 </script>
 </html>

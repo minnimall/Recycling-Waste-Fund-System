@@ -27,6 +27,10 @@
     --admin-color: linear-gradient(to right,#8c0000,#e20000);
     --employee-color: linear-gradient(to right,#175028,#00923f);
     --user-color: linear-gradient(to right,#0070d9,#329cff);
+
+    /* bg color */
+    --unit-bg-color: linear-gradient(to right,#000046,#1CB5E0);
+    --type-bg-color: linear-gradient(to right,#F37335,#FDC830);
 }
 
 * {
@@ -879,4 +883,14 @@ body {
 /* แสดง dropdown เมื่อ hover หรือคลิก */
 .show {
   display: block;
+}
+
+.main-bg-color {
+  background: var(--header-bg);
+}
+.unit-bg-color {
+  background: var(--unit-bg-color);
+}
+.type-bg-color {
+  background: var(--type-bg-color);
 }
