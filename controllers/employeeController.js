@@ -203,18 +203,30 @@ const wastePurchaseDelete = async (req, res) => {
 };
 const memberIndex = async (req, res) => {
     try {
-        // ดึงข้อมูล village จากฐานข้อมูล
-        const villages = await Village.find(); // ตรวจสอบให้แน่ใจว่าโมเดล Village ถูก import แล้ว
-        
+        const { familyName, username, village, Type } = req.query;
+        let searchQuery = { isDeleted: false };
+
+        if (familyName) searchQuery.familyName = { $regex: familyName, $options: 'i' };
+        if (username) searchQuery.username = { $regex: username, $options: 'i' };
+        if (village) searchQuery.village = village; // ใช้ _id ของหมู่บ้านโดยตรง
+        if (Type) searchQuery.Type = Type;
+
+        const villages = await Village.find(); // ดึงรายชื่อหมู่บ้านทั้งหมด
+        const allFamilies = await Family.find(searchQuery).populate('village');
+
         res.render('employee/member', { 
             mytitle: 'Employeedashboard | Member',
-            villages: villages // ส่ง village ไปยัง view
+            villages, // ส่งรายชื่อหมู่บ้านไปยัง EJS
+            allFamilies,
+            query: req.query  
         });
     } catch (error) {
         console.error(error);
         res.status(500).send('Internal Server Error');
     }
 };
+
+
 
 // สร้างเลขบัญชีแบบสุ่ม
 // const generateAccountNumber = () => {
