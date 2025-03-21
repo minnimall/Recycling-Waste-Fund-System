@@ -167,26 +167,85 @@
                             </div>
                         </div>
                     </div>
-                    <% village.forEach(v => { %>
-                        <% 
-                            const round = roundsByVillage[v._id];
-                        %>
-                        <div class="village-box <%= round && round.isActive ? 'active' : 'inactive' %>"> <!-- col -->
-                            <p><strong>หมู่ที่ <%= v.villageNumber %></strong> <%= v.villageName %></p>
-                            <% if (round) { %>
-                                <p><strong>รอบการรับซื้อ:</strong> <%= round.roundName %></p>
-                                <p><strong>วัน:</strong> <%= round.formattedDateThai %></p>
-                                <p><strong>เวลา:</strong> <%= round.startTime %> - <%= round.endTime %></p>
-                                <% if (round.isActive) { %>
-                                    <p ><strong>สถานะ: กำลังเปิดรับซื้อขยะ</strong></p>
-                                <% } else { %>
-                                    <p ><strong>สถานะ: ปิดรับซื้อขยะ</strong></p>
-                                <% } %>
-                            <% } else { %>
-                                <p>ไม่มีรอบการรับซื้อขยะ</p>
-                            <% } %>
-                        </div>
-                    <% }) %>                                        
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                        <% village.forEach(v => { %>
+                            <% 
+                                const round = roundsByVillage[v._id];
+                                const currentDate = moment().format('YYYY-MM-DD');
+                                const threeDaysLater = moment().add(3, 'days').format('YYYY-MM-DD');
+                                
+                                // ตรวจสอบว่า round มีข้อมูลหรือไม่
+                                if (round) {
+                                    const roundDate = moment(round.formattedDateYYMMDD).format('YYYY-MM-DD');
+                                    const diffDays = moment(roundDate).diff(moment(), 'days'); // Get the difference in days
+                
+                                    // แสดงผลเฉพาะรอบที่ถึงวันนี้หรือจะถึงในอีก 3 วัน
+                                    if (roundDate >= currentDate && roundDate <= threeDaysLater) {
+                            %>
+                                <div class="col">
+                                    <div class="card h-100 shadow-sm border-0 <%= round.isActive ? 'border-success border-2' : '' %>">
+                                        <div class="card-header <%= round.isActive ? 'bg-success text-white' : 'bg-light' %>">
+                                            <h5 class="card-title mb-0">
+                                                <i class="bi bi-house-fill me-2"></i>หมู่ที่ <%= v.villageNumber %> <%= v.villageName %>
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span class="text-muted">วัน:</span>
+                                                <span class="fw-bold"><%= round.formattedDateThai %></span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-3">
+                                                <span class="text-muted">เวลา:</span>
+                                                <span class="fw-bold"><%= round.startTime %> - <%= round.endTime %></span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span class="text-muted">รอบการรับซื้อ:</span>
+                                                <span class="fw-bold"><%= round.roundName %></span>
+                                            </div>
+                                            <% if (round.isActive) { %>
+                                                <div class="alert alert-success d-flex align-items-center mb-3" role="alert">
+                                                    <i class="bi bi-check-circle-fill me-2"></i>
+                                                    <div>กำลังเปิดรับซื้อขยะ</div>
+                                                </div>
+                                            <% } else { %>
+                                                <div class="alert alert-secondary d-flex align-items-center mb-3" role="alert">
+                                                    <i class="bi bi-x-circle-fill me-2"></i>
+                                                    <div>ปิดรับซื้อขยะ</div>
+                                                </div>
+                                            <% } %>
+                                        </div>
+                                        <div class="card-footer bg-transparent">
+                                            <% if (diffDays > 0) { %>
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="countdown-badge bg-warning text-dark px-3 py-2 rounded-pill">
+                                                        <i class="bi bi-clock me-1"></i>
+                                                        อีก <%= diffDays %> วัน จะถึงรอบการรับซื้อขยะ
+                                                    </div>
+                                                </div>
+                                            <% } else if (diffDays === 0) { %>
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="countdown-badge bg-success text-white px-3 py-2 rounded-pill">
+                                                        <i class="bi bi-calendar-check me-1"></i>
+                                                        วันนี้คือรอบการรับซื้อขยะ!
+                                                    </div>
+                                                </div>
+                                            <% } else { %>
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="countdown-badge bg-secondary text-white px-3 py-2 rounded-pill">
+                                                        <i class="bi bi-calendar-x me-1"></i>
+                                                        รอบการรับซื้อขยะได้ปิดไปแล้ว
+                                                    </div>
+                                                </div>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% 
+                                    } 
+                                } 
+                            %>
+                        <% }) %>
+                    </div>                                       
                 </div>
             </section>
         </div>

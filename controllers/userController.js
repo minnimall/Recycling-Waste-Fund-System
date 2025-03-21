@@ -53,7 +53,8 @@ const user_index = async (req, res) => {
             activity: activitiesResult, 
             waste: wasteResult,
             village: villageResult,
-            roundsByVillage
+            roundsByVillage,
+            moment: moment
         });
     } catch (err) {
         console.log(err);
