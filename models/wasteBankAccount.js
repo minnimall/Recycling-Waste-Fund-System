@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const wasteBankAccountSchema = new Schema({
     familyID: { 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: 'Family', required: true 
+        ref: 'Family', required: true , unique: true
     },
     AccountName: {
         type: String,

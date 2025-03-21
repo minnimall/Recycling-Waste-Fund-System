@@ -217,16 +217,16 @@ const memberIndex = async (req, res) => {
 };
 
 // สร้างเลขบัญชีแบบสุ่ม
-const generateAccountNumber = () => {
-    const prefix = 'WB';
-    const random = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
-    return `${prefix}${random}`;
-};
+// const generateAccountNumber = () => {
+//     const prefix = 'WB';
+//     const random = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+//     return `${prefix}${random}`;
+// };
 
 // ฟังก์ชันลงทะเบียนครัวเรือนและสมาชิกใหม่
 const memberRegister = async (req, res) => {
-    const session = await mongoose.startSession();  // เริ่ม session
-    session.startTransaction();  // เริ่ม transaction
+    const session = await mongoose.startSession();  
+    session.startTransaction();  
 
     try {
         // ตรวจสอบว่า village ที่ระบุมีอยู่จริงหรือไม่
@@ -253,15 +253,24 @@ const memberRegister = async (req, res) => {
             return res.redirect('/employee/member?error=ชื่อผู้ใช้นี้ถูกใช้ไปแล้ว');
         }
 
-        // ตรวจสอบว่ามีอีเมลหรือเบอร์โทรซ้ำหรือไม่
+        // ตรวจสอบอีเมลหรือเบอร์โทรซ้ำ
         const existingMember = await Member.findOne({
-            $or: [{ email: req.body.email }, { phone: req.body.phone },{ idCardNumber: req.body.idCardNumber }]
+            $or: [{ email: req.body.email }, { phone: req.body.phone }, { idCardNumber: req.body.idCardNumber }]
         }).session(session);
         if (existingMember) {
             await session.abortTransaction();
             session.endSession();
             return res.redirect('/employee/member?error=อีเมลหรือหมายเลขโทรศัพท์นี้ถูกใช้ไปแล้ว');
         }
+
+        // นับจำนวนครอบครัวที่มีอยู่แล้ว
+        const familyCount = await Family.countDocuments().session(session);
+        
+        // แปลง village._id หรือ village หมายเลขเป็นเลข 2 หลัก
+        const villageNumber = String(village.villageNumber).padStart(2, '0');
+
+        // สร้าง accountNumber ตามรูปแบบ 0001/01
+        const accountNumber = `${String(familyCount + 1).padStart(4, '0')}/${villageNumber}`;
 
         // 1. สร้างข้อมูลครอบครัว
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -278,7 +287,7 @@ const memberRegister = async (req, res) => {
                 province: req.body.province,
                 postalCode: req.body.postalCode
             },
-            NumFamilyMembers: req.body.NumFamilyMembers, // ✅ (แก้ไขตัวสะกดให้ถูกต้อง)
+            NumFamilyMembers: req.body.NumFamilyMembers,
             village: village._id, 
             Type: req.body.Type || 'household'
         });
@@ -305,7 +314,6 @@ const memberRegister = async (req, res) => {
         await member.save({ session });
 
         // 3. สร้างบัญชีธนาคารขยะอัตโนมัติ
-        const accountNumber = generateAccountNumber();
         const account = new WasteBankAccount({
             familyID: savedFamily._id,
             AccountName: savedFamily.familyName,
@@ -323,7 +331,7 @@ const memberRegister = async (req, res) => {
         res.redirect('/employee/member?message=ลงทะเบียนครัวเรือนสำเร็จ');
 
     } catch (error) {
-        await session.abortTransaction();  // ❌ Rollback ถ้ามีข้อผิดพลาด
+        await session.abortTransaction();  
         session.endSession();
 
         console.error('Error registering household:', error);
