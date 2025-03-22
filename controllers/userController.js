@@ -8,6 +8,7 @@ const myWasteType = require('../models/wastetype');
 const Village = require('../models/village');
 const Round = require('../models/round');
 const wasteSaleRequest = require('../models/wasteSaleRequest');
+const Family = require('../models/family');
 const path = require('path');
 const moment = require('moment');
 
@@ -136,38 +137,57 @@ const upload = multer({
 
 //บันทึกข้อมูลแบบฟอร์มแจ้งความประสงค์ขายขยะ
 const wasteSaleRequestPost = (req, res) => {
-    upload(req, res, (err) => {
-        if (err) {
-            return res.status(500).send('อัปโหลดรูปภาพล้มเหลว');
-        }
-        // ตรวจสอบรูปภาพที่อัปโหลด
-        const imagePath = req.file
-            ? `/upload_imgWasteSaleRequest/${req.file.filename}` // ใช้ backticks สำหรับการแทรกค่า
-            : '/img/no_image.jpg';
+    // ตรวจสอบว่า session มีค่า userId หรือไม่
+    if (!req.session || !req.session.username) {
+        return res.status(401).send('กรุณาเข้าสู่ระบบก่อนทำรายการ');
+    }
 
-        const { waste, weight, date, location } = req.body;
+    // ใช้ username จาก session ค้นหา Family ในฐานข้อมูล
+    const { username } = req.session;
 
-        if (!waste || waste.length === 0) {
-            return res.status(400).send('กรุณาเลือกขยะที่ต้องการขาย');
-        }
+    // ค้นหาผู้ใช้จาก Family ตาม username
+    Family.findOne({ username: username })
+        .then((family) => {
+            if (!family) {
+                res.redirect('/user/wasteSaleRequest?error=ไม่พบข้อมูลครัวเรือน');
+            }
 
-        const newSaleRequest = new wasteSaleRequest({
-            waste: Array.isArray(waste) ? waste : [waste], 
-            weight: weight ? parseFloat(weight) : undefined, 
-            date: new Date(date),
-            location,
-            img: imagePath
-        });
+            upload(req, res, (err) => {
+                if (err) {
+                    res.redirect('/user/wasteSaleRequest?error=อัปโหลดรูปภาพล้มเหลว');
+                }
 
-        newSaleRequest.save()
-            .then((result) => {
-                res.redirect('/user/wasteSaleRequest?message=ส่งแบบฟอร์มสำเร็จ');
-            })
-            .catch((err) => {
-                console.log(err);
-                res.redirect('/user/wasteSaleRequest?error=เกิดข้อผิดพลาดในระบบ');
+                const imagePath = req.file ? `/upload_imgWasteSaleRequest/${req.file.filename}` : '/img/no_image.jpg';
+                const { waste, weight, date, location } = req.body;
+
+                if (!waste || waste.length === 0) {
+                    res.redirect('/user/wasteSaleRequest?error=กรุณาเลือกขยะที่ต้องการขาย');
+                }
+
+                // สร้างการแจ้งความประสงค์ขายขยะ
+                const newSaleRequest = new wasteSaleRequest({
+                    waste: Array.isArray(waste) ? waste : [waste], 
+                    weight: weight ? parseFloat(weight) : undefined, 
+                    date: new Date(date),
+                    location,
+                    img: imagePath,
+                    family: family._id  // ใช้ _id ของ family ที่ค้นหามา
+                });
+
+                newSaleRequest.save()
+                    .then((result) => {
+                        res.redirect('/user/wasteSaleRequest?message=ส่งแบบฟอร์มสำเร็จ');
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                        res.redirect('/user/wasteSaleRequest?error=เกิดข้อผิดพลาดในระบบ');
+                    });
             });
-    });
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send('เกิดข้อผิดพลาดในการค้นหาผู้ใช้');
+        });
 };
 
 // หน้าข้อมูลติดต่อ

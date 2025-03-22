@@ -123,6 +123,22 @@ const checkEmpAndSetName = (req, res, next) => {
     }
 };
 
+//สำหรับ ผู้ใช้ทั่วไป
+const checkUserAndSetName = (req, res, next) => {
+    if (req.session && req.session.username) {
+        res.locals.username = req.session.username;
+    } else {
+        res.locals.username = "Guest";
+    }
+
+    // ตรวจสอบสิทธิ์การเป็น user
+    if (req.session.role === 'user') {
+        next();
+    } else {
+        res.redirect('/login');
+    }
+};
+
 app.get('/', (req, res) => {
     res.redirect('/user');
 });

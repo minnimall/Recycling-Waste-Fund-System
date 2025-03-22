@@ -64,6 +64,7 @@
                 </div>
                 <div>
                     <form id="waste-sale-form" action="/user/wasteSaleRequestPost" method="POST" enctype="multipart/form-data">
+                        <input type="hidden" name="username" value="<%= session.username %>">
                         <div class="mb-3">
                             <label for="waste-type" class="form-label">ขยะที่ต้องการขาย</label>
                             <select class="form-select " id="waste" name="waste[]" multiple required>

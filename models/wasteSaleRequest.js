@@ -27,6 +27,11 @@ const wasteSaleRequestSchema = new Schema(
             type: String,
             required: false
         },
+        family: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Family',
+            required: true
+        },
         isDeleted: {
             type: Boolean,
             default: false

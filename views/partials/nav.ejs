@@ -28,7 +28,7 @@
                             <i class="fa fa-user icon"></i> <%= locals.session.username %>
                         </a>
                         <div class="dropdown-content">
-                            <!-- <a href="/profile">โปรไฟล์</a> -->
+                            <a href="/profile">โปรไฟล์</a>
                             <a href="/logout" id="logoutBtn">ออกจากระบบ</a>
                         </div>
                     <% } else { %>
@@ -71,6 +71,58 @@
 });
 </script>
 <style>
+    /* ส่วน navbar */
+ul{
+    list-style-type: none;
+}
+nav {
+    display: flex;
+    align-items: center;
+    height: 100px;
+    top: 0;
+    width: 100%;
+    box-shadow: 3px 3px 10px gray;
+    background-color: #376939;
+}
+.nav-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1;
+}
+nav ul li a:hover{
+    color: white;
+    border-bottom: 2px solid whitesmoke;
+}
+nav ul li a{
+    font-size: 1.1rem;
+}
+li a{
+    text-decoration: none;
+    color: white;
+}
+.menu {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+ul li a{
+    margin-left: 30px;
+}
+.logo{
+    width: 90px;
+    height: auto;
+}
+.select a{
+    color: white;
+    border-bottom: 2px solid whitesmoke;
+    /* border: 2px solid whitesmoke;
+    border-radius: 3px;
+    padding: 5px; */
+}
+.icon{
+    color: white;
+}
 /* Dropdown Menu Styling */
 .dropdown {
     position: relative;

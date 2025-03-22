@@ -42,18 +42,20 @@
                                 <div class="mb-3 md:mb-0">
                                     <div class="flex items-center mb-2">
                                         <i class="fas fa-user-circle text-gray-600 mr-2 text-xl"></i>
-                                        <h2 class="text-xl font-semibold text-gray-700">นายดุลพาห์ ทวีแสงศิริ</h2>
+                                        <h2 class="text-xl font-semibold text-gray-700">
+                                            <%= request.family.familyName %> <!-- แสดงชื่อจากข้อมูล family -->
+                                        </h2>
                                     </div>
                                     
                                     <div class="flex flex-wrap items-center text-sm text-gray-600">
                                         <div class="flex items-center mr-4 mb-2 md:mb-0">
-                                            <i class="far fa-calendar-alt mr-1"></i>
-                                            <span><%= request.date.toISOString().split('T')[0] %></span>
+                                            <i class="far fa-calendar-alt mr-1"></i> 
+                                            <span>วันให้เข้ารับซื้อ : <%= request.date.toISOString().split('T')[0] %></span>
                                         </div>
                                         
                                         <div class="flex items-center mr-4 mb-2 md:mb-0">
                                             <i class="fas fa-map-marker-alt mr-1"></i>
-                                            <span><%= request.location %></span>
+                                            <span>พิกัด : <%= request.location %></span>
                                         </div>
                                     </div>
                                 </div>
@@ -91,7 +93,7 @@
                                                 <h4 class="text-sm text-gray-500 mb-1">ผู้ขาย</h4>
                                                 <p class="text-lg font-semibold flex items-center">
                                                     <i class="fas fa-user-circle text-gray-600 mr-2"></i>
-                                                    นายดุลพาห์ ทวีแสงศิริ
+                                                    <%= request.family.username %> <!-- แสดงชื่อผู้ขายจาก family -->
                                                 </p>
                                             </div>
                                             
@@ -183,7 +185,7 @@
                         <p class="text-gray-400 mt-2">กรุณาเพิ่มรายการใหม่เพื่อแสดงที่นี่</p>
                     </div>
                 <% } %>
-            </div>
+            </div>            
         </div>
     </main>  
     
