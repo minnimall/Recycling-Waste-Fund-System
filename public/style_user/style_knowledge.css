@@ -163,16 +163,6 @@ ul li a{
 }
 
 
-/* ส่วนของ footer */
-footer {
-    background-color: #f1f8e9;
-    text-align: center;
-    padding: 10px 0;
-    margin-top: 60px;
-}
-.cp{
-    text-align: center;
-}
 
 @media (max-width: 768px) {
     .nav-content {

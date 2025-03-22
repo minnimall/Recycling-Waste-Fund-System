@@ -292,11 +292,6 @@ footer {
     }
 }
 
-.complaint-section .title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #343a40;
-}
 
 .card-body {
     padding: 20px;
@@ -311,10 +306,6 @@ button[type="submit"] {
     padding: 10px;
     font-size: 1rem;
     border-radius: 5px;
-    background-color: #007bff;
     color: white;
 }
 
-button[type="submit"]:hover {
-    background-color: #0056b3;
-}

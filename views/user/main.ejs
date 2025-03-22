@@ -14,26 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
 </head>
 <body>
-    <nav>
-        <div class="container">
-            <div class="nav-content">
-                <a href="/"><img class="logo" src="./img/logo_เปือยน้อย.png" alt="โลโก้"></a>
-                <ul class="menu">
-                    <li class="select"><a href="/">หน้าหลัก</a></li>
-                    <li><a href="/user/wastetype">ประเภทขยะ</a></li>
-                    <li><a href="/user/knowledge">สื่อความรู้</a></li>
-                    <li><a href="/user/saleHistory">ประวัติการขาย</a></li>
-                    <li><a href="/user/wasteSaleRequest">แจ้งประสงค์ขายขยะ</a></li>
-                    <li><a href="/user/contact">ติดต่อ-สอบถาม</a></li>
-                    <li>
-                        <a href="/login">
-                            <i class="fa fa-user icon"></i> เข้าสู่ระบบ
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <%- include('../partials/nav.ejs') %>
 
     <div class="content">
         <!-- <img class="img-main" src="./img/bg_main.png" alt="พื้นหลัง"> -->
@@ -257,8 +238,8 @@
                         </div>
                     </div>
                     <div class="col-12">
-                        <div class="card shadow-sm border-0">
-                            <div class="card-body">
+                        <div class="shadow-sm border-0">
+                            <div class="">
                                 <form id="complaintForm">
                                     <!-- เลือกประเภทข้อร้องเรียน -->
                                     <div class="mb-3">
@@ -278,7 +259,7 @@
                                     </div>
                                     <!-- ปุ่มส่งข้อร้องเรียน -->
                                     <div class="d-flex justify-content-center">
-                                        <button type="submit" class="btn btn-primary">ส่งข้อร้องเรียน</button>
+                                        <button type="submit" class="btn btn-success">ส่งข้อร้องเรียน</button>
                                     </div>
                                 </form>
                             </div>

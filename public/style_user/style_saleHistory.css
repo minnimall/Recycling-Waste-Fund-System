@@ -1,10 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400&display=swap');
-*{
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
+
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: 'Prompt', sans-serif;
-    color: black;
+    color: #333;
     scroll-behavior: smooth;
 }
 
@@ -12,11 +13,13 @@ html, body {
     height: 100%;
     display: flex;
     flex-direction: column;
+    background-color: #f9f9f9;
 }
 
-/* เนื้อหาเว็บไซต์ */
+/* Main content */
 .content {
-    flex: 1; /* ให้พื้นที่นี้ยืดหยุ่นได้ */
+    flex: 1;
+    padding: 20px 0 40px;
 }
 
 /* ส่วน navbar */
@@ -72,70 +75,199 @@ ul li a{
     color: white;
 }
 
-/* ส่วน section */
-.cartoon{
-    width: 400px;
-    max-width: 100%;
-    min-width: 50px;
-    height: auto;
+/* Section styling */
+.title-idea {
+    background: linear-gradient(135deg, #f1f8e9 0%, #dcedc8 100%);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
 }
-.title{
-    font-size: 2rem;
+
+.title-idea:hover {
+    transform: translateY(-5px);
 }
-.title-sale{
-    font-size: 1.3rem;
+
+.title-idea h2 {
+    margin: 0;
+    color: #33691e;
+    font-weight: 600;
 }
-.show-time{
-    border: 3px solid #33691e;
-    padding: 10px 20px;
-    border-radius: 10px;
-}
-.col {
-    border: 1px solid #ccc; /* กรอบรอบๆ แต่ละช่อง */
-    padding: 10px; /* เพิ่มช่องว่างภายใน */
-    text-align: center; /* จัดข้อความให้อยู่กลาง */
-    background-color: #f8f9fa; /* เปลี่ยนสีพื้นหลัง */
-}
+
 .money {
-    width: 50vw;
-    max-width: 100px;
+    width: 60px;
     height: auto;
+    margin-right: 20px;
 }
-.money{
-    margin-right: 40px;
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
 }
-.total-money{
-    border-radius: 10px;
-    background-color: #f1f8e9;
+
+.title-saleHistory {
+    border-left: 5px solid #48ac66;
+    padding-left: 15px;
+    margin: 30px 0 20px;
 }
+
+.title-saleHistory h2 {
+    color: #33691e;
+    font-weight: 600;
+    font-size: 1.8rem;
+    margin: 0;
+}
+
+/* Table styling */
 table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    margin: 20px 0;
+    background-color: white;
 }
+
 table th, table td {
-    border-bottom: 1px solid rgb(212, 212, 212);
-    padding: 8px;
+    padding: 15px;
     text-align: center;
+    border-bottom: 1px solid #e0e0e0;
 }
-table{
-    border: 1px solid rgb(212, 212, 212);
+
+table th {
+    color: white;
+    font-weight: 500;
+    letter-spacing: 0.5px;
 }
-table th{
+
+thead {
+    background: linear-gradient(135deg, #376939 0%, #48ac66 100%);
+}
+
+tbody tr {
+    transition: all 0.3s ease;
+}
+
+tbody tr:hover {
+    background-color: #f1f8e9;
+    transform: scale(1.005);
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* Responsive design */
+@media (max-width: 992px) {
+    .menu li a {
+        font-size: 1rem;
+        padding: 8px 10px;
+        margin-left: 2px;
+    }
+    
+    .logo {
+        width: 65px;
+    }
+}
+
+@media (max-width: 768px) {
+    nav {
+        height: auto;
+        padding: 15px 0;
+    }
+    
+    .nav-content {
+        flex-direction: column;
+    }
+    
+    .menu {
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 15px;
+    }
+    
+    .menu li {
+        margin: 5px;
+    }
+    
+    .menu li a {
+        margin-left: 0;
+    }
+    
+    table {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .title-idea h2 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Additional components */
+.card {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-bottom: 20px;
+    border: none;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background: linear-gradient(135deg, #376939 0%, #48ac66 100%);
+    color: white;
+    font-weight: 500;
+    padding: 15px 20px;
+}
+
+.card-body {
+    padding: 20px;
+    background-color: white;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #376939 0%, #48ac66 100%);
+    border: none;
+    padding: 10px 25px;
+    border-radius: 5px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    background: linear-gradient(135deg, #33691e 0%, #376939 100%);
+}
+
+/* Badge styling */
+.badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+.badge-success {
+    background-color: #48ac66;
     color: white;
 }
-thead {
-    background-color: #48ac66;
-}
 
-
-
-/* ส่วนของ footer */
-footer {
-    background-color: #f1f8e9;
-    text-align: center;
-    padding: 10px 0;
-    margin-top: 60px;
-}
-.cp{
-    text-align: center;
+.badge-primary {
+    background-color: #376939;
+    color: white;
 }

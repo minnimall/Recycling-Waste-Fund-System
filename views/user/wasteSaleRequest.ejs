@@ -33,7 +33,7 @@
                 title: 'สำเร็จ!',
                 text: successMessage,
                 confirmButtonText: 'ตกลง',
-                confirmButtonColor: '#28a745', // สีเขียวสำหรับความสำเร็จ
+                confirmButtonColor: '#28a745',
                 timer: 3000
             });
         }
@@ -50,26 +50,7 @@
         }
 
     </script>
-    <nav>
-        <div class="container">
-            <div class="nav-content">
-                <a href="/"><img class="logo" src="/img/logo_เปือยน้อย.png" alt="โลโก้"></a>
-                <ul class="menu">
-                    <li><a href="/">หน้าหลัก</a></li>
-                    <li><a href="/user/wastetype">ประเภทขยะ</a></li>
-                    <li><a href="/user/knowledge">สื่อความรู้</a></li>
-                    <li><a href="/user/saleHistory">ประวัติการขาย</a></li>
-                    <li class="select"><a href="/user/wasteSaleRequest">แจ้งประสงค์ขายขยะ</a></li>
-                    <li><a href="/user/contact">ติดต่อ-สอบถาม</a></li>
-                    <li>
-                        <a href="/login">
-                            <i class="fa fa-user icon"></i> เข้าสู่ระบบ
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <%- include('../partials/nav.ejs') %>
 
     <div class="content">
         <div class="container">
@@ -105,7 +86,7 @@
                         </div>
                         <div class="mb-5">
                             <label for="image" class="form-label">อัปโหลดรูปภาพขยะ</label>
-                            <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
+                            <input type="file" class="form-control" id="image" name="image" accept="image/*">
                         </div>
                         <div class="d-flex">
                             <button type="submit" class="btn btn-success ms-auto">ส่งข้อมูล</button>

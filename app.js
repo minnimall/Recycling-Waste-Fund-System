@@ -57,6 +57,11 @@ app.use(session({
     saveUninitialized: true
 }));
 
+app.use((req, res, next) => {
+    res.locals.session = req.session; // ส่ง session ไปยังทุก template
+    next();
+});
+
 // Middleware ตรวจสอบการเข้าสู่ระบบ
 const checkAuth = (req, res, next) => {
     if (req.session.username) {

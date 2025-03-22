@@ -8,6 +8,7 @@
         </title>
         <link rel="stylesheet" href="/style_admin/round.css">
         <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 
 <body>
@@ -22,11 +23,11 @@
 
         if (successMessage) {
             Swal.fire({
-                toast: true,
-                position: 'top-end',
                 icon: 'success',
-                title: successMessage,
-                showConfirmButton: false,
+                title: 'สำเร็จ!',
+                text: successMessage,
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#28a745',
                 timer: 3000
             });
         }
@@ -131,10 +132,10 @@
                         <input type="date" name="date" required>
 
                         <label for="startTime">เวลาเริ่มต้น</label>
-                        <input type="time" name="startTime" required>
+                        <input type="text" class="startTime" name="startTime" required>
 
                         <label for="endTime" >เวลาสิ้นสุด</label>
-                        <input type="time" name="endTime" required>
+                        <input type="text" class="endTime" name="endTime" required>
             
                         <div class="submit-btn flex justify-end">
                             <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
@@ -184,6 +185,26 @@
         </div>
     </div>
 </body>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            flatpickr(".startTime", {
+                enableTime: true,
+                noCalendar: true,
+                dateFormat: "H:i",
+                time_24hr: true,
+                minuteIncrement: 30
+            });
+
+            flatpickr(".endTime", {
+                enableTime: true,
+                noCalendar: true,
+                dateFormat: "H:i",
+                time_24hr: true,
+                minuteIncrement: 30
+            });
+        });
+    </script>
 <script>
     // function showLoading() {
     // document.getElementById('loadingIndicator').classList.remove('hidden');

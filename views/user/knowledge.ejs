@@ -12,26 +12,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <nav>
-        <div class="container">
-            <div class="nav-content">
-                <a href="/"><img class="logo" src="/img/logo_เปือยน้อย.png" alt="โลโก้"></a>
-                <ul class="menu">
-                    <li><a href="/">หน้าหลัก</a></li>
-                    <li><a href="/user/wastetype">ประเภทขยะ</a></li>
-                    <li class="select"><a href="/user/knowledge">สื่อความรู้</a></li>
-                    <li><a href="/user/saleHistory">ประวัติการขาย</a></li>
-                    <li><a href="/user/wasteSaleRequest">แจ้งประสงค์ขายขยะ</a></li>
-                    <li><a href="/user/contact">ติดต่อ-สอบถาม</a></li>
-                    <li>
-                        <a href="/login">
-                            <i class="fa fa-user icon"></i> เข้าสู่ระบบ
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <%- include('../partials/nav.ejs') %>
 
     <div class="content">
         <div class="container">

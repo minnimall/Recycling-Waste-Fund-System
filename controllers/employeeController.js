@@ -203,21 +203,23 @@ const wastePurchaseDelete = async (req, res) => {
 };
 const memberIndex = async (req, res) => {
     try {
-        const { familyName, username, village, Type } = req.query;
+        const { familyName, AccountName, village, Type } = req.query;
         let searchQuery = { isDeleted: false };
 
         if (familyName) searchQuery.familyName = { $regex: familyName, $options: 'i' };
-        if (username) searchQuery.username = { $regex: username, $options: 'i' };
+        if (AccountName) searchQuery.AccountName = { $regex: AccountName, $options: 'i' };
         if (village) searchQuery.village = village; // ใช้ _id ของหมู่บ้านโดยตรง
         if (Type) searchQuery.Type = Type;
 
         const villages = await Village.find(); // ดึงรายชื่อหมู่บ้านทั้งหมด
         const allFamilies = await Family.find(searchQuery).populate('village');
+        const Account = await WasteBankAccount.find(searchQuery);
 
         res.render('employee/member', { 
             mytitle: 'Employeedashboard | Member',
             villages, // ส่งรายชื่อหมู่บ้านไปยัง EJS
             allFamilies,
+            Account,
             query: req.query  
         });
     } catch (error) {
