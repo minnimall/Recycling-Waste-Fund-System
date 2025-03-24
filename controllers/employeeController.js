@@ -23,7 +23,7 @@ const mongoose = require('mongoose');
 
 router.use(express.static(path.join(__dirname, '../public')));
 
-router.use(bodyParser.json({ limit: '10mb' }));  // เพิ่มขนาด payload สูงสุด 10MB
+router.use(bodyParser.json({ limit: '10mb' }));
 router.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
 //หน้าแดชบอร์ด
@@ -32,10 +32,9 @@ const dashboardIndex = (req, res)=> {
 }
 
 //หน้ารับซื้อขยะรีไซเคิล
-const wastePurchaseIndex = (req, res) => {
+const wastePurchaseIndex = async (req, res) => { // Make the function async
     const searchQuery = req.query.search || '';
     const selectedWasteType = req.query.wasteType || '';
-
     let filter = { isDeleted: false };
 
     if (searchQuery) {
@@ -46,24 +45,28 @@ const wastePurchaseIndex = (req, res) => {
         filter.wasteType = selectedWasteType;
     }
 
-    Promise.all([
-        myWaste.find(filter).populate('wasteType', 'wasteTypeName'),
-        myWasteType.find({ isDeleted: false })
-    ])
-    .then(([wasteData, wasteTypeData]) => {
+    try {
+        const [wasteData, wasteTypeData, allWasteBankAccount] = await Promise.all([
+            myWaste.find(filter).populate('wasteType', 'wasteTypeName'),
+            myWasteType.find({ isDeleted: false }),
+            WasteBankAccount.find({ isDeleted: false }) // Fetch WasteBankAccount data
+        ]);
+
         res.render('employee/wastePurchase', {
             mytitle: 'Employeedashboard | WastePurchase',
             waste: wasteData,
             wasteTypes: wasteTypeData,
             searchQuery: searchQuery,
-            selectedWasteType: selectedWasteType
+            selectedWasteType: selectedWasteType,
+            allWasteBankAccount: allWasteBankAccount
         });
-    })
-    .catch((err) => {
+
+    } catch (err) {
         console.log(err);
         res.status(500).send('เกิดข้อผิดพลาดในระบบ');
-    });
+    }
 };
+
 const wastePurchaseTotalIndex = async (req, res) => {
     try {
         const searchDate = req.query.searchDate;
@@ -73,7 +76,7 @@ const wastePurchaseTotalIndex = async (req, res) => {
         const skip = (page - 1) * limit;
         const search = req.query.search;
         let query = {};
-        let monthlyQuery = {}; // เพิ่ม query สำหรับกรองตามเดือน
+        let monthlyQuery = {};
 
         if (searchDate) {
             const startDate = new Date(searchDate);
@@ -85,7 +88,6 @@ const wastePurchaseTotalIndex = async (req, res) => {
                 $lte: endDate
             };
 
-            // กรองตามเดือน
             const year = startDate.getFullYear();
             const month = startDate.getMonth();
             const firstDayOfMonth = new Date(year, month, 1);
@@ -338,7 +340,6 @@ const memberRegister = async (req, res) => {
 
         await account.save({ session });
 
-        // ✅ Transaction สำเร็จ
         await session.commitTransaction();
         session.endSession();
 

@@ -96,8 +96,6 @@ table tbody{
     margin-left: 5px;
 }
 .left-box {
-    background-color: #fff;
-    border: var(--form-border) solid 1px;
     width: 70%;
     height: 80vh;
     h2 {
@@ -105,8 +103,6 @@ table tbody{
     }
 }
 .right-box {
-    background-color: var(--form-color);
-    border: var(--form-border) solid 1px;
     width: 30%;
     h2 {
         margin: .5em 0;
