@@ -20,4 +20,7 @@ router.post('/memberRegister', employeeController.memberRegister);
 // ตรวจสอบความประสงค์ขายขยะ
 router.get('/wasteSaleRequest', employeeController.wasteSaleRequestIndex);
 
+// สต๊อกขยะ
+router.get('/wasteStock', employeeController.wasteStockIndex);
+
 module.exports = router

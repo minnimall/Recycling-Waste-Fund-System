@@ -340,6 +340,7 @@ const memberRegister = async (req, res) => {
 
         await account.save({ session });
 
+        // ✅ Transaction สำเร็จ
         await session.commitTransaction();
         session.endSession();
 
@@ -360,13 +361,12 @@ const wasteSaleRequestIndex = async (req, res) => {
         const wasteSaleRequests = await wasteSaleRequest
             .find()
             .populate('waste') // ดึงข้อมูลขยะจาก ObjectId
+            .populate('family')
             .sort({ date: -1 });
-
-        console.log(wasteSaleRequests); // Debug เช็คข้อมูล
 
         res.render('employee/wasteSaleRequest', {
             mytitle: 'รายการความประสงค์ขายขยะ',
-            wasteSaleRequests // ส่งข้อมูลไปยัง View
+            wasteSaleRequests
         });
     } catch (error) {
         console.error('Error fetching waste sale requests:', error);
@@ -377,6 +377,11 @@ const wasteSaleRequestIndex = async (req, res) => {
         });
     }
 };
+
+//หน้าสต๊อกขยะ
+const wasteStockIndex = (req, res)=> {
+    res.render('employee/wasteStock',{mytitle: 'สต๊อกขยะ'})
+}
 
 module.exports = {
     //หน้าแดชบอร์ด
@@ -389,4 +394,6 @@ module.exports = {
     memberIndex,memberRegister,
     //หน้าตรวจสอบความประสงค์ขายขยะ
     wasteSaleRequestIndex,
+    //หน้าสต๊อกขยะ
+    wasteStockIndex,
 }

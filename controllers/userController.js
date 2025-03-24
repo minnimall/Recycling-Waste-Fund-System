@@ -268,6 +268,11 @@ const user_detailActivity = (req, res) => {
         });
 };
 
+// หน้าโปรไฟล์
+const user_profile = (req, res)=> {
+    res.render('user/profile')
+}
+
 // exports เพื่อให้ไฟล์อื่นสามารถเรียกใช้งานได้
 module.exports = {
     user_index,
@@ -276,5 +281,6 @@ module.exports = {
     user_saleHistory,
     user_wasteSaleRequest, wasteSaleRequestPost,
     user_contact,
-    user_allActivity,user_detailActivity
+    user_allActivity,user_detailActivity,
+    user_profile
 }

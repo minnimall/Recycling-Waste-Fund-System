@@ -24,6 +24,10 @@ router.get('/contact', userController.user_contact)
 
 // หน้ากิจกรรม
 router.get('/allActivity', userController.user_allActivity)
-router.get('/detailActivity/:id', userController.user_detailActivity);
+router.get('/detailActivity/:id', userController.user_detailActivity)
+
+// หน้าโปรไฟล์
+router.get('/profile', userController.user_profile)
+
 
 module.exports = router
