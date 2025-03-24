@@ -87,7 +87,7 @@
                                 <% if (emp && emp.length > 0) { %>
                                     <% emp.forEach((employee, index) => { %>
                                         <tr>
-                                            <td class="table-emp-index"><%= index + 1 %></td>
+                                            <td class="table-emp-index"><%= (currentPage - 1) * 10 + index + 1 %></td>
                                             <td class="table-emp-username"><%= employee.username %></td>
                                             <td class="table-emp-email"><%= employee.email %></td>
                                             <td class="table-emp-tel"><%= employee.tel %></td>
@@ -99,8 +99,8 @@
                                             <td class="table-emp-delete">
                                                 <button type="button" class="was-row-<%= index + 1 %> row-active edit-btn" 
                                                     onclick="setEmpEditForm('<%= index + 1 %>', '<%= employee._id %>', '<%= employee.username %>',
-                                                                '<%= employee.firstname %>', '<%= employee.lastname %>', '<%= employee.tel %>',
-                                                                '<%= employee.email %>','<%= employee.role %>')">
+                                                                        '<%= employee.firstname %>', '<%= employee.lastname %>', '<%= employee.tel %>',
+                                                                        '<%= employee.email %>','<%= employee.role %>')">
                                                     <i class="fa fa-edit"></i>
                                                 </button>
                                                 <button
@@ -218,6 +218,27 @@
                             </div>
                         </form>
                     </div>
+                </div>
+                <div class="pagination flex justify-center items-center mt-4 space-x-2">
+                    <% if (currentPage > 1) { %>
+                        <a href="?page=<%= currentPage - 1 %>&role=<%= role %>&search=<%= search %>"
+                            class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                            ก่อนหน้า
+                        </a>
+                    <% } %>
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                        <a href="?page=<%= i %>&role=<%= role %>&search=<%= search %>"
+                            class="px-3 py-1 border border-gray-300 rounded-md 
+                                <%= currentPage === i ? 'page-current text-white' : 'text-gray-700 hover:bg-gray-100' %>">
+                            <%= i %>
+                        </a>
+                    <% } %>
+                    <% if (currentPage < totalPages) { %>
+                        <a href="?page=<%= currentPage + 1 %>&role=<%= role %>&search=<%= search %>"
+                            class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                            ถัดไป
+                        </a>
+                    <% } %>
                 </div>
             </div>
 </body>

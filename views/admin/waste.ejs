@@ -61,7 +61,7 @@
                             <% if (waste.length > 0) { %>
                                 <% waste.forEach((wastes, index) => { %>
                                     <tr>
-                                        <td class="table-was-index"><%= index + 1 %></td>
+                                        <td class="table-was-index"><%= (currentPage - 1) * 10 + index + 1 %></td>
                                         <td class="table-was-name"><%= wastes.wasteName %></td>
                                         <td class="table-was-type"><%= wastes.wasteType.wasteTypeName %></td>
                                         <td class="table-was-price"><%= wastes.pricePerUnit %></td>
@@ -75,7 +75,7 @@
                                         <td>
                                             <button type="button" class="was-row-<%= index + 1 %> row-active edit-btn" 
                                                 onclick="setWasteForm('<%= index + 1 %>', '<%= wastes._id %>', '<%= wastes.wasteName %>',
-                                                            '<%= wastes.pricePerUnit %>', '<%= wastes.wasteType._id %>', '<%= wastes.img %>')">
+                                                                    '<%= wastes.pricePerUnit %>', '<%= wastes.wasteType._id %>', '<%= wastes.img %>')">
                                                 <i class="fa fa-edit"></i>
                                             </button>
                                             <button onclick="deleteEmp(['<%= index + 1 %>', '<%= wastes._id %>','<%= wastes.wasteName %>'])" class="delete-btn">
@@ -195,6 +195,27 @@
                             </div>
                         </form>
                     </div>
+                </div>
+                <div class="pagination flex justify-center items-center mt-4 space-x-2">
+                    <% if (currentPage > 1) { %>
+                        <a href="?page=<%= currentPage - 1 %>"
+                            class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                            ก่อนหน้า
+                        </a>
+                    <% } %>
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                        <a href="?page=<%= i %>"
+                            class="px-3 py-1 border border-gray-300 rounded-md 
+                                <%= currentPage === i ? 'page-current text-white' : 'text-gray-700 hover:bg-gray-100' %>">
+                            <%= i %>
+                        </a>
+                    <% } %>
+                    <% if (currentPage < totalPages) { %>
+                        <a href="?page=<%= currentPage + 1 %>"
+                            class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                            ถัดไป
+                        </a>
+                    <% } %>
                 </div>
             </div>
 </body>

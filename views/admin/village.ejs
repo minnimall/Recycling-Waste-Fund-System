@@ -72,7 +72,7 @@
                                             <td class="table-was-location"><%= village.location %></td>
                                             <td class="table-was-delete">
                                                 <button type="button" class="was-row-<%= index + 1 %> row-active edit-btn" 
-                                                    onclick="setVillageForm('<%= index + 1 %>', '<%= village._id %>', '<%= village.villageNumber %>', '<%= village.villageName %>', '<%= village.location %>')">                                                
+                                                    onclick="setVillageForm('<%= index + 1 %>', '<%= village._id %>', '<%= village.villageNumber %>', '<%= village.villageName %>', '<%= village.location %>')"> 
                                                     <i class="fa fa-edit"></i>
                                                 </button>
                                                 <button type="button" class="delete-btn" 
@@ -143,6 +143,27 @@
                             </div>
                         </form>
                     </div>                    
+                </div>
+                <div class="pagination flex justify-center items-center mt-4 space-x-2">
+                    <% if (currentPage > 1) { %>
+                        <a href="?page=<%= currentPage - 1 %>"
+                            class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                            ก่อนหน้า
+                        </a>
+                    <% } %>
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                        <a href="?page=<%= i %>"
+                            class="px-3 py-1 border border-gray-300 rounded-md 
+                                <%= currentPage === i ? 'page-current text-white' : 'text-gray-700 hover:bg-gray-100' %>">
+                            <%= i %>
+                        </a>
+                    <% } %>
+                    <% if (currentPage < totalPages) { %>
+                        <a href="?page=<%= currentPage + 1 %>"
+                            class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                            ถัดไป
+                        </a>
+                    <% } %>
                 </div>
             </div>
 </body>

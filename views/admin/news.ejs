@@ -77,18 +77,8 @@
             </div>
             <div class="content">
                 <div class="content-header">
-                    <h1 class="font-bold">การจัดการข่าวสาร (2 รายการ)</h1>
+                    <h1 class="font-bold">การจัดการข่าวสาร (<%= totalItems %> รายการ)</h1>
                     <div class="add-media" onclick="openModal()">เพิ่มสื่อ</div>
-                </div>
-                <div class="flex items-center justfy-between">
-                    <h1 class="w-full">สื่อความรู้ (2)</h1>
-                    <div class="search-container">
-                        <form action="/admin" method="GET" class="search-form">
-                            <input type="text" name="search" value="" placeholder="ค้นหาสื่อ" class="search-input">
-                            <button type="submit" class="main-bg-color search-button">ค้นหา</button>
-                        </form>
-                        <button class="main-bg-color px-3 py-2 ml-2 text-white rounded" onclick="openModal()">เพิ่มสื่อ</button>
-                    </div>
                 </div>
                 <div class="news-container">
                     <div class="news-header">
@@ -113,23 +103,46 @@
                         <tbody id="modalHeaderInfo" class="bg-white divide-y divide-gray-200">
                             <% if (news && news.length > 0) { %>
                                 <% news.forEach((newsItem, index) => { %>
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-center">1</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-left"><%= newsItem.newsTitle %></td>
-                                <td class="px-6 py-4 whitespace-nowrap text-left"><%= newsItem.newsDescription %></td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center"><%= newsItem.formattedDate %></td>
-                                <td class="px-6 py-4 whitespace-nowrap text-left"><%= newsItem.newsAuthor%></td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center">
-                                    <a href="">แก้ไข</a>
-                                    <a href="">ลบ</a>
-                                </td>
-                            </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-center"><%= (currentPage - 1) * 10 + index + 1 %></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-left"><%= newsItem.newsTitle %></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-left"><%= newsItem.newsDescription %></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-center"><%= newsItem.formattedDate %></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-left"><%= newsItem.newsAuthor %></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                                            <a href="">แก้ไข</a>
+                                            <a href="">ลบ</a>
+                                        </td>
+                                    </tr>
                                 <% }) %>
                             <% } else { %>
-                                <td colspan="6" class="p-3 text-center">There are no news to display ....</td>
+                                <tr>
+                                    <td colspan="6" class="p-3 text-center">There are no news to display ....</td>
+                                </tr>
                             <% } %>
                         </tbody>
                     </table>
+                </div>
+                <div class="pagination flex justify-center items-center mt-4 space-x-2">
+                    <% if (currentPage > 1) { %>
+                        <a href="?page=<%= currentPage - 1 %>"
+                            class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                            ก่อนหน้า
+                        </a>
+                    <% } %>
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                        <a href="?page=<%= i %>"
+                            class="px-3 py-1 border border-gray-300 rounded-md 
+                                <%= currentPage === i ? 'page-current text-white' : 'text-gray-700 hover:bg-gray-100' %>">
+                            <%= i %>
+                        </a>
+                    <% } %>
+                    <% if (currentPage < totalPages) { %>
+                        <a href="?page=<%= currentPage + 1 %>"
+                            class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                            ถัดไป
+                        </a>
+                    <% } %>
                 </div>
             </div>
 </body>

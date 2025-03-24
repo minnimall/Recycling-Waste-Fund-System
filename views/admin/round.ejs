@@ -80,26 +80,26 @@
                     <tbody>
                         <% if (rounds.length > 0) { %>
                             <% rounds.forEach((round, index) => { %>
-                            <tr>
-                                <td class="table-was-index"><%= index + 1 %></td>
-                                <td class="table-was-name"><%= round.roundName %></td>
-                                <td class="table-was-village"><%= round.village.villageNumber %></td>
-                                <td class="table-was-village"><%= round.village.villageName %></td>
-                                <td class="table-was-date"><%= round.formattedDateThai %></td>
-                                <td class="table-was-start"><%= round.startTime %> น.</td>
-                                <td class="table-was-delete"><%= round.endTime %> น.</td>
-                                <td class="table-was-delete">
-                                    <button type="button" class="was-row-<%= index + 1 %> row-active edit-btn" 
-                                        onclick="setRoundForm('<%= index + 1 %>', '<%= round._id %>', '<%= round.roundName %>', '<%= round.village._id %>', '<%= round.date %>', '<%= round.startTime %>', '<%= round.endTime %>')">                                                
-                                        <i class="fa fa-edit"></i>
-                                    </button>
-                                    <button type="button" class="delete-btn" 
-                                        onclick="deleteRound(['<%= index + 1 %>', '<%= round._id %>', '<%= round.roundName %>', '<%= round.village._id %>', '<%= round.date %>', '<%= round.startTime %>', '<%= round.endTime %>'])">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        <% }) %>
+                                <tr>
+                                    <td class="table-was-index"><%= (currentPage - 1) * 10 + index + 1 %></td>
+                                    <td class="table-was-name"><%= round.roundName %></td>
+                                    <td class="table-was-village"><%= round.village.villageNumber %></td>
+                                    <td class="table-was-village"><%= round.village.villageName %></td>
+                                    <td class="table-was-date"><%= round.formattedDateThai %></td>
+                                    <td class="table-was-start"><%= round.startTime %> น.</td>
+                                    <td class="table-was-delete"><%= round.endTime %> น.</td>
+                                    <td class="table-was-delete">
+                                        <button type="button" class="was-row-<%= index + 1 %> row-active edit-btn" 
+                                            onclick="setRoundForm('<%= index + 1 %>', '<%= round._id %>', '<%= round.roundName %>', '<%= round.village._id %>', '<%= round.date %>', '<%= round.startTime %>', '<%= round.endTime %>')"> 
+                                            <i class="fa fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="delete-btn" 
+                                            onclick="deleteRound(['<%= index + 1 %>', '<%= round._id %>', '<%= round.roundName %>', '<%= round.village._id %>', '<%= round.date %>', '<%= round.startTime %>', '<%= round.endTime %>'])">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            <% }) %>
                         <% } else { %>
                             <tr>
                                 <td colspan="8" class="text-center py-2 px-4">ไม่พบข้อมูลหมู่บ้าน</td>
@@ -182,6 +182,27 @@
                     </div>
                 </form>
             </div>
+        </div>
+        <div class="pagination flex justify-center items-center mt-4 space-x-2">
+            <% if (currentPage > 1) { %>
+                <a href="?page=<%= currentPage - 1 %>"
+                    class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                    ก่อนหน้า
+                </a>
+            <% } %>
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <a href="?page=<%= i %>"
+                    class="px-3 py-1 border border-gray-300 rounded-md 
+                        <%= currentPage === i ? 'page-current text-white' : 'text-gray-700 hover:bg-gray-100' %>">
+                    <%= i %>
+                </a>
+            <% } %>
+            <% if (currentPage < totalPages) { %>
+                <a href="?page=<%= currentPage + 1 %>"
+                    class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                    ถัดไป
+                </a>
+            <% } %>
         </div>
     </div>
 </body>

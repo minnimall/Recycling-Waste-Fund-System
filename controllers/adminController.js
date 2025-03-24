@@ -33,23 +33,47 @@ const dashboardIndex = (req, res)=> {
 const mediaIndex = (req, res) => {
     const searchQuery = req.query.search || '';
     const filter = { isDeleted: false };
-    
+    const page = parseInt(req.query.page) || 1; // รับค่า page จาก query parameter หรือใช้ 1 เป็นค่าเริ่มต้น
+    const limit = 10; // จำนวน records ต่อหน้า
+
     if (searchQuery) {
         filter.$or = [
             { title: { $regex: searchQuery, $options: 'i' } },
             { youtubeUrl: { $regex: searchQuery, $options: 'i' } }
         ];
     }
-    myMedia.find(filter).sort({ createdAt: -1 })
-        .then((result) => {
-            result.forEach(item => {
-                item.formattedDate = moment(item.createdAt).format('YYYY-MM-DD');
-            });
-            res.render('admin/media', { mytitle: 'Admindashboard | Media', media: result, searchQuery: searchQuery });
+
+    myMedia.countDocuments(filter)
+        .then(totalItems => {
+            const totalPages = Math.ceil(totalItems / limit);
+            const skip = (page - 1) * limit;
+
+            myMedia.find(filter)
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .then((result) => {
+                    result.forEach(item => {
+                        item.formattedDate = moment(item.createdAt).format('YYYY-MM-DD');
+                    });
+                    res.render('admin/media', { 
+                        mytitle: 'Admindashboard | Media', 
+                        media: result, 
+                        searchQuery: searchQuery,
+                        currentPage: page,
+                        totalPages: totalPages,
+                        totalItems: totalItems, // ส่งจำนวนรายการทั้งหมดไปยัง template
+                        search: searchQuery // ส่งค่า search ไปยัง template
+                    });
+                })
+                .catch((err) => {
+                    console.log(err);
+                    res.status(500).send('Internal Server Error');
+                });
         })
-        .catch((err) => {
+        .catch(err => {
             console.log(err);
-            res.status(500).send('Internal Server Error');
+            res.status(500).send('เกิดข้อผิดพลาดในการนับจำนวนข้อมูล');
         });
 };
 // เพิ่มสื่อ (ป้องกันเพิ่มสื่อซ้ำ)
@@ -117,12 +141,38 @@ const mediaEdit = (req, res) => {
 
 // ข่าวสาร
 const newsIndex = (req, res) => {
-    myNews.find().sort({ createdAt: -1 })
-        .then((result) => {
-            res.render('admin/news', { mytitle: 'Admindashboard | News', news: result });
+    const page = parseInt(req.query.page) || 1; // รับค่า page จาก query parameter หรือใช้ 1 เป็นค่าเริ่มต้น
+    const limit = 10; // จำนวน records ต่อหน้า
+    const skip = (page - 1) * limit; // คำนวณจำนวน records ที่จะข้ามไป
+
+    myNews.countDocuments()
+        .then(totalItems => {
+            const totalPages = Math.ceil(totalItems / limit);
+
+            myNews.find()
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .then((result) => {
+                    result.forEach(item => {
+                        item.formattedDate = moment(item.createdAt).format('YYYY-MM-DD');
+                    });
+                    res.render('admin/news', { 
+                        mytitle: 'Admindashboard | News', 
+                        news: result,
+                        currentPage: page,
+                        totalPages: totalPages,
+                        totalItems: totalItems
+                    });
+                })
+                .catch((err) => {
+                    console.log(err);
+                    res.status(500).send('Internal Server Error');
+                });
         })
-        .catch((err) => {
+        .catch(err => {
             console.log(err);
+            res.status(500).send('เกิดข้อผิดพลาดในการนับจำนวนข้อมูล');
         });
 };
 
@@ -333,21 +383,31 @@ const upload2 = multer({
 
 // ขยะ
 const wasteIndex = (req, res) => {
+    const page = parseInt(req.query.page) || 1; // รับค่า page จาก query parameter หรือใช้ 1 เป็นค่าเริ่มต้น
+    const limit = 10; // จำนวน records ต่อหน้า
+    const skip = (page - 1) * limit; // คำนวณจำนวน records ที่จะข้ามไป
     const filter = { isDeleted: false };
 
     Promise.all([
-        myWaste.find(filter).populate('wasteType', 'wasteTypeName'), // Populate wasteType with wasteTypeName
-        myWasteType.find({ isDeleted: false })
+        myWaste.find(filter).populate('wasteType', 'wasteTypeName').skip(skip).limit(limit), // Populate wasteType with wasteTypeName and apply pagination
+        myWasteType.find({ isDeleted: false }),
+        myWaste.countDocuments(filter) // Count total documents
     ])
-    .then(([wasteData, wasteTypeData]) => {
+    .then(([wasteData, wasteTypeData, totalItems]) => {
+        const totalPages = Math.ceil(totalItems / limit);
+
         res.render('admin/waste', {
             mytitle: 'Admindashboard | Waste',
             waste: wasteData,
-            wasteTypes: wasteTypeData
+            wasteTypes: wasteTypeData,
+            currentPage: page,
+            totalPages: totalPages,
+            totalItems: totalItems
         });
     })
     .catch((err) => {
         console.log(err);
+        res.status(500).send('Internal Server Error');
     });
 };
 // เพิ่มขยะ (ป้องกันเพิ่มขยะซ้ำ)
@@ -570,6 +630,10 @@ const wasteTypeDelete = async (req, res) => {
 // หน้า employee(พนักงาน)
 const employeeIndex = (req, res) => {
     const { role, search } = req.query;
+    const page = parseInt(req.query.page) || 1; // รับค่า page จาก query parameter หรือใช้ 1 เป็นค่าเริ่มต้น
+    const limit = 10; // จำนวน records ต่อหน้า
+    const skip = (page - 1) * limit; // คำนวณจำนวน records ที่จะข้ามไป
+
     const filter = { isDeleted: false };
     if (role) {
         filter.role = role;
@@ -581,13 +645,34 @@ const employeeIndex = (req, res) => {
             { tel: { $regex: search, $options: 'i' } }
         ];
     }
-    MyAdmin.find(filter).sort({ createdAt: 1 })
-        .then((result) => {
-            res.render('admin/employee', { mytitle: 'Admindashboard | Employee', emp: result, role, search  });
+
+    MyAdmin.countDocuments(filter)
+        .then(totalItems => {
+            const totalPages = Math.ceil(totalItems / limit);
+
+            MyAdmin.find(filter)
+                .sort({ createdAt: 1 })
+                .skip(skip)
+                .limit(limit)
+                .then((result) => {
+                    res.render('admin/employee', { 
+                        mytitle: 'Admindashboard | Employee', 
+                        emp: result, 
+                        role, 
+                        search,
+                        currentPage: page,
+                        totalPages: totalPages,
+                        totalItems: totalItems
+                    });
+                })
+                .catch((err) => {
+                    console.error('Error fetching employees:', err);
+                    res.status(500).send('เกิดข้อผิดพลาดในการดึงข้อมูลพนักงาน');
+                });
         })
-        .catch((err) => {
-            console.error('Error fetching employees:', err);
-            res.status(500).send('เกิดข้อผิดพลาดในการดึงข้อมูลพนักงาน');
+        .catch(err => {
+            console.error('Error counting employees:', err);
+            res.status(500).send('เกิดข้อผิดพลาดในการนับจำนวนข้อมูลพนักงาน');
         });
 };
 // ลงทะเบียนพนักงานหรือแอดมิน (ป้องกันเพิ่มแอดมินหรือพนักงานซ้ำ)
@@ -682,13 +767,25 @@ const editEmployee = async (req, res) => {
 
 //หมู่บ้าน
 const villageIndex = async (req, res) => {
+    const page = parseInt(req.query.page) || 1; // รับค่า page จาก query parameter หรือใช้ 1 เป็นค่าเริ่มต้น
+    const limit = 10; // จำนวน records ต่อหน้า
+    const skip = (page - 1) * limit; // คำนวณจำนวน records ที่จะข้ามไป
     const filter = { isDeleted: false };
+
     try {
-        const villages = await Village.find(filter);
+        const [villages, totalItems] = await Promise.all([
+            Village.find(filter).skip(skip).limit(limit),
+            Village.countDocuments(filter)
+        ]);
+
+        const totalPages = Math.ceil(totalItems / limit);
 
         res.render('admin/village', { 
             mytitle: 'Admindashboard | Village',
-            villages: villages
+            villages: villages,
+            currentPage: page,
+            totalPages: totalPages,
+            totalItems: totalItems
         });
     } catch (err) {
         console.error('เกิดข้อผิดพลาดในการดึงข้อมูลหมู่บ้าน:', err);
@@ -763,18 +860,25 @@ const villageDelete = async (req, res) => {
 
 //หน้ารอบการรับซื้อขยะ 
 const roundIndex = (req, res) => {
+    const page = parseInt(req.query.page) || 1; // รับค่า page จาก query parameter หรือใช้ 1 เป็นค่าเริ่มต้น
+    const limit = 10; // จำนวน records ต่อหน้า
+    const skip = (page - 1) * limit; // คำนวณจำนวน records ที่จะข้ามไป
+    const filter = { isDeleted: false };
+
     const formatDate = (date) => {
         if (!date) return '';
         const options = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Bangkok' };
         return new Date(date).toLocaleDateString('th-TH', options); 
     };
-    const filter = { isDeleted: false };
 
     Promise.all([
         Village.find(filter).sort({ createdAt: 1 }),
-        Round.find(filter).populate('village').sort({ date: -1 })
+        Round.find(filter).populate('village').sort({ date: -1 }).skip(skip).limit(limit), // Apply pagination
+        Round.countDocuments(filter) // Count total documents
     ])
-    .then(([villageResult, roundResult]) => {
+    .then(([villageResult, roundResult, totalItems]) => {
+        const totalPages = Math.ceil(totalItems / limit);
+
         // แปลงวันที่ก่อนส่งไปยัง EJS
         roundResult = roundResult.map(round => ({
             ...round.toObject(), 
@@ -785,7 +889,10 @@ const roundIndex = (req, res) => {
         res.render('admin/round', {
             mytitle: 'Admindashboard | Round',
             village: villageResult,
-            rounds: roundResult  
+            rounds: roundResult,
+            currentPage: page,
+            totalPages: totalPages,
+            totalItems: totalItems
         });
     })
     .catch((err) => {
