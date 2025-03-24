@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/employeePartials/doctype.ejs') %>
+    <title><%= mytitle %></title>
+    <link rel="stylesheet" href="/style_employee/wasteSaleRequest.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+
+<body>
+    <%- include('../partials/employeePartials/empHeader.ejs') %>
+    <%- include('../partials/employeePartials/empSidebar.ejs') %>
+
+    <main class="container mx-auto mt-5">
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-4 border-b border-gray-200">
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
+                        <!-- <i class="fas fa-clipboard-list text-green-600 mr-3"></i> -->
+                        รายการคำร้องหรือข้อร้องเรียน
+                    </h2>
+                    <p class="text-gray-600 mt-1">ทั้งหมด <%= complaint.length %> รายการ</p>
+                </div>
+                
+                <div class="mt-4 md:mt-0 w-full md:w-auto">
+                    <div class="relative">
+                        <input type="text" placeholder="ค้นหารายการ..." class="w-full md:w-64 px-4 py-2 pr-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <% if (complaint.length > 0) { %>
+                    <% complaint.forEach(com => { %>
+                        <div class="border border-gray-200 p-4 rounded-lg shadow-sm bg-white hover:bg-gray-50 card-transition relative">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between">
+                                <div class="mb-3 md:mb-0">
+                                    <div class="flex items-center mb-2">
+                                        <i class="fas fa-user-circle text-gray-600 mr-2 text-xl"></i>
+                                        <h2 class="text-xl font-semibold text-gray-700">
+                                            <%= com.family.familyName %>
+                                        </h2>
+                                    </div>
+                                    
+                                    <div class="flex flex-wrap items-center text-sm text-gray-600">
+                                        <div class="flex items-center mr-4 mb-2 md:mb-0">
+                                            <i class="far fa-calendar-alt mr-1"></i> 
+                                            <span>วันที่ : <%= com.createdAt.toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' }) %></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center">
+                                    <button onclick="openModal('<%= com._id %>')" class="btn-primary px-4 py-2 rounded-lg flex items-center">
+                                        <i class="fas fa-eye mr-2"></i>
+                                        ดูรายละเอียด
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <% if (com.status === 'new') { %>
+                                <div class="badge bg-green-500 text-white">ใหม่</div>
+                            <% } %>
+                        </div>
+                        
+                        <!-- Modal -->
+                        <div id="modal-<%= com._id %>" class="fixed inset-0 hidden z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
+                            <div class="bg-white rounded-lg shadow-lg w-11/12 md:w-2/3 lg:w-1/2 xl:w-2/5 modal-transition modal-content">
+                                <div class="flex justify-between items-center p-4 border-b border-gray-200">
+                                    <h3 class="text-xl font-semibold text-gray-800">
+                                        <i class="fas fa-info-circle text-green-600 mr-2"></i>
+                                        รายละเอียดความประสงค์ขายขยะ
+                                    </h3>
+                                    <button onclick="closeModal('<%= com._id %>')" class="text-gray-500 hover:text-gray-700 text-2xl focus:outline-none">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                
+                                <div class="p-6">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <div class="mb-4">
+                                                <h4 class="text-sm text-gray-500 mb-1">ผู้แจ้งคำร้อง</h4>
+                                                <p class="text-lg font-semibold flex items-center">
+                                                    <i class="fas fa-user-circle text-gray-600 mr-2"></i>
+                                                    <%= com.family.familyName %>
+                                                </p>
+                                            </div>
+                                            
+                                            <div class="mb-4">
+                                                <h4 class="text-sm text-gray-500 mb-1">วันที่แจ้งคำร้อง</h4>
+                                                <p class="text-lg font-semibold flex items-center">
+                                                    <i class="far fa-calendar-alt text-green-600 mr-2"></i>
+                                                    <%= com.createdAt.toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' }) %>
+                                                </p>
+                                            </div>
+                                            
+                                            <div class="mb-4">
+                                                <h4 class="text-sm text-gray-500 mb-1">รายละเอียด</h4>
+                                                <p class="text-lg font-semibold flex items-center">
+                                                    <i class="fas fa-file-alt text-blue-500 mr-2"></i>
+                                                    <%= com.complaintMessage %>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="border-t border-gray-200 p-4 flex justify-end space-x-3">
+                                    <button onclick="closeModal('<%= com._id %>')" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                                        ปิด
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <div class="empty-state">
+                        <i class="fas fa-clipboard-list text-gray-300 text-5xl mb-4"></i>
+                        <h3 class="text-xl font-medium text-gray-500">ไม่พบรายการความประสงค์ขายขยะ</h3>
+                        <p class="text-gray-400 mt-2">กรุณาเพิ่มรายการใหม่เพื่อแสดงที่นี่</p>
+                    </div>
+                <% } %>
+            </div>            
+        </div>
+    </main>  
+    
+</body>
+<script>
+    function openModal(id) {
+        document.getElementById(`modal-${id}`).classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeModal(id) {
+        document.getElementById(`modal-${id}`).classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+    
+    // Close modal when clicking outside
+    document.addEventListener('click', function(event) {
+        const modals = document.querySelectorAll('[id^="modal-"]');
+        modals.forEach(modal => {
+            if (event.target === modal) {
+                const id = modal.id.replace('modal-', '');
+                closeModal(id);
+            }
+        });
+    });
+</script>
+</html>

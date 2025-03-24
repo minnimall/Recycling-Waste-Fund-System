@@ -5,104 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>โปรไฟล์ - กองทุนขยะรีไซเคิล องค์การบริหารส่วนตำบลขามป้อม</title>
     <link rel="icon" href="/img/logo_เปือยน้อย.png" type="image/png">
-    <link rel="stylesheet" href="/style_user/style_main.css">
+    <link rel="stylesheet" href="/style_user/profile.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
-    <style>
-        .profile-header {
-            background-color: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        }
-        
-        .profile-img {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 5px solid #fff;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        }
-        
-        .profile-info {
-            padding: 20px;
-        }
-        
-        .section-title {
-            border-left: 5px solid #28a745;
-            padding-left: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .family-card {
-            transition: transform 0.3s;
-            margin-bottom: 15px;
-        }
-        
-        .family-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .action-btn {
-            margin-right: 10px;
-            margin-bottom: 10px;
-        }
-        
-        .history-card {
-            margin-bottom: 20px;
-            transition: all 0.3s;
-        }
-        
-        .history-card:hover {
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-        }
-        
-        .badge-status {
-            font-size: 0.8rem;
-            padding: 5px 10px;
-        }
-        
-        .tab-content {
-            padding: 20px;
-            border: 1px solid #dee2e6;
-            border-top: none;
-            border-radius: 0 0 0.25rem 0.25rem;
-        }
-        
-        .account-balance {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #28a745;
-        }
-        
-        .transaction-in {
-            color: #28a745;
-        }
-        
-        .transaction-out {
-            color: #dc3545;
-        }
-        
-        .idea-card {
-            height: 100%;
-            transition: transform 0.3s;
-        }
-        
-        .idea-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .nav-tabs .nav-link.active {
-            border-color: #28a745 #dee2e6 #fff;
-            border-top-width: 3px;
-        }
-    </style>
 </head>
 <body>
     <%- include('../partials/nav.ejs') %>
@@ -111,10 +20,9 @@
         <!-- Profile Header -->
         <div class="profile-header row align-items-center">
             <div class="col-md-3 text-center">
-                <img src="/img/profile-placeholder.jpg" alt="รูปโปรไฟล์" class="profile-img mb-3">
+                <img src="/img/avatar.png" alt="รูปโปรไฟล์" class="profile-img mb-3">
                 <h4 class="mb-0">สมชาย ใจดี</h4>
                 <p class="text-muted">สมาชิกกองทุนขยะรีไซเคิล</p>
-                <p><i class="fas fa-id-card me-2"></i>รหัสสมาชิก: KP00123</p>
             </div>
             <div class="col-md-9">
                 <div class="row">
@@ -140,7 +48,7 @@
         </div>
         
         <!-- Main Content Tabs -->
-        <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+        <ul class="nav nav-tabs mt-5" id="profileTabs" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="family-tab" data-bs-toggle="tab" data-bs-target="#family" type="button" role="tab" aria-controls="family" aria-selected="true">
                     <i class="fas fa-users me-2"></i>สมาชิกในครอบครัว
@@ -172,7 +80,7 @@
                         <div class="card family-card">
                             <div class="card-body">
                                 <div class="d-flex align-items-center mb-3">
-                                    <img src="/img/profile-placeholder-female.jpg" alt="รูปสมาชิก" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                    <img src="/img/avatar2.png" alt="รูปสมาชิก" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;">
                                     <div>
                                         <h5 class="card-title mb-0">นางสมศรี ใจดี</h5>
                                         <span class="badge bg-info badge-status">ภรรยา</span>
@@ -180,9 +88,9 @@
                                 </div>
                                 <p class="card-text"><i class="fas fa-phone me-2"></i>088-765-4321</p>
                                 <p class="card-text"><i class="fas fa-calendar me-2"></i>อายุ: 42 ปี</p>
-                                <button class="btn btn-sm btn-outline-primary w-100">
+                                <!-- <button class="btn btn-sm btn-outline-primary w-100">
                                     <i class="fas fa-eye me-2"></i>ดูข้อมูลเพิ่มเติม
-                                </button>
+                                </button> -->
                             </div>
                         </div>
                     </div>
@@ -190,7 +98,7 @@
                         <div class="card family-card">
                             <div class="card-body">
                                 <div class="d-flex align-items-center mb-3">
-                                    <img src="/img/profile-placeholder-young.jpg" alt="รูปสมาชิก" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                    <img src="/img/avatar2.png" alt="รูปสมาชิก" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;">
                                     <div>
                                         <h5 class="card-title mb-0">ด.ช.สมหมาย ใจดี</h5>
                                         <span class="badge bg-warning badge-status">บุตร</span>
@@ -198,9 +106,9 @@
                                 </div>
                                 <p class="card-text"><i class="fas fa-phone me-2"></i>-</p>
                                 <p class="card-text"><i class="fas fa-calendar me-2"></i>อายุ: 15 ปี</p>
-                                <button class="btn btn-sm btn-outline-primary w-100">
+                                <!-- <button class="btn btn-sm btn-outline-primary w-100">
                                     <i class="fas fa-eye me-2"></i>ดูข้อมูลเพิ่มเติม
-                                </button>
+                                </button> -->
                             </div>
                         </div>
                     </div>
@@ -208,7 +116,7 @@
                         <div class="card family-card">
                             <div class="card-body">
                                 <div class="d-flex align-items-center mb-3">
-                                    <img src="/img/profile-placeholder-young-female.jpg" alt="รูปสมาชิก" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                    <img src="/img/avatar2.png" alt="รูปสมาชิก" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;">
                                     <div>
                                         <h5 class="card-title mb-0">ด.ญ.สมหญิง ใจดี</h5>
                                         <span class="badge bg-warning badge-status">บุตร</span>
@@ -216,18 +124,18 @@
                                 </div>
                                 <p class="card-text"><i class="fas fa-phone me-2"></i>-</p>
                                 <p class="card-text"><i class="fas fa-calendar me-2"></i>อายุ: 12 ปี</p>
-                                <button class="btn btn-sm btn-outline-primary w-100">
+                                <!-- <button class="btn btn-sm btn-outline-primary w-100">
                                     <i class="fas fa-eye me-2"></i>ดูข้อมูลเพิ่มเติม
-                                </button>
+                                </button> -->
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="text-center mt-3">
+                <!-- <div class="text-center mt-3">
                     <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addFamilyModal">
                         <i class="fas fa-plus me-2"></i>เพิ่มสมาชิกในครอบครัว
                     </button>
-                </div>
+                </div> -->
             </div>
             
             <!-- Waste Sale Requests Tab -->
@@ -298,9 +206,9 @@
                     </table>
                 </div>
                 <div class="text-center mt-3">
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newRequestModal">
+                    <a href="/user/wasteSaleRequest"><button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newRequestModalyy">
                         <i class="fas fa-plus me-2"></i>แจ้งความประสงค์ขายขยะ
-                    </button>
+                    </button></a>
                 </div>
             </div>
             
@@ -338,9 +246,9 @@
                     </div>
                 </div>
                 <div class="text-center mt-3">
-                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#newComplaintModal">
+                    <a href="/user/complaint"><button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newComplaintModalyy">
                         <i class="fas fa-plus me-2"></i>แจ้งคำร้องเรียนใหม่
-                    </button>
+                    </button></a>
                 </div>
             </div>
             
@@ -350,7 +258,7 @@
                 <div class="row">
                     <div class="col-md-4 mb-4">
                         <div class="card idea-card">
-                            <img src="/img/recycle-idea1.jpg" class="card-img-top" alt="ไอเดียรีไซเคิล" style="height: 200px; object-fit: cover;">
+                            <img src="/img/shoe_bin.png" class="card-img-top" alt="ไอเดียรีไซเคิล" style="height: 200px; object-fit: cover;">
                             <div class="card-body">
                                 <h5 class="card-title">การทำกระถางต้นไม้จากขวดพลาสติก</h5>
                                 <p class="card-text">วิธีการนำขวดพลาสติกมาทำเป็นกระถางปลูกต้นไม้แบบแขวน ช่วยประหยัดพื้นที่และสวยงาม</p>
@@ -369,7 +277,7 @@
                     </div>
                     <div class="col-md-4 mb-4">
                         <div class="card idea-card">
-                            <img src="/img/recycle-idea2.jpg" class="card-img-top" alt="ไอเดียรีไซเคิล" style="height: 200px; object-fit: cover;">
+                            <img src="/img/idea-recycle.png" class="card-img-top" alt="ไอเดียรีไซเคิล" style="height: 200px; object-fit: cover;">
                             <div class="card-body">
                                 <h5 class="card-title">การทำปุ๋ยหมักจากเศษอาหาร</h5>
                                 <p class="card-text">วิธีการทำปุ๋ยหมักอย่างง่ายจากเศษอาหารในครัวเรือน ช่วยลดปริมาณขยะและได้ปุ๋ยคุณภาพดี</p>
@@ -388,7 +296,7 @@
                     </div>
                     <div class="col-md-4 mb-4">
                         <div class="card idea-card">
-                            <img src="/img/recycle-idea3.jpg" class="card-img-top" alt="ไอเดียรีไซเคิล" style="height: 200px; object-fit: cover;">
+                            <img src="/img/eco-bricks.png" class="card-img-top" alt="ไอเดียรีไซเคิล" style="height: 200px; object-fit: cover;">
                             <div class="card-body">
                                 <h5 class="card-title">การทำของใช้จากกล่องนม</h5>
                                 <p class="card-text">ไอเดียการนำกล่องนมมาทำเป็นกระเป๋าสตางค์ กระเป๋าถือ และของใช้อื่นๆ ที่น่าสนใจ</p>
@@ -406,11 +314,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="text-center mt-3">
+                <!-- <div class="text-center mt-3">
                     <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newIdeaModal">
                         <i class="fas fa-plus me-2"></i>แชร์ไอเดียใหม่
                     </button>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>

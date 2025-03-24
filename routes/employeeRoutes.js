@@ -17,6 +17,9 @@ router.delete('/wastePurchaseDelete/:id', employeeController.wastePurchaseDelete
 router.get('/member', employeeController.memberIndex);
 router.post('/memberRegister', employeeController.memberRegister);
 
+// คำร้องหรือหรือข้อร้องเรียน
+router.get('/complaint', employeeController.complaintIndex);
+
 // ตรวจสอบความประสงค์ขายขยะ
 router.get('/wasteSaleRequest', employeeController.wasteSaleRequestIndex);
 

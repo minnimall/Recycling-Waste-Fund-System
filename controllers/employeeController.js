@@ -16,6 +16,7 @@ const wasteSaleRequest = require('../models/wasteSaleRequest');
 const Family = require('../models/family');
 const Member = require('../models/member');
 const WasteBankAccount = require('../models/wasteBankAccount');
+const Complaint = require('../models/complaint');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const moment = require('moment');
@@ -366,6 +367,28 @@ const memberRegister = async (req, res) => {
     }
 };
 
+//หน้าคำร้องหรือหรือข้อร้องเรียน
+const complaintIndex = async (req, res) => {
+    try {
+        const complaint = await Complaint
+            .find()
+            .populate('family')
+            .sort({ date: -1 });
+
+        res.render('employee/complaint', {
+            mytitle: 'รายการคำร้องหรือหรือข้อร้องเรียน',
+            complaint
+        });
+    } catch (error) {
+        console.error('Error fetching complaint requests:', error);
+        res.render('employee/complaint', {
+            mytitle: 'รายการคำร้องหรือหรือข้อร้องเรียน',
+            wasteSaleRequests: [],
+            error: 'ไม่สามารถโหลดข้อมูลได้'
+        });
+    }
+};
+
 //หน้าตรวจสอบความประสงค์ขายขยะ
 const wasteSaleRequestIndex = async (req, res) => {
     try {
@@ -403,6 +426,8 @@ module.exports = {
     wastePurchaseTotalIndex,wastePurchaseDelete,
     //หน้าสมาชิกกองทุนขยะรีไซเคิล
     memberIndex,memberRegister,
+    //หน้าคำร้องหรือหรือข้อร้องเรียน
+    complaintIndex,
     //หน้าตรวจสอบความประสงค์ขายขยะ
     wasteSaleRequestIndex,
     //หน้าสต๊อกขยะ

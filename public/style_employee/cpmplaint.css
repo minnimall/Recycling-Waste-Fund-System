@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
+body {
+    font-family: 'Prompt', sans-serif;
+}
+.card-transition {
+    transition: all 0.3s ease;
+}
+.card-transition:hover {
+    transform: translateY(-3px);
+}
+.modal-transition {
+    transition: all 0.3s ease;
+}
+.waste-tag {
+    display: inline-block;
+    margin: 0.25rem 0.1rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+}
+.btn-primary {
+    background-color: #2e7d32;
+    color: white;
+    transition: all 0.2s ease;
+}
+.btn-primary:hover {
+    background-color: #1b5e20;
+}
+.btn-secondary {
+    background-color: #f44336;
+    color: white;
+    transition: all 0.2s ease;
+}
+.btn-secondary:hover {
+    background-color: #d32f2f;
+}
+.page-header {
+    background-color: #ffffff;
+    border-bottom: 4px solid #2e7d32;
+}
+.modal-content {
+    max-height: 80vh;
+    overflow-y: auto;
+}
+.badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.empty-state {
+    padding: 3rem;
+    text-align: center;
+    color: #666;
+}
