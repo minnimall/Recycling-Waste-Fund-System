@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const myMedia = require('../models/media');
 const myActivity = require('../models/activity');
+const myNews = require('../models/news');
 const myWaste = require('../models/waste');
 const myWasteType = require('../models/wastetype');
 const Village = require('../models/village');
@@ -22,11 +23,12 @@ const formatDate = (date) => moment(date).locale('th').format('ddddที่ D M
 const user_index = async (req, res) => {
     const filter = { isDeleted: false };
     try {
-        const [activitiesResult, wasteResult, villageResult, roundResult] = await Promise.all([
+        const [activitiesResult, wasteResult, villageResult, roundResult, newsResult] = await Promise.all([
             myActivity.find(filter).sort({ createdAt: -1 }),
             myWaste.find(filter).sort({ createdAt: 1 }),
             Village.find(filter).sort({ villageNumber: 1 }),
-            Round.find(filter).populate('village').sort({ date: 1 })
+            Round.find(filter).populate('village').sort({ date: 1 }),
+            myNews.find(filter).sort({ createdAt: 1 })
         ]);
 
         const currentDate = moment().format('YYYY-MM-DD');
@@ -59,13 +61,15 @@ const user_index = async (req, res) => {
             waste: wasteResult,
             village: villageResult,
             roundsByVillage,
-            moment: moment
+            moment: moment,
+            news: newsResult
         });
     } catch (err) {
         console.log(err);
         res.status(500).send("เกิดข้อผิดพลาดในการโหลดข้อมูล");
     }
 };
+
 
 // หน้าประเภทขยะ
 const user_wastetype = (req, res) => {
@@ -321,9 +325,24 @@ const complaintPost = async (req, res) => {
 };
 
 // หน้ารายละเอียดข่าวประชามสัมพันธ์
-const detailNews = (req, res)=> {
-    res.render('user/detailNews')
-}
+const detailNews = (req, res) => {
+    const filter = { isDeleted: false };
+    myNews.findById(req.params.id)
+      .then(news => {
+        if (!news) {
+          return res.status(404).send('News not found');
+        }
+        const formattedNews = {
+            ...news._doc,
+            formattedDate: moment(news.createdAt).format('YYYY-MM-DD') // Correctly using moment
+        };
+        res.render('user/detailNews', { news: formattedNews });
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).send('Error fetching News details');
+    });
+};
 
 
 // หน้าโปรไฟล์

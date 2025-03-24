@@ -114,9 +114,18 @@
                         </div>
                         <div class="card">
                             <div class="card-body">
+                                
+                            <% if (news.length > 0) { %>
+                                <% news.forEach((item, index) => { %>
                                 <blockquote class="blockquote mb-0">
-                                <p><a href="/user/detailNews">ข่าว</a></p>
+                                <p><a href="/user/detailNews/<%= item._id %>"><%= item.newsTitle %></a></p>
                                 </blockquote>
+                                <% }); %>
+                            <% } else { %>
+                                <div>
+                                    <span>ยังไม่มีข้อมูล</span>
+                                </div>
+                            <% } %>
                             </div>
                         </div>
                     </div>

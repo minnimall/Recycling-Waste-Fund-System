@@ -31,7 +31,7 @@ router.get('/complaint', userController.user_complaint)
 router.post('/complaintPost', userController.complaintPost)
 
 // หน้ารายละเอียดข่าวประชาสัมพันธ์
-router.get('/detailNews', userController.detailNews)
+router.get('/detailNews/:id', userController.detailNews)
 
 // หน้าโปรไฟล์
 router.get('/profile', userController.user_profile)

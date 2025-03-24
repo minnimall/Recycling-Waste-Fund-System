@@ -25,11 +25,11 @@
                             <div class="news-meta d-flex flex-wrap gap-4 text-muted mb-3">
                                 <div class="meta-item d-flex align-items-center">
                                     <i class="far fa-calendar-alt me-2 text-primary"></i>
-                                    <span>วันที่ลงประกาศ: <strong>15 มีนาคม 2567</strong></span>
+                                    <span>วันที่ลงประกาศ: <strong><%= news.createdAt.toLocaleDateString() %></strong></span>
                                 </div>
                                 <div class="meta-item d-flex align-items-center">
                                     <i class="far fa-user me-2 text-primary"></i>
-                                    <span>ผู้ลงข่าว: <strong>ฝ่ายประชาสัมพันธ์</strong></span>
+                                    <span>ผู้ลงข่าว: <strong><%= news.newsAuthor %></strong></span>
                                 </div>
                             </div>
                             
@@ -43,20 +43,20 @@
                         
                         <!-- เนื้อหาข่าว -->
                         <div class="news-content mb-4 p-3 bg-light rounded">
-                            <p class="lead">เนื้อหาข่าวประชาสัมพันธ์จะแสดงในส่วนนี้...</p>
-                            <p>รายละเอียดข่าวประชาสัมพันธ์เกี่ยวกับกองทุนขยะรีไซเคิล องค์การบริหารส่วนตำบลขามป้อม</p>
+                            <p class="lead"><%= news.newsTitle %></p>
+                            <p><%= news.newsDescription %></p>
                         </div>
                         
                         <!-- ไฟล์ PDF -->
                         <div class="pdf-container mb-4">
                             <div class="pdf-header d-flex align-items-center bg-light p-3 rounded-top border">
                                 <i class="far fa-file-pdf fs-4 text-danger me-2"></i>
-                                <h5 class="mb-0">เอกสารแนบ: <span class="text-primary">ประกาศกองทุนขยะรีไซเคิล.pdf</span></h5>
+                                <h5 class="mb-0">เอกสารแนบ: <span class="text-primary"><%= news.newsFile.substring(news.newsFile.lastIndexOf('\\') + 1) %></span></h5>
                             </div>
                             
                             <div class="pdf-frame-container border border-top-0 rounded-bottom">
                                 <!-- ใช้ iframe แทน object ตามที่ต้องการ -->
-                                <iframe class="pdf-viewer w-100" style="height: 800px;" src="/uploads/news/PDF/newsFile-1742369037004.pdf" frameborder="0">
+                                <iframe class="pdf-viewer w-100" style="height: 800px;" src="<%= news.newsFile %>" frameborder="0">
                                     <div class="text-center py-5">
                                         <p>ไม่สามารถแสดงไฟล์ PDF ได้ กรุณาดาวน์โหลดเพื่อเปิดไฟล์</p>
                                     </div>
@@ -64,7 +64,7 @@
                                 
                                 <!-- ปุ่มดาวน์โหลด -->
                                 <div class="pdf-download p-3 bg-light border-top d-flex justify-content-end">
-                                    <a href="/uploads/news/" class="btn btn-danger" download>
+                                    <a href="<%= news.newsFile %>" class="btn btn-danger" download>
                                         <i class="fas fa-download me-2"></i>ดาวน์โหลดเอกสาร
                                     </a>
                                 </div>
@@ -73,8 +73,8 @@
                         
                         <!-- ปุ่มย้อนกลับ -->
                         <div class="back-button mt-4">
-                            <a href="/news" class="btn btn-secondary px-4">
-                                <i class="fas fa-arrow-left me-2"></i>กลับไปหน้าข่าวทั้งหมด
+                            <a href="/" class="btn btn-secondary px-4">
+                                <i class="fas fa-arrow-left me-2" ></i>กลับไปหน้าแรก
                             </a>
                         </div>
                     </div>
