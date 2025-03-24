@@ -7,14 +7,14 @@
     <link rel="stylesheet" href="/style_employee/wastePurchase.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/G1nJgbk=" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>    
     <script>
         $(document).ready(function() {
             $('#accountId').select2({
-                placeholder: '-- เลือกรหัสบัญชี --', // ข้อความแสดงเมื่อยังไม่มีการเลือก
-                allowClear: true // อนุญาตให้ล้างค่าที่เลือกได้
+                placeholder: "-- เลือกรหัสบัญชี --",
+                allowClear: true
             });
         });
     </script>
@@ -95,18 +95,26 @@
             <div class="border p-4 rounded-lg shadow-lg right-box bg-white border border-stone-300">
                 <h2 class="text-lg mb-4">ฟอร์มรับซื้อขยะ</h2>
                 <form id="wastePurchaseForm" action="/employee/wastePurchasePost" method="POST">
+                    <input type="hidden" name="addBy" value="<%= username %>">
                     <label class="block mb-2">รหัสบัญชี:</label>
-                    <select name="accountId" id="accountId" class="w-full p-2 border rounded mb-1" required>
-                        <option value="">-- เลือกรหัสบัญชี --</option>
+                    <div class="relative">
+                        <!-- <input type="text" id="accountSearch" class="w-full p-2 border rounded mb-1 pr-8" placeholder="ค้นหารหัสบัญชี หรือชื่อบัญชี"> -->
+                        <button type="button" id="clearSearch" class="absolute right-2 top-2 text-gray-400 hidden">✖</button>
+                        <select name="accountId" id="accountId" class="w-full p-2 border rounded mb-1 hidden" required>
+                            <option value="">-- เลือกรหัสบัญชี --</option>
+                            <% if (allWasteBankAccount && allWasteBankAccount.length > 0) { %>
+                                <% allWasteBankAccount.forEach((account) => { %>
+                                    <option value="<%= account._id %>" data-account-number="<%= account.AccountNumber %>" data-account-name="<%= account.AccountName %>">
+                                        <%= account.AccountNumber %> - <%= account.AccountName %>
+                                    </option>
+                                <% }); %>
+                            <% } else { %>
+                                <option value="" disabled>-- ยังไม่มีบัญชีผู้ใช้ --</option>
+                            <% } %>
+                        </select>
+                        <ul id="accountSearchResults" class="absolute z-10 w-full bg-white border rounded shadow-md hidden"></ul>
+                    </div>
                     
-                        <% if (allWasteBankAccount && allWasteBankAccount.length > 0) { %>
-                            <% allWasteBankAccount.forEach((account, index) => { %>
-                                <option value="<%= account._id %>"><%= account.AccountNumber %> - <%= account.AccountName %></option>
-                            <% }); %>
-                        <% } else { %>
-                            <option value="" disabled>-- ยังไม่มีบัญชีผู้ใช้ --</option>
-                        <% } %>
-                    </select>
             
                     <p><span class="text-total">ยอดรวม</span> <span id="totalAmount">0</span> <span class="text-unit">บาท</span></p>
                     <button type="button" class="mt-1 mb-2 bg-green-500 text-white px-4 py-2 rounded" onclick="openConfirmModal('<%= username %>')">ยืนยันการรับซื้อ</button>
@@ -194,6 +202,21 @@
     </div>
     <%- include('../partials/employeePartials/empFooter.ejs') %>
 </body>
+<script>
+    const clearSearchButton = document.getElementById('clearSearch');
+
+    accountSearchInput.addEventListener('input', function() {
+        clearSearchButton.classList.toggle('hidden', this.value.length === 0);
+    });
+
+    clearSearchButton.addEventListener('click', function() {
+        accountSearchInput.value = '';
+        accountSelect.value = '';
+        accountSearchResults.classList.add('hidden');
+        accountSelect.classList.remove('hidden');
+        this.classList.add('hidden');
+    });
+</script>
 <script>
     let selectedWaste = [];
     let currentWasteName = "";

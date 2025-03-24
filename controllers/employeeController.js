@@ -20,6 +20,7 @@ const path = require('path');
 const bcrypt = require('bcryptjs');
 const moment = require('moment');
 const mongoose = require('mongoose');
+const myAdmin = require('../models/admin');
 
 router.use(express.static(path.join(__dirname, '../public')));
 
@@ -70,14 +71,13 @@ const wastePurchaseIndex = async (req, res) => { // Make the function async
 const wastePurchaseTotalIndex = async (req, res) => {
     try {
         const searchDate = req.query.searchDate;
-        const accountId = req.query.accountId;
+        const accountIdParam = req.query.accountId;
         const page = parseInt(req.query.page) || 1;
         const limit = 10;
         const skip = (page - 1) * limit;
         const search = req.query.search;
         let query = {};
         let monthlyQuery = {};
-
         if (searchDate) {
             const startDate = new Date(searchDate);
             startDate.setHours(0, 0, 0, 0);
@@ -87,39 +87,49 @@ const wastePurchaseTotalIndex = async (req, res) => {
                 $gte: startDate,
                 $lte: endDate
             };
-
             const year = startDate.getFullYear();
             const month = startDate.getMonth();
             const firstDayOfMonth = new Date(year, month, 1);
             const lastDayOfMonth = new Date(year, month + 1, 0, 23, 59, 59, 999);
-
             monthlyQuery.purchaseDate = {
                 $gte: firstDayOfMonth,
                 $lte: lastDayOfMonth
             };
         }
-
-        if (accountId) {
-            query.accountId = accountId;
+        if (accountIdParam) {
+            query.accountId = accountIdParam;
         }
-
+        // คล้ายกับโค้ด memberIndex
+        if (search) {
+            const searchRegex = new RegExp(search, 'i');
+            const accountSearchQuery = {
+                $or: [
+                    { AccountNumber: searchRegex },
+                    { AccountName: searchRegex }
+                ]
+            };
+            const accountsMatching = await WasteBankAccount.find(accountSearchQuery).select('_id');
+            if (accountsMatching.length > 0) {
+                query.accountId = { $in: accountsMatching.map(acc => acc._id) };
+            } else {
+                query.accountId = null;
+            }
+        }
         const wastePurchases = await WastePurchase.find(query)
             .populate('wasteItems')
             .populate('accountId')
+            .populate('addBy') // This line is key
             .skip(skip)
             .limit(limit);
-
         const totalCount = await WastePurchase.countDocuments(query);
         const totalPages = Math.ceil(totalCount / limit);
         const purchaseCount = await WastePurchase.countDocuments(query);
-        const customerCount = new Set(wastePurchases.map(purchase => purchase.accountId._id)).size;
+        const customerCount = new Set(wastePurchases.map(purchase => purchase.accountId && purchase.accountId.length > 0 ? purchase.accountId[0]._id : null)).size;
 
         // คำนวณ totalAmount จากข้อมูลที่กรองตามเดือน
         const monthlyWastePurchases = await WastePurchase.find(monthlyQuery);
-        const totalAmount = monthlyWastePurchases.reduce((sum, purchase) => sum + purchase.totalAmount, 0);
-
+        const totalAmount = monthlyWastePurchases.reduce((sum, purchase) => sum + (purchase.totalAmount || 0), 0);
         const startIndex = (page - 1) * limit;
-
         res.render('employee/wastePurchaseTotal', {
             wastePurchases,
             mytitle: 'Employeedashboard | wastePurchaseTotal',
@@ -127,12 +137,13 @@ const wastePurchaseTotalIndex = async (req, res) => {
             customerCount,
             totalAmount,
             searchDate: searchDate,
-            accountId: accountId,
+            accountId: accountIdParam,
             currentPage: page,
             totalPages: totalPages,
             wastePurchases: wastePurchases,
             startIndex: startIndex,
-            search: search
+            search: search,
+            query: req.query // ส่ง req.query ไปยัง view เพื่อเก็บค่า search
         });
     } catch (error) {
         console.error(error);
@@ -173,20 +184,20 @@ const wastePurchasePost = async (req, res) => {
             res.redirect('/employee/wastePurchase?error=Invalid waste items data');
             return;
         }
-
         const newWastePurchase = new WastePurchase({
             accountId,
             totalAmount,
             wasteItems: wasteItemIds,
+            addBy: req.body.addBy
         });
         await newWastePurchase.save();
-
         res.redirect('/employee/wastePurchase?message=บันทึกการรับซื้อสำเร็จ');
     } catch (error) {
         console.error(error);
         res.redirect('/employee/wastePurchase?error=เกิดข้อผิดพลาดในการบันทึกข้อมูล');
     }
 };
+
 // ลบรายการรับซื้อ (softDelete)
 const wastePurchaseDelete = async (req, res) => {
     try {

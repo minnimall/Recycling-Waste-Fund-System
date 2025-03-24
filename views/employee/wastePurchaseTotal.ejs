@@ -55,8 +55,8 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">รหัสบัญชี</th>
-                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">ชื่อ-สกุล</th>
+                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">เลขบัญชี</th>
+                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">ชื่อบัญชี</th>
                                     <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">ยอดรวมสุทธิ (฿)</th>
                                     <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">วันที่รับซื้อ</th>
                                     <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">เวลา</th>
@@ -97,8 +97,6 @@
     </div>
     <div class="content">
         <div class="PurchaseHistoryContainer">
-        
-            <h1>วันที่ <span>23 / 10 / 2568</span></h1>
             <div class="PurchaseBoard">
                 <div class="PurchaseCount">
                     <div class="number"><%= purchaseCount %></div>
@@ -113,7 +111,7 @@
                     <div>ยอดการรับซื้อ</div>
                 </div>
             </div>
-            <div class="top-table">
+            <div class="top-table mt-5">
                 <h1>ข้อมูลการรับซื้อ <span><%= purchaseCount %> รายการ</span></h1>
                 <form action="" method="GET" class="search-form flex gap-1">
                     <input type="date" name="searchDate" value="<%= searchDate %>" class="search-input">
@@ -125,8 +123,8 @@
                 <thead>
                     <tr>
                         <th class="purchaseIndex">ลำดับที่</th>
-                        <th class="purchaseId">รหัสบัญชี</th>
-                        <th class="purchaseFullname">ชื่อ-สกุล</th>
+                        <th class="purchaseId">เลขบัญชี</th>
+                        <th class="purchaseFullname">ชื่อบัญชี</th>
                         <th class="purchaseTotal">ยอดรวม (฿)</th>
                         <th class="purchaseDate">วันที่รับซื้อ</th>
                         <th class="purchaseOrder">รายการขยะ</th>
@@ -135,27 +133,22 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <% wastePurchases.forEach((purchase, index) => { %>
+                    <% if (wastePurchases.length > 0) { %>
+                        <% wastePurchases.forEach((purchase, index) => { %>
                         <tr>
                             <td class="purchaseIndex"><%= startIndex + index + 1 %></td>
-                            <td class="purchaseId"><%= purchase.accountId %></td>
-                            <td class="purchaseFullname">สิทธิชัย ผ่องเพิ่ม</td>
-                            <td class="purchaseTotal"><%= purchase.totalAmount.toLocaleString('th-TH') %>฿</td>
+                            <td class="purchaseId"><%= purchase.accountId && purchase.accountId.length > 0 ? purchase.accountId[0].AccountNumber : '' %></td>
+                            <td class="purchaseFullname"><%= purchase.accountId && purchase.accountId.length > 0 ? purchase.accountId[0].AccountName : '' %></td>
+                            <td class="purchaseTotal"><%= (purchase.totalAmount || 0).toLocaleString('th-TH') %>฿</td>
                             <td class="purchaseDate"><%= purchase.purchaseDate.toLocaleDateString() %></td>
-                            <!-- อันเก่า -->
-                            <!-- <td class="purchaseOrder">
-                                <a href="#" data-items="<%= JSON.stringify({ wasteItems: purchase.wasteItems, accountId: purchase.accountId, purchaseDate: purchase.purchaseDate }) %>" class="item-link text-blue-500 hover:underline">
-                                    <%= purchase.wasteItems[0]._id %>
-                                </a>
-                            </td> -->
                             <td class="purchaseOrder">
-                                <a href="#" 
-                                    data-items="<%= JSON.stringify({ wasteItems: purchase.wasteItems, accountId: purchase.accountId, purchaseDate: purchase.purchaseDate }) %>" 
+                                <a href="#"
+                                data-items="<%= JSON.stringify({ wasteItems: purchase.wasteItems, accountId: purchase.accountId, purchaseDate: purchase.purchaseDate ,purchaseAddby: purchase.addBy }) %>"
                                     class="item-link text-blue-500 hover:underline">
-                                    <i class="fas fa-receipt"> รายการขยะจากการรับซื้อ</i> <!-- ไอคอนบิลใบเสร็จ -->
+                                    <i class="fas fa-receipt"> รายการขยะจากการรับซื้อ</i>
                                 </a>
                             </td>
-                            <td class="purchaseEmp">kb</td>
+                            <td class="purchaseEmp"><%= purchase.addBy ? purchase.addBy : 'Unknown' %></td>
                             <td class="purchaseAction flex gap-1">
                                 <button onclick="showModalDelete('<%= index + 1 %>','<%= purchase._id %>')" class="delete-btn">
                                     <i class="fa fa-trash"></i>
@@ -165,7 +158,12 @@
                                 </button>
                             </td>
                         </tr>
-                    <% }); %>
+                        <% }); %>
+                        <% } else { %>
+                            <tr class="mt-3">
+                                <td colspan="8" class="text-center">- ยังไม่มีข้อมูล -</td>
+                            </tr>
+                    <% } %>
                 </tbody>
             </table>
             <div class="pagination flex justify-center items-center mt-4 space-x-2">
@@ -205,25 +203,28 @@ document.addEventListener('DOMContentLoaded', function () {
             event.preventDefault();
             const data = JSON.parse(this.dataset.items);
             const items = data.wasteItems;
-            const accountId = data.accountId;
+            const accountId = data.accountId[0].AccountNumber;
+            const accountName = data.accountId[0].AccountName;
+            const accountAddBy = data.purchaseAddby;
             const purchaseDate = new Date(data.purchaseDate);
             const formattedDate = purchaseDate.toLocaleDateString();
             const formattedTime = purchaseDate.toLocaleTimeString();
 
+            
             // ข้อมูลส่วนหัว
             const headerRow = `<tr>
                 <td class="px-6 py-4 whitespace-nowrap text-center">${accountId}</td>
-                <td class="px-6 py-4 whitespace-nowrap">สิทธิชัย ผ่องเพิ่ม</td>
+                <td class="px-6 py-4 whitespace-nowrap">${accountName}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-center">${items.reduce((sum, item) => sum + (item.quantity * item.pricePerUnit), 0).toLocaleString('th-TH')}฿</td>
                 <td class="px-6 py-4 whitespace-nowrap text-center">${formattedDate}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-center">${formattedTime}</td>
-                <td class="px-6 py-4 whitespace-nowrap">kb</td>
+                <td class="px-6 py-4 whitespace-nowrap">${accountAddBy}</td>
             </tr>`;
             modalHeaderInfo.innerHTML = headerRow;
 
             // รายการสินค้า
             let itemRows = '';
-            let total = 0; // เพิ่มตัวแปรสำหรับคำนวณยอดรวม
+            let total = 0;
             items.forEach((item, index) => {
                 const subtotal = item.quantity * item.pricePerUnit;
                 total += subtotal;
@@ -236,7 +237,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 </tr>`;
             });
             modalItemTable.innerHTML = itemRows;
-            // แสดงยอดรวมทั้งหมด
             document.getElementById('totalAmount').textContent = `฿${total.toLocaleString('th-TH')}`;
 
             itemModal.classList.remove('hidden');

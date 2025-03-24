@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
 const wastePurchaseSchema = new mongoose.Schema({
-  accountId: {
-    type: String,
-    required: true,
-  },
+  accountId: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'WasteBankAccount',
+  }],
   totalAmount: {
     type: Number,
     required: true,
@@ -17,6 +17,10 @@ const wastePurchaseSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'WasteItem',
   }],
+  addBy: {
+    type: String,
+    required: true,
+  },
 });
 
 const WastePurchase = mongoose.model('WastePurchase', wastePurchaseSchema);
