@@ -8,15 +8,14 @@
         </title>
         <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
         <script src="https://cdn.tailwindcss.com"></script>
-        <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
         <link rel="stylesheet" href="/style_admin/news.css">
 </head>
 
 <body>
-    <%- include('../partials/adminPartials/adminHeader.ejs') %>
-
+        <%- include('../partials/adminPartials/adminHeader.ejs') %>
         <%- include('../partials/adminPartials/adminSidebar.ejs') %>
+        
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             // เช็คข้อความที่ส่งมาจาก URL
@@ -80,6 +79,16 @@
                 <div class="content-header">
                     <h1 class="font-bold">การจัดการข่าวสาร (2 รายการ)</h1>
                     <div class="add-media" onclick="openModal()">เพิ่มสื่อ</div>
+                </div>
+                <div class="flex items-center justfy-between">
+                    <h1 class="w-full">สื่อความรู้ (2)</h1>
+                    <div class="search-container">
+                        <form action="/admin" method="GET" class="search-form">
+                            <input type="text" name="search" value="" placeholder="ค้นหาสื่อ" class="search-input">
+                            <button type="submit" class="main-bg-color search-button">ค้นหา</button>
+                        </form>
+                        <button class="main-bg-color px-3 py-2 ml-2 text-white rounded" onclick="openModal()">เพิ่มสื่อ</button>
+                    </div>
                 </div>
                 <div class="news-container">
                     <div class="news-header">
