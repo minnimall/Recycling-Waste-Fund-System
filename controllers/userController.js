@@ -8,8 +8,11 @@ const myWasteType = require('../models/wastetype');
 const Village = require('../models/village');
 const Round = require('../models/round');
 const wasteSaleRequest = require('../models/wasteSaleRequest');
+const WastePurchase = require('../models/wastePurchase');
 const Family = require('../models/family');
+const Member = require('../models/member');
 const Complaint = require('../models/complaint');
+const WasteBankAccount = require('../models/wasteBankAccount');
 const path = require('path');
 const moment = require('moment');
 
@@ -324,9 +327,58 @@ const detailNews = (req, res)=> {
 
 
 // หน้าโปรไฟล์
-const user_profile = (req, res)=> {
-    res.render('user/profile')
-}
+const user_profile = async (req, res) => {
+    try {
+        // ตรวจสอบ session
+        if (!req.session || !req.session.username) {
+            console.log('No session username');
+            return res.redirect('/user/complaint?error=กรุณาเข้าสู่ระบบก่อนทำรายการ');
+        }
+
+        // ค้นหาครอบครัว
+        const family = await Family.findOne({ username: req.session.username });
+
+        if (!family) {
+            console.log('Family not found');
+            return res.redirect('/user/complaint?error=ไม่พบข้อมูลครัวเรือน');
+        }
+
+        // ดึงข้อมูลสมาชิกของครอบครัว
+        const members = await Member.find({ familyID: family._id });
+
+        // ดึงข้อมูลบัญชีธนาคารขยะของครอบครัว
+        const wasteBankAccount = await WasteBankAccount.findOne({ familyID: family._id });
+
+        // ดึงข้อมูลการซื้อขยะของครอบครัว
+        const wastePurchases = await WastePurchase.find({ accountId: wasteBankAccount._id });
+
+        // ดึงข้อมูลข้อร้องเรียนที่เกี่ยวข้องกับครอบครัว
+        const complaints = await Complaint.find({ family: family._id });
+
+        // ดึงข้อมูลคำร้องขอขายขยะ
+        const wasteSaleRequests = await wasteSaleRequest.find({ family: family._id });
+
+        // ดึงข้อมูลการทำธุรกรรมขยะ
+        // const wasteTransactions = await WasteTransaction.find({ accountId: wasteBankAccount._id });
+
+        res.render('user/profile', {
+            familyName: family.familyName,
+            username: family.username,
+            address: family.address,
+            numFamilyMembers: family.NumFamilyMembers,
+            members: members,  // ข้อมูลสมาชิก
+            wasteBankAccount: wasteBankAccount,  // ข้อมูลบัญชีธนาคารขยะ
+            wastePurchases: wastePurchases,  // ข้อมูลการซื้อขยะ
+            complaints: complaints,  // ข้อมูลข้อร้องเรียน
+            wasteSaleRequests: wasteSaleRequests,  // ข้อมูลคำร้องขอขายขยะ
+            // wasteTransactions: wasteTransactions,  // ข้อมูลการทำธุรกรรมขยะ
+            role: req.session.role,  // ส่งข้อมูล role
+        });
+    } catch (err) {
+        console.error('Error fetching data:', err);
+        res.status(500).send('เกิดข้อผิดพลาดในการดึงข้อมูล');
+    }
+};
 
 // exports เพื่อให้ไฟล์อื่นสามารถเรียกใช้งานได้
 module.exports = {
