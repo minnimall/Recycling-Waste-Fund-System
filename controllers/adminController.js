@@ -192,30 +192,48 @@ const upload = multer({
     limits: { fileSize: 50 * 1024 * 1024 }
 }).single('img');
 
-
 // กิจกรรม
 const activityIndex = (req, res) => {
     const searchQuery = req.query.search || '';
     const filter = { isDeleted: false };
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
 
     if (searchQuery) {
         filter.title = { $regex: searchQuery, $options: 'i' };
     }
 
-    myActivity.find(filter).sort({ createdAt: -1 })
-        .then((result) => {
-            result.forEach(item => {
-                item.formattedDate = moment(item.createdAt).format('YYYY-MM-DD');
-            });
-            res.render('admin/activity', { 
-                mytitle: 'Admindashboard | Activity', 
-                activity: result, 
-                searchQuery: searchQuery 
-            });
+    myActivity.countDocuments(filter)
+        .then(totalItems => {
+            const totalPages = Math.ceil(totalItems / limit);
+            const skip = (page - 1) * limit;
+
+            myActivity.find(filter)
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .then((result) => {
+                    result.forEach(item => {
+                        item.formattedDate = moment(item.createdAt).format('YYYY-MM-DD');
+                    });
+                    res.render('admin/activity', { 
+                        mytitle: 'Admindashboard | Activity', 
+                        activity: result, 
+                        searchQuery: searchQuery,
+                        currentPage: page,
+                        totalPages: totalPages,
+                        totalItems: totalItems, // ส่งจำนวนรายการทั้งหมดไปยัง template
+                        search: searchQuery 
+                    });
+                })
+                .catch((err) => {
+                    console.log(err);
+                    res.status(500).send('เกิดข้อผิดพลาดในการดึงข้อมูล');
+                });
         })
-        .catch((err) => {
+        .catch(err => {
             console.log(err);
-            res.status(500).send('เกิดข้อผิดพลาดในการดึงข้อมูล');
+            res.status(500).send('เกิดข้อผิดพลาดในการนับจำนวนข้อมูล');
         });
 };
 //เพิ่มกิจกรรม (ป้องกันเพิ่มกิจกรรมซ้ำ)
