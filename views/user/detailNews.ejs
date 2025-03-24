@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายละเอียดข่าวประชาสัมพันธ์ - กองทุนขยะรีไซเคิล องค์การบริหารส่วนตำบลขามป้อม</title>
+    <link rel="icon" href="/img/logo_เปือยน้อย.png" type="image/png" sizes="16x16">
+    <link rel="stylesheet" href="/style_user/detailNews.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <%- include('../partials/nav.ejs') %>
+
+    <div class="container news-detail-container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-md-5 p-4">
+                        <!-- ส่วนหัวข้อข่าว -->
+                        <div class="news-header mb-4">
+                            <h1 class="news-title fw-bold text-primary border-bottom pb-2 mb-3">ข่าวประชาสัมพันธ์</h1>
+                            
+                            <!-- ข้อมูลเมตา (วันที่, ผู้ลงข่าว) -->
+                            <div class="news-meta d-flex flex-wrap gap-4 text-muted mb-3">
+                                <div class="meta-item d-flex align-items-center">
+                                    <i class="far fa-calendar-alt me-2 text-primary"></i>
+                                    <span>วันที่ลงประกาศ: <strong>15 มีนาคม 2567</strong></span>
+                                </div>
+                                <div class="meta-item d-flex align-items-center">
+                                    <i class="far fa-user me-2 text-primary"></i>
+                                    <span>ผู้ลงข่าว: <strong>ฝ่ายประชาสัมพันธ์</strong></span>
+                                </div>
+                            </div>
+                            
+                            <!-- แถบแสดงหมวดหมู่ -->
+                            <div class="category-badge mb-3">
+                                <span class="badge bg-success px-3 py-2 rounded-pill">
+                                    <i class="fas fa-tag me-1"></i> กองทุนขยะรีไซเคิล
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- เนื้อหาข่าว -->
+                        <div class="news-content mb-4 p-3 bg-light rounded">
+                            <p class="lead">เนื้อหาข่าวประชาสัมพันธ์จะแสดงในส่วนนี้...</p>
+                            <p>รายละเอียดข่าวประชาสัมพันธ์เกี่ยวกับกองทุนขยะรีไซเคิล องค์การบริหารส่วนตำบลขามป้อม</p>
+                        </div>
+                        
+                        <!-- ไฟล์ PDF -->
+                        <div class="pdf-container mb-4">
+                            <div class="pdf-header d-flex align-items-center bg-light p-3 rounded-top border">
+                                <i class="far fa-file-pdf fs-4 text-danger me-2"></i>
+                                <h5 class="mb-0">เอกสารแนบ: <span class="text-primary">ประกาศกองทุนขยะรีไซเคิล.pdf</span></h5>
+                            </div>
+                            
+                            <div class="pdf-frame-container border border-top-0 rounded-bottom">
+                                <!-- ใช้ iframe แทน object ตามที่ต้องการ -->
+                                <iframe class="pdf-viewer w-100" style="height: 800px;" src="/uploads/news/PDF/newsFile-1742369037004.pdf" frameborder="0">
+                                    <div class="text-center py-5">
+                                        <p>ไม่สามารถแสดงไฟล์ PDF ได้ กรุณาดาวน์โหลดเพื่อเปิดไฟล์</p>
+                                    </div>
+                                </iframe>
+                                
+                                <!-- ปุ่มดาวน์โหลด -->
+                                <div class="pdf-download p-3 bg-light border-top d-flex justify-content-end">
+                                    <a href="/uploads/news/" class="btn btn-danger" download>
+                                        <i class="fas fa-download me-2"></i>ดาวน์โหลดเอกสาร
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- ปุ่มย้อนกลับ -->
+                        <div class="back-button mt-4">
+                            <a href="/news" class="btn btn-secondary px-4">
+                                <i class="fas fa-arrow-left me-2"></i>กลับไปหน้าข่าวทั้งหมด
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/footer.ejs') %>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // เช็คข้อความที่ส่งมาจาก URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const successMessage = urlParams.get('message');
+        const errorMessage = urlParams.get('error');
+
+        if (successMessage) {
+            Swal.fire({
+                icon: 'success',
+                title: 'สำเร็จ!',
+                text: successMessage,
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#28a745',
+                timer: 3000
+            });
+        }
+
+        if (errorMessage) {
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด!',
+                text: errorMessage, // Fixed variable name from 'error' to 'errorMessage'
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#d33',
+                timer: 3000
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400&display=swap');
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Prompt', sans-serif;
+    color: black;
+    scroll-behavior: smooth;
+}
+
+.news-title {
+    font-size: 2rem;
+    color: #0d6efd;
+}
+
+.meta-item {
+    font-size: 0.95rem;
+}
+
+.pdf-viewer {
+    background-color: #f8f9fa;
+}
+
+.pdf-header {
+    border-bottom: none;
+}
+
+.news-content {
+    line-height: 1.8;
+}
+
+.card {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.btn {
+    border-radius: 5px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.category-badge .badge {
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+/* สำหรับอุปกรณ์มือถือ */
+@media (max-width: 768px) {
+    .news-title {
+        font-size: 1.5rem;
+    }
+    
+    .pdf-viewer {
+        height: 350px !important;
+    }
+    
+    .news-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}

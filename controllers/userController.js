@@ -317,6 +317,11 @@ const complaintPost = async (req, res) => {
     }
 };
 
+// หน้ารายละเอียดข่าวประชามสัมพันธ์
+const detailNews = (req, res)=> {
+    res.render('user/detailNews')
+}
+
 
 // หน้าโปรไฟล์
 const user_profile = (req, res)=> {
@@ -333,5 +338,6 @@ module.exports = {
     user_contact,
     user_allActivity,user_detailActivity,
     user_complaint,complaintPost,
+    detailNews,
     user_profile
 }
