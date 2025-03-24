@@ -76,17 +76,16 @@
 
     <!-- Main content -->
     <div class="content">
-        <div class="content-header">
-            <h1>กิจกรรม (<%= activity.length %>)</h1>
-
-            <div class="add-media" onclick="openModal()">เพิ่มกิจกรรม</div>
-        </div>
-        <div class="search-container">
-            <!-- ช่องค้นหากิจกรรม -->
-            <form action="/admin/activity" method="GET" class="search-form">
-                <input type="text" name="search" value="<%= searchQuery %>" placeholder="ค้นหากิจกรรม" class="search-input">
-                <button type="submit" class="search-button">ค้นหา</button>
-            </form>
+        <div class="flex items-center justfy-between">
+            <h1 class="w-full">กิจกรรม (<%= activity.length %>)</h1>
+            <div class="search-container flex items-center">
+                <!-- ช่องค้นหากิจกรรม -->
+                <form action="/admin/activity" method="GET" class="search-form">
+                    <input type="text" name="search" value="<%= searchQuery %>" placeholder="ค้นหากิจกรรม" class="search-input">
+                    <button type="submit" class="main-bg-color search-button">ค้นหา</button>
+                </form>
+                <button class="main-bg-color px-3 py-2 ml-2 text-white rounded" onclick="openModal()">เพิ่มกิจกรรม</button>
+            </div>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-6">
             <% if (activity.length > 0) { %>

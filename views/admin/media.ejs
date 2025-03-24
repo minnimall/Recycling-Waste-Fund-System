@@ -63,15 +63,15 @@
 
     <!-- Main content -->
     <div class="content">
-        <div class="content-header">
-            <h1>สื่อความรู้ (<%= media.length %>)</h1>
-            <div class="add-media" onclick="openModal()">เพิ่มสื่อ</div>
-        </div>
-        <div class="search-container">
-            <form action="/admin" method="GET" class="search-form">
-                <input type="text" name="search" value="<%= searchQuery %>" placeholder="ค้นหาสื่อ" class="search-input">
-                <button type="submit" class="search-button">ค้นหา</button>
-            </form>
+        <div class="flex items-center justfy-between">
+            <h1 class="w-full">สื่อความรู้ (<%= media.length %>)</h1>
+            <div class="search-container">
+                <form action="/admin" method="GET" class="search-form">
+                    <input type="text" name="search" value="<%= searchQuery %>" placeholder="ค้นหาสื่อ" class="search-input">
+                    <button type="submit" class="main-bg-color search-button">ค้นหา</button>
+                </form>
+                <button class="main-bg-color px-3 py-2 ml-2 text-white rounded" onclick="openModal()">เพิ่มสื่อ</button>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-6">
