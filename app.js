@@ -92,30 +92,40 @@ const checkAuth = (req, res, next) => {
 
 //สำหรับ admin
 const checkAdminAndSetName = (req, res, next) => {
-    // ตั้งค่า username สำหรับ res.locals
     if (req.session && req.session.username) {
         res.locals.username = req.session.username;
+        res.locals.firstname = req.session.firstname || "Admin";
+        res.locals.lastname = req.session.lastname || "";
+        res.locals.role = req.session.role || "admin";
     } else {
         res.locals.username = "Admin";
+        res.locals.firstname = "Admin";
+        res.locals.lastname = "";
+        res.locals.role = "guest";
     }
 
-    // ตรวจสอบสิทธิ์การเป็น admin
+    // ตรวจสอบว่าสิทธิ์เป็น 'admin' หรือไม่
     if (req.session.role === 'admin') {
-        next(); // หากเป็น admin ให้ไป middleware ถัดไป
+        next();
     } else {
-        res.redirect('/user'); // ถ้าไม่ใช่ admin ให้ redirect ไปยังหน้าอื่น
+        res.redirect('/user');
     }
 };
 
-//สำหรับ พนักงาน
 const checkEmpAndSetName = (req, res, next) => {
     if (req.session && req.session.username) {
         res.locals.username = req.session.username;
+        res.locals.firstname = req.session.firstname || "Admin";
+        res.locals.lastname = req.session.lastname || "";
+        res.locals.role = req.session.role || "employee";
     } else {
         res.locals.username = "Admin";
+        res.locals.firstname = "Admin";
+        res.locals.lastname = "";
+        res.locals.role = "guest";
     }
 
-    // ตรวจสอบสิทธิ์การเป็น employee
+    // ตรวจสอบว่าสิทธิ์เป็น 'employee' หรือไม่
     if (req.session.role === 'employee') {
         next();
     } else {
@@ -168,31 +178,31 @@ app.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
     try {
-        let user = await Admin.findOne({ username });
-
-        if (!user) {
-            user = await Family.findOne({ username });
-        }
+        // ค้นหา username ใน Admin หรือ Family
+        let user = await Admin.findOne({ username }) || await Family.findOne({ username });
 
         if (!user) {
             return res.redirect('/login?error=ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
         }
 
-        // เปรียบเทียบรหัสผ่านที่ผู้ใช้กรอกกับแฮชในฐานข้อมูล
+        // ตรวจสอบรหัสผ่าน
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.redirect('/login?error=ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
         }
 
-        // ตั้งค่า session
+        // บันทึกข้อมูลลง session
         req.session.username = user.username;
+        req.session.firstname = user.firstname; 
+        req.session.lastname = user.lastname; 
         req.session.role = user.role;
 
+        // นำไปยังหน้าที่เหมาะสมตาม role
         if (user.role === 'admin') {
             res.redirect('/admin');
         } else if (user.role === 'employee') {
             res.redirect('/employee');
-        } else if (user.role === 'user') { // เพิ่มการเปลี่ยนเส้นทางสำหรับ user
+        } else if (user.role === 'user') {
             res.redirect('/user');
         } else {
             res.status(403).render('error', { errorMessage: 'กรุณาตรวจสอบสิทธิ์ของคุณ หรือกลับไปที่หน้า Login' });
@@ -202,6 +212,7 @@ app.post('/login', async (req, res) => {
         res.status(500).send('เกิดข้อผิดพลาด');
     }
 });
+
 
 //logout
 app.get('/logout', (req, res) => {

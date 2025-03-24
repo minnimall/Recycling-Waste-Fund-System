@@ -9,6 +9,7 @@ const Village = require('../models/village');
 const Round = require('../models/round');
 const wasteSaleRequest = require('../models/wasteSaleRequest');
 const Family = require('../models/family');
+const Complaint = require('../models/complaint');
 const path = require('path');
 const moment = require('moment');
 
@@ -268,6 +269,55 @@ const user_detailActivity = (req, res) => {
         });
 };
 
+// หน้าคำร้องเรียน
+const user_complaint = (req, res)=> {
+    res.render('user/complaint')
+}
+
+const complaintPost = async (req, res) => {
+    try {
+        // ตรวจสอบ session
+        if (!req.session || !req.session.username) {
+            console.log('No session username');
+            return res.redirect('/user/complaint?error=กรุณาเข้าสู่ระบบก่อนทำรายการ');
+        }
+
+        // ค้นหาครอบครัว
+        const family = await Family.findOne({ username: req.session.username });
+        
+        if (!family) {
+            console.log('Family not found');
+            return res.redirect('/user/complaint?error=ไม่พบข้อมูลครัวเรือน');
+        }
+
+        // ตรวจสอบข้อความร้องเรียน
+        const complaintMessage = req.body.complaintMessage 
+            ? req.body.complaintMessage.trim() 
+            : '';
+
+        console.log('Processed Complaint Message:', complaintMessage);
+
+        if (!complaintMessage) {
+            console.log('Empty complaint message');
+            return res.redirect('/user/complaint?error=กรุณากรอกข้อร้องเรียนหรือข้อเสนอแนะ');
+        }
+
+        const newComplaint = new Complaint({
+            family: family._id,
+            complaintMessage: complaintMessage
+        });
+
+        await newComplaint.save();
+
+        res.redirect('/user/complaint?message=ส่งแบบฟอร์มสำเร็จ');
+
+    } catch (err) {
+        console.error('Complaint submission FULL ERROR:', err);
+        res.redirect('/user/complaint?error=เกิดข้อผิดพลาดในระบบ');
+    }
+};
+
+
 // หน้าโปรไฟล์
 const user_profile = (req, res)=> {
     res.render('user/profile')
@@ -282,5 +332,6 @@ module.exports = {
     user_wasteSaleRequest, wasteSaleRequestPost,
     user_contact,
     user_allActivity,user_detailActivity,
+    user_complaint,complaintPost,
     user_profile
 }

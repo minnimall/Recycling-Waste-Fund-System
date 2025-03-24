@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>กองทุนขยะรีไซเคิล องค์การบริหารส่วนตำบลขามป้อม อำเภอเปือยน้อย จังหวัดขอนแก่น</title>
+    <link rel="icon" href="/img/logo_เปือยน้อย.png" type="image/png" sizes="16x16">
+    <link rel="stylesheet" href="/style_user/wasteSaleRequest.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+    <!-- CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <!-- JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // เช็คข้อความที่ส่งมาจาก URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const successMessage = urlParams.get('message');
+        const errorMessage = urlParams.get('error');
+
+        if (successMessage) {
+            Swal.fire({
+                icon: 'success',
+                title: 'สำเร็จ!',
+                text: successMessage,
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#28a745',
+                timer: 3000
+            });
+        }
+
+        if (errorMessage) {
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด!',
+                text: error,
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#d33',
+                timer: 3000
+            });
+        }
+
+    </script>
+    <%- include('../partials/nav.ejs') %>
+
+    <div class="content">
+        <div class="container">
+            <div class="mt-5 content-header d-flex justify-content-center align-items-center">
+                <h1 class="title">รับคำร้องหรือข้อร้องเรียน</h1>
+            </div>
+            <div class="mt-5 mb-5 form-saleRequest border rounded p-4 shadow-sm bg-light">
+                <div class="mt-2 d-flex justify-content-between align-items-center">
+                    <h2>ฟอร์มกรอกข้อมูลเบื้องต้น</h2>
+                    <p id="time" class="show-time">วันที่ <span id="date-time"></span></p>
+                </div>
+                <div>
+                    <form id="complaint-form" action="/user/complaintPost" method="POST">
+                        <input type="hidden" name="username" value="<%= session.username %>">
+                        <div class="mb-3">
+                            <label for="complaintMessage" class="form-label">รายละเอียดข้อมูล</label>
+                            <textarea class="form-control" id="complaintMessage" name="complaintMessage" placeholder="กรุณากรอกข้อร้องเรียนหรือข้อเสนอแนะของคุณที่นี่..." requiredrows="4"></textarea>
+                        </div>
+                        <div class="d-flex">
+                            <button type="submit" class="btn btn-success ms-auto">ส่งข้อมูล</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/footer.ejs') %>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        //แสดงวัน
+        function updateTime() {
+            const currentDate = new Date();
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour12: true 
+            };
+            const timeString = currentDate.toLocaleString('th-TH', options);
+            document.getElementById('date-time').textContent = timeString;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        //แสดงรายการขยะที่เลือก
+        // document.getElementById("waste-type").addEventListener("change", function () {
+        //     const selectedOptions = Array.from(this.selectedOptions);
+        //     const selectedList = document.getElementById("selected-items");
+        
+        //     // ล้างข้อมูลเดิมก่อน
+        //     selectedList.innerHTML = "";
+        
+        //     // วนลูปเพิ่มรายการที่เลือก
+        //     selectedOptions.forEach(option => {
+        //         const li = document.createElement("li");
+        //         li.classList.add("list-group-item");
+        //         li.textContent = option.textContent;
+        //         selectedList.appendChild(li);
+        //     });
+        // });
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('#waste').select2({
+                placeholder: "เลือกขยะที่ต้องการขาย",
+                allowClear: true
+            });
+        });
+        </script>
+        
+</body>
+</html>

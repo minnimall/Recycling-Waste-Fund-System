@@ -1,0 +1,117 @@
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400&display=swap');
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Prompt', sans-serif;
+    color: black;
+    scroll-behavior: smooth;
+}
+
+html, body {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* เนื้อหาเว็บไซต์ */
+.content {
+    flex: 1; /* ให้พื้นที่นี้ยืดหยุ่นได้ */
+}
+/* ส่วน navbar */
+ul{
+    list-style-type: none;
+}
+nav {
+    display: flex;
+    align-items: center;
+    height: 100px;
+    top: 0;
+    width: 100%;
+    box-shadow: 3px 3px 10px gray;
+    background-color: #376939;
+}
+.nav-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1;
+}
+nav ul li a:hover{
+    color: white;
+    border-bottom: 2px solid whitesmoke;
+}
+nav ul li a{
+    font-size: 1.1rem;
+}
+li a{
+    text-decoration: none;
+    color: white;
+}
+.menu {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+ul li a{
+    margin-left: 30px;
+}
+.logo{
+    width: 90px;
+    height: auto;
+}
+.select a{
+    color: white;
+    border-bottom: 2px solid whitesmoke;
+    /* border: 2px solid whitesmoke;
+    border-radius: 3px;
+    padding: 5px; */
+}
+.icon{
+    color: white;
+}
+
+
+.show-time {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    transition: all 0.3s ease-in-out;
+}
+
+.title {
+    font-size: 2.5rem; /* ขนาดตัวอักษรใหญ่ขึ้น */
+    font-weight: bold;
+    text-align: center;
+    color: #33691e; /* สีเขียว */
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+/* เส้นขีดใต้ที่มีเอฟเฟกต์ */
+.title::after {
+    content: "";
+    display: block;
+    width: 60px;
+    height: 5px;
+    background: linear-gradient(to right, #4caf50, #2e7d32);
+    margin: 8px auto 0;
+    border-radius: 3px;
+}
+
+/* เพิ่มเงาให้อ่านง่ายขึ้น */
+.content-header {
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+

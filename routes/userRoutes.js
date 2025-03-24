@@ -26,6 +26,10 @@ router.get('/contact', userController.user_contact)
 router.get('/allActivity', userController.user_allActivity)
 router.get('/detailActivity/:id', userController.user_detailActivity)
 
+// หน้าคำร้อง
+router.get('/complaint', userController.user_complaint)
+router.post('/complaintPost', userController.complaintPost)
+
 // หน้าโปรไฟล์
 router.get('/profile', userController.user_profile)
 

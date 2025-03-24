@@ -7,9 +7,18 @@
             class="text-m text-white px-4 py-2 rounded-lg shadow-md bg-gray-800 border border-gray-700 flex items-center">
             <img src="../img/admin/logo.png" class="h-12 mr-2 rounded-full">
             <div class="text-left">
-                <div class="font-semibold">ยินดีต้อนรับ : <%= username %> ▾</div>
+                <div class="font-semibold">ยินดีต้อนรับ : <%= firstname %> <%= lastname %> ▾</div>
                 <div>
-                    <span class="text-yellow-300">ตำแหน่ง : </span>
+                    <span class="text-yellow-300">ตำแหน่ง : </span> 
+                    <% if (role === 'admin') { %>
+                        ผู้ดูแลระบบ
+                    <% } else if (role === 'employee') { %>
+                        พนักงาน
+                    <% } else if (role === 'user') { %>
+                        ผู้ใช้ทั่วไป
+                    <% } else { %>
+                        ไม่ทราบตำแหน่ง
+                    <% } %>
                 </div>
             </div>
         </button>
@@ -21,9 +30,19 @@
                 <img src="../img/admin/logo.png" class="h-10 mr-2">
                 <div class="text-xs">
                     <div class="font-bold">
-                        <%= username %>
+                        <%= firstname %> <%= lastname %>
                     </div>
-                    <div><span class="text-yellow-300 mr-2">ตำแหน่ง : </span>
+                    <div>
+                        <span class="text-yellow-300">ตำแหน่ง : </span> 
+                        <% if (role === 'admin') { %>
+                            ผู้ดูแลระบบ
+                        <% } else if (role === 'employee') { %>
+                            พนักงาน
+                        <% } else if (role === 'user') { %>
+                            ผู้ใช้ทั่วไป
+                        <% } else { %>
+                            ไม่ทราบตำแหน่ง
+                        <% } %>
                     </div>
                 </div>
             </div>
