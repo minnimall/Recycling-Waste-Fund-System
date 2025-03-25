@@ -146,62 +146,54 @@
                         <thead class="table-light">
                             <tr>
                                 <th>วันที่แจ้ง</th>
-                                <th>ประเภทขยะ</th>
+                                <th>ชนิดขยะ</th>
                                 <th>น้ำหนักโดยประมาณ (กก.)</th>
-                                <th>วันที่นัดรับ</th>
+                                <th>วันที่ให้เข้ามารับ</th>
+                                <th>สถานที่</th>
                                 <th>สถานะ</th>
-                                <th>การดำเนินการ</th>
+                                <!-- <th>การดำเนินการ</th> -->
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>20 มี.ค. 2566</td>
-                                <td>ขวดพลาสติก, กระดาษ</td>
-                                <td>5.2</td>
-                                <td>22 มี.ค. 2566</td>
-                                <td><span class="badge bg-success">สำเร็จ</span></td>
-                                <td>
-                                    <button class="btn btn-sm btn-info">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>15 ก.พ. 2566</td>
-                                <td>ขวดแก้ว, กระป๋องอลูมิเนียม</td>
-                                <td>8.7</td>
-                                <td>18 ก.พ. 2566</td>
-                                <td><span class="badge bg-success">สำเร็จ</span></td>
-                                <td>
-                                    <button class="btn btn-sm btn-info">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>5 ม.ค. 2566</td>
-                                <td>กระดาษ, พลาสติก</td>
-                                <td>3.5</td>
-                                <td>8 ม.ค. 2566</td>
-                                <td><span class="badge bg-success">สำเร็จ</span></td>
-                                <td>
-                                    <button class="btn btn-sm btn-info">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>10 ธ.ค. 2565</td>
-                                <td>ขวดพลาสติก</td>
-                                <td>2.8</td>
-                                <td>12 ธ.ค. 2565</td>
-                                <td><span class="badge bg-success">สำเร็จ</span></td>
-                                <td>
-                                    <button class="btn btn-sm btn-info">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                </td>
-                            </tr>
+                            <% wasteSaleRequests.forEach((request) => { %>
+                                <tr>
+                                    <td>
+                                        <%= request.createdAt.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                                    </td>
+                                    <td>
+                                        <% request.waste.forEach((w, index) => { %>
+                                            <span class="font-medium">
+                                                <%= w.wasteName %> <%= w.pricePerUnit %> บาท/กก.
+                                                <% if (index < request.waste.length - 1) { %>
+                                                    ,
+                                                <% } %>
+                                            </span>
+                                        <% }); %>
+                                    </td>
+                                    <td><%= request.weight %></td>
+                                    <td>
+                                        <% if (request.date) { %>
+                                            <%= new Date(request.date).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                                        <% } else { %>
+                                            <span>ไม่ระบุ</span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <%= request.location %>
+                                    </td>
+                                    <td>
+                                        <span class="badge <%= request.status === 'สำเร็จ' ? 'bg-success' : 'bg-warning' %>">
+                                            รอดำเนินการ
+                                        </span>
+                                    </td>
+                                    <!-- Action Button
+                                    <td>
+                                        <button class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td> -->
+                                </tr>
+                            <% }); %>
                         </tbody>
                     </table>
                 </div>
@@ -216,34 +208,21 @@
             <div class="tab-pane fade" id="complaints" role="tabpanel" aria-labelledby="complaints-tab">
                 <h4 class="section-title">ประวัติคำร้องเรียน</h4>
                 <div class="row">
+                    <% complaints.forEach((com) => { %>
                     <div class="col-md-6">
                         <div class="card history-card">
                             <div class="card-header d-flex justify-content-between align-items-center">
-                                <span><i class="fas fa-exclamation-circle me-2 text-warning"></i>เลขที่คำร้อง: CM20230001</span>
+                                <!-- <span><i class="fas fa-exclamation-circle me-2 text-warning"></i>เลขที่คำร้อง: CM20230001</span> -->
                                 <span class="badge bg-warning">รอดำเนินการ</span>
                             </div>
                             <div class="card-body">
-                                <h5 class="card-title">ปัญหาการจัดเก็บขยะไม่ตรงเวลา</h5>
-                                <p class="card-text">รถเก็บขยะมาช้ากว่ากำหนดทำให้ขยะส่งกลิ่นเหม็น และมีสุนัขมาคุ้ยเขี่ย</p>
-                                <p class="text-muted"><i class="fas fa-calendar me-2"></i>วันที่แจ้ง: 10 มีนาคม 2566</p>
+                                <p class="card-text"><%= com.complaintMessage %></p>
+                                <p class="text-muted"><i class="fas fa-calendar me-2"></i>วันที่แจ้ง: <%= com.createdAt.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) %></p>
                                 <button class="btn btn-sm btn-outline-info">ดูรายละเอียด</button>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="card history-card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <span><i class="fas fa-exclamation-circle me-2 text-success"></i>เลขที่คำร้อง: CM20220015</span>
-                                <span class="badge bg-success">ดำเนินการแล้ว</span>
-                            </div>
-                            <div class="card-body">
-                                <h5 class="card-title">ถังขยะชำรุด</h5>
-                                <p class="card-text">ถังขยะหน้าบ้านเลขที่ 123 มีรอยแตกทำให้น้ำขยะไหลออกมา</p>
-                                <p class="text-muted"><i class="fas fa-calendar me-2"></i>วันที่แจ้ง: 5 ธันวาคม 2565</p>
-                                <button class="btn btn-sm btn-outline-info">ดูรายละเอียด</button>
-                            </div>
-                        </div>
-                    </div>
+                    <% }); %>
                 </div>
                 <div class="text-center mt-3">
                     <a href="/user/complaint"><button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newComplaintModalyy">
@@ -344,7 +323,7 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>วันที่</th>
-                                    <th>ประเภทขยะ</th>
+                                    <th>ขยะ</th>
                                     <th>น้ำหนัก (กก.)</th>
                                     <th>ราคาต่อหน่วย (บาท)</th>
                                     <th>จำนวนเงิน (บาท)</th>
@@ -354,7 +333,7 @@
                             <tbody>
                                 <tr>
                                     <td>22 มี.ค. 2566</td>
-                                    <td>ขวดพลาสติก</td>
+                                    <td>ขวดพลาสติกใส</td>
                                     <td>3.5</td>
                                     <td>10</td>
                                     <td>35</td>
@@ -362,7 +341,7 @@
                                 </tr>
                                 <tr>
                                     <td>22 มี.ค. 2566</td>
-                                    <td>กระดาษ</td>
+                                    <td>กระดาษหนังสือพิมพ์</td>
                                     <td>1.7</td>
                                     <td>5</td>
                                     <td>8.5</td>
@@ -370,7 +349,7 @@
                                 </tr>
                                 <tr>
                                     <td>18 ก.พ. 2566</td>
-                                    <td>ขวดแก้ว</td>
+                                    <td>ขวดเบียร์</td>
                                     <td>5.2</td>
                                     <td>2</td>
                                     <td>10.4</td>
@@ -382,30 +361,6 @@
                                     <td>3.5</td>
                                     <td>30</td>
                                     <td>105</td>
-                                    <td>นางสาวสะอาด จิตใจดี</td>
-                                </tr>
-                                <tr>
-                                    <td>8 ม.ค. 2566</td>
-                                    <td>กระดาษ</td>
-                                    <td>2.3</td>
-                                    <td>5</td>
-                                    <td>11.5</td>
-                                    <td>นายรักษ์ รีไซเคิล</td>
-                                </tr>
-                                <tr>
-                                    <td>8 ม.ค. 2566</td>
-                                    <td>พลาสติก</td>
-                                    <td>1.2</td>
-                                    <td>8</td>
-                                    <td>9.6</td>
-                                    <td>นายรักษ์ รีไซเคิล</td>
-                                </tr>
-                                <tr>
-                                    <td>12 ธ.ค. 2565</td>
-                                    <td>ขวดพลาสติก</td>
-                                    <td>2.8</td>
-                                    <td>10</td>
-                                    <td>28</td>
                                     <td>นางสาวสะอาด จิตใจดี</td>
                                 </tr>
                             </tbody>
@@ -558,9 +513,9 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
-                    <button type="button" class="btn btn-primary">
+                    <!-- <button type="button" class="btn btn-primary">
                         <i class="fas fa-print me-2"></i>พิมพ์สมุดบัญชี
-                    </button>
+                    </button> -->
                 </div>
             </div>
         </div>

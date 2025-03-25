@@ -74,21 +74,35 @@ const user_index = async (req, res) => {
 // หน้าประเภทขยะ
 const user_wastetype = (req, res) => {
     const wasteTypeFilter = req.query.wasteType;
+    const page = parseInt(req.query.page) || 1;
+    const limit = 12;
+    const skip = (page - 1) * limit;
 
     Promise.all([
         myWaste.find({
             ...(wasteTypeFilter ? { wasteType: wasteTypeFilter } : {}), 
-            isDeleted: false // กรองเฉพาะขยะที่ isDeleted: false
-        }).populate('wasteType', 'wasteTypeName'),
+            isDeleted: false
+        })
+        .skip(skip)
+        .limit(limit)
+        .populate('wasteType', 'wasteTypeName'),
 
-        myWasteType.find({ isDeleted: false })
+        myWasteType.find({ isDeleted: false }),
+
+        myWaste.countDocuments({
+            ...(wasteTypeFilter ? { wasteType: wasteTypeFilter } : {}),
+            isDeleted: false
+        })
     ])
-    .then(([wasteData, wasteTypeData]) => {
+    .then(([wasteData, wasteTypeData, totalWasteCount]) => {
+        const totalPages = Math.ceil(totalWasteCount / limit);
         res.render('user/wastetype', {
             mytitle: 'Admindashboard | Waste',
             waste: wasteData,
             wasteTypes: wasteTypeData,
-            selectedWasteType: wasteTypeFilter // ส่งค่าประเภทขยะที่ถูกเลือกกลับไปเพื่อแสดงใน select
+            selectedWasteType: wasteTypeFilter,
+            currentPage: page,
+            totalPages: totalPages
         });
     })
     .catch((err) => {
@@ -96,6 +110,7 @@ const user_wastetype = (req, res) => {
         res.status(500).send('เกิดข้อผิดพลาดในระบบ');
     });
 };
+
 
 // หน้าสื่อความรู้
 const user_knowledge = (req, res) => {
@@ -147,7 +162,7 @@ const upload = multer({
 const wasteSaleRequestPost = (req, res) => {
     // ตรวจสอบว่า session มีค่า userId หรือไม่
     if (!req.session || !req.session.username) {
-        return res.status(401).send('กรุณาเข้าสู่ระบบก่อนทำรายการ');
+        res.redirect('/user/wasteSaleRequest?error=กรุณาเข้าสู่ระบบก่อนทำรายการ');
     }
 
     // ใช้ username จาก session ค้นหา Family ในฐานข้อมูล
@@ -328,9 +343,9 @@ const complaintPost = async (req, res) => {
 const detailNews = (req, res) => {
     const filter = { isDeleted: false };
     myNews.findById(req.params.id)
-      .then(news => {
+        .then(news => {
         if (!news) {
-          return res.status(404).send('News not found');
+            return res.status(404).send('News not found');
         }
         const formattedNews = {
             ...news._doc,
@@ -339,8 +354,8 @@ const detailNews = (req, res) => {
         res.render('user/detailNews', { news: formattedNews });
     })
     .catch(err => {
-      console.error(err);
-      res.status(500).send('Error fetching News details');
+        console.error(err);
+        res.status(500).send('Error fetching News details');
     });
 };
 
@@ -375,7 +390,7 @@ const user_profile = async (req, res) => {
         const complaints = await Complaint.find({ family: family._id });
 
         // ดึงข้อมูลคำร้องขอขายขยะ
-        const wasteSaleRequests = await wasteSaleRequest.find({ family: family._id });
+        const wasteSaleRequests = await wasteSaleRequest.find({ family: family._id }).populate('waste');
 
         // ดึงข้อมูลการทำธุรกรรมขยะ
         // const wasteTransactions = await WasteTransaction.find({ accountId: wasteBankAccount._id });

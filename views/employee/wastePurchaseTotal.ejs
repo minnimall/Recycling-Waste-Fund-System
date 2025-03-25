@@ -22,11 +22,11 @@
 
         if (successMessage) {
             Swal.fire({
-                toast: true,
-                position: 'top-end',
                 icon: 'success',
-                title: successMessage,
-                showConfirmButton: false,
+                title: 'สำเร็จ!',
+                text: successMessage,
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#28a745',
                 timer: 3000
             });
         }

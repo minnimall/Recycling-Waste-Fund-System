@@ -50,7 +50,20 @@
                             <span>ยังไม่มีข้อมูล</span>
                         </div>
                     <% } %>
-                </div>                               
+                </div>
+                
+                <!-- Pagination Controls -->
+                <div class="pagination mt-4">
+                    <% if (currentPage > 1) { %>
+                        <a href="/user/wastetype?page=<%= currentPage - 1 %>&wasteType=<%= selectedWasteType %>" class="prev">ก่อนหน้า</a>
+                    <% } %>
+                
+                    <span>Page <%= currentPage %> of <%= totalPages %></span>
+                
+                    <% if (currentPage < totalPages) { %>
+                        <a href="/user/wastetype?page=<%= currentPage + 1 %>&wasteType=<%= selectedWasteType %>" class="next">หน้าถัดไป</a>
+                    <% } %>
+                </div>                                               
             </section>
         </div>
     </div>

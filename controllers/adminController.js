@@ -145,11 +145,11 @@ const newsIndex = (req, res) => {
     const limit = 10; // จำนวน records ต่อหน้า
     const skip = (page - 1) * limit; // คำนวณจำนวน records ที่จะข้ามไป
 
-    myNews.countDocuments()
+    myNews.countDocuments({ isDeleted: false })  // Only count documents where isDeleted is false
         .then(totalItems => {
             const totalPages = Math.ceil(totalItems / limit);
 
-            myNews.find()
+            myNews.find({ isDeleted: false })  // Only find documents where isDeleted is false
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit)
@@ -175,6 +175,7 @@ const newsIndex = (req, res) => {
             res.status(500).send('เกิดข้อผิดพลาดในการนับจำนวนข้อมูล');
         });
 };
+
 
 const storageNews = multer.diskStorage({
     destination: './public/uploads/news/PDF/',
@@ -228,6 +229,25 @@ const newsPost = async (req, res) => {
         }
     });
 };
+const deleteNews = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Perform the "soft delete"
+        const result = await myNews.findByIdAndUpdate(id, { isDeleted: true });
+
+        if (!result) {
+            console.log(`News with ID ${id} not found.`);
+            return res.status(404).json({ success: false, message: 'ไม่พบข้อมูลที่ต้องการลบ' });
+        }
+
+        res.status(200).json({ success: true, message: 'ลบข่าวสำเร็จ (Soft Delete)' });
+    } catch (err) {
+        console.error('Error deleting news:', err);
+        res.status(500).json({ success: false, message: 'ลบข่าวไม่สำเร็จ' });
+    }
+};
+
 
 // สำหรับเก็บรูปภาพที่อัปโหลดจาก activity
 const storage = multer.diskStorage({
@@ -525,7 +545,7 @@ const wasteTypeIndex = async function (req, res, next) {
     try {
         const search = req.query.search || ''; // รับค่าการค้นหาจาก query string
         const page = parseInt(req.query.page) || 1; // รับค่าหน้าปัจจุบันจาก query string
-        const limit = 5; // จำนวนข้อมูลที่จะแสดงต่อหน้า
+        const limit = 10; // จำนวนข้อมูลที่จะแสดงต่อหน้า
         const startIndex = (page - 1) * limit;
 
         // กำหนดค่า filter เพื่อแสดงเฉพาะข้อมูลที่ isDeleted: false
@@ -965,7 +985,7 @@ module.exports = {
     //สื่อ
     mediaIndex,mediaPost,mediaEdit,mediaDelete,
     //ข่าวสาร
-    newsIndex,newsPost,
+    newsIndex,newsPost,deleteNews,
     //กิจกรรม
     activityIndex,activityPost,activityEdit,deleteActivity,
     //ขยะ

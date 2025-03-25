@@ -74,10 +74,10 @@
                         </form>                        
                     </div>
                 </div>
-                <div class="grid grid-cols-4 gap-4">
+                <div class="grid grid-cols-4 gap-4 overflow-y-scroll h-[630px]">
                     <% if (waste.length > 0) { %>
                         <% waste.forEach((item, index) => { %>
-                            <div class="border p-3 rounded-lg shadow-md cursor-pointer" onclick="selectWaste('<%= index %>', '<%= item.wasteName %>', '<%= item.pricePerUnit %>')">
+                            <div class="border p-3 rounded-lg shadow-md cursor-pointer h-[220px]" onclick="selectWaste('<%= index %>', '<%= item.wasteName %>', '<%= item.pricePerUnit %>')">
                                 <img class="w-full h-32 object-cover mb-2" src="<%= item.img %>" alt="รูป <%= item.wasteName %>">
                                 <p class="text-center font-semibold"><%= item.wasteName %></p>
                                 <p class="text-center text-sm text-gray-500">฿ <%= item.pricePerUnit %> บาท/กก.</p>
@@ -131,8 +131,8 @@
                 <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
                     <h3 class="text-lg font-bold mb-2">กรุณากรอกน้ำหนัก</h3>
                     <input id="weightInput" type="number" min="0.1" placeholder="น้ำหนัก (กก.)" class="w-full p-2 border rounded mb-4" required>
-                    <div class="flex items-center w-full mb-2"><span class="mr-2">ประเภทขยะ : </span> <p id="modalWasteName" class="px-2 py-1 rounded bg-green-600 text-white"></p></div>
-                    <div class="flex items-center w-full"><span class="mr-2">ราคา/หน่วย : </span> <p id="modalWastePrice" class="px-2 py-1 rounded bg-yellow-500 text-white"></p></div>
+                    <div class="flex items-center w-full mb-2"><span class="mr-2">ประเภทขยะ : </span> <p id="modalWasteName" class="px-2 py-1 rounded "></p></div>
+                    <div class="flex items-center w-full"><span class="mr-2">ราคา/หน่วย : </span> <p id="modalWastePrice" class="px-2 py-1 rounded "></p></div>
                     <hr class="my-4">
                     <div class="flex justify-end">
                         <button onclick="closeModal()" class="bg-gray-500 text-white px-4 py-2 rounded">ปิด</button>
@@ -141,8 +141,8 @@
                 </div>
             </div>
 
-             <!-- Modal ยืนยันการรับซื้อ -->
-             <div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+            <!-- Modal ยืนยันการรับซื้อ -->
+            <div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
                 <form class="bg-white p-3 w-1/2 rounded-lg" action="" method="POST">
                     <input type="hidden" name="accountId" class="w-full p-2 border rounded mb-1" required>
 
