@@ -407,6 +407,7 @@ const user_profile = async (req, res) => {
             wasteSaleRequests: wasteSaleRequests,  // ข้อมูลคำร้องขอขายขยะ
             // wasteTransactions: wasteTransactions,  // ข้อมูลการทำธุรกรรมขยะ
             role: req.session.role,  // ส่งข้อมูล role
+            createdAt: family.createdAt,
         });
     } catch (err) {
         console.error('Error fetching data:', err);

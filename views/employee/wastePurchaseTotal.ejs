@@ -42,6 +42,8 @@
             });
         }
     </script>
+
+    <!-- Modal -->
     <div id="itemModal" class="fixed inset-0 overflow-y-auto hidden">
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 transition-opacity" aria-hidden="true">
@@ -93,6 +95,132 @@
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Main -->
+    <div class="content bg-gray-50 min-screen">
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">สรุปการรับซื้อขยะ</h1>
+                <p class="text-gray-600">ข้อมูลสรุปในการออกรับซื้อขยะ</p>
+            </div>
+        </div>
+
+        <!-- Stats cards -->
+        <div class="mx-4 grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-blue-50 rounded-lg p-6 shadow-sm border border-blue-100 transition-transform hover:scale-105">
+                <div class="text-3xl font-bold text-blue-700 mb-2"><%= purchaseCount %></div>
+                <div class="text-gray-600">จำนวนการรับซื้อ</div>
+            </div>
+            <div class="bg-green-50 rounded-lg p-6 shadow-sm border border-green-100 transition-transform hover:scale-105">
+                <div class="text-3xl font-bold text-green-700 mb-2"><%= customerCount %></div>
+                <div class="text-gray-600">จำนวนลูกค้า</div>
+            </div>
+            <div class="bg-purple-50 rounded-lg p-6 shadow-sm border border-purple-100 transition-transform hover:scale-105">
+                <div class="text-3xl font-bold text-purple-700 mb-2"><%= totalAmount.toLocaleString('th-TH') %>฿</div>
+                <div class="text-gray-600">ยอดการรับซื้อ</div>
+            </div>
+        </div>
+
+        <!-- Search form and table -->
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+            <div class="mb-6 flex justify-between items-center border-b border-gray-200 pb-4">
+                <h2 class="text-base font-semibold text-gray-800 mb-4 md:mb-0">
+                    ข้อมูลการรับซื้อ <span class="text-blue-600 text-base font-normal"><%= purchaseCount %> รายการ</span>
+                </h2>
+                <form action="" method="GET" class="flex flex-col md:flex-row gap-2">
+                    <div class="flex gap-2">
+                        <input type="date" name="searchDate" value="<%= searchDate %>" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <input type="text" name="accountId" value="<%= accountId %>" placeholder="เลขที่บัญชี" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        <i class="fas fa-search mr-2"></i>ค้นหา
+                    </button>
+                </form>
+            </div>
+            <div class="">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">ลำดับที่</th>
+                            <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-700 uppercase">เลขที่บัญชี</th>
+                            <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-700 uppercase">ชื่อบัญชี</th>
+                            <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">ยอดรวม (บาท ฿)</th>
+                            <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">วัน-เวลาที่รับซื้อ</th>
+                            <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">รายการขยะ</th>
+                            <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-700 uppercase">พนักงาน</th>
+                            <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <% if (wastePurchases.length > 0) { %>
+                            <% wastePurchases.forEach((purchase, index) => { %>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 text-center text-sm text-gray-900"><%= startIndex + index + 1 %></td>
+                                <td class="px-6 py-4 text-sm text-gray-900"><%= purchase.accountId && purchase.accountId.length > 0 ? purchase.accountId[0].AccountNumber : '' %></td>
+                                <td class="px-6 py-4 text-sm text-gray-900"><%= purchase.accountId && purchase.accountId.length > 0 ? purchase.accountId[0].AccountName : '' %></td>
+                                <td class="px-6 py-4 text-center text-sm text-gray-900"><%= (purchase.totalAmount || 0).toLocaleString('th-TH')  %></td>
+                                <%
+                                    const d = new Date(purchase.purchaseDate);
+                                    const day = d.getDate().toString().padStart(2, '0');
+                                    const month = (d.getMonth() + 1).toString().padStart(2, '0'); // JavaScript months start from 0
+                                    const year = d.getFullYear() + 543; // แปลง ค.ศ. เป็น พ.ศ.
+                                    const hours = d.getHours().toString().padStart(2, '0');
+                                    const minutes = d.getMinutes().toString().padStart(2, '0');
+                                    const seconds = d.getSeconds().toString().padStart(2, '0');
+                                %>
+                                <td class="px-6 py-4 text-center text-sm text-gray-900"><%= `${day}/${month}/${year} เวลา ${hours}:${minutes}:${seconds}` %></td>
+                                <td class="px-6 py-4 text-center text-sm">
+                                    <a href="#"
+                                    data-items="<%= JSON.stringify({ wasteItems: purchase.wasteItems, accountId: purchase.accountId, purchaseDate: purchase.purchaseDate ,purchaseAddby: purchase.addBy }) %>"
+                                        class="item-link text-blue-600 hover:text-blue-800 hover:underline flex items-center justify-center">
+                                        <i class="fas fa-receipt mr-1"></i> รายการขยะ
+                                    </a>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-900"><%= purchase.addBy ? purchase.addBy : 'Unknown' %></td>
+                                <td class="px-6 py-4 text-center text-sm font-medium">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <button onclick="showModalEdit('purchase', '<%= purchase._id %>', 'purchaseHistory')" class="edit-btn"> <!-- text-blue-600 hover:text-blue-800 transition-colors -->
+                                            <i class="fa fa-edit"></i>
+                                        </button>
+                                        <button onclick="showModalDelete('<%= index + 1 %>','<%= purchase._id %>')" class="delete-btn"> <!-- text-red-600 hover:text-red-800 transition-colors -->
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="8" class="px-6 py-10 text-center text-gray-500">- ยังไม่มีข้อมูล -</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="pagination flex justify-center items-center mt-4 space-x-2">
+            <% if (currentPage > 1) { %>
+                <a href="?page=<%= currentPage - 1 %><%= search ? '&search=' + search : '' %>"
+                    class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                    ก่อนหน้า
+                </a>
+            <% } %>
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <a href="?page=<%= i %><%= search ? '&search=' + search : '' %>"
+                    class="px-3 py-1 border border-gray-300 rounded-md 
+                        <%= currentPage === i ? 'bg-blue-500 text-white' : 'text-gray-700 hover:bg-gray-100' %>">
+                    <%= i %>
+                </a>
+            <% } %>
+            <% if (currentPage < totalPages) { %>
+                <a href="?page=<%= currentPage + 1 %><%= search ? '&search=' + search : '' %>"
+                    class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                    ถัดไป
+                </a>
+            <% } %>
         </div>
     </div>
     <div class="content">
@@ -150,11 +278,11 @@
                             </td>
                             <td class="purchaseEmp"><%= purchase.addBy ? purchase.addBy : 'Unknown' %></td>
                             <td class="purchaseAction flex gap-1">
-                                <button onclick="showModalDelete('<%= index + 1 %>','<%= purchase._id %>')" class="delete-btn">
-                                    <i class="fa fa-trash"></i>
-                                </button>
                                 <button onclick="showModalEdit('purchase', '<%= purchase._id %>', 'purchaseHistory')" class="edit-btn">
                                     <i class="fa fa-edit"></i>
+                                </button>
+                                <button onclick="showModalDelete('<%= index + 1 %>','<%= purchase._id %>')" class="delete-btn">
+                                    <i class="fa fa-trash"></i>
                                 </button>
                             </td>
                         </tr>
@@ -187,7 +315,7 @@
                     </a>
                 <% } %>
             </div>
-            </div>
+        </div>
     </div>
 </body>
 <script>
@@ -255,7 +383,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 function showModalDelete(index,id) {
     Swal.fire({
-        title: `ลบ "${index}" หรือไม่?`,
+        title: `ลบรายการลำดับที่ "${index}" หรือไม่?`,
         text: "คุณจะไม่สามารถกู้คืนข้อมูลนี้ได้!",
         icon: "warning",
         showCancelButton: true,

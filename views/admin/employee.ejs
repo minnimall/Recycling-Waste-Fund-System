@@ -12,235 +12,277 @@
 
 <body>
     <%- include('../partials/adminPartials/adminHeader.ejs') %>
-
-        <%- include('../partials/adminPartials/adminSidebar.ejs') %>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script>
-            // เช็คข้อความที่ส่งมาจาก URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const successMessage = urlParams.get('message');
-            const errorMessage = urlParams.get('error');
+    <%- include('../partials/adminPartials/adminSidebar.ejs') %>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // เช็คข้อความที่ส่งมาจาก URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const successMessage = urlParams.get('message');
+        const errorMessage = urlParams.get('error');
     
-            if (successMessage) {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'success',
-                    title: successMessage,
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-            }
+        if (successMessage) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: successMessage,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
     
-            if (errorMessage) {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'error',
-                    title: errorMessage,
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-            }
+        if (errorMessage) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: errorMessage,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
     
-        </script>
-            <!-- Main content -->
-            <div class="content">
-                <div class="xtop-container">
-                    <div class="count-con">
-                        <div class="box user-box"><span><%= emp.length %></span>จำนวนผู้ใช้งาน</div>
-                        <div class="box employee-box"><span><%= emp.filter(employee => employee.role === 'employee').length %></span>จำนวนพนักงาน</div>
-                        <div class="box admin-box"><span><%= emp.filter(employee => employee.role === 'admin').length %></span>จำนวนผู้ดูแลระบบ</div>
-                    </div>
-                    <div class="content-header2">
-                        <!-- <h1>พนักงาน (<%= emp.length %> รายการ)</h1> -->
-                        <div class="add-media" onclick="empFormToggle()">เพิ่มพนักงาน</div>
-                    </div>
-                </div>
-                <div class="emp-container">
-                    <div class="table-con">
-                        <div class="search">
-                            <form action="" method="get">
-                                <select name="role" id="role">
-                                    <option value="">All</option>
-                                    <option value="admin" <%= role === 'admin' ? 'selected' : '' %>>Admin</option>
-                                    <option value="employee" <%= role === 'employee' ? 'selected' : '' %>>Employee</option>
-                                    <option value="user" <%= role === 'user' ? 'selected' : '' %>>User</option>
-                                </select>
-                                <!-- ช่องค้นหาข้อมูล -->
-                                <input type="text" placeholder="ค้นหา" name="search" value="<%= search || '' %>">
-                                <button>ค้นหา</button>
-                            </form>
-                        </div>
-                        <table class="table-auto">
-                            <thead>
-                                <tr>
-                                    <th class="table-emp-index">ลำดับ</th>
-                                    <th class="table-emp-username">ชื่อผู้ใช้</th>
-                                    <th class="table-emp-email">อีเมล</th>
-                                    <th class="table-emp-tel">เบอร์โทร</th>
-                                    <th class="table-emp-role">บทบาท</th>
-                                    <th class="table-emp-delete">จัดการ</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% if (emp && emp.length > 0) { %>
-                                    <% emp.forEach((employee, index) => { %>
-                                        <tr>
-                                            <td class="table-emp-index"><%= (currentPage - 1) * 10 + index + 1 %></td>
-                                            <td class="table-emp-username"><%= employee.username %></td>
-                                            <td class="table-emp-email"><%= employee.email %></td>
-                                            <td class="table-emp-tel"><%= employee.tel %></td>
-                                            <td class="table-emp-role">
-                                                <div class="role-tag <%= employee.role === 'admin' ? 'admin-role-bg' : 'employee-role-bg' %>">
-                                                    <%= employee.role %>
-                                                </div>
-                                            </td>
-                                            <td class="table-emp-delete">
-                                                <button type="button" class="was-row-<%= index + 1 %> row-active edit-btn" 
-                                                    onclick="setEmpEditForm('<%= index + 1 %>', '<%= employee._id %>', '<%= employee.username %>',
-                                                                        '<%= employee.firstname %>', '<%= employee.lastname %>', '<%= employee.tel %>',
-                                                                        '<%= employee.email %>','<%= employee.role %>')">
-                                                    <i class="fa fa-edit"></i>
-                                                </button>
-                                                <button
-                                                    onclick="deleteEmp(['<%= index + 1 %>', '<%= employee._id %>','<%= employee.username %>'])"
-                                                    class="delete-btn">
-                                                    <i class="fa fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    <% }) %>
-                                <% } else { %>
-                                    <tr>
-                                        <td colspan="6" class="py-2 px-4">ไม่พบข้อมูลพนักงาน</td>
-                                    </tr>
-                                <% } %>
-                            </tbody>
-                        </table>
-                    </div>                    
-                    
+    </script>
 
-                    <div class="emp-form" id="add_emp" style="display: none;">
-                        <form action="/admin/employeeRegister" method="POST">
-                            <div class="form-head">
-                                <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
-                                <span>เพิ่มบัญชีผู้ใช้</span>
-                            </div>
-                            <div class="input-group">
-                                <!-- Username -->
-                                <label>ชื่อผู้ใช้</label>
-                                <input type="text" name="username" placeholder="ชื่อผู้ใช้" required>
-
-                                <!-- Password -->
-                                <label>รหัสผ่าน</label>
-                                <input type="password" name="password" placeholder="รหัสผ่าน" required>
-
-                                <!-- ConfirmPassword -->
-                                <label>ยืนยันรหัสผ่าน</label>
-                                <input type="password" name="confirmPassword" placeholder="ยืนยันรหัสผ่าน" required>
-
-                                <!-- ชื่อจริง -->
-                                <label>ชื่อจริง</label>
-                                <input type="text" name="firstname" placeholder="ชื่อจริง" required>
-
-                                <!-- นามสกุล -->
-                                <label>นามสกุล</label>
-                                <input type="text" name="lastname" placeholder="นามสกุล" required>
-
-                                <!-- เบอร์ -->
-                                <label>เบอร์โทร</label>
-                                <input type="tel" name="tel" placeholder="094-XXXXXXX" pattern="[0-9]{3}-[0-9]{7}"
-                                    required>
-
-                                <!-- Email -->
-                                <label>อีเมล</label>
-                                <input type="email" name="email" placeholder="emp@mail.com" required>
-
-                                <!-- Role -->
-                                <label>บทบาท</label>
-                                <select name="role" required>
-                                    <option value="" disabled selected>เลือกบทบาท</option>
-                                    <option value="admin">Admin</option>
-                                    <option value="employee">Employee</option>
-                                </select>
-
-                                <!-- Submit and Cancel Buttons -->
-                                <div class="submit-btn">
-                                    <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
-                                    <button type="submit" class="submit">บันทึก</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="emp-form" id="edit_emp" style="display: none;">
-                        <form action="/admin/employeeEdit" method="POST">
-                            <div class="form-head">
-                                <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
-                                <span>แก้ไขบัญชีผู้ใช้</span>
-                            </div>
-                            <div class="input-group">
-                                <input type="hidden" name="_id" id="hiddenEmpId" value="">
-                                <!-- Username -->
-                                <label>ชื่อผู้ใช้</label>
-                                <input type="text" name="username" id="empUsername" placeholder="username"  required>
-
-                                <!-- ชื่อจริง -->
-                                <label>ชื่อจริง</label>
-                                <input type="text" name="firstname" id="empFirstname" placeholder="ชื่อจริง" required>
-
-                                <!-- นามสกุล -->
-                                <label>นามสกุล</label>
-                                <input type="text" name="lastname" id="empLastname" placeholder="นามสกุล" required>
-
-                                <!-- Tel -->
-                                <label>เบอร์โทร</label>
-                                <input type="tel" name="tel" id="empTel"  placeholder="094-XXXXXXX" pattern="[0-9]{3}-[0-9]{7}" id="empTel"
-                                    required>
-
-                                <!-- Email -->
-                                <label>อีเมล</label>
-                                <input type="email" name="email" id="empEmail" placeholder="emp@mail.com" required id="emailEmp">
-
-                                <!-- Role -->
-                                <label>บทบาท</label>
-                                <select name="role" id="empRole" required>
-                                    <option value="" disabled selected>เลือกบทบาท</option>
-                                    <option value="admin">Admin</option>
-                                    <option value="employee">Employee</option>
-                                </select>
-
-                                <!-- Submit and Cancel Buttons -->
-                                <div class="submit-btn">
-                                    <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
-                                    <button type="submit" class="submit">บันทึก</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                <div class="pagination flex justify-center items-center mt-4 space-x-2">
-                    <% if (currentPage > 1) { %>
-                        <a href="?page=<%= currentPage - 1 %>&role=<%= role %>&search=<%= search %>"
-                            class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                            ก่อนหน้า
-                        </a>
-                    <% } %>
-                    <% for (let i = 1; i <= totalPages; i++) { %>
-                        <a href="?page=<%= i %>&role=<%= role %>&search=<%= search %>"
-                            class="px-3 py-1 border border-gray-300 rounded-md 
-                                <%= currentPage === i ? 'page-current text-white' : 'text-gray-700 hover:bg-gray-100' %>">
-                            <%= i %>
-                        </a>
-                    <% } %>
-                    <% if (currentPage < totalPages) { %>
-                        <a href="?page=<%= currentPage + 1 %>&role=<%= role %>&search=<%= search %>"
-                            class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                            ถัดไป
-                        </a>
-                    <% } %>
-                </div>
+    <!-- Main content -->
+    <div class="content bg-gray-50 min-screen">
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">พนักงาน</h1>
+                <p class="text-gray-600">จำนวนพนักงานทั้งหมดในระบบกองทุนขยะรีไซเคิล</p>
             </div>
+
+            <div>
+                <button type="button" class="add-media bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition duration-300" onclick="empFormToggle()">เพิ่มพนักงาน</button>
+            </div>
+        </div>
+
+        <!-- Stats cards -->
+        <div class="mx-4 grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-blue-50 rounded-lg p-6 shadow-sm border border-blue-100 transition-transform hover:scale-105">
+                <div class="text-3xl font-bold text-blue-700 mb-2"><%= emp.length %></div>
+                <div class="text-gray-600">จำนวนผู้ใช้งานทั้งหมด</div>
+            </div>
+            <div class="bg-green-50 rounded-lg p-6 shadow-sm border border-green-100 transition-transform hover:scale-105">
+                <div class="text-3xl font-bold text-green-700 mb-2"><%= emp.filter(employee => employee.role === 'employee').length %></div>
+                <div class="text-gray-600">จำนวนพนักงาน</div>
+            </div>
+            <div class="bg-red-50 rounded-lg p-6 shadow-sm border border-red-100 transition-transform hover:scale-105">
+                <div class="text-3xl font-bold text-red-700 mb-2"><%= emp.filter(employee => employee.role === 'admin').length %></div>
+                <div class="text-gray-600">จำนวนผู้ดูแลระบบ</div>
+            </div>
+        </div>
+
+        <!-- Search and Filter Section -->
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+            <form action="" method="GET">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1">
+                        <div class="relative">
+                            <input type="text" id="search" name="search" value="<%= search || '' %>" placeholder="ค้นหาพนักงาน" 
+                                class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <div class="absolute left-3 top-2.5 text-gray-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:w-64">
+                        <select name="role" id="role" class="w-full py-2 px-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <option value="">All</option>
+                            <option value="admin" <%= role === 'admin' ? 'selected' : '' %>>Admin</option>
+                            <option value="employee" <%= role === 'employee' ? 'selected' : '' %>>Employee</option>
+                            <option value="user" <%= role === 'user' ? 'selected' : '' %>>User</option>
+                        </select>
+                    </div>
+                    <div>
+                        <button class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            <i class="fas fa-search mr-2"></i>ค้นหา
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+            <div class="mb-4 border-b border-gray-200 border-b border-gray-200 pb-4">
+                <h2 class="text-base font-semibold text-gray-800 mb-4 md:mb-0">
+                    จำนวนสมาชิกทั้งหมด <span class="text-blue-600 text-base font-normal"><%= emp.length %> รายการ</span>
+                </h2>
+            </div>
+        
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">ลำดับที่</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">ชื่อผู้ใช้</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">อีเมล</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">เบอร์โทร</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">บทบาท</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <% if (emp && emp.length > 0) { %>
+                            <% emp.forEach((employee, index) => { %>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-4 py-3 text-sm whitespace-nowrap text-center"><%= (currentPage - 1) * 10 + index + 1 %></td>
+                                    <td class="px-4 py-3 text-sm whitespace-nowrap"><%= employee.firstname %> <%= employee.lastname %></td>
+                                    <td class="px-4 py-3 text-sm whitespace-nowrap"><%= employee.email %></td>
+                                    <td class="px-4 py-3 text-sm whitespace-nowrap"><%= employee.tel %></td>
+                                    <td class="px-4 py-3 text-sm whitespace-nowrap">
+                                        <div class="role-tag <%= employee.role === 'admin' ? 'admin-role-bg' : 'employee-role-bg' %>">
+                                            <%= employee.role %>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap text-center">
+                                        <button type="button" class="was-row-<%= index + 1 %> row-active edit-btn" 
+                                            onclick="setEmpEditForm('<%= index + 1 %>', '<%= employee._id %>', '<%= employee.username %>',
+                                                                    '<%= employee.firstname %>', '<%= employee.lastname %>', '<%= employee.tel %>',
+                                                                    '<%= employee.email %>','<%= employee.role %>')">
+                                            <i class="fa fa-edit"></i>
+                                        </button>
+                                        <button
+                                            onclick="deleteEmp(['<%= index + 1 %>', '<%= employee._id %>','<%= employee.username %>','<%= employee.firstname %>','<%= employee.lastname %>'])"
+                                            class="delete-btn">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="8" class="text-center py-4 text-gray-500">- ไม่พบข้อมูล -</td>
+                            </tr>
+                        <% } %>
+                    </tbody>                    
+                </table>
+            </div>
+        </div>
+
+        <!-- Add Employee Form -->
+        <div class="emp-form" id="add_emp" style="display: none;">
+            <form action="/admin/employeeRegister" method="POST">
+                <div class="form-head">
+                    <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
+                    <span>เพิ่มบัญชีผู้ใช้</span>
+                </div>
+                <div class="input-group">
+                    <!-- Username -->
+                    <label>ชื่อผู้ใช้</label>
+                    <input type="text" name="username" placeholder="ชื่อผู้ใช้" required>
+
+                    <!-- Password -->
+                    <label>รหัสผ่าน</label>
+                    <input type="password" name="password" placeholder="รหัสผ่าน" required>
+
+                    <!-- ConfirmPassword -->
+                    <label>ยืนยันรหัสผ่าน</label>
+                    <input type="password" name="confirmPassword" placeholder="ยืนยันรหัสผ่าน" required>
+
+                    <!-- ชื่อจริง -->
+                    <label>ชื่อจริง</label>
+                    <input type="text" name="firstname" placeholder="ชื่อจริง" required>
+
+                    <!-- นามสกุล -->
+                    <label>นามสกุล</label>
+                    <input type="text" name="lastname" placeholder="นามสกุล" required>
+
+                    <!-- เบอร์ -->
+                    <label>เบอร์โทร</label>
+                    <input type="tel" name="tel" placeholder="094-XXXXXXX" pattern="[0-9]{3}-[0-9]{7}" required>
+
+                    <!-- Email -->
+                    <label>อีเมล</label>
+                    <input type="email" name="email" placeholder="emp@mail.com" required>
+
+                    <!-- Role -->
+                    <label>บทบาท</label>
+                    <select name="role" required>
+                        <option value="" disabled selected>เลือกบทบาท</option>
+                        <option value="admin">Admin</option>
+                        <option value="employee">Employee</option>
+                    </select>
+
+                    <!-- Submit and Cancel Buttons -->
+                    <div class="submit-btn">
+                        <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
+                        <button type="submit" class="submit">บันทึก</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Edit Employee Form - ย้ายออกมาแยกจาก add form -->
+        <div class="emp-form" id="edit_emp" style="display: none;">
+            <form action="/admin/employeeEdit" method="POST">
+                <div class="form-head">
+                    <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
+                    <span>แก้ไขบัญชีผู้ใช้</span>
+                </div>
+                <div class="input-group">
+                    <input type="hidden" name="_id" id="hiddenEmpId" value="">
+                    <!-- Username -->
+                    <label>ชื่อผู้ใช้</label>
+                    <input type="text" name="username" id="empUsername" placeholder="username" required>
+
+                    <!-- ชื่อจริง -->
+                    <label>ชื่อจริง</label>
+                    <input type="text" name="firstname" id="empFirstname" placeholder="ชื่อจริง" required>
+
+                    <!-- นามสกุล -->
+                    <label>นามสกุล</label>
+                    <input type="text" name="lastname" id="empLastname" placeholder="นามสกุล" required>
+
+                    <!-- Tel -->
+                    <label>เบอร์โทร</label>
+                    <input type="tel" name="tel" id="empTel" placeholder="094-XXXXXXX" pattern="[0-9]{3}-[0-9]{7}" required>
+
+                    <!-- Email -->
+                    <label>อีเมล</label>
+                    <input type="email" name="email" id="empEmail" placeholder="emp@mail.com" required>
+
+                    <!-- Role -->
+                    <label>บทบาท</label>
+                    <select name="role" id="empRole" required>
+                        <option value="" disabled selected>เลือกบทบาท</option>
+                        <option value="admin">Admin</option>
+                        <option value="employee">Employee</option>
+                    </select>
+
+                    <!-- Submit and Cancel Buttons -->
+                    <div class="submit-btn">
+                        <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
+                        <button type="submit" class="submit">บันทึก</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="pagination flex justify-center items-center mt-4 space-x-2">
+            <% if (currentPage > 1) { %>
+                <a href="?page=<%= currentPage - 1 %>&role=<%= role %>&search=<%= search %>"
+                        class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                            ก่อนหน้า
+                </a>
+            <% } %>
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <a href="?page=<%= i %>&role=<%= role %>&search=<%= search %>"
+                        class="px-3 py-1 border border-gray-300 rounded-md 
+                            <%= currentPage === i ? 'page-current text-white' : 'text-gray-700 hover:bg-gray-100' %>">
+                            <%= i %>
+                </a>
+            <% } %>
+            <% if (currentPage < totalPages) { %>
+                <a href="?page=<%= currentPage + 1 %>&role=<%= role %>&search=<%= search %>"
+                        class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                            ถัดไป
+                </a>
+            <% } %>
+        </div>
+    </div>
 </body>
 <%- include('../partials/adminPartials/adminFooter.ejs') %>
     <script>
@@ -303,7 +345,7 @@
         //ลบหนักงาน
         function deleteEmp(data) {
             Swal.fire({
-                title: `ลบพนักงาน "${data[2]}" หรือไม่?`,
+                title: `ลบพนักงาน "${data[3]} ${data[4]}" หรือไม่?`,
                 text: "หากคุณลบแล้วจะไม่สามารถกู้คืนได้!",
                 icon: "warning",
                 showCancelButton: true,

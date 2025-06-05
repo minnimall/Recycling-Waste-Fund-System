@@ -1,97 +1,102 @@
-:root {
-    --input-border: #BBBBBB;
-    --primary-color: #00923f;
-}
+/* Custom styles for dashboard */
 
-.screen {
-    display: none;
-    background-color: rgba(0, 0, 0, 0.397);
+/* Card hover effects */
+.hover\:scale-105:hover {
+    transform: scale(1.05);
+    transition: transform 0.3s ease;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #c5c5c5;
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #a0a0a0;
+  }
+  
+  /* Chart container styles */
+  .chart-container {
+    position: relative;
+    margin: auto;
     height: 100%;
     width: 100%;
-    position: absolute;
-}
-.add-media-form {
-    border-radius: 10px;
-    padding: 1.5em;
-    width: 60%;
-    position: absolute;
-    background-color: var(--white);  
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+  }
+  
+  /* Table styles */
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  
+  th {
+    position: sticky;
+    top: 0;
     z-index: 10;
-
-    .media-form-head {
-        h1 {
-            font-size: 2em;
-        }
+  }
+  
+  /* Card styles */
+  .card {
+    transition: all 0.3s ease;
+    border-radius: 0.5rem;
+  }
+  
+  .card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .container {
+      padding-left: 1rem;
+      padding-right: 1rem;
     }
-    input,textarea {
-        margin: 10px 0;
-        padding: 8px;
-        border-radius: 5px;
-        width: 100%;
-        border: 1px solid var(--input-border);
+  
+    th,
+    td {
+      padding: 0.5rem !important;
     }
-    textarea {
-        height: 300px;
-        resize: none;
+  
+    .text-3xl {
+      font-size: 1.5rem;
     }
-    .media-form-action {
-        margin-top: 1em;
-        text-align: right;
-        button,span {
-            padding: 5px 20px;
-            color: var(--white);
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
+  
+    .chart-container {
+      height: 250px;
     }
-}
-
-.delete-btn {
-    background-color: #f44336; /* สีแดง */
-    color: white;
-    border: none;
-    margin-top: 10px;
-    padding: 8px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 10px;
-    transition: background-color 0.3s ease;
-}
-
-.delete-btn:hover {
-    background-color: #d32f2f; /* สีแดงเข้ม */
-}
-
-.edit-btn {
-    background-color: #007bff; /* สีฟ้าสำหรับแก้ไข */
-    color: white;
-    border: none;
-    margin-top: 10px;
-    padding: 8px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 10px;
-    transition: background-color 0.3s ease;
-}
-
-.edit-btn:hover {
-    background-color: #0155ad;
-}
-
-.card{
-    width: 220px;
-    height: 220px;
-}
-
-.card-title {
-    white-space: nowrap; /* ป้องกันข้อความแตกเป็นหลายบรรทัด */
-    overflow: hidden; /* ซ่อนข้อความส่วนเกิน */
-    text-overflow: ellipsis; /* แสดง ... ท้ายข้อความที่ยาวเกิน */
-    display: block; /* ต้องกำหนดให้เป็น block หรือ inline-block */
-    width: 100%; /* จำกัดความกว้าง */
-}
+  }
+  
+  /* Print styles */
+  @media print {
+    .no-print {
+      display: none !important;
+    }
+  
+    body {
+      background: white;
+    }
+  
+    .container {
+      max-width: 100%;
+      padding: 0;
+    }
+  
+    .shadow,
+    .shadow-md,
+    .shadow-sm {
+      box-shadow: none !important;
+    }
+  }
+  

@@ -1,0 +1,102 @@
+/* Custom styles for dashboard */
+
+/* Card hover effects */
+.hover\:scale-105:hover {
+    transform: scale(1.05);
+    transition: transform 0.3s ease;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #c5c5c5;
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #a0a0a0;
+  }
+  
+  /* Chart container styles */
+  .chart-container {
+    position: relative;
+    margin: auto;
+    height: 100%;
+    width: 100%;
+  }
+  
+  /* Table styles */
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  
+  th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  
+  /* Card styles */
+  .card {
+    transition: all 0.3s ease;
+    border-radius: 0.5rem;
+  }
+  
+  .card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .container {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  
+    th,
+    td {
+      padding: 0.5rem !important;
+    }
+  
+    .text-3xl {
+      font-size: 1.5rem;
+    }
+  
+    .chart-container {
+      height: 250px;
+    }
+  }
+  
+  /* Print styles */
+  @media print {
+    .no-print {
+      display: none !important;
+    }
+  
+    body {
+      background: white;
+    }
+  
+    .container {
+      max-width: 100%;
+      padding: 0;
+    }
+  
+    .shadow,
+    .shadow-md,
+    .shadow-sm {
+      box-shadow: none !important;
+    }
+  }
+  

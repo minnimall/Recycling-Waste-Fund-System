@@ -28,12 +28,12 @@ router.use(express.static(path.join(__dirname, '../public')));
 router.use(bodyParser.json({ limit: '10mb' }));
 router.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
-//หน้าแดชบอร์ด
+// หน้าแดชบอร์ด
 const dashboardIndex = (req, res)=> {
     res.render('employee/dashboard', { mytitle: 'Employeedashboard | Dashboard'})
 }
 
-//หน้ารับซื้อขยะรีไซเคิล
+// หน้ารับซื้อขยะรีไซเคิล
 const wastePurchaseIndex = async (req, res) => { // Make the function async
     const searchQuery = req.query.search || '';
     const selectedWasteType = req.query.wasteType || '';
@@ -69,6 +69,78 @@ const wastePurchaseIndex = async (req, res) => { // Make the function async
     }
 };
 
+// ฟังก์ชันบันทึกรับซื้อขยะ
+const wastePurchasePost = async (req, res) => {
+    try {
+        const { accountId, wasteItems } = req.body;
+        const parsedWasteItems = JSON.parse(wasteItems);
+        let totalAmount = 0;
+        const wasteItemIds = [];
+
+        // Check if wasteItems is valid
+        if (parsedWasteItems && Array.isArray(parsedWasteItems)) {
+            for (const item of parsedWasteItems) {
+                if (item && item.name) {
+                    const newWasteItem = new WasteItem({
+                        name: item.name,
+                        quantity: item.weight,
+                        pricePerUnit: item.pricePerUnit,
+                    });
+                    await newWasteItem.save();
+                    wasteItemIds.push(newWasteItem._id);
+                    let price = parseFloat(item.totalPrice);
+                    if (!isNaN(price)) {
+                        totalAmount += price;
+                    } else {
+                        console.error("Invalid totalPrice:", item.totalPrice);
+                    }
+                } else {
+                    console.error("Invalid waste item found:", item);
+                    console.log("Entire parsedWasteItems array: ", parsedWasteItems);
+                    continue;
+                }
+            }
+        } else {
+            console.error("Invalid wasteItems data:", parsedWasteItems);
+            res.redirect('/employee/wastePurchase?error=Invalid waste items data');
+            return;
+        }
+
+        // Create new waste purchase record
+        const newWastePurchase = new WastePurchase({
+            accountId,
+            totalAmount,
+            wasteItems: wasteItemIds,
+            addBy: req.body.addBy
+        });
+        await newWastePurchase.save();
+
+        // Update the WasteBankAccount balance
+        if (accountId) {
+            // Get the WasteBankAccount
+            const wasteBankAccount = await WasteBankAccount.findById(accountId);
+            
+            if (wasteBankAccount) {
+                // Update the balance
+                wasteBankAccount.Balance += totalAmount;
+                await wasteBankAccount.save();
+                console.log(`Updated balance for account ${wasteBankAccount.AccountNumber} to ${wasteBankAccount.Balance}`);
+            } else {
+                console.error(`Bank account with ID ${accountId} not found`);
+            }
+        } else {
+            console.error("No accountId provided for balance update");
+        }
+
+        res.redirect('/employee/wastePurchase?message=บันทึกการรับซื้อสำเร็จ');
+    } catch (error) {
+        console.error("Error in wastePurchasePost:", error);
+        res.redirect('/employee/wastePurchase?error=เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+    }
+};
+
+
+// หน้าสรุปการรับซื้อขยะ
 const wastePurchaseTotalIndex = async (req, res) => {
     try {
         const searchDate = req.query.searchDate;
@@ -152,54 +224,7 @@ const wastePurchaseTotalIndex = async (req, res) => {
     }
 };
 
-const wastePurchasePost = async (req, res) => {
-    try {
-        const { accountId, wasteItems } = req.body;
-        const parsedWasteItems = JSON.parse(wasteItems);
-        let totalAmount = 0;
-        const wasteItemIds = [];
-        if (parsedWasteItems && Array.isArray(parsedWasteItems)) {
-            for (const item of parsedWasteItems) {
-                if (item && item.name) {
-                    const newWasteItem = new WasteItem({
-                        name: item.name,
-                        quantity: item.weight,
-                        pricePerUnit: item.pricePerUnit,
-                    });
-                    await newWasteItem.save();
-                    wasteItemIds.push(newWasteItem._id);
-                    let price = parseFloat(item.totalPrice);
-                    if (!isNaN(price)) {
-                        totalAmount += price;
-                    } else {
-                        console.error("Invalid totalPrice:", item.totalPrice);
-                    }
-                } else {
-                    console.error("Invalid waste item found:", item);
-                    console.log("Entire parsedWasteItems array: ", parsedWasteItems);
-                    continue;
-                }
-            }
-        } else {
-            console.error("Invalid wasteItems data:", parsedWasteItems);
-            res.redirect('/employee/wastePurchase?error=Invalid waste items data');
-            return;
-        }
-        const newWastePurchase = new WastePurchase({
-            accountId,
-            totalAmount,
-            wasteItems: wasteItemIds,
-            addBy: req.body.addBy
-        });
-        await newWastePurchase.save();
-        res.redirect('/employee/wastePurchase?message=บันทึกการรับซื้อสำเร็จ');
-    } catch (error) {
-        console.error(error);
-        res.redirect('/employee/wastePurchase?error=เกิดข้อผิดพลาดในการบันทึกข้อมูล');
-    }
-};
-
-// ลบรายการรับซื้อ (softDelete)
+// ฟังก์ชันลบรายการรับซื้อหน้าสรุปการรับซื้อ (softDelete)
 const wastePurchaseDelete = async (req, res) => {
     try {
         const { id } = req.params;
@@ -215,6 +240,8 @@ const wastePurchaseDelete = async (req, res) => {
         res.redirect('/employee/wastePurchaseTotal?error=เกิดข้อผิดพลาดในการลบข้อมูล');
     }
 };
+
+// หน้าสมาชิกกองทุนขยะรีไซเคิล
 const memberIndex = async (req, res) => {
     try {
         const { familyName, AccountName, village, Type } = req.query;
@@ -241,7 +268,6 @@ const memberIndex = async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 };
-
 
 
 // สร้างเลขบัญชีแบบสุ่ม
@@ -291,14 +317,31 @@ const memberRegister = async (req, res) => {
             return res.redirect('/employee/member?error=อีเมลหรือหมายเลขโทรศัพท์นี้ถูกใช้ไปแล้ว');
         }
 
-        // นับจำนวนครอบครัวที่มีอยู่แล้ว
-        const familyCount = await Family.countDocuments().session(session);
-        
-        // แปลง village._id หรือ village หมายเลขเป็นเลข 2 หลัก
+        // แปลง village number เป็นเลข 2 หลัก
         const villageNumber = String(village.villageNumber).padStart(2, '0');
-
-        // สร้าง accountNumber ตามรูปแบบ 0001/01
-        const accountNumber = `${String(familyCount + 1).padStart(4, '0')}/${villageNumber}`;
+        
+        // สร้างปีพ.ศ. 2 ตัวท้าย (เช่น 68 จาก 2568)
+        const currentYear = new Date().getFullYear() + 543; // แปลงเป็นพ.ศ. (จาก ค.ศ.)
+        const yearSuffix = String(currentYear).slice(-2); // เอาเฉพาะ 2 ตัวท้าย
+        
+        // หาลำดับล่าสุดของหมู่บ้านนั้นๆ
+        const latestAccount = await WasteBankAccount.find({
+            AccountNumber: new RegExp(`^${yearSuffix}${villageNumber}`)
+        })
+        .sort({ AccountNumber: -1 })
+        .limit(1)
+        .session(session);
+        
+        let sequenceNumber = 1; // เริ่มที่ 1 ถ้าไม่มีบัญชีก่อนหน้า
+        
+        if (latestAccount && latestAccount.length > 0) {
+            // ถ้ามีบัญชีก่อนหน้า ดึงเลขลำดับล่าสุดและบวก 1
+            const latestSequence = parseInt(latestAccount[0].AccountNumber.slice(-2));
+            sequenceNumber = latestSequence + 1;
+        }
+        
+        // สร้าง accountNumber ในรูปแบบ YYMMSS (ปี-หมู่-ลำดับ)
+        const accountNumber = `${yearSuffix}${villageNumber}${String(sequenceNumber).padStart(2, '0')}`;
 
         // 1. สร้างข้อมูลครอบครัว
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -417,6 +460,16 @@ const wasteStockIndex = (req, res)=> {
     res.render('employee/wasteStock',{mytitle: 'สต๊อกขยะ'})
 }
 
+//หน้าเบิกถอน
+const withDrawIndex = (req, res)=> {
+    res.render('employee/withDraw',{mytitle: 'เบิกถอน'})
+}
+
+//หน้าฌาปนกิจสงเคราะห์
+const funeralAidIndex = (req, res)=> {
+    res.render('employee/funeralAid',{mytitle: 'ฌาปนกิจสงเคราะห์'})
+}
+
 module.exports = {
     //หน้าแดชบอร์ด
     dashboardIndex,
@@ -432,4 +485,8 @@ module.exports = {
     wasteSaleRequestIndex,
     //หน้าสต๊อกขยะ
     wasteStockIndex,
+    //หน้าเบิกถอน
+    withDrawIndex,
+    //หน้าฌาปนกิจสงเคราะห์
+    funeralAidIndex,
 }

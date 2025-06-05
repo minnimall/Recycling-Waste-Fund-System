@@ -26,4 +26,10 @@ router.get('/wasteSaleRequest', employeeController.wasteSaleRequestIndex);
 // สต๊อกขยะ
 router.get('/wasteStock', employeeController.wasteStockIndex);
 
+// เบิกถอน
+router.get('/withDraw', employeeController.withDrawIndex);
+
+// ฌาปนกิจสงเคราะห์
+router.get('/funeralAid', employeeController.funeralAidIndex);
+
 module.exports = router

@@ -3,24 +3,481 @@
 
 <head>
     <%- include('../partials/employeePartials/doctype.ejs') %>
-        <title><%= mytitle %></title>
-        <link rel="stylesheet" href="/style_admin/dashboard.css">
-        <script src="https://cdn.tailwindcss.com"></script>
+    <title><%= mytitle %></title>
+    <link rel="stylesheet" href="/style_employee/dashboard.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js 3D plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-3d@1.0.0/dist/chartjs-plugin-3d.min.js"></script>
 </head>
 
 <body>
     <%- include('../partials/employeePartials/empHeader.ejs') %>
     <%- include('../partials/employeePartials/empSidebar.ejs') %>
-                
+    <script>
+        // เช็คข้อความที่ส่งมาจาก URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const successMessage = urlParams.get('message');
+        const errorMessage = urlParams.get('error');
+
+        if (successMessage) {
+            Swal.fire({
+                icon: 'success',
+                title: 'สำเร็จ!',
+                text: successMessage,
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#28a745', // สีเขียวสำหรับความสำเร็จ
+                timer: 3000
+            });
+        }
+
+        if (errorMessage) {
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด!',
+                text: errorMessage,
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#d33',
+                timer: 3000
+            });
+        }
+    </script>
+
     <!-- Main content -->
-    <div class="content">
-        <div class="content-header">
-            <h1>แดชบอร์ด</h1>
-                
+    <div class="content bg-gray-50 min-screen">
+        <!-- Header -->
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-800">แดชบอร์ด</h1>
+                <p class="text-gray-500">ข้อมูลสรุปและการวิเคราะห์</p>
+            </div>
+            <div class="flex space-x-2">
+                <select id="timeRange" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="today">วันนี้</option>
+                    <option value="week">สัปดาห์นี้</option>
+                    <option value="month">เดือนนี้</option>
+                    <option value="year">ปีนี้</option>
+                </select>
+                <button id="refreshData" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+                    <i class="fas fa-sync-alt mr-2"></i>รีเฟรช
+                </button>
+            </div>
         </div>
-        <div class="card-container">
-         </div>
+
+        <!-- Stats cards -->
+        <div class="mx-4 grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-blue-500 transition-transform hover:scale-105">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-500 mb-1">ปริมาณขยะทั้งหมด</p>
+                        <h2 class="text-3xl font-bold text-gray-800">2,540 <span class="text-sm font-normal">กก.</span></h2>
+                    </div>
+                    <div class="p-3 bg-blue-100 rounded-full">
+                        <i class="fas fa-trash text-blue-500"></i>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center">
+                    <span class="text-green-500 flex items-center">
+                        <i class="fas fa-arrow-up mr-1"></i> 12%
+                    </span>
+                    <span class="text-gray-400 ml-2">จากเดือนที่แล้ว</span>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-green-500 transition-transform hover:scale-105">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-500 mb-1">ยอดรับซื้อวันนี้</p>
+                        <h2 class="text-3xl font-bold text-gray-800">฿12,350</h2>
+                    </div>
+                    <div class="p-3 bg-green-100 rounded-full">
+                        <i class="fas fa-money-bill-wave text-green-500"></i>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center">
+                    <span class="text-green-500 flex items-center">
+                        <i class="fas fa-arrow-up mr-1"></i> 8%
+                    </span>
+                    <span class="text-gray-400 ml-2">จากเมื่อวาน</span>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-purple-500 transition-transform hover:scale-105">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-500 mb-1">จำนวนธุรกรรม</p>
+                        <h2 class="text-3xl font-bold text-gray-800">48</h2>
+                    </div>
+                    <div class="p-3 bg-purple-100 rounded-full">
+                        <i class="fas fa-exchange-alt text-purple-500"></i>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center">
+                    <span class="text-red-500 flex items-center">
+                        <i class="fas fa-arrow-down mr-1"></i> 3%
+                    </span>
+                    <span class="text-gray-400 ml-2">จากเมื่อวาน</span>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-yellow-500 transition-transform hover:scale-105">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-500 mb-1">ขยะมูลค่าสูงสุด</p>
+                        <h2 class="text-3xl font-bold text-gray-800">พลาสติก PET</h2>
+                    </div>
+                    <div class="p-3 bg-yellow-100 rounded-full">
+                        <i class="fas fa-crown text-yellow-500"></i>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center">
+                    <span class="text-gray-800">฿25 / กก.</span>
+                    <span class="text-gray-400 ml-2">ราคาปัจจุบัน</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main dashboard sections -->
+        <div class="mx-4 grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Section 1: 3D Pie Chart for Village Waste -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">ปริมาณขยะแต่ละหมู่บ้าน</h2>
+                <div class="h-80">
+                    <canvas id="villageWasteChart"></canvas>
+                </div>
+                <div class="mt-4 grid grid-cols-2 gap-4">
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <p class="text-gray-500 text-sm">หมู่บ้านที่มีปริมาณขยะมากที่สุด</p>
+                        <p class="font-semibold">หมู่บ้านที่ 3 (450 กก.)</p>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <p class="text-gray-500 text-sm">หมู่บ้านที่มีมูลค่าขยะมากที่สุด</p>
+                        <p class="font-semibold">หมู่บ้านที่ 5 (฿8,250)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Daily Purchase Summary -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">สรุปการรับซื้อประจำวัน</h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ประเภทขยะ</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">ปริมาณ (กก.)</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">ราคา/หน่วย</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">ยอดรวม</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="h-3 w-3 rounded-full bg-blue-500 mr-2"></div>
+                                        <div class="text-sm font-medium text-gray-900">พลาสติก PET</div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">320</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">฿25</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">฿8,000</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="h-3 w-3 rounded-full bg-green-500 mr-2"></div>
+                                        <div class="text-sm font-medium text-gray-900">กระดาษ</div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">450</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">฿5</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">฿2,250</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="h-3 w-3 rounded-full bg-yellow-500 mr-2"></div>
+                                        <div class="text-sm font-medium text-gray-900">โลหะ</div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">120</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">฿15</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">฿1,800</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="h-3 w-3 rounded-full bg-red-500 mr-2"></div>
+                                        <div class="text-sm font-medium text-gray-900">แก้ว</div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">80</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">฿3</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">฿240</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="h-3 w-3 rounded-full bg-purple-500 mr-2"></div>
+                                        <div class="text-sm font-medium text-gray-900">อื่นๆ</div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">60</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">฿1</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">฿60</td>
+                            </tr>
+                        </tbody>
+                        <tfoot class="bg-gray-50">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">รวมทั้งหมด</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900">1,030 กก.</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900"></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-green-600">฿12,350</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Price Prediction -->
+        <div class="mx-4 bg-white rounded-lg shadow p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">การพยากรณ์ราคาขยะในอนาคต</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2">
+                    <div class="h-80">
+                        <canvas id="pricePredictionChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-gray-800 mb-3">แนวโน้มราคาขยะ</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <div class="h-3 w-3 rounded-full bg-blue-500 mr-2"></div>
+                                <span class="text-sm">พลาสติก PET</span>
+                            </div>
+                            <div class="flex items-center text-green-500">
+                                <i class="fas fa-arrow-up mr-1"></i>
+                                <span>+5%</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <div class="h-3 w-3 rounded-full bg-green-500 mr-2"></div>
+                                <span class="text-sm">กระดาษ</span>
+                            </div>
+                            <div class="flex items-center text-red-500">
+                                <i class="fas fa-arrow-down mr-1"></i>
+                                <span>-2%</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <div class="h-3 w-3 rounded-full bg-yellow-500 mr-2"></div>
+                                <span class="text-sm">โลหะ</span>
+                            </div>
+                            <div class="flex items-center text-green-500">
+                                <i class="fas fa-arrow-up mr-1"></i>
+                                <span>+8%</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <div class="h-3 w-3 rounded-full bg-red-500 mr-2"></div>
+                                <span class="text-sm">แก้ว</span>
+                            </div>
+                            <div class="flex items-center text-gray-500">
+                                <i class="fas fa-equals mr-1"></i>
+                                <span>0%</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <div class="h-3 w-3 rounded-full bg-purple-500 mr-2"></div>
+                                <span class="text-sm">อื่นๆ</span>
+                            </div>
+                            <div class="flex items-center text-red-500">
+                                <i class="fas fa-arrow-down mr-1"></i>
+                                <span>-1%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 p-3 bg-white rounded border border-gray-200">
+                        <h4 class="text-sm font-medium text-gray-700 mb-2">ข้อแนะนำ</h4>
+                        <p class="text-sm text-gray-600">ควรเพิ่มการรับซื้อ <span class="font-medium">พลาสติก PET</span> และ <span class="font-medium">โลหะ</span> เนื่องจากมีแนวโน้มราคาที่สูงขึ้นในอนาคต</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
     <%- include('../partials/employeePartials/empFooter.ejs') %>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Village Waste Chart (3D Pie)
+            const villageCtx = document.getElementById('villageWasteChart').getContext('2d');
+            const villageWasteChart = new Chart(villageCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['หมู่บ้านที่ 1', 'หมู่บ้านที่ 2', 'หมู่บ้านที่ 3', 'หมู่บ้านที่ 4', 'หมู่บ้านที่ 5', 
+                             'หมู่บ้านที่ 6', 'หมู่บ้านที่ 7', 'หมู่บ้านที่ 8', 'หมู่บ้านที่ 9', 'หมู่บ้านที่ 10'],
+                    datasets: [{
+                        data: [250, 320, 450, 180, 380, 220, 150, 290, 120, 180],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(153, 102, 255, 0.7)',
+                            'rgba(255, 159, 64, 0.7)',
+                            'rgba(199, 199, 199, 0.7)',
+                            'rgba(83, 102, 255, 0.7)',
+                            'rgba(40, 159, 64, 0.7)',
+                            'rgba(210, 99, 132, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(199, 199, 199, 1)',
+                            'rgba(83, 102, 255, 1)',
+                            'rgba(40, 159, 64, 1)',
+                            'rgba(210, 99, 132, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                boxWidth: 15,
+                                padding: 15
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    const price = value * 15; // สมมติว่าราคาเฉลี่ยต่อกิโลกรัมคือ 15 บาท
+                                    return `${label}: ${value} กก. (${percentage}%) - ฿${price.toLocaleString()}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Price Prediction Chart (Line)
+            const predictionCtx = document.getElementById('pricePredictionChart').getContext('2d');
+            const pricePredictionChart = new Chart(predictionCtx, {
+                type: 'line',
+                data: {
+                    labels: ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'],
+                    datasets: [
+                        {
+                            label: 'พลาสติก PET',
+                            data: [22, 23, 24, 24, 25, 25, 26, 26, 27, 28, 29, 30],
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                            tension: 0.4,
+                            fill: false
+                        },
+                        {
+                            label: 'กระดาษ',
+                            data: [5.5, 5.4, 5.3, 5.2, 5.0, 4.9, 4.8, 4.7, 4.6, 4.5, 4.4, 4.3],
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                            tension: 0.4,
+                            fill: false
+                        },
+                        {
+                            label: 'โลหะ',
+                            data: [12, 12.5, 13, 13.5, 14, 14.5, 15, 15.5, 16, 16.5, 17, 18],
+                            borderColor: 'rgba(255, 206, 86, 1)',
+                            backgroundColor: 'rgba(255, 206, 86, 0.1)',
+                            tension: 0.4,
+                            fill: false
+                        },
+                        {
+                            label: 'แก้ว',
+                            data: [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                            tension: 0.4,
+                            fill: false
+                        },
+                        {
+                            label: 'อื่นๆ',
+                            data: [1.2, 1.1, 1.1, 1.0, 1.0, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9],
+                            borderColor: 'rgba(153, 102, 255, 1)',
+                            backgroundColor: 'rgba(153, 102, 255, 0.1)',
+                            tension: 0.4,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'ราคา (บาท/กก.)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'เดือน'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.dataset.label || '';
+                                    const value = context.raw || 0;
+                                    return `${label}: ฿${value} ต่อกิโลกรัม`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Event listener for time range selector
+            document.getElementById('timeRange').addEventListener('change', function() {
+                // ในสถานการณ์จริง คุณจะต้องเรียก API เพื่อดึงข้อมูลตามช่วงเวลาที่เลือก
+                // แต่ในตัวอย่างนี้เราจะแค่แสดง alert
+                alert(`กำลังโหลดข้อมูลสำหรับ: ${this.options[this.selectedIndex].text}`);
+            });
+
+            // Event listener for refresh button
+            document.getElementById('refreshData').addEventListener('click', function() {
+                // ในสถานการณ์จริง คุณจะต้องเรียก API เพื่อรีเฟรชข้อมูล
+                alert('กำลังรีเฟรชข้อมูล...');
+            });
+        });
+    </script>
 </body>
 </html>

@@ -52,10 +52,10 @@
         }
     </script>
     
-    <div class="content">
+    <div class="content bg-gray-50 min-screen">
         <div class="flex gap-6 p-6">
             <!-- ฝั่งซ้าย: รายการขยะ -->
-            <div class="border p-4 rounded-lg shadow-lg left-box bg-white border border-stone-300">
+            <div class="border p-4 rounded-lg shadow-lg left-box bg-white border ">
                 <div class="flex justify-between items-center mb-5">
                     <h2 class="text-lg font-bold mb-4">เลือกรายการขยะ</h2>
                     <div class="search-container">
@@ -92,7 +92,7 @@
             </div>            
 
             <!-- ฝั่งขวา: ฟอร์มและรายการขยะที่เลือก -->
-            <div class="border p-4 rounded-lg shadow-lg right-box bg-white border border-stone-300">
+            <div class="border p-4 rounded-lg shadow-lg right-box bg-white border ">
                 <h2 class="text-lg mb-4">ฟอร์มรับซื้อขยะ</h2>
                 <form id="wastePurchaseForm" action="/employee/wastePurchasePost" method="POST">
                     <input type="hidden" name="addBy" value="<%= username %>">
