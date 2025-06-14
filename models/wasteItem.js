@@ -13,6 +13,10 @@ const wasteItemSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  isDeleted: {
+        type: Boolean,
+        default: false
+    }
 });
 
 const WasteItem = mongoose.model('WasteItem', wasteItemSchema);

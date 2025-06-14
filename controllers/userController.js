@@ -383,8 +383,11 @@ const user_profile = async (req, res) => {
         // ดึงข้อมูลบัญชีธนาคารขยะของครอบครัว
         const wasteBankAccount = await WasteBankAccount.findOne({ familyID: family._id });
 
-        // ดึงข้อมูลการซื้อขยะของครอบครัว
-        const wastePurchases = await WastePurchase.find({ accountId: wasteBankAccount._id });
+        // ดึงข้อมูลการซื้อขยะพร้อม populate wasteItems
+        const wastePurchases = await WastePurchase.find({ 
+            accountId: wasteBankAccount._id,
+            isDeleted: false
+        }).populate('wasteItems').sort({ purchaseDate: -1 });
 
         // ดึงข้อมูลข้อร้องเรียนที่เกี่ยวข้องกับครอบครัว
         const complaints = await Complaint.find({ family: family._id });
@@ -392,21 +395,23 @@ const user_profile = async (req, res) => {
         // ดึงข้อมูลคำร้องขอขายขยะ
         const wasteSaleRequests = await wasteSaleRequest.find({ family: family._id }).populate('waste');
 
-        // ดึงข้อมูลการทำธุรกรรมขยะ
-        // const wasteTransactions = await WasteTransaction.find({ accountId: wasteBankAccount._id });
+        // คำนวณสถิติเพิ่มเติม
+        const totalEarnings = wastePurchases.reduce((sum, purchase) => sum + purchase.totalAmount, 0);
+        const totalWasteItems = wastePurchases.reduce((sum, purchase) => sum + (purchase.wasteItems ? purchase.wasteItems.length : 0), 0);
 
         res.render('user/profile', {
             familyName: family.familyName,
             username: family.username,
             address: family.address,
             numFamilyMembers: family.NumFamilyMembers,
-            members: members,  // ข้อมูลสมาชิก
-            wasteBankAccount: wasteBankAccount,  // ข้อมูลบัญชีธนาคารขยะ
-            wastePurchases: wastePurchases,  // ข้อมูลการซื้อขยะ
-            complaints: complaints,  // ข้อมูลข้อร้องเรียน
-            wasteSaleRequests: wasteSaleRequests,  // ข้อมูลคำร้องขอขายขยะ
-            // wasteTransactions: wasteTransactions,  // ข้อมูลการทำธุรกรรมขยะ
-            role: req.session.role,  // ส่งข้อมูล role
+            members: members,
+            wasteBankAccount: wasteBankAccount,
+            wastePurchases: wastePurchases, // ตอนนี้จะมี wasteItems แล้ว
+            complaints: complaints,
+            wasteSaleRequests: wasteSaleRequests,
+            totalEarnings: totalEarnings, // รายได้รวม
+            totalWasteItems: totalWasteItems, // จำนวนขยะรวม
+            role: req.session.role,
             createdAt: family.createdAt,
         });
     } catch (err) {

@@ -17,6 +17,7 @@
     
     <script>
         // เช็คข้อความที่ส่งมาจาก URL
+        const urlParams = new URLSearchParams(window.location.search);
         const successMessage = urlParams.get('message');
         const errorMessage = urlParams.get('error');
 

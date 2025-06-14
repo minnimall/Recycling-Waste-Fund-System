@@ -149,8 +149,8 @@ const wastePurchaseTotalIndex = async (req, res) => {
         const limit = 10;
         const skip = (page - 1) * limit;
         const search = req.query.search;
-        let query = {};
-        let monthlyQuery = {};
+        let query = { isDeleted: false };
+        let monthlyQuery = { isDeleted: false };
         if (searchDate) {
             const startDate = new Date(searchDate);
             startDate.setHours(0, 0, 0, 0);
@@ -228,11 +228,30 @@ const wastePurchaseTotalIndex = async (req, res) => {
 const wastePurchaseDelete = async (req, res) => {
     try {
         const { id } = req.params;
-        const deletedPurchase = await WastePurchase.findByIdAndDelete(id);
 
-        if (!deletedPurchase) {
-            return res.redirect('/employee/wastePurchaseTotal?error=ไม่พบข้อมูลที่ต้องการลบ');
+        // หา WastePurchase จาก id
+        const purchase = await WastePurchase.findById(id);
+
+        if (!purchase || purchase.isDeleted) {
+            return res.redirect('/employee/wastePurchaseTotal?error=ไม่พบข้อมูลหรือรายการถูกลบไปแล้ว');
         }
+
+        const { totalAmount, accountId, wasteItems } = purchase;
+
+        // ดึง accountId แรก (กรณีเป็น array)
+        const accId = Array.isArray(accountId) ? accountId[0] : accountId;
+
+        // หักยอดเงินออกจากบัญชี
+        await WasteBankAccount.findByIdAndUpdate(accId, {
+            $inc: { Balance: -totalAmount }
+        });
+
+        // ตั้ง isDeleted = true
+        purchase.isDeleted = true;
+        await purchase.save();
+
+        // (Optional) ลบ WasteItems ที่เกี่ยวข้องถ้าต้องการ
+        // await WasteItem.deleteMany({ _id: { $in: wasteItems } });
 
         res.redirect('/employee/wastePurchaseTotal?message=ลบรายการรับซื้อขยะสำเร็จ');
     } catch (error) {

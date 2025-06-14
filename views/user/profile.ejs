@@ -32,6 +32,7 @@
                         <p><i class="fas fa-envelope me-2"></i><strong>อีเมล:</strong> </p>
                     </div>
                     <div class="col-md-6">
+                        <p><strong>หมายเลขบัญชี:</strong> <%= wasteBankAccount ? wasteBankAccount.AccountNumber : '-' %></p>
                         <p><i class="fas fa-calendar me-2"></i><strong>วันที่เข้าร่วมเป็นสมาชิก:</strong> <%= createdAt.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) %> </p>
                         <!-- <p><i class="fas fa-recycle me-2"></i><strong>จำนวนครั้งที่ขายขยะ:</strong> 24 ครั้ง</p> -->
                         <div class="d-flex mt-3">
@@ -291,8 +292,8 @@
                     <div class="mb-3">
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-search"></i></span>
-                            <input type="text" class="form-control" placeholder="ค้นหาประวัติการขาย...">
-                            <button class="btn btn-outline-secondary" type="button">ค้นหา</button>
+                            <input type="text" class="form-control" id="wasteSearchInput" placeholder="ค้นหาประวัติการขาย...">
+                            <button class="btn btn-outline-secondary" type="button" onclick="searchWasteHistory()">ค้นหา</button>
                         </div>
                     </div>
                     <div class="table-responsive">
@@ -300,75 +301,44 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>วันที่</th>
-                                    <th>ขยะ</th>
-                                    <th>น้ำหนัก (กก.)</th>
-                                    <th>ราคาต่อหน่วย (บาท)</th>
+                                    <th>รายละเอียด</th>
                                     <th>จำนวนเงิน (บาท)</th>
                                     <th>ผู้รับซื้อ</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>22 มี.ค. 2566</td>
-                                    <td>ขวดพลาสติกใส</td>
-                                    <td>3.5</td>
-                                    <td>10</td>
-                                    <td>35</td>
-                                    <td>นายรักษ์ รีไซเคิล</td>
-                                </tr>
-                                <tr>
-                                    <td>22 มี.ค. 2566</td>
-                                    <td>กระดาษหนังสือพิมพ์</td>
-                                    <td>1.7</td>
-                                    <td>5</td>
-                                    <td>8.5</td>
-                                    <td>นายรักษ์ รีไซเคิล</td>
-                                </tr>
-                                <tr>
-                                    <td>18 ก.พ. 2566</td>
-                                    <td>ขวดเบียร์</td>
-                                    <td>5.2</td>
-                                    <td>2</td>
-                                    <td>10.4</td>
-                                    <td>นางสาวสะอาด จิตใจดี</td>
-                                </tr>
-                                <tr>
-                                    <td>18 ก.พ. 2566</td>
-                                    <td>กระป๋องอลูมิเนียม</td>
-                                    <td>3.5</td>
-                                    <td>30</td>
-                                    <td>105</td>
-                                    <td>นางสาวสะอาด จิตใจดี</td>
-                                </tr>
+                            <tbody id="wasteHistoryTableBody">
+                                <% if (wastePurchases && wastePurchases.length > 0) { %>
+                                    <% wastePurchases.forEach(purchase => { %>
+                                        <tr>
+                                            <td><%= new Date(purchase.purchaseDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
+                                            <td>
+                                                <% if (purchase.wasteItems && purchase.wasteItems.length > 0) { %>
+                                                    <%= purchase.wasteItems.map(item => item.name || 'ไม่ระบุ').join(', ') %>
+                                                <% } else { %>
+                                                    ขายขยะ
+                                                <% } %>
+                                            </td>
+                                            <td class="transaction-in">฿<%= purchase.totalAmount.toLocaleString() %></td>
+                                            <td><%= purchase.addBy || '-' %></td>
+                                        </tr>
+                                    <% }) %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">ไม่มีประวัติการขายขยะ</td>
+                                    </tr>
+                                <% } %>
                             </tbody>
                         </table>
                     </div>
                     <div class="d-flex justify-content-between align-items-center mt-3">
                         <div>
-                            <span class="text-muted">แสดง 1-7 จาก 24 รายการ</span>
+                            <span class="text-muted">แสดง <%= wastePurchases ? wastePurchases.length : 0 %> รายการ</span>
                         </div>
-                        <nav aria-label="Page navigation">
-                            <ul class="pagination">
-                                <li class="page-item disabled">
-                                    <a class="page-link" href="#" aria-label="Previous">
-                                        <span aria-hidden="true">&laquo;</span>
-                                    </a>
-                                </li>
-                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                <li class="page-item">
-                                    <a class="page-link" href="#" aria-label="Next">
-                                        <span aria-hidden="true">&raquo;</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </nav>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
-                    <button type="button" class="btn btn-success">
+                    <button type="button" class="btn btn-success" onclick="exportWasteData()">
                         <i class="fas fa-file-excel me-2"></i>ส่งออกข้อมูล
                     </button>
                 </div>
@@ -388,12 +358,12 @@
                     <div class="card mb-4">
                         <div class="card-body text-center">
                             <h6 class="text-muted mb-2">ยอดเงินคงเหลือ</h6>
-                            <div class="account-balance">฿ 1,250.50</div>
+                            <div class="account-balance">฿<%= wasteBankAccount ? wasteBankAccount.Balance.toLocaleString() : '0' %></div>
                             <div class="mt-3">
-                                <button class="btn btn-success me-2">
+                                <button class="btn btn-success me-2" onclick="showDepositForm()">
                                     <i class="fas fa-plus-circle me-2"></i>ฝากเงิน
                                 </button>
-                                <button class="btn btn-danger">
+                                <button class="btn btn-danger" onclick="showWithdrawForm()">
                                     <i class="fas fa-minus-circle me-2"></i>ถอนเงิน
                                 </button>
                             </div>
@@ -414,85 +384,41 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>22 มี.ค. 2566</td>
-                                    <td>ขายขยะ</td>
-                                    <td class="transaction-in">+43.50</td>
-                                    <td>-</td>
-                                    <td>1,250.50</td>
-                                    <td>ขวดพลาสติก, กระดาษ</td>
-                                </tr>
-                                <tr>
-                                    <td>1 มี.ค. 2566</td>
-                                    <td>ถอนเงิน</td>
-                                    <td>-</td>
-                                    <td class="transaction-out">-500.00</td>
-                                    <td>1,207.00</td>
-                                    <td>ถอนเงินผ่านเจ้าหน้าที่</td>
-                                </tr>
-                                <tr>
-                                    <td>18 ก.พ. 2566</td>
-                                    <td>ขายขยะ</td>
-                                    <td class="transaction-in">+115.40</td>
-                                    <td>-</td>
-                                    <td>1,707.00</td>
-                                    <td>ขวดแก้ว, กระป๋องอลูมิเนียม</td>
-                                </tr>
-                                <tr>
-                                    <td>10 ก.พ. 2566</td>
-                                    <td>ถอนเงิน</td>
-                                    <td>-</td>
-                                    <td class="transaction-out">-300.00</td>
-                                    <td>1,591.60</td>
-                                    <td>ถอนเงินผ่านเจ้าหน้าที่</td>
-                                </tr>
-                                <tr>
-                                    <td>8 ม.ค. 2566</td>
-                                    <td>ขายขยะ</td>
-                                    <td class="transaction-in">+21.10</td>
-                                    <td>-</td>
-                                    <td>1,891.60</td>
-                                    <td>กระดาษ, พลาสติก</td>
-                                </tr>
-                                <tr>
-                                    <td>12 ธ.ค. 2565</td>
-                                    <td>ขายขยะ</td>
-                                    <td class="transaction-in">+28.00</td>
-                                    <td>-</td>
-                                    <td>1,870.50</td>
-                                    <td>ขวดพลาสติก</td>
-                                </tr>
+                                <% if (wastePurchases && wastePurchases.length > 0) { %>
+                                    <% let runningBalance = wasteBankAccount ? wasteBankAccount.Balance : 0; %>
+                                    <% wastePurchases.slice().reverse().forEach((purchase, index) => { %>
+                                        <tr>
+                                            <td><%= new Date(purchase.purchaseDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
+                                            <td>ขายขยะ</td>
+                                            <td class="transaction-in">+฿<%= purchase.totalAmount.toLocaleString() %></td>
+                                            <td>-</td>
+                                            <td>฿<%= runningBalance.toLocaleString() %></td>
+                                            <td>
+                                                <% if (purchase.wasteItems && purchase.wasteItems.length > 0) { %>
+                                                    <%= purchase.wasteItems.map(item => item.name || 'ขยะ').join(', ') %>
+                                                <% } else { %>
+                                                    ขายขยะรีไซเคิล
+                                                <% } %>
+                                            </td>
+                                        </tr>
+                                        <% runningBalance -= purchase.totalAmount; %>
+                                    <% }) %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">ไม่มีรายการธุรกรรม</td>
+                                    </tr>
+                                <% } %>
                             </tbody>
                         </table>
                     </div>
                     <div class="d-flex justify-content-between align-items-center mt-3">
                         <div>
-                            <span class="text-muted">แสดง 1-6 จาก 18 รายการ</span>
+                            <span class="text-muted">แสดง <%= wastePurchases ? wastePurchases.length : 0 %> รายการ</span>
                         </div>
-                        <nav aria-label="Page navigation">
-                            <ul class="pagination">
-                                <li class="page-item disabled">
-                                    <a class="page-link" href="#" aria-label="Previous">
-                                        <span aria-hidden="true">&laquo;</span>
-                                    </a>
-                                </li>
-                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                <li class="page-item">
-                                    <a class="page-link" href="#" aria-label="Next">
-                                        <span aria-hidden="true">&raquo;</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </nav>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
-                    <!-- <button type="button" class="btn btn-primary">
-                        <i class="fas fa-print me-2"></i>พิมพ์สมุดบัญชี
-                    </button> -->
                 </div>
             </div>
         </div>
@@ -502,8 +428,6 @@
 
 
     <!-- พวก modal -->
-
-
     
     <!-- Add Family Member Modal -->
     <div class="modal fade" id="addFamilyModal" tabindex="-1" aria-labelledby="addFamilyModalLabel" aria-hidden="true">

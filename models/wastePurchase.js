@@ -21,6 +21,10 @@ const wastePurchaseSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  isDeleted: {
+        type: Boolean,
+        default: false
+    }
 });
 
 const WastePurchase = mongoose.model('WastePurchase', wastePurchaseSchema);
