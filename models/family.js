@@ -27,6 +27,7 @@ const FamilySchema = new mongoose.Schema({
     },
     NumFamilyMembers: { 
         type: Number,
+        default: 0
     },
     village: { 
         type: mongoose.Schema.Types.ObjectId, 

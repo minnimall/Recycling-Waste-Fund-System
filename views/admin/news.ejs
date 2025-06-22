@@ -46,6 +46,90 @@
             }
     
         </script>
+
+        <div class="content bg-gray-50 min-screen">
+            <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">ข่าวสาร</h1>
+                    <p class="text-gray-600">ข่าวสารทั้งหมดของกองทุนขยะรีไซเคิล</p>
+                </div>
+                
+                <div>
+                    <button type="button" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition duration-300" onclick="openModal()">เพิ่มข่าวสาร</button>
+                </div>
+            </div>
+
+            <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+                <form action="" method="GET">
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <div class="flex-1">
+                            <div class="relative">
+                                <input type="text" name="search" value="" placeholder="ค้นหาข่าวสาร" 
+                                    class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                <div class="absolute left-3 top-2.5 text-gray-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <button class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                <i class="fas fa-search mr-2"></i>ค้นหา
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+                <div class="mb-4 border-b border-gray-200 border-b border-gray-200 pb-4">
+                    <h2 class="text-base font-semibold text-gray-800 mb-4 md:mb-0">
+                        จำนวนข่าวสารทั้งหมด <span class="text-blue-600 text-base font-normal"> <%= totalItems %> รายการ</span>
+                    </h2>
+                </div>
+            
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-3 text-sm font-medium tracking-wider text-lef text-gray-700 uppercase">ลำดับ</th>
+                                <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">หัวข้อ</th>
+                                <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">คำอธิบาย</th>
+                                <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">วันที่โพสต์</th>
+                                <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">ผู้ที่โพส</th>
+                                <th class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <% if (news && news.length > 0) { %>
+                                <% news.forEach((newsItem, index) => { %>
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-4 py-3 text-sm whitespace-nowrap text-center"><%= (currentPage - 1) * 10 + index + 1 %></td>
+                                        <td class="px-4 py-3 text-sm whitespace-nowrap"><%= newsItem.newsTitle %></td>
+                                        <td class="px-4 py-3 text-sm whitespace-nowrap"><%= newsItem.newsDescription %></td>
+                                        <td class="px-4 py-3 text-sm whitespace-nowrap"><%= newsItem.formattedDate %></td>
+                                        <td class="px-4 py-3 text-sm whitespace-nowrap"><%= newsItem.newsAuthor %></td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-center">
+                                            <button onclick="" class="edit-btn">
+                                                <i class="fa fa-edit"></i>
+                                            </button>
+                                            <button onclick="deleteNews('<%= newsItem._id %>', '<%= newsItem.newsTitle %>')" class="delete-btn">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="6" class="text-center py-2 px-4">- ไม่พบข้อมูลข่าวสาร -</td>
+                                </tr>
+                            <% } %>
+                        </tbody>                    
+                    </table>
+                </div>
+            </div>
+        </div>
             <!-- Main content -->
             <div class="screen z-[10]" id="modal">
                 <form class="mx-auto mt-[13em] w-1/2 bg-gray-100 border border-gray-300 p-4 rounded-lg shadow-md transition-transform transform relative " action="/admin/newsPost" method="POST" enctype="multipart/form-data">

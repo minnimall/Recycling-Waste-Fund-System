@@ -56,9 +56,26 @@
 
 .main-bg-color {
     background: var(--header-bg);
-  }
+}
 
-  .delete-btn {
+.edit-btn {
+    background-color: #007bff; /* สีฟ้าสำหรับแก้ไข */
+    color: white;
+    border: none;
+    margin-top: 10px;
+    margin-right: 4px;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.3s ease;
+}
+
+.edit-btn:hover {
+    background-color: #0155ad;
+}
+
+.delete-btn {
     background-color: #f44336; /* สีแดง */
     color: white;
     border: none;
@@ -66,7 +83,7 @@
     padding: 8px 12px;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 10px;
+    font-size: 12px;
     transition: background-color 0.3s ease;
 }
 

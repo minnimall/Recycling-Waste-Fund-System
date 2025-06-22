@@ -45,6 +45,169 @@
 
     </script>
 
+    <div class="content bg-gray-50 min-screen">
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">รอบการรับซื้อขยะ</h1>
+                <p class="text-gray-600">รอบการรับซื้อขยะทั้งหมดของกองทุนขยะรีไซเคิล</p>
+            </div>
+            
+            <div>
+                <button type="button" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition duration-300" onclick="wasFormToggle()">เพิ่มรอบรับซื้อ</button>
+            </div>
+        </div>
+
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+            <div class="mb-4 border-b border-gray-200 border-b border-gray-200 pb-4">
+                <h2 class="text-base font-semibold text-gray-800 mb-4 md:mb-0">
+                    จำนวนขยะทั้งหมด <span class="text-blue-600 text-base font-normal"> <%= rounds.length %> รายการ</span>
+                </h2>
+            </div>
+        
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">ลำดับ</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">ชื่อรอบ</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">หมู่ที่</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">หมู่บ้าน</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">รอบวันที่</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">เวลาเริ่มต้น</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">เวลาสิ้นสุด</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <% if (rounds.length > 0) { %>
+                            <% rounds.forEach((round, index) => { %>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-4 py-3 text-sm whitespace-nowrap text-center"><%= (currentPage - 1) * 10 + index + 1 %></td>
+                                    <td class="px-4 py-3 text-sm whitespace-nowrap"><%= round.roundName %></td>
+                                    <td class="px-4 py-3 text-sm whitespace-nowrap"><%= round.village.villageNumber %></td>
+                                    <td class="px-4 py-3 text-sm whitespace-nowrap"><%= round.village.villageName %></td>
+                                    <td class="px-4 py-3 text-sm whitespace-nowrap"><%= round.formattedDateThai %></td>
+                                    <td class="px-4 py-3 text-sm whitespace-nowrap"><%= round.startTime %> น.</td>
+                                    <td class="px-4 py-3 text-sm whitespace-nowrap"><%= round.endTime %> น.</td>
+                                    <td class=" px-4 py-3 whitespace-nowrap text-left table-was-delete">
+                                        <button type="button" class="was-row-<%= index + 1 %> row-active edit-btn" 
+                                            onclick="setRoundForm('<%= index + 1 %>', '<%= round._id %>', '<%= round.roundName %>', '<%= round.village._id %>', '<%= round.date %>', '<%= round.startTime %>', '<%= round.endTime %>')"> 
+                                            <i class="fa fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="delete-btn" 
+                                            onclick="deleteRound(['<%= index + 1 %>', '<%= round._id %>', '<%= round.roundName %>', '<%= round.village._id %>', '<%= round.date %>', '<%= round.startTime %>', '<%= round.endTime %>'])">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="6" class="text-center py-2 px-4">- ไม่มีข้อมูลรอบรับซื้อ -</td>
+                            </tr>
+                        <% } %>
+                    </tbody>                    
+                </table>
+            </div>
+        </div>
+
+        <!-- เพิ่มรอบรับซื้อ -->
+        <div class="was-form" id="add_Form" style="display: none;">
+            <form action="/admin/roundPost" method="POST" enctype="application/x-www-form-urlencoded">
+                <div class="form-head">
+                    <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
+                    <span>เพิ่มรอบการรับซื้อขยะ</span>
+                </div>
+                <div class="input-group">
+                    <label for="roundName">ชื่อรอบ</label>
+                    <input type="text" name="roundName" placeholder="ชื่อรอบการรับซื้อขยะ" required>
+
+                    <label for="village">หมู่บ้าน</label>
+                    <select class="mb-5" name="village" required>
+                        <option value="">เลือกหมู่บ้าน</option>
+                            <% village.forEach(v => { %>
+                                <option value="<%= v._id %>"><%= v.villageName %></option>
+                            <% }) %>
+                    </select>
+
+                    <label for="date">วันที่</label>
+                    <input type="date" name="date" required>
+
+                    <label for="startTime">เวลาเริ่มต้น</label>
+                    <input type="text" class="startTime" name="startTime" required>
+
+                    <label for="endTime" >เวลาสิ้นสุด</label>
+                    <input type="text" class="endTime" name="endTime" required>
+            
+                    <div class="submit-btn flex justify-end">
+                        <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
+                        <button type="submit" class="submit">บันทึก</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- แก้ไขรอบรับซื้อ -->
+        <div class="was-form" id="edit_Form" style="display: none;">
+            <form action="/admin/roundEdit" method="POST" enctype="application/x-www-form-urlencoded">
+                <div class="form-head">
+                    <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
+                    <span>แก้ไขรอบการรับซื้อขยะ</span>
+                </div>
+                <div class="input-group">
+                    <input type="hidden" name="_id" id="_id" value="">
+
+                    <label for="roundName">ชื่อรอบ</label>
+                    <input type="text" id="roundName" name="roundName" placeholder="ชื่อรอบการรับซื้อขยะ" required>
+
+                    <label for="village">หมู่บ้าน</label>
+                    <select class="mb-5" id="village" name="village" required>
+                        <option value="">เลือกหมู่บ้าน</option>
+                            <% village.forEach(v => { %>
+                                <option value="<%= v._id %>"><%= v.villageName %></option>
+                            <% }) %>
+                    </select>
+
+                    <label for="date">วันที่</label>
+                    <input type="date" id="date" name="date" required>
+
+                    <label for="startTime">เวลาเริ่มต้น</label>
+                    <input type="text" class="startTime" id="startTime" name="startTime" required>
+
+                    <label for="endTime">เวลาสิ้นสุด</label>
+                    <input type="text" class="endTime" id="endTime" name="endTime" required>
+                    
+                    <div class="submit-btn flex justify-end">
+                        <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
+                        <button type="submit" class="submit">บันทึก</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="pagination flex justify-center items-center mt-4 space-x-2">
+            <% if (currentPage > 1) { %>
+                <a href="?page=<%= currentPage - 1 %>"
+                    class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                    ก่อนหน้า
+                </a>
+            <% } %>
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <a href="?page=<%= i %>"
+                    class="px-3 py-1 border border-gray-300 rounded-md 
+                        <%= currentPage === i ? 'page-current text-white' : 'text-gray-700 hover:bg-gray-100' %>">
+                    <%= i %>
+                </a>
+            <% } %>
+            <% if (currentPage < totalPages) { %>
+                <a href="?page=<%= currentPage + 1 %>"
+                    class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                    ถัดไป
+                </a>
+            <% } %>
+        </div>
+    </div>
+
     <!-- Main content -->
     <div class="content">
         <div id="loadingIndicator" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">

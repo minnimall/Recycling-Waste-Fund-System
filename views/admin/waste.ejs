@@ -10,35 +10,228 @@
 
 <body>
     <%- include('../partials/adminPartials/adminHeader.ejs') %>
+    <%- include('../partials/adminPartials/adminSidebar.ejs') %>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // เช็คข้อความที่ส่งมาจาก URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const successMessage = urlParams.get('message');
+        const errorMessage = urlParams.get('error');
+        if (successMessage) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: successMessage,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
+        if (errorMessage) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: errorMessage,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
+    </script>
+    
+    <div class="content bg-gray-50 min-screen">
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">ขยะ</h1>
+                <p class="text-gray-600">รายการขยะทั้งหมดที่รับซื้อของกองทุนขยะรีไซเคิล</p>
+            </div>
+            
+            <div>
+                <button type="button" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition duration-300" onclick="wasFormToggle()">เพิ่มรายการขยะ</button>
+            </div>
+        </div>
 
-        <%- include('../partials/adminPartials/adminSidebar.ejs') %>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script>
-            // เช็คข้อความที่ส่งมาจาก URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const successMessage = urlParams.get('message');
-            const errorMessage = urlParams.get('error');
-            if (successMessage) {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'success',
-                    title: successMessage,
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-            }
-            if (errorMessage) {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'error',
-                    title: errorMessage,
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-            }
-        </script>
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+            <div class="mb-4 border-b border-gray-200 border-b border-gray-200 pb-4">
+                <h2 class="text-base font-semibold text-gray-800 mb-4 md:mb-0">
+                    จำนวนขยะทั้งหมด <span class="text-blue-600 text-base font-normal"> <%= waste.length %> รายการ</span>
+                </h2>
+            </div>
+        
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">ลำดับ</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">ชื่อรายการขยะ</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">ประเภทขยะ</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">ราคา (ราคา/กก.)</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">รูป</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <% if (waste.length > 0) { %>
+                            <% waste.forEach((wastes, index) => { %>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-4 py-3 text-sm whitespace-nowrap text-center"><%= (currentPage - 1) * 10 + index + 1 %></td>
+                                    <td class="px-4 py-3 text-sm whitespace-nowrap"><%= wastes.wasteName %></td>
+                                    <td class="px-4 py-3 text-sm whitespace-nowrap"><%= wastes.wasteType.wasteTypeName %></td>
+                                    <td class="px-4 py-3 text-sm whitespace-nowrap text-center"><%= wastes.pricePerUnit %></td>
+                                    <td class="px-4 py-3 text-sm whitespace-nowrap">
+                                        <% if (wastes.img) { %>
+                                                <img src="<%= wastes.img %>" alt="รูป <%= wastes.img %>" class="waste-img">
+                                            <% } else { %>
+                                                <span>ไม่มีรูปภาพ</span>
+                                            <% } %>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap text-left">
+                                        <button type="button" class="was-row-<%= index + 1 %> row-active edit-btn" 
+                                            onclick="setWasteForm('<%= index + 1 %>', '<%= wastes._id %>', '<%= wastes.wasteName %>',
+                                                                '<%= wastes.pricePerUnit %>', '<%= wastes.wasteType._id %>', '<%= wastes.img %>')">
+                                            <i class="fa fa-edit"></i>
+                                        </button>
+                                        <button onclick="deleteEmp(['<%= index + 1 %>', '<%= wastes._id %>','<%= wastes.wasteName %>'])" class="delete-btn">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="6" class="text-center py-2 px-4">- ไม่มีข้อมูลขยะ -</td>
+                            </tr>
+                        <% } %>
+                    </tbody>                    
+                </table>
+            </div>
+        </div>
+
+        <div class="was-form" id="add_Form" style="display: none;">
+            <form action="/admin/wastePost" method="POST" enctype="multipart/form-data">
+                <div class="form-head">
+                    <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
+                        <span>รายละเอียดขยะ</span>
+                </div>        
+                <div class="input-group">
+                    <!-- ชื่อขยะ -->
+                    <label for="wasteName">ชื่อขยะ</label>
+                    <input type="text" name="wasteName" id="wasteName" placeholder="ขวด PET ใส, โลหะ ฯลฯ" required>
+
+                    <!-- ประเภทขยะ -->
+                    <label for="wasteType">ประเภทขยะ</label>
+                    <select class="mb-5" name="wasteType" id="wasteType" required>
+                        <option value="" disabled selected>เลือกประเภทขยะ</option>
+                            <% wasteTypes.forEach((type) => { %>
+                                <option value="<%= type._id %>"><%= type.wasteTypeName %></option>
+                            <% }); %>
+                    </select>
+
+                    <!-- ราคาขยะ -->
+                    <label class="pp" for="pricePerUnit">ราคาขยะ (ราคา/กก.)</label>
+                    <input type="text" name="pricePerUnit" id="pricePerUnit" placeholder="เช่น 6 บาท/กิโลกรัม" required>
+
+                    <!-- รูปภาพขยะ -->
+                    <div class="mt-3">
+                        <label class="title-img" for="img">รูปภาพขยะ</label>
+                    </div>
+                    <div class="img-input">
+                        <label class="block">
+                            <span class="sr-only">Choose profile photo</span>
+                                <input type="file" name="img" id="img" accept="image/png, image/gif, image/jpeg" class="block w-full text-sm text-slate-500
+                                            file:mr-4 file:py-2 file:px-4
+                                            file:rounded-full file:border-0
+                                            file:text-sm file:font-semibold
+                                            file:bg-violet-50 file:text-violet-700
+                                            hover:file:bg-violet-100
+                                "/>
+                        </label>
+                    </div>
+                    
+                    <div class="submit-btn">
+                        <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
+                        <button type="submit" class="submit">บันทึก</button>
+                    </div>
+                </div>
+            </form> 
+        </div>
+                    
+        <div class="was-form" id="edit_Form" style="display: none;">
+            <form action="/admin/wasteEdit" method="POST" enctype="multipart/form-data">
+                <div class="form-head">
+                    <ion-icon class="head-logo" name="create-outline"></ion-icon>
+                        <span>แก้ไขรายละเอียดขยะ</span>
+                </div>        
+                <div class="input-group">
+                    <input type="hidden" name="_id" id="hiddenWasteId" value="">
+                    
+                    <!-- ชื่อขยะ -->
+                    <label for="editWasteName">ชื่อขยะ</label>
+                    <input type="text" name="wasteName" id="editWasteName" placeholder="ขวด PET ใส, โลหะ ฯลฯ" required>
+
+                    <!-- ประเภทขยะ -->
+                    <label for="editWasteType">ประเภทขยะ</label>
+                    <select class="mb-5" name="wasteType" id="editWasteType" required>
+                        <option value="" disabled selected>เลือกประเภทขยะ</option>
+                            <% wasteTypes.forEach((type) => { %>
+                                <option  value="<%= type._id %>"><%= type.wasteTypeName %></option>
+                            <% }); %>
+                    </select>
+
+                    <!-- ราคาขยะ -->
+                    <label for="editPricePerUnit">ราคาขยะ (ราคา/กก.)</label>
+                    <input type="text" name="pricePerUnit" id="editPricePerUnit" placeholder="เช่น 6 บาท/กิโลกรัม" required>
+
+                    <!-- รูปภาพขยะ -->
+                    <div class="mt-3">
+                        <label class="title-img" for="img">รูปภาพขยะ</label>
+                    </div>
+                    <div class="img-input mt-3">
+                        <div class="current-img">
+                            <img src="" alt="Current Waste Image" class="img-edit">
+                        </div>
+                        <label class="block mt-2">
+                            <span class="sr-only">Choose profile photo</span>
+                            <input type="file" name="img" id="editWasteImg" accept="image/png, image/gif, image/jpeg" class="block w-full text-sm text-slate-500
+                                            file:mr-4 file:py-2 file:px-4
+                                            file:rounded-full file:border-0
+                                            file:text-sm file:font-semibold
+                                            file:bg-violet-50 file:text-violet-700
+                                            hover:file:bg-violet-100
+                                        "/>
+                        </label>
+                    </div>
+                    <div class="submit-btn">
+                        <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
+                        <button type="submit" class="submit">บันทึก</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="pagination flex justify-center items-center mt-4 space-x-2">
+                    <% if (currentPage > 1) { %>
+                        <a href="?page=<%= currentPage - 1 %>"
+                            class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                            ก่อนหน้า
+                        </a>
+                    <% } %>
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                        <a href="?page=<%= i %>"
+                            class="px-3 py-1 border border-gray-300 rounded-md 
+                                <%= currentPage === i ? 'page-current text-white' : 'text-gray-700 hover:bg-gray-100' %>">
+                            <%= i %>
+                        </a>
+                    <% } %>
+                    <% if (currentPage < totalPages) { %>
+                        <a href="?page=<%= currentPage + 1 %>"
+                            class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                            ถัดไป
+                        </a>
+                    <% } %>
+        </div>
+    </div>
+
             <!-- Main content -->
             <div class="content">
                 <div class="content-header">

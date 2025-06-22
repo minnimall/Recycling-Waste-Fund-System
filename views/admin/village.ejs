@@ -45,7 +45,141 @@
 
     <%- include('../partials/adminPartials/adminHeader.ejs') %>
 
-        <%- include('../partials/adminPartials/adminSidebar.ejs') %>
+    <%- include('../partials/adminPartials/adminSidebar.ejs') %>
+    <div class="content bg-gray-50 min-screen">
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">หมู่บ้าน</h1>
+                <p class="text-gray-600">ข้อมูลหมู่บ้านของกองทุนขยะรีไซเคิล</p>
+            </div>
+            
+            <div>
+                <button type="button" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition duration-300" onclick="wasFormToggle()">เพิ่มหมู่บ้าน</button>
+            </div>
+        </div>
+
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+            <div class="mb-4 border-b border-gray-200 border-b border-gray-200 pb-4">
+                <h2 class="text-base font-semibold text-gray-800 mb-4 md:mb-0">
+                    จำนวนหมู่บ้านทั้งหมด <span class="text-blue-600 text-base font-normal"> <%= villages.length %> รายการ</span>
+                </h2>
+            </div>
+        
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">หมู่ที่</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">ชื่อหมู่บ้าน</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">ตำแหน่งรับซื้อ</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <% if (villages.length > 0) { %>
+                            <% villages.forEach((village, index) => { %>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-4 py-3 text-sm whitespace-nowrap text-center"><%= village.villageNumber %></td>
+                                    <td class="px-4 py-3 text-sm whitespace-nowrap"><%= village.villageName %></td>
+                                    <td class="px-4 py-3 text-sm whitespace-nowrap"><%= village.location %></td>
+                                    <td class="px-4 py-3 whitespace-nowrap text-left">
+                                        <button type="button" class="was-row-<%= index + 1 %> row-active edit-btn" 
+                                            onclick="setVillageForm('<%= index + 1 %>', '<%= village._id %>', '<%= village.villageNumber %>', '<%= village.villageName %>', '<%= village.location %>')"> 
+                                                <i class="fa fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="delete-btn" 
+                                            onclick="deleteVillage(['<%= index + 1 %>', '<%= village._id %>', '<%= village.villageNumber %>', '<%= village.villageName %>', '<%= village.location %>'])">
+                                                <i class="fa fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="8" class="text-center py-4 text-gray-500">- ไม่พบข้อมูลหมู่บ้าน -</td>
+                            </tr>
+                        <% } %>
+                    </tbody>                    
+                </table>
+            </div>
+        </div>
+
+        <!-- เพิ่มหมู่บ้าน -->
+        <div class="was-form" id="add_Form" style="display: none;">
+            <form action="/admin/villagePost" method="POST" enctype="application/x-www-form-urlencoded">
+                <div class="form-head">
+                    <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
+                        <span>เพิ่มหมู่บ้าน</span>
+                </div>
+                <div class="input-group">
+                    <label for="villageNumber">หมู่ที่</label>
+                    <input type="text" name="villageNumber" id="villageNumber" placeholder="เช่น 1, 2, 3, ..." required>
+                    
+                    <label for="villageName">ชื่อหมู่บ้าน</label>
+                    <input type="text" name="villageName" id="villageName" placeholder="เช่น บ้านหนองแวง" required>
+                    
+                    <label for="location">ตำแหน่งรับซื้อ</label>
+                    <input type="text" name="location" id="location" placeholder="เช่น ตำบล xxx อำเภอ xxx" required>
+                    
+                    <div class="submit-btn flex justify-end">
+                        <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
+                        <button type="submit" class="submit">บันทึก</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+                    
+        <!-- แก้ไขหมู่บ้าน -->
+        <div class="was-form" id="edit_Form" style="display: none;">
+            <form action="/admin/villageEdit" method="POST" enctype="application/x-www-form-urlencoded">
+                <div class="form-head">
+                    <ion-icon class="head-logo" name="create-outline"></ion-icon>
+                        <span>แก้ไขหมู่บ้าน</span>
+                </div>
+                <div class="input-group">
+                    <!-- ส่งค่า _id -->
+                    <input type="hidden" name="_id" id="hiddenVillageId" value="">
+
+                    <label for="editvillageNumber">หมู่ที่</label>
+                    <input type="text" name="villageNumber" id="editvillageNumber" placeholder="เช่น 1, 2, 3, ..." required>
+
+                    <label for="editvillageName">ชื่อหมู่บ้าน</label>
+                    <input type="text" name="villageName" id="editvillageName" placeholder="เช่น บ้านหนองแวง" required>
+
+                    <label for="editlocation">ตำแหน่งรับซื้อ</label>
+                    <input type="text" name="location" id="editlocation" placeholder="เช่น ตำบล xxx อำเภอ xxx" required>
+
+                    <div class="submit-btn flex justify-end">
+                        <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
+                        <button type="submit" class="submit">บันทึก</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="pagination flex justify-center items-center mt-4 space-x-2">
+            <% if (currentPage > 1) { %>
+                <a href="?page=<%= currentPage - 1 %>"
+                    class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                        ก่อนหน้า
+                </a>
+            <% } %>
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <a href="?page=<%= i %>"
+                    class="px-3 py-1 border border-gray-300 rounded-md 
+                            <%= currentPage === i ? 'page-current text-white' : 'text-gray-700 hover:bg-gray-100' %>">
+                        <%= i %>
+                </a>
+            <% } %>
+            <% if (currentPage < totalPages) { %>
+                <a href="?page=<%= currentPage + 1 %>"
+                    class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                        ถัดไป
+                </a>
+            <% } %>
+        </div>
+    </div>
+
             <!-- Main content -->
             <div class="content">
                 <div class="content-header">

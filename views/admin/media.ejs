@@ -42,6 +42,198 @@
         }
 
     </script>
+
+    <div class="content bg-gray-50 min-screen">
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">สื่อความรู้</h1>
+                <p class="text-gray-600">สื่อความรู้ทั้งหมดของกองทุนขยะรีไซเคิล</p>
+            </div>
+            
+            <div>
+                <button type="button" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition duration-300" onclick="openModal()">เพิ่มสื่อความรู้</button>
+            </div>
+        </div>
+
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+            <form action="" method="GET">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1">
+                        <div class="relative">
+                            <input type="text" name="search" value="<%= searchQuery %>" placeholder="ค้นหาสื่อความรู้" 
+                                class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <div class="absolute left-3 top-2.5 text-gray-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            <i class="fas fa-search mr-2"></i>ค้นหา
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+            <div class="mb-4 border-b border-gray-200 border-b border-gray-200 pb-4">
+                <h2 class="text-base font-semibold text-gray-800 mb-4 md:mb-0">
+                    สื่อความรู้ทั้งหมด <span class="text-blue-600 text-base font-normal"> <%= totalItems %> รายการ</span>
+                </h2>
+            </div>
+
+            <!-- ส่วนแสดงชื่อและวิดีโอ -->
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                <% if (media.length > 0) { %>
+                    <% media.forEach((amedia, index) => { %>
+                        <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden group">
+                            <!-- Video Container -->
+                            <div class="relative overflow-hidden">
+                                <% if (amedia.youtubeUrl && amedia.youtubeUrl.includes('v=')) { %>
+                                    <div class="aspect-video bg-gray-900">
+                                        <iframe class="w-full h-full"
+                                            src="<%= 'https://www.youtube.com/embed/' + amedia.youtubeUrl.split('v=')[1].split('&')[0] %>"
+                                            frameborder="0" 
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                            allowfullscreen>
+                                        </iframe>
+                                    </div>
+                                <% } else { %>
+                                    <div class="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                                        <div class="text-center text-gray-500">
+                                            <svg class="w-16 h-16 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                            </svg>
+                                            <p class="text-sm">ไม่มีวิดีโอ</p>
+                                        </div>
+                                    </div>
+                                <% } %>
+                                
+                                <!-- Action Buttons Overlay -->
+                                <!-- <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <div class="flex space-x-2">
+                                        <button type="button" 
+                                            class="bg-white/90 hover:bg-white text-blue-600 hover:text-blue-700 p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110"
+                                            onclick="openEditModal('<%= amedia._id %>', '<%= amedia.title %>', '<%= amedia.youtubeUrl %>')"
+                                            title="แก้ไข">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                            </svg>
+                                        </button>
+                                        <button onclick="deleteMedia('<%= amedia._id %>', '<%= amedia.title %>')" 
+                                            class="bg-white/90 hover:bg-white text-red-600 hover:text-red-700 p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110"
+                                            title="ลบ">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div> -->
+                            </div>
+
+                            <!-- Content Container -->
+                            <div class="p-5">
+                                <!-- Title -->
+                                <h3 class="text-lg font-semibold text-gray-800 mb-3 line-clamp-2 leading-tight group-hover:text-green-600 transition-colors duration-200">
+                                    <%= amedia.title %>
+                                </h3>
+                                
+                                <!-- Date and Meta Info -->
+                                <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
+                                    <div class="flex items-center space-x-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                        <span><%= amedia.formattedDate %></span>
+                                    </div>
+                                    
+                                    <% if (amedia.youtubeUrl && amedia.youtubeUrl.includes('v=')) { %>
+                                        <div class="flex items-center space-x-1 text-red-600">
+                                            <!-- <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                                            </svg>
+                                            <span class="text-xs font-medium">YouTube</span> -->
+                                            <button type="button" class="edit-btn" onclick="openEditModal('<%= amedia._id %>', '<%= amedia.title %>', '<%= amedia.youtubeUrl %>')">
+                                                <i class="fa fa-edit"></i>
+                                            </button> 
+                                            <button onclick="deleteMedia('<%= amedia._id %>', '<%= amedia.title %>')" class="delete-btn">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    <% } %>
+                                </div>
+
+                                <!-- Action Buttons (Mobile) -->
+                                <!-- <div class="flex justify-end space-x-2 md:hidden">
+                                    <button type="button" 
+                                        class="flex items-center space-x-1 px-3 py-1.5 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+                                        onclick="openEditModal('<%= amedia._id %>', '<%= amedia.title %>', '<%= amedia.youtubeUrl %>')">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                        </svg>
+                                        <span>แก้ไข</span>
+                                    </button>
+                                    <button onclick="deleteMedia('<%= amedia._id %>', '<%= amedia.title %>')" 
+                                        class="flex items-center space-x-1 px-3 py-1.5 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors duration-200">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                        <span>ลบ</span>
+                                    </button>
+                                </div> -->
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <div class="col-span-full">
+                        <div class="text-center py-16 bg-white rounded-xl shadow-sm">
+                            <div class="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-medium text-gray-900 mb-2">ยังไม่มีสื่อความรู้</h3>
+                            <p class="text-gray-500 mb-6">เริ่มต้นสร้างสื่อความรู้แรกของคุณ</p>
+                            <button type="button" 
+                                class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
+                                onclick="openModal()">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                เพิ่มสื่อความรู้
+                            </button>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <div class="pagination flex justify-center items-center mt-4 space-x-2">
+            <% if (currentPage > 1) { %>
+                <a href="?page=<%= currentPage - 1 %>&search=<%= search %>"
+                    class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                    ก่อนหน้า
+                </a>
+            <% } %>
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <a href="?page=<%= i %>&search=<%= search %>"
+                    class="px-3 py-1 border border-gray-300 rounded-md 
+                        <%= currentPage === i ? 'page-current text-white' : 'text-gray-700 hover:bg-gray-100' %>">
+                    <%= i %>
+                </a>
+            <% } %>
+            <% if (currentPage < totalPages) { %>
+                <a href="?page=<%= currentPage + 1 %>&search=<%= search %>"
+                    class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                    ถัดไป
+                </a>
+            <% } %>
+        </div>
+    </div>
+
     <!-- Modal for Adding/Editing Media -->
     <div class="screen z-[10]" id="modal" style="display: none;">
         <!-- <form class="add-media-form" action="/admin/mediaPost" method="POST" id="mediaForm"> -->
