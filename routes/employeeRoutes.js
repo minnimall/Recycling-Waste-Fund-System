@@ -27,7 +27,14 @@ router.get('/wasteSaleRequest', employeeController.wasteSaleRequestIndex);
 router.get('/wasteStock', employeeController.wasteStockIndex);
 
 // เบิกถอน
-router.get('/withDraw', employeeController.withDrawIndex);
+// หน้าเบิกถอน
+router.get('/withdraw', employeeController.showWithdrawPage);
+
+// POST ถอนเงิน
+router.post('/withdraw', employeeController.withDrawIndex);
+
+// AJAX ดึงข้อมูลบัญชี
+router.get('/withdraw/account/:accountNumber', employeeController.getAccountByNumber);
 
 // ฌาปนกิจสงเคราะห์
 router.get('/funeralAid', employeeController.funeralAidIndex);

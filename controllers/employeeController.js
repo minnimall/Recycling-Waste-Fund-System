@@ -17,6 +17,7 @@ const Family = require('../models/family');
 const Member = require('../models/member');
 const WasteBankAccount = require('../models/wasteBankAccount');
 const Complaint = require('../models/complaint');
+const Transaction = require('../models/transactionMoney');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const moment = require('moment');
@@ -480,9 +481,103 @@ const wasteStockIndex = (req, res)=> {
 }
 
 //หน้าเบิกถอน
-const withDrawIndex = (req, res)=> {
-    res.render('employee/withDraw',{mytitle: 'เบิกถอน'})
-}
+// ฟังก์ชันถอนเงิน
+const withDrawIndex = async (req, res) => {
+    try {
+        const { accountId, withdrawAmount } = req.body;
+
+        if (!accountId || !withdrawAmount) {
+            return res.redirect('/employee/withdraw?error=กรุณากรอกข้อมูลให้ครบถ้วน');
+        }
+
+        const account = await WasteBankAccount.findOne({ AccountNumber: accountId, isDeleted: false });
+
+        if (!account) {
+            return res.redirect('/employee/withdraw?error=ไม่พบบัญชีที่ระบุ');
+        }
+
+        const amount = parseFloat(withdrawAmount);
+        if (amount <= 0 || isNaN(amount)) {
+            return res.redirect('/employee/withdraw?error=จำนวนเงินไม่ถูกต้อง');
+        }
+
+        if (account.Balance < amount) {
+            return res.redirect('/employee/withdraw?error=ยอดเงินในบัญชีไม่เพียงพอ');
+        }
+
+        const family = await Family.findById(account.familyID);
+        if (!family) {
+            return res.redirect('/employee/withdraw?error=ไม่พบข้อมูลครอบครัว');
+        }
+
+        account.Balance -= amount;
+        await account.save();
+
+        await Transaction.create({
+            account: account._id,
+            family: family._id,
+            transactionType: 'withdraw',
+            amount: amount,
+            status: 'สำเร็จ',
+            note: 'ถอนเงินโดยเจ้าหน้าที่'
+        });
+
+        return res.redirect('/employee/withdraw?message=ถอนเงินสำเร็จแล้ว');
+    } catch (error) {
+        console.error('เกิดข้อผิดพลาด:', error);
+        return res.redirect('/employee/withdraw?error=เกิดข้อผิดพลาดในการถอนเงิน');
+    }
+};
+
+// แสดงหน้าถอนเงิน พร้อมประวัติการถอน
+const showWithdrawPage = async (req, res) => {
+    try {
+        const transactions = await Transaction.find({ transactionType: 'withdraw', isDeleted: false })
+            .sort({ transactionDate: -1 })
+            .limit(10)
+            .populate('account')
+            .populate('family');
+
+        res.render('employee/withdraw', {
+            mytitle: 'เบิกถอนเงิน',
+            transactions,
+            message: req.query.message || null,
+            error: req.query.error || null
+        });
+    } catch (err) {
+        console.error(err);
+        res.render('employee/withdraw', {
+            mytitle: 'เบิกถอนเงิน',
+            transactions: [],
+            error: 'เกิดข้อผิดพลาดในการโหลดข้อมูล',
+            message: null
+        });
+    }
+};
+
+const getAccountByNumber = async (req, res) => {
+    try {
+        const { accountNumber } = req.params;
+
+        const account = await WasteBankAccount.findOne({ AccountNumber: accountNumber, isDeleted: false })
+            .populate('familyID');
+
+        if (!account) {
+            return res.status(404).json({ error: 'ไม่พบบัญชี' });
+        }
+
+        res.json({
+            accountName: account.AccountName,
+            accountNumber: account.AccountNumber,
+            balance: account.Balance,
+            familyName: account.familyID.familyName
+        });
+    } catch (err) {
+        console.error('เกิดข้อผิดพลาดใน getAccountByNumber:', err);
+        res.status(500).json({ error: 'เกิดข้อผิดพลาดในเซิร์ฟเวอร์' });
+    }
+};
+
 
 //หน้าฌาปนกิจสงเคราะห์
 const funeralAidIndex = (req, res)=> {
@@ -505,7 +600,7 @@ module.exports = {
     //หน้าสต๊อกขยะ
     wasteStockIndex,
     //หน้าเบิกถอน
-    withDrawIndex,
+    withDrawIndex,getAccountByNumber,showWithdrawPage,
     //หน้าฌาปนกิจสงเคราะห์
     funeralAidIndex,
 }

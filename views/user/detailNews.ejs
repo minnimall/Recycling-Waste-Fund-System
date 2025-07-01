@@ -19,31 +19,31 @@
                     <div class="card-body p-md-5 p-4">
                         <!-- ส่วนหัวข้อข่าว -->
                         <div class="news-header mb-4">
-                            <h1 class="news-title fw-bold text-primary border-bottom pb-2 mb-3">ข่าวประชาสัมพันธ์</h1>
+                            <h1 class="news-title fw-bold text-black border-bottom pb-2 mb-3">ข่าวประชาสัมพันธ์</h1>
                             
                             <!-- ข้อมูลเมตา (วันที่, ผู้ลงข่าว) -->
                             <div class="news-meta d-flex flex-wrap gap-4 text-muted mb-3">
                                 <div class="meta-item d-flex align-items-center">
                                     <i class="far fa-calendar-alt me-2 text-primary"></i>
-                                    <span>วันที่ลงประกาศ: <strong><%= news.createdAt.toLocaleDateString() %></strong></span>
+                                    <span>วันที่ลงประกาศ: <%= news.createdAt.toLocaleDateString() %></span>
                                 </div>
                                 <div class="meta-item d-flex align-items-center">
                                     <i class="far fa-user me-2 text-primary"></i>
-                                    <span>ผู้ลงข่าว: <strong><%= news.newsAuthor %></strong></span>
+                                    <span>ผู้ลงข่าว: อบต.ขามป้อม </span>  <!-- <strong><%= news.newsAuthor %></strong> -->
                                 </div>
                             </div>
                             
                             <!-- แถบแสดงหมวดหมู่ -->
-                            <div class="category-badge mb-3">
+                            <!-- <div class="category-badge mb-3">
                                 <span class="badge bg-success px-3 py-2 rounded-pill">
                                     <i class="fas fa-tag me-1"></i> กองทุนขยะรีไซเคิล
                                 </span>
-                            </div>
+                            </div> -->
                         </div>
                         
                         <!-- เนื้อหาข่าว -->
                         <div class="news-content mb-4 p-3 bg-light rounded">
-                            <p class="lead"><%= news.newsTitle %></p>
+                            <h5><%= news.newsTitle %></h5>
                             <p><%= news.newsDescription %></p>
                         </div>
                         
@@ -51,7 +51,7 @@
                         <div class="pdf-container mb-4">
                             <div class="pdf-header d-flex align-items-center bg-light p-3 rounded-top border">
                                 <i class="far fa-file-pdf fs-4 text-danger me-2"></i>
-                                <h5 class="mb-0">เอกสารแนบ: <span class="text-primary"><%= news.newsFile.substring(news.newsFile.lastIndexOf('\\') + 1) %></span></h5>
+                                <p class="mb-0">เอกสารแนบ: <span class="text-primary"><%= news.newsFile.substring(news.newsFile.lastIndexOf('\\') + 1) %></span></p>
                             </div>
                             
                             <div class="pdf-frame-container border border-top-0 rounded-bottom">

@@ -28,7 +28,7 @@ const user_index = async (req, res) => {
             myWaste.find(filter).sort({ createdAt: 1 }),
             Village.find(filter).sort({ villageNumber: 1 }),
             Round.find(filter).populate('village').sort({ date: 1 }),
-            myNews.find(filter).sort({ createdAt: 1 })
+            myNews.find(filter).sort({ createdAt: -1 })
         ]);
 
         const currentDate = moment().format('YYYY-MM-DD');

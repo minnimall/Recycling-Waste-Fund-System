@@ -14,9 +14,9 @@
 <body class="bg-gray-50">
     <%- include('../partials/employeePartials/empHeader.ejs') %>
     <%- include('../partials/employeePartials/empSidebar.ejs') %>
-    
+
     <script>
-        // เช็คข้อความที่ส่งมาจาก URL
+        // แสดง popup message จาก query string
         const urlParams = new URLSearchParams(window.location.search);
         const successMessage = urlParams.get('message');
         const errorMessage = urlParams.get('error');
@@ -57,23 +57,21 @@
             </div>
         </div>
 
-        <!-- Main Content -->
         <div class="mx-4 grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- ส่วนค้นหาบัญชี -->
             <div class="lg:col-span-1">
                 <div class="bg-white rounded-lg shadow p-6">
                     <h2 class="text-base font-semibold text-gray-800 mb-4 flex items-center">
-                        <!-- <ion-icon name="search-outline" class="mr-2 text-gray-600"></ion-icon> -->ค้นหาบัญชี 
+                        ค้นหาบัญชี
                     </h2>
                     <div class="space-y-4">
-                        <form action="" method="">
+                        <form onsubmit="event.preventDefault(); searchAccount();">
                             <div>
-                                <!-- <label for="accountId" class="block text-sm font-medium text-gray-700 mb-1">เลขบัญชี</label> -->
                                 <div class="flex">
-                                    <input type="text" id="accountId" name="accountId" 
-                                        class="flex-1 rounded-l-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50 p-3" 
+                                    <input type="text" id="accountId" name="accountId"
+                                        class="flex-1 rounded-l-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50 p-3"
                                         placeholder="กรอกเลขบัญชี">
-                                    <button type="button" onclick="searchAccount()" 
+                                    <button type="submit"
                                         class="bg-green-600 text-white px-4 py-2 rounded-r-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition">
                                         <ion-icon name="search-outline"></ion-icon>
                                     </button>
@@ -102,7 +100,7 @@
                         </div>
                     </div>
 
-                    <!-- รายละเอียดบัญชี (ซ่อนไว้ก่อน) -->
+                    <!-- รายละเอียดบัญชี -->
                     <div id="accountDetails" class="hidden">
                         <div class="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -121,41 +119,31 @@
                             </div>
                         </div>
 
-                        <form id="withdrawalForm" class="space-y-4">
+                        <!-- ถอนเงิน -->
+                        <form id="withdrawalForm" class="space-y-4" method="POST" action="/employee/withdraw">
+                            <input type="hidden" id="hiddenAccountNumber" name="accountId" value="">
+
                             <div>
                                 <label for="withdrawAmount" class="block text-sm font-medium text-gray-700 mb-1">จำนวนเงินที่ต้องการถอน (บาท)</label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <span class="text-gray-500">฿</span>
                                     </div>
-                                    <input type="number" id="withdrawAmount" name="withdrawAmount" 
-                                        class="pl-8 py-2 px-4 w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50" 
-                                        placeholder="0.00" step="0.01" min="0" oninput="validateAmount()">
+                                    <input type="number" id="withdrawAmount" name="withdrawAmount"
+                                        class="pl-8 py-2 px-4 w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50"
+                                        placeholder="0.00" step="0.01" min="0" disabled oninput="validateAmount()">
                                 </div>
                                 <p id="amountError" class="mt-1 text-sm text-red-600"></p>
                             </div>
 
-                            <!-- <div>
-                                <label for="withdrawReason" class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ (ไม่บังคับ)</label>
-                                <textarea id="withdrawReason" name="withdrawReason" rows="2" 
-                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50" 
-                                    placeholder="ระบุหมายเหตุหรือเหตุผลในการถอนเงิน (ถ้ามี)"></textarea>
-                            </div> -->
-
                             <div class="pt-4">
-                                <button type="button" id="withdrawButton" onclick="confirmWithdrawal()" disabled
+                                <button type="submit" id="withdrawButton" disabled
                                     class="w-full bg-green-600 text-white py-3 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition disabled:opacity-50 disabled:cursor-not-allowed">
                                     <ion-icon name="checkmark-circle-outline" class="mr-1"></ion-icon> ยืนยันการถอนเงิน
                                 </button>
                             </div>
                         </form>
                     </div>
-
-                    <!-- คำแนะนำเมื่อยังไม่ได้ค้นหาบัญชี -->
-                    <!-- <div id="initialState" class="py-8 text-center text-gray-500">
-                        <ion-icon name="information-circle-outline" class="text-4xl mb-2"></ion-icon>
-                        <p>กรุณาค้นหาเลขบัญชีที่ต้องการถอนเงิน</p>
-                    </div> -->
                 </div>
             </div>
         </div>
@@ -170,41 +158,56 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">วันที่</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">รหัสบัญชี</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อเจ้าของบัญชี</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">จำนวนเงิน</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    วันที่
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    รหัสบัญชี
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    ชื่อเจ้าของบัญชี
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    จำนวนเงิน (ถอน)
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    สถานะ
+                                </th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
+                            <% if (transactions.length === 0) { %>
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">15/05/2025</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">ACC-1001</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">นางสาวสมหญิง รักดี</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">฿ 1,200.00</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">สำเร็จ</span>
+                                <td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
+                                    ไม่มีข้อมูลการถอนเงิน
                                 </td>
                             </tr>
+                            <% } else { %>
+                            <% transactions.forEach(transaction => { %>
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">14/05/2025</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">ACC-1002</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">นายสมชาย ใจดี</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">฿ 800.00</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">สำเร็จ</span>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <%= new Date(transaction.transactionDate).toLocaleDateString('th-TH') %>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <%= transaction.account ? transaction.account.AccountNumber : '-' %>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <%= transaction.family ? transaction.family.familyName : '-' %>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    ฿ <%= Number(transaction.amount).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"><%= transaction.status %></span>
                                 </td>
                             </tr>
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">12/05/2025</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">ACC-1003</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">นายวิชัย มั่งมี</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">฿ 2,500.00</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">สำเร็จ</span>
-                                </td>
-                            </tr>
+                            <% }) %>
+                            <% } %>
                         </tbody>
                     </table>
                 </div>
@@ -212,11 +215,9 @@
         </div>
     </div>
 
-    <%- include('../partials/employeePartials/empFooter.ejs') %>
     <script>
-        // ฟังก์ชันสำหรับค้นหาบัญชี
-        function searchAccount() {
-            const accountId = document.getElementById('accountId').value;
+        async function searchAccount() {
+            const accountId = document.getElementById('accountId').value.trim();
             if (!accountId) {
                 Swal.fire({
                     icon: 'warning',
@@ -230,48 +231,73 @@
             // แสดง loading
             document.getElementById('loadingState').classList.remove('hidden');
             document.getElementById('accountDetails').classList.add('hidden');
-            
-            // จำลองการค้นหาข้อมูล (ในการใช้งานจริงควรใช้ fetch หรือ axios เพื่อดึงข้อมูลจาก API)
-            setTimeout(() => {
+
+            try {
+                const response = await fetch(`/employee/withdraw/account/${accountId}`);
+                if (!response.ok) throw new Error('ไม่พบบัญชีที่ระบุ');
+
+                const data = await response.json();
+
+                // เติมข้อมูลในส่วนรายละเอียดบัญชี
+                document.getElementById('accountName').textContent = data.accountName || '-';
+                document.getElementById('accountNumber').textContent = data.accountNumber || '-';
+                document.getElementById('accountBalance').textContent = Number(data.balance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                // ซ่อน loading และแสดงรายละเอียด
                 document.getElementById('loadingState').classList.add('hidden');
                 document.getElementById('accountDetails').classList.remove('hidden');
-                
-                // สมมติว่าได้ข้อมูลบัญชีมาแล้ว (ในการใช้งานจริงควรแทนที่ด้วยข้อมูลจริงจาก API)
-                document.getElementById('accountName').textContent = 'นายสมชาย ใจดี';
-                document.getElementById('accountNumber').textContent = 'ACC-' + accountId;
-                document.getElementById('accountBalance').textContent = '5,000.00';
-                
-                // เปิดใช้งานปุ่มถอนเงิน
-                document.getElementById('withdrawButton').disabled = false;
-            }, 1000);
+
+                // กำหนดค่า hidden input สำหรับส่ง accountId ไปในฟอร์มถอนเงิน
+                document.getElementById('hiddenAccountNumber').value = data.accountNumber;
+
+                // เปิด input ถอนเงิน และปุ่มถอนเงิน (ปุ่ม disabled รอ validate)
+                document.getElementById('withdrawAmount').disabled = false;
+                document.getElementById('withdrawButton').disabled = true; // รอกรอกจำนวนก่อน
+
+                // ล้างช่องกรอกจำนวนเงินและ error
+                document.getElementById('withdrawAmount').value = '';
+                document.getElementById('amountError').textContent = '';
+
+            } catch (error) {
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('accountDetails').classList.add('hidden');
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่พบข้อมูลบัญชี',
+                    text: error.message,
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#dc3545',
+                });
+            }
         }
 
-        // ฟังก์ชันสำหรับตรวจสอบจำนวนเงินที่ถอน
         function validateAmount() {
             const amount = parseFloat(document.getElementById('withdrawAmount').value);
             const balance = parseFloat(document.getElementById('accountBalance').textContent.replace(/,/g, ''));
-            
+
             if (isNaN(amount) || amount <= 0) {
                 document.getElementById('amountError').textContent = 'กรุณากรอกจำนวนเงินที่ถูกต้อง';
                 document.getElementById('withdrawButton').disabled = true;
                 return;
             }
-            
+
             if (amount > balance) {
                 document.getElementById('amountError').textContent = 'จำนวนเงินที่ถอนมากกว่ายอดเงินในบัญชี';
                 document.getElementById('withdrawButton').disabled = true;
                 return;
             }
-            
+
             document.getElementById('amountError').textContent = '';
             document.getElementById('withdrawButton').disabled = false;
         }
 
-        // ฟังก์ชันสำหรับการถอนเงิน
-        function confirmWithdrawal() {
-            const accountId = document.getElementById('accountId').value;
+        document.getElementById('withdrawalForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
             const amount = document.getElementById('withdrawAmount').value;
-            
+            const accountId = document.getElementById('hiddenAccountNumber').value;
+
             Swal.fire({
                 title: 'ยืนยันการถอนเงิน',
                 text: `คุณต้องการถอนเงินจำนวน ${amount} บาท จากบัญชี ${accountId} ใช่หรือไม่?`,
@@ -283,34 +309,11 @@
                 cancelButtonColor: '#dc3545',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // จำลองการส่งข้อมูลไปยัง server (ในการใช้งานจริงควรใช้ fetch หรือ axios)
-                    Swal.fire({
-                        title: 'กำลังดำเนินการ...',
-                        text: 'กรุณารอสักครู่',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
-                    
-                    // จำลองการรอการประมวลผล
-                    setTimeout(() => {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'ถอนเงินสำเร็จ!',
-                            text: `ถอนเงินจำนวน ${amount} บาท เรียบร้อยแล้ว`,
-                            confirmButtonText: 'ตกลง',
-                            confirmButtonColor: '#28a745',
-                        }).then(() => {
-                            // รีเซ็ตฟอร์ม
-                            document.getElementById('withdrawalForm').reset();
-                            document.getElementById('accountDetails').classList.add('hidden');
-                            document.getElementById('withdrawButton').disabled = true;
-                        });
-                    }, 2000);
+                    this.submit();
                 }
             });
-        }
+        });
     </script>
 </body>
+
 </html>
