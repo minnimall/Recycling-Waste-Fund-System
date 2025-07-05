@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <!-- <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>กองทุนขยะรีไซเคิล องค์การบริหารส่วนตำบลขามป้อม อำเภอเปือยน้อย จังหวัดขอนแก่น</title>
     <link rel="icon" href="/img/logo_เปือยน้อย.png" type="image/png">
@@ -9,10 +9,248 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"> -->
+    
+    <%- include('../partials/userPartials/head.ejs') %>
 <body>
-    <%- include('../partials/nav.ejs') %>
+    <%- include('../partials/userPartials/header.ejs') %>
 
+    <!-- Page Header -->
+    <section class="bg-gradient-to-r from-primary-green to-secondary-green text-white py-16">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl md:text-5xl font-bold mb-4">ประเภทขยะ</h2>
+            <p class="text-xl opacity-90">แยกขยะให้ถูกต้อง เพื่อสิ่งแวดล้อมที่ดี</p>
+        </div>
+    </section>
+
+        <!-- Waste Types Content -->
+    <section class="py-16">
+        <div class="container mx-auto px-4">
+            <!-- Introduction -->
+            <div class="bg-white rounded-lg shadow-md p-8 mb-12">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">การแยกขยะอย่างถูกต้อง</h3>
+                <p class="text-gray-600 leading-relaxed">
+                    การแยกขยะเป็นขั้นตอนสำคัญในการจัดการขยะอย่างมีประสิทธิภาพ ช่วยลดปริมาณขยะที่ต้องนำไปฝังกลบ 
+                    และสามารถนำขยะบางประเภทกลับมาใช้ประโยชน์ได้ ทำให้เกิดการใช้ทรัพยากรอย่างคุ้มค่าและรักษาสิ่งแวดล้อม
+                </p>
+            </div>
+
+            <!-- Waste Categories -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Organic Waste -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <div class="bg-green-500 h-4"></div>
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707"></path>
+                                </svg>
+                            </div>
+                            <h4 class="text-xl font-semibold text-gray-800">ขยะเปียก (อินทรีย์)</h4>
+                        </div>
+                        <ul class="text-gray-600 space-y-2 mb-4">
+                            <li>• เศษอาหาร</li>
+                            <li>• เปลือกผลไม้</li>
+                            <li>• ใบไม้ กิ่งไผ่</li>
+                            <li>• ขยะจากครัว</li>
+                        </ul>
+                        <div class="bg-green-50 p-3 rounded-lg">
+                            <p class="text-sm text-green-700"><strong>วิธีทิ้ง:</strong> ใส่ถุงสีเขียว หรือภาชนะสีเขียว</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recyclable Waste -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <div class="bg-blue-500 h-4"></div>
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                </svg>
+                            </div>
+                            <h4 class="text-xl font-semibold text-gray-800">ขยะรีไซเคิล</h4>
+                        </div>
+                        <ul class="text-gray-600 space-y-2 mb-4">
+                            <li>• ขวดพลาสติก</li>
+                            <li>• กระป๋องอลูมิเนียม</li>
+                            <li>• กระดาษ หนังสือพิมพ์</li>
+                            <li>• แก้ว</li>
+                        </ul>
+                        <div class="bg-blue-50 p-3 rounded-lg">
+                            <p class="text-sm text-blue-700"><strong>วิธีทิ้ง:</strong> ใส่ถุงสีน้ำเงิน หรือภาชนะสีน้ำเงิน</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- General Waste -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <div class="bg-gray-500 h-4"></div>
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </div>
+                            <h4 class="text-xl font-semibold text-gray-800">ขยะทั่วไป</h4>
+                        </div>
+                        <ul class="text-gray-600 space-y-2 mb-4">
+                            <li>• ถุงพลาสติกสกปรก</li>
+                            <li>• ผ้าอนามัย</li>
+                            <li>• ผ้าอ้อม</li>
+                            <li>• ขยะที่ไม่สามารถรีไซเคิลได้</li>
+                        </ul>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <p class="text-sm text-gray-700"><strong>วิธีทิ้ง:</strong> ใส่ถุงสีดำ หรือภาชนะสีดำ</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hazardous Waste -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <div class="bg-red-500 h-4"></div>
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                </svg>
+                            </div>
+                            <h4 class="text-xl font-semibold text-gray-800">ขยะอันตราย</h4>
+                        </div>
+                        <ul class="text-gray-600 space-y-2 mb-4">
+                            <li>• ถ่านไฟฉาย</li>
+                            <li>• หลอดไฟ</li>
+                            <li>• ยาหมดอายุ</li>
+                            <li>• สารเคมี</li>
+                        </ul>
+                        <div class="bg-red-50 p-3 rounded-lg">
+                            <p class="text-sm text-red-700"><strong>วิธีทิ้ง:</strong> ใส่ถุงสีแดง หรือนำส่งจุดรับพิเศษ</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Electronic Waste -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <div class="bg-purple-500 h-4"></div>
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                            <h4 class="text-xl font-semibold text-gray-800">ขยะอิเล็กทรอนิกส์</h4>
+                        </div>
+                        <ul class="text-gray-600 space-y-2 mb-4">
+                            <li>• โทรศัพท์มือถือ</li>
+                            <li>• คอมพิวเตอร์</li>
+                            <li>• เครื่องใช้ไฟฟ้า</li>
+                            <li>• อุปกรณ์อิเล็กทรอนิกส์</li>
+                        </ul>
+                        <div class="bg-purple-50 p-3 rounded-lg">
+                            <p class="text-sm text-purple-700"><strong>วิธีทิ้ง:</strong> นำส่งจุดรับขยะอิเล็กทรอนิกส์</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Large Waste -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <div class="bg-orange-500 h-4"></div>
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                                </svg>
+                            </div>
+                            <h4 class="text-xl font-semibold text-gray-800">ขยะขนาดใหญ่</h4>
+                        </div>
+                        <ul class="text-gray-600 space-y-2 mb-4">
+                            <li>• เฟอร์นิเจอร์</li>
+                            <li>• เครื่องใช้ไฟฟ้าขนาดใหญ่</li>
+                            <li>• ที่นอน</li>
+                            <li>• วัสดุก่อสร้าง</li>
+                        </ul>
+                        <div class="bg-orange-50 p-3 rounded-lg">
+                            <p class="text-sm text-orange-700"><strong>วิธีทิ้ง:</strong> ติดต่อ อบต. เพื่อนัดหมายเก็บ</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule -->
+            <!-- <div class="bg-white rounded-lg shadow-md p-8 mt-12">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">ตารางเก็บขยะ</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="bg-primary-green text-white">
+                                <th class="px-4 py-3 text-left">วัน</th>
+                                <th class="px-4 py-3 text-left">ประเภทขยะ</th>
+                                <th class="px-4 py-3 text-left">เวลา</th>
+                                <th class="px-4 py-3 text-left">หมายเหตุ</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-4 py-3 font-medium">จันทร์, พุธ, ศุกร์</td>
+                                <td class="px-4 py-3">ขยะทั่วไป</td>
+                                <td class="px-4 py-3">06:00 - 10:00</td>
+                                <td class="px-4 py-3">วางหน้าบ้านก่อน 06:00</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="px-4 py-3 font-medium">อังคาร, พฤหัสบดี</td>
+                                <td class="px-4 py-3">ขยะรีไซเคิล</td>
+                                <td class="px-4 py-3">07:00 - 11:00</td>
+                                <td class="px-4 py-3">ล้างให้สะอาดก่อนทิ้ง</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-3 font-medium">เสาร์</td>
+                                <td class="px-4 py-3">ขยะเปียก</td>
+                                <td class="px-4 py-3">06:00 - 09:00</td>
+                                <td class="px-4 py-3">ใส่ถุงที่ย่อยสลายได้</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="px-4 py-3 font-medium">วันที่ 1, 15</td>
+                                <td class="px-4 py-3">ขยะอันตราย</td>
+                                <td class="px-4 py-3">08:00 - 12:00</td>
+                                <td class="px-4 py-3">นำส่งที่ อบต. โดยตรง</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div> -->
+
+            <!-- Tips -->
+            <div class="bg-light-green rounded-lg p-8 mt-12">
+                <h3 class="text-2xl font-bold text-primary-green mb-6">เคล็ดลับการแยกขยะ</h3>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-3">✅ ควรทำ</h4>
+                        <ul class="space-y-2 text-gray-700">
+                            <li>• ล้างภาชนะให้สะอาดก่อนทิ้ง</li>
+                            <li>• แยกขยะตั้งแต่ต้นทาง</li>
+                            <li>• ใช้ถุงตามสีที่กำหนด</li>
+                            <li>• วางขยะตามเวลาที่กำหนด</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-3">❌ ไม่ควรทำ</h4>
+                        <ul class="space-y-2 text-gray-700">
+                            <li>• ทิ้งขยะปนกัน</li>
+                            <li>• ทิ้งขยะเปียกใส่ถุงพลาสติก</li>
+                            <li>• วางขยะนอกเวลา</li>
+                            <li>• ทิ้งขยะอันตรายรวมกับขยะทั่วไป</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
     <div class="content">
         <div class="container">
             <section class="mt-3">
@@ -68,7 +306,7 @@
         </div>
     </div>
 
-    <%- include('../partials/footer.ejs') %>
+    <%- include('../partials/userPartials/footer.ejs') %>
 
 </body>
 </html>

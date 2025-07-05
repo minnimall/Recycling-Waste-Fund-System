@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<!-- <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>กองทุนขยะรีไซเคิล องค์การบริหารส่วนตำบลขามป้อม อำเภอเปือยน้อย จังหวัดขอนแก่น</title>
@@ -12,151 +12,429 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
-</head>
+</head> -->
+    <%- include('../partials/userPartials/head.ejs') %>
 <body>
-    <%- include('../partials/nav.ejs') %>
+    <%- include('../partials/userPartials/header.ejs') %>
 
-    <div class="content">
-        <!-- <img class="img-main" src="./img/bg_main.png" alt="พื้นหลัง"> -->
-        <!-- ส่วนรูปของหน้าหลัก -->
-        <div id="carouselExampleIndicators" class="carousel slide mb-5" data-bs-ride="carousel">
-            <div class="carousel-indicators">
-                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
-                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-primary-green to-secondary-green text-white py-20">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl md:text-6xl font-bold mb-6">ยินดีต้อนรับสู่ อบต.</h2>
+            <p class="text-xl md:text-2xl mb-8 opacity-90">บริการประชาชนด้วยใจ เพื่อชุมชนที่ยั่งยืน</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center ">
+                <a href="requests.html" class="bg-white text-primary-green px-8 py-3 rounded-lg font-semibold hover:bg-light-green transition-colors">แจ้งประสงค์</a>
+                <a href="complaints.html" class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-green transition-colors">ร้องเรียน</a>
             </div>
-            <div class="carousel-inner">
-                <div class="carousel-item active">
-                    <a href="https://www.khampom.go.th/" target="_blank"><img class="d-block w-100" src="./img/bg_kp.png" alt="พื้นหลัง"></a>
-                </div>
-                <div class="carousel-item">
-                    <img class="d-block w-100" src="./img/วิสัยทัศน์.png" alt="พื้นหลัง">
-                </div>
-                <div class="carousel-item">
-                    <img class="d-block w-100" src="./img/เก็บภาษีที่ดิน68.png" alt="พื้นหลัง">
-                </div>
-            </div>
-            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev" aria-label="Previous">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next" aria-label="Next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            </button>
         </div>
-        <div class="container mt-5">
-            <section class="">
-                <!-- ส่วนข่าวกิจกรรมกับแสดงราคาขยะ -->
-                <div class="row">
-                    <div class="col-8">
-                        <div class="d-flex justify-content-between align-items-center">
+    </section>
+
+    <!-- Services Section -->
+    <section class="py-16">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center text-primary mb-12">บริการของเรา</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+                    <div class="w-16 h-16 bg-primary-green rounded-full flex items-center justify-center mb-4 mx-auto">
+                        <i class="fas fa-recycle text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-center mb-3">จัดการขยะ</h3>
+                    <p class="text-gray-600 text-center">บริการจัดเก็บและแยกประเภทขยะในชุมชน</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+                    <div class="w-16 h-16 bg-primary-green rounded-full flex items-center justify-center mb-4 mx-auto">
+                        <i class="fas fa-comments text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-center mb-3">รับเรื่องร้องเรียน</h3>
+                    <p class="text-gray-600 text-center">รับฟังความคิดเห็นและข้อร้องเรียนจากประชาชน</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+                    <div class="w-16 h-16 bg-primary-green rounded-full flex items-center justify-center mb-4 mx-auto">
+                        <i class="fas fa-bell text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-center mb-3">ประกาศข่าวสาร</h3>
+                    <p class="text-gray-600 text-center">แจ้งข่าวสารและกิจกรรมต่างๆ ให้ประชาชนทราบ</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+                    <div class="w-16 h-16 bg-primary-green rounded-full flex items-center justify-center mb-4 mx-auto">
+                        <i class="fas fa-phone text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-center mb-3">ติดต่อสอบถาม</h3>
+                    <p class="text-gray-600 text-center">ช่องทางติดต่อสอบถามข้อมูลต่างๆ</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- News Section -->
+    <section class="py-16 bg-gray-100">
+        <div class="container mx-auto px-4">
+            <h3 class="text-3xl font-bold text-center text-gray-800 mb-12">ข่าวสารและประกาศ</h3>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+            <% if (activity.length=3) {  %>
+                <% activity.forEach(act => { %>
+                <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <div class="h-48 bg-gradient-to-r from-primary-green to-secondary-green">
+                        <img src="<%= act.img %>" class="h-48 w-full" alt="<%= act.img %>">
+                    </div>
+                    <div class="p-6">
+                        <span class="text-sm text-primary-green font-semibold">5 มกราคม 2568</span>
+                        <h4 class="text-xl font-semibold text-gray-800 mt-2 mb-3"><%= act.title %></h4>
+                        <p class="text-gray-600">แจ้งการเปลี่ยนแปลงตารางเก็บขยะในช่วงวันหยุดยาว...</p>
+                        <a href="/user/detailActivity/<%= act._id %>" class="text-primary-green font-semibold hover:underline mt-4 inline-block">อ่านต่อ</a>
+                    </div>
+                </article>
+                <% }) %>
+            <% } else { %>
+                <p>ยังไม่มีกิจกรรม ณ ขณะนี้ ....</p>
+            <% } %>
+            </div>
+        </div>
+        <!-- Quick Links -->
+        <div class="text-center mt-8">
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="waste-type.html" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dark transition-colors">
+                    <i class="fas fa-recycle mr-2"></i>ดูประเภทขยะ
+                </a>
+                <a href="waste-ideas.html" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors">
+                    <i class="fas fa-lightbulb mr-2"></i>ไอเดียการจัดการขยะ
+                </a>
+                 <a href="contact.html" class="border-2 border-primary text-primary px-6 py-3 rounded-lg hover:bg-primary hover:text-white transition-colors">
+                    <i class="fas fa-phone mr-2"></i>สอบถามราคา
+                </a>
+              </div>
+          </div>
+    </section>
+
+    
+    <!-- Waste Price Section -->
+    <section class="py-16 bg-primary-green">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold text-white mb-4">ราคากลางรับซื้อขยะรีไซเคิล</h3>
+                <p class="text-white opacity-90 max-w-2xl mx-auto">ราคาอัปเดตล่าสุด วันที่ 15 มกราคม 2568</p>
+                <div class="inline-flex items-center bg-white bg-opacity-20 rounded-full px-4 py-2 mt-4">
+                    <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse mr-2"></div>
+                    <span class="text-white text-sm">อัปเดตแบบเรียลไทม์</span>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <% if (waste.length = 4) { %>
+                    <% waste.forEach((item, index) => { %>
+                <!-- Plastic Bottles -->
+                <div class="bg-white rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </div>
                             <div>
-                                <p class="mb-3 title">กิจกรรม</p>
-                            </div>
-                            <div class="d-flex justify-content-end">
-                                <b><a href="/user/allActivity">ดูข่าวกิจกรรมทั้งหมด</a></b>
+                                <h4 class="font-semibold text-gray-800"><%= item.wasteName %></h4>
+                                <p class="text-sm text-gray-500">ประเภท</p>
                             </div>
                         </div>
-                        
-                        <div class="row">
-                            <% if (activity.length=3) {  %>
-                                <% activity.forEach(act => { %>
-                            <div class="col-4">
-                                <a href="/user/detailActivity/<%= act._id %>" class="card-link">
-                                <div class="card border-0">
-                                    <img class="d-block w-100 rounded-top" src="<%= act.img %>" alt="รูปภาพกิจกรรม">
-                                    <div class="card-body border rounded-bottom shadow-sm">
-                                        <p class="card-title"><%= act.title %></p>
+                        <div class="flex items-center bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-semibold">
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="7 11l5-5m0 0l5 5m-5-5v12"></path>
+                            </svg>
+                            +0.50
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-primary-green mb-1"><%= item.pricePerUnit %></div>
+                        <div class="text-sm text-gray-500">บาท/กิโลกรัม</div>
+                        <div class="text-xs text-green-600 mt-2">เพิ่มขึ้น 6.25%</div>
+                    </div>
+                </div>
+                    <% }); %>
+                <% } else { %>
+                    <div>
+                        <span>ยังไม่มีข้อมูล</span>
+                    </div>
+                <% } %>
+            </div>
+
+            <!-- Additional Waste Types -->
+            <div class="grid md:grid-cols-3 lg:grid-cols-6 gap-4 mt-8">
+                
+            <% if (waste.length = 6) { %>
+                <% waste.forEach((item, index) => { %>
+                <div class="bg-white bg-opacity-10 rounded-lg p-4 text-center">
+                    <h5 class="text-white font-semibold mb-1"><%= item.wasteName %></h5>
+                    <div class="text-2xl font-bold text-white"><%= item.pricePerUnit %></div>
+                    <div class="text-xs text-green-300">+0.50 (4.17%)</div>
+                </div>
+                <% }); %>
+            <% } else { %>
+                <div>
+                    <span>ยังไม่มีข้อมูล</span>
+                </div>
+            <% } %>
+            </div>
+
+            <!-- Price Update Info -->
+            <div class="mt-12 bg-white bg-opacity-10 rounded-lg p-6">
+                <div class="flex flex-col md:flex-row items-center justify-between">
+                    <div class="text-white mb-4 md:mb-0">
+                        <h4 class="font-semibold mb-2">ข้อมูลราคา</h4>
+                        <p class="text-sm opacity-90">• ราคาอัปเดตทุกวันจันทร์, พุธ, ศุกร์ เวลา 09:00 น.</p>
+                        <p class="text-sm opacity-90">• ราคาอาจแตกต่างกันตามคุณภาพและปริมาณ</p>
+                        <p class="text-sm opacity-90">• สอบถามข้อมูลเพิ่มเติม โทร 02-123-4567</p>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="bg-white text-primary-green px-6 py-3 rounded-lg font-semibold mb-2">
+                            จุดรับซื้อขยะ อบต.
+                        </div>
+                        <p class="text-white text-sm">เปิดทุกวัน 08:00-16:00 น.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+        <!-- Activities Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center text-primary mb-12">กิจกรรมของ อบต.</h2>
+
+            <!-- Activities Grid -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8" id="activities-grid">
+                <!-- Environment Activities -->
+                <article class="activity-card bg-gray-50 rounded-lg overflow-hidden shadow-lg" data-category="environment">
+                    <div class="h-48 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                        <i class="fas fa-seedling text-white text-6xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center mb-2">
+                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">สิ่งแวดล้อม</span>
+                            <span class="ml-auto text-sm text-gray-500">25 ธ.ค. 2567</span>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">โครงการปลูกป่าชุมชน</h3>
+                        <p class="text-gray-600 mb-4">ร่วมกันปลูกต้นไม้เพื่อเพิ่มพื้นที่สีเขียวและลดมลพิษในชุมชน</p>
+                        <div class="flex items-center text-sm text-gray-500">
+                            <i class="fas fa-map-marker-alt mr-2"></i>
+                            <span>สวนสาธารณะตำบล</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="activity-card bg-gray-50 rounded-lg overflow-hidden shadow-lg" data-category="environment">
+                    <div class="h-48 bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+                        <i class="fas fa-water text-white text-6xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center mb-2">
+                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">สิ่งแวดล้อม</span>
+                            <span class="ml-auto text-sm text-gray-500">22 ธ.ค. 2567</span>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">ทำความสะอาดแหล่งน้ำ</h3>
+                        <p class="text-gray-600 mb-4">กิจกรรมทำความสะอาดคลองและแหล่งน้ำในชุมชน</p>
+                        <div class="flex items-center text-sm text-gray-500">
+                            <i class="fas fa-map-marker-alt mr-2"></i>
+                            <span>คลองบ้านใหม่</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Community Activities -->
+                <article class="activity-card bg-gray-50 rounded-lg overflow-hidden shadow-lg" data-category="community">
+                    <div class="h-48 bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
+                        <i class="fas fa-users text-white text-6xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center mb-2">
+                            <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">ชุมชน</span>
+                            <span class="ml-auto text-sm text-gray-500">30 ธ.ค. 2567</span>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">งานประจำปีชุมชน</h3>
+                        <p class="text-gray-600 mb-4">งานเฉลิมฉลองปีใหม่และแสดงผลงานชุมชน</p>
+                        <div class="flex items-center text-sm text-gray-500">
+                            <i class="fas fa-map-marker-alt mr-2"></i>
+                            <span>ลานอเนกประสงค์ อบต.</span>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <!-- View All Activities Button -->
+            <div class="text-center mt-12">
+                <a href="activities.html" class="bg-primary-green text-white px-8 py-3 rounded-lg hover:bg-primary-dark transition-colors inline-flex items-center">
+                    <span>ดูกิจกรรมทั้งหมด</span>
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- News & Announcements Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">ข่าวประชาสัมพันธ์</h2>
+                <p class="text-gray-600">ข่าวสารและประกาศสำคัญจากองค์การบริหารส่วนตำบล</p>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-8">
+                <!-- Latest News -->
+                <div class="lg:col-span-2">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-semibold text-gray-800">ข่าวล่าสุด</h3>
+                        <a href="news.html" class="text-primary hover:text-primary-dark transition-colors">
+                            ดูทั้งหมด <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+
+                    <div class="space-y-6">
+                        <!-- News Item 1 -->
+                         
+                        <% if (news.length = 4) { %>
+                            <% news.forEach((item, index) => { %>
+                        <div class="bg-gray-50 rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                            <div class="flex items-start space-x-4">
+                                <img src="/placeholder.svg?height=80&width=120" alt="ข่าวประชาสัมพันธ์" class="w-20 h-20 object-cover rounded-lg flex-shrink-0">
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-2 mb-2">
+                                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">ข้อมูล</span>
+                                        <span class="text-sm text-gray-500">วันที่: <%= item.createdAt ? new Date(item.createdAt).toLocaleDateString('th-TH') : 'ไม่ระบุ' %></span>
                                     </div>
+                                    <h4 class="font-semibold text-gray-800 mb-2 hover:text-primary cursor-pointer">
+                                        <%= item.newsTitle %>
+                                    </h4>
+                                    <p class="text-gray-600 text-sm mb-3">
+                                        <%= item.newsDescription %>
+                                    </p>
+                                    <!-- <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                        <span><i class="fas fa-eye mr-1"></i>234 ครั้ง</span>
+                                        <span><i class="fas fa-comment mr-1"></i>12 ความคิดเห็น</span>
+                                    </div> -->
                                 </div>
-                                </a>
                             </div>
-                                <% }) %>
-                            <% } else { %>
-                                <p>ยังไม่มีกิจกรรม ณ ขณะนี้ ....</p>
-                            <% } %>
                         </div>
-                    </div>                    
-                    <div class="col-4 ">
-                        <p class="title">ราคากลางรับซื้อขยะ</p>
-                        <div class="d-flex justify-content-start align-items-center">
-                            <p class="time2">วันที่</p><p id="time" class="time"></p>
-                        </div>
-                        <div class="title-waste d-flex justify-content-between align-items-center rounded-top">
-                            <p>รายการ</p>
-                            <p>ราคา/กก.</p>
-                        </div>
-                        <div class="price-list-container rounded-bottom">
-                            <% if (waste.length > 0) { %>
-                                <% waste.forEach((item, index) => { %>
-                            <div class="price-waste d-flex justify-content-between align-items-center">
-                                <p class="mt-2"><%= item.wasteName %></p>
-                                <p class="mt-2"><%= item.pricePerUnit %></p>
-                            </div>
-                                <% }); %>
-                            <% } else { %>
-                                <div>
-                                    <span>ยังไม่มีข้อมูล</span>
+
+                            <% }); %>
+                        <% } else { %>
+                            <div class="empty-state p-4 text-center">
+                                <div class="empty-icon mb-3">
+                                    <i class="fas fa-inbox fa-3x text-muted"></i>
                                 </div>
-                            <% } %>
-                        </div>
+                                <h6 class="text-muted"><%= item.newsTitle %></h6>
+                                <p class="small text-muted mb-0"><%= item.newsDescription %></p>
+                            </div>
+                        <% } %>
+
                     </div>
                 </div>
 
-                <div class="row mt-5">
-                    <div class="col-12">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <p class="mb-3 title">ข่าวประชาสัมพันธ์</p>
-                            </div>
-                            <div class="d-flex justify-content-end">
-                                <b><a href="">ดูข่าวประชาสัมพันธ์ทั้งหมด</a></b>
-                            </div>
+                <!-- Documents & PDFs -->
+                <div class="lg:col-span-1">
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-xl font-semibold text-gray-800">เอกสารสำคัญ</h3>
+                            <i class="fas fa-file-pdf text-red-500 text-xl"></i>
                         </div>
-                        <div class="card shadow-sm border-0 news-card">
-                            <div class="card-body p-0">
-                                <% if (news.length > 0) { %>
-                                    <ul class="list-group list-group-flush">
-                                        <% news.forEach((item, index) => { %>
-                                            <li class="list-group-item news-item p-0">
-                                                <a href="/user/detailNews/<%= item._id %>" class="news-link d-block p-3">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="news-content">
-                                                            <h6 class="mb-1 news-title"><%= item.newsTitle %></h6>
-                                                            <div class="news-meta text-muted small">
-                                                                <i class="fas fa-file-pdf text-danger"></i>
-                                                                <span>วันที่: <%= item.createdAt ? new Date(item.createdAt).toLocaleDateString('th-TH') : 'ไม่ระบุ' %></span>
-                                                            </div>
-                                                        </div>
-                                                        <div class="ms-auto">
-                                                            <i class="fas fa-chevron-right text-muted"></i>
-                                                        </div>
-                                                    </div>
-                                                </a>
-                                            </li>
-                                        <% }); %>
-                                    </ul>
-                                <% } else { %>
-                                    <div class="empty-state p-4 text-center">
-                                        <div class="empty-icon mb-3">
-                                            <i class="fas fa-inbox fa-3x text-muted"></i>
+
+                        <div class="space-y-4">
+                            <!-- PDF Document 1 -->
+                             
+                        <% if (news.length = 5) { %>
+                            <% news.forEach((item, index) => { %>
+                            <div class="bg-white rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer" onclick="openPDF('คู่มือการแยกขยะ.pdf')">
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-file-pdf text-red-500"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="font-semibold text-gray-800 text-sm mb-1">คู่มือการแยกขยะในครัวเรือน</h4>
+                                        <p class="text-gray-600 text-xs mb-2">แนวทางการแยกขยะอย่างถูกต้อง</p>
+                                        <div class="flex items-center justify-between text-xs text-gray-500">
+                                            <span>PDF • 2.5 MB</span>
+                                            <span><i class="fas fa-download mr-1"></i>234</span>
                                         </div>
-                                        <h6 class="text-muted">ยังไม่มีข้อมูลข่าวประชาสัมพันธ์</h6>
-                                        <p class="small text-muted mb-0">ข่าวประชาสัมพันธ์จะแสดงที่นี่เมื่อมีการเพิ่มข้อมูล</p>
                                     </div>
-                                <% } %>
-                            </div>
-                            <% if (news.length > 5) { %>
-                                <div class="card-footer bg-light text-center py-2">
-                                    <a href="/user/allNews" class="text-primary text-decoration-none">
-                                        ดูข่าวทั้งหมด <i class="fas fa-arrow-right ms-1"></i>
-                                    </a>
                                 </div>
-                            <% } %>
+                            </div>
+                            <% }); %>
+                        <% } else { %>
+                            <h6 class="text-muted">ยังไม่มีข้อมูลข่าวประชาสัมพันธ์</h6>
+                        <% } %>
+                        </div>
+
+                        <!-- View All Documents Button -->
+                        <div class="mt-6 text-center">
+                            <a href="documents.html" class="text-primary hover:text-primary-dark transition-colors text-sm">
+                                ดูเอกสารทั้งหมด <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- PDF Viewer Modal -->
+    <div id="pdf-modal" class="fixed inset-0 bg-black bg-opacity-75 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-4xl w-full h-[90vh] overflow-hidden">
+                <div class="flex justify-between items-center p-4 border-b">
+                    <h3 id="pdf-title" class="text-lg font-semibold">เอกสาร PDF</h3>
+                    <div class="flex items-center space-x-3">
+                        <button id="download-pdf" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors">
+                            <i class="fas fa-download mr-2"></i>ดาวน์โหลด
+                        </button>
+                        <button id="close-pdf-modal" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="h-full bg-gray-100 flex items-center justify-center">
+                    <div class="text-center text-gray-600">
+                        <i class="fas fa-file-pdf text-6xl mb-4 text-red-500"></i>
+                        <p class="text-lg font-semibold mb-2">ตัวอย่างการแสดง PDF</p>
+                        <p>ในการใช้งานจริง PDF จะแสดงที่นี่</p>
+                        <p class="text-sm mt-2">สามารถใช้ PDF.js หรือ embed PDF viewer</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/assets/js/script.js"></script>
+    <script>
+        // PDF Modal functionality
+        function openPDF(filename) {
+            const pdfModal = document.getElementById('pdf-modal');
+            const pdfTitle = document.getElementById('pdf-title');
+            const downloadBtn = document.getElementById('download-pdf');
 
-                <!-- ส่วนไอเดียการจัดการขยะ -->
+            pdfTitle.textContent = filename;
+            pdfModal.classList.remove('hidden');
+
+            // Set download link (in real implementation, this would be the actual PDF URL)
+            downloadBtn.onclick = function() {
+                // In real implementation: window.open('/documents/' + filename, '_blank');
+                alert('กำลังดาวน์โหลด: ' + filename);
+            };
+        }
+
+        // Close PDF modal
+        document.getElementById('close-pdf-modal').addEventListener('click', () => {
+            document.getElementById('pdf-modal').classList.add('hidden');
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('pdf-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'pdf-modal') {
+                document.getElementById('pdf-modal').classList.add('hidden');
+            }
+        });
+    </script>
+                <!-- ส่วนไอเดียการจัดการขยะ
                 <div class="row mt-3">
                     <div class="col-12 mt-5">
                         <div class="idea">
@@ -190,7 +468,228 @@
                             </div>
                         </div>
                     </div>
+                </div> -->
+    <!-- Waste Collection Schedule Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center text-primary mb-4">รอบการรับซื้อขยะรีไซเคิล</h2>
+            <p class="text-center text-gray-600 mb-12">ตารางเวลารับซื้อขยะในแต่ละพื้นที่ของตำบล</p>
+            
+            <!-- Current Status -->
+            <div class="bg-gradient-to-r from-primary-green to-secondary-green text-white rounded-lg p-6 mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2">สถานะปัจจุบัน</h3>
+                        <p class="text-green-100">รถรับซื้อขยะกำลังให้บริการที่หมู่ 3 บ้านสวนใหม่</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-2xl font-bold" id="current-time">14:30</div>
+                        <div class="text-green-100">5 ม.ค. 2568</div>
+                    </div>
                 </div>
+                <div class="mt-4">
+                    <div class="bg-white/20 rounded-full h-2">
+                        <div class="bg-white rounded-full h-2 w-3/5 transition-all duration-300"></div>
+                    </div>
+                    <div class="flex justify-between text-sm mt-2 text-green-100">
+                        <span>เริ่ม 13:00</span>
+                        <span>ปัจจุบัน</span>
+                        <span>สิ้นสุด 16:00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weekly Schedule -->
+            <div class="grid lg:grid-cols-2 gap-8 mb-8">
+                <!-- Schedule Table -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="bg-primary-green text-white p-4">
+                        <h3 class="text-xl font-semibold">ตารางรอบการรับซื้อประจำสัปดาห์</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left font-semibold text-gray-700">วัน</th>
+                                    <th class="px-4 py-3 text-left font-semibold text-gray-700">พื้นที่</th>
+                                    <th class="px-4 py-3 text-left font-semibold text-gray-700">เวลา</th>
+                                    <th class="px-4 py-3 text-center font-semibold text-gray-700">สถานะ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="px-4 py-3 font-semibold text-blue-600">จันทร์</td>
+                                    <td class="px-4 py-3">หมู่ 1 บ้านเก่า</td>
+                                    <td class="px-4 py-3">09:00 - 12:00</td>
+                                    <td class="px-4 py-3 text-center">
+                                        <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-sm">รอ</span>
+                                    </td>
+                                </tr>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="px-4 py-3 font-semibold text-green-600">อังคาร</td>
+                                    <td class="px-4 py-3">หมู่ 2 บ้านกลาง</td>
+                                    <td class="px-4 py-3">09:00 - 12:00</td>
+                                    <td class="px-4 py-3 text-center">
+                                        <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-sm">รอ</span>
+                                    </td>
+                                </tr>
+                                <tr class="border-b hover:bg-gray-50 bg-green-50">
+                                    <td class="px-4 py-3 font-semibold text-green-600">พุธ</td>
+                                    <td class="px-4 py-3">หมู่ 3 บ้านสวนใหม่</td>
+                                    <td class="px-4 py-3">13:00 - 16:00</td>
+                                    <td class="px-4 py-3 text-center">
+                                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm animate-pulse">กำลังให้บริการ</span>
+                                    </td>
+                                </tr>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="px-4 py-3 font-semibold text-yellow-600">พฤหัสบดี</td>
+                                    <td class="px-4 py-3">หมู่ 4 บ้านสวนผึ้ง</td>
+                                    <td class="px-4 py-3">09:00 - 12:00</td>
+                                    <td class="px-4 py-3 text-center">
+                                        <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-sm">รอ</span>
+                                    </td>
+                                </tr>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="px-4 py-3 font-semibold text-orange-600">ศุกร์</td>
+                                    <td class="px-4 py-3">หมู่ 5 บ้านใหม่</td>
+                                    <td class="px-4 py-3">13:00 - 16:00</td>
+                                    <td class="px-4 py-3 text-center">
+                                        <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-sm">รอ</span>
+                                    </td>
+                                </tr>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="px-4 py-3 font-semibold text-purple-600">เสาร์</td>
+                                    <td class="px-4 py-3">ศูนย์รับซื้อ อบต.</td>
+                                    <td class="px-4 py-3">08:00 - 17:00</td>
+                                    <td class="px-4 py-3 text-center">
+                                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">เปิดทั้งวัน</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Map and Info -->
+                <div class="space-y-6">
+                    <!-- Live Tracking -->
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-primary mb-4">ติดตามรถรับซื้อขยะ</h3>
+                        <div class="h-48 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
+                            <div class="text-center">
+                                <i class="fas fa-truck text-4xl text-green-500 mb-2"></i>
+                                <p class="text-gray-600">แผนที่ติดตามรถรับซื้อขยะ</p>
+                                <div class="mt-2">
+                                    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
+                                        <i class="fas fa-map-marker-alt mr-1"></i>
+                                        หมู่ 3 บ้านสวนใหม่
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">ระยะทางจากคุณ:</span>
+                                <span class="font-semibold">2.5 กม.</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">เวลาที่คาดว่าจะมาถึง:</span>
+                                <span class="font-semibold text-green-600">15:30 น.</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">จำนวนจุดที่เหลือ:</span>
+                                <span class="font-semibold">8 จุด</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Info -->
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-primary mb-4">ติดต่อรถรับซื้อขยะ</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center">
+                                <i class="fas fa-phone text-green-500 mr-3"></i>
+                                <div>
+                                    <p class="font-semibold">โทรศัพท์</p>
+                                    <p class="text-gray-600">089-XXX-XXXX</p>
+                                </div>
+                            </div>
+                            <!-- <div class="flex items-center">
+                                <i class="fab fa-line text-green-500 mr-3"></i>
+                                <div>
+                                    <p class="font-semibold">Line ID</p>
+                                    <p class="text-gray-600">@waste-tambon</p>
+                                </div>
+                            </div> -->
+                            <div class="flex items-center">
+                                <i class="fas fa-clock text-blue-500 mr-3"></i>
+                                <div>
+                                    <p class="font-semibold">เวลาให้บริการ</p>
+                                    <p class="text-gray-600">จันทร์-เสาร์ 08:00-17:00</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Special Collection -->
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg mb-8">
+                <div class="flex items-start">
+                    <i class="fas fa-exclamation-triangle text-yellow-500 text-xl mr-3 mt-1"></i>
+                    <div>
+                        <h3 class="text-lg font-semibold text-yellow-800 mb-2">การรับซื้อพิเศษ</h3>
+                        <p class="text-yellow-700 mb-3">วันที่ 7 มกราคม 2568 จะมีการรับซื้อขยะอิเล็กทรอนิกส์พิเศษ</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-yellow-200 text-yellow-800 px-2 py-1 rounded text-sm">โทรทัศน์</span>
+                            <span class="bg-yellow-200 text-yellow-800 px-2 py-1 rounded text-sm">ตู้เย็น</span>
+                            <span class="bg-yellow-200 text-yellow-800 px-2 py-1 rounded text-sm">เครื่องซักผ้า</span>
+                            <span class="bg-yellow-200 text-yellow-800 px-2 py-1 rounded text-sm">คอมพิวเตอร์</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+                    <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-bell text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">แจ้งเตือนรถมาถึง</h3>
+                    <p class="text-gray-600 mb-4">รับการแจ้งเตือนเมื่อรถรับซื้อขยะใกล้จะมาถึงบ้านคุณ</p>
+                    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                        ตั้งค่าแจ้งเตือน
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+                    <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-calendar-plus text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">แจ้งประสงค์นัดหมายรับซื้อ</h3>
+                    <p class="text-gray-600 mb-4">นัดหมายให้รถมารับซื้อขยะที่บ้านคุณในวันและเวลาที่สะดวก</p>
+                    <button class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                        นัดหมายเลย
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+                    <div class="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-history text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">ประวัติการขาย</h3>
+                    <p class="text-gray-600 mb-4">ดูประวัติการขายขยะและรายได้ที่ผ่านมา</p>
+                    <button class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors">
+                        ดูประวัติ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+    <div class="content">
 
                 <!-- ส่วนแสดงรอบการรับซื้อ -->
                 <div class="row">
@@ -282,49 +781,12 @@
                         <% }) %>
                     </div>                                       
                 </div>
-                <!-- ส่วนแจ้งข้อร้องเรียน -->
-                <!-- <div class="row mt-3">
-                    <div class="col-12 mt-5 mb-3">
-                        <div class="complaint-section">
-                            <div class="mb-3 title-idea d-flex justify-content-between align-items-center">
-                                <p class="title">แจ้งข้อร้องเรียน หรือ ข้อเสนอแนะ</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="shadow-sm border-0">
-                            <div class="">
-                                <form id="complaintForm">
-                                    เลือกประเภทข้อร้องเรียน
-                                    <div class="mb-3">
-                                        <label for="complaintType" class="form-label">ประเภทข้อร้องเรียน</label>
-                                        <select class="form-select" id="complaintType" required>
-                                            <option value="">เลือกประเภทข้อร้องเรียน</option>
-                                            <option value="ปัญหาการรับซื้อขยะ">ปัญหาการรับซื้อขยะ</option>
-                                            <option value="ข้อเสนอแนะ">ข้อเสนอแนะ</option>
-                                            <option value="บริการไม่ดี">บริการไม่ดี</option>
-                                            <option value="อื่นๆ">อื่นๆ</option>
-                                        </select>
-                                    </div>
-                                    กล่องข้อความสำหรับข้อร้องเรียน
-                                    <div class="mb-3">
-                                        <label for="complaintMessage" class="form-label">ข้อความข้อร้องเรียน</label>
-                                        <textarea class="form-control" id="complaintMessage" rows="4" placeholder="กรุณากรอกข้อร้องเรียนหรือข้อเสนอแนะของคุณที่นี่..." required></textarea>
-                                    </div>
-                                    ปุ่มส่งข้อร้องเรียน
-                                    <div class="d-flex justify-content-center">
-                                        <button type="submit" class="btn btn-success">ส่งข้อร้องเรียน</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div> -->
             </section>
         </div>
     </div>
 
-    <%- include('../partials/footer.ejs') %>
+    <%- include('../partials/userPartials/footer.ejs') %>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const urlParams = new URLSearchParams(window.location.search);
