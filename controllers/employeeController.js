@@ -171,7 +171,16 @@ const wastePurchaseTotalIndex = async (req, res) => {
             };
         }
         if (accountIdParam) {
-            query.accountId = accountIdParam;
+            const foundAccount = await WasteBankAccount.findOne({ 
+                AccountNumber: accountIdParam, 
+                isDeleted: false 
+            }).select('_id');
+
+            if (foundAccount) {
+                query.accountId = foundAccount._id;
+            } else {
+                query.accountId = null;
+            }
         }
         // คล้ายกับโค้ด memberIndex
         if (search) {

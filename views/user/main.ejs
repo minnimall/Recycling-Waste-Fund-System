@@ -15,16 +15,27 @@
 </head> -->
     <%- include('../partials/userPartials/head.ejs') %>
 <body>
+    <!-- JS AOS -->
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            once: true,        // ให้ animation เล่นครั้งเดียว (แนะนำสำหรับเว็บไซต์ทั่วไป)
+            duration: 800,     // ความเร็วของ animation
+            delay: 100         // หน่วงเวลาเริ่มต้นนิดหน่อย
+        });
+    </script>
+
+
     <%- include('../partials/userPartials/header.ejs') %>
 
 
     <!-- Hero Section -->
     <section class="bg-gradient-to-r from-primary-green to-secondary-green text-white py-20">
-        <div class="container mx-auto px-4 text-center">
+        <div data-aos="slide-up" data-aos-delay="300" class="container mx-auto px-4 text-center">
             <h2 class="text-4xl md:text-6xl font-bold mb-6">ยินดีต้อนรับสู่ อบต.</h2>
             <p class="text-xl md:text-2xl mb-8 opacity-90">บริการประชาชนด้วยใจ เพื่อชุมชนที่ยั่งยืน</p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center ">
-                <a href="/user/wasteSaleRequest" class="bg-white text-primary-green px-8 py-3 rounded-lg font-semibold hover:bg-light-green transition-colors">แจ้งประสงค์</a>
+                <a href="/user/wasteSaleRequest" class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-green transition-colors">แจ้งประสงค์</a>
                 <a href="/user/complaint" class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-green transition-colors">ร้องเรียน</a>
             </div>
         </div>
@@ -101,11 +112,11 @@
                 <a href="waste-ideas.html" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors">
                     <i class="fas fa-lightbulb mr-2"></i>ไอเดียการจัดการขยะ
                 </a>
-                 <a href="contact.html" class="border-2 border-primary text-primary px-6 py-3 rounded-lg hover:bg-primary hover:text-white transition-colors">
+                <a href="contact.html" class="border-2 border-primary text-primary px-6 py-3 rounded-lg hover:bg-primary hover:text-white transition-colors">
                     <i class="fas fa-phone mr-2"></i>สอบถามราคา
                 </a>
-              </div>
-          </div>
+            </div>
+        </div>
     </section>
 
     
@@ -124,100 +135,97 @@
             </div>
 
             <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-    <% if (waste.length >= 4) { %>
-        <% waste.slice(0, 4).forEach((item) => { %>
-            <div class="bg-white rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                            </svg>
+                <% if (waste.length >= 4) { %>
+                    <% waste.slice(0, 4).forEach((item) => { %>
+                        <div class="bg-white rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-800"><%= item.wasteName %></h4>
+                                        <p class="text-sm text-gray-500"><%= item.wasteType.wasteTypeName %></p>
+                                    </div>
+                                </div>
+
+                                <!-- ไอคอนขึ้นลง -->
+                                <div class="flex items-center px-2 py-1 rounded-full text-xs font-semibold
+                                    <% if (item.changeDirection === 'up') { %> bg-green-100 text-green-800
+                                    <% } else if (item.changeDirection === 'down') { %> bg-red-100 text-red-800
+                                    <% } else { %> bg-gray-100 text-gray-800 <% } %>">
+
+                                    <% if (item.changeDirection === 'up') { %>
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                                        </svg>
+                                    <% } else if (item.changeDirection === 'down') { %>
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                        </svg>
+                                    <% } %>
+
+                                    <% if (item.priceChange !== null && item.percentChange !== null) { %>
+                                        <%= item.priceChange > 0 ? '+' : '' %> (<%= item.percentChange.toFixed(2) %>%)
+                                    <% } else { %>
+                                        -
+                                    <% } %>
+                                </div>
+                            </div>
+
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-primary-green mb-1"><%= item.pricePerUnit %></div>
+                                <div class="text-sm text-gray-500">บาท/กิโลกรัม</div>
+                                <div class="text-xs mt-2
+                                    <% if (item.changeDirection === 'up') { %> text-green-600
+                                    <% } else if (item.changeDirection === 'down') { %> text-red-600
+                                    <% } else { %> text-gray-400 <% } %>">
+                                    <% if (item.percentChange !== null) { %>
+                                        <%= item.changeDirection === 'up' ? 'เพิ่มขึ้น' : 'ลดลง' %> <%= item.percentChange.toFixed(2) %>%
+                                    <% } else { %> ไม่มีการเปลี่ยนแปลง <% } %>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <h4 class="font-semibold text-gray-800"><%= item.wasteName %></h4>
-                            <p class="text-sm text-gray-500"><%= item.wasteType.wasteTypeName %></p>
-                        </div>
+                    <% }); %>
+                    <% } else { %>
+                    <div>
+                        <span>ยังไม่มีข้อมูล</span>
                     </div>
-
-                    <!-- ไอคอนขึ้นลง -->
-                    <div class="flex items-center px-2 py-1 rounded-full text-xs font-semibold
-                        <% if (item.changeDirection === 'up') { %> bg-green-100 text-green-800
-                        <% } else if (item.changeDirection === 'down') { %> bg-red-100 text-red-800
-                        <% } else { %> bg-gray-100 text-gray-800 <% } %>">
-
-                        <% if (item.changeDirection === 'up') { %>
-                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                            </svg>
-                        <% } else if (item.changeDirection === 'down') { %>
-                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                            </svg>
-                        <% } %>
-
-                        <% if (item.priceChange !== null && item.percentChange !== null) { %>
-                            <%= item.priceChange > 0 ? '+' : '' %> (<%= item.percentChange.toFixed(2) %>%)
-                        <% } else { %>
-                            -
-                        <% } %>
-                    </div>
-                </div>
-
-                <div class="text-center">
-                    <div class="text-3xl font-bold text-primary-green mb-1"><%= item.pricePerUnit %></div>
-                    <div class="text-sm text-gray-500">บาท/กิโลกรัม</div>
-                    <div class="text-xs mt-2
-                        <% if (item.changeDirection === 'up') { %> text-green-600
-                        <% } else if (item.changeDirection === 'down') { %> text-red-600
-                        <% } else { %> text-gray-400 <% } %>">
-                        <% if (item.percentChange !== null) { %>
-                            <%= item.changeDirection === 'up' ? 'เพิ่มขึ้น' : 'ลดลง' %> <%= item.percentChange.toFixed(2) %>%
-                        <% } else { %> ไม่มีการเปลี่ยนแปลง <% } %>
-                    </div>
-                </div>
-            </div>
-        <% }); %>
-    <% } else { %>
-        <div>
-            <span>ยังไม่มีข้อมูล</span>
-        </div>
-    <% } %>
-</div>
-
-<!-- Additional Waste Types -->
-<div class="grid md:grid-cols-3 lg:grid-cols-6 gap-4 mt-8">
-    <% if (waste.length >= 11) { %>
-        <% waste.slice(5, 11).forEach((item) => { %>
-            <div class="bg-white bg-opacity-10 rounded-lg p-4 text-center">
-                <h5 class="text-white font-semibold mb-1"><%= item.wasteName %></h5>
-                <div class="text-2xl font-bold text-white"><%= item.pricePerUnit %></div>
-
-                <% if (item.percentChange !== null) { %>
-                    <div class="text-xs
-                        <% if (item.changeDirection === 'up') { %> text-green-300
-                        <% } else if (item.changeDirection === 'down') { %> text-red-300
-                        <% } else { %> text-gray-300 <% } %>">
-                        <%= item.changeDirection === 'up' ? '+' : '' %><%= item.priceChange.toFixed(2) %>
-                        (<%= item.percentChange.toFixed(2) %>%)
-                    </div>
-                <% } else { %>
-                    <div class="text-xs text-gray-300">-</div>
                 <% } %>
             </div>
-        <% }); %>
-    <% } else { %>
-        <div>
-            <span class="text-white">ยังไม่มีข้อมูล</span>
-        </div>
-    <% } %>
-</div>
 
+            <!-- Additional Waste Types -->
+            <div class="grid md:grid-cols-3 lg:grid-cols-6 gap-4 mt-8">
+                <% if (waste.length >= 11) { %>
+                    <% waste.slice(5, 11).forEach((item) => { %>
+                        <div class="bg-white bg-opacity-10 rounded-lg p-4 text-center">
+                            <h5 class="text-white font-semibold mb-1"><%= item.wasteName %></h5>
+                            <div class="text-2xl font-bold text-white"><%= item.pricePerUnit %></div>
 
-
+                            <% if (item.percentChange !== null) { %>
+                                <div class="text-xs
+                                    <% if (item.changeDirection === 'up') { %> text-green-300
+                                    <% } else if (item.changeDirection === 'down') { %> text-red-300
+                                    <% } else { %> text-gray-300 <% } %>">
+                                    <%= item.changeDirection === 'up' ? '+' : '' %><%= item.priceChange.toFixed(2) %>
+                                    (<%= item.percentChange.toFixed(2) %>%)
+                                </div>
+                            <% } else { %>
+                                <div class="text-xs text-gray-300">-</div>
+                            <% } %>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div>
+                        <span class="text-white">ยังไม่มีข้อมูล</span>
+                    </div>
+                <% } %>
+            </div>
 
             <!-- Price Update Info -->
             <div class="mt-12 bg-white bg-opacity-10 rounded-lg p-6">
@@ -239,7 +247,7 @@
         </div>
     </section>
 
-        <!-- Activities Section -->
+    <!-- Activities Section -->
     <section class="py-16 bg-white">
         <div class="container mx-auto px-4">
             <h2 class="text-3xl font-bold text-center text-primary mb-12">กิจกรรมของ อบต.</h2>
@@ -333,7 +341,6 @@
 
                     <div class="space-y-6">
                         <!-- News Item 1 -->
-                         
                         <% if (news.length = 4) { %>
                             <% news.forEach((item, index) => { %>
                         <div class="bg-gray-50 rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
@@ -381,8 +388,7 @@
                         </div>
 
                         <div class="space-y-4">
-                            <!-- PDF Document 1 -->
-                             
+                        <!-- PDF Document 1 -->
                         <% if (news.length = 5) { %>
                             <% news.forEach((item, index) => { %>
                             <div class="bg-white rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer" onclick="openPDF('<%= item.newsTitle %>', '<%= item.newsFile.replace(/\\/g, '/') %>')">
