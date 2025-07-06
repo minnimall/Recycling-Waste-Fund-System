@@ -10,6 +10,7 @@ const myNews = require('../models/news');
 const myActivity = require('../models/activity');
 const Village = require('../models/village')
 const Round = require('../models/round');
+const WastePriceHistory = require('../models/wastePriceHistory');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const moment = require('moment');
@@ -494,7 +495,6 @@ const wasteDelete = async (req, res) => {
         res.status(500).redirect('/admin/waste?error=เกิดข้อผิดพลาดในการลบข้อมูลผู้ใช้');
     }
 };
-// แก้ไขขยะ
 const wasteEdit = async (req, res) => {
     upload2(req, res, async (err) => {
         if (err) {
@@ -504,7 +504,6 @@ const wasteEdit = async (req, res) => {
 
         const { _id, wasteName, pricePerUnit, wasteType } = req.body;
 
-        // ตรวจสอบข้อมูลที่จำเป็น
         if (!_id || !wasteName || !pricePerUnit || !wasteType) {
             return res.status(400).send('กรุณากรอกข้อมูลให้ครบถ้วน');
         }
@@ -516,18 +515,40 @@ const wasteEdit = async (req, res) => {
                 return res.status(404).send('ไม่พบข้อมูลขยะที่ต้องการแก้ไข');
             }
 
-            // ตรวจสอบว่ามีการอัปโหลดรูปภาพใหม่หรือไม่
             const updatedImagePath = req.file
                 ? `/upload_imgwaste/${req.file.filename}`
-                : waste.img; // ใช้รูปเดิมถ้าไม่มีการอัปโหลดใหม่
+                : waste.img;
+
+            const newPrice = parseFloat(pricePerUnit);
+            const oldPrice = waste.pricePerUnit;
 
             // อัปเดตข้อมูลขยะ
             waste.wasteName = wasteName;
-            waste.pricePerUnit = parseFloat(pricePerUnit);
+            waste.pricePerUnit = newPrice;
             waste.wasteType = wasteType;
             waste.img = updatedImagePath;
 
             await waste.save();
+
+            // 🧠 คำนวณเปอร์เซ็นต์การเปลี่ยนแปลงของราคา
+            let percentChange = null;
+            let changeDirection = 'none';
+
+            if (oldPrice !== 0 && oldPrice !== newPrice) {
+                percentChange = ((newPrice - oldPrice) / oldPrice) * 100;
+                changeDirection = percentChange > 0 ? 'up' : 'down';
+            }
+
+            // 📝 บันทึกประวัติราคาใหม่
+            const priceLog = new WastePriceHistory({
+                wasteId: waste._id,
+                pricePerUnit: newPrice,
+                percentChange,
+                changeDirection,
+                location: 'ขอนแก่น' // 🔧 แก้ไขเป็น dynamic location ได้
+            });
+
+            await priceLog.save();
 
             console.log('Waste updated successfully');
             res.redirect('/admin/waste?message=แก้ไขข้อมูลขยะสำเร็จ');

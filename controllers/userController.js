@@ -14,6 +14,7 @@ const Family = require('../models/family');
 const Member = require('../models/member');
 const Complaint = require('../models/complaint');
 const WasteBankAccount = require('../models/wasteBankAccount');
+const WastePriceHistory = require('../models/wastePriceHistory');
 const path = require('path');
 const moment = require('moment');
 
@@ -22,14 +23,61 @@ const formatDate = (date) => moment(date).locale('th').format('ddddที่ D M
 
 const user_index = async (req, res) => {
     const filter = { isDeleted: false };
+
     try {
-        const [activitiesResult, wasteResult, villageResult, roundResult, newsResult] = await Promise.all([
+        const [
+            activitiesResult,
+            wasteResult,
+            villageResult,
+            roundResult,
+            newsResult
+        ] = await Promise.all([
             myActivity.find(filter).sort({ createdAt: -1 }),
-            myWaste.find(filter).sort({ createdAt: 1 }),
+            myWaste.find(filter).populate('wasteType').sort({ createdAt: 1 }),
             Village.find(filter).sort({ villageNumber: 1 }),
             Round.find(filter).populate('village').sort({ date: 1 }),
             myNews.find(filter).sort({ createdAt: -1 })
         ]);
+
+        // ดึงประวัติราคาล่าสุดของขยะแต่ละตัว
+        const wasteWithChangeRaw = await Promise.all(
+            wasteResult.map(async (waste) => {
+                const lastHistory = await WastePriceHistory.findOne({ wasteId: waste._id })
+                    .sort({ createdAt: -1 });
+
+                const latestPrice = lastHistory ? lastHistory.pricePerUnit : waste.pricePerUnit;
+                const latestPriceDate = lastHistory ? lastHistory.createdAt : null;
+
+                // เก็บ priceChange เป็น number ไม่ใช่ string
+                const priceChange = lastHistory
+                    ? (waste.pricePerUnit - lastHistory.pricePerUnit)
+                    : null;
+
+                return {
+                    ...waste._doc,
+                    latestPrice,
+                    latestPriceDate,
+                    priceChange,
+                    percentChange: lastHistory ? lastHistory.percentChange : null,
+                    changeDirection: lastHistory ? lastHistory.changeDirection : null
+                };
+            })
+        );
+
+        // เรียงจากวันล่าสุดมากไปหาน้อย
+        const wasteWithChange = wasteWithChangeRaw.sort((a, b) => {
+            const dateA = new Date(a.latestPriceDate || 0);
+            const dateB = new Date(b.latestPriceDate || 0);
+            return dateB - dateA;
+        });
+
+        // หาเวลาที่อัปเดตราคาล่าสุด
+        const latestPriceUpdateDate = wasteWithChange.reduce((latest, item) => {
+            if (item.latestPriceDate && (!latest || new Date(item.latestPriceDate) > new Date(latest))) {
+                return item.latestPriceDate;
+            }
+            return latest;
+        }, null);
 
         const currentDate = moment().format('YYYY-MM-DD');
         const currentTime = moment().format('HH:mm');
@@ -39,15 +87,15 @@ const user_index = async (req, res) => {
             const startTime = round.startTime;
             const endTime = round.endTime;
 
-            const isActive = 
-                roundDate === currentDate && 
-                currentTime >= startTime && 
+            const isActive =
+                roundDate === currentDate &&
+                currentTime >= startTime &&
                 currentTime <= endTime;
 
             acc[round.village._id] = {
                 roundName: round.roundName,
-                formattedDateYYMMDD: new Date(round.date).toISOString().split('T')[0], // รูปแบบ YY-MM-DD
-                formattedDateThai: formatDate(round.date), // วันที่ภาษาไทย
+                formattedDateYYMMDD: new Date(round.date).toISOString().split('T')[0],
+                formattedDateThai: formatDate(round.date),
                 startTime,
                 endTime,
                 isActive
@@ -55,20 +103,25 @@ const user_index = async (req, res) => {
             return acc;
         }, {});
 
-        res.render('user/main', { 
-            mytitle: 'Admindashboard | Activity', 
-            activity: activitiesResult, 
-            waste: wasteResult,
+        res.render('user/main', {
+            mytitle: 'Admindashboard | Activity',
+            activity: activitiesResult,
+            waste: wasteWithChange,
             village: villageResult,
             roundsByVillage,
             moment: moment,
-            news: newsResult
+            news: newsResult,
+            latestPriceUpdateDate
         });
+
     } catch (err) {
-        console.log(err);
+        console.error(err);
         res.status(500).send("เกิดข้อผิดพลาดในการโหลดข้อมูล");
     }
 };
+
+
+
 
 
 // หน้าประเภทขยะ
