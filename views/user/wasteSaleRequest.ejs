@@ -1,26 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>กองทุนขยะรีไซเคิล องค์การบริหารส่วนตำบลขามป้อม อำเภอเปือยน้อย จังหวัดขอนแก่น</title>
-    <link rel="icon" href="/img/logo_เปือยน้อย.png" type="image/png" sizes="16x16">
-    <link rel="stylesheet" href="/style_user/wasteSaleRequest.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
-    <!-- CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-    <!-- JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-
-</head>
-<body>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <%- include('../partials/userPartials/head.ejs') %>
+    <style>
+        .select2-container--default .select2-selection--multiple {
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            min-height: 2.5rem;
+        }
+        .select2-container--default .select2-selection--multiple:focus {
+            border-color: #059669;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: #059669;
+            border: 1px solid #059669;
+            border-radius: 0.375rem;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            margin: 0.125rem;
+        }
+        .select2-dropdown {
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
     <script>
         // เช็คข้อความที่ส่งมาจาก URL
         const urlParams = new URLSearchParams(window.location.search);
@@ -48,60 +62,139 @@
                 timer: 3000
             });
         }
-
     </script>
-    <%- include('../partials/nav.ejs') %>
 
-    <div class="content">
-        <div class="container">
-            <div class="mt-5 content-header d-flex justify-content-center align-items-center">
-                <h1 class="title">แจ้งความประสงค์ขายขยะ</h1>
-            </div>
-            <div class="mt-5 mb-5 form-saleRequest border rounded p-4 shadow-sm bg-light">
-                <div class="mt-2 d-flex justify-content-between align-items-center">
-                    <h2>ฟอร์มกรอกข้อมูลเบื้องต้น</h2>
-                    <p id="time" class="show-time">วันที่ <span id="date-time"></span></p>
-                </div>
-                <div>
-                    <form id="waste-sale-form" action="/user/wasteSaleRequestPost" method="POST" enctype="multipart/form-data">
-                        <input type="hidden" name="username" value="<%= session.username %>">
-                        <div class="mb-3">
-                            <label for="waste-type" class="form-label">ขยะที่ต้องการขาย</label>
-                            <select class="form-select " id="waste" name="waste[]" multiple required>
-                                <% wasteItems.forEach((waste) => { %>
-                                <option value="<%= waste._id %>"><%= waste.wasteName %></option>
-                                <% }); %>
-                            </select>
-                        </div>                        
-                        <div class="mb-3">
-                            <label for="weight" class="form-label">น้ำหนัก (กิโลกรัม) <small class="text-danger">* สามารถระบุหรือไม่ระบุก็ได้</small></label>
-                            <input type="number" class="form-control" id="weight" name="weight" step="0.1">
+    <%- include('../partials/userPartials/header.ejs') %>
+
+    <!-- Page Header -->
+    <section class="bg-gradient-to-r from-primary-green to-secondary-green text-white py-16">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl md:text-5xl font-bold mb-4">แจ้งความประสงค์ขายขยะ</h2>
+            <p class="text-xl opacity-90">เสียงของประชาชนคือสิ่งสำคัญสำหรับเรา</p>
+        </div>
+    </section>
+
+    <section class="py-16">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <!-- Form Container with Enhanced Design -->
+                <div class="mt-5 mb-5 bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+                    <!-- Header Section -->
+                    <div class="bg-gradient-to-r from-primary-green to-secondary-green text-white p-6">
+                        <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                            <h2 class="text-2xl font-bold">ฟอร์มกรอกข้อมูลเบื้องต้น</h2>
+                            <div class="flex items-center gap-2">
+                                <!-- <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4m-6 0h6m-6 0V7a1 1 0 00-1 1v12a1 1 0 001 1h6a1 1 0 001-1V8a1 1 0 00-1-1H8z"></path>
+                                </svg> -->
+                                <p id="time" class="block text-white text-sm mb-2">วันที่ <span id="date-time"></span></p>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="weight" class="form-label">วันที่ให้เข้ามารับซื้อ</label>
-                            <input type="date" class="form-control" id="date" name="date" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="weight" class="form-label">พิกัดที่จะให้เข้ามารับซื้อ</label>
-                            <input type="text" class="form-control" id="location" name="location" required>
-                        </div>
-                        <div class="mb-5">
-                            <label for="image" class="form-label">อัปโหลดรูปภาพขยะ</label>
-                            <input type="file" class="form-control" id="image" name="image" accept="image/*">
-                        </div>
-                        <div class="d-flex">
-                            <button type="submit" class="btn btn-success ms-auto">ส่งข้อมูล</button>
-                        </div>
-                    </form>
+                    </div>
+
+                    <!-- Form Section -->
+                    <div class="p-8">
+                        <form id="waste-sale-form" action="/user/wasteSaleRequestPost" method="POST" enctype="multipart/form-data" class="space-y-6">
+                            <input type="hidden" name="username" value="<%= session.username %>">
+                            
+                            <!-- Waste Type Selection -->
+                            <div class="space-y-2">
+                                <label for="waste" class="block text-gray-700 font-semibold mb-2">
+                                    <span class="flex items-center gap-2">
+                                        <!-- <svg class="w-5 h-5 text-primary-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg> -->
+                                        ขยะที่ต้องการขาย
+                                    </span>
+                                </label>
+                                <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-primary-green transition-colors" id="waste" name="waste[]" multiple required>
+                                    <% wasteItems.forEach((waste) => { %>
+                                    <option value="<%= waste._id %>"><%= waste.wasteName %></option>
+                                    <% }); %>
+                                </select>
+                            </div>
+
+                            <!-- Weight Input -->
+                            <div class="space-y-2">
+                                <label for="weight" class="block text-gray-700 font-semibold mb-2">
+                                    <span class="flex items-center gap-2">
+                                        <!-- <svg class="w-5 h-5 text-primary-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16l3-1m-3 1l-3-1"></path>
+                                        </svg> -->
+                                        น้ำหนัก (กิโลกรัม)
+                                    </span>
+                                </label>
+                                <input type="number" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-primary-green transition-colors" id="weight" name="weight" step="0.1" placeholder="ระบุน้ำหนักโดยประมาณ">
+                                <p class="text-sm text-red-500 flex items-center gap-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                    </svg>
+                                    * สามารถระบุหรือไม่ระบุก็ได้
+                                </p>
+                            </div>
+
+                            <!-- Date Input -->
+                            <div class="space-y-2">
+                                <label for="date" class="block text-gray-700 font-semibold mb-2">
+                                    <span class="flex items-center gap-2">
+                                        <!-- <svg class="w-5 h-5 text-primary-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4m-6 0h6m-6 0V7a1 1 0 00-1 1v12a1 1 0 001 1h6a1 1 0 001-1V8a1 1 0 00-1-1H8z"></path>
+                                        </svg> -->
+                                        วันที่ให้เข้ามารับซื้อ
+                                    </span>
+                                </label>
+                                <input type="date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-primary-green transition-colors" id="date" name="date" required>
+                            </div>
+
+                            <!-- Location Input -->
+                            <div class="space-y-2">
+                                <label for="location" class="block text-gray-700 font-semibold mb-2">
+                                    <span class="flex items-center gap-2">
+                                        <!-- <svg class="w-5 h-5 text-primary-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        </svg> -->
+                                        พิกัดที่จะให้เข้ามารับซื้อ
+                                    </span>
+                                </label>
+                                <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-primary-green transition-colors" id="location" name="location" required placeholder="ระบุที่อยู่หรือพิกัดสำหรับรับซื้อ">
+                            </div>
+
+                            <!-- Image Upload -->
+                            <div class="space-y-2">
+                                <label for="image" class="block text-gray-700 font-semibold mb-2">
+                                    <span class="flex items-center gap-2">
+                                        <!-- <svg class="w-5 h-5 text-primary-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg> -->
+                                        อัปโหลดรูปภาพขยะ
+                                    </span>
+                                </label>
+                                <div class="relative">
+                                    <input type="file" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-primary-green transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-green file:text-white hover:file:bg-green-600 cursor-pointer" id="image" name="image" accept="image/*">
+                                </div>
+                                <!-- <p class="text-sm text-gray-500">รองรับไฟล์ภาพ JPG, PNG, GIF ขนาดไม่เกิน 5MB</p> -->
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="flex justify-end pt-6">
+                                <button type="submit" class="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-primary-green to-secondary-green text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-green">
+                                    <!-- <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                    </svg> -->
+                                    บันทึกข้อมูล
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <%- include('../partials/footer.ejs') %>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <%- include('../partials/userPartials/footer.ejs') %>
     <script>
-        //แสดงวัน
+        // แสดงวัน
         function updateTime() {
             const currentDate = new Date();
             const options = { 
@@ -116,31 +209,19 @@
         setInterval(updateTime, 1000);
         updateTime();
 
-        //แสดงรายการขยะที่เลือก
-        // document.getElementById("waste-type").addEventListener("change", function () {
-        //     const selectedOptions = Array.from(this.selectedOptions);
-        //     const selectedList = document.getElementById("selected-items");
-        
-        //     // ล้างข้อมูลเดิมก่อน
-        //     selectedList.innerHTML = "";
-        
-        //     // วนลูปเพิ่มรายการที่เลือก
-        //     selectedOptions.forEach(option => {
-        //         const li = document.createElement("li");
-        //         li.classList.add("list-group-item");
-        //         li.textContent = option.textContent;
-        //         selectedList.appendChild(li);
-        //     });
-        // });
-    </script>
-    <script>
+        // Initialize Select2
         $(document).ready(function() {
             $('#waste').select2({
                 placeholder: "เลือกขยะที่ต้องการขาย",
                 allowClear: true
             });
         });
-        </script>
-        
+
+        // Set minimum date to today
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').setAttribute('min', today);
+        });
+    </script>
 </body>
 </html>
