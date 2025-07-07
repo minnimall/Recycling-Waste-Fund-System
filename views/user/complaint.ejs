@@ -1,22 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>กองทุนขยะรีไซเคิล องค์การบริหารส่วนตำบลขามป้อม อำเภอเปือยน้อย จังหวัดขอนแก่น</title>
-    <link rel="icon" href="/img/logo_เปือยน้อย.png" type="image/png" sizes="16x16">
-    <link rel="stylesheet" href="/style_user/wasteSaleRequest.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
-    <!-- CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-    <!-- JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+    <%- include('../partials/userPartials/head.ejs') %>
 </head>
 <body>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -49,8 +35,143 @@
         }
 
     </script>
-    <%- include('../partials/nav.ejs') %>
+    <%- include('../partials/userPartials/header.ejs') %>
 
+    <!-- Page Header -->
+    <section class="bg-gradient-to-r from-primary-green to-secondary-green text-white py-16">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl md:text-5xl font-bold mb-4">คำข้อง/ข้อร้องเรียน</h2>
+            <p class="text-xl opacity-90">เสียงของประชาชนคือสิ่งสำคัญสำหรับเรา</p>
+        </div>
+    </section>
+    <!-- Complaint Form -->
+    <section class="py-16">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <!-- Form Instructions -->
+                <div class="bg-light-green rounded-lg p-6 mb-8">
+                    <h3 class="text-xl font-semibold text-primary-green mb-4">คำแนะนำในการส่งข้อร้องเรียน</h3>
+                    <ul class="text-gray-700 space-y-2">
+                        <li>• กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง</li>
+                        <li>• ระบุรายละเอียดปัญหาให้ชัดเจน</li>
+                        <li>• แนบหลักฐานประกอบ (ถ้ามี)</li>
+                        <li>• ระบุที่อยู่ติดต่อกลับให้ถูกต้อง</li>
+                        <li>• เจ้าหนาที่จะติดต่อกลับภายใน 7 วันทำการ</li>
+                    </ul>
+                </div>
+
+                <!-- Complaint Form -->
+                <div class="bg-white rounded-lg shadow-md p-8">
+                    <form id="complaint-form">
+                        <div class="grid md:grid-cols-2 gap-6 mb-6">
+                            <!-- Personal Information -->
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">ชื่อ-นามสกุล *</label>
+                                <input type="text" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-transparent" placeholder="กรอกชื่อ-นามสกุล">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">เบอร์โทรศัพท์ *</label>
+                                <input type="tel" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-transparent" placeholder="กรอกเบอร์โทรศัพท์">
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <label class="block text-gray-700 font-semibold mb-2">อีเมล</label>
+                            <input type="email" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-transparent" placeholder="กรอกอีเมล (ไม่บังคับ)">
+                        </div>
+
+                        <div class="mb-6">
+                            <label class="block text-gray-700 font-semibold mb-2">ที่อยู่ *</label>
+                            <textarea required rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-transparent" placeholder="กรอกที่อยู่ที่สามารถติดต่อกลับได้"></textarea>
+                        </div>
+
+                        <div class="mb-6">
+                            <label class="block text-gray-700 font-semibold mb-2">ประเภทข้อร้องเรียน *</label>
+                            <select required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-transparent">
+                                <option value="">เลือกประเภทข้อร้องเรียน</option>
+                                <option value="waste">การจัดการขยะ</option>
+                                <option value="road">ถนน/ทางเดิน</option>
+                                <option value="water">น้ำประปา/ระบายน้ำ</option>
+                                <option value="electricity">ไฟฟ้าสาธารณะ</option>
+                                <option value="noise">เสียงรบกวน</option>
+                                <option value="environment">สิ่งแวดล้อม</option>
+                                <option value="service">การบริการของเจ้าหน้าที่</option>
+                                <option value="other">อื่นๆ</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-6">
+                            <label class="block text-gray-700 font-semibold mb-2">หัวข้อเรื่อง *</label>
+                            <input type="text" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-transparent" placeholder="กรอกหัวข้อเรื่องที่ต้องการร้องเรียน">
+                        </div>
+
+                        <div class="mb-6">
+                            <label class="block text-gray-700 font-semibold mb-2">รายละเอียดข้อร้องเรียน *</label>
+                            <textarea required rows="6" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-transparent" placeholder="กรอกรายละเอียดปัญหาให้ชัดเจน เช่น สถานที่เกิดเหตุ วันเวลา และสาเหตุ"></textarea>
+                        </div>
+
+                        <div class="mb-6">
+                            <label class="block text-gray-700 font-semibold mb-2">สถานที่เกิดเหตุ *</label>
+                            <input type="text" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-transparent" placeholder="ระบุสถานที่เกิดเหตุให้ชัดเจน">
+                        </div>
+
+                        <div class="mb-6">
+                            <label class="block text-gray-700 font-semibold mb-2">แนบไฟล์หลักฐาน</label>
+                            <input type="file" multiple accept="image/*,.pdf,.doc,.docx" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-transparent">
+                            <p class="text-sm text-gray-500 mt-2">รองรับไฟล์: รูปภาพ, PDF, Word (ขนาดไม่เกิน 10MB ต่อไฟล์)</p>
+                        </div>
+
+                        <div class="mb-6">
+                            <label class="block text-gray-700 font-semibold mb-2">ความเร่งด่วน</label>
+                            <div class="flex flex-wrap gap-4">
+                                <label class="flex items-center">
+                                    <input type="radio" name="urgency" value="low" class="text-primary-green focus:ring-primary-green" checked>
+                                    <span class="ml-2">ปกติ</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="urgency" value="medium" class="text-primary-green focus:ring-primary-green">
+                                    <span class="ml-2">ด่วน</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="urgency" value="high" class="text-primary-green focus:ring-primary-green">
+                                    <span class="ml-2">ด่วนมาก</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-8">
+                            <label class="flex items-center">
+                                <input type="checkbox" required class="text-primary-green focus:ring-primary-green">
+                                <span class="ml-2 text-gray-700">ข้าพเจ้ายืนยันว่าข้อมูลที่กรอกเป็นความจริง และยินยอมให้ อบต. ใช้ข้อมูลเพื่อการติดต่อกลับ</span>
+                            </label>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button type="submit" class="flex-1 bg-primary-green text-white py-3 px-6 rounded-lg font-semibold hover:bg-secondary-green transition-colors">
+                                ส่งข้อร้องเรียน
+                            </button>
+                            <button type="reset" class="flex-1 bg-gray-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-600 transition-colors">
+                                ล้างข้อมูล
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Status Check -->
+                <div class="bg-white rounded-lg shadow-md p-8 mt-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">ตรวจสอบสถานะข้อร้องเรียน</h3>
+                    <p class="text-gray-600 mb-4">กรอกหมายเลขอ้างอิงเพื่อตรวจสอบสถานะการดำเนินการ</p>
+                    <div class="flex gap-4">
+                        <input type="text" placeholder="กรอกหมายเลขอ้างอิง" class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-transparent">
+                        <button class="bg-primary-green text-white px-6 py-3 rounded-lg font-semibold hover:bg-secondary-green transition-colors">
+                            ตรวจสอบ
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
     <div class="content">
         <div class="container">
             <div class="mt-5 content-header d-flex justify-content-center align-items-center">
@@ -77,7 +198,8 @@
         </div>
     </div>
 
-    <%- include('../partials/footer.ejs') %>
+
+    <%- include('../partials/userPartials/footer.ejs') %>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         //แสดงวัน
@@ -94,23 +216,6 @@
         }
         setInterval(updateTime, 1000);
         updateTime();
-
-        //แสดงรายการขยะที่เลือก
-        // document.getElementById("waste-type").addEventListener("change", function () {
-        //     const selectedOptions = Array.from(this.selectedOptions);
-        //     const selectedList = document.getElementById("selected-items");
-        
-        //     // ล้างข้อมูลเดิมก่อน
-        //     selectedList.innerHTML = "";
-        
-        //     // วนลูปเพิ่มรายการที่เลือก
-        //     selectedOptions.forEach(option => {
-        //         const li = document.createElement("li");
-        //         li.classList.add("list-group-item");
-        //         li.textContent = option.textContent;
-        //         selectedList.appendChild(li);
-        //     });
-        // });
     </script>
     <script>
         $(document).ready(function() {

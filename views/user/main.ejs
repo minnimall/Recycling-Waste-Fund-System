@@ -530,187 +530,208 @@
                         </div>
                     </div>
                 </div> -->
+
+    <!-- Search and Filter Section -->
+    <section class="py-6 bg-white shadow-sm">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col lg:flex-row gap-4 items-center">
+                <!-- Search Box -->
+                <div class="flex-1 relative">
+                    <input type="text" id="search-location" placeholder="ค้นหาตำแหน่ง หรือ ชื่อจุดรับซื้อ..." class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                    <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                </div>
+
+                <!-- Filter Buttons -->
+                <div class="flex flex-wrap gap-2">
+                    <button class="filter-btn active bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors" data-filter="all">
+                        <i class="fas fa-th-large mr-2"></i>ทั้งหมด
+                    </button>
+                    <button class="filter-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors" data-filter="center">
+                        <i class="fas fa-building mr-2"></i>ศูนย์รับซื้อ
+                    </button>
+                    <button class="filter-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors" data-filter="mobile">
+                        <i class="fas fa-truck mr-2"></i>รถเคลื่อนที่
+                    </button>
+                    <button class="filter-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors" data-filter="community">
+                        <i class="fas fa-users mr-2"></i>จุดชุมชน
+                    </button>
+                </div>
+
+                <!-- My Location Button -->
+                <button id="locate-me" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-location-arrow mr-2"></i>ตำแหน่งของฉัน
+                </button>
+            </div>
+        </div>
+    </section>
+
+<!-- Map and Sidebar Section -->
+<section class="py-8">
+    <div class="container mx-auto px-4">
+        <div class="grid lg:grid-cols-4 gap-6">
+            <!-- Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-lg shadow-lg p-6 sticky top-24">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">จุดรับซื้อใกล้เคียง</h3>
+                    
+                    <!-- Location List -->
+                    <div id="location-list" class="space-y-4 max-h-96 overflow-y-auto">
+                        <!-- Location Item 1 -->
+                        <div class="location-item border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer" data-id="1">
+                            <div class="flex items-start space-x-3">
+                                <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-building text-white"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-semibold text-gray-800">ศูนย์รับซื้อขยะ หมู่ 1</h4>
+                                    <p class="text-sm text-gray-600 mb-2">123/45 หมู่ 1 ตำบลตัวอย่าง</p>
+                                    <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                        <span><i class="fas fa-clock mr-1"></i>08:00-17:00</span>
+                                        <span><i class="fas fa-map-marker-alt mr-1"></i>0.5 กม.</span>
+                                    </div>
+                                    <div class="flex items-center mt-2">
+                                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs mr-2">เปิด</span>
+                                        <div class="flex text-yellow-400">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location Item 2 -->
+                        <div class="location-item border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer" data-id="2">
+                            <div class="flex items-start space-x-3">
+                                <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-truck text-white"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-semibold text-gray-800">รถรับซื้อเคลื่อนที่ A</h4>
+                                    <p class="text-sm text-gray-600 mb-2">หน้าวัดใหญ่ หมู่ 2</p>
+                                    <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                        <span><i class="fas fa-clock mr-1"></i>09:00-15:00</span>
+                                        <span><i class="fas fa-map-marker-alt mr-1"></i>1.2 กม.</span>
+                                    </div>
+                                    <div class="flex items-center mt-2">
+                                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs mr-2">เปิด</span>
+                                        <div class="flex text-yellow-400">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="far fa-star"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location Item 3 -->
+                        <div class="location-item border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer" data-id="3">
+                            <div class="flex items-start space-x-3">
+                                <div class="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-users text-white"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-semibold text-gray-800">จุดรับซื้อชุมชน หมู่ 3</h4>
+                                    <p class="text-sm text-gray-600 mb-2">ศาลาประชาคม หมู่ 3</p>
+                                    <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                        <span><i class="fas fa-clock mr-1"></i>13:00-16:00</span>
+                                        <span><i class="fas fa-map-marker-alt mr-1"></i>2.1 กม.</span>
+                                    </div>
+                                    <div class="flex items-center mt-2">
+                                        <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs mr-2">ปิด</span>
+                                        <div class="flex text-yellow-400">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location Item 4 -->
+                        <div class="location-item border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer" data-id="4">
+                            <div class="flex items-start space-x-3">
+                                <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-building text-white"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-semibold text-gray-800">ศูนย์รับซื้อขยะ หมู่ 4</h4>
+                                    <p class="text-sm text-gray-600 mb-2">456/78 หมู่ 4 ตำบลตัวอย่าง</p>
+                                    <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                        <span><i class="fas fa-clock mr-1"></i>07:30-18:00</span>
+                                        <span><i class="fas fa-map-marker-alt mr-1"></i>3.5 กม.</span>
+                                    </div>
+                                    <div class="flex items-center mt-2">
+                                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs mr-2">เปิด</span>
+                                        <div class="flex text-yellow-400">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="far fa-star"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <h4 class="font-semibold text-gray-800 mb-3">สถิติด่วน</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">จุดรับซื้อทั้งหมด:</span>
+                                <span class="font-semibold">12 จุด</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">เปิดให้บริการ:</span>
+                                <span class="font-semibold text-green-600">8 จุด</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">ปิดชั่วคราว:</span>
+                                <span class="font-semibold text-red-600">4 จุด</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map Container -->
+            <div class="lg:col-span-3">
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="p-4 border-b border-gray-200">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-lg font-semibold text-gray-800">แผนที่จุดรับซื้อขยะ</h3>
+                            <div class="flex space-x-2">
+                                <button id="map-view-btn" class="bg-primary text-white px-3 py-1 rounded text-sm">
+                                    <i class="fas fa-map mr-1"></i>แผนที่
+                                </button>
+                                <button id="satellite-view-btn" class="bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm">
+                                    <i class="fas fa-satellite mr-1"></i>ดาวเทียม
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="map" class="h-96 lg:h-[600px]"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
     <!-- Waste Collection Schedule Section -->
     <section class="py-16 bg-white">
         <div class="container mx-auto px-4">
-            <h2 class="text-3xl font-bold text-center text-primary mb-4">รอบการรับซื้อขยะรีไซเคิล</h2>
-            <p class="text-center text-gray-600 mb-12">ตารางเวลารับซื้อขยะในแต่ละพื้นที่ของตำบล</p>
-            
-            <!-- Current Status -->
-            <div class="bg-gradient-to-r from-primary-green to-secondary-green text-white rounded-lg p-6 mb-8">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="text-xl font-semibold mb-2">สถานะปัจจุบัน</h3>
-                        <p class="text-green-100">รถรับซื้อขยะกำลังให้บริการที่หมู่ 3 บ้านสวนใหม่</p>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-2xl font-bold" id="current-time">14:30</div>
-                        <div class="text-green-100">5 ม.ค. 2568</div>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <div class="bg-white/20 rounded-full h-2">
-                        <div class="bg-white rounded-full h-2 w-3/5 transition-all duration-300"></div>
-                    </div>
-                    <div class="flex justify-between text-sm mt-2 text-green-100">
-                        <span>เริ่ม 13:00</span>
-                        <span>ปัจจุบัน</span>
-                        <span>สิ้นสุด 16:00</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Weekly Schedule -->
-            <div class="grid lg:grid-cols-2 gap-8 mb-8">
-                <!-- Schedule Table -->
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <div class="bg-primary-green text-white p-4">
-                        <h3 class="text-xl font-semibold">ตารางรอบการรับซื้อประจำสัปดาห์</h3>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-4 py-3 text-left font-semibold text-gray-700">วัน</th>
-                                    <th class="px-4 py-3 text-left font-semibold text-gray-700">พื้นที่</th>
-                                    <th class="px-4 py-3 text-left font-semibold text-gray-700">เวลา</th>
-                                    <th class="px-4 py-3 text-center font-semibold text-gray-700">สถานะ</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="border-b hover:bg-gray-50">
-                                    <td class="px-4 py-3 font-semibold text-blue-600">จันทร์</td>
-                                    <td class="px-4 py-3">หมู่ 1 บ้านเก่า</td>
-                                    <td class="px-4 py-3">09:00 - 12:00</td>
-                                    <td class="px-4 py-3 text-center">
-                                        <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-sm">รอ</span>
-                                    </td>
-                                </tr>
-                                <tr class="border-b hover:bg-gray-50">
-                                    <td class="px-4 py-3 font-semibold text-green-600">อังคาร</td>
-                                    <td class="px-4 py-3">หมู่ 2 บ้านกลาง</td>
-                                    <td class="px-4 py-3">09:00 - 12:00</td>
-                                    <td class="px-4 py-3 text-center">
-                                        <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-sm">รอ</span>
-                                    </td>
-                                </tr>
-                                <tr class="border-b hover:bg-gray-50 bg-green-50">
-                                    <td class="px-4 py-3 font-semibold text-green-600">พุธ</td>
-                                    <td class="px-4 py-3">หมู่ 3 บ้านสวนใหม่</td>
-                                    <td class="px-4 py-3">13:00 - 16:00</td>
-                                    <td class="px-4 py-3 text-center">
-                                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm animate-pulse">กำลังให้บริการ</span>
-                                    </td>
-                                </tr>
-                                <tr class="border-b hover:bg-gray-50">
-                                    <td class="px-4 py-3 font-semibold text-yellow-600">พฤหัสบดี</td>
-                                    <td class="px-4 py-3">หมู่ 4 บ้านสวนผึ้ง</td>
-                                    <td class="px-4 py-3">09:00 - 12:00</td>
-                                    <td class="px-4 py-3 text-center">
-                                        <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-sm">รอ</span>
-                                    </td>
-                                </tr>
-                                <tr class="border-b hover:bg-gray-50">
-                                    <td class="px-4 py-3 font-semibold text-orange-600">ศุกร์</td>
-                                    <td class="px-4 py-3">หมู่ 5 บ้านใหม่</td>
-                                    <td class="px-4 py-3">13:00 - 16:00</td>
-                                    <td class="px-4 py-3 text-center">
-                                        <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-sm">รอ</span>
-                                    </td>
-                                </tr>
-                                <tr class="border-b hover:bg-gray-50">
-                                    <td class="px-4 py-3 font-semibold text-purple-600">เสาร์</td>
-                                    <td class="px-4 py-3">ศูนย์รับซื้อ อบต.</td>
-                                    <td class="px-4 py-3">08:00 - 17:00</td>
-                                    <td class="px-4 py-3 text-center">
-                                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">เปิดทั้งวัน</span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Map and Info -->
-                <div class="space-y-6">
-                    <!-- Live Tracking -->
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <h3 class="text-xl font-semibold text-primary mb-4">ติดตามรถรับซื้อขยะ</h3>
-                        <div class="h-48 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
-                            <div class="text-center">
-                                <i class="fas fa-truck text-4xl text-green-500 mb-2"></i>
-                                <p class="text-gray-600">แผนที่ติดตามรถรับซื้อขยะ</p>
-                                <div class="mt-2">
-                                    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
-                                        <i class="fas fa-map-marker-alt mr-1"></i>
-                                        หมู่ 3 บ้านสวนใหม่
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="space-y-2 text-sm">
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">ระยะทางจากคุณ:</span>
-                                <span class="font-semibold">2.5 กม.</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">เวลาที่คาดว่าจะมาถึง:</span>
-                                <span class="font-semibold text-green-600">15:30 น.</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">จำนวนจุดที่เหลือ:</span>
-                                <span class="font-semibold">8 จุด</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Contact Info -->
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <h3 class="text-xl font-semibold text-primary mb-4">ติดต่อรถรับซื้อขยะ</h3>
-                        <div class="space-y-3">
-                            <div class="flex items-center">
-                                <i class="fas fa-phone text-green-500 mr-3"></i>
-                                <div>
-                                    <p class="font-semibold">โทรศัพท์</p>
-                                    <p class="text-gray-600">089-XXX-XXXX</p>
-                                </div>
-                            </div>
-                            <!-- <div class="flex items-center">
-                                <i class="fab fa-line text-green-500 mr-3"></i>
-                                <div>
-                                    <p class="font-semibold">Line ID</p>
-                                    <p class="text-gray-600">@waste-tambon</p>
-                                </div>
-                            </div> -->
-                            <div class="flex items-center">
-                                <i class="fas fa-clock text-blue-500 mr-3"></i>
-                                <div>
-                                    <p class="font-semibold">เวลาให้บริการ</p>
-                                    <p class="text-gray-600">จันทร์-เสาร์ 08:00-17:00</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Special Collection -->
-            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg mb-8">
-                <div class="flex items-start">
-                    <i class="fas fa-exclamation-triangle text-yellow-500 text-xl mr-3 mt-1"></i>
-                    <div>
-                        <h3 class="text-lg font-semibold text-yellow-800 mb-2">การรับซื้อพิเศษ</h3>
-                        <p class="text-yellow-700 mb-3">วันที่ 7 มกราคม 2568 จะมีการรับซื้อขยะอิเล็กทรอนิกส์พิเศษ</p>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="bg-yellow-200 text-yellow-800 px-2 py-1 rounded text-sm">โทรทัศน์</span>
-                            <span class="bg-yellow-200 text-yellow-800 px-2 py-1 rounded text-sm">ตู้เย็น</span>
-                            <span class="bg-yellow-200 text-yellow-800 px-2 py-1 rounded text-sm">เครื่องซักผ้า</span>
-                            <span class="bg-yellow-200 text-yellow-800 px-2 py-1 rounded text-sm">คอมพิวเตอร์</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Quick Actions -->
             <div class="grid md:grid-cols-3 gap-6">
                 <div class="bg-white rounded-lg shadow-lg p-6 text-center">
@@ -750,6 +771,8 @@
     </section>
 
     
+        <!-- Location Details Modal -->
+
     <div class="content">
 
                 <!-- ส่วนแสดงรอบการรับซื้อ -->
@@ -843,11 +866,12 @@
                     </div>                                       
                 </div>
             </section>
-        </div>
     </div>
 
     <%- include('../partials/userPartials/footer.ejs') %>
 
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const urlParams = new URLSearchParams(window.location.search);
@@ -856,50 +880,13 @@
             alert(error);
         }
     </script>
+    <script src="/script/mapInteractive.js"></script>
 
-    <!-- JavaScript สำหรับแสดงวันเวลา -->
-    <script>
-        function updateTime() {
-            const currentDate = new Date(); // ดึงวันและเวลาปัจจุบัน
-            const options = { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric',
-                hour: '2-digit', 
-                minute: '2-digit', 
-                second: '2-digit', 
-                hour12: true 
-            };
-            // แปลงเวลาให้อยู่ในรูปแบบที่ต้องการ
-            const timeString = currentDate.toLocaleString('th-TH', options);
-            // แสดงเวลาในส่วนที่มี id="current-time"
-            document.getElementById('current-time').textContent = timeString;
-            document.getElementById('time').textContent = timeString;
-        }
-
-        // เรียกใช้ฟังก์ชัน updateTime ทุกๆ 1 วินาที
-        setInterval(updateTime, 1000);
-
-        // เรียกใช้ฟังก์ชัน updateTime ทันทีเมื่อโหลดหน้าเว็บ
-        updateTime();
-    </script>
-
-    <script>
-        function updateTime() {
-            const currentDate = new Date();
-            const options = { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric',
-                hour12: true 
-            };
-            const timeString = currentDate.toLocaleString('th-TH', options);
-            document.getElementById('time').textContent = timeString;
-        }
-        setInterval(updateTime, 1000);
-        updateTime();
-    </script>
-
-    
+<style>
+.custom-div-icon {
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+</style>
 </body>
 </html>

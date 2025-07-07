@@ -1,21 +1,479 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>โปรไฟล์ - กองทุนขยะรีไซเคิล องค์การบริหารส่วนตำบลขามป้อม</title>
-    <link rel="icon" href="/img/logo_เปือยน้อย.png" type="image/png">
-    <link rel="stylesheet" href="/style_user/profile.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+    <%- include('../partials/userPartials/head.ejs') %>
 </head>
 <body>
-    <%- include('../partials/nav.ejs') %>
+    <%- include('../partials/userPartials/header.ejs') %>
+    <!-- Profile Header -->
+    <section class="bg-primary-green text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
+                <div class="w-24 h-24 flex items-center justify-center">
+                <img src="/img/avatar.png" alt="รูปโปรไฟล์" class="profile-img mb-3 w-full">
+                </div>
+                <div class="text-center md:text-left">
+                    <h1 class="text-3xl font-bold">นายสมชาย ดีใจ</h1>
+                    <p class="text-xl opacity-90">สมาชิกตั้งแต่ 15 มกราคม 2566</p>
+                    <div class="flex flex-wrap justify-center md:justify-start gap-4 mt-3">
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-sm">สมาชิกทอง</span>
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-sm">ขายขยะ 24 ครั้ง</span>
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-sm">รายได้ 2,450 บาท</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+        <!-- Profile Content -->
+    <section class="py-8">
+        <div class="container mx-auto px-4">
+            <div class="max-w-6xl mx-auto">
+                <!-- Tab Navigation -->
+                <div class="bg-white rounded-lg shadow-lg mb-6">
+                    <div class="border-b border-gray-200">
+                        <nav class="flex flex-wrap">
+                            <button class="tab-btn active px-6 py-4 text-primary border-b-2 border-primary font-semibold" data-tab="personal">
+                                <i class="fas fa-user mr-2"></i>ข้อมูลส่วนตัว
+                            </button>
+                            <button class="tab-btn px-6 py-4 text-gray-500 hover:text-primary transition-colors" data-tab="family">
+                                <i class="fas fa-users mr-2"></i>สมาชิกครอบครัว
+                            </button>
+                            <button class="tab-btn px-6 py-4 text-gray-500 hover:text-primary transition-colors" data-tab="requests">
+                                <i class="fas fa-clipboard-list mr-2"></i>ประวัติแจ้งความประสงค์
+                            </button>
+                            <button class="tab-btn px-6 py-4 text-gray-500 hover:text-primary transition-colors" data-tab="complaints">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>ประวัติคำร้องเรียน
+                            </button>
+                            <button class="tab-btn px-6 py-4 text-gray-500 hover:text-primary transition-colors" data-tab="ideas">
+                                <i class="fas fa-lightbulb mr-2"></i>ไอเดียของฉัน
+                            </button>
+                            <button class="tab-btn px-6 py-4 text-gray-500 hover:text-primary transition-colors" data-tab="sales">
+                                <i class="fas fa-shopping-cart mr-2"></i>ประวัติการขาย
+                            </button>
+                            <button class="tab-btn px-6 py-4 text-gray-500 hover:text-primary transition-colors" data-tab="account">
+                                <i class="fas fa-book mr-2"></i>สมุดบัญชี
+                            </button>
+                        </nav>
+                    </div>
 
+                    <!-- Tab Content -->
+                    <div class="p-6">
+                        <!-- Personal Information Tab -->
+                        <div id="personal" class="tab-content">
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="space-y-6">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">ชื่อ-นามสกุล</label>
+                                        <input type="text" value="นายสมชาย ดีใจ" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" readonly>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">เลขประจำตัวประชาชน</label>
+                                        <input type="text" value="1-2345-67890-12-3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" readonly>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">เบอร์โทรศัพท์</label>
+                                        <input type="tel" value="089-123-4567" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">อีเมล</label>
+                                        <input type="email" value="somchai.dejai@email.com" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                    </div>
+                                </div>
+                                <div class="space-y-6">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">ที่อยู่</label>
+                                        <textarea rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">123/45 หมู่ 3 ตำบลตัวอย่าง อำเภอตัวอย่าง จังหวัดตัวอย่าง 12345</textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">หมายเลขบัญชีธนาคาร</label>
+                                        <input type="text" value="123-4-56789-0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">ธนาคาร</label>
+                                        <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                            <option>ธนาคารกรุงเทพ</option>
+                                            <option>ธนาคารกสิกรไทย</option>
+                                            <option>ธนาคารไทยพาณิชย์</option>
+                                            <option>ธนาคารกรุงไทย</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">วันที่เข้าร่วมเป็นสมาชิก</label>
+                                        <input type="text" value="15 มกราคม 2566" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-6 flex justify-end">
+                                <button class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors">
+                                    <i class="fas fa-save mr-2"></i>บันทึกข้อมูล
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Family Members Tab -->
+                        <div id="family" class="tab-content hidden">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="text-xl font-semibold text-gray-800">สมาชิกในครอบครัว</h3>
+                                <button class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors">
+                                    <i class="fas fa-plus mr-2"></i>เพิ่มสมาชิก
+                                </button>
+                            </div>
+                            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                
+                            <% members.forEach(function(member) { %>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <div class="flex items-center space-x-3 mb-3">
+                                        <div class="w-12 h-12 bg-pink-500 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-male text-white"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold"><%= member.name %></h4>
+                                            <p class="text-sm text-gray-600">สามี</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-sm text-gray-600 space-y-1">
+                                        <p><i class="fas fa-phone mr-2"></i><%= member.phone %></p>
+                                        <p><i class="fas fa-birthday-cake mr-2"></i><%= member.age %> ปี</p>
+                                    </div>
+                                </div>
+                                <% }) %>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <div class="flex items-center space-x-3 mb-3">
+                                        <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-child text-white"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold">เด็กชายสมศักดิ์ ดีใจ</h4>
+                                            <p class="text-sm text-gray-600">บุตรชาย</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-sm text-gray-600 space-y-1">
+                                        <p><i class="fas fa-school mr-2"></i>ม.3</p>
+                                        <p><i class="fas fa-birthday-cake mr-2"></i>15 ปี</p>
+                                    </div>
+                                </div>
+
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <div class="flex items-center space-x-3 mb-3">
+                                        <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-child text-white"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold">เด็กหญิงสมใส ดีใจ</h4>
+                                            <p class="text-sm text-gray-600">บุตรสาว</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-sm text-gray-600 space-y-1">
+                                        <p><i class="fas fa-school mr-2"></i>ป.6</p>
+                                        <p><i class="fas fa-birthday-cake mr-2"></i>12 ปี</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Waste Sale Requests Tab -->
+                        <div id="requests" class="tab-content hidden">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-6">ประวัติการแจ้งความประสงค์ขายขยะ</h3>
+                            <div class="space-y-4">
+                                    
+                                <% if (wasteSaleRequests.length > 0) { %>
+                                    <% wasteSaleRequests.forEach((request) => { %>
+                                    <div class="bg-gray-50 rounded-lg p-4">
+                                        <div class="flex justify-between items-start mb-3">
+                                            <div>
+                                                <h4 class="font-semibold text-gray-800">แจ้งขายขยะรีไซเคิล #WR2024001</h4>
+                                                <p class="text-sm text-gray-600"><%= request.createdAt.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) %> เวลา 14:30</p>
+                                            </div>
+                                        <% if (request.status === 'สำเร็จ') { %> 
+                                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">เสร็จสิ้น</span>
+                                        <% } else if (request.status === 'รอดำเนินการ') { %>
+                                            <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm">รอดำเนินการ</span>
+                                        <% } else { %> 
+                                            <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm">error</span>
+                                        <% } %>
+                                        </div>
+                                        <div class="grid md:grid-cols-2 gap-4 text-sm">
+                                            <div>
+                                                <p class="text-gray-600">ประเภทขยะ:</p>
+                                                <p class="font-semibold">                                            
+                                                <% request.waste.forEach((w, index) => { %>
+                                                    <span class="text-semibold">
+                                                        <%= w.wasteName %>
+                                                        <% if (index < request.waste.length - 1) { %>, <% } %>
+                                                    </span>
+                                                <% }); %></p>
+                                            </div>
+                                            <div>
+                                                <p class="text-gray-600">น้ำหนักประมาณ:</p>
+                                                <p class="font-semibold"><%= request.weight %> กิโลกรัม</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-gray-600">วันที่ต้องการขาย:</p>
+                                                <p class="font-semibold">
+                                                <% if (request.date) { %>
+                                                    <%= new Date(request.date).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                                                <% } else { %>
+                                                    <span>ไม่ระบุ</span>
+                                                <% } %>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <% }); %>
+                                <% } else { %>
+                                        <div>ยังไม่มีข้อมูลคำร้องขอขายขยะ</div>
+                                    <% } %>   
+                            </div>
+                        </div>  
+                        <!-- Complaints Tab -->
+                        <div id="complaints" class="tab-content hidden">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-6">ประวัติคำร้องเรียน</h3>
+                            <div class="space-y-4">
+                            <% complaints.forEach((com) => { %>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <div>
+                                            <h4 class="font-semibold text-gray-800">คำร้องเรียน #<%= com._id %></h4>
+                                            <p class="text-sm text-gray-600"><%= com.createdAt.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) %> เวลา</p>
+                                        </div>
+                                        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">แก้ไขแล้ว</span>
+                                    </div>
+                                    <p class="text-gray-700 mb-3"><%= com.complaintMessage %></p>
+                                    <div class="text-sm text-gray-600">
+                                        <p><strong>การตอบสนอง:</strong> ขออภัยในความไม่สะดวก เนื่องจากรถเสียในระหว่างทาง ได้จัดรถสำรองมารับแล้ว</p>
+                                        <p class="mt-1"><strong>วันที่แก้ไข:</strong> 2 มกราคม 2568</p>
+                                    </div>
+                                </div>
+                            <% }); %>
+                            </div>
+                        </div>
+
+                        <!-- My Ideas Tab -->
+                        <div id="ideas" class="tab-content hidden">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="text-xl font-semibold text-gray-800">ไอเดียการจัดการขยะของฉัน</h3>
+                                <a href="waste-ideas.html" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors">
+                                    <i class="fas fa-plus mr-2"></i>เพิ่มไอเดียใหม่
+                                </a>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">DIY/ทำเอง</span>
+                                        <span class="text-sm text-gray-500">2 วันที่แล้ว</span>
+                                    </div>
+                                    <h4 class="font-semibold text-gray-800 mb-2">ทำกระถางจากยางรถเก่า</h4>
+                                    <p class="text-gray-600 text-sm mb-3">นำยางรถที่ไม่ใช้แล้วมาทาสีและใส่ดิน สามารถปลูกต้นไม้ได้สวยงาม</p>
+                                    <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                        <span><i class="fas fa-heart text-red-500 mr-1"></i>12 ไลค์</span>
+                                        <span><i class="fas fa-comment text-blue-500 mr-1"></i>5 ความคิดเห็น</span>
+                                    </div>
+                                </div>
+
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">นำกลับมาใช้</span>
+                                        <span class="text-sm text-gray-500">1 สัปดาห์ที่แล้ว</span>
+                                    </div>
+                                    <h4 class="font-semibold text-gray-800 mb-2">เปลี่ยนกล่องนมเป็นกระถางต้นไม้</h4>
+                                    <p class="text-gray-600 text-sm mb-3">ล้างกล่องนมให้สะอาด เจาะรูระบายน้ำ แล้วใส่ดินปลูกผัก</p>
+                                    <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                        <span><i class="fas fa-heart text-red-500 mr-1"></i>8 ไลค์</span>
+                                        <span><i class="fas fa-comment text-blue-500 mr-1"></i>3 ความคิดเห็น</span>
+                                    </div>
+                                </div>
+
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs">โครงการชุมชน</span>
+                                        <span class="text-sm text-gray-500">2 สัปดาห์ที่แล้ว</span>
+                                    </div>
+                                    <h4 class="font-semibold text-gray-800 mb-2">จัดตั้งกลุ่มแลกเปลี่ยนของใช้</h4>
+                                    <p class="text-gray-600 text-sm mb-3">สร้างกลุ่มในหมู่บ้านเพื่อแลกเปลี่ยนของใช้ที่ยังดี ลดการซื้อใหม่</p>
+                                    <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                        <span><i class="fas fa-heart text-red-500 mr-1"></i>25 ไลค์</span>
+                                        <span><i class="fas fa-comment text-blue-500 mr-1"></i>12 ความคิดเห็น</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sales History Tab -->
+                        <div id="sales" class="tab-content hidden">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-6">ประวัติการขายขยะ</h3>
+                            <div class="bg-white rounded-lg border overflow-hidden">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th class="px-4 py-3 text-left font-semibold text-gray-700">วันที่</th>
+                                                <th class="px-4 py-3 text-left font-semibold text-gray-700">ประเภทขยะ</th>
+                                                <th class="px-4 py-3 text-right font-semibold text-gray-700">น้ำหนัก (กก.)</th>
+                                                <th class="px-4 py-3 text-right font-semibold text-gray-700">ราคา/กก.</th>
+                                                <th class="px-4 py-3 text-right font-semibold text-gray-700">รายได้</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="border-b hover:bg-gray-50">
+                                                <td class="px-4 py-3">5 ม.ค. 2568</td>
+                                                <td class="px-4 py-3">กระดาษขาว</td>
+                                                <td class="px-4 py-3 text-right">8.5</td>
+                                                <td class="px-4 py-3 text-right">5.00</td>
+                                                <td class="px-4 py-3 text-right font-semibold text-green-600">42.50</td>
+                                            </tr>
+                                            <tr class="border-b hover:bg-gray-50">
+                                                <td class="px-4 py-3">5 ม.ค. 2568</td>
+                                                <td class="px-4 py-3">ขวด PET</td>
+                                                <td class="px-4 py-3 text-right">4.2</td>
+                                                <td class="px-4 py-3 text-right">8.50</td>
+                                                <td class="px-4 py-3 text-right font-semibold text-green-600">35.70</td>
+                                            </tr>
+                                            <tr class="border-b hover:bg-gray-50">
+                                                <td class="px-4 py-3">5 ม.ค. 2568</td>
+                                                <td class="px-4 py-3">อลูมิเนียม</td>
+                                                <td class="px-4 py-3 text-right">2.1</td>
+                                                <td class="px-4 py-3 text-right">45.00</td>
+                                                <td class="px-4 py-3 text-right font-semibold text-green-600">94.50</td>
+                                            </tr>
+                                            <tr class="border-b hover:bg-gray-50">
+                                                <td class="px-4 py-3">30 ธ.ค. 2567</td>
+                                                <td class="px-4 py-3">หนังสือพิมพ์</td>
+                                                <td class="px-4 py-3 text-right">12.0</td>
+                                                <td class="px-4 py-3 text-right">3.50</td>
+                                                <td class="px-4 py-3 text-right font-semibold text-green-600">42.00</td>
+                                            </tr>
+                                            <tr class="border-b hover:bg-gray-50">
+                                                <td class="px-4 py-3">30 ธ.ค. 2567</td>
+                                                <td class="px-4 py-3">ขวดแก้วใส</td>
+                                                <td class="px-4 py-3 text-right">15.5</td>
+                                                <td class="px-4 py-3 text-right">1.20</td>
+                                                <td class="px-4 py-3 text-right font-semibold text-green-600">18.60</td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot class="bg-gray-50">
+                                            <tr>
+                                                <td colspan="4" class="px-4 py-3 font-semibold text-right">รวมทั้งหมด:</td>
+                                                <td class="px-4 py-3 font-bold text-right text-green-600">233.30 บาท</td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Account Book Tab -->
+                        <div id="account" class="tab-content hidden">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="text-xl font-semibold text-gray-800">สมุดบัญชี</h3>
+                                <div class="flex space-x-2">
+                                    <select class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                        <option>มกราคม 2568</option>
+                                        <option>ธันวาคม 2567</option>
+                                        <option>พฤศจิกายน 2567</option>
+                                    </select>
+                                    <button class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors">
+                                        <i class="fas fa-download mr-2"></i>ดาวน์โหลด
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Summary Cards -->
+                            <div class="grid md:grid-cols-3 gap-6 mb-6">
+                                <div class="bg-green-50 rounded-lg p-4">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-green-600 text-sm font-semibold">รายได้รวม</p>
+                                            <p class="text-2xl font-bold text-green-700">2,450 บาท</p>
+                                        </div>
+                                        <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-coins text-white"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-blue-50 rounded-lg p-4">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-blue-600 text-sm font-semibold">จำนวนครั้งที่ขาย</p>
+                                            <p class="text-2xl font-bold text-blue-700">24 ครั้ง</p>
+                                        </div>
+                                        <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-chart-line text-white"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-purple-50 rounded-lg p-4">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-purple-600 text-sm font-semibold">น้ำหนักรวม</p>
+                                            <p class="text-2xl font-bold text-purple-700">156 กก.</p>
+                                        </div>
+                                        <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-weight text-white"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Transaction History -->
+                            <div class="bg-white rounded-lg border overflow-hidden">
+                                <div class="px-4 py-3 bg-gray-50 border-b">
+                                    <h4 class="font-semibold text-gray-800">รายการธุรกรรม</h4>
+                                </div>
+                                <div class="divide-y">
+                                    <div class="px-4 py-3 flex justify-between items-center">
+                                        <div>
+                                            <p class="font-semibold text-gray-800">ขายขยะรีไซเคิล #WR2024001</p>
+                                            <p class="text-sm text-gray-600">5 มกราคม 2568 เวลา 15:30</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="font-semibold text-green-600">+245.00 บาท</p>
+                                            <p class="text-sm text-gray-600">โอนเข้าบัญชี</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="px-4 py-3 flex justify-between items-center">
+                                        <div>
+                                            <p class="font-semibold text-gray-800">ขายขยะรีไซเคิล #WR2023156</p>
+                                            <p class="text-sm text-gray-600">30 ธันวาคม 2567 เวลา 11:15</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="font-semibold text-green-600">+180.00 บาท</p>
+                                            <p class="text-sm text-gray-600">โอนเข้าบัญชี</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="px-4 py-3 flex justify-between items-center">
+                                        <div>
+                                            <p class="font-semibold text-gray-800">ขายขยะรีไซเคิล #WR2023145</p>
+                                            <p class="text-sm text-gray-600">25 ธันวาคม 2567 เวลา 14:20</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="font-semibold text-green-600">+320.00 บาท</p>
+                                            <p class="text-sm text-gray-600">โอนเข้าบัญชี</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="px-4 py-3 flex justify-between items-center">
+                                        <div>
+                                            <p class="font-semibold text-gray-800">ขายขยะรีไซเคิล #WR2023132</p>
+                                            <p class="text-sm text-gray-600">20 ธันวาคม 2567 เวลา 09:45</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="font-semibold text-green-600">+195.50 บาท</p>
+                                            <p class="text-sm text-gray-600">โอนเข้าบัญชี</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
     <div class="content container py-5">
         <!-- Profile Header -->
         <div class="profile-header row align-items-center">
@@ -94,24 +552,6 @@
                             </div>
                         </div>
                     <% }) %>
-                    <div class="col-md-4">
-                        <div class="card family-card">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center mb-3">
-                                    <img src="/img/avatar2.png" alt="รูปสมาชิก" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;">
-                                    <div>
-                                        <h5 class="card-title mb-0">ด.ช.สมหมาย ใจดี</h5>
-                                        <span class="badge bg-warning badge-status">บุตร</span>
-                                    </div>
-                                </div>
-                                <p class="card-text"><i class="fas fa-phone me-2"></i>-</p>
-                                <p class="card-text"><i class="fas fa-calendar me-2"></i>อายุ: 15 ปี</p>
-                                <!-- <button class="btn btn-sm btn-outline-primary w-100">
-                                    <i class="fas fa-eye me-2"></i>ดูข้อมูลเพิ่มเติม
-                                </button> -->
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 <!-- <div class="text-center mt-3">
                     <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addFamilyModal">
@@ -119,68 +559,7 @@
                     </button>
                 </div> -->
             </div>
-            
-            <!-- Waste Sale Requests Tab -->
-            <div class="tab-pane fade" id="requests" role="tabpanel" aria-labelledby="requests-tab">
-                <h4 class="section-title">ประวัติการแจ้งความประสงค์ขายขยะ</h4>
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>วันที่แจ้ง</th>
-                                <th>ชนิดขยะ</th>
-                                <th>น้ำหนักโดยประมาณ (กก.)</th>
-                                <th>วันที่ให้เข้ามารับ</th>
-                                <th>สถานที่</th>
-                                <th>สถานะ</th>
-                                <!-- <th>การดำเนินการ</th> -->
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% if (wasteSaleRequests.length > 0) { %>
-                                <% wasteSaleRequests.forEach((request) => { %>
-                                    <tr>
-                                        <td>
-                                            <%= request.createdAt.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) %>
-                                        </td>
-                                        <td>
-                                            <% request.waste.forEach((w, index) => { %>
-                                                <span class="font-medium">
-                                                    <%= w.wasteName %> <%= w.pricePerUnit %> บาท/กก.
-                                                    <% if (index < request.waste.length - 1) { %>, <% } %>
-                                                </span>
-                                            <% }); %>
-                                        </td>
-                                        <td><%= request.weight %></td>
-                                        <td>
-                                            <% if (request.date) { %>
-                                                <%= new Date(request.date).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) %>
-                                            <% } else { %>
-                                                <span>ไม่ระบุ</span>
-                                            <% } %>
-                                        </td>
-                                        <td><%= request.location %></td>
-                                        <td>
-                                            <span class="badge <%= request.status === 'สำเร็จ' ? 'bg-success' : 'bg-warning' %>">
-                                                รอดำเนินการ
-                                            </span>
-                                        </td>
-                                    </tr>
-                                <% }); %>
-                            <% } else { %>
-                                <tr>
-                                    <td colspan="6" class="text-center text-muted">ยังไม่มีข้อมูลคำร้องขอขายขยะ</td>
-                                </tr>
-                            <% } %>                            
-                        </tbody>
-                    </table>
-                </div>
-                <div class="text-center mt-3">
-                    <a href="/user/wasteSaleRequest"><button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newRequestModalyy">
-                        <i class="fas fa-plus me-2"></i>แจ้งความประสงค์ขายขยะ
-                    </button></a>
-                </div>
-            </div>
+
             
             <!-- Complaints Tab -->
             <div class="tab-pane fade" id="complaints" role="tabpanel" aria-labelledby="complaints-tab">
@@ -693,36 +1072,50 @@
         </div>
     </div>
 
-    <%- include('../partials/footer.ejs') %>
-    
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-    
+    <%- include('../partials/userPartials/footer.ejs') %>
     <script>
-        // Initialize Bootstrap tooltips
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        })
-        
-        // Handle tab persistence
-        document.addEventListener('DOMContentLoaded', function() {
-            // Get the active tab from localStorage
-            var activeTab = localStorage.getItem('activeProfileTab');
-            
-            // If there is an active tab stored, show that tab
-            if (activeTab) {
-                var tab = new bootstrap.Tab(document.querySelector('#profileTabs a[data-bs-target="' + activeTab + '"]'));
-                tab.show();
-            }
-            
-            // Store the active tab in localStorage when a tab is clicked
-            var tabs = document.querySelectorAll('#profileTabs a');
-            tabs.forEach(function(tab) {
-                tab.addEventListener('shown.bs.tab', function(e) {
-                    localStorage.setItem('activeProfileTab', e.target.getAttribute('data-bs-target'));
+
+        // Tab functionality
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetTab = btn.dataset.tab;
+                
+                // Remove active class from all buttons
+                tabBtns.forEach(b => {
+                    b.classList.remove('text-primary', 'border-b-2', 'border-primary');
+                    b.classList.add('text-gray-500');
                 });
+                
+                // Add active class to clicked button
+                btn.classList.remove('text-gray-500');
+                btn.classList.add('text-primary', 'border-b-2', 'border-primary');
+                
+                // Hide all tab contents
+                tabContents.forEach(content => {
+                    content.classList.add('hidden');
+                });
+                
+                // Show target tab content
+                document.getElementById(targetTab).classList.remove('hidden');
             });
+        });
+
+        // Save personal information
+        document.querySelector('#personal button').addEventListener('click', () => {
+            alert('บันทึกข้อมูลเรียบร้อยแล้ว!');
+        });
+
+        // Add family member
+        document.querySelector('#family button').addEventListener('click', () => {
+            alert('ฟีเจอร์เพิ่มสมาชิกครอบครัวจะเปิดให้ใช้งานเร็วๆ นี้');
+        });
+
+        // Download account statement
+        document.querySelector('#account button[class*="download"]').addEventListener('click', () => {
+            alert('กำลังดาวน์โหลดสมุดบัญชี...');
         });
     </script>
 </body>
