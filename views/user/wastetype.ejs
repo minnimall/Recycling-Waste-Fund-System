@@ -37,31 +37,39 @@
 
             <!-- Waste Categories -->
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Organic Waste -->
-                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                    <div class="bg-green-500 h-4"></div>
-                    <div class="p-6">
-                        <div class="flex items-center mb-4">
-                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
-                                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707"></path>
-                                </svg>
-                            </div>
-                            <h4 class="text-xl font-semibold text-gray-800">ขยะเปียก (อินทรีย์)</h4>
-                        </div>
-                        <ul class="text-gray-600 space-y-2 mb-4">
-                            <li>• เศษอาหาร</li>
-                            <li>• เปลือกผลไม้</li>
-                            <li>• ใบไม้ กิ่งไผ่</li>
-                            <li>• ขยะจากครัว</li>
-                        </ul>
-                        <div class="bg-green-50 p-3 rounded-lg">
-                            <p class="text-sm text-green-700"><strong>วิธีทิ้ง:</strong> ใส่ถุงสีเขียว หรือภาชนะสีเขียว</p>
-                        </div>
+            <% wasteTypes.forEach((type) => { %>
+            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                <div class="bg-<%= type.colorTheme %>-500 h-4"></div>
+                <div class="p-6">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-<%= type.colorTheme %>-100 rounded-lg flex items-center justify-center mr-4">
+                    <svg class="w-6 h-6 text-<%= type.colorTheme %>-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
+                    </svg>
                     </div>
+                    <h4 class="text-xl font-semibold text-gray-800"><%= type.wasteTypeName %></h4>
                 </div>
 
-                <!-- Recyclable Waste -->
+                <% const filteredWaste = waste.filter(item => item.wasteType && item.wasteType._id.toString() === type._id.toString()).slice(0, 4); %>
+                <ul class="text-gray-600 space-y-2 mb-4">
+                    <% if (filteredWaste.length > 0) { %>
+                    <% filteredWaste.forEach((item) => { %>
+                        <li>• <%= item.wasteName %></li>
+                    <% }); %>
+                    <% } else { %>
+                    <li>ยังไม่มีข้อมูล</li>
+                    <% } %>
+                </ul>
+
+                <div class="bg-<%= type.colorTheme %>-50 p-3 rounded-lg">
+                    <p class="text-sm text-<%= type.colorTheme %>-700"><strong>วิธีทิ้ง:</strong> ใส่ถุงสีเขียว หรือภาชนะสีเขียว</p>
+                </div>
+                </div>
+            </div>
+            <% }); %>
+
+<!-- 
                 <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                     <div class="bg-blue-500 h-4"></div>
                     <div class="p-6">
@@ -85,7 +93,6 @@
                     </div>
                 </div>
 
-                <!-- General Waste -->
                 <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                     <div class="bg-gray-500 h-4"></div>
                     <div class="p-6">
@@ -109,7 +116,6 @@
                     </div>
                 </div>
 
-                <!-- Hazardous Waste -->
                 <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                     <div class="bg-red-500 h-4"></div>
                     <div class="p-6">
@@ -133,7 +139,6 @@
                     </div>
                 </div>
 
-                <!-- Electronic Waste -->
                 <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                     <div class="bg-purple-500 h-4"></div>
                     <div class="p-6">
@@ -157,7 +162,6 @@
                     </div>
                 </div>
 
-                <!-- Large Waste -->
                 <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                     <div class="bg-orange-500 h-4"></div>
                     <div class="p-6">
@@ -179,7 +183,8 @@
                             <p class="text-sm text-orange-700"><strong>วิธีทิ้ง:</strong> ติดต่อ อบต. เพื่อนัดหมายเก็บ</p>
                         </div>
                     </div>
-                </div>
+                </div> -->
+                
             </div>
 
             <!-- Schedule -->
