@@ -13,8 +13,8 @@
                 <img src="/img/avatar.png" alt="รูปโปรไฟล์" class="profile-img mb-3 w-full">
                 </div>
                 <div class="text-center md:text-left">
-                    <h1 class="text-3xl font-bold">นายสมชาย ดีใจ</h1>
-                    <p class="text-xl opacity-90">สมาชิกตั้งแต่ 15 มกราคม 2566</p>
+                    <h1 class="text-3xl font-bold"><%= username %></h1>
+                    <p class="text-xl opacity-90">เข้าร่วมสมาชิกกองทุนขยะวันที่ <%= createdAt.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) %></p>
                     <div class="flex flex-wrap justify-center md:justify-start gap-4 mt-3">
                         <span class="bg-white/20 px-3 py-1 rounded-full text-sm">สมาชิกทอง</span>
                         <span class="bg-white/20 px-3 py-1 rounded-full text-sm">ขายขยะ 24 ครั้ง</span>
@@ -61,6 +61,7 @@
                         <!-- Personal Information Tab -->
                         <div id="personal" class="tab-content">
                             <div class="grid md:grid-cols-2 gap-6">
+                                <% members.forEach(function(member) { %>
                                 <div class="space-y-6">
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">ชื่อ-นามสกุล</label>
@@ -68,27 +69,28 @@
                                     </div>
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">เลขประจำตัวประชาชน</label>
-                                        <input type="text" value="1-2345-67890-12-3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" readonly>
+                                        <input type="text" value="<%= member.idCardNumber %>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" readonly>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">เบอร์โทรศัพท์</label>
-                                        <input type="tel" value="089-123-4567" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                        <input type="tel" value="<%= member.phone %>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
                                     </div>
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">อีเมล</label>
-                                        <input type="email" value="somchai.dejai@email.com" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                        <input type="email" value="<%= member.email %>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
                                     </div>
                                 </div>
                                 <div class="space-y-6">
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">ที่อยู่</label>
-                                        <textarea rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">123/45 หมู่ 3 ตำบลตัวอย่าง อำเภอตัวอย่าง จังหวัดตัวอย่าง 12345</textarea>
+                                        <textarea rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">บ้านเลขที่ <%= address.houseNumber %> หมู่ <%= address.moo %> ตำบล <%= address.subdistrict %> อำเภอ <%= address.district %> จังหวัด <%= address.province %> รหัสไปรษณีย์ <%= address.postalCode %>
+                                        </textarea>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">หมายเลขบัญชีธนาคาร</label>
-                                        <input type="text" value="123-4-56789-0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                        <input type="text" value="<%= wasteBankAccount ? wasteBankAccount.AccountNumber : '-' %>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
                                     </div>
-                                    <div>
+                                    <!-- <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">ธนาคาร</label>
                                         <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
                                             <option>ธนาคารกรุงเทพ</option>
@@ -96,39 +98,41 @@
                                             <option>ธนาคารไทยพาณิชย์</option>
                                             <option>ธนาคารกรุงไทย</option>
                                         </select>
-                                    </div>
+                                    </div> -->
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">วันที่เข้าร่วมเป็นสมาชิก</label>
-                                        <input type="text" value="15 มกราคม 2566" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100" readonly>
+                                        <input type="text" value="<%= createdAt.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) %>" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100" readonly>
                                     </div>
                                 </div>
+                                <% }) %>
                             </div>
-                            <div class="mt-6 flex justify-end">
+                            <!-- <div class="mt-6 flex justify-end">
                                 <button class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors">
                                     <i class="fas fa-save mr-2"></i>บันทึกข้อมูล
                                 </button>
-                            </div>
+                            </div> -->
                         </div>
 
                         <!-- Family Members Tab -->
                         <div id="family" class="tab-content hidden">
                             <div class="flex justify-between items-center mb-6">
                                 <h3 class="text-xl font-semibold text-gray-800">สมาชิกในครอบครัว</h3>
-                                <button class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors">
+                                <!-- <button class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors">
                                     <i class="fas fa-plus mr-2"></i>เพิ่มสมาชิก
-                                </button>
+                                </button> -->
                             </div>
                             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 
                             <% members.forEach(function(member) { %>
-                                <div class="bg-gray-50 rounded-lg p-4">
+                                <!-- สมาชิก -->
+                                <div class="bg-gray-50 rounded-lg p-4 mb-4">
                                     <div class="flex items-center space-x-3 mb-3">
                                         <div class="w-12 h-12 bg-pink-500 rounded-full flex items-center justify-center">
                                             <i class="fas fa-male text-white"></i>
                                         </div>
                                         <div>
                                             <h4 class="font-semibold"><%= member.name %></h4>
-                                            <p class="text-sm text-gray-600">สามี</p>
+                                            <p class="text-sm text-gray-600">ตัวแทนสมาชิกครอบครัว</p>
                                         </div>
                                     </div>
                                     <div class="text-sm text-gray-600 space-y-1">
@@ -136,38 +140,32 @@
                                         <p><i class="fas fa-birthday-cake mr-2"></i><%= member.age %> ปี</p>
                                     </div>
                                 </div>
-                                <% }) %>
-                                <div class="bg-gray-50 rounded-lg p-4">
-                                    <div class="flex items-center space-x-3 mb-3">
-                                        <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
-                                            <i class="fas fa-child text-white"></i>
-                                        </div>
-                                        <div>
-                                            <h4 class="font-semibold">เด็กชายสมศักดิ์ ดีใจ</h4>
-                                            <p class="text-sm text-gray-600">บุตรชาย</p>
-                                        </div>
-                                    </div>
-                                    <div class="text-sm text-gray-600 space-y-1">
-                                        <p><i class="fas fa-school mr-2"></i>ม.3</p>
-                                        <p><i class="fas fa-birthday-cake mr-2"></i>15 ปี</p>
-                                    </div>
-                                </div>
 
-                                <div class="bg-gray-50 rounded-lg p-4">
-                                    <div class="flex items-center space-x-3 mb-3">
-                                        <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center">
-                                            <i class="fas fa-child text-white"></i>
+                                <!-- ผู้รับผลประโยชน์ -->
+                                <% if (member.beneficiaries && member.beneficiaries.length > 0) { %>
+                                    <% member.beneficiaries.forEach(function(beneficiary) { %>
+                                        <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                                            <div class="flex items-center space-x-3 mb-3">
+                                                <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
+                                                    <i class="fas fa-child text-white"></i>
+                                                </div>
+                                                <div>
+                                                    <h4 class="font-semibold"><%= beneficiary.name %></h4>
+                                                    <p class="text-sm text-gray-600"><%= beneficiary.relation %></p>
+                                                </div>
+                                            </div>
+                                            <div class="text-sm text-gray-600 space-y-1">
+                                                <p><i class="fas fa-percent mr-2"></i>การแบ่ง: <%= beneficiary.distributionType %></p>
+                                                <% if (beneficiary.distributionType === 'other') { %>
+                                                    <p><i class="fas fa-info-circle mr-2"></i><%= beneficiary.distributionDetail %></p>
+                                                <% } %>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h4 class="font-semibold">เด็กหญิงสมใส ดีใจ</h4>
-                                            <p class="text-sm text-gray-600">บุตรสาว</p>
-                                        </div>
-                                    </div>
-                                    <div class="text-sm text-gray-600 space-y-1">
-                                        <p><i class="fas fa-school mr-2"></i>ป.6</p>
-                                        <p><i class="fas fa-birthday-cake mr-2"></i>12 ปี</p>
-                                    </div>
-                                </div>
+                                    <% }) %>
+                                <% } else { %>
+                                    <p class="text-gray-500 italic">ไม่มีข้อมูลผู้รับผลประโยชน์</p>
+                                <% } %>
+                            <% }) %>
                             </div>
                         </div>
 
@@ -181,7 +179,7 @@
                                     <div class="bg-gray-50 rounded-lg p-4">
                                         <div class="flex justify-between items-start mb-3">
                                             <div>
-                                                <h4 class="font-semibold text-gray-800">แจ้งขายขยะรีไซเคิล #WR2024001</h4>
+                                                <h4 class="font-semibold text-gray-800">แจ้งขายขยะรีไซเคิล</h4>
                                                 <p class="text-sm text-gray-600"><%= request.createdAt.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) %> เวลา 14:30</p>
                                             </div>
                                         <% if (request.status === 'สำเร็จ') { %> 
@@ -224,7 +222,8 @@
                                         <div>ยังไม่มีข้อมูลคำร้องขอขายขยะ</div>
                                     <% } %>   
                             </div>
-                        </div>  
+                        </div> 
+                        
                         <!-- Complaints Tab -->
                         <div id="complaints" class="tab-content hidden">
                             <h3 class="text-xl font-semibold text-gray-800 mb-6">ประวัติคำร้องเรียน</h3>
@@ -238,7 +237,7 @@
                                         </div>
                                         <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">แก้ไขแล้ว</span>
                                     </div>
-                                    <p class="text-gray-700 mb-3"><%= com.complaintMessage %></p>
+                                    <p class="text-gray-700 mb-3">คำอธิบาย : <%= com.complaintMessage %></p>
                                     <div class="text-sm text-gray-600">
                                         <p><strong>การตอบสนอง:</strong> ขออภัยในความไม่สะดวก เนื่องจากรถเสียในระหว่างทาง ได้จัดรถสำรองมารับแล้ว</p>
                                         <p class="mt-1"><strong>วันที่แก้ไข:</strong> 2 มกราคม 2568</p>
@@ -314,52 +313,46 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr class="border-b hover:bg-gray-50">
-                                                <td class="px-4 py-3">5 ม.ค. 2568</td>
-                                                <td class="px-4 py-3">กระดาษขาว</td>
-                                                <td class="px-4 py-3 text-right">8.5</td>
-                                                <td class="px-4 py-3 text-right">5.00</td>
-                                                <td class="px-4 py-3 text-right font-semibold text-green-600">42.50</td>
-                                            </tr>
-                                            <tr class="border-b hover:bg-gray-50">
-                                                <td class="px-4 py-3">5 ม.ค. 2568</td>
-                                                <td class="px-4 py-3">ขวด PET</td>
-                                                <td class="px-4 py-3 text-right">4.2</td>
-                                                <td class="px-4 py-3 text-right">8.50</td>
-                                                <td class="px-4 py-3 text-right font-semibold text-green-600">35.70</td>
-                                            </tr>
-                                            <tr class="border-b hover:bg-gray-50">
-                                                <td class="px-4 py-3">5 ม.ค. 2568</td>
-                                                <td class="px-4 py-3">อลูมิเนียม</td>
-                                                <td class="px-4 py-3 text-right">2.1</td>
-                                                <td class="px-4 py-3 text-right">45.00</td>
-                                                <td class="px-4 py-3 text-right font-semibold text-green-600">94.50</td>
-                                            </tr>
-                                            <tr class="border-b hover:bg-gray-50">
-                                                <td class="px-4 py-3">30 ธ.ค. 2567</td>
-                                                <td class="px-4 py-3">หนังสือพิมพ์</td>
-                                                <td class="px-4 py-3 text-right">12.0</td>
-                                                <td class="px-4 py-3 text-right">3.50</td>
-                                                <td class="px-4 py-3 text-right font-semibold text-green-600">42.00</td>
-                                            </tr>
-                                            <tr class="border-b hover:bg-gray-50">
-                                                <td class="px-4 py-3">30 ธ.ค. 2567</td>
-                                                <td class="px-4 py-3">ขวดแก้วใส</td>
-                                                <td class="px-4 py-3 text-right">15.5</td>
-                                                <td class="px-4 py-3 text-right">1.20</td>
-                                                <td class="px-4 py-3 text-right font-semibold text-green-600">18.60</td>
-                                            </tr>
+                                            <% 
+                                            let totalIncome = 0;
+                                            if (wastePurchases && wastePurchases.length > 0) { 
+                                                wastePurchases.forEach(purchase => {
+                                                    if (purchase.wasteItems && purchase.wasteItems.length > 0) {
+                                                        purchase.wasteItems.forEach(item => {
+                                                            const income = (item.quantity || 0) * (item.pricePerUnit || 0);
+                                                            totalIncome += income;
+                                            %>
+                                                <tr class="border-b hover:bg-gray-50">
+                                                    <td class="px-4 py-3">
+                                                        <%= new Date(purchase.purchaseDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }) %>
+                                                    </td>
+                                                    <td class="px-4 py-3"><%= item.name || 'ไม่ระบุ' %></td>
+                                                    <td class="px-4 py-3 text-right"><%= item.quantity?.toFixed(2) || '0.00' %></td>
+                                                    <td class="px-4 py-3 text-right"><%= item.pricePerUnit?.toFixed(2) || '0.00' %></td>
+                                                    <td class="px-4 py-3 text-right font-semibold text-green-600"><%= income.toFixed(2) %></td>
+                                                </tr>
+                                            <% 
+                                                        });
+                                                    }
+                                                });
+                                            } else { 
+                                            %>
+                                                <tr>
+                                                    <td colspan="5" class="text-center text-muted py-4">ไม่มีประวัติการขายขยะ</td>
+                                                </tr>
+                                            <% } %>
                                         </tbody>
                                         <tfoot class="bg-gray-50">
                                             <tr>
                                                 <td colspan="4" class="px-4 py-3 font-semibold text-right">รวมทั้งหมด:</td>
-                                                <td class="px-4 py-3 font-bold text-right text-green-600">233.30 บาท</td>
+                                                <td class="px-4 py-3 font-bold text-right text-green-600"><%= totalIncome.toFixed(2) %> บาท</td>
                                             </tr>
                                         </tfoot>
                                     </table>
                                 </div>
                             </div>
                         </div>
+
 
                         <!-- Account Book Tab -->
                         <div id="account" class="tab-content hidden">
