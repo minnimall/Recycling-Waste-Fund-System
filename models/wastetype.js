@@ -16,6 +16,10 @@ const wasteTypeSchema = new mongoose.Schema(
             trim: true,
             maxlength: [50, 'ชื่อประเภทขยะต้องไม่เกิน 50 ตัวอักษร'],
         },
+        colorTheme: {
+            type: String,
+            required: true,
+        },
         isDeleted: {
             type: Boolean,
             default: false

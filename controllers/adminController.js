@@ -606,7 +606,7 @@ const wasteTypePost = async (req, res) => {
     try {
         console.log('Request Body:', req.body);
 
-        const { wasteTypeName } = req.body;
+        const { wasteTypeName,colorTheme } = req.body;
 
         if (!wasteTypeName || wasteTypeName.trim() === '') {
             console.log('Missing required fields');
@@ -619,7 +619,7 @@ const wasteTypePost = async (req, res) => {
             return res.redirect('/admin/wasteType?error=ชื่อประเภทขยะนี้มีอยู่ในระบบแล้ว');
         }
 
-        const wasteType = new myWasteType({ wasteTypeName: wasteTypeName.trim() });
+        const wasteType = new myWasteType({ wasteTypeName: wasteTypeName.trim(), colorTheme: colorTheme });
         const result = await wasteType.save();
         console.log('WasteType saved successfully:', result);
 
