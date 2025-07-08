@@ -34,8 +34,7 @@ const dashboardIndex = (req, res)=> {
     res.render('employee/dashboard', { mytitle: 'Employeedashboard | Dashboard'})
 }
 
-// หน้ารับซื้อขยะรีไซเคิล
-const wastePurchaseIndex = async (req, res) => { // Make the function async
+const wastePurchaseIndex = async (req, res) => {
     const searchQuery = req.query.search || '';
     const selectedWasteType = req.query.wasteType || '';
     let filter = { isDeleted: false };

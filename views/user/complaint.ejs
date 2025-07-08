@@ -171,31 +171,49 @@
         </div>
     </section>
     
-    <div class="content">
-        <div class="container">
-            <div class="mt-5 content-header d-flex justify-content-center align-items-center">
-                <h1 class="title">รับคำร้องหรือข้อร้องเรียน</h1>
-            </div>
-            <div class="mt-5 mb-5 form-saleRequest border rounded p-4 shadow-sm bg-light">
-                <div class="mt-2 d-flex justify-content-between align-items-center">
-                    <h2>ฟอร์มกรอกข้อมูลเบื้องต้น</h2>
-                    <p id="time" class="show-time">วันที่ <span id="date-time"></span></p>
-                </div>
-                <div>
-                    <form id="complaint-form" action="/user/complaintPost" method="POST">
-                        <input type="hidden" name="username" value="<%= session.username %>">
-                        <div class="mb-3">
-                            <label for="complaintMessage" class="form-label">รายละเอียดข้อมูล</label>
-                            <textarea class="form-control" id="complaintMessage" name="complaintMessage" placeholder="กรุณากรอกข้อร้องเรียนหรือข้อเสนอแนะของคุณที่นี่..." required rows="10"></textarea>
-                        </div>
-                        <div class="d-flex">
-                            <button type="submit" class="btn btn-success ms-auto">ส่งข้อมูล</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+<div class="py-10 bg-white">
+  <div class="max-w-4xl mx-auto ">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-800">รับคำร้องหรือข้อร้องเรียน</h1>
     </div>
+
+    <!-- Form Card -->
+    <div class="bg-gray-50 rounded-xl shadow-md p-6">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold text-gray-700">ฟอร์มกรอกข้อมูลเบื้องต้น</h2>
+        <p id="time" class="text-sm text-gray-500">วันที่ <span id="date-time"></span></p>
+      </div>
+
+      <form id="complaint-form" action="/user/complaintPost" method="POST" class="space-y-6">
+        <input type="hidden" name="username" value="<%= session.username %>">
+
+        <!-- Complaint Field -->
+        <div>
+          <label for="complaintMessage" class="block text-sm font-medium text-gray-700 mb-1">รายละเอียดข้อมูล</label>
+          <textarea
+            id="complaintMessage"
+            name="complaintMessage"
+            rows="10"
+            required
+            placeholder="กรุณากรอกข้อร้องเรียนหรือข้อเสนอแนะของคุณที่นี่..."
+            class="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+          ></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="flex justify-end">
+          <button
+            type="submit"
+            class="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg transition"
+          >
+            ส่งข้อมูล
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 
     <%- include('../partials/userPartials/footer.ejs') %>
