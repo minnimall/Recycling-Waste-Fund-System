@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
+<head>
+        <!-- <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>กองทุนขยะรีไซเคิล องค์การบริหารส่วนตำบลขามป้อม อำเภอเปือยน้อย จังหวัดขอนแก่น</title>
         <link rel="icon" href="/img/logo_เปือยน้อย.png" type="image/png">
@@ -11,94 +11,172 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
-    </head>
+        <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script> -->
+    <%- include('../partials/userPartials/head.ejs') %>
+</head>
 <body>
-    <%- include('../partials/nav.ejs') %>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // เช็คข้อความที่ส่งมาจาก URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const successMessage = urlParams.get('message');
+        const errorMessage = urlParams.get('error');
 
-    <div class="content">
-        <div class="container">
+        if (successMessage) {
+            Swal.fire({
+                icon: 'success',
+                title: 'สำเร็จ!',
+                text: successMessage,
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#28a745',
+                timer: 3000
+            });
+        }
+
+        if (errorMessage) {
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด!',
+                text: errorMessage,
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#d33',
+                timer: 3000
+            });
+        }
+
+    </script>
+    <%- include('../partials/userPartials/header.ejs') %>
+
+    <!-- Page Header -->
+    <section class="bg-gradient-to-r from-primary-green to-secondary-green text-white py-16">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl md:text-5xl font-bold mb-4">ติดต่อ-สอบถาม</h2>
+            <p class="text-xl opacity-90">ข้อมูลติดต่อคณะกรรมการฝ่ายต่างๆ</p>
+        </div>
+    </section>
+
+    <div class="content mb-5">
+        <div class="container mx-auto px-4">
             <section class="mt-3">
-                <div class="mt-5 title-idea d-flex justify-content-center align-items-center">
-                    <p class="title">ติดต่อ-สอบถาม</p>
-                </div>
-                <div class="row profile-container d-flex justify-content-start align-items-center">
-                    <p class="title2">คณะกรรมการฝ่ายอำนวยการ</p>
-                    <div class="col-1">
-                        <img src="/img/kumson.png" alt="Profile Image" class="profile-img">
-                    </div>
-                    <div class="col-3 profile-info">
-                        <p><strong>ชื่อ:</strong> นายคำสอนธนากุล  ไชยปาก</p>
-                        <p><strong>ตำแหน่ง:</strong> นายกองค์การบริหารส่วนตำบล</p>
-                        <p><strong>อีเมล:</strong> 	Khampom2009@gmail.com</p>
-                        <p><strong>เบอร์โทรศัพท์:</strong> 093-1850590</p>
-                    </div>
-                    <div class="col-1">
-                        <img src="/img/punyisa.png" alt="Profile Image" class="profile-img">
-                    </div>
-                    <div class="col-3 profile-info">
-                        <p><strong>ชื่อ:</strong> นางสาวปุญญิศา อนัญตศิริ</p>
-                        <p><strong>ตำแหน่ง:</strong> ปลัดองค์การบริหารส่วนตำบล</p>
-                        <p><strong>อีเมล:</strong> Khampom2009@gmail.com</p>
-                        <p><strong>เบอร์โทรศัพท์:</strong> 062-8936517</p>
-                    </div>
-                    <div class="col-1">
-                        <img src="/img/supaporn.png" alt="Profile Image" class="profile-img">
-                    </div>
-                    <div class="col-3 profile-info">
-                        <p><strong>ชื่อ:</strong> นางศุภาภรณ์  พงศธรศิริ</p>
-                        <p><strong>ตำแหน่ง:</strong> รองปลัดองค์การบริหารส่วนตำบล</p>
-                        <p><strong>อีเมล:</strong> Khampom2009@gmail.com</p>
-                        <p><strong>เบอร์โทรศัพท์:</strong> --- </p>
-                    </div>
-                </div>
-                <div class="row mt-5 profile-container d-flex justify-content-start align-items-center">
-                    <p class="title2">คณะกรรมการฝ่ายประชาสัมพันธ์/วางแผนดำเนินและติดตาม</p>
-                    <div class="col-1">
-                        <img src="/img/bunteng.png" alt="Profile Image" class="profile-img">
-                    </div>
-                    <div class="col-3 profile-info">
-                        <p><strong>ชื่อ:</strong> นายบุญเริง ป่อยยิ้ม</p>
-                        <p><strong>ตำแหน่ง:</strong> รองนายก อบต.ขมป้อม</p>
-                        <p><strong>อีเมล:</strong> 	--- </p>
-                        <p><strong>เบอร์โทรศัพท์:</strong> --- </p>
-                    </div>
-                    <div class="col-1">
-                        <img src="/img/punyisa.png" alt="Profile Image" class="profile-img">
-                    </div>
-                    <div class="col-3 profile-info">
-                        <p><strong>ชื่อ:</strong> นางสาวปุญญิศา อนัญตศิริ</p>
-                        <p><strong>ตำแหน่ง:</strong> ปลัดองค์การบริหารส่วนตำบล</p>
-                        <p><strong>อีเมล:</strong> Khampom2009@gmail.com</p>
-                        <p><strong>เบอร์โทรศัพท์:</strong> 062-8936517</p>
-                    </div>
-                    <div class="col-1">
-                        <img src="/img/supaporn.png" alt="Profile Image" class="profile-img">
-                    </div>
-                    <div class="col-3 profile-info">
-                        <p><strong>ชื่อ:</strong> นางศุภาภรณ์  พงศธรศิริ</p>
-                        <p><strong>ตำแหน่ง:</strong> รองปลัดองค์การบริหารส่วนตำบล</p>
-                        <p><strong>อีเมล:</strong> Khampom2009@gmail.com</p>
-                        <p><strong>เบอร์โทรศัพท์:</strong> --- </p>
+                <!-- หัวเรื่องหลัก -->
+                <!-- <div class="mt-5 flex justify-center items-center">
+                    <h1 class="text-3xl font-bold text-green-700 text-center">ติดต่อ-สอบถาม</h1>
+                </div> -->
+                
+                <!-- คณะกรรมการฝ่ายอำนวยการ -->
+                <div class="mt-8">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6 text-center">คณะกรรมการฝ่ายอำนวยการ</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Profile 1 -->
+                        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+                            <div class="flex flex-col items-center text-center">
+                                <img src="/img/kumson.png" alt="Profile Image" class="w-20 h-20 rounded-full object-cover mb-4 border-2 border-green-200">
+                                <div class="space-y-2">
+                                    <p class="text-gray-700"><strong class="text-gray-900">ชื่อ:</strong> นายคำสอนธนากุล ไชยปาก</p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">ตำแหน่ง:</strong> นายกองค์การบริหารส่วนตำบล</p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">อีเมล:</strong> Khampom2009@gmail.com</p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">เบอร์โทรศัพท์:</strong> 093-1850590</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Profile 2 -->
+                        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+                            <div class="flex flex-col items-center text-center">
+                                <img src="/img/punyisa.png" alt="Profile Image" class="w-20 h-20 rounded-full object-cover mb-4 border-2 border-green-200">
+                                <div class="space-y-2">
+                                    <p class="text-gray-700"><strong class="text-gray-900">ชื่อ:</strong> นางสาวปุญญิศา อนัญตศิริ</p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">ตำแหน่ง:</strong> ปลัดองค์การบริหารส่วนตำบล</p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">อีเมล:</strong> Khampom2009@gmail.com</p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">เบอร์โทรศัพท์:</strong> 062-8936517</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Profile 3 -->
+                        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+                            <div class="flex flex-col items-center text-center">
+                                <img src="/img/supaporn.png" alt="Profile Image" class="w-20 h-20 rounded-full object-cover mb-4 border-2 border-green-200">
+                                <div class="space-y-2">
+                                    <p class="text-gray-700"><strong class="text-gray-900">ชื่อ:</strong> นางศุภาภรณ์ พงศธรศิริ</p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">ตำแหน่ง:</strong> รองปลัดองค์การบริหารส่วนตำบล</p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">อีเมล:</strong> Khampom2009@gmail.com</p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">เบอร์โทรศัพท์:</strong> ---</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="row mt-5 profile-container d-flex justify-content-start align-items-center">
-                    <p class="title2">คณะกรรมการฝ่ายรับสมัคร</p>
-                    <div class="col-1">
-                        <img src="/img/anunya.png" alt="Profile Image" class="profile-img">
+                
+                <!-- คณะกรรมการฝ่ายประชาสัมพันธ์/วางแผนดำเนินและติดตาม -->
+                <div class="mt-12">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6 text-center">คณะกรรมการฝ่ายประชาสัมพันธ์/วางแผนดำเนินและติดตาม</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Profile 1 -->
+                        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+                            <div class="flex flex-col items-center text-center">
+                                <img src="/img/bunteng.png" alt="Profile Image" class="w-20 h-20 rounded-full object-cover mb-4 border-2 border-green-200"
+                                >
+                                <div class="space-y-2">
+                                    <p class="text-gray-700"><strong class="text-gray-900">ชื่อ:</strong> นายบุญเริง ป่อยยิ้ม</p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">ตำแหน่ง:</strong> รองนายก อบต.ขมป้อม</p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">อีเมล:</strong> ---</p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">เบอร์โทรศัพท์:</strong> ---</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Profile 2 -->
+                        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+                            <div class="flex flex-col items-center text-center">
+                                <img src="/img/punyisa.png" alt="Profile Image" class="w-20 h-20 rounded-full object-cover mb-4 border-2 border-green-200">
+                                <div class="space-y-2">
+                                    <p class="text-gray-700"><strong class="text-gray-900">ชื่อ:</strong> นางสาวปุญญิศา อนัญตศิริ</p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">ตำแหน่ง:</strong> ปลัดองค์การบริหารส่วนตำบล</p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">อีเมล:</strong> Khampom2009@gmail.com</p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">เบอร์โทรศัพท์:</strong> 062-8936517</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Profile 3 -->
+                        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+                            <div class="flex flex-col items-center text-center">
+                                <img src="/img/supaporn.png" alt="Profile Image" class="w-20 h-20 rounded-full object-cover mb-4 border-2 border-green-200">
+                                <div class="space-y-2">
+                                    <p class="text-gray-700"><strong class="text-gray-900">ชื่อ:</strong> นางศุภาภรณ์ พงศธรศิริ</p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">ตำแหน่ง:</strong> รองปลัดองค์การบริหารส่วนตำบล</p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">อีเมล:</strong> Khampom2009@gmail.com</p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">เบอร์โทรศัพท์:</strong> ---</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-3 profile-info">
-                        <p><strong>ชื่อ:</strong> นางอนัญญา  ศรีจินดา</p>
-                        <p><strong>ตำแหน่ง:</strong> นักวิชาการศึกษา ขก.</p>
-                        <p><strong>อีเมล:</strong> Khampom2009@gmail.com</p>
-                        <p><strong>เบอร์โทรศัพท์:</strong> 	087-6383111</p>
+                </div>
+                
+                <!-- คณะกรรมการฝ่ายรับสมัคร -->
+                <div class="mt-12">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6 text-center">คณะกรรมการฝ่ายรับสมัคร</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Profile 1 -->
+                        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+                            <div class="flex flex-col items-center text-center">
+                                <img src="/img/anunya.png" alt="Profile Image" class="w-20 h-20 rounded-full object-cover mb-4 border-2 border-green-200">
+                                <div class="space-y-2">
+                                    <p class="text-gray-700"><strong class="text-gray-900">ชื่อ:</strong> นางอนัญญา ศรีจินดา</p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">ตำแหน่ง:</strong> นักวิชาการศึกษา ขก.</p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">อีเมล:</strong> Khampom2009@gmail.com</p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">เบอร์โทรศัพท์:</strong> 087-6383111</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
         </div>
     </div>
 
-    <%- include('../partials/footer.ejs') %>
+    <%- include('../partials/userPartials/footer.ejs') %>
 
 </body>
 </html>
