@@ -632,13 +632,16 @@ const wasteTypePost = async (req, res) => {
 // แก้ไขประเภทขยะ
 const wasteTypeEdit = async (req, res) => {
     try {
-        const { _id, wasteTypeName } = req.body;
+        const { _id, wasteTypeName, colorTheme } = req.body;
         if (!_id || !wasteTypeName) {
             return res.status(400).redirect('/admin/wasteType?error=ข้อมูลไม่ครบถ้วน');
         }
         const updatedWasteType = await myWasteType.findByIdAndUpdate(
             _id,
-            { wasteTypeName: wasteTypeName.trim() },
+            {
+                wasteTypeName: wasteTypeName.trim(),
+                colorTheme: colorTheme
+            },
             { new: true }
         );
         if (!updatedWasteType) {
