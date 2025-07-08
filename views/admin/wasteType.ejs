@@ -126,42 +126,54 @@
             </div>
         </div>
 
-        <div class="was-form" id="edit_Form" style="display: none;">
-            <form action="/admin/wasteTypeEdit" method="POST" enctype="application/x-www-form-urlencoded">
-                <div class="form-head">
-                    <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
-                        <span>แก้ไขประเภทขยะ</span>
-                </div>
-                <div class="input-group">
-                    <!-- ส่งค่า _id -->
-                    <input type="hidden" name="_id" id="hiddenWasteTypeId" value="">
+<div id="edit_Form" class="fixed inset-0 z-50 bg-black bg-opacity-30 flex items-center justify-center hidden">
+  <form action="/admin/wasteTypeEdit" method="POST" enctype="application/x-www-form-urlencoded"
+    class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 space-y-5">
+    
+    <!-- หัวฟอร์ม -->
+    <div class="flex items-center space-x-3 border-b pb-3">
+      <ion-icon name="information-circle-outline" class="text-blue-500 text-2xl"></ion-icon>
+      <span class="text-xl font-semibold text-gray-800">แก้ไขประเภทขยะ</span>
+    </div>
 
-                    <!-- ฟิลด์สำหรับชื่อประเภทขยะ -->
-                    <label for="editWasteTypeName">ชื่อประเภท</label>
-                    <input type="text" name="wasteTypeName" id="editWasteTypeName" placeholder="โลหะ พลาสติก etc." required>
-                    <div>
-                        <label for="colorTheme">สีประเภท</label>
-                        <select name="colorTheme" id="editColorTheme">
-                            <option value="red"> สีแดง</option>
-                            <option value="orange"> สีส้ม</option>
-                            <option value="yellow"> สีเหลือง</option>
-                            <option value="lime"> สีเขียวมะนาว</option>
-                            <option value="green"> สีเขียว</option>
-                            <option value="blue"> สีน้ำเงิน</option>
-                            <option value="indigo"> สีคราม</option>
-                            <option value="purple"> สีม่วง</option>
-                            <option value="pink"> สีชมพู</option>
-                            <option value="rose"> สีกุหราบ</option>
-                            <option value="gray"> สีเทา</option>
-                        </select>
-                    </div>
-                    <div class="submit-btn flex justify-end">
-                        <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
-                        <button type="submit" class="submit">บันทึก</button>
-                    </div>
-                </div>
-            </form>
-        </div>
+    <!-- ส่งค่า _id -->
+    <input type="hidden" name="_id" id="hiddenWasteTypeId" value="">
+
+    <!-- ชื่อประเภท -->
+    <div>
+      <label for="editWasteTypeName" class="block text-sm font-medium text-gray-700 mb-1">ชื่อประเภท</label>
+      <input type="text" name="wasteTypeName" id="editWasteTypeName" placeholder="โลหะ พลาสติก ฯลฯ" required
+        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
+    </div>
+
+    <!-- สีประเภท -->
+    <div>
+      <label for="editColorTheme" class="block text-sm font-medium text-gray-700 mb-1">สีประเภท</label>
+      <select name="colorTheme" id="editColorTheme"
+        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
+        <option value="red">สีแดง</option>
+        <option value="orange">สีส้ม</option>
+        <option value="yellow">สีเหลือง</option>
+        <option value="lime">สีเขียวมะนาว</option>
+        <option value="green">สีเขียว</option>
+        <option value="blue">สีน้ำเงิน</option>
+        <option value="indigo">สีคราม</option>
+        <option value="purple">สีม่วง</option>
+        <option value="pink">สีชมพู</option>
+        <option value="rose">สีกุหลาบ</option>
+        <option value="gray">สีเทา</option>
+      </select>
+    </div>
+
+    <!-- ปุ่ม -->
+    <div class="flex justify-end space-x-3 pt-2">
+      <button type="button" onclick="cancelForm()"
+        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition">ยกเลิก</button>
+      <button type="submit"
+        class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition">บันทึก</button>
+    </div>
+  </form>
+</div>
 
         <div class="was-form" id="add_Form" style="display: none;">
             <form action="/admin/wasteTypePost" method="POST" enctype="application/x-www-form-urlencoded">
@@ -226,34 +238,30 @@
     <%- include('../partials/adminPartials/adminFooter.ejs') %>
 
     <script>
-        let lastClickedRow = null;
+    let lastClickedRow = null;
 
-        function setWasteTypeForm(Index, Id, Name, color) {
-            const editForm = document.getElementById('edit_Form');
-            const addForm = document.getElementById('add_Form');
-            
-            document.getElementById('editColorTheme').value = color;
-            const InputWasteTypeId = document.getElementById('hiddenWasteTypeId');
-            InputWasteTypeId.value = Id;
+    function setWasteTypeForm(Index, Id, Name, color) {
+        const editForm = document.getElementById('edit_Form');
+        const addForm = document.getElementById('add_Form');
 
-            console.log("ID:", Id); // Debug
-            const InputWasteTypeName = document.getElementById('editWasteTypeName');
-            InputWasteTypeName.value = Name;
+        document.getElementById('editColorTheme').value = color;
+        document.getElementById('hiddenWasteTypeId').value = Id;
+        document.getElementById('editWasteTypeName').value = Name;
 
-            addForm.style.display = 'none';
-            const selectedRow = document.querySelector(`.was-row-${Index}`);
+        addForm.classList.add('hidden');
 
-            if (lastClickedRow === selectedRow) {
-                selectedRow.style.backgroundColor = '';
-                lastClickedRow = null;
-                editForm.style.display = 'none';
-            } else {
-                if (lastClickedRow) lastClickedRow.style.backgroundColor = '';
-                selectedRow.style.backgroundColor = '#8EDBA4';
-                editForm.style.display = 'block';
-                lastClickedRow = selectedRow;
-            }
+        const selectedRow = document.querySelector(`.was-row-${Index}`);
+        if (lastClickedRow === selectedRow) {
+            selectedRow.style.backgroundColor = '';
+            lastClickedRow = null;
+            editForm.classList.add('hidden');
+        } else {
+            if (lastClickedRow) lastClickedRow.style.backgroundColor = '';
+            selectedRow.style.backgroundColor = '#8EDBA4';
+            editForm.classList.remove('hidden');
+            lastClickedRow = selectedRow;
         }
+    }
         function wasFormToggle() {
             const editForm = document.getElementById('edit_Form');
             const addForm = document.getElementById('add_Form');
@@ -307,13 +315,18 @@
             const editForm = document.getElementById('edit_Form');
             const addForm = document.getElementById('add_Form');
 
-            // Hide both forms when cancel is clicked
-            editForm.style.display = 'none';
-            addForm.style.display = 'none';
+            editForm.classList.add('hidden');
+            addForm.classList.add('hidden');
 
-            // Optionally reset the forms
-            editForm.reset();
-            addForm.reset();
+            // Reset ฟอร์ม
+            editForm.querySelector('form').reset();
+            addForm.querySelector('form')?.reset();
+
+            // ยกเลิกแรเงาแถว
+            if (lastClickedRow) {
+                lastClickedRow.style.backgroundColor = '';
+                lastClickedRow = null;
+            }
         }
     </script>
 </html>
