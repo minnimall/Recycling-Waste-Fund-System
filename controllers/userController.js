@@ -271,6 +271,25 @@ const user_contact = (req, res)=> {
     res.render('user/contact')
 }
 
+const user_wastePrices = async (req, res) => {
+    try {
+        const wasteItems = await myWaste.find({ isDeleted: false })
+            .populate({
+                path: 'wasteType',
+                match: { isDeleted: false },
+                select: 'wasteTypeName colorTheme'
+            })
+            .lean();
+
+        const filtered = wasteItems.filter(item => item.wasteType);
+
+        res.render('user/wastePrices', { waste: filtered });
+    } catch (err) {
+        console.error("เกิดข้อผิดพลาดในการดึงข้อมูลขยะ:", err);
+        res.status(500).send("เกิดข้อผิดพลาดในการดึงข้อมูลขยะ");
+    }
+};
+
 // หน้ากิจกรรมทั้งหมด
 const user_allActivity = (req, res) => {
     const searchQuery = req.query.search?.trim() || "";
@@ -484,5 +503,6 @@ module.exports = {
     user_allActivity,user_detailActivity,
     user_complaint,complaintPost,
     detailNews,
-    user_profile
+    user_profile,
+    user_wastePrices
 }

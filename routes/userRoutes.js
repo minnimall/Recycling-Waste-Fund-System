@@ -36,5 +36,7 @@ router.get('/detailNews/:id', userController.detailNews)
 // หน้าโปรไฟล์
 router.get('/profile', userController.user_profile)
 
+router.get('/wastePrices', userController.user_wastePrices)
+
 
 module.exports = router

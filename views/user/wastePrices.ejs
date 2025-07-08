@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <%- include('../partials/userPartials/head.ejs') %>
+</head>
+
+<body>
+    <%- include('../partials/userPartials/header.ejs') %>
+    <!-- Page Header -->
+    <section class="bg-gradient-to-r from-primary-green to-secondary-green text-white py-16">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl md:text-5xl font-bold mb-4">ข้อมูลราคารับซื้อขยะ</h2>
+            <p class="text-xl opacity-90">อัปเดตราคาขยะรีไซเคิลประจำเดือน</p>
+        </div>
+    </section>
+    <main class="container mx-auto px-4 py-8">
+        <!-- Search and Filter -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <input type="text" id="searchInput" placeholder="ค้นหาประเภทขยะ..." class="w-full md:max-w-md px-4 py-2 border rounded-lg shadow-sm">
+            <select id="itemsPerPage" class="px-3 py-2 border rounded-lg">
+                <option value="6">6 รายการ</option>
+                <option value="12">12 รายการ</option>
+                <option value="18">18 รายการ</option>
+            </select>
+        </div>
+
+        <!-- Cards -->
+        <div id="cardsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+        <!-- Pagination -->
+        <div id="pagination" class="flex justify-center mt-8 space-x-2"></div>
+
+        <!-- No results -->
+        <div id="noResults" class="text-center mt-12 hidden">
+            <h3 class="text-xl font-semibold">ไม่พบข้อมูล</h3>
+            <p class="text-gray-500">ลองเปลี่ยนคำค้นหาหรือหมวดหมู่</p>
+        </div>
+    </main>
+
+    <%- include('../partials/userPartials/footer.ejs') %>
+
+    <script>
+        const wasteData = <%- JSON.stringify(waste) %>;
+
+        const cardsContainer = document.getElementById('cardsContainer');
+        const pagination = document.getElementById('pagination');
+        const searchInput = document.getElementById('searchInput');
+        const itemsPerPageSelect = document.getElementById('itemsPerPage');
+        const noResults = document.getElementById('noResults');
+
+        let currentPage = 1;
+        let itemsPerPage = parseInt(itemsPerPageSelect.value);
+        let filteredData = [...wasteData];
+
+        function createCard(item) {
+            return `
+                <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+                    <div class="bg-${item.wasteType.colorTheme}-500 h-2"></div>
+                    <div class="p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-1">${item.wasteName}</h3>
+                                <span class="inline-block px-2 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded-full">
+                                    ${item.wasteType.wasteTypeName}
+                                </span>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-2xl font-bold text-green-600">${item.pricePerUnit}</div>
+                                <div class="text-sm text-gray-500">บาท/กิโลกรัม</div>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm leading-relaxed">คำอธิบาย</p>
+                        <div class="mt-4 pt-4 border-t border-gray-100">
+                            <div class="flex items-center justify-between text-sm text-gray-500">
+                                <span>หน่วย: กิโลกรัม</span>
+                                <span class="text-green-600 font-medium">💰 ${item.pricePerUnit} บาท</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function displayData() {
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const dataToShow = filteredData.slice(start, end);
+
+            if (dataToShow.length === 0) {
+                noResults.classList.remove('hidden');
+                cardsContainer.innerHTML = '';
+                pagination.innerHTML = '';
+                return;
+            }
+
+            noResults.classList.add('hidden');
+            cardsContainer.innerHTML = dataToShow.map(createCard).join('');
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            if (totalPages <= 1) return pagination.innerHTML = '';
+
+            let html = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<button onclick="goToPage(${i})" class="px-3 py-1 border rounded ${i === currentPage ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'}">${i}</button>`;
+            }
+
+            pagination.innerHTML = html;
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            displayData();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        searchInput.addEventListener('input', () => {
+            const term = searchInput.value.toLowerCase();
+            filteredData = wasteData.filter(w => 
+                w.wasteName.toLowerCase().includes(term) || 
+                w.wasteType.wasteTypeName.toLowerCase().includes(term)
+            );
+            currentPage = 1;
+            displayData();
+        });
+
+        itemsPerPageSelect.addEventListener('change', () => {
+            itemsPerPage = parseInt(itemsPerPageSelect.value);
+            currentPage = 1;
+            displayData();
+        });
+
+        displayData();
+    </script>
+</body>
+</html>
