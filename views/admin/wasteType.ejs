@@ -126,86 +126,103 @@
             </div>
         </div>
 
-<div id="edit_Form" class="fixed inset-0 z-50 bg-black bg-opacity-30 flex items-center justify-center hidden">
-  <form action="/admin/wasteTypeEdit" method="POST" enctype="application/x-www-form-urlencoded"
-    class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 space-y-5">
-    
-    <!-- หัวฟอร์ม -->
-    <div class="flex items-center space-x-3 border-b pb-3">
-      <ion-icon name="information-circle-outline" class="text-blue-500 text-2xl"></ion-icon>
-      <span class="text-xl font-semibold text-gray-800">แก้ไขประเภทขยะ</span>
-    </div>
-
-    <!-- ส่งค่า _id -->
-    <input type="hidden" name="_id" id="hiddenWasteTypeId" value="">
-
-    <!-- ชื่อประเภท -->
-    <div>
-      <label for="editWasteTypeName" class="block text-sm font-medium text-gray-700 mb-1">ชื่อประเภท</label>
-      <input type="text" name="wasteTypeName" id="editWasteTypeName" placeholder="โลหะ พลาสติก ฯลฯ" required
-        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
-    </div>
-
-    <!-- สีประเภท -->
-    <div>
-      <label for="editColorTheme" class="block text-sm font-medium text-gray-700 mb-1">สีประเภท</label>
-      <select name="colorTheme" id="editColorTheme"
-        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
-        <option value="red">สีแดง</option>
-        <option value="orange">สีส้ม</option>
-        <option value="yellow">สีเหลือง</option>
-        <option value="lime">สีเขียวมะนาว</option>
-        <option value="green">สีเขียว</option>
-        <option value="blue">สีน้ำเงิน</option>
-        <option value="indigo">สีคราม</option>
-        <option value="purple">สีม่วง</option>
-        <option value="pink">สีชมพู</option>
-        <option value="rose">สีกุหลาบ</option>
-        <option value="gray">สีเทา</option>
-      </select>
-    </div>
-
-    <!-- ปุ่ม -->
-    <div class="flex justify-end space-x-3 pt-2">
-      <button type="button" onclick="cancelForm()"
-        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition">ยกเลิก</button>
-      <button type="submit"
-        class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition">บันทึก</button>
-    </div>
-  </form>
-</div>
-
-        <div class="was-form" id="add_Form" style="display: none;">
-            <form action="/admin/wasteTypePost" method="POST" enctype="application/x-www-form-urlencoded">
-                <div class="form-head">
-                    <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
-                    <span>รายละเอียดประเภทขยะ</span>
+        <!-- Modal Edit -->
+        <div id="edit_Form" class="fixed inset-0 z-50 bg-black bg-opacity-30 flex items-center justify-center hidden">
+            <form action="/admin/wasteTypeEdit" method="POST" enctype="application/x-www-form-urlencoded"
+                class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 space-y-5">
+                
+                <!-- หัวฟอร์ม -->
+                <div class="flex items-center space-x-3 border-b pb-3">
+                <ion-icon name="information-circle-outline" class="text-blue-500 text-2xl"></ion-icon>
+                <span class="text-xl font-semibold text-gray-800">แก้ไขประเภทขยะ</span>
                 </div>
+
+                <!-- ส่งค่า _id -->
+                <input type="hidden" name="_id" id="hiddenWasteTypeId" value="">
+
+                <!-- ชื่อประเภท -->
                 <div>
-                    <label for="colorTheme">สีประเภท</label>
-                    <select name="colorTheme" id="colorTheme">
-                        <option value="red"> สีแดง</option>
-                        <option value="orange"> สีส้ม</option>
-                        <option value="yellow"> สีเหลือง</option>
-                        <option value="lime"> สีเขียวมะนาว</option>
-                        <option value="green"> สีเขียว</option>
-                        <option value="blue"> สีน้ำเงิน</option>
-                        <option value="indigo"> สีคราม</option>
-                        <option value="purple"> สีม่วง</option>
-                        <option value="pink"> สีชมพู</option>
-                        <option value="rose"> สีกุหราบ</option>
-                        <option value="gray"> สีเทา</option>
+                    <label for="editWasteTypeName" class="block text-sm font-medium text-gray-700 mb-1">ชื่อประเภท</label>
+                    <input type="text" name="wasteTypeName" id="editWasteTypeName" placeholder="โลหะ พลาสติก ฯลฯ" required
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
+                </div>
+
+                <!-- สีประเภท -->
+                <div>
+                    <label for="editColorTheme" class="block text-sm font-medium text-gray-700 mb-1">สีประเภท</label>
+                    <select name="colorTheme" id="editColorTheme"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
+                        <option value="red">สีแดง</option>
+                        <option value="orange">สีส้ม</option>
+                        <option value="yellow">สีเหลือง</option>
+                        <option value="lime">สีเขียวมะนาว</option>
+                        <option value="green">สีเขียว</option>
+                        <option value="blue">สีน้ำเงิน</option>
+                        <option value="indigo">สีคราม</option>
+                        <option value="purple">สีม่วง</option>
+                        <option value="pink">สีชมพู</option>
+                        <option value="rose">สีกุหลาบ</option>
+                        <option value="gray">สีเทา</option>
                     </select>
                 </div>
-                <div class="input-group">
-                    <label for="wasteTypeName">ชื่อประเภท</label>
-                    <input type="text" name="wasteTypeName" id="wasteTypeName" placeholder="โลหะ พลาสติก etc." required>
-                    <div class="submit-btn flex justify-end">
-                        <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
-                        <button type="submit" class="submit">บันทึก</button>
-                    </div>
+
+                <!-- ปุ่ม -->
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button type="button" onclick="cancelForm()"
+                        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition">ยกเลิก</button>
+                    <button type="submit"
+                        class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition">บันทึก</button>
                 </div>
             </form>
+        </div>
+
+        <!-- Modal Add -->
+        <div id="add_Form" class="fixed inset-0 z-50 bg-black bg-opacity-30 flex items-center justify-center hidden">
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md px-4">
+                <form action="/admin/wasteTypePost" method="POST" enctype="application/x-www-form-urlencoded"
+                    class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 space-y-5">
+                    
+                    <!-- หัวฟอร์ม -->
+                    <div class="flex items-center space-x-3 border-b pb-3">
+                        <ion-icon name="information-circle-outline" class="text-blue-500 text-2xl"></ion-icon>
+                        <span class="text-xl font-semibold text-gray-800">รายละเอียดประเภทขยะ</span>
+                    </div>
+                    
+                    <!-- ชื่อประเภท -->
+                    <div>
+                        <label for="wasteTypeName" class="block text-sm font-medium text-gray-700 mb-1">ชื่อประเภท</label>
+                        <input type="text" name="wasteTypeName" id="wasteTypeName" placeholder="โลหะ พลาสติก ฯลฯ" required
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
+                    </div>
+                    
+                    <!-- สีประเภท -->
+                    <div>
+                        <label for="colorTheme" class="block text-sm font-medium text-gray-700 mb-1">สีประเภท</label>
+                        <select name="colorTheme" id="colorTheme"
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
+                            <option value="red">สีแดง</option>
+                            <option value="orange">สีส้ม</option>
+                            <option value="yellow">สีเหลือง</option>
+                            <option value="lime">สีเขียวมะนาว</option>
+                            <option value="green">สีเขียว</option>
+                            <option value="blue">สีน้ำเงิน</option>
+                            <option value="indigo">สีคราม</option>
+                            <option value="purple">สีม่วง</option>
+                            <option value="pink">สีชมพู</option>
+                            <option value="rose">สีกุหลาบ</option>
+                            <option value="gray">สีเทา</option>
+                        </select>
+                    </div>
+                    
+                    <!-- ปุ่ม -->
+                    <div class="flex justify-end space-x-3 pt-2">
+                        <button type="button" onclick="cancelForm()"
+                            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition">ยกเลิก</button>
+                        <button type="submit"
+                            class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition">บันทึก</button>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <!-- Pagination -->

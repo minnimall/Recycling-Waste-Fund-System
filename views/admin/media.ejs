@@ -235,22 +235,41 @@
     </div>
 
     <!-- Modal for Adding/Editing Media -->
-    <div class="screen z-[10]" id="modal" style="display: none;">
-        <!-- <form class="add-media-form" action="/admin/mediaPost" method="POST" id="mediaForm"> -->
-        <form class="mx-auto mt-[13em] w-1/2 bg-gray-100 border border-gray-300 p-4 rounded-lg shadow-md transition-transform transform relative " action="/admin/mediaPost" method="POST" id="mediaForm">
-                <h1 class="text-bold text-gray-600 text-2xl">เพิ่มสื่อเนื้อหา</h1>
-                <hr class="my-2">
-                <div class="text-bold text-gray-500 text-lg">ชื่อหัวข้อ</div>
-                <input class="w-full p-2 border border-gray-200 rounded-lg" type="text" name="title" id="title" placeholder="ใส่ชื่อหัวข้อ ..." required>
-                
-                <div class="text-bold text-gray-500 text-lg mt-2">URL คลิป YouTube</div>
-                <input class="w-full p-2 border border-gray-200 rounded-lg" type="url" name="youtubeUrl" id="youtubeUrl" placeholder="ใส่ URL คลิป YouTube ..." required>                
-                <hr class="my-5">
-            <div class="mt-2 flex justify-end">
-                <span class="cancel px-2 py-1 text-white rounded mr-2" onclick="closeModal()">ยกเลิก</span>
-                <button type="submit" class="submit px-2 py-1 text-white rounded">ยืนยัน</button>
-            </div> 
-        </form>
+    <div id="modal" class="fixed top-0 left-0 w-full h-full z-50 bg-black bg-opacity-30 hidden">
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl px-4">
+            <form action="/admin/mediaPost" method="POST"
+                class="bg-white rounded-xl shadow-lg p-6 space-y-5" id="mediaForm">
+
+                <!-- หัวฟอร์ม -->
+                <div class="flex items-center space-x-3 border-b pb-3">
+                    <ion-icon name="information-circle-outline" class="text-blue-500 text-2xl"></ion-icon>
+                    <span class="text-xl font-semibold text-gray-800">เพิ่มสื่อเนื้อหา</span>
+                </div>
+
+                <!-- ชื่อหัวข้อ -->
+                <div>
+                    <label for="title" class="block text-sm font-medium text-gray-700 mb-1">ชื่อหัวข้อ</label>
+                    <input type="text" name="title" id="title" placeholder="ใส่ชื่อหัวข้อ ..." required
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
+                </div>
+
+                <!-- YouTube URL -->
+                <div>
+                    <label for="youtubeUrl" class="block text-sm font-medium text-gray-700 mb-1">URL คลิป YouTube</label>
+                    <input type="url" name="youtubeUrl" id="youtubeUrl" placeholder="ใส่ URL คลิป YouTube ..." required
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
+                </div>
+
+                <!-- ปุ่ม -->
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button type="button" onclick="closeModal()"
+                            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition">ยกเลิก</button>
+                    <button type="submit"
+                            class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition">ยืนยัน</button>
+                </div>
+
+            </form>
+        </div>
     </div>
 
     <!-- Main content -->
@@ -328,26 +347,28 @@
         const modal = document.getElementById('modal');
         let formAction = '/admin/mediaPost';
 
-        // สำหรับเพิ่มสื่อ
+        // ✅ ฟังก์ชันเปิด Modal สำหรับ "เพิ่ม" สื่อ
         function openModal() {
-            modal.style.display = 'block';
-            formAction = '/admin/mediaPost'
+            modal.classList.remove('hidden');
+            formAction = '/admin/mediaPost';
             document.getElementById('mediaForm').setAttribute('action', formAction);
             document.getElementById('title').value = '';
             document.getElementById('youtubeUrl').value = '';
         }
 
-        // สำหรับแก้ไขสื่อ
+        // ✅ ฟังก์ชันเปิด Modal สำหรับ "แก้ไข" สื่อ
         function openEditModal(id, title, youtubeUrl) {
-            modal.style.display = 'block';
+            modal.classList.remove('hidden');
             formAction = '/admin/mediaEdit/' + id;
             document.getElementById('mediaForm').setAttribute('action', formAction);
             document.getElementById('title').value = title;
             document.getElementById('youtubeUrl').value = youtubeUrl;
         }
 
+        // ✅ ฟังก์ชันปิด Modal
         function closeModal() {
-            modal.style.display = 'none';
+            modal.classList.add('hidden');
+            document.getElementById('mediaForm').reset();
         }
 
         function deleteMedia(id, title) {
@@ -375,7 +396,7 @@
                                         location.reload();
                                     });
                             } else {
-                                Swal.fire('ลบข้อมูลสำเร็จ', 'ข้อมูลกิจกรรมถูกลบเรียบร้อยแล้ว', 'success')
+                                Swal.fire('ลบข้อมูลสำเร็จ', 'ข้อมูลสื่อความรู้ถูกลบเรียบร้อยแล้ว', 'success')
                                 .then(() => {
                                         location.reload();
                                 });

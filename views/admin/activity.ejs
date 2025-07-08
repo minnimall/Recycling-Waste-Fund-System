@@ -153,36 +153,51 @@
         </div>
     </div>
 
-    <!-- สำหรับแก้ไขกิจกรรม -->
-    <div class="screen z-[10] h-full" id="modal">
-        <form class="mx-auto mt-[13em] w-1/2 bg-gray-100 border border-gray-300 p-4 rounded-lg shadow-md transition-transform transform relative " action="/admin/activityPost" method="POST" id="activityForm" enctype="multipart/form-data">
-                <h1 class="text-bold text-gray-600 text-2xl">แก้ไขกิจกรรม</h1>
-                <hr class="my-2">
-                <div class="text-bold text-gray-500 text-lg">ชื่อหัวข้อ</div>
-                <input type="text" name="title" id="title" class="w-full p-2 border border-gray-200 rounded-lg" placeholder="ใส่ชื่อหัวข้อ ..." required>
-                <div class="text-bold text-gray-500 text-lg">เนื้อหา</div>
-                <textarea class="w-full p-2 border border-gray-200 rounded-lg h-48" name="content" id="content" placeholder="ใส่เนื้อหา ..." required></textarea>
-                <div class="text-bold text-gray-500 text-lg">รูปภาพกิจกรรม</div>
-                <div class="img-input">
-                    <label class="block w-full p-2 border border-gray-200 rounded-lg">
-                        <span class="sr-only">Choose profile photo</span>
-                        <input type="file" name="img" id="img" accept="image/png, image/gif, image/jpeg" class="block w-full text-sm text-slate-500
-                            file:mr-4 file:py-2 file:px-4
-                            file:rounded-full file:border-0
-                            file:text-sm file:font-semibold
-                            file:bg-violet-50 file:text-violet-700
-                            hover:file:bg-violet-100
-                        "/>
-                    </label>
+    <!-- Modal สำหรับแก้ไขกิจกรรม -->
+    <div id="modal" class="fixed inset-0 z-50 bg-black bg-opacity-30 hidden">
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl px-4">
+            <form id="activityForm" action="/admin/activityPost" method="POST" enctype="multipart/form-data"
+                class="bg-white rounded-xl shadow-lg p-6 space-y-5">
+
+                <!-- หัวฟอร์ม -->
+                <div class="flex items-center space-x-3 border-b pb-3">
+                    <ion-icon name="information-circle-outline" class="text-blue-500 text-2xl"></ion-icon>
+                    <span class="text-xl font-semibold text-gray-800">จัดการกิจกรรม</span>
                 </div>
-                <hr class="my-5">
-            <div class="mt-2 flex justify-end">
-                <span class="cancel px-2 py-1 text-white rounded mr-2" onclick="closeModal()">ปิด</span>
-                <button type="submit" class="submit px-2 py-1 text-white rounded">โพสต์</button>
-            </div>
-        </form>
+
+                <!-- ชื่อหัวข้อ -->
+                <div>
+                    <label for="title" class="block text-sm font-medium text-gray-700 mb-1">ชื่อหัวข้อ</label>
+                    <input type="text" name="title" id="title" placeholder="ใส่ชื่อหัวข้อ ..." required
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
+                </div>
+
+                <!-- เนื้อหา -->
+                <div>
+                    <label for="content" class="block text-sm font-medium text-gray-700 mb-1">เนื้อหา</label>
+                    <textarea name="content" id="content" rows="6" placeholder="ใส่เนื้อหา ..." required
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500"></textarea>
+                </div>
+
+                <!-- รูปภาพ -->
+                <div>
+                    <label for="img" class="block text-sm font-medium text-gray-700 mb-1">รูปภาพกิจกรรม</label>
+                    <input type="file" name="img" id="img" accept="image/png, image/gif, image/jpeg"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
+                </div>
+
+                <!-- ปุ่ม -->
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button type="button" onclick="closeModal()"
+                            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition">ยกเลิก</button>
+                    <button type="submit"
+                            class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition">ยืนยัน</button>
+                </div>
+            </form>
+        </div>
     </div>
 
+    
     <!-- Main content -->
     <div class="content">
         <div class="flex items-center justfy-between">
@@ -249,25 +264,24 @@
         let formAction = "/admin/activityPost";
 
         function openModal() {
-            modal.style.display = 'block';
-            formAction =  "/admin/activityPost"
+            modal.classList.remove('hidden');
+            formAction = "/admin/activityPost";
             document.getElementById('activityForm').setAttribute('action', formAction);
-            document.getElementById('title').value = '';
-            document.getElementById('content').value = '';
-            document.getElementById('img').value = '';
+            document.getElementById('activityForm').reset();
         }
 
-        function openEditModal(id, title, content, img) {
-            modal.style.display = 'block';
+        function openEditModal(id, title, content) {
+            modal.classList.remove('hidden');
             formAction = '/admin/activityEdit/' + id;
             document.getElementById('activityForm').setAttribute('action', formAction);
             document.getElementById('title').value = title;
             document.getElementById('content').value = content;
-            document.getElementById('img').value = img;
+            document.getElementById('img').value = ''; // ไม่สามารถ set รูป preview ได้ด้วย input file
         }
 
         function closeModal() {
-            modal.style.display = 'none';
+            modal.classList.add('hidden');
+            document.getElementById('activityForm').reset();
         }
 
         function deleteActivity(id, title) {
@@ -278,8 +292,8 @@
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
                 cancelButtonColor: "#d33",
-                confirmButtonText: "ยืนยัน",
-                cancelButtonText: "ยกเลิก"
+                cancelButtonText: "ยกเลิก",
+                confirmButtonText: "ยืนยัน"
             }).then((result) => {
                 if (result.isConfirmed) {
                     fetch('/admin/deleteActivity/' + id, {
@@ -288,7 +302,7 @@
                             'Content-Type': 'application/json',
                         },
                     })
-                        .then(result => {
+                    .then(result => {
                             if (result.isConfirmed) {
                                 Swal.fire('ลบข้อมูลไม่สำเร็จ', 'ข้อมูลกิจกรรมถูกลบเรียบร้อยแล้ว', 'error')
                                     .then(() => {
@@ -303,7 +317,7 @@
                         })
                         .catch(error => {
                             Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้', 'error');
-                        });
+                    });
                 }
             });
         }

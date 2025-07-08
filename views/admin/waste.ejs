@@ -107,81 +107,119 @@
             </div>
         </div>
 
-        <div class="was-form" id="add_Form" style="display: none;">
-            <form action="/admin/wastePost" method="POST" enctype="multipart/form-data">
-                <div class="form-head">
-                    <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
-                        <span>รายละเอียดขยะ</span>
-                </div>        
-                <div class="input-group">
+        <!-- Modal Add -->
+        <div id="add_Form" class="fixed inset-0 z-50 bg-black bg-opacity-30 flex items-center justify-center hidden">
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl px-4">
+                <form action="/admin/wastePost" method="POST" enctype="multipart/form-data"
+                    class="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 space-y-5">
+                    
+                    <!-- หัวฟอร์ม -->
+                    <div class="flex items-center space-x-3 border-b pb-3">
+                        <ion-icon name="information-circle-outline" class="text-blue-500 text-2xl"></ion-icon>
+                        <span class="text-xl font-semibold text-gray-800">รายละเอียดขยะ</span>
+                    </div>
+                    
                     <!-- ชื่อขยะ -->
-                    <label for="wasteName">ชื่อขยะ</label>
-                    <input type="text" name="wasteName" id="wasteName" placeholder="ขวด PET ใส, โลหะ ฯลฯ" required>
-
+                    <div>
+                        <label for="wasteName" class="block text-sm font-medium text-gray-700 mb-1">ชื่อขยะ</label>
+                        <input type="text" name="wasteName" id="wasteName" placeholder="ขวด PET ใส, โลหะ ฯลฯ" required
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
+                    </div>
+                    
                     <!-- ประเภทขยะ -->
-                    <label for="wasteType">ประเภทขยะ</label>
-                    <select class="mb-5" name="wasteType" id="wasteType" required>
-                        <option value="" disabled selected>เลือกประเภทขยะ</option>
+                    <div>
+                        <label for="wasteType" class="block text-sm font-medium text-gray-700 mb-1">ประเภทขยะ</label>
+                        <select name="wasteType" id="wasteType" required
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
+                            <option value="" disabled selected>เลือกประเภทขยะ</option>
                             <% wasteTypes.forEach((type) => { %>
                                 <option value="<%= type._id %>"><%= type.wasteTypeName %></option>
                             <% }); %>
-                    </select>
-
+                        </select>
+                    </div>
+                    
                     <!-- ราคาขยะ -->
-                    <label class="pp" for="pricePerUnit">ราคาขยะ (ราคา/กก.)</label>
-                    <input type="text" name="pricePerUnit" id="pricePerUnit" placeholder="เช่น 6 บาท/กิโลกรัม" required>
-
+                    <div>
+                        <label for="pricePerUnit" class="block text-sm font-medium text-gray-700 mb-1">ราคาขยะ (ราคา/กก.)</label>
+                        <input type="text" name="pricePerUnit" id="pricePerUnit" placeholder="เช่น 6 บาท/กิโลกรัม" required
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
+                    </div>
+                    
                     <!-- รูปภาพขยะ -->
-                    <div class="mt-3">
-                        <label class="title-img" for="img">รูปภาพขยะ</label>
-                    </div>
-                    <div class="img-input">
-                        <label class="block">
-                            <span class="sr-only">Choose profile photo</span>
-                                <input type="file" name="img" id="img" accept="image/png, image/gif, image/jpeg" class="block w-full text-sm text-slate-500
-                                            file:mr-4 file:py-2 file:px-4
-                                            file:rounded-full file:border-0
-                                            file:text-sm file:font-semibold
-                                            file:bg-violet-50 file:text-violet-700
-                                            hover:file:bg-violet-100
-                                "/>
-                        </label>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">รูปภาพขยะ</label>
+                        
+                        <!-- อัปโหลดรูปภาพ -->
+                        <div class="relative">
+                            <input type="file" name="img" id="img" accept="image/png, image/gif, image/jpeg" 
+                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                            <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:bg-gray-100 transition-colors">
+                                <ion-icon name="cloud-upload-outline" class="text-gray-400 text-2xl mb-2"></ion-icon>
+                                <p class="text-sm text-gray-600 mb-1">คลิกเพื่อเลือกรูปภาพ</p>
+                                <p class="text-xs text-gray-500">PNG, JPG, GIF (ไม่เกิน 5MB)</p>
+                            </div>
+                        </div>
+                        
+                        <!-- แสดงตัวอย่างรูปภาพที่เลือก -->
+                        <div id="imagePreview" class="mt-3 hidden">
+                            <div class="w-full h-32 bg-gray-100 rounded-lg border-2 border-gray-300 flex items-center justify-center overflow-hidden">
+                                <img id="previewImage" src="/placeholder.svg" alt="Preview" class="max-w-full max-h-full object-cover rounded-lg">
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="submit-btn">
-                        <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
-                        <button type="submit" class="submit">บันทึก</button>
+                    <!-- ปุ่ม -->
+                    <div class="flex justify-end space-x-3 pt-2">
+                        <button type="button" onclick="cancelForm()"
+                            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition">ยกเลิก</button>
+                        <button type="submit"
+                            class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition">บันทึก</button>
                     </div>
-                </div>
-            </form> 
+                </form>
+            </div>
         </div>
+        
+        <!-- Modal Edit -->
+        <div id="edit_Form" class="fixed top-0 left-0 w-full h-full z-50 bg-black bg-opacity-30 hidden">
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl px-4">
+                <form action="/admin/wasteEdit" method="POST" enctype="multipart/form-data"
+                    class="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 space-y-5">
+
+                    <!-- หัวฟอร์ม -->
+                    <div class="flex items-center space-x-3 border-b pb-3">
+                        <ion-icon name="information-circle-outline" class="text-blue-500 text-2xl"></ion-icon>
+                        <span class="text-xl font-semibold text-gray-800">แก้ไขขยะ</span>
+                    </div>
                     
-        <div class="was-form" id="edit_Form" style="display: none;">
-            <form action="/admin/wasteEdit" method="POST" enctype="multipart/form-data">
-                <div class="form-head">
-                    <ion-icon class="head-logo" name="create-outline"></ion-icon>
-                        <span>แก้ไขรายละเอียดขยะ</span>
-                </div>        
-                <div class="input-group">
+                    <!-- ส่งค่า _id -->
                     <input type="hidden" name="_id" id="hiddenWasteId" value="">
                     
                     <!-- ชื่อขยะ -->
-                    <label for="editWasteName">ชื่อขยะ</label>
-                    <input type="text" name="wasteName" id="editWasteName" placeholder="ขวด PET ใส, โลหะ ฯลฯ" required>
-
+                    <div>
+                        <label for="editWasteName" class="block text-sm font-medium text-gray-700 mb-1">ชื่อขยะ</label>
+                        <input type="text" name="wasteName" id="editWasteName" placeholder="ขวด PET ใส, โลหะ ฯลฯ" required
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
+                    </div>
+                    
                     <!-- ประเภทขยะ -->
-                    <label for="editWasteType">ประเภทขยะ</label>
-                    <select class="mb-5" name="wasteType" id="editWasteType" required>
-                        <option value="" disabled selected>เลือกประเภทขยะ</option>
+                    <div>
+                        <label for="editWasteType" class="block text-sm font-medium text-gray-700 mb-1">ประเภทขยะ</label>
+                        <select name="wasteType" id="editWasteType" required
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
+                            <option value="" disabled selected>เลือกประเภทขยะ</option>
                             <% wasteTypes.forEach((type) => { %>
-                                <option  value="<%= type._id %>"><%= type.wasteTypeName %></option>
+                                <option value="<%= type._id %>"><%= type.wasteTypeName %></option>
                             <% }); %>
-                    </select>
-
+                        </select>
+                    </div>
+                    
                     <!-- ราคาขยะ -->
-                    <label for="editPricePerUnit">ราคาขยะ (ราคา/กก.)</label>
-                    <input type="text" name="pricePerUnit" id="editPricePerUnit" placeholder="เช่น 6 บาท/กิโลกรัม" required>
-
+                    <div>
+                        <label for="editPricePerUnit" class="block text-sm font-medium text-gray-700 mb-1">ราคาขยะ (ราคา/กก.)</label>
+                        <input type="text" name="pricePerUnit" id="editPricePerUnit" placeholder="เช่น 6 บาท/กิโลกรัม" required
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
+                    </div>
+                    
                     <!-- รูปภาพขยะ -->
                     <div class="mt-3">
                         <label class="title-img" for="img">รูปภาพขยะ</label>
@@ -190,23 +228,43 @@
                         <div class="current-img">
                             <img src="" alt="Current Waste Image" class="img-edit">
                         </div>
-                        <label class="block mt-2">
-                            <span class="sr-only">Choose profile photo</span>
-                            <input type="file" name="img" id="editWasteImg" accept="image/png, image/gif, image/jpeg" class="block w-full text-sm text-slate-500
-                                            file:mr-4 file:py-2 file:px-4
-                                            file:rounded-full file:border-0
-                                            file:text-sm file:font-semibold
-                                            file:bg-violet-50 file:text-violet-700
-                                            hover:file:bg-violet-100
-                                        "/>
-                        </label>
                     </div>
-                    <div class="submit-btn">
-                        <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
-                        <button type="submit" class="submit">บันทึก</button>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">รูปภาพขยะที่ต้องการจะแก้ไข</label>
+                        
+                        <!-- แสดงรูปภาพปัจจุบัน -->
+                        <div class="mb-3">
+                            <div class="w-full h-32 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden">
+                                <img src="/placeholder.svg" alt="Current Waste Image" id="currentWasteImage" 
+                                    class="max-w-full max-h-full object-cover rounded-lg hidden">
+                                <div id="imagePlaceholder" class="text-gray-400 text-center">
+                                    <ion-icon name="image-outline" class="text-3xl mb-2"></ion-icon>
+                                    <p class="text-sm">รูปภาพปัจจุบัน</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- อัปโหลดรูปภาพใหม่ -->
+                        <div class="relative">
+                            <input type="file" name="img" id="editWasteImg" accept="image/png, image/gif, image/jpeg" 
+                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                            <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:bg-gray-100 transition-colors">
+                                <ion-icon name="cloud-upload-outline" class="text-gray-400 text-2xl mb-2"></ion-icon>
+                                <p class="text-sm text-gray-600 mb-1">คลิกเพื่อเลือกรูปภาพใหม่</p>
+                                <p class="text-xs text-gray-500">PNG, JPG, GIF (ไม่เกิน 5MB)</p>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </form>
+                    
+                    <!-- ปุ่ม -->
+                    <div class="flex justify-end space-x-3 pt-2">
+                        <button type="button" onclick="cancelForm()"
+                            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition">ยกเลิก</button>
+                        <button type="submit"
+                            class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition">บันทึก</button>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <div class="pagination flex justify-center items-center mt-4 space-x-2">
@@ -231,228 +289,48 @@
                     <% } %>
         </div>
     </div>
-
-            <!-- Main content -->
-            <div class="content">
-                <div class="content-header">
-                    <h1 class="title">ขยะทั้งหมด (<%= waste.length %>)</h1>
-                    <div class="add-media" onclick="wasFormToggle()">เพิ่มรายการขยะ</div>
-                </div>
-                <div class="was-container">
-                    <table class="table-auto">
-                        <thead>
-                            <tr>
-                                <th class="table-was-index">ลำดับ</th>
-                                <th class="table-was-name">ชื่อรายการขยะ</th>
-                                <th class="table-was-type">ประเภทขยะ</th>
-                                <th class="table-was-price">ราคา (ราคา/กก.)</th>
-                                <th class="table-was-img">รูป</th>
-                                <th class="table-was-delete">จัดการ</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% if (waste.length > 0) { %>
-                                <% waste.forEach((wastes, index) => { %>
-                                    <tr>
-                                        <td class="table-was-index"><%= (currentPage - 1) * 10 + index + 1 %></td>
-                                        <td class="table-was-name"><%= wastes.wasteName %></td>
-                                        <td class="table-was-type"><%= wastes.wasteType.wasteTypeName %></td>
-                                        <td class="table-was-price"><%= wastes.pricePerUnit %></td>
-                                        <td class="table-was-imgg">
-                                            <% if (wastes.img) { %>
-                                                <img src="<%= wastes.img %>" alt="รูป <%= wastes.img %>" class="waste-img">
-                                            <% } else { %>
-                                                <span>ไม่มีรูปภาพ</span>
-                                            <% } %>
-                                        </td>
-                                        <td>
-                                            <button type="button" class="was-row-<%= index + 1 %> row-active edit-btn" 
-                                                onclick="setWasteForm('<%= index + 1 %>', '<%= wastes._id %>', '<%= wastes.wasteName %>',
-                                                                    '<%= wastes.pricePerUnit %>', '<%= wastes.wasteType._id %>', '<%= wastes.img %>')">
-                                                <i class="fa fa-edit"></i>
-                                            </button>
-                                            <button onclick="deleteEmp(['<%= index + 1 %>', '<%= wastes._id %>','<%= wastes.wasteName %>'])" class="delete-btn">
-                                                <i class="fa fa-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                <% }); %>
-                            <% } else { %>
-                                <tr>
-                                    <td colspan="6" class="text-center py-2 px-4">ไม่มีข้อมูลขยะ</td>
-                                </tr>
-                            <% } %>
-                        </tbody>                                                                       
-                    </table>
-
-                    <div class="was-form" id="add_Form" style="display: none;">
-                        <form action="/admin/wastePost" method="POST" enctype="multipart/form-data">
-                            <div class="form-head">
-                                <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
-                                <span>รายละเอียดขยะ</span>
-                            </div>        
-                            <div class="input-group">
-                                <!-- ชื่อขยะ -->
-                                <label for="wasteName">ชื่อขยะ</label>
-                                <input type="text" name="wasteName" id="wasteName" placeholder="ขวด PET ใส, โลหะ ฯลฯ" required>
-
-                                <!-- ประเภทขยะ -->
-                                <label for="wasteType">ประเภทขยะ</label>
-                                <select class="mb-5" name="wasteType" id="wasteType" required>
-                                    <option value="" disabled selected>เลือกประเภทขยะ</option>
-                                    <% wasteTypes.forEach((type) => { %>
-                                        <option value="<%= type._id %>"><%= type.wasteTypeName %></option>
-                                    <% }); %>
-                                </select>
-
-                                <!-- ราคาขยะ -->
-                                <label class="pp" for="pricePerUnit">ราคาขยะ (ราคา/กก.)</label>
-                                <input type="text" name="pricePerUnit" id="pricePerUnit" placeholder="เช่น 6 บาท/กิโลกรัม" required>
-
-                                <!-- รูปภาพขยะ -->
-                                <div class="mt-3">
-                                    <label class="title-img" for="img">รูปภาพขยะ</label>
-                                </div>
-                                <div class="img-input">
-                                    <label class="block">
-                                        <span class="sr-only">Choose profile photo</span>
-                                        <input type="file" name="img" id="img" accept="image/png, image/gif, image/jpeg" class="block w-full text-sm text-slate-500
-                                            file:mr-4 file:py-2 file:px-4
-                                            file:rounded-full file:border-0
-                                            file:text-sm file:font-semibold
-                                            file:bg-violet-50 file:text-violet-700
-                                            hover:file:bg-violet-100
-                                        "/>
-                                    </label>
-                                </div>
-                    
-                                <div class="submit-btn">
-                                    <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
-                                    <button type="submit" class="submit">บันทึก</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>  
-                    
-                    <div class="was-form" id="edit_Form" style="display: none;">
-                        <form action="/admin/wasteEdit" method="POST" enctype="multipart/form-data">
-                            <div class="form-head">
-                                <ion-icon class="head-logo" name="create-outline"></ion-icon>
-                                <span>แก้ไขรายละเอียดขยะ</span>
-                            </div>        
-                            <div class="input-group">
-                                <input type="hidden" name="_id" id="hiddenWasteId" value="">
-                    
-                                <!-- ชื่อขยะ -->
-                                <label for="editWasteName">ชื่อขยะ</label>
-                                <input type="text" name="wasteName" id="editWasteName" placeholder="ขวด PET ใส, โลหะ ฯลฯ" required>
-
-                                <!-- ประเภทขยะ -->
-                                <label for="editWasteType">ประเภทขยะ</label>
-                                <select class="mb-5" name="wasteType" id="editWasteType" required>
-                                    <option value="" disabled selected>เลือกประเภทขยะ</option>
-                                    <% wasteTypes.forEach((type) => { %>
-                                        <option  value="<%= type._id %>"><%= type.wasteTypeName %></option>
-                                    <% }); %>
-                                </select>
-
-                                <!-- ราคาขยะ -->
-                                <label for="editPricePerUnit">ราคาขยะ (ราคา/กก.)</label>
-                                <input type="text" name="pricePerUnit" id="editPricePerUnit" placeholder="เช่น 6 บาท/กิโลกรัม" required>
-
-                                <!-- รูปภาพขยะ -->
-                                <div class="mt-3">
-                                    <label class="title-img" for="img">รูปภาพขยะ</label>
-                                </div>
-                                <div class="img-input mt-3">
-                                    <div class="current-img">
-                                        <img src="" alt="Current Waste Image" class="img-edit">
-                                    </div>
-                                    <label class="block mt-2">
-                                        <span class="sr-only">Choose profile photo</span>
-                                        <input type="file" name="img" id="editWasteImg" accept="image/png, image/gif, image/jpeg" class="block w-full text-sm text-slate-500
-                                            file:mr-4 file:py-2 file:px-4
-                                            file:rounded-full file:border-0
-                                            file:text-sm file:font-semibold
-                                            file:bg-violet-50 file:text-violet-700
-                                            hover:file:bg-violet-100
-                                        "/>
-                                    </label>
-                                </div>
-                                
-                    
-                                <div class="submit-btn">
-                                    <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
-                                    <button type="submit" class="submit">บันทึก</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                <div class="pagination flex justify-center items-center mt-4 space-x-2">
-                    <% if (currentPage > 1) { %>
-                        <a href="?page=<%= currentPage - 1 %>"
-                            class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                            ก่อนหน้า
-                        </a>
-                    <% } %>
-                    <% for (let i = 1; i <= totalPages; i++) { %>
-                        <a href="?page=<%= i %>"
-                            class="px-3 py-1 border border-gray-300 rounded-md 
-                                <%= currentPage === i ? 'page-current text-white' : 'text-gray-700 hover:bg-gray-100' %>">
-                            <%= i %>
-                        </a>
-                    <% } %>
-                    <% if (currentPage < totalPages) { %>
-                        <a href="?page=<%= currentPage + 1 %>"
-                            class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                            ถัดไป
-                        </a>
-                    <% } %>
-                </div>
-            </div>
 </body>
 <%- include('../partials/adminPartials/adminFooter.ejs') %>
 <script>
     let lastClickedRow = null;
 
     function setWasteForm(Index, Id, Name, Price, Type, Img) {
-    const editForm = document.getElementById('edit_Form');
-    const addForm = document.getElementById('add_Form');
+        const editForm = document.getElementById('edit_Form');
+        const addForm = document.getElementById('add_Form');
 
-    const InputWasteId = document.getElementById('hiddenWasteId');
-    InputWasteId.value = Id;
+        const InputWasteId = document.getElementById('hiddenWasteId');
+        InputWasteId.value = Id;
 
-    const InputWasteName = document.getElementById('editWasteName');
-    InputWasteName.value = Name;
+        const InputWasteName = document.getElementById('editWasteName');
+        InputWasteName.value = Name;
 
-    const InputWasteType = document.getElementById('editWasteType');
-    InputWasteType.value = Type;
+        const InputWasteType = document.getElementById('editWasteType');
+        InputWasteType.value = Type;
 
-    const InputPricePerUnit = document.getElementById('editPricePerUnit');
-    InputPricePerUnit.value = Price;
+        const InputPricePerUnit = document.getElementById('editPricePerUnit');
+        InputPricePerUnit.value = Price;
 
-    // Update the image preview
-    const currentImg = document.querySelector('.current-img img');
-    if (currentImg) {
-        currentImg.src = Img;
+        // Update the image preview
+        const currentImg = document.querySelector('.current-img img');
+        if (currentImg) {
+            currentImg.src = Img;
+        }
+
+        // Hide add form and show edit form
+        addForm.style.display = 'none';
+
+        const selectedRow = document.querySelector(`.was-row-${Index}`);
+        if (lastClickedRow === selectedRow) {
+            selectedRow.style.backgroundColor = '';
+            lastClickedRow = null;
+            editForm.style.display = 'none';
+        } else {
+            if (lastClickedRow) lastClickedRow.style.backgroundColor = '';
+            selectedRow.style.backgroundColor = '#8EDBA4';
+            editForm.style.display = 'block';
+            lastClickedRow = selectedRow;
+        }
     }
-
-    // Hide add form and show edit form
-    addForm.style.display = 'none';
-
-    const selectedRow = document.querySelector(`.was-row-${Index}`);
-    if (lastClickedRow === selectedRow) {
-        selectedRow.style.backgroundColor = '';
-        lastClickedRow = null;
-        editForm.style.display = 'none';
-    } else {
-        if (lastClickedRow) lastClickedRow.style.backgroundColor = '';
-        selectedRow.style.backgroundColor = '#8EDBA4';
-        editForm.style.display = 'block';
-        lastClickedRow = selectedRow;
-    }
-}
 
 
     function wasFormToggle() {
@@ -508,17 +386,88 @@
     function cancelForm() {
         const addForm = document.getElementById('add_Form');
         const editForm = document.getElementById('edit_Form');
-
+        
         // ซ่อนฟอร์มทั้งสองเมื่อกดปุ่มยกเลิก
         addForm.style.display = 'none';
         editForm.style.display = 'none';
-
-        // รีเซ็ตค่าในฟอร์ม (ถ้าต้องการ)
+        
+        // รีเซ็ตค่าในฟอร์ม Add
         document.getElementById('wasteName').value = '';
         document.getElementById('pricePerUnit').value = '';
         document.getElementById('wasteType').value = '';
         document.getElementById('img').value = '';  // ลบรูปภาพที่เลือก
+        
+        // รีเซ็ตค่าในฟอร์ม Edit
+        document.getElementById('editWasteName').value = '';
+        document.getElementById('editPricePerUnit').value = '';
+        document.getElementById('editWasteType').value = '';
+        document.getElementById('editWasteImg').value = '';  // ลบรูปภาพที่เลือกใหม่
+        
+        // รีเซ็ตการแสดงรูปภาพใน Edit Form
+        const currentImage = document.getElementById('currentWasteImage');
+        const placeholder = document.getElementById('imagePlaceholder');
+        
+        // ซ่อนรูปภาพที่เลือกใหม่และแสดง placeholder
+        currentImage.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+        
+        // รีเซ็ต src ของรูปภาพ
+        currentImage.src = '/placeholder.svg';
+        
+        // ยกเลิกแรเงาแถว
+        if (lastClickedRow) {
+            lastClickedRow.style.backgroundColor = '';
+            lastClickedRow = null;
+        }
     }
+
+    // เพิ่ม JavaScript สำหรับ preview รูปภาพ
+    document.getElementById('editWasteImg').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const currentImage = document.getElementById('currentWasteImage');
+        const placeholder = document.getElementById('imagePlaceholder');
+        
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentImage.src = e.target.result;
+                currentImage.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+        } else {
+            // ถ้าไม่มีไฟล์ (เช่น user กด cancel ใน file dialog)
+            currentImage.classList.add('hidden');
+            placeholder.classList.remove('hidden');
+            currentImage.src = '/placeholder.svg';
+        }
+    });
+
+    // ฟังก์ชันสำหรับแสดง Add Form
+    function showAddForm() {
+        const addForm = document.getElementById('add_Form');
+        addForm.classList.remove('hidden');
+        addForm.style.display = 'flex';
+    }
+
+    // เพิ่ม JavaScript สำหรับ preview รูปภาพใน Add Form
+    document.getElementById('img').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImage = document.getElementById('previewImage');
+        
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                imagePreview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        } else {
+            imagePreview.classList.add('hidden');
+            previewImage.src = '';
+        }
+    });
 
 </script>
 
