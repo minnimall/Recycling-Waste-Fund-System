@@ -144,10 +144,11 @@
                                 <!-- Date and Meta Info -->
                                 <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
                                     <div class="flex items-center space-x-2">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <!-- <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                         </svg>
-                                        <span><%= amedia.formattedDate %></span>
+                                        <span><%= amedia.formattedDate %></span> -->
+                                        <p class="text-gray-400 text-xs mt-1">วันที่ <%= amedia.formattedDate %></p>
                                     </div>
                                     
                                     <% if (amedia.youtubeUrl && amedia.youtubeUrl.includes('v=')) { %>
