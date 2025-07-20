@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+
+    <%- include('../partials/userPartials/head.ejs') %>
+</head>
+<body class="bg-gray-50">
+
+    <%- include('../partials/userPartials/header.ejs') %>
+
+    <!-- Page Header -->
+    <section class="bg-primary-green text-white py-16">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl font-bold mb-4">ไอเดียการจัดการขยะ</h1>
+            <p class="text-xl opacity-90">แบ่งปันไอเดียและเรียนรู้วิธีการจัดการขยะจากชุมชน</p>
+        </div>
+    </section>
+    <!-- Create Post Section -->
+    <section class="py-8 bg-white relative">
+        <div class="container mx-auto px-4">
+            <div class="max-w-2xl mx-auto">
+                <div class="bg-gray-50 rounded-lg p-6 mb-8">
+                    <% if (locals.session && locals.session.username) { %>
+                    <h2 class="text-xl font-semibold text-primary-green mb-4">แบ่งปันไอเดียของคุณ</h2>
+                        <form id="create-post-form" class="space-y-4" action="/user/ideas/create" method="POST" enctype="multipart/form-data">
+                            <div>
+                                <input type="text" name="title" placeholder="หัวข้อไอเดีย..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" required>
+                            </div>
+                            <div>
+                                <select name="category" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" required>
+                                    <option value="">เลือกหมวดหมู่</option>
+                                    <option value="reduce">ลดการใช้</option>
+                                    <option value="reuse">นำกลับมาใช้</option>
+                                    <option value="recycle">รีไซเคิล</option>
+                                    <option value="diy">DIY/ทำเอง</option>
+                                    <option value="community">โครงการชุมชน</option>
+                                    <option value="other">อื่นๆ</option>
+                                </select>
+                            </div>
+                            <div>
+                                <textarea name="content" rows="4" placeholder="เล่าไอเดียของคุณ..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" required></textarea>
+                            </div>
+                            <div>
+                                <div id="img-box" class="hidden w-full my-2 relative">
+                                    <button type="button" onclick="clearImg()" class="absolute right-0 text-red-600 pt-2 pr-4">X</button>
+                                    <img id="image-preview" class="w-full rounded-lg border border-gray-300" />
+                                </div>
+                                <input type="file" id="image" name="image" accept="image/*" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <p class="text-sm text-gray-500 mt-1">เพิ่มรูปภาพประกอบ (ไม่บังคับ)</p>
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="submit" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors">
+                                    <i class="fas fa-paper-plane mr-2"></i>แบ่งปันไอเดีย
+                                </button>
+                            </div>
+                        </form>
+                    <% } else { %>
+                        <div class="text-center text-red-600 font-semibold">
+                            กรุณาเข้าสู่ระบบก่อนเพื่อแบ่งปันไอเดียของคุณ
+                        </div>
+                    <% } %>
+                        <script>
+                            const fileInput = document.querySelector('input[name="image"]');
+                            const preview = document.getElementById('image-preview');
+                            const box_img = document.getElementById('img-box')
+                            const image_input = document.getElementById('image')
+
+                            fileInput.addEventListener('change', function () {
+                                const file = this.files[0];
+                                if (file) {
+                                preview.src = URL.createObjectURL(file);
+                                preview.classList.remove('hidden');
+                                box_img.classList.remove('hidden');
+                                } else {
+                                preview.src = '';
+                                preview.classList.add('hidden');
+                                }
+                            });
+                            function clearImg() {
+                                preview.src = '';
+                                image_input.value = ''
+                                box_img.classList.add('hidden');
+                            }
+                        </script>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filter Section -->
+    <section class="py-4 bg-gray-100">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-wrap justify-center gap-3">
+                <button class="idea-filter bg-primary-green text-white px-4 py-2 rounded-full hover:bg-secondary-green transition-colors" data-category="all">ทั้งหมด</button>
+                <button class="idea-filter bg-gray-200 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-300 transition-colors" data-category="reduce">ลดการใช้</button>
+                <button class="idea-filter bg-gray-200 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-300 transition-colors" data-category="reuse">นำกลับมาใช้</button>
+                <button class="idea-filter bg-gray-200 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-300 transition-colors" data-category="recycle">รีไซเคิล</button>
+                <button class="idea-filter bg-gray-200 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-300 transition-colors" data-category="diy">DIY/ทำเอง</button>
+                <button class="idea-filter bg-gray-200 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-300 transition-colors" data-category="community">โครงการชุมชน</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Posts Section -->
+<section class="py-8">
+  <div class="container mx-auto px-4">
+    <div class="max-w-4xl mx-auto" id="posts-container">
+      <% posts.forEach(post => { %>
+        <article class="idea-post bg-white rounded-lg shadow-lg mb-6 overflow-hidden" data-category="<%= post.category %>" data-post-id="<%= post._id %>">
+          <div class="p-6">
+            <div class="flex items-center mb-4">
+              <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center mr-4">
+                <i class="fas fa-user text-white"></i>
+              </div>
+              <div class="flex-1">
+                <h3 class="font-semibold text-gray-800"><%= post.authorId?.familyName || 'ไม่ระบุชื่อ' %></h3>
+
+
+                <div class="flex items-center text-sm text-gray-500">
+                  <span><%= new Date(post.createdAt).toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' }) %></span>
+                  <span class="mx-2">•</span>
+                  <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
+                    <% 
+                      const categoryNames = {
+                        reduce: 'ลดการใช้',
+                        reuse: 'นำกลับมาใช้',
+                        recycle: 'รีไซเคิล',
+                        diy: 'DIY/ทำเอง',
+                        community: 'โครงการชุมชน',
+                        other: 'อื่นๆ'
+                      };
+                    %>
+                    <%= categoryNames[post.category] || post.category %>
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <h2 class="text-xl font-semibold text-gray-800 mb-3"><%= post.title %></h2>
+            <p class="text-gray-600 mb-4"><%= post.content %></p>
+
+            <% if (post.imageUrl) { %>
+              <div class="mb-4">
+                <img src="<%= post.imageUrl %>" alt="รูปภาพประกอบ" class="w-full h-64 object-cover rounded-lg">
+              </div>
+            <% } %>
+
+            <div class="flex items-center justify-between border-t pt-4">
+            <div class="flex items-center space-x-6">
+                <%
+                let liked = false;
+                if (typeof user !== 'undefined' && user && user._id) {
+                    liked = post.likes.some(id => id.toString() === user._id.toString());
+                }
+                %>
+                <button
+                class="like-btn flex items-center text-gray-500 hover:text-red-500 transition-colors"
+                data-post-id="<%= post._id %>"
+                type="button"
+                >
+                <i class="<%= liked ? 'fas' : 'far' %> fa-heart mr-2 <%= liked ? 'text-red-500' : '' %>"></i>
+                <span class="like-count"><%= post.likes.length %></span>
+                </button>
+                <button
+                    class="comment-btn flex items-center text-gray-500 hover:text-blue-500 transition-colors"
+                    data-post-id="<%= post._id %>"
+                    type="button"
+                >
+                    <i class="far fa-comment mr-2"></i>
+                    <span class="comment-count"><%= post.comments.length %></span>
+                </button>
+                <button
+                    class="share-btn flex items-center text-gray-500 hover:text-green-500 transition-colors"
+                    type="button"
+                    >
+                    <i class="fas fa-share mr-2"></i>
+                    แบ่งปัน
+                </button>
+            </div>
+            </div>
+
+
+            <!-- Comments Section -->
+            <div class="comments-section mt-4 hidden" id="comments-<%= post._id %>">
+              <div class="border-t pt-4">
+                <div class="space-y-3 mb-4">
+                  <% post.comments.forEach(comment => { %>
+                    <div class="flex items-start space-x-3">
+                      <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-gray-600 text-sm"></i>
+                      </div>
+                      <div class="flex-1">
+                        <div class="bg-gray-100 rounded-lg p-3">
+                          <p class="font-semibold text-sm text-gray-800"><%= comment.author.familyName || 'ไม่ระบุ' %></p>
+                          <p class="text-gray-600 text-sm"><%= comment.content %></p>
+                        </div>
+                        <div class="flex items-center mt-1 text-xs text-gray-500">
+                          <span><%= new Date(comment.createdAt).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) %> ที่แล้ว</span>
+                          <button class="ml-3 hover:text-blue-500">ตอบกลับ</button>
+                        </div>
+                      </div>
+                    </div>
+                  <% }) %>
+                </div>
+                
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-white text-sm"></i>
+                    </div>
+                    <div class="flex-1">
+                        <input type="text" placeholder="เขียนความคิดเห็น..." class="w-full px-3 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-primary focus:border-transparent comment-input" data-post-id="<%= post._id %>">
+                    </div>
+                    <button class="bg-primary text-white px-4 py-2 rounded-full hover:bg-primary-dark transition-colors submit-comment" data-post-id="<%= post._id %>">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </article>
+      <% }); %>
+    </div>
+  </div>
+</section>
+    <%- include('../partials/userPartials/footer.ejs') %>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.submit-comment').forEach(button => {
+    button.addEventListener('click', async () => {
+      const postId = button.dataset.postId;
+      const input = document.querySelector(`.comment-input[data-post-id="${postId}"]`);
+      const content = input.value.trim();
+      if (!content) return alert('กรุณาเขียนความคิดเห็น');
+
+      try {
+        const res = await fetch(`/ideas/${postId}/comments`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ comment: content })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          const comment = data.comment;
+          const commentSection = document.querySelector(`#comments-${postId} .space-y-3`);
+          const div = document.createElement('div');
+          div.className = 'flex items-start space-x-3';
+          div.innerHTML = `
+            <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+              <i class="fas fa-user text-gray-600 text-sm"></i>
+            </div>
+            <div class="flex-1">
+              <div class="bg-gray-100 rounded-lg p-3">
+                <p class="font-semibold text-sm text-gray-800">${comment.author.name}</p>
+                <p class="text-gray-600 text-sm">${comment.content}</p>
+              </div>
+              <div class="flex items-center mt-1 text-xs text-gray-500">
+                <span>เมื่อกี้</span>
+              </div>
+            </div>
+          `;
+          commentSection.appendChild(div);
+          input.value = '';
+        } else {
+          alert(data.error || 'เกิดข้อผิดพลาด');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('ส่งความคิดเห็นล้มเหลว');
+      }
+    });
+  });
+});
+</script>
+    <script>
+
+        // Filter functionality
+        document.querySelectorAll('.idea-filter').forEach(button => {
+            button.addEventListener('click', () => {
+                const category = button.dataset.category;
+                
+                // Update active button
+                document.querySelectorAll('.idea-filter').forEach(btn => {
+                    btn.classList.remove('bg-primary-green', 'hover:bg-secondary-green', 'text-white');
+                    btn.classList.add('bg-gray-200', 'text-gray-700');
+                });
+                button.classList.remove('bg-gray-200', 'text-gray-700');
+                button.classList.add('bg-primary-green', 'hover:bg-secondary-green', 'text-white');
+                
+                // Filter posts
+                document.querySelectorAll('.idea-post').forEach(post => {
+                    if (category === 'all' || post.dataset.category === category) {
+                        post.style.display = 'block';
+                    } else {
+                        post.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const likeButtons = document.querySelectorAll('.like-btn');
+
+            likeButtons.forEach(button => {
+                button.addEventListener('click', async () => {
+                const postId = button.getAttribute('data-post-id');
+
+                try {
+                    const response = await fetch(`/user/ideas/${postId}/like`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                    const likeCountSpan = button.querySelector('.like-count');
+                    likeCountSpan.textContent = result.likeCount;
+
+                    // เปลี่ยน icon เมื่อถูกกด
+                    const icon = button.querySelector('i');
+                    icon.classList.toggle('fas', result.liked);
+                    icon.classList.toggle('far', !result.liked);
+                    icon.classList.toggle('text-red-500', result.liked);
+                    } else {
+                    alert(result.message || 'เกิดข้อผิดพลาด');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('ไม่สามารถกดไลค์ได้');
+                }
+                });
+            });
+            });
+        // Comment toggle functionality
+        document.querySelectorAll('.comment-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const postId = button.dataset.postId;
+                const commentsSection = document.getElementById(`comments-${postId}`);
+                commentsSection.classList.toggle('hidden');
+            });
+        });
+
+        // Submit comment functionality
+        // Submit comment with AJAX
+        document.querySelectorAll('.submit-comment').forEach(button => {
+        button.addEventListener('click', async () => {
+            const postId = button.dataset.postId;
+            const input = document.querySelector(`.comment-input[data-post-id="${postId}"]`);
+            const commentText = input.value.trim();
+            if (!commentText) return;
+
+            try {
+            const response = await fetch(`/user/ideas/${postId}/comment`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ comment: commentText })
+            });
+            if (response.ok) {
+                const commentCountSpan = document.querySelector(`.comment-btn[data-post-id="${postId}"] .comment-count`);
+                commentCountSpan.textContent = parseInt(commentCountSpan.textContent) + 1;
+                input.value = '';
+                document.getElementById(`comments-${postId}`).classList.remove('hidden');
+            }
+            } catch (err) {
+            console.error('Comment error:', err);
+            }
+        });
+        });
+
+        // Submit comment on Enter key
+        document.querySelectorAll('.comment-input').forEach(input => {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const postId = input.dataset.postId;
+                    const submitBtn = document.querySelector(`.submit-comment[data-post-id="${postId}"]`);
+                    submitBtn.click();
+                }
+            });
+        });
+
+        // Load more functionality (demo)
+        document.getElementById('load-more').addEventListener('click', () => {
+            alert('ฟีเจอร์นี้จะโหลดไอเดียเพิ่มเติมจากฐานข้อมูล');
+        });
+
+        // Share functionality
+        document.querySelectorAll('.share-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'ไอเดียการจัดการขยะ',
+                        text: 'มาดูไอเดียดีๆ เกี่ยวกับการจัดการขยะกัน',
+                        url: window.location.href
+                    });
+                } else {
+                    // Fallback for browsers that don't support Web Share API
+                    const url = window.location.href;
+                    navigator.clipboard.writeText(url).then(() => {
+                        alert('คัดลอกลิงก์เรียบร้อยแล้ว!');
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

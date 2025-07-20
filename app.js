@@ -27,19 +27,7 @@ const dbURI = 'mongodb+srv://dullapaht:18072546@cluster0.xyho3qt.mongodb.net/Rec
 mongoose.connect(dbURI)
     .then((result) => app.listen(3000))
     .catch((err) => console.log(err))
-
-//Connect to local MongoDB Compass
-//const dbURI = 'mongodb://127.0.0.1:27017/NodeJSDB1'
-
-//กำหนดให้มีการใช้ 'ejs' ในการสร้าง view engine หรือ template engine
 app.set('view engine', 'ejs')
-
-//กรณีต้องการเปลี่ยนชื่อ folder "views" เป็นชื่ออื่นเช่น "myviews"
-//เพื่อใช้เก็บไฟล์ .ejs สามารถทำได้ด้วยคำสั่งข้างล่างนี้
-//app.set('views', 'myviews')
-
-//ทำการรอรับ listen request จาก Browser
-//app.listen(3000)
 
 //เรียกใช้ middleware "static" ของ Express เอง
 app.use(express.static('public'))
@@ -61,7 +49,13 @@ app.use((req, res, next) => {
     res.locals.session = req.session; // ส่ง session ไปยังทุก template
     next();
 });
-
+app.use((req, res, next) => {
+    if (req.session.user) {
+        req.user = req.session.user; // สำคัญมาก
+        res.locals.user = req.user;  // ใช้ใน EJS ได้ด้วย
+    }
+    next();
+});
 // Middleware ตรวจสอบการเข้าสู่ระบบ
 const checkAuth = (req, res, next) => {
     if (req.session.username) {
@@ -70,26 +64,6 @@ const checkAuth = (req, res, next) => {
         res.redirect('/login');
     }
 };
-
-// ตรวจสอบว่าเป็น admin หรือไม่
-// const checkAdmin = (req, res, next) => {
-//     if (req.session.role === 'admin') {
-//         next();
-//     } else {
-//         res.redirect('/user');
-//     }
-// }
-
-// // Middleware สำหรับเก็บชื่อ admin ใน session และส่งไปยังทุกหน้า
-// const setName = (req, res, next) => {
-//     if (req.session && req.session.username) {
-//         res.locals.username = req.session.username; // ส่ง adminName ให้ทุกหน้า
-//     } else {
-//         res.locals.username = "Admin"; // กำหนดค่าเริ่มต้นถ้าไม่มีชื่อ admin
-//     }
-//     next(); // ส่งต่อไปยัง middleware ถัดไป
-// };
-
 //สำหรับ admin
 const checkAdminAndSetName = (req, res, next) => {
     if (req.session && req.session.username) {
@@ -196,6 +170,15 @@ app.post('/login', async (req, res) => {
         req.session.firstname = user.firstname; 
         req.session.lastname = user.lastname; 
         req.session.role = user.role;
+
+        req.session.user = {
+            _id: user._id,
+            username: user.username,
+            role: user.role,
+            firstname: user.firstname,
+            lastname: user.lastname
+        };
+
 
         // นำไปยังหน้าที่เหมาะสมตาม role
         if (user.role === 'admin') {

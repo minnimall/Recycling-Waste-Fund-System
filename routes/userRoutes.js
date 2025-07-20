@@ -3,6 +3,13 @@ const express = require('express')
 const userController = require('../controllers/userController')
 const router = express.Router()
 
+const isAuthenticated = (req, res, next) => {
+  if (req.user) {
+    return next();
+  }
+  return res.status(401).json({ success: false, message: 'Unauthorized' });
+};
+
 // หน้าหลัก
 router.get('/', userController.user_index)
 
@@ -38,5 +45,9 @@ router.get('/profile', userController.user_profile)
 
 router.get('/wastePrices', userController.user_wastePrices)
 
+router.get('/ideas', userController.user_ideas)
+router.post('/ideas/create', userController.create_idea);
+router.post('/ideas/:id/like',  isAuthenticated, userController.like_idea);
+router.post('/ideas/:id/comment', userController.comment_idea);
 
 module.exports = router
