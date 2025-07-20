@@ -39,4 +39,7 @@ router.get('/withdraw/account/:accountNumber', employeeController.getAccountByNu
 // ฌาปนกิจสงเคราะห์
 router.get('/funeralAid', employeeController.funeralAidIndex);
 
+// แผนที่
+router.get('/map', employeeController.mapIndex);
+
 module.exports = router

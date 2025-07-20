@@ -179,8 +179,8 @@
                                     <div class="bg-gray-50 rounded-lg p-4">
                                         <div class="flex justify-between items-start mb-3">
                                             <div>
-                                                <h4 class="font-semibold text-gray-800">แจ้งขายขยะรีไซเคิล</h4>
-                                                <p class="text-sm text-gray-600"><%= request.createdAt.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) %> เวลา 14:30</p>
+                                                <h4 class="font-semibold text-gray-800 py-4">แจ้งขายขยะรีไซเคิล</h4>
+                                                <p class="text-sm text-gray-600">วันที่ <%= request.createdAt.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) %> เวลา 14:30</p>
                                             </div>
                                         <% if (request.status === 'สำเร็จ') { %> 
                                             <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">เสร็จสิ้น</span>
@@ -232,8 +232,8 @@
                                 <div class="bg-gray-50 rounded-lg p-4">
                                     <div class="flex justify-between items-start mb-3">
                                         <div>
-                                            <h4 class="font-semibold text-gray-800">คำร้องเรียน #<%= com._id %></h4>
-                                            <p class="text-sm text-gray-600"><%= com.createdAt.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) %> เวลา</p>
+                                            <h4 class="font-semibold text-gray-800 py-4">คำร้องเรียน</h4>
+                                            <p class="text-sm text-gray-600">วันที่ <%= com.createdAt.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) %> เวลา</p>
                                         </div>
                                         <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">แก้ไขแล้ว</span>
                                     </div>
@@ -251,7 +251,7 @@
                         <div id="ideas" class="tab-content hidden">
                             <div class="flex justify-between items-center mb-6">
                                 <h3 class="text-xl font-semibold text-gray-800">ไอเดียการจัดการขยะของฉัน</h3>
-                                <a href="waste-ideas.html" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors">
+                                <a href="/user/ideas" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors">
                                     <i class="fas fa-plus mr-2"></i>เพิ่มไอเดียใหม่
                                 </a>
                             </div>
@@ -314,28 +314,32 @@
                                         </thead>
                                         <tbody>
                                             <% 
-                                            let totalIncome = 0;
-                                            if (wastePurchases && wastePurchases.length > 0) { 
+                                                let totalIncome = 0;
+                                                if (wastePurchases && wastePurchases.length > 0) {
                                                 wastePurchases.forEach(purchase => {
-                                                    if (purchase.wasteItems && purchase.wasteItems.length > 0) {
-                                                        purchase.wasteItems.forEach(item => {
-                                                            const income = (item.quantity || 0) * (item.pricePerUnit || 0);
-                                                            totalIncome += income;
+                                                    let items = purchase.wasteItems || [];
+                                                    let isFirstRow = true;
+
+                                                    items.forEach((item, index) => {
+                                                    const income = (item.quantity || 0) * (item.pricePerUnit || 0);
+                                                    totalIncome += income;
                                             %>
                                                 <tr class="border-b hover:bg-gray-50">
-                                                    <td class="px-4 py-3">
+                                                    <% if (isFirstRow) { %>
+                                                    <td class="px-4 py-3" rowspan="<%= items.length %>">
                                                         <%= new Date(purchase.purchaseDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }) %>
                                                     </td>
+                                                    <% } %>
                                                     <td class="px-4 py-3"><%= item.name || 'ไม่ระบุ' %></td>
                                                     <td class="px-4 py-3 text-right"><%= item.quantity?.toFixed(2) || '0.00' %></td>
                                                     <td class="px-4 py-3 text-right"><%= item.pricePerUnit?.toFixed(2) || '0.00' %></td>
                                                     <td class="px-4 py-3 text-right font-semibold text-green-600"><%= income.toFixed(2) %></td>
                                                 </tr>
-                                            <% 
-                                                        });
-                                                    }
+                                            <%
+                                                    isFirstRow = false;
+                                                    });
                                                 });
-                                            } else { 
+                                                } else {
                                             %>
                                                 <tr>
                                                     <td colspan="5" class="text-center text-muted py-4">ไม่มีประวัติการขายขยะ</td>
@@ -361,12 +365,8 @@
                                 <div class="flex space-x-2">
                                     <select class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
                                         <option>มกราคม 2568</option>
-                                        <option>ธันวาคม 2567</option>
-                                        <option>พฤศจิกายน 2567</option>
+                                        <!-- เพิ่ม filter ตามเดือนในอนาคตได้ -->
                                     </select>
-                                    <button class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors">
-                                        <i class="fas fa-download mr-2"></i>ดาวน์โหลด
-                                    </button>
                                 </div>
                             </div>
 
@@ -375,32 +375,32 @@
                                 <div class="bg-green-50 rounded-lg p-4">
                                     <div class="flex items-center justify-between">
                                         <div>
-                                            <p class="text-green-600 text-sm font-semibold">รายได้รวม</p>
-                                            <p class="text-2xl font-bold text-green-700">2,450 บาท</p>
+                                            <p class="text-green-600 text-sm font-semibold">ยอดคงเหลือปัจจุบัน</p>
+                                            <p class="text-2xl font-bold text-green-700"><%= wasteBankAccount.Balance.toFixed(2) %> บาท</p>
                                         </div>
                                         <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
                                             <i class="fas fa-coins text-white"></i>
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="bg-blue-50 rounded-lg p-4">
                                     <div class="flex items-center justify-between">
                                         <div>
                                             <p class="text-blue-600 text-sm font-semibold">จำนวนครั้งที่ขาย</p>
-                                            <p class="text-2xl font-bold text-blue-700">24 ครั้ง</p>
+                                            <p class="text-2xl font-bold text-blue-700"><%= wastePurchases.length %> ครั้ง</p>
                                         </div>
                                         <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
                                             <i class="fas fa-chart-line text-white"></i>
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="bg-purple-50 rounded-lg p-4">
                                     <div class="flex items-center justify-between">
                                         <div>
                                             <p class="text-purple-600 text-sm font-semibold">น้ำหนักรวม</p>
-                                            <p class="text-2xl font-bold text-purple-700">156 กก.</p>
+                                            <p class="text-2xl font-bold text-purple-700"><%= totalWasteItems %> กก.</p>
                                         </div>
                                         <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center">
                                             <i class="fas fa-weight text-white"></i>
@@ -415,49 +415,33 @@
                                     <h4 class="font-semibold text-gray-800">รายการธุรกรรม</h4>
                                 </div>
                                 <div class="divide-y">
-                                    <div class="px-4 py-3 flex justify-between items-center">
-                                        <div>
-                                            <p class="font-semibold text-gray-800">ขายขยะรีไซเคิล #WR2024001</p>
-                                            <p class="text-sm text-gray-600">5 มกราคม 2568 เวลา 15:30</p>
+                                    <% if (statement.length > 0) { %>
+                                        <% statement.forEach(item => { %>
+                                            <div class="px-4 py-3 flex justify-between items-center">
+                                                <div>
+                                                    <p class="font-semibold text-gray-800">
+                                                        <%= item.source %>
+                                                    </p>
+                                                    <p class="text-sm text-gray-600">
+                                                        <%= new Date(item.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) %> 
+                                                        เวลา <%= new Date(item.date).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) %>
+                                                    </p>
+                                                </div>
+                                                <div class="text-right">
+                                                    <p class="font-semibold <%= item.type === 'withdraw' ? 'text-red-600' : 'text-green-600' %>">
+                                                        <%= item.type === 'withdraw' ? '-' : '+' %><%= item.amount.toFixed(2) %> บาท
+                                                    </p>
+                                                    <p class="text-sm text-gray-600">
+                                                        <%= item.type === 'withdraw' ? 'ถอนจากบัญชี' : 'โอนเข้าบัญชี' %>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        <% }) %>
+                                    <% } else { %>
+                                        <div class="px-4 py-6 text-center text-gray-500">
+                                            ยังไม่มีรายการธุรกรรม
                                         </div>
-                                        <div class="text-right">
-                                            <p class="font-semibold text-green-600">+245.00 บาท</p>
-                                            <p class="text-sm text-gray-600">โอนเข้าบัญชี</p>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="px-4 py-3 flex justify-between items-center">
-                                        <div>
-                                            <p class="font-semibold text-gray-800">ขายขยะรีไซเคิล #WR2023156</p>
-                                            <p class="text-sm text-gray-600">30 ธันวาคม 2567 เวลา 11:15</p>
-                                        </div>
-                                        <div class="text-right">
-                                            <p class="font-semibold text-green-600">+180.00 บาท</p>
-                                            <p class="text-sm text-gray-600">โอนเข้าบัญชี</p>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="px-4 py-3 flex justify-between items-center">
-                                        <div>
-                                            <p class="font-semibold text-gray-800">ขายขยะรีไซเคิล #WR2023145</p>
-                                            <p class="text-sm text-gray-600">25 ธันวาคม 2567 เวลา 14:20</p>
-                                        </div>
-                                        <div class="text-right">
-                                            <p class="font-semibold text-green-600">+320.00 บาท</p>
-                                            <p class="text-sm text-gray-600">โอนเข้าบัญชี</p>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="px-4 py-3 flex justify-between items-center">
-                                        <div>
-                                            <p class="font-semibold text-gray-800">ขายขยะรีไซเคิล #WR2023132</p>
-                                            <p class="text-sm text-gray-600">20 ธันวาคม 2567 เวลา 09:45</p>
-                                        </div>
-                                        <div class="text-right">
-                                            <p class="font-semibold text-green-600">+195.50 บาท</p>
-                                            <p class="text-sm text-gray-600">โอนเข้าบัญชี</p>
-                                        </div>
-                                    </div>
+                                    <% } %>
                                 </div>
                             </div>
                         </div>

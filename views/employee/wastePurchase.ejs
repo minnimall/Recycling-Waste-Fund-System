@@ -77,14 +77,31 @@
                 <div class="grid grid-cols-4 gap-4 overflow-y-scroll h-[630px]">
                     <% if (waste.length > 0) { %>
                         <% waste.forEach((item, index) => { %>
-                            <div class="border p-3 rounded-lg shadow-md cursor-pointer h-[220px]" onclick="selectWaste('<%= index %>', '<%= item.wasteName %>', '<%= item.pricePerUnit %>')">
+                            <div class="border p-3 rounded-lg shadow-md h-auto" id="waste-card-<%= index %>">
                                 <img class="w-full h-32 object-cover mb-2" src="<%= item.img %>" alt="รูป <%= item.wasteName %>">
-                                <p class="text-center font-semibold"><%= item.wasteName %></p>
-                                <p class="text-center text-sm text-gray-500">฿ <%= item.pricePerUnit %> บาท/กก.</p>
+                                <p class="text-center font-semibold mb-2"><%= item.wasteName %></p>
+                                <p class="text-center text-sm text-gray-500 mb-3">฿ <%= item.pricePerUnit %> บาท/กก.</p>
+                                
+                                <!-- ช่องกรอกน้ำหนัก -->
+                                <div class="space-y-2">
+                                    <input 
+                                        type="number" 
+                                        min="0.1" 
+                                        step="0.1" 
+                                        placeholder="น้ำหนัก (กก.)" 
+                                        class="w-full p-2 text-sm border rounded weight-input" 
+                                        id="weight-<%= index %>"
+                                        data-index="<%= index %>"
+                                        data-name="<%= item.wasteName %>"
+                                        data-price="<%= item.pricePerUnit %>"
+                                        oninput="handleWeightInput('<%= index %>')"
+                                        onblur="handleWeightBlur('<%= index %>')"
+                                    >
+                                </div>
                             </div>
                         <% }); %>
                     <% } else { %>
-                        <div class="mt-3 no-data-container">
+                        <div class="col-span-3 mt-3 no-data-container text-center">
                             <span>- ยังไม่มีข้อมูล -</span>
                         </div>
                     <% } %>
@@ -93,14 +110,12 @@
 
             <!-- ฝั่งขวา: ฟอร์มและรายการขยะที่เลือก -->
             <div class="border p-4 rounded-lg shadow-lg right-box bg-white border ">
-                <h2 class="text-lg mb-4">ฟอร์มรับซื้อขยะ</h2>
+                <h2 class="text-xl font-semibold mb-4">ฟอร์มรับซื้อขยะ</h2>
                 <form id="wastePurchaseForm" action="/employee/wastePurchasePost" method="POST">
                     <input type="hidden" name="addBy" value="<%= username %>">
-                    <label class="block mb-2">รหัสบัญชี:</label>
+                    <label class="text-base font-semibold block mb-2">รหัสบัญชี:</label>
                     <div class="relative">
-                        <!-- <input type="text" id="accountSearch" class="w-full p-2 border rounded mb-1 pr-8" placeholder="ค้นหารหัสบัญชี หรือชื่อบัญชี"> -->
-                        <button type="button" id="clearSearch" class="absolute right-2 top-2 text-gray-400 hidden">✖</button>
-                        <select name="accountId" id="accountId" class="w-full p-2 border rounded mb-1 hidden" required>
+                        <select name="accountId" id="accountId" class="w-full p-2 border rounded mb-1" required>
                             <option value="">-- เลือกรหัสบัญชี --</option>
                             <% if (allWasteBankAccount && allWasteBankAccount.length > 0) { %>
                                 <% allWasteBankAccount.forEach((account) => { %>
@@ -112,11 +127,9 @@
                                 <option value="" disabled>-- ยังไม่มีบัญชีผู้ใช้ --</option>
                             <% } %>
                         </select>
-                        <ul id="accountSearchResults" class="absolute z-10 w-full bg-white border rounded shadow-md hidden"></ul>
                     </div>
                     
-            
-                    <p><span class="text-total">ยอดรวม</span> <span id="totalAmount">0</span> <span class="text-unit">บาท</span></p>
+                    <p><span class="text-total">ยอดรวม</span> <span id="totalAmount">0.00</span> <span class="text-unit">บาท</span></p>
                     <button type="button" class="mt-1 mb-2 bg-green-500 text-white px-4 py-2 rounded" onclick="openConfirmModal('<%= username %>')">ยืนยันการรับซื้อ</button>
             
                     <h3 class="text-lg mb-2">รายการที่เลือก</h3>
@@ -124,21 +137,6 @@
                     </ul>
                     <input type="hidden" name="wasteItems" id="wasteItemsInput">
                 </form>
-            </div>
-
-            <!-- Modal for weight input -->
-            <div id="weightModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
-                <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
-                    <h3 class="text-lg font-bold mb-2">กรุณากรอกน้ำหนัก</h3>
-                    <input id="weightInput" type="number" min="0.1" placeholder="น้ำหนัก (กก.)" class="w-full p-2 border rounded mb-4" required>
-                    <div class="flex items-center w-full mb-2"><span class="mr-2">ประเภทขยะ : </span> <p id="modalWasteName" class="px-2 py-1 rounded "></p></div>
-                    <div class="flex items-center w-full"><span class="mr-2">ราคา/หน่วย : </span> <p id="modalWastePrice" class="px-2 py-1 rounded "></p></div>
-                    <hr class="my-4">
-                    <div class="flex justify-end">
-                        <button onclick="closeModal()" class="bg-gray-500 text-white px-4 py-2 rounded">ปิด</button>
-                        <button onclick="confirmWeight()" class="main-bg-color text-white px-4 py-2 rounded ml-2">ยืนยัน</button>
-                    </div>
-                </div>
             </div>
 
             <!-- Modal ยืนยันการรับซื้อ -->
@@ -202,52 +200,82 @@
     </div>
     <%- include('../partials/employeePartials/empFooter.ejs') %>
 </body>
-<script>
-    const clearSearchButton = document.getElementById('clearSearch');
 
-    accountSearchInput.addEventListener('input', function() {
-        clearSearchButton.classList.toggle('hidden', this.value.length === 0);
-    });
-
-    clearSearchButton.addEventListener('click', function() {
-        accountSearchInput.value = '';
-        accountSelect.value = '';
-        accountSearchResults.classList.add('hidden');
-        accountSelect.classList.remove('hidden');
-        this.classList.add('hidden');
-    });
-</script>
 <script>
     let selectedWaste = [];
-    let currentWasteName = "";
-    let currentPricePerUnit = 0;
-    let currentIndex = -1;
+    let inputTimeout = {};
 
-    function selectWaste(index, name, pricePerUnit) {
-        currentIndex = index;
-        currentWasteName = name;
-        currentPricePerUnit = pricePerUnit;
-        document.getElementById('modalWasteName').textContent = `${name}`;
-        document.getElementById('modalWastePrice').textContent = `${pricePerUnit}/กก.`;
-        document.getElementById('weightModal').classList.remove('hidden');
+    // ฟังก์ชันสำหรับจัดการการกรอกน้ำหนักแบบทันที
+    function handleWeightInput(index) {
+        // ยกเลิก timeout เก่า
+        if (inputTimeout[index]) {
+            clearTimeout(inputTimeout[index]);
+        }
+
+        // ตั้ง timeout ใหม่ (รอ 1 วินาที)
+        inputTimeout[index] = setTimeout(() => {
+            addWasteFromCard(index);
+        }, 1000);
     }
 
-    function confirmWeight() {
-        const weight = parseFloat(document.getElementById('weightInput').value);
-        if (weight && weight > 0) {
-            const totalPrice = (weight * currentPricePerUnit).toFixed(2);
-            if (currentIndex >= 0) {
-                selectedWaste[currentIndex] = { name: currentWasteName, pricePerUnit: currentPricePerUnit, weight, totalPrice };
-            } else {
-                selectedWaste.push({ name: currentWasteName, pricePerUnit: currentPricePerUnit, weight, totalPrice });
-            }
-            document.getElementById('weightInput').value = '';
-            updateSelectedWasteList();
-            closeModal();
-        } else {
-            Swal.fire("กรุณากรอกน้ำหนักที่ถูกต้อง", "", "warning");
-            return;
+    // ฟังก์ชันสำหรับจัดการเมื่อผู้ใช้เลิกโฟกัสจากช่องกรอก
+    function handleWeightBlur(index) {
+        // ยกเลิก timeout
+        if (inputTimeout[index]) {
+            clearTimeout(inputTimeout[index]);
+            delete inputTimeout[index];
         }
+
+        const weightInput = document.getElementById(`weight-${index}`);
+        const weight = parseFloat(weightInput.value);
+        
+        if (weight && weight > 0) {
+            addWasteFromCard(index);
+        }
+    }
+
+    // ฟังก์ชันสำหรับเพิ่มขยะจากการ์ด
+    function addWasteFromCard(index) {
+        const weightInput = document.getElementById(`weight-${index}`);
+        const weight = parseFloat(weightInput.value);
+        
+        if (!weight || weight <= 0) {
+            return; // ไม่แสดงเตือนเมื่อไม่มีค่า
+        }
+
+        const name = weightInput.dataset.name;
+        const pricePerUnit = parseFloat(weightInput.dataset.price);
+        const totalPrice = (weight * pricePerUnit).toFixed(2);
+
+        // ตรวจสอบว่ามีสินค้านี้ในรายการแล้วหรือไม่
+        const existingIndex = selectedWaste.findIndex(item => item.name === name);
+        
+        if (existingIndex >= 0) {
+            // ถ้ามีแล้ว ให้อัพเดทน้ำหนัก
+            selectedWaste[existingIndex].weight = weight;
+            selectedWaste[existingIndex].totalPrice = totalPrice;
+        } else {
+            // ถ้ายังไม่มี ให้เพิ่มใหม่
+            selectedWaste.push({ 
+                name: name, 
+                pricePerUnit: pricePerUnit, 
+                weight: weight, 
+                totalPrice: totalPrice 
+            });
+        }
+
+        // อัพเดทรายการ
+        updateSelectedWasteList();
+
+        // แสดงข้อความสำเร็จ
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: `เพิ่ม ${name} ${weight} กก. แล้ว`,
+            showConfirmButton: false,
+            timer: 1000
+        });
     }
 
     function updateSelectedWasteList() {
@@ -282,14 +310,13 @@
             });
             items_lists.innerHTML += `
                 <tr>
-                    <td class="px-6 py-4 whitespace-nowrap text-center">1</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">${index + 1}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-left">${item.name}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-center">${item.weight} กก.</td>
                     <td class="px-6 py-4 whitespace-nowrap text-center">${formattedPricePerUnit}฿</td>
                     <td class="px-6 py-4 whitespace-nowrap text-center">${formattedTotalPriceRow}฿</td>
-                <tr>
+                </tr>
             `;
-
         });
 
         const formattedTotalAmount = totalAmount.toLocaleString('en-US', {
@@ -299,29 +326,47 @@
         document.getElementById('totalAmount').textContent = formattedTotalAmount;
         document.getElementById('wasteItemsInput').value = JSON.stringify(selectedWaste);
     }
-    // ตัวอย่างการเพิ่มข้อมูลลงใน selectedWaste
-    function addWaste(name, weight, pricePerUnit) {
-        const totalPrice = weight * pricePerUnit;
-        selectedWaste.push({ name, weight, pricePerUnit, totalPrice });
-        updateSelectedWasteList();
-    }
+
     function editWaste(index) {
         const item = selectedWaste[index];
-        currentIndex = index;
-        document.getElementById('weightInput').value = item.weight;
-        selectWaste(index, item.name, item.pricePerUnit);
-        document.getElementById('weightModal').classList.remove('hidden');    
-        updateSelectedWasteList();
+        const newWeight = prompt(`แก้ไขน้ำหนัก ${item.name}:`, item.weight);
+        
+        if (newWeight !== null && parseFloat(newWeight) > 0) {
+            const weight = parseFloat(newWeight);
+            const totalPrice = (weight * item.pricePerUnit).toFixed(2);
+            selectedWaste[index].weight = weight;
+            selectedWaste[index].totalPrice = totalPrice;
+            updateSelectedWasteList();
+        }
     }
 
-    // ตัวอย่างการลบข้อมูลออกจาก selectedWaste
     function deleteWaste(index) {
-        selectedWaste.splice(index, 1);
-        updateSelectedWasteList();
-    }
-
-    function closeModal() {
-        document.getElementById('weightModal').classList.add('hidden');
+        Swal.fire({
+            title: 'คุณแน่ใจหรือไม่?',
+            text: "คุณต้องการลบรายการนี้ออกจากรายการรับซื้อ?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'ยืนยัน',
+            cancelButtonText: 'ยกเลิก'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const deletedItem = selectedWaste[index];
+                selectedWaste.splice(index, 1);
+                updateSelectedWasteList();
+                
+                // เคลียร์ช่องกรอกน้ำหนักของสินค้าที่ถูกลบ
+                const weightInputs = document.querySelectorAll('.weight-input');
+                weightInputs.forEach(input => {
+                    if (input.dataset.name === deletedItem.name) {
+                        input.value = '';
+                    }
+                });
+                
+                Swal.fire('ลบแล้ว!', 'รายการถูกลบออกแล้ว', 'success');
+            }
+        });
     }
 
     function openConfirmModal(employee) {
@@ -329,7 +374,6 @@
         const selectedWasteListElem = document.getElementById("selectedWasteList");
         const totalAmountElem = document.getElementById("totalAmount");
         const confirmModal = document.getElementById("confirmModal");
-        const items_lists = document.getElementById('items-lists');
 
         if (!accountIdInput || !selectedWasteListElem || !totalAmountElem || !confirmModal) {
             console.error("Element not found!");
@@ -344,6 +388,12 @@
             Swal.fire("กรุณาเลือกรหัสบัญชี", "", "warning");
             return;
         }
+
+        if (selectedWaste.length === 0) {
+            Swal.fire("กรุณาเลือกรายการขยะที่ต้องการรับซื้อ", "", "warning");
+            return;
+        }
+
         const now = new Date();
         const options = { timeZone: "Asia/Bangkok", hour12: false };
 
@@ -362,18 +412,15 @@
             document.querySelector("#confirmModal #accountId").textContent = accountId;
             document.querySelector("#confirmModal #accountName").textContent = "";
         }
+        
         document.querySelector("#confirmModal #selectedWasteList").innerHTML = selectedWasteList;
-        document.querySelector("#confirmModal #totalAmount").textContent = totalAmount;
+        document.querySelector("#confirmModal #totalAmount").textContent = totalAmount + '฿';
         document.querySelector("#confirmModal #employeePost").textContent = employee;
         document.querySelector("#confirmModal #purchaseDate").textContent = purchaseDate;
         document.querySelector("#confirmModal #purchaseTime").textContent = purchaseTime;
 
-        // ตรวจสอบว่า wasteItems มีข้อมูลหรือไม่
-        const wasteItems = Array.from(document.querySelectorAll("#selectedWasteList li"))
-            .map(li => li.textContent)
-            .filter(text => text.trim() !== ""); // กรองค่าเว้นว่างออก
-        // ถ้าไม่มีข้อมูล ให้ส่งค่า `[]` แทน `""`
-        document.querySelector("#confirmModal #wasteItemsInput").value = wasteItems.length > 0 ? JSON.stringify(wasteItems) : "[]";
+        document.querySelector("#confirmModal #wasteItemsInput").value = JSON.stringify(selectedWaste);
+        
         // แสดง ConfirmModal
         confirmModal.classList.remove("hidden");
     }
@@ -381,8 +428,25 @@
     function wastePurchasePost() {
         document.getElementById("wastePurchaseForm").submit();
     }
+
     function closeConfirmModal() {
         document.getElementById("confirmModal").classList.add("hidden");
     }
+
+    // เพิ่ม Enter key support สำหรับช่องกรอกน้ำหนัก
+    document.addEventListener('keypress', function(e) {
+        if (e.target.classList.contains('weight-input') && e.key === 'Enter') {
+            e.preventDefault();
+            const index = parseInt(e.target.dataset.index);
+            
+            // ยกเลิก timeout
+            if (inputTimeout[index]) {
+                clearTimeout(inputTimeout[index]);
+                delete inputTimeout[index];
+            }
+            
+            addWasteFromCard(index);
+        }
+    });
 </script>
 </html>

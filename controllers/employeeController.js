@@ -592,6 +592,10 @@ const funeralAidIndex = (req, res)=> {
     res.render('employee/funeralAid',{mytitle: 'ฌาปนกิจสงเคราะห์'})
 }
 
+const mapIndex = (req, res)=> {
+    res.render('employee/map',{mytitle: 'แผนที่จุดเข้ารับซื้อ'})
+}
+
 module.exports = {
     //หน้าแดชบอร์ด
     dashboardIndex,
@@ -611,4 +615,6 @@ module.exports = {
     withDrawIndex,getAccountByNumber,showWithdrawPage,
     //หน้าฌาปนกิจสงเคราะห์
     funeralAidIndex,
+    //หน้าแผนที่เข้ารับซื้อ
+    mapIndex,
 }

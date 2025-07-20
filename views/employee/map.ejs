@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <%- include('../partials/employeePartials/doctype.ejs') %>
+    <title><%= mytitle %></title>
+    <link rel="stylesheet" href="/style_employee/complaint-requests.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+</head>
+
+<body>
+    <%- include('../partials/employeePartials/empHeader.ejs') %>
+    <%- include('../partials/employeePartials/empSidebar.ejs') %>
+    
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const successMessage = urlParams.get('message');
+        const errorMessage = urlParams.get('error');
+
+        if (successMessage) {
+            Swal.fire({
+                icon: 'success',
+                title: 'สำเร็จ!',
+                text: successMessage,
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#28a745',
+                timer: 3000
+            });
+        }
+
+        if (errorMessage) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: errorMessage,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
+    </script>
+
+    <main class="content bg-gray-50 min-screen">
+        <!-- Page Header -->
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
+                        ระบบแผนที่จุดรับซื้อขยะรีไซเคิล
+                    </h1>
+                    <p class="text-gray-600 mt-2">เลือกจุดรับซื้อและวิเคราะห์เส้นทางที่สั้นที่สุด</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <!-- Control Panel -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-lg shadow-lg p-6 sticky top-4">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                            <ion-icon name="location-outline" class="inline-block mr-2"></ion-icon>
+                            ค้นหาและเลือกจุด
+                        </h2>
+                        
+                        <!-- Search Input -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">ค้นหาที่อยู่</label>
+                            <div class="relative">
+                                <input type="text" 
+                                    id="searchInput" 
+                                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                                    placeholder="พิมพ์ที่อยู่หรือชื่อสถานที่...">
+                                <button id="searchBtn" 
+                                        class="absolute right-2 top-2 p-2 text-blue-600 hover:text-blue-800">
+                                    <ion-icon name="search-outline"></ion-icon>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Selected Points List -->
+                        <div class="mb-4">
+                            <h3 class="text-lg font-medium text-gray-700 mb-2">จุดที่เลือก</h3>
+                            <div id="selectedPointsList" class="space-y-2 max-h-60 overflow-y-auto">
+                                <div class="text-gray-500 text-center py-4 text-sm">ยังไม่มีจุดที่เลือก</div>
+                            </div>
+                        </div>
+
+                        <!-- Control Buttons -->
+                        <div class="space-y-3">
+                            <button id="analyzeBtn" 
+                                    class="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed" 
+                                    disabled>
+                                <ion-icon name="analytics-outline" class="inline-block mr-2"></ion-icon>
+                                วิเคราะห์เส้นทาง
+                            </button>
+                            
+                            <button id="clearBtn" 
+                                    class="w-full bg-red-600 text-white py-3 px-4 rounded-lg hover:bg-red-700 transition">
+                                <ion-icon name="trash-outline" class="inline-block mr-2"></ion-icon>
+                                ล้างจุดทั้งหมด
+                            </button>
+                        </div>
+
+                        <!-- Route Analysis Results -->
+                        <div id="routeResults" class="mt-6 hidden">
+                            <h3 class="text-lg font-medium text-gray-700 mb-3">ผลการวิเคราะห์</h3>
+                            <div id="routeInfo" class="bg-blue-50 p-4 rounded-lg text-sm">
+                                <!-- Route information will be displayed here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Map Section -->
+                <div class="lg:col-span-3">
+                    <div class="bg-white rounded-lg shadow-lg p-4">
+                        <div id="map" class="w-full h-96 lg:h-[600px] rounded-lg"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <%- include('../partials/employeePartials/empFooter.ejs') %>
+
+    <script>
+        // Global variables
+        let map;
+        let selectedPoints = [];
+        let markers = [];
+        let routeLayer = null;
+        let routeMarkers = [];
+        let distanceMatrix = {}; // Cache for road distances
+        let isCalculatingDistances = false;
+        
+        // Initialize map
+        function initMap() {
+            // Set initial coordinates (Nong Khai, Thailand)
+            const initialLat = 17.8782;
+            const initialLng = 102.7412;
+            
+            map = L.map('map').setView([initialLat, initialLng], 13);
+            
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            // Add geocoder control
+            const geocoder = L.Control.Geocoder.nominatim();
+            L.Control.geocoder({
+                geocoder: geocoder,
+                defaultMarkGeocode: false
+            }).on('markgeocode', function(e) {
+                const result = e.geocode;
+                addPoint(result.center.lat, result.center.lng, result.name);
+            }).addTo(map);
+            
+            // Add click event to map
+            map.on('click', function(e) {
+                const lat = e.latlng.lat;
+                const lng = e.latlng.lng;
+                
+                // Reverse geocoding to get address
+                geocoder.reverse(e.latlng, map.options.crs.scale(map.getZoom()), function(results) {
+                    const address = results.length > 0 ? results[0].name : `จุดที่ ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                    addPoint(lat, lng, address);
+                });
+            });
+        }
+        
+        // Add point to selected points
+        function addPoint(lat, lng, address) {
+            const pointNumber = selectedPoints.length + 1;
+            const point = {
+                id: pointNumber,
+                lat: lat,
+                lng: lng,
+                address: address
+            };
+            
+            selectedPoints.push(point);
+            
+            // Add marker to map
+            const marker = L.marker([lat, lng])
+                .addTo(map)
+                .bindPopup(`<b>จุดที่ ${pointNumber}</b><br>${address}`);
+            
+            markers.push(marker);
+            
+            // Update UI
+            updatePointsList();
+            updateButtons();
+            
+            // Show success message
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: `เพิ่มจุดที่ ${pointNumber} เรียบร้อย`,
+                showConfirmButton: false,
+                timer: 2000
+            });
+        }
+        
+        // Update selected points list in UI
+        function updatePointsList() {
+            const listContainer = document.getElementById('selectedPointsList');
+            
+            if (selectedPoints.length === 0) {
+                listContainer.innerHTML = '<div class="text-gray-500 text-center py-4 text-sm">ยังไม่มีจุดที่เลือก</div>';
+                return;
+            }
+            
+            let html = '';
+            selectedPoints.forEach((point, index) => {
+                html += `
+                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <div class="font-medium text-blue-600">จุดที่ ${point.id}</div>
+                                <div class="text-sm text-gray-600 mt-1">${point.address}</div>
+                                <div class="text-xs text-gray-400 mt-1">
+                                    ${point.lat.toFixed(4)}, ${point.lng.toFixed(4)}
+                                </div>
+                            </div>
+                            <button onclick="removePoint(${index})" 
+                                    class="text-red-500 hover:text-red-700 ml-2">
+                                <ion-icon name="close-circle-outline"></ion-icon>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            listContainer.innerHTML = html;
+        }
+        
+        // Remove point
+        function removePoint(index) {
+            // Remove from arrays
+            selectedPoints.splice(index, 1);
+            
+            // Remove marker from map
+            if (markers[index]) {
+                map.removeLayer(markers[index]);
+                markers.splice(index, 1);
+            }
+            
+            // Update point IDs
+            selectedPoints.forEach((point, i) => {
+                point.id = i + 1;
+                if (markers[i]) {
+                    markers[i].setPopupContent(`<b>จุดที่ ${point.id}</b><br>${point.address}`);
+                }
+            });
+            
+            // Update UI
+            updatePointsList();
+            updateButtons();
+            
+            // Clear route if exists
+            clearRoute();
+        }
+        
+        // Update button states
+        function updateButtons() {
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            
+            analyzeBtn.disabled = selectedPoints.length < 2;
+            clearBtn.disabled = selectedPoints.length === 0;
+        }
+        
+        // Search functionality
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const searchBtn = document.getElementById('searchBtn');
+            
+            function performSearch() {
+                const query = searchInput.value.trim();
+                if (!query) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'กรุณาใส่ข้อความค้นหา',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    return;
+                }
+                
+                // Show loading
+                Swal.fire({
+                    title: 'กำลังค้นหา...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                // Use Nominatim geocoding
+                const geocoder = L.Control.Geocoder.nominatim();
+                geocoder.geocode(query, function(results) {
+                    Swal.close();
+                    
+                    if (results.length > 0) {
+                        const result = results[0];
+                        map.setView(result.center, 15);
+                        addPoint(result.center.lat, result.center.lng, result.name);
+                        searchInput.value = '';
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'ไม่พบตำแหน่งที่ค้นหา',
+                            text: 'กรุณาลองค้นหาด้วยคำอื่น',
+                            timer: 3000
+                        });
+                    }
+                });
+            }
+            
+            searchBtn.addEventListener('click', performSearch);
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+        }
+        
+        // Calculate road distance between two points using OSRM
+        async function calculateRoadDistance(point1, point2) {
+            const key = `${point1.id}-${point2.id}`;
+            const reverseKey = `${point2.id}-${point1.id}`;
+            
+            // Check cache first
+            if (distanceMatrix[key]) {
+                return distanceMatrix[key];
+            }
+            if (distanceMatrix[reverseKey]) {
+                return distanceMatrix[reverseKey];
+            }
+            
+            try {
+                const url = `https://router.project-osrm.org/route/v1/driving/${point1.lng},${point1.lat};${point2.lng},${point2.lat}?overview=false&steps=false`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.routes && data.routes.length > 0) {
+                    const distance = data.routes[0].distance / 1000; // Convert to km
+                    const duration = data.routes[0].duration / 60; // Convert to minutes
+                    
+                    const result = { distance, duration };
+                    
+                    // Cache the result
+                    distanceMatrix[key] = result;
+                    return result;
+                } else {
+                    // Fallback to straight-line distance if routing fails
+                    const distance = calculateStraightLineDistance(point1, point2);
+                    const result = { distance, duration: (distance / 40) * 60 };
+                    distanceMatrix[key] = result;
+                    return result;
+                }
+            } catch (error) {
+                console.error('Error calculating road distance:', error);
+                // Fallback to straight-line distance
+                const distance = calculateStraightLineDistance(point1, point2);
+                const result = { distance, duration: (distance / 40) * 60 };
+                distanceMatrix[key] = result;
+                return result;
+            }
+        }
+        
+        // Calculate straight-line distance (fallback)
+        function calculateStraightLineDistance(point1, point2) {
+            const R = 6371; // Earth's radius in kilometers
+            const dLat = toRad(point2.lat - point1.lat);
+            const dLng = toRad(point2.lng - point1.lng);
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(toRad(point1.lat)) * Math.cos(toRad(point2.lat)) *
+                    Math.sin(dLng/2) * Math.sin(dLng/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+        
+        function toRad(degrees) {
+            return degrees * (Math.PI / 180);
+        }
+        
+        // Build distance matrix for all points
+        async function buildDistanceMatrix(points) {
+            const n = points.length;
+            const matrix = Array(n).fill(null).map(() => Array(n).fill(0));
+            
+            for (let i = 0; i < n; i++) {
+                for (let j = i + 1; j < n; j++) {
+                    const result = await calculateRoadDistance(points[i], points[j]);
+                    matrix[i][j] = result.distance;
+                    matrix[j][i] = result.distance;
+                }
+            }
+            
+            return matrix;
+        }
+        
+        // Solve TSP using nearest neighbor with 2-opt improvement
+        async function calculateOptimalRoute(points) {
+            if (points.length < 2) return points;
+            
+            const n = points.length;
+            const distMatrix = await buildDistanceMatrix(points);
+            
+            // Nearest Neighbor Algorithm
+            let bestRoute = [];
+            let bestDistance = Infinity;
+            
+            // Try starting from each point to find the best route
+            for (let startIdx = 0; startIdx < n; startIdx++) {
+                const route = [startIdx];
+                const visited = new Set([startIdx]);
+                let currentIdx = startIdx;
+                let totalDistance = 0;
+                
+                while (route.length < n) {
+                    let nearestIdx = -1;
+                    let nearestDistance = Infinity;
+                    
+                    for (let i = 0; i < n; i++) {
+                        if (!visited.has(i) && distMatrix[currentIdx][i] < nearestDistance) {
+                            nearestDistance = distMatrix[currentIdx][i];
+                            nearestIdx = i;
+                        }
+                    }
+                    
+                    if (nearestIdx !== -1) {
+                        route.push(nearestIdx);
+                        visited.add(nearestIdx);
+                        totalDistance += nearestDistance;
+                        currentIdx = nearestIdx;
+                    }
+                }
+                
+                if (totalDistance < bestDistance) {
+                    bestDistance = totalDistance;
+                    bestRoute = [...route];
+                }
+            }
+            
+            // Apply 2-opt improvement
+            bestRoute = await improve2Opt(bestRoute, distMatrix);
+            
+            return bestRoute.map(idx => points[idx]);
+        }
+        
+        // 2-opt improvement algorithm
+        async function improve2Opt(route, distMatrix) {
+            const n = route.length;
+            let improved = true;
+            
+            while (improved) {
+                improved = false;
+                
+                for (let i = 1; i < n - 1; i++) {
+                    for (let j = i + 1; j < n; j++) {
+                        const currentDistance = 
+                            distMatrix[route[i-1]][route[i]] + 
+                            distMatrix[route[j]][route[(j+1) % n]];
+                        
+                        const newDistance = 
+                            distMatrix[route[i-1]][route[j]] + 
+                            distMatrix[route[i]][route[(j+1) % n]];
+                        
+                        if (newDistance < currentDistance) {
+                            // Reverse the segment between i and j
+                            const newRoute = [...route];
+                            for (let k = i, l = j; k < l; k++, l--) {
+                                [newRoute[k], newRoute[l]] = [newRoute[l], newRoute[k]];
+                            }
+                            route = newRoute;
+                            improved = true;
+                        }
+                    }
+                }
+            }
+            
+            return route;
+        }
+        
+        // Analyze route
+        async function analyzeRoute() {
+            if (selectedPoints.length < 2) return;
+            
+            if (isCalculatingDistances) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'กรุณารอสักครู่',
+                    text: 'ระบบกำลังคำนวณระยะทางอยู่',
+                    timer: 2000
+                });
+                return;
+            }
+            
+            isCalculatingDistances = true;
+            
+            Swal.fire({
+                title: 'กำลังวิเคราะห์เส้นทาง...',
+                html: `
+                    <div class="text-center">
+                        <div class="mb-3">กำลังคำนวณระยะทางตามเส้นถนนจริง</div>
+                        <div id="progress-text" class="text-sm text-gray-600">กำลังเตรียมข้อมูล...</div>
+                        <div class="w-full bg-gray-200 rounded-full h-2 mt-3">
+                            <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                `,
+                allowOutsideClick: false,
+                showConfirmButton: false
+            });
+            
+            try {
+                // Update progress
+                document.getElementById('progress-text').textContent = 'กำลังคำนวณระยะทางระหว่างจุด...';
+                document.getElementById('progress-bar').style.width = '30%';
+                
+                const optimizedRoute = await calculateOptimalRoute(selectedPoints);
+                
+                // Update progress
+                document.getElementById('progress-text').textContent = 'กำลังวาดเส้นทางบนแผนที่...';
+                document.getElementById('progress-bar').style.width = '70%';
+                
+                await displayOptimizedRoute(optimizedRoute);
+                
+                // Update progress
+                document.getElementById('progress-bar').style.width = '100%';
+                
+                setTimeout(() => {
+                    Swal.close();
+                    isCalculatingDistances = false;
+                }, 500);
+                
+            } catch (error) {
+                console.error('Error analyzing route:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถวิเคราะห์เส้นทางได้ กรุณาลองใหม่อีกครั้ง',
+                });
+                isCalculatingDistances = false;
+            }
+        }
+        
+        // Display optimized route on map with real road routing
+        async function displayOptimizedRoute(route) {
+            clearRoute();
+            
+            if (route.length < 2) return;
+            
+            let totalDistance = 0;
+            let totalDuration = 0;
+            const routeSegments = [];
+            
+            // Create routing control for the entire route
+            const waypoints = route.map(point => L.latLng(point.lat, point.lng));
+            
+            const routingControl = L.Routing.control({
+                waypoints: waypoints,
+                routeWhileDragging: false,
+                addWaypoints: false,
+                lineOptions: {
+                    styles: [{
+                        color: '#3B82F6',
+                        weight: 4,
+                        opacity: 0.8
+                    }]
+                },
+                createMarker: function() { return null; }, // Don't create default markers
+                router: L.Routing.osrmv1({
+                    serviceUrl: 'https://router.project-osrm.org/route/v1',
+                    profile: 'driving'
+                })
+            }).addTo(map);
+            
+            routeLayer = routingControl;
+            
+            // Hide the routing instructions panel
+            const routingContainer = routingControl.getContainer();
+            if (routingContainer) {
+                routingContainer.style.display = 'none';
+            }
+            
+            // Calculate segment distances and durations
+            for (let i = 0; i < route.length - 1; i++) {
+                try {
+                    const result = await calculateRoadDistance(route[i], route[i + 1]);
+                    totalDistance += result.distance;
+                    totalDuration += result.duration;
+                    routeSegments.push(result);
+                } catch (error) {
+                    console.error('Error calculating segment:', error);
+                    // Use fallback distance
+                    const fallbackDist = calculateStraightLineDistance(route[i], route[i + 1]);
+                    totalDistance += fallbackDist;
+                    totalDuration += (fallbackDist / 40) * 60;
+                    routeSegments.push({ distance: fallbackDist, duration: (fallbackDist / 40) * 60 });
+                }
+            }
+            
+            // Add custom route markers with numbers
+            route.forEach((point, index) => {
+                const routeMarker = L.divIcon({
+                    html: `<div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm shadow-lg border-2 border-white">${index + 1}</div>`,
+                    className: 'custom-route-marker',
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 16]
+                });
+                
+                const marker = L.marker([point.lat, point.lng], { icon: routeMarker })
+                    .bindPopup(`
+                        <div class="text-center">
+                            <b>จุดที่ ${index + 1}</b><br>
+                            <div class="text-sm mt-1">${point.address}</div>
+                            ${index === 0 ? '<div class="text-green-600 text-xs mt-1">จุดเริ่มต้น</div>' : 
+                            index === route.length - 1 ? '<div class="text-red-600 text-xs mt-1">จุดสุดท้าย</div>' : ''}
+                        </div>
+                    `)
+                    .addTo(map);
+                routeMarkers.push(marker);
+            });
+            
+            // Display detailed results
+            displayDetailedRouteResults(route, routeSegments, totalDistance, totalDuration);
+            
+            // Fit map to route bounds
+            setTimeout(() => {
+                const group = L.featureGroup([...routeMarkers]);
+                map.fitBounds(group.getBounds().pad(0.1));
+            }, 1000);
+            
+            // Show success message
+            Swal.fire({
+                icon: 'success',
+                title: 'เส้นทางที่เหมาะสมที่สุด!',
+                html: `
+                    <div class="text-left">
+                        <div class="mb-2"><strong>ระยะทางรวม:</strong> ${totalDistance.toFixed(2)} กิโลเมตร</div>
+                        <div class="mb-2"><strong>เวลารวม:</strong> ${Math.round(totalDuration)} นาที</div>
+                        <div class="text-sm text-gray-600">*คำนวณจากเส้นทางถนนจริง</div>
+                    </div>
+                `,
+                timer: 5000,
+                showConfirmButton: true,
+                confirmButtonText: 'ดูรายละเอียด'
+            });
+        }
+        
+        // Display detailed route analysis results
+        function displayDetailedRouteResults(route, segments, totalDistance, totalDuration) {
+            const resultsContainer = document.getElementById('routeResults');
+            const routeInfo = document.getElementById('routeInfo');
+            
+            let html = `
+                <div class="mb-4 p-4 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg border border-blue-200">
+                    <h4 class="font-bold text-blue-800 mb-3 flex items-center">
+                        <ion-icon name="analytics-outline" class="mr-2"></ion-icon>
+                        สรุปเส้นทางที่เหมาะสม
+                    </h4>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                            <span class="font-medium text-gray-700">ระยะทางรวม:</span><br>
+                            <span class="text-blue-600 font-bold text-lg">${totalDistance.toFixed(2)} กม.</span>
+                            <div class="text-xs text-gray-500 mt-1">จากเส้นทางถนนจริง</div>
+                        </div>
+                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                            <span class="font-medium text-gray-700">เวลาโดยประมาณ:</span><br>
+                            <span class="text-green-600 font-bold text-lg">${Math.round(totalDuration)} นาที</span>
+                            <div class="text-xs text-gray-500 mt-1">${(totalDuration/60).toFixed(1)} ชั่วโมง</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold text-blue-700 mb-3 flex items-center">
+                        <ion-icon name="navigate-outline" class="mr-2"></ion-icon>
+                        ลำดับการเดินทางที่เหมาะสม
+                    </h4>
+                    <div class="space-y-2">
+            `;
+            
+            route.forEach((point, index) => {
+                const segment = segments[index - 1];
+                const isFirst = index === 0;
+                const isLast = index === route.length - 1;
+                
+                html += `
+                    <div class="flex items-start space-x-3 p-3 ${index % 2 === 0 ? 'bg-blue-50' : 'bg-white'} rounded-lg border ${isFirst ? 'border-green-300 bg-green-50' : isLast ? 'border-red-300 bg-red-50' : 'border-gray-200'}">
+                        <div class="flex-shrink-0">
+                            <div class="${isFirst ? 'bg-green-600' : isLast ? 'bg-red-600' : 'bg-blue-600'} text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold shadow-md">
+                                ${index + 1}
+                            </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-medium text-gray-800 text-sm leading-tight">${point.address}</div>
+                            <div class="text-xs text-gray-500 mt-1">
+                                ${point.lat.toFixed(4)}, ${point.lng.toFixed(4)}
+                            </div>
+                            ${!isFirst && segment ? `
+                                <div class="mt-2 p-2 bg-white rounded border-l-4 border-blue-400">
+                                    <div class="grid grid-cols-2 gap-2 text-xs">
+                                        <div>
+                                            <span class="text-gray-600">ระยะทาง:</span>
+                                            <span class="font-semibold text-blue-600">${segment.distance.toFixed(2)} กม.</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-gray-600">เวลา:</span>
+                                            <span class="font-semibold text-green-600">${Math.round(segment.duration)} นาที</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ` : isFirst ? '<div class="text-xs text-green-600 mt-1 font-medium">🎯 จุดเริ่มต้น</div>' : ''}
+                        </div>
+                        <div class="flex-shrink-0">
+                            ${isFirst ? '<ion-icon name="play-circle" class="text-green-600 text-lg"></ion-icon>' :
+                            isLast ? '<ion-icon name="checkmark-circle" class="text-red-600 text-lg"></ion-icon>' :
+                            '<ion-icon name="arrow-forward-circle" class="text-blue-600 text-lg"></ion-icon>'}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                    </div>
+                    <div class="mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                        <div class="flex items-center text-yellow-800 text-sm">
+                            <ion-icon name="information-circle" class="mr-2 flex-shrink-0"></ion-icon>
+                            <span>เส้นทางนี้คำนวณจากระยะทางจริงบนถนนและใช้อัลกอริธึม TSP เพื่อหาเส้นทางที่สั้นที่สุด</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            routeInfo.innerHTML = html;
+            resultsContainer.classList.remove('hidden');
+        }
+        
+        // Clear route from map
+        function clearRoute() {
+            if (routeLayer) {
+                map.removeLayer(routeLayer);
+                routeLayer = null;
+            }
+            
+            routeMarkers.forEach(marker => {
+                map.removeLayer(marker);
+            });
+            routeMarkers = [];
+            
+            document.getElementById('routeResults').classList.add('hidden');
+        }
+        
+        // Clear all points
+        function clearAllPoints() {
+            Swal.fire({
+                title: 'ต้องการล้างจุดทั้งหมดหรือไม่?',
+                text: 'การดำเนินการนี้ไม่สามารถยกเลิกได้',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#EF4444',
+                cancelButtonColor: '#6B7280',
+                confirmButtonText: 'ล้างทั้งหมด',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Clear all data
+                    selectedPoints = [];
+                    
+                    // Remove all markers
+                    markers.forEach(marker => {
+                        map.removeLayer(marker);
+                    });
+                    markers = [];
+                    
+                    // Clear route
+                    clearRoute();
+                    
+                    // Update UI
+                    updatePointsList();
+                    updateButtons();
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'ล้างข้อมูลเรียบร้อย',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
+            });
+        }
+        
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+            setupSearch();
+            
+            document.getElementById('analyzeBtn').addEventListener('click', analyzeRoute);
+            document.getElementById('clearBtn').addEventListener('click', clearAllPoints);
+            
+            updateButtons();
+        });
+    </script>
+
+</body>
+</html>
