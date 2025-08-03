@@ -547,29 +547,29 @@ const storage2 = multer.diskStorage({
 const upload2 = multer({ 
     storage: storage2, // ใช้ storage2 แทน storage
     limits: { fileSize: 50 * 1024 * 1024 }
- }).single('image');
+}).single('image');
 
 const user_ideas = async (req, res) => {
-  try {
-    const user = await Family.findOne({ username: req.session.username });
+    try {
+        const user = await Family.findOne({ username: req.session.username });
 
-    const ideas = await Idea.find()
-      .populate('authorId', 'familyName')
-      .populate('comments.author', 'familyName')
-      .sort({ createdAt: -1 });
+        const ideas = await Idea.find()
+            .populate('authorId', 'familyName')
+            .populate('comments.author', 'familyName')
+            .sort({ createdAt: -1 });
 
-    res.render('user/ideas', {
-      posts: ideas,
-      user
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Server Error');
-  }
+        res.render('user/ideas', {
+            posts: ideas,
+            user
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server Error');
+    }
 };
 
 const create_idea = [
-  upload2, async (req, res) => {
+    upload2, async (req, res) => {
     try {
         const username = req.session.username; // ดึง username จาก session
         if (!username) {
@@ -597,74 +597,74 @@ const create_idea = [
             imageUrl: imagePath
         });
 
-      return res.redirect('/user/ideas');
+        return res.redirect('/user/ideas');
     } catch (error) {
-      console.error(error);
-      res.status(500).send('Server error');
+        console.error(error);
+        res.status(500).send('Server error');
     }
-  }
+    }
 ];
 // กดไลค์
 const like_idea = async (req, res) => {
-  try {
-    const idea = await Idea.findById(req.params.id);
-    if (!idea) return res.status(404).json({ success: false, message: 'Idea not found' });
+    try {
+        const idea = await Idea.findById(req.params.id);
+        if (!idea) return res.status(404).json({ success: false, message: 'Idea not found' });
 
-    const userId = req.user ? req.user._id.toString() : null;
-    if (!userId) return res.status(401).json({ success: false, message: 'Please login to like' });
+        const userId = req.user ? req.user._id.toString() : null;
+        if (!userId) return res.status(401).json({ success: false, message: 'Please login to like' });
 
-    const index = idea.likes.findIndex(id => id.toString() === userId);
-    if (index === -1) {
-      idea.likes.push(userId);
-    } else {
-      idea.likes.splice(index, 1);
+        const index = idea.likes.findIndex(id => id.toString() === userId);
+        if (index === -1) {
+        idea.likes.push(userId);
+        } else {
+        idea.likes.splice(index, 1);
+        }
+        await idea.save();
+
+        res.json({ success: true, likeCount: idea.likes.length });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false });
     }
-    await idea.save();
-
-    res.json({ success: true, likeCount: idea.likes.length });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false });
-  }
 };
 
 
 // คอมเมนต์
 const comment_idea = async (req, res) => {
-  try {
-    const username = req.session.username;
-    if (!username) {
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    try {
+        const username = req.session.username;
+        if (!username) {
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        }
+
+        const user = await Family.findOne({ username: username });
+        if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        const { comment } = req.body;
+        if (!comment || comment.trim() === '') {
+        return res.status(400).json({ success: false, message: 'Comment is required' });
+        }
+
+        const idea = await Idea.findById(req.params.id);
+        if (!idea) {
+        return res.status(404).json({ success: false, message: 'Idea not found' });
+        }
+
+        idea.comments.push({
+        author: user._id,  // เก็บเป็น ObjectId ของ user
+        content: comment.trim(),
+        createdAt: new Date()
+        });
+
+        await idea.save();
+
+        res.status(200).json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Error posting comment' });
     }
-
-    const user = await Family.findOne({ username: username });
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
-
-    const { comment } = req.body;
-    if (!comment || comment.trim() === '') {
-      return res.status(400).json({ success: false, message: 'Comment is required' });
-    }
-
-    const idea = await Idea.findById(req.params.id);
-    if (!idea) {
-      return res.status(404).json({ success: false, message: 'Idea not found' });
-    }
-
-    idea.comments.push({
-      author: user._id,  // เก็บเป็น ObjectId ของ user
-      content: comment.trim(),
-      createdAt: new Date()
-    });
-
-    await idea.save();
-
-    res.status(200).json({ success: true });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: 'Error posting comment' });
-  }
 };
 
 

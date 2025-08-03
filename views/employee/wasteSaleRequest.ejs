@@ -126,6 +126,15 @@
                                             <span>พิกัด : <%= request.location %></span>
                                         </div>
                                     </div>
+
+                                    
+                                    <div class="flex flex-wrap items-center text-sm text-gray-600">
+                                        <span>รายการขาย : </span>
+                                        <% request.waste.forEach(w => { %>
+                                            <span><%= w.wasteName %>,</span>
+                                        <% }) %>
+                                    </div>
+                                    
                                 </div>
                                 
                                 <div class="flex items-center">
