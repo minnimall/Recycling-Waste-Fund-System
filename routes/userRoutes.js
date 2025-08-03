@@ -49,5 +49,7 @@ router.get('/ideas', userController.user_ideas)
 router.post('/ideas/create', userController.create_idea);
 router.post('/ideas/:id/like',  isAuthenticated, userController.like_idea);
 router.post('/ideas/:id/comment', userController.comment_idea);
+router.delete('/ideas/delete/:id', userController.delete_ideas);
+router.post('/ideas/edit/:id', userController.edit_idea);
 
 module.exports = router
