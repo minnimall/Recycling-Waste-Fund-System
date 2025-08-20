@@ -47,7 +47,7 @@
     <div class="content bg-gray-50 min-screen">
         <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
             <div>
-                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">กิจกรรม</h1>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">กิจกรรม <span class="text-blue-600 text-xl ml-2 font-normal">(ทั้งหมด <%= activity.length %> รายการ)</span></h1>
                 <p class="text-gray-600">กิจกรรมของกองทุนขยะรีไซเคิล</p>
             </div>
             
@@ -56,101 +56,44 @@
             </div>
         </div>
 
-        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
-            <form action="" method="GET">
-                <div class="flex flex-col md:flex-row gap-4">
-                    <div class="flex-1">
-                        <div class="relative">
-                            <input type="text" name="search" value="<%= searchQuery %>" placeholder="ค้นหากิจกรรม" 
-                                class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                            <div class="absolute left-3 top-2.5 text-gray-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <button class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                            <i class="fas fa-search mr-2"></i>ค้นหา
-                        </button>
-                    </div>
-                </div>
-            </form>
+<!-- Search + ItemsPerPage -->
+<div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex flex-col md:flex-row justify-between items-center gap-4">
+    <div class="flex-1 relative w-full">
+        <input type="text" id="searchInput" placeholder="ค้นหากิจกรรม..." 
+            class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+        <div class="absolute left-3 top-2.5 text-gray-400">
+            <i class="fas fa-search"></i>
         </div>
+    </div>
+    <div class="flex items-center gap-2">
+        <label for="itemsPerPage" class="text-sm text-gray-600">แสดง:</label>
+        <select id="itemsPerPage" class="border rounded-lg px-2 py-1 focus:ring-2 focus:ring-green-500">
+            <option value="5" selected>5</option>
+            <option value="10">10</option>
+            <option value="20">20</option>
+        </select>
+    </div>
+</div>
 
-        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
-            <div class="mb-4 border-b border-gray-200 border-b border-gray-200 pb-4">
-                <h2 class="text-base font-semibold text-gray-800 mb-4 md:mb-0">
-                    สื่อความรู้ทั้งหมด <span class="text-blue-600 text-base font-normal"> <%= totalItems %> รายการ</span>
-                </h2>
-            </div>
+<!-- Container -->
+<div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+    <div class="mb-4 border-b border-gray-200 pb-4">
+        <h2 class="text-base font-semibold text-gray-800">
+            สื่อความรู้ <span id="totalItems" class="text-blue-600 text-base font-normal"></span>
+        </h2>
+    </div>
 
-            <!-- ส่วนแสดงชื่อและวิดีโอ -->
-            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
-                <% if (activity.length > 0) { %>
-                    <% activity.forEach((act, index) => { %>
-                            <% if (index < 10) { %>
-                            <div class="bg-gray-100 border border-gray-300 p-4 rounded-lg shadow-md transition-transform transform hover:scale-105 relative">
-                                <img src="<%= act.img %>" alt="Item" class="w-full h-[150px] object-cover rounded">
-                                <h2 class="text-lg font-medium mt-2 h-[100px] overflow-hidden"><%= act.title %></h2>
-                                <p class="text-gray-400 text-xs mt-1">วันที่ <%= act.formattedDate %></p>
-                                <div class="flex flex-auto items-center justify-end">
-                                    <button class="edit-btn" onclick="openEditModal('<%= act._id %>', '<%= act.title %>', '<%= act.content %>', '<%= act.img %>')">
-                                        <i class="fa fa-edit"></i>
-                                    </button>
-                                    <button onclick="deleteActivity('<%= act._id %>', '<%= act.title %>')" class="delete-btn">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        <% } %>
-                    <% }) %>
-                <% } else { %>
-                    <div class="col-span-full">
-                        <div class="text-center py-16 bg-white rounded-xl shadow-sm">
-                            <div class="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                                <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                                </svg>
-                            </div>
-                            <h3 class="text-lg font-medium text-gray-900 mb-2">ยังไม่มีสื่อความรู้</h3>
-                            <p class="text-gray-500 mb-6">เริ่มต้นสร้างสื่อความรู้แรกของคุณ</p>
-                            <button type="button" 
-                                class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
-                                onclick="openModal()">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                                </svg>
-                                เพิ่มสื่อความรู้
-                            </button>
-                        </div>
-                    </div>
-                <% } %>
-            </div>
-        </div>
+    <div id="cardsContainer" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6"></div>
 
-        <div class="pagination flex justify-center items-center mt-4 space-x-2">
-            <% if (currentPage > 1) { %>
-                <a href="?page=<%= currentPage - 1 %>&search=<%= search %>"
-                    class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                    ก่อนหน้า
-                </a>
-            <% } %>
-            <% for (let i = 1; i <= totalPages; i++) { %>
-                <a href="?page=<%= i %>&search=<%= search %>"
-                    class="px-3 py-1 border border-gray-300 rounded-md 
-                        <%= currentPage === i ? 'page-current text-white' : 'text-gray-700 hover:bg-gray-100' %>">
-                    <%= i %>
-                </a>
-            <% } %>
-            <% if (currentPage < totalPages) { %>
-                <a href="?page=<%= currentPage + 1 %>&search=<%= search %>"
-                    class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                    ถัดไป
-                </a>
-            <% } %>
-        </div>
+    <!-- No results -->
+    <div id="noResults" class="hidden text-center py-8 text-gray-500">
+        - ไม่พบข้อมูล -
+    </div>
+
+    <!-- Pagination -->
+    <div id="pagination" class="flex justify-center mt-6 gap-2"></div>
+</div>
+
     </div>
 
     <!-- Modal สำหรับแก้ไขกิจกรรม -->
@@ -194,66 +137,6 @@
                             class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition">ยืนยัน</button>
                 </div>
             </form>
-        </div>
-    </div>
-
-    
-    <!-- Main content -->
-    <div class="content">
-        <div class="flex items-center justfy-between">
-            <h1 class="w-full">กิจกรรม (<%= totalItems %> รายการ)</h1>
-            <div class="search-container flex items-center">
-                <!-- ช่องค้นหากิจกรรม -->
-                <form action="/admin/activity" method="GET" class="search-form">
-                    <input type="text" name="search" value="<%= searchQuery %>" placeholder="ค้นหากิจกรรม" class="search-input">
-                    <button type="submit" class="main-bg-color search-button">ค้นหา</button>
-                </form>
-                <button class="main-bg-color px-3 py-2 ml-2 text-white rounded" onclick="openModal()">เพิ่มกิจกรรม</button>
-            </div>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-6">
-            <% if (activity.length > 0) { %>
-                <% activity.forEach((act, index) => { %>
-                    <% if (index < 10) { %> <div class="bg-gray-100 border border-gray-300 p-4 rounded-lg shadow-md transition-transform transform hover:scale-105 relative">
-                            <img src="<%= act.img %>" alt="Item" class="w-full h-[150px] object-cover rounded">
-                            <h4 class="text-sm font-medium mt-2 h-[100px] overflow-hidden text-ellipsis line-clamp-4"><%= act.title %></h4>
-                            <p class="text-gray-400 text-xs mt-1">วันที่ <%= act.formattedDate %></p>
-                            <div class="flex flex-auto items-center justify-end">
-                                <button class="edit-btn" onclick="openEditModal('<%= act._id %>', '<%= act.title %>', '<%= act.content %>', '<%= act.img %>')">
-                                    <i class="fa fa-edit"></i>
-                                </button>
-                                <button onclick="deleteActivity('<%= act._id %>', '<%= act.title %>')" class="delete-btn">
-                                    <i class="fa fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    <% } %>
-                <% }) %>
-            <% } else { %>
-                <p>- ไม่พบข้อมูลประเภทขยะ -</p>
-            <% } %>
-        </div>
-        <!-- Pagination -->
-        <div class="pagination w-full flex justify-center items-center mt-4 space-x-2">
-            <% if (currentPage > 1) { %>
-                <a href="?page=<%= currentPage - 1 %>&search=<%= search %>"
-                    class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                    ก่อนหน้า
-                </a>
-            <% } %>
-            <% for (let i = 1; i <= totalPages; i++) { %>
-                <a href="?page=<%= i %>&search=<%= search %>"
-                    class="px-3 py-1 border border-gray-300 rounded-md 
-                        <%= currentPage === i ? 'page-current text-white' : 'text-gray-700 hover:bg-gray-100' %>">
-                    <%= i %>
-                </a>
-            <% } %>
-            <% if (currentPage < totalPages) { %>
-                <a href="?page=<%= currentPage + 1 %>&search=<%= search %>"
-                    class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                    ถัดไป
-                </a>
-            <% } %>
         </div>
     </div>
 
@@ -321,7 +204,106 @@
                 }
             });
         }
-    </script>
+            const allActivity = <%- JSON.stringify(activity) %>;
+            const searchInput = document.getElementById("searchInput");
+            const itemsPerPageSelect = document.getElementById("itemsPerPage");
+            const cardsContainer = document.getElementById("cardsContainer");
+            const pagination = document.getElementById("pagination");
+            const noResults = document.getElementById("noResults");
+            const totalItems = document.getElementById("totalItems");
 
+            let currentPage = 1;
+            let itemsPerPage = parseInt(itemsPerPageSelect.value);
+            let filteredData = [...allActivity];
+
+            // Template card
+            function createCard(act) {
+                return `
+                    <div class="bg-gray-100 border border-gray-300 p-4 rounded-lg shadow-md transition-transform transform hover:scale-105 relative">
+                        <img src="${act.img}" alt="Item" class="w-full h-[150px] object-cover rounded">
+                        <h2 class="text-lg font-medium mt-2 h-[100px] overflow-hidden">${act.title}</h2>
+                        <p class="text-gray-400 text-xs mt-1">วันที่ ${formatDate(act.createdAt)}</p>
+                        <div class="flex flex-auto items-center justify-end">
+                            <button class="edit-btn" onclick="openEditModal('${act._id}', '${act.title}', '${act.content}', '${act.img}')">
+                                <i class="fa fa-edit"></i>
+                            </button>
+                            <button onclick="deleteActivity('${act._id}', '${act.title}')" class="delete-btn">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // ฟอร์แมทวันที่
+            function formatDate(dateStr) {
+                const d = new Date(dateStr);
+                return d.toLocaleDateString("th-TH", { year: "numeric", month: "short", day: "numeric" });
+            }
+
+            // แสดงผล
+            function displayData() {
+                const start = (currentPage - 1) * itemsPerPage;
+                const end = start + itemsPerPage;
+                const dataToShow = filteredData.slice(start, end);
+
+                totalItems.textContent = `${filteredData.length} รายการ`;
+
+                if (dataToShow.length === 0) {
+                    noResults.classList.remove("hidden");
+                    cardsContainer.innerHTML = "";
+                    pagination.innerHTML = "";
+                    return;
+                }
+
+                noResults.classList.add("hidden");
+                cardsContainer.innerHTML = dataToShow.map(createCard).join("");
+                renderPagination();
+            }
+
+            // Pagination
+            function renderPagination() {
+                const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+                if (totalPages <= 1) {
+                    pagination.innerHTML = "";
+                    return;
+                }
+                let html = "";
+                for (let i = 1; i <= totalPages; i++) {
+                    html += `<button onclick="goToPage(${i})" 
+                                class="px-3 py-1 border rounded ${i === currentPage ? 'bg-green-600 text-white' : 'bg-white text-gray-700'}">
+                                ${i}
+                            </button>`;
+                }
+                pagination.innerHTML = html;
+            }
+
+            function goToPage(page) {
+                currentPage = page;
+                displayData();
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+
+            // Search
+            searchInput.addEventListener("input", () => {
+                const term = searchInput.value.toLowerCase();
+                filteredData = allActivity.filter(act =>
+                    act.title.toLowerCase().includes(term) || 
+                    (act.content && act.content.toLowerCase().includes(term))
+                );
+                currentPage = 1;
+                displayData();
+            });
+
+            // Change items per page
+            itemsPerPageSelect.addEventListener("change", () => {
+                itemsPerPage = parseInt(itemsPerPageSelect.value);
+                currentPage = 1;
+                displayData();
+            });
+
+            // Init
+            displayData();
+        </script>
 </body>
 </html>

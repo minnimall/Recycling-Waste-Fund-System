@@ -49,7 +49,7 @@
     <div class="content bg-gray-50 min-screen">
         <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
             <div>
-                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">ประเภทขยะ</h1>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">ประเภทขยะ <span class="text-blue-600 text-xl ml-2 font-normal">(ทั้งหมด <%= wastetype.length %> รายการ)</span></h1>
                 <p class="text-gray-600">ขยะทั้งหมดที่รับซื้อของกองทุนขยะรีไซเคิล</p>
             </div>
             
@@ -57,75 +57,6 @@
                 <button type="button" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition duration-300" onclick="wasFormToggle()">เพิ่มประเภทขยะ</button>
             </div>
         </div>
-
-        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
-            <form action="" method="GET">
-                <div class="flex flex-col md:flex-row gap-4">
-                    <div class="flex-1">
-                        <div class="relative">
-                            <input type="text" name="search" value="<%= search %>" placeholder="ค้นหาประเภทขยะ" 
-                                class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                            <div class="absolute left-3 top-2.5 text-gray-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <button class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                            <i class="fas fa-search mr-2"></i>ค้นหา
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-
-        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
-            <div class="mb-4 border-b border-gray-200 border-b border-gray-200 pb-4">
-                <h2 class="text-base font-semibold text-gray-800 mb-4 md:mb-0">
-                    จำนวนประเภทขยะทั้งหมด <span class="text-blue-600 text-base font-normal"> <%= wastetype.length %> รายการ</span>
-                </h2>
-            </div>
-        
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-lef text-gray-700 uppercase">ลำดับ</th>
-                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">ชื่อประเภทขยะ</th>
-                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">จัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <% if (wastetype && wastetype.length > 0) { %>
-                            <% wastetype.forEach((wastetypee, index) => { %>
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-4 py-3 text-sm whitespace-nowrap text-center"><%= (currentPage - 1) * 5 + index + 1 %></td>
-                                    <td class="px-4 py-3 text-sm whitespace-nowrap"><%= wastetypee.wasteTypeName %></td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-center">
-                                        <button type="button" class="was-row-<%= index + 1 %> row-active edit-btn" 
-                                            onclick="setWasteTypeForm('<%= index + 1 %>', '<%= wastetypee._id %>', '<%= wastetypee.wasteTypeName %>', '<%= wastetypee.colorTheme %>')">
-                                            <i class="fa fa-edit"></i>
-                                        </button>
-                                        <button 
-                                            onclick="deleteWasteType(['<%= (currentPage - 1) * 5 + index + 1 %>', '<%= wastetypee._id %>','<%= wastetypee.wasteTypeName %>'])" 
-                                                    class="delete-btn">
-                                            <i class="fa fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            <% }); %>
-                        <% } else { %>
-                            <tr>
-                                <td colspan="6" class="text-center py-2 px-4">- ไม่พบข้อมูลประเภทขยะ -</td>
-                            </tr>
-                        <% } %>
-                    </tbody>                    
-                </table>
-            </div>
-        </div>
-
         <!-- Modal Edit -->
         <div id="edit_Form" class="fixed inset-0 z-50 bg-black bg-opacity-30 flex items-center justify-center hidden">
             <form action="/admin/wasteTypeEdit" method="POST" enctype="application/x-www-form-urlencoded"
@@ -224,30 +155,49 @@
                 </form>
             </div>
         </div>
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+            <div class="flex flex-col md:flex-row gap-4 mb-4">
+                <div class="flex-1 relative">
+                <input type="text" id="searchInput" placeholder="ค้นหาประเภทขยะ"
+                        class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                <div class="absolute left-3 top-2.5 text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                </div>
+                <div class="flex items-center gap-2">
+                <label for="itemsPerPage" class="text-sm text-gray-600">แสดง:</label>
+                <select id="itemsPerPage" class="px-4 py-2 rounded-lg border border-gray-300">
+                    <option value="5" selected>5</option>
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                </select>
+                </div>
+            </div>
 
-        <!-- Pagination -->
-        <div class="pagination flex justify-center items-center mt-4 space-x-2">
-            <% if (currentPage > 1) { %>
-                <a href="?page=<%= currentPage - 1 %>&search=<%= search %>"
-                        class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                            ก่อนหน้า
-                </a>
-            <% } %>
-            <% for (let i = 1; i <= totalPages; i++) { %>
-                <a href="?page=<%= i %>&search=<%= search %>"
-                        class="px-3 py-1 border border-gray-300 rounded-md 
-                                <%= currentPage === i ? 'page-current text-white' : 'text-gray-700 hover:bg-gray-100' %>">
-                                <%= i %>
-                </a>
-            <% } %>
-            <% if (currentPage < totalPages) { %>
-                <a href="?page=<%= currentPage + 1 %>&search=<%= search %>"
-                        class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                            ถัดไป
-                </a>
-            <% } %>
+            <div class="mb-4 flex justify-between items-center">
+                <h2 class="text-base font-semibold text-gray-800">
+                ประเภทขยะ <span id="totalItems" class="text-blue-600 text-base font-normal"></span>
+                </h2>
+                <span id="filteredCount" class="text-gray-600 text-sm"></span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-100">
+                    <tr>
+                    <th class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">ลำดับ</th>
+                    <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">ชื่อประเภทขยะ</th>
+                    <th class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody" class="bg-white divide-y divide-gray-200"></tbody>
+                </table>
+            </div>
+
+            <div id="pagination" class="mt-4 flex justify-center gap-2"></div>
         </div>
-
     </div>
 
 </body>
@@ -345,5 +295,90 @@
                 lastClickedRow = null;
             }
         }
-    </script>
+
+
+  const wastetypeData = <%- JSON.stringify(wastetype) %>;
+  const tableBody = document.getElementById('tableBody');
+  const pagination = document.getElementById('pagination');
+  const searchInput = document.getElementById('searchInput');
+  const itemsPerPageSelect = document.getElementById('itemsPerPage');
+
+  
+  document.getElementById("totalItems").textContent = `${wastetypeData.length} รายการ`
+
+  let currentPage = 1;
+  let itemsPerPage = parseInt(itemsPerPageSelect.value);
+  let filteredData = [...wastetypeData];
+
+  function createRow(item, index) {
+    return `
+      <tr class="hover:bg-gray-50 transition-colors">
+        <td class="px-4 py-3 text-sm whitespace-nowrap text-center">${(currentPage-1)*itemsPerPage + index + 1}</td>
+        <td class="px-4 py-3 text-sm whitespace-nowrap">${item.wasteTypeName}</td>
+        <td class="px-4 py-3 whitespace-nowrap text-center">
+          <button type="button" class="was-row-${(currentPage-1)*itemsPerPage + index + 1} row-active edit-btn" 
+              onclick="setWasteTypeForm('${(currentPage-1)*itemsPerPage + index + 1}', '${item._id}', '${item.wasteTypeName}', '${item.colorTheme}')">
+              <i class="fa fa-edit"></i>
+          </button>
+          <button 
+              onclick="deleteWasteType(['${(currentPage-1)*itemsPerPage + index + 1}', '${item._id}','${item.wasteTypeName}'])" 
+                      class="delete-btn">
+              <i class="fa fa-trash"></i>
+          </button>
+        </td>
+      </tr>
+    `;
+  }
+
+  function displayData() {
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const dataToShow = filteredData.slice(start, end);
+
+
+    if(dataToShow.length === 0){
+      tableBody.innerHTML = '<tr><td colspan="3" class="text-center py-2">- ไม่พบข้อมูลประเภทขยะ -</td></tr>';
+      pagination.innerHTML = '';
+      return;
+    }
+
+    tableBody.innerHTML = dataToShow.map(createRow).join('');
+    renderPagination();
+  }
+
+  function renderPagination() {
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    if(totalPages <= 1) {
+      pagination.innerHTML = '';
+      return;
+    }
+    let html = '';
+    for(let i=1; i<=totalPages; i++){
+      html += `<button onclick="goToPage(${i})" class="px-3 py-1 border rounded ${i===currentPage ? 'bg-green-500 text-white' : 'bg-white text-gray-700'}">${i}</button>`;
+    }
+    pagination.innerHTML = html;
+  }
+
+  function goToPage(page){
+    currentPage = page;
+    displayData();
+  }
+
+  searchInput.addEventListener('input', () => {
+    const term = searchInput.value.toLowerCase();
+    filteredData = wastetypeData.filter(w => w.wasteTypeName.toLowerCase().includes(term));
+    currentPage = 1;
+    document.getElementById("totalItems").textContent = `${filteredData.length} รายการ`
+    displayData();
+  });
+
+  itemsPerPageSelect.addEventListener('change', () => {
+    itemsPerPage = parseInt(itemsPerPageSelect.value);
+    currentPage = 1;
+    displayData();
+  });
+
+  // เริ่มต้น
+  displayData();
+</script>
 </html>

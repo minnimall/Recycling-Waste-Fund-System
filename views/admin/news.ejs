@@ -50,7 +50,7 @@
         <div class="content bg-gray-50 min-screen">
             <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
                 <div>
-                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">ข่าวสาร</h1>
+                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">ข่าวสาร <span class="text-blue-600 text-xl ml-2 font-normal">(ทั้งหมด <%= news.length %> รายการ)</span></h1>
                     <p class="text-gray-600">ข่าวสารทั้งหมดของกองทุนขยะรีไซเคิล</p>
                 </div>
                 
@@ -60,79 +60,71 @@
             </div>
 
             <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
-                <form action="" method="GET">
-                    <div class="flex flex-col md:flex-row gap-4">
-                        <div class="flex-1">
-                            <div class="relative">
-                                <input type="text" name="search" value="" placeholder="ค้นหาข่าวสาร" 
-                                    class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                                <div class="absolute left-3 top-2.5 text-gray-400">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <button class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                                <i class="fas fa-search mr-2"></i>ค้นหา
-                            </button>
-                        </div>
+                  <!-- ค้นหา + เลือกจำนวน -->
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div class="relative flex-1">
+                    <input type="text" id="searchInput" placeholder="ค้นหาข่าวสาร" 
+                        class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        oninput="renderNews()" />
+                    <div class="absolute left-3 top-2.5 text-gray-400">
+                        <i class="fas fa-search"></i>
                     </div>
-                </form>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                    <label for="perPage" class="text-sm text-gray-600">แสดง</label>
+                    <select id="perPage" onchange="renderNews()" 
+                        class="px-2 py-1 border rounded-lg">
+                        <option value="5" selected>5</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                    </select>
+                    <span class="text-sm text-gray-600">รายการ</span>
+                    </div>
+                </div>
             </div>
 
             <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
-                <div class="mb-4 border-b border-gray-200 border-b border-gray-200 pb-4">
-                    <h2 class="text-base font-semibold text-gray-800 mb-4 md:mb-0">
-                        จำนวนข่าวสารทั้งหมด <span class="text-blue-600 text-base font-normal"> <%= totalItems %> รายการ</span>
-                    </h2>
-                </div>
-            
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-100">
-                            <tr>
-                                <th class="px-4 py-3 text-sm font-medium tracking-wider text-lef text-gray-700 uppercase">ลำดับ</th>
-                                <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">หัวข้อ</th>
-                                <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">คำอธิบาย</th>
-                                <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">วันที่โพสต์</th>
-                                <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">ผู้ที่โพส</th>
-                                <th class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">จัดการ</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <% if (news && news.length > 0) { %>
-                                <% news.forEach((newsItem, index) => { %>
-                                    <tr class="hover:bg-gray-50 transition-colors">
-                                        <td class="px-4 py-3 text-sm whitespace-nowrap text-center"><%= (currentPage - 1) * 10 + index + 1 %></td>
-                                        <td class="px-4 py-3 text-sm whitespace-nowrap"><%= newsItem.newsTitle %></td>
-                                        <td class="px-4 py-3 text-sm whitespace-nowrap"><%= newsItem.newsDescription %></td>
-                                        <td class="px-4 py-3 text-sm whitespace-nowrap"><%= newsItem.formattedDate %></td>
-                                        <td class="px-4 py-3 text-sm whitespace-nowrap"><%= newsItem.newsAuthor %></td>
-                                        <td class="px-4 py-3 whitespace-nowrap text-center">
-                                            <button onclick="" class="edit-btn">
-                                                <i class="fa fa-edit"></i>
-                                            </button>
-                                            <button onclick="deleteNews('<%= newsItem._id %>', '<%= newsItem.newsTitle %>')" class="delete-btn">
-                                                <i class="fa fa-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                <% }); %>
-                            <% } else { %>
-                                <tr>
-                                    <td colspan="6" class="text-center py-2 px-4">- ไม่พบข้อมูลข่าวสาร -</td>
-                                </tr>
-                            <% } %>
-                        </tbody>                    
-                    </table>
-                </div>
+
+            <!-- จำนวนทั้งหมด -->
+            <div class="mb-4 border-b border-gray-200 pb-4">
+                <h2 class="text-base font-semibold text-gray-800 mb-2">
+                จำนวนข่าวสาร
+                <span id="totalItems" class="text-blue-600 text-base font-normal">0 รายการ</span>
+                </h2>
+            </div>
+
+            <!-- ตาราง -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-100">
+                    <tr>
+                    <th class="px-4 py-3 text-sm font-medium text-gray-700 uppercase">ลำดับ</th>
+                    <th class="px-4 py-3 text-sm font-medium text-gray-700 uppercase">หัวข้อ</th>
+                    <th class="px-4 py-3 text-sm font-medium text-gray-700 uppercase">คำอธิบาย</th>
+                    <th class="px-4 py-3 text-sm font-medium text-gray-700 uppercase">วันที่โพสต์</th>
+                    <th class="px-4 py-3 text-sm font-medium text-gray-700 uppercase">ผู้ที่โพส</th>
+                    <th class="px-4 py-3 text-sm font-medium text-gray-700 uppercase text-center">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody id="newsTable" class="bg-white divide-y divide-gray-200">
+                    <!-- แสดงข้อมูลด้วย JS -->
+                </tbody>
+                </table>
+            </div>
+
+            <!-- pagination -->
+            <div id="pagination" class="flex justify-center mt-4 space-x-2"></div>
             </div>
         </div>
 
-        <!-- Modal -->
-        <div id="modal" class="fixed top-0 left-0 w-full h-full z-50 bg-black bg-opacity-30 hidden">
+
+
+
+
+
+            <!-- Modal -->
+            <div id="modal" class="fixed top-0 left-0 w-full h-full z-50 bg-black bg-opacity-30 hidden">
             <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl px-4">
                 <form action="/admin/newsPost" method="POST" enctype="multipart/form-data"
                     class="bg-white rounded-xl shadow-lg p-6 space-y-5" id="newsForm">
@@ -178,113 +170,7 @@
                 </form>
             </div>
         </div>
-
-
-            <!-- Main content -->
-            <div class="screen z-[10]" id="modal">
-                <form class="mx-auto mt-[13em] w-1/2 bg-gray-100 border border-gray-300 p-4 rounded-lg shadow-md transition-transform transform relative " action="/admin/newsPost" method="POST" enctype="multipart/form-data">
-                    <h1 class="text-bold text-gray-600 text-2xl">เพิ่มกิจกรรม/ข่าวสาร</h1>
-                    <hr class="my-2">
-                    <label for="activityTitle" class="text-bold text-gray-500 text-lg">หัวข้อกิจกรรม</label> <br>
-                    <input type="text" name="newsTitle" id="newsTitle" class="w-full p-2 border border-gray-200 rounded-lg" required placeholder="ระบุหัวข้อกิจกรรม">
-                    <label for="newsDescription" class="text-bold text-gray-500 text-lg">คำอธิบาย</label> <br>
-                    <input type="text" name="newsDescription" class="w-full p-2 border border-gray-200 rounded-lg" id="newsDescription" required placeholder="คำอธิบาย">
-                    <label for="newsAuthor" class="text-bold text-gray-500 text-lg">ผู้เขียน</label> <br>
-                    <input type="hidden" name="newsAuthor" id="newsAuthor" class="w-full p-2 border border-gray-200 rounded-lg" required placeholder="ระบุชื่อผู้เขียน" value="<%= username %>">
-                    <label for="newsFile" class="text-bold text-gray-500 text-lg">รายละเอียดกิจกรรม (ไฟล์ PDF)</label> <br>
-                    <label class="block w-full p-2 border border-gray-200 rounded-lg">
-                        <span class="sr-only">Choose profile photo</span>
-                        <input type="file" name="newsFile" id="newsFile" accept=".pdf" class="block w-full text-sm text-slate-500
-                            file:mr-4 file:py-2 file:px-4
-                            file:rounded-full file:border-0
-                            file:text-sm file:font-semibold
-                            file:bg-violet-50 file:text-violet-700
-                            hover:file:bg-violet-100
-                        " required>
-                    </label>
-                    <hr class="my-5">
-                    <div class="mt-2 flex justify-end gap-2">
-                        <button class="submit px-2 py-1 text-white rounded" type="submit">โพสต์กิจกรรม</button>
-                        <span class="cancel px-2 py-1 text-white rounded mr-2" onclick="closeModal()">ปิด</span>
-                    </div>
-                </form>
-            </div>
-
-
-
-            <div class="content">
-                <div class="content-header">
-                    <h1 class="font-bold">การจัดการข่าวสาร (<%= totalItems %> รายการ)</h1>
-                    <div class="add-media" onclick="openModal()">เพิ่มสื่อ</div>
-                </div>
-                <div class="news-container">
-                    <div class="news-header">
-                        <div></div>
-                        <!-- ช่องค้นหากิจกรรม -->
-                        <form action="" method="GET" class="search-form">
-                            <input type="text" name="search" value="" placeholder="ค้นหากิจกรรม" class="search-input">
-                            <button type="submit" class="main-bg-color search-button">ค้นหา</button>
-                        </form>
-                    </div>
-
-                    <table class="min-w-full divide-y divide-gray-200 mt-4">
-                        <thead class="bg-gray-50">
-                            <tr class="bg-green-700 text-white">
-                                <th class="px-6 py-3 text-lg font-medium tracking-wider text-center uppercase">ลำดับที่</th>
-                                <th class="px-6 py-3 text-lg font-medium tracking-wider text-left uppercase">หัวข้อ</th>
-                                <th class="px-6 py-3 text-lg font-medium tracking-wider text-left uppercase">คำอธิบาย</th>
-                                <th class="px-6 py-3 text-lg font-medium tracking-wider text-center uppercase">วันที่โพส</th>
-                                <th class="px-6 py-3 text-lg font-medium tracking-wider text-left uppercase">ผู้ที่โพส</th>
-                                <th class="px-6 py-3 text-lg font-medium tracking-wider text-center uppercase">จัดการ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="modalHeaderInfo" class="bg-white divide-y divide-gray-200">
-                            <% if (news && news.length > 0) { %>
-                                <% news.forEach((newsItem, index) => { %>
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-center"><%= (currentPage - 1) * 10 + index + 1 %></td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-left"><%= newsItem.newsTitle %></td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-left"><%= newsItem.newsDescription %></td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-center"><%= newsItem.formattedDate %></td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-left"><%= newsItem.newsAuthor %></td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-center">
-                                            <!-- <a href="">แก้ไข</a> -->
-                                            <button onclick="deleteNews('<%= newsItem._id %>', '<%= newsItem.newsTitle %>')" class="delete-btn">
-                                                <i class="fa fa-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                <% }) %>
-                            <% } else { %>
-                                <tr>
-                                    <td colspan="6" class="p-3 text-center">There are no news to display ....</td>
-                                </tr>
-                            <% } %>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="pagination flex justify-center items-center mt-4 space-x-2">
-                    <% if (currentPage > 1) { %>
-                        <a href="?page=<%= currentPage - 1 %>"
-                            class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                            ก่อนหน้า
-                        </a>
-                    <% } %>
-                    <% for (let i = 1; i <= totalPages; i++) { %>
-                        <a href="?page=<%= i %>"
-                            class="px-3 py-1 border border-gray-300 rounded-md 
-                                <%= currentPage === i ? 'page-current text-white' : 'text-gray-700 hover:bg-gray-100' %>">
-                            <%= i %>
-                        </a>
-                    <% } %>
-                    <% if (currentPage < totalPages) { %>
-                        <a href="?page=<%= currentPage + 1 %>"
-                            class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                            ถัดไป
-                        </a>
-                    <% } %>
-                </div>
-            </div>
+    </div>
 </body>
     <%- include('../partials/adminPartials/adminFooter.ejs') %>
     <script>
@@ -349,6 +235,79 @@
                 }
             });
         }
+        
+        const news = <%- JSON.stringify(news.filter(m => !m.isDeleted)) %>
+
+        let currentPage = 1;
+        function formatDate(isoString) {
+            const d = new Date(isoString);
+            return d.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+        function renderNews() {
+        const search = document.getElementById("searchInput").value.toLowerCase();
+        const perPage = parseInt(document.getElementById("perPage").value);
+
+        // filter
+        const filtered = news.filter(item =>
+            item.newsTitle.toLowerCase().includes(search) ||
+            item.newsDescription.toLowerCase().includes(search) ||
+            item.newsAuthor.toLowerCase().includes(search)
+        );
+
+        // จำนวนทั้งหมด
+        document.getElementById("totalItems").innerText = `${filtered.length} รายการ`;
+
+        // pagination
+        const totalPages = Math.ceil(filtered.length / perPage);
+        if (currentPage > totalPages) currentPage = 1;
+        const start = (currentPage - 1) * perPage;
+        const paginated = filtered.slice(start, start + perPage);
+
+        // render table
+        const tbody = document.getElementById("newsTable");
+        tbody.innerHTML = paginated.length ? paginated.map((item, index) => `
+            <tr class="hover:bg-gray-50">
+            <td class="px-4 py-3 text-sm text-center">${start + index + 1}</td>
+            <td class="px-4 py-3 text-sm">${item.newsTitle}</td>
+            <td class="px-4 py-3 text-sm">${item.newsDescription}</td>
+            <td class="px-4 py-3 text-sm">${formatDate(item.createdAt)}</td>
+            <td class="px-4 py-3 text-sm">${item.newsAuthor}</td>
+            <td class="px-4 py-3 text-center">
+                <button onclick="openEditModal('${item._id}')" class="edit-btn mr-2">
+                <i class="fa fa-edit"></i>
+                </button>
+                <button onclick="deleteNews('${item._id}', '${item.newsTitle}')" class="delete-btn">
+                <i class="fa fa-trash"></i>
+                </button>
+            </td>
+            </tr>
+        `).join("") : `<tr><td colspan="6" class="text-center py-2">- ไม่พบข้อมูลข่าวสาร -</td></tr>`;
+
+        // render pagination
+        const paginationEl = document.getElementById("pagination");
+        paginationEl.innerHTML = "";
+        for (let i = 1; i <= totalPages; i++) {
+            paginationEl.innerHTML += `
+            <button onclick="goToPage(${i})" 
+                class="px-3 py-1 rounded ${i === currentPage ? "bg-green-600 text-white" : "bg-gray-200"}">
+                ${i}
+            </button>
+            `;
+        }
+        }
+
+        function goToPage(page) {
+        currentPage = page;
+        renderNews();
+        }
+
+        // ฟังก์ชันตัวอย่าง
+        function openEditModal(id) {
+        alert("แก้ไขข่าว ID: " + id);
+        }
+
+        // render ครั้งแรก
+        renderNews();
     </script>
 
 </html>
