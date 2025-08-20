@@ -9,7 +9,10 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>    
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     <script>
         $(document).ready(function() {
             $('#accountId').select2({
@@ -55,58 +58,147 @@
     <div class="content bg-gray-50 min-screen">
         <div class="flex gap-6 p-6">
             <!-- ฝั่งซ้าย: รายการขยะ -->
-            <div class="border p-4 rounded-lg shadow-lg left-box bg-white border ">
+            <div class="border p-4 rounded-lg shadow-lg left-box bg-white border">
                 <div class="flex justify-between items-center mb-5">
                     <h2 class="text-lg font-bold mb-4">เลือกรายการขยะ</h2>
-                    <div class="search-container">
-                        <!-- ช่องค้นหากิจกรรม -->
-                        <form action="/employee/wastePurchase" method="GET" class="search-form flex gap-2">
-                            <select name="wasteType" class="wasteType">
-                                <option value="">เลือกประเภทขยะ</option>
-                                <% wasteTypes.forEach((type) => { %>
-                                    <option value="<%= type._id %>" <%= selectedWasteType === type._id.toString() ? 'selected' : '' %>>
-                                        <%= type.wasteTypeName %>
-                                    </option>
-                                <% }); %>
-                            </select>
-                            <input type="text" name="search" value="<%= searchQuery %>" placeholder="ค้นหาขยะ" class="search-input">
-                            <button type="submit" class="search-button main-bg-color">ค้นหา</button>
-                        </form>                        
+                    <div class="flex items-center gap-4">
+                        <!-- ปุ่มเปลี่ยน Layout -->
+                        <div class="flex gap-2">
+                            <button id="cardViewBtn" class="px-3 py-2 bg-blue-500 text-white rounded text-sm" onclick="showCardView()">
+                                การ์ด
+                            </button>
+                            <button id="tableViewBtn" class="px-3 py-2 bg-gray-300 text-gray-700 rounded text-sm" onclick="showTableView()">
+                                ตาราง
+                            </button>
+                        </div>
+                        
+                        <div class="">
+                            <!-- ช่องค้นหากิจกรรม -->
+                            <form action="/employee/wastePurchase" method="GET" class="">
+                                <select name="wasteType" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">เลือกประเภทขยะ</option>
+                                    <% wasteTypes.forEach((type) => { %>
+                                        <option value="<%= type._id %>" <%= selectedWasteType === type._id.toString() ? 'selected' : '' %>>
+                                            <%= type.wasteTypeName %>
+                                        </option>
+                                    <% }); %>
+                                </select>
+                                <input type="text" name="search" value="<%= searchQuery %>" placeholder="ค้นหาขยะ" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                    <i class="fas fa-search mr-2"></i>ค้นหา
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
-                <div class="grid grid-cols-4 gap-4 overflow-y-scroll h-[630px]">
-                    <% if (waste.length > 0) { %>
-                        <% waste.forEach((item, index) => { %>
-                            <div class="border p-3 rounded-lg shadow-md h-auto" id="waste-card-<%= index %>">
-                                <img class="w-full h-32 object-cover mb-2" src="<%= item.img %>" alt="รูป <%= item.wasteName %>">
-                                <p class="text-center font-semibold mb-2"><%= item.wasteName %></p>
-                                <p class="text-center text-sm text-gray-500 mb-3">฿ <%= item.pricePerUnit %> บาท/กก.</p>
-                                
-                                <!-- ช่องกรอกน้ำหนัก -->
-                                <div class="space-y-2">
-                                    <input 
-                                        type="number" 
-                                        min="0.1" 
-                                        step="0.1" 
-                                        placeholder="น้ำหนัก (กก.)" 
-                                        class="w-full p-2 text-sm border rounded weight-input" 
-                                        id="weight-<%= index %>"
-                                        data-index="<%= index %>"
-                                        data-name="<%= item.wasteName %>"
-                                        data-price="<%= item.pricePerUnit %>"
-                                        oninput="handleWeightInput('<%= index %>')"
-                                        onblur="handleWeightBlur('<%= index %>')"
-                                    >
-                                </div>
-                            </div>
-                        <% }); %>
-                    <% } else { %>
-                        <div class="col-span-3 mt-3 no-data-container text-center">
-                            <span>- ยังไม่มีข้อมูล -</span>
+
+                <!-- Optional: Stats or Info Bar -->
+                <div class="mt-4 pt-4 border-t border-gray-200 mb-5">
+                    <div class="flex flex-wrap items-center justify-between gap-4 text-sm text-gray-600">
+                        <div class="flex items-center gap-4">
+                            <p class="text-base font-semibold text-gray-800 mb-4 md:mb-0">
+                                รายการขยะทั้งหมด <span class="text-blue-600 text-base font-normal"><%= waste.length %> รายการ</span>
+                            </p>
+                            <% if (searchQuery) { %>
+                                <span class="flex items-center gap-1">
+                                    <div class="w-2 h-2 bg-blue-400 rounded-full"></div>
+                                    ผลการค้นหา: "<%= searchQuery %>"
+                                </span>
+                            <% } %>
                         </div>
-                    <% } %>
+                        <!-- <div class="text-xs text-gray-500">
+                            อัพเดทล่าสุด: <%= new Date().toLocaleDateString('th-TH') %>
+                        </div> -->
+                    </div>
                 </div>
-            </div>            
+
+                <!-- แบบตาราง -->
+                <div id="tableView" style="display: none;">
+                    <div class="overflow-y-scroll h-[530px]">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase w-[10%]">ลำดับ</th>
+                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-700 uppercase w-[40%]">ชื่อรายการขยะ</th>
+                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase w-[25%]">ราคา/กก. (บาท)</th>
+                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase w-[25%]">น้ำหนัก (กก.)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <% if (waste.length > 0) { %>
+                                    <% waste.forEach((item, index) => { %>
+                                        <tr class="hover:bg-gray-50" id="waste-row-<%= index %>">
+                                            <td class="px-6 py-4 text-center text-sm text-gray-900"><%= index + 1 %></td>
+                                            <td class="px-6 py-4 text-sm text-gray-900 text-left">
+                                                <div class="flex items-center gap-3">
+                                                    <img class="w-10 h-10 object-cover rounded" src="<%= item.img %>" alt="รูป <%= item.wasteName %>">
+                                                    <%= item.wasteName %>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 text-sm text-center text-gray-900"><%= item.pricePerUnit %></td>
+                                            <td class="px-6 py-4 text-sm text-center">
+                                                <input
+                                                    type="number"
+                                                    min="0.1"
+                                                    step="0.1"
+                                                    placeholder="0.0"
+                                                    class="weight-input w-24 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                                    id="table-weight-<%= index %>"
+                                                    data-index="<%= index %>"
+                                                    data-name="<%= item.wasteName %>"
+                                                    data-price="<%= item.pricePerUnit %>"
+                                                    data-layout="table"
+                                                    oninput="handleWeightInput('<%= index %>', 'table')"
+                                                    onblur="handleWeightBlur('<%= index %>', 'table')"
+                                                >
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="4" class="px-6 py-10 text-center text-gray-500">- ยังไม่มีข้อมูล -</td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- แบบการ์ด -->
+                <div id="cardView" style="display: block;">
+                    <div class="grid grid-cols-5 gap-4 min-h-[200px] max-h-[530px] overflow-y-auto">
+                        <% if (waste.length > 0) { %>
+                            <% waste.forEach((item, index) => { %>
+                                <div class="border p-3 rounded-lg shadow-md h-auto" id="waste-card-<%= index %>">
+                                    <img class="w-full h-32 object-cover mb-2" src="<%= item.img %>" alt="รูป <%= item.wasteName %>">
+                                    <p class="text-center font-semibold mb-2"><%= item.wasteName %></p>
+                                    <p class="text-center text-sm text-gray-500 mb-3">฿ <%= item.pricePerUnit %> บาท/กก.</p>
+                                    <div class="space-y-2">
+                                        <input
+                                            type="number"
+                                            min="0.1"
+                                            step="0.1"
+                                            placeholder="น้ำหนัก (กก.)"
+                                            class="w-full p-2 text-sm border rounded weight-input"
+                                            id="card-weight-<%= index %>"
+                                            data-index="<%= index %>"
+                                            data-name="<%= item.wasteName %>"
+                                            data-price="<%= item.pricePerUnit %>"
+                                            data-layout="card"
+                                            oninput="handleWeightInput('<%= index %>', 'card')"
+                                            onblur="handleWeightBlur('<%= index %>', 'card')"
+                                        >
+                                    </div>
+                                </div>
+                            <% }); %>
+                        <% } else { %>
+                            <div class="col-span-5 mt-3 no-data-container text-center">
+                                <span>- ยังไม่มีข้อมูล -</span>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>           
 
             <!-- ฝั่งขวา: ฟอร์มและรายการขยะที่เลือก -->
             <div class="border p-4 rounded-lg shadow-lg right-box bg-white border ">
@@ -198,7 +290,6 @@
 
         </div>
     </div>
-    <%- include('../partials/employeePartials/empFooter.ejs') %>
 </body>
 
 <script>
@@ -206,37 +297,42 @@
     let inputTimeout = {};
 
     // ฟังก์ชันสำหรับจัดการการกรอกน้ำหนักแบบทันที
-    function handleWeightInput(index) {
+    function handleWeightInput(index, layout) {
+        const inputId = `${layout}-weight-${index}`;
+        
         // ยกเลิก timeout เก่า
-        if (inputTimeout[index]) {
-            clearTimeout(inputTimeout[index]);
+        if (inputTimeout[inputId]) {
+            clearTimeout(inputTimeout[inputId]);
         }
 
         // ตั้ง timeout ใหม่ (รอ 1 วินาที)
-        inputTimeout[index] = setTimeout(() => {
-            addWasteFromCard(index);
+        inputTimeout[inputId] = setTimeout(() => {
+            addWasteFromInput(index, layout);
         }, 1000);
     }
 
     // ฟังก์ชันสำหรับจัดการเมื่อผู้ใช้เลิกโฟกัสจากช่องกรอก
-    function handleWeightBlur(index) {
+    function handleWeightBlur(index, layout) {
+        const inputId = `${layout}-weight-${index}`;
+        
         // ยกเลิก timeout
-        if (inputTimeout[index]) {
-            clearTimeout(inputTimeout[index]);
-            delete inputTimeout[index];
+        if (inputTimeout[inputId]) {
+            clearTimeout(inputTimeout[inputId]);
+            delete inputTimeout[inputId];
         }
 
-        const weightInput = document.getElementById(`weight-${index}`);
+        const weightInput = document.getElementById(inputId);
         const weight = parseFloat(weightInput.value);
         
         if (weight && weight > 0) {
-            addWasteFromCard(index);
+            addWasteFromInput(index, layout);
         }
     }
 
-    // ฟังก์ชันสำหรับเพิ่มขยะจากการ์ด
-    function addWasteFromCard(index) {
-        const weightInput = document.getElementById(`weight-${index}`);
+    // ฟังก์ชันสำหรับเพิ่มขยะจาก input (ทั้ง table และ card)
+    function addWasteFromInput(index, layout) {
+        const inputId = `${layout}-weight-${index}`;
+        const weightInput = document.getElementById(inputId);
         const weight = parseFloat(weightInput.value);
         
         if (!weight || weight <= 0) {
@@ -264,6 +360,9 @@
             });
         }
 
+        // Sync ค่าไปยัง layout อื่น
+        syncWeightInputs(index, weight, name);
+
         // อัพเดทรายการ
         updateSelectedWasteList();
 
@@ -276,6 +375,20 @@
             showConfirmButton: false,
             timer: 1000
         });
+    }
+
+    // ฟังก์ชันสำหรับ sync ค่าระหว่าง layout
+    function syncWeightInputs(index, weight, itemName) {
+        const tableInput = document.getElementById(`table-weight-${index}`);
+        const cardInput = document.getElementById(`card-weight-${index}`);
+        
+        // ตรวจสอบว่า input elements มีอยู่จริงและเป็นของ item เดียวกัน
+        if (tableInput && tableInput.dataset.name === itemName) {
+            tableInput.value = weight;
+        }
+        if (cardInput && cardInput.dataset.name === itemName) {
+            cardInput.value = weight;
+        }
     }
 
     function updateSelectedWasteList() {
@@ -336,6 +449,15 @@
             const totalPrice = (weight * item.pricePerUnit).toFixed(2);
             selectedWaste[index].weight = weight;
             selectedWaste[index].totalPrice = totalPrice;
+            
+            // หา index ของ item นี้จาก DOM เพื่อ sync input fields
+            const weightInputs = document.querySelectorAll('.weight-input');
+            weightInputs.forEach(input => {
+                if (input.dataset.name === item.name) {
+                    input.value = weight;
+                }
+            });
+            
             updateSelectedWasteList();
         }
     }
@@ -356,7 +478,7 @@
                 selectedWaste.splice(index, 1);
                 updateSelectedWasteList();
                 
-                // เคลียร์ช่องกรอกน้ำหนักของสินค้าที่ถูกลบ
+                // เคลียร์ช่องกรอกน้ำหนักของสินค้าที่ถูกลบใน layout ทั้งหมด
                 const weightInputs = document.querySelectorAll('.weight-input');
                 weightInputs.forEach(input => {
                     if (input.dataset.name === deletedItem.name) {
@@ -438,15 +560,37 @@
         if (e.target.classList.contains('weight-input') && e.key === 'Enter') {
             e.preventDefault();
             const index = parseInt(e.target.dataset.index);
+            const layout = e.target.dataset.layout;
+            const inputId = `${layout}-weight-${index}`;
             
             // ยกเลิก timeout
-            if (inputTimeout[index]) {
-                clearTimeout(inputTimeout[index]);
-                delete inputTimeout[index];
+            if (inputTimeout[inputId]) {
+                clearTimeout(inputTimeout[inputId]);
+                delete inputTimeout[inputId];
             }
             
-            addWasteFromCard(index);
+            addWasteFromInput(index, layout);
         }
     });
+
+    function showCardView() {
+        // ซ่อนตาราง แสดงการ์ด
+        document.getElementById("tableView").style.display = "none"
+        document.getElementById("cardView").style.display = "block"
+
+        // เปลี่ยนสีปุ่ม
+        document.getElementById("cardViewBtn").className = "px-3 py-2 bg-blue-500 text-white rounded text-sm"
+        document.getElementById("tableViewBtn").className = "px-3 py-2 bg-gray-300 text-gray-700 rounded text-sm"
+    }
+
+    function showTableView() {
+        // ซ่อนการ์ด แสดงตาราง
+        document.getElementById("cardView").style.display = "none"
+        document.getElementById("tableView").style.display = "block"
+
+        // เปลี่ยนสีปุ่ม
+        document.getElementById("tableViewBtn").className = "px-3 py-2 bg-blue-500 text-white rounded text-sm"
+        document.getElementById("cardViewBtn").className = "px-3 py-2 bg-gray-300 text-gray-700 rounded text-sm"
+    }
 </script>
 </html>

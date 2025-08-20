@@ -163,103 +163,157 @@
         </div>
 
         <!-- Add Employee Form -->
-        <div class="emp-form" id="add_emp" style="display: none;">
-            <form action="/admin/employeeRegister" method="POST">
-                <div class="form-head">
-                    <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
-                    <span>เพิ่มบัญชีผู้ใช้</span>
-                </div>
-                <div class="input-group">
-                    <!-- Username -->
-                    <label>ชื่อผู้ใช้</label>
-                    <input type="text" name="username" placeholder="ชื่อผู้ใช้" required>
-
-                    <!-- Password -->
-                    <label>รหัสผ่าน</label>
-                    <input type="password" name="password" placeholder="รหัสผ่าน" required>
-
-                    <!-- ConfirmPassword -->
-                    <label>ยืนยันรหัสผ่าน</label>
-                    <input type="password" name="confirmPassword" placeholder="ยืนยันรหัสผ่าน" required>
-
-                    <!-- ชื่อจริง -->
-                    <label>ชื่อจริง</label>
-                    <input type="text" name="firstname" placeholder="ชื่อจริง" required>
-
-                    <!-- นามสกุล -->
-                    <label>นามสกุล</label>
-                    <input type="text" name="lastname" placeholder="นามสกุล" required>
-
-                    <!-- เบอร์ -->
-                    <label>เบอร์โทร</label>
-                    <input type="tel" name="tel" placeholder="094-XXXXXXX" pattern="[0-9]{3}-[0-9]{7}" required>
-
-                    <!-- Email -->
-                    <label>อีเมล</label>
-                    <input type="email" name="email" placeholder="emp@mail.com" required>
-
-                    <!-- Role -->
-                    <label>บทบาท</label>
-                    <select name="role" required>
-                        <option value="" disabled selected>เลือกบทบาท</option>
-                        <option value="admin">Admin</option>
-                        <option value="employee">Employee</option>
-                    </select>
-
-                    <!-- Submit and Cancel Buttons -->
-                    <div class="submit-btn">
-                        <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
-                        <button type="submit" class="submit">บันทึก</button>
+        <div id="add_emp" class="fixed inset-0 z-50 bg-black bg-opacity-30 flex items-center justify-center hidden">
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl px-4">
+                <form action="/admin/employeeRegister" method="POST" class="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 space-y-5">
+                    <!-- หัวฟอร์ม -->
+                    <div class="flex items-center space-x-3 border-b pb-3">
+                        <ion-icon name="information-circle-outline" class="text-blue-500 text-2xl"></ion-icon>
+                        <span class="text-xl font-semibold text-gray-800">เพิ่มบัญชีผู้ใช้</span>
                     </div>
-                </div>
-            </form>
+
+                    <div class="input-group">
+                        <div class="flex justify-around">
+                            <div class="mr-5">
+                                <!-- Username -->
+                                <div class="mb-3">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อผู้ใช้</label>
+                                    <input type="text" name="username" placeholder="ชื่อผู้ใช้" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500"> 
+                                </div>
+
+                                <!-- Password -->
+                                <div class="mb-3">
+                                    <label>รหัสผ่าน</label>
+                                    <input type="password" name="password" placeholder="รหัสผ่าน" required>
+                                </div>
+
+                                <!-- ConfirmPassword -->
+                                <div class="mb-3">
+                                    <label>ยืนยันรหัสผ่าน</label>
+                                    <input type="password" name="confirmPassword" placeholder="ยืนยันรหัสผ่าน" required>
+                                </div>
+                                
+                            </div>
+                            <div>
+                                <!-- ชื่อจริง -->
+                                <div class="mb-3">
+                                    <label>ชื่อจริง</label>
+                                    <input type="text" name="firstname" placeholder="ชื่อจริง" required>
+                                </div>
+                                
+                                <!-- นามสกุล -->
+                                <div class="mb-3">
+                                    <label>นามสกุล</label>
+                                    <input type="text" name="lastname" placeholder="นามสกุล" required>
+                                </div>
+                                
+                                <!-- เบอร์ -->
+                                <div class="mb-3">
+                                    <label>เบอร์โทร</label>
+                                    <input type="tel" name="tel" placeholder="094-XXXXXXX" pattern="[0-9]{3}-[0-9]{7}" required>
+                                </div>
+
+                                <!-- Email -->
+                                <div class="mb-3">
+                                    <label>อีเมล</label>
+                                    <input type="email" name="email" placeholder="emp@mail.com" required>
+                                </div>
+
+                                <!-- Role -->
+                                <div class="mb-3">
+                                    <label>บทบาท</label>
+                                    <select name="role" required>
+                                        <option value="" disabled selected>เลือกบทบาท</option>
+                                        <option value="admin">Admin</option>
+                                        <option value="employee">Employee</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ปุ่ม -->
+                        <div class="flex justify-end space-x-3 pt-2">
+                            <button type="button" onclick="cancelForm()"
+                                class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition">ยกเลิก</button>
+                            <button type="submit"
+                                class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition">บันทึก</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <!-- Edit Employee Form - ย้ายออกมาแยกจาก add form -->
-        <div class="emp-form" id="edit_emp" style="display: none;">
-            <form action="/admin/employeeEdit" method="POST">
-                <div class="form-head">
-                    <ion-icon class="head-logo" name="information-circle-outline"></ion-icon>
-                    <span>แก้ไขบัญชีผู้ใช้</span>
-                </div>
-                <div class="input-group">
-                    <input type="hidden" name="_id" id="hiddenEmpId" value="">
-                    <!-- Username -->
-                    <label>ชื่อผู้ใช้</label>
-                    <input type="text" name="username" id="empUsername" placeholder="username" required>
-
-                    <!-- ชื่อจริง -->
-                    <label>ชื่อจริง</label>
-                    <input type="text" name="firstname" id="empFirstname" placeholder="ชื่อจริง" required>
-
-                    <!-- นามสกุล -->
-                    <label>นามสกุล</label>
-                    <input type="text" name="lastname" id="empLastname" placeholder="นามสกุล" required>
-
-                    <!-- Tel -->
-                    <label>เบอร์โทร</label>
-                    <input type="tel" name="tel" id="empTel" placeholder="094-XXXXXXX" pattern="[0-9]{3}-[0-9]{7}" required>
-
-                    <!-- Email -->
-                    <label>อีเมล</label>
-                    <input type="email" name="email" id="empEmail" placeholder="emp@mail.com" required>
-
-                    <!-- Role -->
-                    <label>บทบาท</label>
-                    <select name="role" id="empRole" required>
-                        <option value="" disabled selected>เลือกบทบาท</option>
-                        <option value="admin">Admin</option>
-                        <option value="employee">Employee</option>
-                    </select>
-
-                    <!-- Submit and Cancel Buttons -->
-                    <div class="submit-btn">
-                        <button type="button" class="cancel" onclick="cancelForm()">ยกเลิก</button>
-                        <button type="submit" class="submit">บันทึก</button>
+        <div id="edit_emp" class="fixed inset-0 z-50 bg-black bg-opacity-30 flex items-center justify-center hidden">
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl px-4">
+                <form action="/admin/employeeEdit" method="POST" class="bg-white rounded-xl shadow-lg w-full p-6 space-y-5">
+                    <!-- หัวฟอร์ม -->
+                    <div class="flex items-center space-x-3 border-b pb-3">
+                        <ion-icon name="information-circle-outline" class="text-blue-500 text-2xl"></ion-icon>
+                        <span class="text-xl font-semibold text-gray-800">แก้ไขบัญชีผู้ใช้</span>
                     </div>
-                </div>
-            </form>
+
+                    <div class="input-group space-y-4">
+                        <input type="hidden" name="_id" id="hiddenEmpId" value="">
+                        
+                        <!-- Username -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อผู้ใช้</label>
+                            <input type="text" name="username" id="empUsername" placeholder="username" required
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-500">
+                        </div>
+
+                        <!-- ชื่อจริง -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อจริง</label>
+                            <input type="text" name="firstname" id="empFirstname" placeholder="ชื่อจริง" required
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-500">
+                        </div>
+
+                        <!-- นามสกุล -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">นามสกุล</label>
+                            <input type="text" name="lastname" id="empLastname" placeholder="นามสกุล" required
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-500">
+                        </div>
+
+                        <!-- Tel -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">เบอร์โทร</label>
+                            <input type="tel" name="tel" id="empTel" placeholder="094-XXXXXXX" pattern="[0-9]{3}-[0-9]{7}" required
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-500">
+                        </div>
+
+                        <!-- Email -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">อีเมล</label>
+                            <input type="email" name="email" id="empEmail" placeholder="emp@mail.com" required
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-500">
+                        </div>
+
+                        <!-- Role -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">บทบาท</label>
+                            <select name="role" id="empRole" required
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-500">
+                                <option value="" disabled selected>เลือกบทบาท</option>
+                                <option value="admin">Admin</option>
+                                <option value="employee">Employee</option>
+                            </select>
+                        </div>
+
+                        <!-- ปุ่ม -->
+                        <div class="flex justify-end space-x-3 pt-2">
+                            <button type="button" onclick="cancelForm()"
+                                class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition">ยกเลิก</button>
+                            <button type="submit"
+                                class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition">บันทึก</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
+
 
         <div class="pagination flex justify-center items-center mt-4 space-x-2">
             <% if (currentPage > 1) { %>
@@ -389,6 +443,12 @@
 
             if (editForm.style.display === 'block') {
                 editForm.reset();
+            }
+
+            // ยกเลิกแรเงาแถว
+            if (lastClickedRow) {
+                lastClickedRow.style.backgroundColor = '';
+                lastClickedRow = null;
             }
         }
     </script>

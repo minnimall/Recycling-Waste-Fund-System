@@ -35,7 +35,7 @@ const FamilySchema = new mongoose.Schema({
     },
     Type: { // ประเภทครัวเรือน เช่น บ้าน, โรงเรียน, อปท. หรือ ชุมชน
         type: String,
-        enum: ['household', 'school', 'municipality', 'community'],
+        enum: ['household', 'school', 'municipality', 'community','temple'],
         required: true
     },
     role: {

@@ -191,7 +191,8 @@
                             <% transactions.forEach(transaction => { %>
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    <%= new Date(transaction.transactionDate).toLocaleDateString('th-TH') %>
+                                    <%= new Date(transaction.transactionDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) %>
+                                    - <%= new Date(transaction.transactionDate).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) %> น.
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     <%= transaction.account ? transaction.account.AccountNumber : '-' %>

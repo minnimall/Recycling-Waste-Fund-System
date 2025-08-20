@@ -28,7 +28,6 @@
 
     <%- include('../partials/userPartials/header.ejs') %>
 
-
     <!-- Hero Section -->
     <section class="bg-gradient-to-r from-primary-green to-secondary-green text-white py-20">
         <div data-aos="fade-left" data-aos-delay="300" class="container mx-auto px-4 text-center">
@@ -42,7 +41,7 @@
     </section>
 
     <!-- Services Section -->
-    <section class="py-16">
+    <section class="py-16 mx-4">
         <div class="container mx-auto px-4">
             <h2 class="text-3xl font-bold text-center text-primary mb-12">บริการของเรา</h2>
             <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -82,7 +81,7 @@
     <section class="py-16 bg-gray-100">
         <div class="container mx-auto px-4">
             <h3 class="text-3xl font-bold text-center text-gray-800 mb-12">กิจกรรมของ อบต.ขามป้อม</h3>
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 px-4">
                 
             <% if (activity.length=4) {  %>
                 <% activity.forEach(act => { %>
@@ -142,7 +141,7 @@
                 </div>
             </div>
 
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 px-4">
                 <% if (waste.length >= 4) { %>
                     <% waste.slice(0, 4).forEach((item) => { %>
                         <div class="bg-white rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
@@ -208,7 +207,7 @@
             </div>
 
             <!-- Additional Waste Types -->
-            <div class="grid md:grid-cols-3 lg:grid-cols-6 gap-4 mt-8">
+            <div class="grid md:grid-cols-3 lg:grid-cols-6 gap-4 mt-8 px-4">
                 <% if (waste.length >= 11) { %>
                     <% waste.slice(5, 11).forEach((item) => { %>
                         <div class="bg-white bg-opacity-10 rounded-lg p-4 text-center">
@@ -236,7 +235,7 @@
             </div>
 
             <!-- Price Update Info -->
-            <div class="mt-12 bg-white bg-opacity-10 rounded-lg p-6">
+            <!-- <div class="mt-12 bg-white bg-opacity-10 rounded-lg p-6 px-4">
                 <div class="flex flex-col md:flex-row items-center justify-between">
                     <div class="text-white mb-4 md:mb-0">
                         <h4 class="font-semibold mb-2">ข้อมูลราคา</h4>
@@ -248,10 +247,9 @@
                         <a href="/user/wastePrices" class="bg-white text-primary-green px-6 py-3 rounded-lg font-semibold mb-2">
                             ดูราคาขยะเพิ่มเติม
                         </a>
-                        <p class="text-white text-sm">เปิดทุกวัน 08:00-16:00 น.</p>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </div>
     </section>
 
@@ -335,7 +333,7 @@
                 <p class="text-gray-600">ข่าวสารและประกาศสำคัญจากองค์การบริหารส่วนตำบลขามป้อม</p>
             </div>
 
-            <div class="grid lg:grid-cols-3 gap-8">
+            <div class="grid lg:grid-cols-3 gap-8 px-4">
                 <!-- Latest News -->
                 <div class="lg:col-span-2">
                     <div class="flex justify-between items-center mb-6">
@@ -758,7 +756,7 @@
                     <button class="filter-btn active bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors" data-filter="all">
                         <i class="fas fa-th-large mr-2"></i>ทั้งหมด
                     </button>
-                    <button class="filter-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors" data-filter="center">
+                    <!-- <button class="filter-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors" data-filter="center">
                         <i class="fas fa-building mr-2"></i>ศูนย์รับซื้อ
                     </button>
                     <button class="filter-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors" data-filter="mobile">
@@ -766,7 +764,7 @@
                     </button>
                     <button class="filter-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors" data-filter="community">
                         <i class="fas fa-users mr-2"></i>จุดชุมชน
-                    </button>
+                    </button> -->
                 </div>
 
                 <!-- My Location Button -->
@@ -797,11 +795,11 @@
                                     <div class="flex-1">
                                         <h4 class="font-semibold text-gray-800">ศูนย์รับซื้อขยะ หมู่ 1</h4>
                                         <p class="text-sm text-gray-600 mb-2">123/45 หมู่ 1 ตำบลตัวอย่าง</p>
-                                        <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                        <!-- <div class="flex items-center space-x-4 text-xs text-gray-500">
                                             <span><i class="fas fa-clock mr-1"></i>08:00-17:00</span>
                                             <span><i class="fas fa-map-marker-alt mr-1"></i>0.5 กม.</span>
-                                        </div>
-                                        <div class="flex items-center mt-2">
+                                        </div> -->
+                                        <!-- <div class="flex items-center mt-2">
                                             <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs mr-2">เปิด</span>
                                             <div class="flex text-yellow-400">
                                                 <i class="fas fa-star"></i>
@@ -810,13 +808,13 @@
                                                 <i class="fas fa-star"></i>
                                                 <i class="fas fa-star"></i>
                                             </div>
-                                        </div>
+                                        </div> -->
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Location Item 2 -->
-                            <div class="location-item border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer" data-id="2">
+                            <!-- <div class="location-item border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer" data-id="2">
                                 <div class="flex items-start space-x-3">
                                     <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
                                         <i class="fas fa-truck text-white"></i>
@@ -840,7 +838,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> -->
 
                             <!-- Location Item 3 -->
                             <div class="location-item border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer" data-id="3">
@@ -851,11 +849,11 @@
                                     <div class="flex-1">
                                         <h4 class="font-semibold text-gray-800">จุดรับซื้อชุมชน หมู่ 3</h4>
                                         <p class="text-sm text-gray-600 mb-2">ศาลาประชาคม หมู่ 3</p>
-                                        <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                        <!-- <div class="flex items-center space-x-4 text-xs text-gray-500">
                                             <span><i class="fas fa-clock mr-1"></i>13:00-16:00</span>
                                             <span><i class="fas fa-map-marker-alt mr-1"></i>2.1 กม.</span>
-                                        </div>
-                                        <div class="flex items-center mt-2">
+                                        </div> -->
+                                        <!-- <div class="flex items-center mt-2">
                                             <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs mr-2">ปิด</span>
                                             <div class="flex text-yellow-400">
                                                 <i class="fas fa-star"></i>
@@ -864,7 +862,7 @@
                                                 <i class="fas fa-star"></i>
                                                 <i class="fas fa-star"></i>
                                             </div>
-                                        </div>
+                                        </div> -->
                                     </div>
                                 </div>
                             </div>
@@ -878,11 +876,11 @@
                                     <div class="flex-1">
                                         <h4 class="font-semibold text-gray-800">ศูนย์รับซื้อขยะ หมู่ 4</h4>
                                         <p class="text-sm text-gray-600 mb-2">456/78 หมู่ 4 ตำบลตัวอย่าง</p>
-                                        <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                        <!-- <div class="flex items-center space-x-4 text-xs text-gray-500">
                                             <span><i class="fas fa-clock mr-1"></i>07:30-18:00</span>
                                             <span><i class="fas fa-map-marker-alt mr-1"></i>3.5 กม.</span>
-                                        </div>
-                                        <div class="flex items-center mt-2">
+                                        </div> -->
+                                        <!-- <div class="flex items-center mt-2">
                                             <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs mr-2">เปิด</span>
                                             <div class="flex text-yellow-400">
                                                 <i class="fas fa-star"></i>
@@ -891,7 +889,7 @@
                                                 <i class="fas fa-star"></i>
                                                 <i class="far fa-star"></i>
                                             </div>
-                                        </div>
+                                        </div> -->
                                     </div>
                                 </div>
                             </div>
@@ -942,9 +940,9 @@
     </section>
 
     <!-- Waste Collection Schedule Section -->
-    <section class="py-16 bg-white">
+    <!-- <section class="py-16 bg-white">
         <div class="container mx-auto px-4">
-            <!-- Quick Actions -->
+            
             <div class="grid md:grid-cols-3 gap-6">
                 <div class="bg-white rounded-lg shadow-lg p-6 text-center">
                     <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -980,7 +978,7 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> -->
 
 
     <%- include('../partials/userPartials/footer.ejs') %>

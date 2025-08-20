@@ -148,9 +148,9 @@
         
         // Initialize map
         function initMap() {
-            // Set initial coordinates (Nong Khai, Thailand)
-            const initialLat = 17.8782;
-            const initialLng = 102.7412;
+            // set จุดเริ่มหน้าแมพเป็น อบต.ขามป้อม
+            const initialLat = 15.9493;
+            const initialLng = 102.8551;
             
             map = L.map('map').setView([initialLat, initialLng], 13);
             
@@ -340,7 +340,7 @@
             });
         }
         
-        // Calculate road distance between two points using OSRM
+        // Calculate road distance between two points using [ OSRM คำนวณระยะทางจริง (บนถนน) ระหว่าง point1 และ point2 โดยใช้ OSRM API ]
         async function calculateRoadDistance(point1, point2) {
             const key = `${point1.id}-${point2.id}`;
             const reverseKey = `${point2.id}-${point1.id}`;
@@ -354,19 +354,19 @@
             }
             
             try {
-                const url = `https://router.project-osrm.org/route/v1/driving/${point1.lng},${point1.lat};${point2.lng},${point2.lat}?overview=false&steps=false`;
+                const url = `https://router.project-osrm.org/route/v1/driving/${point1.lng},${point1.lat};${point2.lng},${point2.lat}?overview=false&steps=false`; // หาเส้นทางเดินทางแบบรถยนต์
                 const response = await fetch(url);
                 const data = await response.json();
                 
                 if (data.routes && data.routes.length > 0) {
-                    const distance = data.routes[0].distance / 1000; // Convert to km
-                    const duration = data.routes[0].duration / 60; // Convert to minutes
+                    const distance = data.routes[0].distance / 1000; // Convert to km ดึงระยะทาง distance (เมตร → กม)
+                    const duration = data.routes[0].duration / 60; // Convert to minutes ดึงเวลา duration (วินาที → นาที)
                     
                     const result = { distance, duration };
                     
                     // Cache the result
                     distanceMatrix[key] = result;
-                    return result;
+                    return result; //เก็บลัพธ์
                 } else {
                     // Fallback to straight-line distance if routing fails
                     const distance = calculateStraightLineDistance(point1, point2);
@@ -384,10 +384,10 @@
             }
         }
         
-        // Calculate straight-line distance (fallback)
+        // Calculate straight-line distance (fallback) [ คำนวณระยะทางเส้นตรงระหว่างจุด 2 จุดโดยใช้ Haversine formula ]
         function calculateStraightLineDistance(point1, point2) {
-            const R = 6371; // Earth's radius in kilometers
-            const dLat = toRad(point2.lat - point1.lat);
+            const R = 6371; // Earth's radius in kilometers ใช้สูตรระยะโค้งใหญ่บนทรงกลม (Earth radius = 6371 km)
+            const dLat = toRad(point2.lat - point1.lat); // คำนวณ Δlat, Δlng, จากนั้นหา a, c และ distance = R * c
             const dLng = toRad(point2.lng - point1.lng);
             const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
                     Math.cos(toRad(point1.lat)) * Math.cos(toRad(point2.lat)) *
@@ -397,10 +397,10 @@
         }
         
         function toRad(degrees) {
-            return degrees * (Math.PI / 180);
+            return degrees * (Math.PI / 180); // แปลงองศา (Degrees) เป็นเรเดียน (Radians) เพื่อใช้ในฟังก์ชันตรีโกณมิติ
         }
         
-        // Build distance matrix for all points
+        // Build distance matrix for all points สร้าง ตารางระยะทาง (Matrix) ระหว่างทุกจุดใน points
         async function buildDistanceMatrix(points) {
             const n = points.length;
             const matrix = Array(n).fill(null).map(() => Array(n).fill(0));
@@ -416,7 +416,7 @@
             return matrix;
         }
         
-        // Solve TSP using nearest neighbor with 2-opt improvement
+        // Solve TSP using nearest neighbor with 2-opt improvement เริ่มต้นจากทุกจุด → สร้างเส้นทางแบบ Nearest Neighbor
         async function calculateOptimalRoute(points) {
             if (points.length < 2) return points;
             
@@ -429,12 +429,12 @@
             
             // Try starting from each point to find the best route
             for (let startIdx = 0; startIdx < n; startIdx++) {
-                const route = [startIdx];
+                const route = [startIdx]; // เริ่มจากจุดหนึ่ง
                 const visited = new Set([startIdx]);
                 let currentIdx = startIdx;
                 let totalDistance = 0;
                 
-                while (route.length < n) {
+                while (route.length < n) { // ค้นหาจุดที่ใกล้ที่สุดยังไม่เคยไป เพิ่มลง route
                     let nearestIdx = -1;
                     let nearestDistance = Infinity;
                     
@@ -455,7 +455,7 @@
                 
                 if (totalDistance < bestDistance) {
                     bestDistance = totalDistance;
-                    bestRoute = [...route];
+                    bestRoute = [...route]; // เปรียบเทียบหาเส้นทางที่สั้นที่สุด (bestDistance)
                 }
             }
             
@@ -466,14 +466,14 @@
         }
         
         // 2-opt improvement algorithm
-        async function improve2Opt(route, distMatrix) {
-            const n = route.length;
+        async function improve2Opt(route, distMatrix) { //ปรับปรุงเส้นทาง (route) โดยใช้ 2-opt Algorithm เพื่อ "ตัดแล้วสลับ" ช่วงทางให้ได้เส้นทางสั้นลง
+            const n = route.length; // หลักการ 2-opt:
             let improved = true;
             
             while (improved) {
                 improved = false;
                 
-                for (let i = 1; i < n - 1; i++) {
+                for (let i = 1; i < n - 1; i++) { // วนลูปผ่านคู่ของตำแหน่งในเส้นทาง: (i, j) คำนวณความยาวของเส้นทางก่อน และหลังสลับ
                     for (let j = i + 1; j < n; j++) {
                         const currentDistance = 
                             distMatrix[route[i-1]][route[i]] + 
@@ -483,7 +483,7 @@
                             distMatrix[route[i-1]][route[j]] + 
                             distMatrix[route[i]][route[(j+1) % n]];
                         
-                        if (newDistance < currentDistance) {
+                        if (newDistance < currentDistance) { // ถ้าแบบสลับดีกว่า → ทำการ reverse จุดระหว่าง i ถึง j
                             // Reverse the segment between i and j
                             const newRoute = [...route];
                             for (let k = i, l = j; k < l; k++, l--) {
@@ -499,7 +499,7 @@
             return route;
         }
         
-        // Analyze route
+        // Analyze route - Fixed version
         async function analyzeRoute() {
             if (selectedPoints.length < 2) return;
             
@@ -531,139 +531,225 @@
             });
             
             try {
-                // Update progress
-                document.getElementById('progress-text').textContent = 'กำลังคำนวณระยะทางระหว่างจุด...';
-                document.getElementById('progress-bar').style.width = '30%';
+                // Update progress safely
+                const updateProgress = (text, width) => {
+                    const progressText = document.getElementById('progress-text');
+                    const progressBar = document.getElementById('progress-bar');
+                    if (progressText) progressText.textContent = text;
+                    if (progressBar) progressBar.style.width = width + '%';
+                };
                 
+                updateProgress('กำลังคำนวณระยะทางระหว่างจุด...', 30);
+                
+                console.log('Starting route optimization for', selectedPoints.length, 'points');
                 const optimizedRoute = await calculateOptimalRoute(selectedPoints);
+                console.log('Route optimization completed');
                 
-                // Update progress
-                document.getElementById('progress-text').textContent = 'กำลังวาดเส้นทางบนแผนที่...';
-                document.getElementById('progress-bar').style.width = '70%';
+                updateProgress('กำลังวาดเส้นทางบนแผนที่...', 70);
                 
-                await displayOptimizedRoute(optimizedRoute);
+                // Use Promise.resolve to handle the async function properly
+                await Promise.resolve(displayOptimizedRoute(optimizedRoute));
+                console.log('Route display completed');
                 
-                // Update progress
-                document.getElementById('progress-bar').style.width = '100%';
+                updateProgress('เสร็จสิ้น', 100);
                 
+                // Give a small delay before closing
                 setTimeout(() => {
-                    Swal.close();
+                    if (Swal.isVisible()) {
+                        Swal.close();
+                    }
                     isCalculatingDistances = false;
-                }, 500);
+                }, 1000);
                 
             } catch (error) {
-                console.error('Error analyzing route:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'เกิดข้อผิดพลาด',
-                    text: 'ไม่สามารถวิเคราะห์เส้นทางได้ กรุณาลองใหม่อีกครั้ง',
-                });
+                console.error('Error in analyzeRoute:', error);
+                console.error('Error stack:', error.stack);
+                
+                // Close loading dialog
+                if (Swal.isVisible()) {
+                    Swal.close();
+                }
+                
+                // Show error after a small delay
+                setTimeout(() => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        html: `
+                            <div class="text-left">
+                                <p class="mb-2">ไม่สามารถวิเคราะห์เส้นทางได้ กรุณาลองใหม่อีกครั้ง</p>
+                                <details class="text-xs text-gray-600 mt-2">
+                                    <summary>รายละเอียดข้อผิดพลาด (สำหรับนักพัฒนา)</summary>
+                                    <pre class="mt-2 p-2 bg-gray-100 rounded text-xs overflow-auto">${error.message}</pre>
+                                </details>
+                            </div>
+                        `,
+                        confirmButtonText: 'ลองใหม่',
+                        showCancelButton: true,
+                        cancelButtonText: 'ปิด'
+                    });
+                }, 500);
+                
                 isCalculatingDistances = false;
             }
         }
         
-        // Display optimized route on map with real road routing
+        // Display optimized route on map - Fixed version
         async function displayOptimizedRoute(route) {
-            clearRoute();
-            
-            if (route.length < 2) return;
-            
-            let totalDistance = 0;
-            let totalDuration = 0;
-            const routeSegments = [];
-            
-            // Create routing control for the entire route
-            const waypoints = route.map(point => L.latLng(point.lat, point.lng));
-            
-            const routingControl = L.Routing.control({
-                waypoints: waypoints,
-                routeWhileDragging: false,
-                addWaypoints: false,
-                lineOptions: {
-                    styles: [{
-                        color: '#3B82F6',
-                        weight: 4,
-                        opacity: 0.8
-                    }]
-                },
-                createMarker: function() { return null; }, // Don't create default markers
-                router: L.Routing.osrmv1({
-                    serviceUrl: 'https://router.project-osrm.org/route/v1',
-                    profile: 'driving'
-                })
-            }).addTo(map);
-            
-            routeLayer = routingControl;
-            
-            // Hide the routing instructions panel
-            const routingContainer = routingControl.getContainer();
-            if (routingContainer) {
-                routingContainer.style.display = 'none';
-            }
-            
-            // Calculate segment distances and durations
-            for (let i = 0; i < route.length - 1; i++) {
-                try {
-                    const result = await calculateRoadDistance(route[i], route[i + 1]);
-                    totalDistance += result.distance;
-                    totalDuration += result.duration;
-                    routeSegments.push(result);
-                } catch (error) {
-                    console.error('Error calculating segment:', error);
-                    // Use fallback distance
-                    const fallbackDist = calculateStraightLineDistance(route[i], route[i + 1]);
-                    totalDistance += fallbackDist;
-                    totalDuration += (fallbackDist / 40) * 60;
-                    routeSegments.push({ distance: fallbackDist, duration: (fallbackDist / 40) * 60 });
+            try {
+                clearRoute();
+                
+                if (route.length < 2) {
+                    console.log('Route too short, skipping display');
+                    return;
                 }
-            }
-            
-            // Add custom route markers with numbers
-            route.forEach((point, index) => {
-                const routeMarker = L.divIcon({
-                    html: `<div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm shadow-lg border-2 border-white">${index + 1}</div>`,
-                    className: 'custom-route-marker',
-                    iconSize: [32, 32],
-                    iconAnchor: [16, 16]
+                
+                console.log('Displaying route for', route.length, 'points');
+                
+                let totalDistance = 0;
+                let totalDuration = 0;
+                const routeSegments = [];
+                
+                // Create routing control for the entire route
+                const waypoints = route.map(point => L.latLng(point.lat, point.lng));
+                
+                const routingControl = L.Routing.control({ 
+                    waypoints: waypoints,
+                    routeWhileDragging: false,
+                    addWaypoints: false,
+                    lineOptions: {
+                        styles: [{
+                            color: '#3B82F6',
+                            weight: 4,
+                            opacity: 0.8
+                        }]
+                    },
+                    createMarker: function() { return null; }, // Don't create default markers
+                    router: L.Routing.osrmv1({
+                        serviceUrl: 'https://router.project-osrm.org/route/v1',
+                        profile: 'driving'
+                    })
                 });
                 
-                const marker = L.marker([point.lat, point.lng], { icon: routeMarker })
-                    .bindPopup(`
-                        <div class="text-center">
-                            <b>จุดที่ ${index + 1}</b><br>
-                            <div class="text-sm mt-1">${point.address}</div>
-                            ${index === 0 ? '<div class="text-green-600 text-xs mt-1">จุดเริ่มต้น</div>' : 
-                            index === route.length - 1 ? '<div class="text-red-600 text-xs mt-1">จุดสุดท้าย</div>' : ''}
-                        </div>
-                    `)
-                    .addTo(map);
-                routeMarkers.push(marker);
-            });
-            
-            // Display detailed results
-            displayDetailedRouteResults(route, routeSegments, totalDistance, totalDuration);
-            
-            // Fit map to route bounds
-            setTimeout(() => {
-                const group = L.featureGroup([...routeMarkers]);
-                map.fitBounds(group.getBounds().pad(0.1));
-            }, 1000);
-            
-            // Show success message
-            Swal.fire({
-                icon: 'success',
-                title: 'เส้นทางที่เหมาะสมที่สุด!',
-                html: `
-                    <div class="text-left">
-                        <div class="mb-2"><strong>ระยะทางรวม:</strong> ${totalDistance.toFixed(2)} กิโลเมตร</div>
-                        <div class="mb-2"><strong>เวลารวม:</strong> ${Math.round(totalDuration)} นาที</div>
-                        <div class="text-sm text-gray-600">*คำนวณจากเส้นทางถนนจริง</div>
-                    </div>
-                `,
-                timer: 5000,
-                showConfirmButton: true,
-                confirmButtonText: 'ดูรายละเอียด'
-            });
+                // Add event listener for when route is found
+                routingControl.on('routesfound', function(e) {
+                    console.log('Routes found:', e.routes.length);
+                });
+                
+                routingControl.on('routingerror', function(e) {
+                    console.warn('Routing error:', e.error);
+                });
+                
+                routingControl.addTo(map);
+                routeLayer = routingControl;
+                
+                // Hide the routing instructions panel safely
+                setTimeout(() => {
+                    try {
+                        const routingContainer = routingControl.getContainer();
+                        if (routingContainer && routingContainer.style) {
+                            routingContainer.style.display = 'none';
+                        }
+                    } catch (e) {
+                        console.warn('Could not hide routing container:', e.message);
+                    }
+                }, 1000);
+                
+                // Calculate segment distances and durations with error handling
+                for (let i = 0; i < route.length - 1; i++) {
+                    try {
+                        const result = await calculateRoadDistance(route[i], route[i + 1]);
+                        totalDistance += result.distance;
+                        totalDuration += result.duration;
+                        routeSegments.push(result);
+                        console.log(`Segment ${i+1}: ${result.distance.toFixed(2)}km, ${result.duration.toFixed(1)}min`);
+                    } catch (error) {
+                        console.warn(`Error calculating segment ${i+1}:`, error.message);
+                        // Use fallback distance
+                        const fallbackDist = calculateStraightLineDistance(route[i], route[i + 1]);
+                        const fallbackResult = { distance: fallbackDist, duration: (fallbackDist / 40) * 60 };
+                        totalDistance += fallbackResult.distance;
+                        totalDuration += fallbackResult.duration;
+                        routeSegments.push(fallbackResult);
+                        console.log(`Segment ${i+1} (fallback): ${fallbackResult.distance.toFixed(2)}km`);
+                    }
+                }
+                
+                // Add custom route markers with numbers
+                route.forEach((point, index) => {
+                    try {
+                        const routeMarker = L.divIcon({
+                            html: `<div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm shadow-lg border-2 border-white">${index + 1}</div>`,
+                            className: 'custom-route-marker',
+                            iconSize: [32, 32],
+                            iconAnchor: [16, 16]
+                        });
+                        
+                        const marker = L.marker([point.lat, point.lng], { icon: routeMarker })
+                            .bindPopup(`
+                                <div class="text-center">
+                                    <b>จุดที่ ${index + 1}</b><br>
+                                    <div class="text-sm mt-1">${point.address}</div>
+                                    ${index === 0 ? '<div class="text-green-600 text-xs mt-1">จุดเริ่มต้น</div>' : 
+                                    index === route.length - 1 ? '<div class="text-red-600 text-xs mt-1">จุดสุดท้าย</div>' : ''}
+                                </div>
+                            `)
+                            .addTo(map);
+                            
+                        routeMarkers.push(marker);
+                    } catch (error) {
+                        console.warn(`Error creating marker for point ${index + 1}:`, error.message);
+                    }
+                });
+                
+                // Display detailed results
+                try {
+                    displayDetailedRouteResults(route, routeSegments, totalDistance, totalDuration);
+                    console.log('Route results displayed successfully');
+                } catch (error) {
+                    console.warn('Error displaying route results:', error.message);
+                }
+                
+                // Fit map to route bounds with delay and error handling
+                setTimeout(() => {
+                    try {
+                        if (routeMarkers.length > 0) {
+                            const group = L.featureGroup([...routeMarkers]);
+                            map.fitBounds(group.getBounds().pad(0.1));
+                        }
+                    } catch (error) {
+                        console.warn('Error fitting map bounds:', error.message);
+                    }
+                }, 1500);
+                
+                // Show success message
+                setTimeout(() => {
+                    try {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'เส้นทางที่เหมาะสมที่สุด!',
+                            html: `
+                                <div class="text-left">
+                                    <div class="mb-2"><strong>ระยะทางรวม:</strong> ${totalDistance.toFixed(2)} กิโลเมตร</div>
+                                    <div class="mb-2"><strong>เวลารวม:</strong> ${Math.round(totalDuration)} นาที</div>
+                                    <div class="text-sm text-gray-600">*คำนวณจากเส้นทางถนนจริง</div>
+                                </div>
+                            `,
+                            timer: 5000,
+                            showConfirmButton: true,
+                            confirmButtonText: 'ดูรายละเอียด'
+                        });
+                    } catch (error) {
+                        console.warn('Error showing success message:', error.message);
+                    }
+                }, 2000);
+                
+                console.log('Route display completed successfully');
+                
+            } catch (error) {
+                console.error('Error in displayOptimizedRoute:', error);
+                throw error; // Re-throw to be caught by analyzeRoute
+            }
         }
         
         // Display detailed route analysis results

@@ -6,7 +6,6 @@
         <title><%= mytitle %></title>
         <link rel="stylesheet" href="/style_admin/dashboard.css">
         <script src="https://cdn.tailwindcss.com"></script>
-        <!-- Add Chart.js for visualizations -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
@@ -17,336 +16,388 @@
     <!-- Main content -->
     <div class="content bg-gray-50 min-screen">
         <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
-            <h1 class="text-2xl font-semibold text-gray-800">สต๊อกขยะจากการรับซื้อ</h1>
+            <h1 class="text-2xl font-semibold text-gray-800">สต๊อกขยะ</h1>
+            <p class="text-gray-600">ข้อมูลรายการขยะทั้งหมดที่ถูกรับซื้อจากสมาชิกกองทุนขยะ</p>
         </div>
 
-        <!-- Search and Filter Section -->
+        <!-- Enhanced Filter Section -->
         <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
-            <div class="flex flex-col md:flex-row gap-4">
-                <div class="flex-1">
-                    <div class="relative">
-                        <input type="text" id="search" placeholder="ค้นหาขยะ..." 
-                            class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                        <div class="absolute left-3 top-2.5 text-gray-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </div>
-                    </div>
+            <!-- <h3 class="text-lg font-medium text-gray-800 mb-4">ตัวกรองข้อมูล</h3> -->
+            <form method="GET" action="/employee/wasteStock" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                
+                <!-- Search by Name -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ค้นหาชื่อขยะ</label>
+                    <input type="text" name="name" value="<%= searchName || '' %>" 
+                        placeholder="ค้นหาขยะ..." 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-                <div class="md:w-64">
-                    <select id="wasteTypeFilter" class="w-full py-2 px-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                        <option value="">ทุกประเภทขยะ</option>
-                        <option value="recyclable">ขยะรีไซเคิล</option>
-                        <option value="organic">ขยะอินทรีย์</option>
-                        <option value="hazardous">ขยะอันตราย</option>
-                        <option value="general">ขยะทั่วไป</option>
+
+                <!-- Village Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">หมู่บ้าน</label>
+                    <select name="villageId" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">ทุกหมู่บ้าน</option>
+                        <% if (typeof villages !== 'undefined' && villages) { %>
+                        <% villages.forEach(v => { %>
+                        <option value="<%= v._id %>" <%= selectedVillageId == v._id ? 'selected' : '' %>>
+                            <%= v.villageName %>
+                        </option>
+                        <% }); %>
+                        <% } %>
                     </select>
                 </div>
+
+                <!-- Month Filter -->
                 <div>
-                    <button class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition duration-300">
-                        ค้นหา
+                    <label class="block text-sm font-medium text-gray-700 mb-1">เดือน/ปี</label>
+                    <select name="month" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">ทุกเดือน</option>
+                        <% if (typeof monthlyOptions !== 'undefined' && monthlyOptions) { %>
+                        <% monthlyOptions.forEach(option => { 
+                            const monthValue = `${option._id.year}-${String(option._id.month).padStart(2, '0')}`;
+                            const monthName = new Date(option._id.year, option._id.month - 1).toLocaleDateString('th-TH', { year: 'numeric', month: 'long' });
+                        %>
+                        <option value="<%= monthValue %>" <%= selectedMonth == monthValue ? 'selected' : '' %>>
+                            <%= monthName %> (<%= option.count %> รายการ)
+                        </option>
+                        <% }); %>
+                        <% } %>
+                    </select>
+                </div>
+
+                <!-- Year Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ปี</label>
+                    <select name="year" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">ทุกปี</option>
+                        <% if (typeof monthlyOptions !== 'undefined' && monthlyOptions) { %>
+                        <% 
+                        const years = [...new Set(monthlyOptions.map(opt => opt._id.year))].sort((a, b) => b - a);
+                        years.forEach(year => { 
+                        %>
+                        <option value="<%= year %>" <%= selectedYear == year ? 'selected' : '' %>>
+                            พ.ศ. <%= year + 543 %>
+                        </option>
+                        <% }); %>
+                        <% } %>
+                    </select>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex items-end">
+                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md transition duration-300">
+                        <i class="fas fa-search mr-2"></i>ค้นหา
                     </button>
+                </div>
+            </form>
+
+            <!-- Active Filters Display -->
+            <div class="mt-4 flex flex-wrap gap-2">
+                <% if (selectedVillageId && typeof villages !== 'undefined' && villages) { %>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                    <i class="fas fa-map-marker-alt mr-1"></i>
+                    <%= villages.find(v => v._id == selectedVillageId)?.villageName || 'หมู่บ้าน' %>
+                    <a href="javascript:void(0)" onclick="removeFilter('villageId')" class="ml-2 text-blue-600 hover:text-blue-800">×</a>
+                </span>
+                <% } %>
+                
+                <% if (selectedMonth) { %>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
+                    <i class="fas fa-calendar mr-1"></i>
+                    <%= new Date(selectedMonth + '-01').toLocaleDateString('th-TH', { year: 'numeric', month: 'long' }) %>
+                    <a href="javascript:void(0)" onclick="removeFilter('month')" class="ml-2 text-green-600 hover:text-green-800">×</a>
+                </span>
+                <% } %>
+
+                <% if (selectedYear && !selectedMonth) { %>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-purple-100 text-purple-800">
+                    <i class="fas fa-calendar-alt mr-1"></i>
+                    พ.ศ. <%= parseInt(selectedYear) + 543 %>
+                    <a href="javascript:void(0)" onclick="removeFilter('year')" class="ml-2 text-purple-600 hover:text-purple-800">×</a>
+                </span>
+                <% } %>
+
+                <% if (searchName) { %>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-800">
+                    <i class="fas fa-search mr-1"></i>
+                    "<%= searchName %>"
+                    <a href="javascript:void(0)" onclick="removeFilter('name')" class="ml-2 text-yellow-600 hover:text-yellow-800">×</a>
+                </span>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Summary Cards with Enhanced Information -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <!-- Total Weight -->
+            <div class="mx-4 bg-blue-50 rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-blue-600">น้ำหนักรวม</p>
+                        <p class="text-2xl font-bold text-blue-900">
+                            <% if (typeof stockData !== 'undefined' && stockData && stockData.length > 0) { %>
+                            <%= stockData.reduce((sum, item) => sum + (item.totalQuantityKg || 0), 0).toFixed(2) %>
+                            <% } else { %>
+                            0.00
+                            <% } %> กก.
+                        </p>
+                        <p class="text-xs text-blue-700"><%= (stockData && stockData.length) || 0 %> ประเภท</p>
+                    </div>
+                    <div class="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-weight text-blue-600"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historical Value -->
+            <div class="mx-4 bg-green-50 rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-green-600">มูลค่าที่จ่ายจริง</p>
+                        <p class="text-2xl font-bold text-green-900">
+                            <% if (typeof stockData !== 'undefined' && stockData && stockData.length > 0) { %>
+                            <%= stockData.reduce((sum, item) => sum + (item.historicalTotalAmount || 0), 0).toLocaleString() %>
+                            <% } else { %>
+                            0
+                            <% } %> บาท
+                        </p>
+                        <p class="text-xs text-green-700">จากการรับซื้อจริง</p>
+                    </div>
+                    <div class="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-money-bill-wave text-green-600"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Value -->
+            <div class="mx-4 bg-yellow-50 rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-yellow-600">มูลค่าราคาปัจจุบัน</p>
+                        <p class="text-2xl font-bold text-yellow-900">
+                            <% if (typeof stockData !== 'undefined' && stockData && stockData.length > 0) { %>
+                            <%= stockData.reduce((sum, item) => sum + (item.currentValueIfSoldToday || 0), 0).toLocaleString() %>
+                            <% } else { %>
+                            0
+                            <% } %> บาท
+                        </p>
+                        <p class="text-xs text-yellow-700">หากขายวันนี้</p>
+                    </div>
+                    <div class="h-12 w-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-chart-line text-yellow-600"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Price Difference -->
+            <div class="mx-4 bg-purple-50 rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-purple-600">ส่วนต่างมูลค่า</p>
+                        <% 
+                        let difference = 0;
+                        let percentage = 0;
+                        if (typeof stockData !== 'undefined' && stockData && stockData.length > 0) {
+                            const currentValue = stockData.reduce((sum, item) => sum + (item.currentValueIfSoldToday || 0), 0);
+                            const historicalValue = stockData.reduce((sum, item) => sum + (item.historicalTotalAmount || 0), 0);
+                            difference = currentValue - historicalValue;
+                            percentage = historicalValue > 0 ? Math.abs((difference / historicalValue) * 100) : 0;
+                        }
+                        %>
+                        <p class="text-2xl font-bold <%= difference >= 0 ? 'text-green-900' : 'text-red-900' %>">
+                            <%= difference >= 0 ? '+' : '' %><%= difference.toLocaleString() %> บาท
+                        </p>
+                        <p class="text-xs <%= difference >= 0 ? 'text-green-700' : 'text-red-700' %>">
+                            <%= difference >= 0 ? 'กำไร' : 'ขาดทุน' %> <%= percentage.toFixed(1) %>%
+                        </p>
+                    </div>
+                    <div class="h-12 w-12 bg-purple-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-<%= difference >= 0 ? 'arrow-trend-up' : 'arrow-trend-down' %> text-purple-600"></i>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Summary Cards -->
-        <!-- <div class="mx-4 mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white rounded-lg shadow p-4">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-blue-100 text-blue-500 mr-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-gray-500 text-sm">ขยะรีไซเคิล</p>
-                        <p class="text-2xl font-bold">1,250 กก.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-lg shadow p-4">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-green-100 text-green-500 mr-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-gray-500 text-sm">ขยะอินทรีย์</p>
-                        <p class="text-2xl font-bold">850 กก.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-lg shadow p-4">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-red-100 text-red-500 mr-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-gray-500 text-sm">ขยะอันตราย</p>
-                        <p class="text-2xl font-bold">320 กก.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-lg shadow p-4">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-gray-100 text-gray-500 mr-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-gray-500 text-sm">ขยะทั่วไป</p>
-                        <p class="text-2xl font-bold">750 กก.</p>
-                    </div>
-                </div>
-            </div>
-        </div> -->
-
-        <!-- Chart Section -->
-        <!-- <div class="mx-4 mb-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div class="bg-white rounded-lg shadow p-4">
-                <h2 class="text-lg font-semibold mb-4">สัดส่วนขยะแต่ละประเภท</h2>
-                <div class="h-64">
-                    <canvas id="wasteDistributionChart"></canvas>
-                </div>
-            </div>
-            <div class="bg-white rounded-lg shadow p-4">
-                <h2 class="text-lg font-semibold mb-4">ปริมาณขยะรายเดือน</h2>
-                <div class="h-64">
-                    <canvas id="wasteMonthlyChart"></canvas>
-                </div>
-            </div>
-        </div> -->
-
         <!-- Detailed Waste Table -->
-        <div class="mx-4 mb-6 bg-white rounded-lg shadow overflow-hidden">
-            <div class="p-4 border-b border-gray-200">
-                <h2 class="text-lg font-semibold">รายละเอียดสต๊อกขยะ</h2>
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+            <div class="mb-4 flex justify-between items-center border-b border-gray-200 pb-4">
+                <h2 class="text-lg font-semibold text-gray-800">
+                    รายละเอียดสต๊อกขยะ
+                    <!-- <% if (selectedMonth || selectedYear || selectedVillageId || searchName) { %>
+                    <span class="text-sm font-normal text-gray-500">(กรองแล้ว)</span>
+                    <% } %> -->
+                </h2>
             </div>
+
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                ประเภทขยะ
+                                ลำดับที่
                             </th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 ชนิดขยะ
                             </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 น้ำหนักรวม (กก.)
                             </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                ราคาต่อหน่วย (บาท/กก.)
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                ราคาเฉลี่ย / ปัจจุบัน
                             </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                มูลค่ารวม (บาท)
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                มูลค่าที่จ่ายจริง
                             </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                อัพเดทล่าสุด
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                มูลค่าราคาปัจจุบัน
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                รายละเอียด
                             </th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        <!-- ขยะรีไซเคิล -->
+                        <% if (!stockData || stockData.length === 0) { %>
                         <tr>
+                            <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+                                <i class="fas fa-inbox text-4xl mb-2 block"></i>
+                                ไม่พบข้อมูลสต๊อกขยะตามเงื่อนไขที่เลือก
+                            </td>
+                        </tr>
+                        <% } else { %>
+                        <% stockData.forEach((item, index) => { %>
+                        <tr class="<%= index % 2 === 0 ? 'bg-white' : 'bg-gray-50' %> hover:bg-blue-50">
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-blue-100 text-blue-500">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                        </svg>
-                                    </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">ขยะรีไซเคิล</div>
+                                <%= index + 1 %>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900"><%= item._id || 'ไม่ระบุ' %></div>
+                                <div class="text-xs text-gray-500">
+                                    รับซื้อ <%= item.purchaseCount || 0 %> ครั้ง
+                                    <% if (item.monthlyBreakdown && item.monthlyBreakdown.length > 1) { %>
+                                    ใน <%= item.monthlyBreakdown.length %> เดือน
+                                    <% } %>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <div class="text-sm text-gray-900 font-semibold">
+                                    <%= (item.totalQuantityKg || 0).toFixed(2) %>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <div class="text-sm text-gray-900">
+                                    <%= (item.avgHistoricalPrice || 0).toFixed(2) %>
+                                </div>
+                                <div class="text-xs font-medium <%= (item.priceDifference || 0) >= 0 ? 'text-green-600' : 'text-red-600' %>">
+                                    <%= (item.currentPrice || 0).toFixed(2) %> 
+                                    <%= (item.priceDifference || 0) >= 0 ? '↗' : '↘' %>
+                                    <%= Math.abs(item.priceDifference || 0).toFixed(2) %>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <div class="text-sm font-medium text-gray-900">
+                                    <%= (item.historicalTotalAmount || 0).toLocaleString() %>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <div class="text-sm font-medium <%= (item.priceDifference || 0) >= 0 ? 'text-green-600' : 'text-red-600' %>">
+                                    <%= (item.currentValueIfSoldToday || 0).toLocaleString() %>
+                                </div>
+                                <div class="text-xs text-gray-500">
+                                    <%= (item.priceDifference || 0) >= 0 ? '+' : '' %><%= ((item.currentValueIfSoldToday || 0) - (item.historicalTotalAmount || 0)).toLocaleString() %>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <button onclick="toggleMonthlyDetail('<%= index %>')" 
+                                        class="text-blue-600 hover:text-blue-800 text-sm">
+                                    <i class="fas fa-eye"></i> ดูรายเดือน
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- Monthly Breakdown Row (Hidden by default) -->
+                        <tr id="monthly-detail-<%= index %>" class="hidden bg-blue-50">
+                            <td colspan="7" class="px-6 py-4">
+                                <div class="bg-white rounded-lg p-4 border border-blue-200">
+                                    <h4 class="font-medium text-gray-800 mb-3">รายละเอียดรายเดือน: <%= item._id || 'ไม่ระบุ' %></h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <% if (item.monthlyBreakdown && item.monthlyBreakdown.length > 0) { %>
+                                        <% item.monthlyBreakdown.sort((a, b) => new Date(b.month) - new Date(a.month)).forEach(monthly => { %>
+                                        <div class="bg-gray-50 rounded p-3">
+                                            <div class="font-medium text-blue-800">
+                                                <%= new Date(monthly.month + '-01').toLocaleDateString('th-TH', { year: 'numeric', month: 'long' }) %>
+                                            </div>
+                                            <div class="text-sm text-gray-600 mt-1">
+                                                <div>น้ำหนัก: <%= (monthly.quantity || 0).toFixed(2) %> กก.</div>
+                                                <div>ราคาเฉลี่ย: <%= (monthly.avgPrice || 0).toFixed(2) %> บาท/กก.</div>
+                                                <div>มูลค่า: <%= (monthly.amount || 0).toLocaleString() %> บาท</div>
+                                                <div>จำนวนครั้ง: <%= monthly.purchases || 0 %> ครั้ง</div>
+                                            </div>
+                                        </div>
+                                        <% }); %>
+                                        <% } else { %>
+                                        <div class="text-gray-500 text-sm">ไม่มีข้อมูลรายเดือน</div>
+                                        <% } %>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">ขวดพลาสติก</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">450</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">15</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">6,750</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                15/03/2025
-                            </td>
                         </tr>
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-blue-100 text-blue-500">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                        </svg>
-                                    </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">ขยะรีไซเคิล</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">กระดาษ</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">350</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">8</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">2,800</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                18/03/2025
-                            </td>
-                        </tr>
-                        <!-- ขยะอินทรีย์ -->
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-green-100 text-green-500">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                                        </svg>
-                                    </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">ขยะอินทรีย์</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">เศษอาหาร</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">850</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">3</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">2,550</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                20/03/2025
-                            </td>
-                        </tr>
-                        <!-- ขยะอันตราย -->
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-red-100 text-red-500">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                        </svg>
-                                    </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">ขยะอันตราย</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">แบตเตอรี่</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">120</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">25</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">3,000</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                12/03/2025
-                            </td>
-                        </tr>
-                        <!-- ขยะทั่วไป -->
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-gray-100 text-gray-500">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                    </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">ขยะทั่วไป</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">ถุงพลาสติก</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">750</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">5</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">3,750</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                22/03/2025
-                            </td>
-                        </tr>
+                        <% }); %>
+                        <% } %>
                     </tbody>
                 </table>
             </div>
-            <div class="px-4 py-3 bg-gray-50 border-t border-gray-200 sm:px-6">
-                <div class="flex items-center justify-between">
-                    <div class="flex-1 flex justify-between sm:hidden">
-                        <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                            ก่อนหน้า
-                        </a>
-                        <a href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                            ถัดไป
-                        </a>
-                    </div>
-                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                        <div>
-                            <p class="text-sm text-gray-700">
-                                แสดง <span class="font-medium">1</span> ถึง <span class="font-medium">5</span> จาก <span class="font-medium">12</span> รายการ
-                            </p>
-                        </div>
-                        <div>
-                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                    <span class="sr-only">Previous</span>
-                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                                    </svg>
-                                </a>
-                                <a href="#" aria-current="page" class="z-10 bg-green-50 border-green-500 text-green-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                                    1
-                                </a>
-                                <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                                    2
-                                </a>
-                                <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                                    3
-                                </a>
-                                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                    <span class="sr-only">Next</span>
-                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                                    </svg>
-                                </a>
-                            </nav>
-                        </div>
-                    </div>
+
+            <!-- Pagination or Load More (Optional) -->
+            <% if (stockData && stockData.length > 0) { %>
+            <div class="mt-4 flex justify-between items-center text-sm text-gray-600">
+                <div>แสดง <%= stockData.length %> รายการ</div>
+                <div class="flex space-x-4">
+                    <button onclick="exportToCSV()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md">
+                        <i class="fas fa-download mr-2"></i>ส่งออก CSV
+                    </button>
+                </div>
+            </div>
+            <% } %>
+        </div>
+
+        <!-- Chart Section (Optional) -->
+        <% if (stockData && stockData.length > 0) { %>
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">กราฟแสดงมูลค่าขยะ</h3>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Quantity Chart -->
+                <div>
+                    <canvas id="quantityChart" width="400" height="300"></canvas>
+                </div>
+                <!-- Value Comparison Chart -->
+                <div>
+                    <canvas id="valueChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <% } %>
+
+        <!-- Legend and Info -->
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">คำอธิบาย</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                    <h4 class="font-medium text-gray-700 mb-2">การคำนวณมูลค่า</h4>
+                    <ul class="space-y-1 text-gray-600">
+                        <li><span class="w-3 h-3 bg-green-100 rounded inline-block mr-2"></span>มูลค่าที่จ่ายจริง: รวมยอดจากการรับซื้อจริงในแต่ละเดือน</li>
+                        <li><span class="w-3 h-3 bg-yellow-100 rounded inline-block mr-2"></span>มูลค่าราคาปัจจุบัน: คำนวณจากน้ำหนัก × ราคาปัจจุบัน</li>
+                        <li><span class="w-3 h-3 bg-purple-100 rounded inline-block mr-2"></span>ส่วนต่าง: แสดงกำไร/ขาดทุนจากการเปลี่ยนแปลงราคา</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-700 mb-2">สัญลักษณ์</h4>
+                    <ul class="space-y-1 text-gray-600">
+                        <li><span class="text-green-600">↗</span> ราคาขยะเพิ่มขึ้นจากเดิม</li>
+                        <li><span class="text-red-600">↘</span> ราคาขยะลดลงจากเดิม</li>
+                        <li><i class="fas fa-eye text-blue-600"></i> คลิกเพื่อดูรายละเอียดรายเดือน</li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -354,124 +405,158 @@
 
     <%- include('../partials/employeePartials/empFooter.ejs') %>
 
-    <!-- Chart initialization script -->
     <script>
-        // Initialize charts when the DOM is loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            // Pie chart for waste distribution
-            const distributionCtx = document.getElementById('wasteDistributionChart').getContext('2d');
-            const distributionChart = new Chart(distributionCtx, {
-                type: 'pie',
-                data: {
-                    labels: ['ขยะรีไซเคิล', 'ขยะอินทรีย์', 'ขยะอันตราย', 'ขยะทั่วไป'],
-                    datasets: [{
-                        data: [1250, 850, 320, 750],
-                        backgroundColor: [
-                            'rgba(59, 130, 246, 0.7)',
-                            'rgba(16, 185, 129, 0.7)',
-                            'rgba(239, 68, 68, 0.7)',
-                            'rgba(107, 114, 128, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgba(59, 130, 246, 1)',
-                            'rgba(16, 185, 129, 1)',
-                            'rgba(239, 68, 68, 1)',
-                            'rgba(107, 114, 128, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                        }
-                    }
-                }
+        // Get current URL parameters
+        function getCurrentParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const params = {};
+            for (const [key, value] of urlParams) {
+                params[key] = value;
+            }
+            return params;
+        }
+
+        // Remove filter function
+        function removeFilter(filterName) {
+            const params = getCurrentParams();
+            delete params[filterName];
+            
+            const newUrl = window.location.pathname + '?' + new URLSearchParams(params).toString();
+            window.location.href = newUrl;
+        }
+
+        // Toggle monthly detail function
+        function toggleMonthlyDetail(index) {
+            const detailRow = document.getElementById(`monthly-detail-${index}`);
+            const button = event.target.closest('button');
+            const icon = button.querySelector('i');
+            
+            if (detailRow.classList.contains('hidden')) {
+                detailRow.classList.remove('hidden');
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                detailRow.classList.add('hidden');
+                icon.className = 'fas fa-eye';
+            }
+        }
+
+        // Export to CSV function
+        function exportToCSV() {
+            <% if (stockData && stockData.length > 0) { %>
+            const stockData = <%- JSON.stringify(stockData) %>;
+            
+            // สร้าง BOM (Byte Order Mark) สำหรับ UTF-8
+            const BOM = '\uFEFF';
+            
+            let csvContent = BOM + "ชนิดขยะ,น้ำหนักรวม(กก.),ราคาเฉลี่ย(บาท/กก.),ราคาปัจจุบัน(บาท/กก.),มูลค่าที่จ่ายจริง(บาท),มูลค่าราคาปัจจุบัน(บาท),ส่วนต่าง(บาท),จำนวนครั้ง\n";
+            
+            stockData.forEach(item => {
+                const difference = (item.currentValueIfSoldToday || 0) - (item.historicalTotalAmount || 0);
+                csvContent += `"${item._id || 'ไม่ระบุ'}",${(item.totalQuantityKg || 0).toFixed(2)},${(item.avgHistoricalPrice || 0).toFixed(2)},${(item.currentPrice || 0).toFixed(2)},${(item.historicalTotalAmount || 0)},${(item.currentValueIfSoldToday || 0)},${difference},${item.purchaseCount || 0}\n`;
             });
 
-            // Bar chart for monthly waste
-            const monthlyCtx = document.getElementById('wasteMonthlyChart').getContext('2d');
-            const monthlyChart = new Chart(monthlyCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.'],
-                    datasets: [
-                        {
-                            label: 'ขยะรีไซเคิล',
-                            data: [1100, 1200, 1250, 0, 0, 0],
-                            backgroundColor: 'rgba(59, 130, 246, 0.7)',
-                            borderColor: 'rgba(59, 130, 246, 1)',
-                            borderWidth: 1
-                        },
-                        {
-                            label: 'ขยะอินทรีย์',
-                            data: [800, 820, 850, 0, 0, 0],
-                            backgroundColor: 'rgba(16, 185, 129, 0.7)',
-                            borderColor: 'rgba(16, 185, 129, 1)',
-                            borderWidth: 1
-                        },
-                        {
-                            label: 'ขยะอันตราย',
-                            data: [300, 310, 320, 0, 0, 0],
-                            backgroundColor: 'rgba(239, 68, 68, 0.7)',
-                            borderColor: 'rgba(239, 68, 68, 1)',
-                            borderWidth: 1
-                        },
-                        {
-                            label: 'ขยะทั่วไป',
-                            data: [700, 730, 750, 0, 0, 0],
-                            backgroundColor: 'rgba(107, 114, 128, 0.7)',
-                            borderColor: 'rgba(107, 114, 128, 1)',
-                            borderWidth: 1
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            grid: {
-                                display: false
-                            }
-                        },
-                        y: {
-                            beginAtZero: true,
+            // สร้าง Blob ด้วย UTF-8 encoding และ BOM
+            const blob = new Blob([csvContent], { 
+                type: 'text/csv;charset=utf-8;' 
+            });
+            
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            
+            // สร้างชื่อไฟล์ด้วยวันที่ปัจจุบัน
+            const now = new Date();
+            const dateStr = now.toISOString().split('T')[0];
+            const fileName = `สต๊อกขยะ_${dateStr}.csv`;
+            
+            link.setAttribute('download', fileName);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            <% } else { %>
+            alert('ไม่มีข้อมูลสำหรับส่งออก');
+            <% } %>
+        }
+
+        // Initialize Charts
+        <% if (stockData && stockData.length > 0) { %>
+        document.addEventListener('DOMContentLoaded', function() {
+            const stockData = <%- JSON.stringify(stockData) %>;
+            
+            // Quantity Chart
+            const quantityCtx = document.getElementById('quantityChart');
+            if (quantityCtx) {
+                new Chart(quantityCtx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: stockData.map(item => item._id || 'ไม่ระบุ'),
+                        datasets: [{
+                            data: stockData.map(item => item.totalQuantityKg || 0),
+                            backgroundColor: [
+                                '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
+                                '#06B6D4', '#84CC16', '#F97316', '#EC4899', '#6B7280'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
                             title: {
                                 display: true,
-                                text: 'น้ำหนัก (กก.)'
+                                text: 'สัดส่วนน้ำหนักขยะแต่ละประเภท'
+                            },
+                            legend: {
+                                position: 'bottom'
                             }
                         }
                     }
-                }
-            });
+                });
+            }
 
-            // Add event listeners for search and filter
-            document.getElementById('search').addEventListener('input', filterTable);
-            document.getElementById('wasteTypeFilter').addEventListener('change', filterTable);
-
-            function filterTable() {
-                const searchTerm = document.getElementById('search').value.toLowerCase();
-                const filterType = document.getElementById('wasteTypeFilter').value.toLowerCase();
-                const rows = document.querySelectorAll('tbody tr');
-
-                rows.forEach(row => {
-                    const wasteType = row.querySelector('td:first-child').textContent.toLowerCase();
-                    const wasteSubtype = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
-
-                    const matchesSearch = searchTerm === '' || 
-                                        wasteType.includes(searchTerm) || 
-                                        wasteSubtype.includes(searchTerm);
-
-                    const matchesFilter = filterType === '' || wasteType.includes(filterType);
-
-                    row.style.display = (matchesSearch && matchesFilter) ? '' : 'none';
+            // Value Comparison Chart
+            const valueCtx = document.getElementById('valueChart');
+            if (valueCtx) {
+                new Chart(valueCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: stockData.map(item => item._id || 'ไม่ระบุ'),
+                        datasets: [
+                            {
+                                label: 'มูลค่าที่จ่ายจริง',
+                                data: stockData.map(item => item.historicalTotalAmount || 0),
+                                backgroundColor: '#10B981'
+                            },
+                            {
+                                label: 'มูลค่าราคาปัจจุบัน',
+                                data: stockData.map(item => item.currentValueIfSoldToday || 0),
+                                backgroundColor: '#F59E0B'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'เปรียบเทียบมูลค่าขยะ'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value.toLocaleString() + ' บาท';
+                                    }
+                                }
+                            }
+                        }
+                    }
                 });
             }
         });
+        <% } %>
     </script>
 </body>
 </html>

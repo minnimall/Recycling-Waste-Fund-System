@@ -84,6 +84,7 @@
                             <option value="school" <%= query.Type === 'school' ? 'selected' : '' %>>โรงเรียน</option>
                             <option value="municipality" <%= query.Type === 'municipality' ? 'selected' : '' %>>อปท.</option>
                             <option value="community" <%= query.Type === 'community' ? 'selected' : '' %>>ชุมชน</option>>
+                            <option value="temple" <%= query.Type === 'temple' ? 'selected' : '' %>>วัด</option>>
                         </select>
                     </div>
                     <div>
@@ -132,14 +133,14 @@
                                     <td class="px-4 py-3 text-sm whitespace-nowrap text-center"><%= family.NumFamilyMembers %></td>
                                     <td class="px-4 py-3 text-sm whitespace-nowrap">
                                         <span class="px-2 py-1 rounded-full text-sm font-medium">
-                                            <%= family.Type %>
+                                            <%= family.typeThai %>
                                         </span>
                                     </td>
                                     <td class="px-4 py-3 whitespace-nowrap text-center">
                                         <button class="edit-btn">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </button>
-                                        <button class="delete-btn">
+                                        <button onclick="showModalDelete('<%= index + 1 %>','<%= family._id %>')" class="delete-btn">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </td>
@@ -619,6 +620,45 @@
     }
     function CloseLocationModal() {
         document.getElementById('ShowLocationModal').classList.add("hidden");
+    }
+
+    // ลบสมัครกองทุน
+    function showModalDelete(index,id){
+        Swal.fire({
+                title: `ลบรายการลำดับที่ "${index}" หรือไม่?`,
+                text: "หากคุณลบแล้วจะไม่สามารถกู้คืนได้!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                cancelButtonText: "ยกเลิก",
+                confirmButtonText: "ยืนยัน"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`employee/MemberDelete//${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                    .then(result => {
+                            if (result.isConfirmed) {
+                                Swal.fire('ลบข้อมูลไม่สำเร็จ', 'ข้อมูลกิจกรรมถูกลบเรียบร้อยแล้ว', 'error')
+                                    .then(() => {
+                                        location.reload();
+                                    });
+                            } else {
+                                Swal.fire('ลบข้อมูลสำเร็จ', 'ข้อมูลสื่อความรู้ถูกลบเรียบร้อยแล้ว', 'success')
+                                .then(() => {
+                                        location.reload();
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้', 'error');
+                    });
+                }
+            });
     }
 </script>
 </html>

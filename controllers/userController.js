@@ -451,28 +451,65 @@ const user_profile = async (req, res) => {
             return res.redirect('/user/complaint?error=ไม่พบข้อมูลครัวเรือน');
         }
 
+        // รับค่า filter เดือน/ปี จาก query parameter
+        const selectedMonth = req.query.month;
+        const selectedYear = req.query.year || new Date().getFullYear();
+        
+        // สร้าง date range สำหรับ filter
+        let dateFilter = {};
+        if (selectedMonth) {
+            const startDate = new Date(selectedYear, selectedMonth - 1, 1);
+            const endDate = new Date(selectedYear, selectedMonth, 0, 23, 59, 59);
+            dateFilter = {
+                $gte: startDate,
+                $lte: endDate
+            };
+        }
+
         // ดึงสมาชิกในครอบครัว
         const members = await Member.find({ familyID: family._id });
 
         // ดึงบัญชี WasteBankAccount
         const wasteBankAccount = await WasteBankAccount.findOne({ familyID: family._id });
 
+        // ดึงหมู่บ้าน
+        const village = await Village.findById(family.village);
+
         if (!wasteBankAccount) {
             console.log('No waste bank account');
             return res.redirect('/user/complaint?error=ไม่พบบัญชีธนาคารขยะ');
         }
 
-        // ดึงข้อมูลการขายขยะ
-        const wastePurchases = await WastePurchase.find({
+        // สร้าง query สำหรับการขายขยะ
+        let wastePurchaseQuery = {
             accountId: wasteBankAccount._id,
             isDeleted: false
-        }).populate('wasteItems').sort({ purchaseDate: -1 });
+        };
 
-        // ดึงข้อมูลการถอนเงิน
-        const transactions = await transactionMoney.find({
+        // เพิ่ม date filter ถ้ามีการเลือกเดือน
+        if (selectedMonth) {
+            wastePurchaseQuery.purchaseDate = dateFilter;
+        }
+
+        // ดึงข้อมูลการขายขยะแบบมี filter หรือไม่มี filter
+        const wastePurchases = await WastePurchase.find(wastePurchaseQuery)
+            .populate('wasteItems')
+            .sort({ purchaseDate: -1 });
+
+        // สร้าง query สำหรับการถอนเงิน
+        let transactionQuery = {
             account: wasteBankAccount._id,
             isDeleted: false
-        }).sort({ transactionDate: -1 });
+        };
+
+        // เพิ่ม date filter ถ้ามีการเลือกเดือน
+        if (selectedMonth) {
+            transactionQuery.transactionDate = dateFilter;
+        }
+
+        // ดึงข้อมูลการถอนเงิน
+        const transactions = await transactionMoney.find(transactionQuery)
+            .sort({ transactionDate: -1 });
 
         // รวมรายการเป็น statement
         const statement = [];
@@ -480,13 +517,14 @@ const user_profile = async (req, res) => {
         const user = await Family.findOne({ username: req.session.username });
 
         if (!user) {
-        return res.status(404).json({ success: false, message: 'ไม่พบผู้ใช้' });
+            return res.status(404).json({ success: false, message: 'ไม่พบผู้ใช้' });
         }
 
-        const ideas = await Idea.find({ authorId: user._id ,isDeleted: false })
-        .populate('authorId', 'familyName')
-        .populate('comments.author', 'familyName')
-        .sort({ createdAt: -1 });
+        const ideas = await Idea.find({ authorId: user._id, isDeleted: false })
+            .populate('authorId', 'familyName')
+            .populate('comments.author', 'familyName')
+            .sort({ createdAt: -1 });
+
         // รายการขายขยะ (ฝากเงิน)
         wastePurchases.forEach(purchase => {
             statement.push({
@@ -513,15 +551,37 @@ const user_profile = async (req, res) => {
         // เรียงตามวันที่ใหม่ -> เก่า
         statement.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        // ดึงข้อมูลคำร้องขายขยะ
+        // ดึงข้อมูลคำร้องขายขยะ (ไม่ต้อง filter เพราะเป็นข้อมูลทั่วไป)
         const wasteSaleRequests = await wasteSaleRequest.find({ family: family._id }).populate('waste');
 
-        // ดึงข้อมูลข้อร้องเรียน
+        // ดึงข้อมูลข้อร้องเรียน (ไม่ต้อง filter เพราะเป็นข้อมูลทั่วไป)
         const complaints = await Complaint.find({ family: family._id });
 
-        // คำนวณรายได้รวม / จำนวนรายการขยะ
+        // คำนวณรายได้รวม / จำนวนรายการขยะ (จากข้อมูลที่ filter แล้ว)
         const totalEarnings = wastePurchases.reduce((sum, purchase) => sum + purchase.totalAmount, 0);
         const totalWasteItems = wastePurchases.reduce((sum, purchase) => sum + (purchase.wasteItems ? purchase.wasteItems.length : 0), 0);
+
+        // สร้างรายการเดือนสำหรับ dropdown
+        const monthOptions = [];
+        const currentDate = new Date();
+        
+        // สร้างรายการเดือนย้อนหลัง 12 เดือน
+        for (let i = 0; i < 12; i++) {
+            const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+            const monthValue = date.getMonth() + 1;
+            const yearValue = date.getFullYear();
+            const monthName = date.toLocaleDateString('th-TH', { 
+                month: 'long', 
+                year: 'numeric' 
+            });
+            
+            monthOptions.push({
+                value: monthValue,
+                year: yearValue,
+                name: monthName,
+                selected: selectedMonth == monthValue && selectedYear == yearValue
+            });
+        }
 
         // ส่งข้อมูลไปยัง view
         res.render('user/profile', {
@@ -530,6 +590,7 @@ const user_profile = async (req, res) => {
             address: family.address,
             numFamilyMembers: family.NumFamilyMembers,
             members: members,
+            village: village,
             wasteBankAccount: wasteBankAccount,
             wastePurchases: wastePurchases,
             complaints: complaints,
@@ -538,8 +599,11 @@ const user_profile = async (req, res) => {
             totalWasteItems: totalWasteItems,
             role: req.session.role,
             createdAt: family.createdAt,
-            statement: statement, // เพิ่มสมุดบัญชี
-            posts: ideas
+            statement: statement,
+            posts: ideas,
+            monthOptions: monthOptions, // ส่งรายการเดือนไปยัง view
+            selectedMonth: selectedMonth,
+            selectedYear: selectedYear
         });
 
     } catch (err) {
@@ -558,198 +622,197 @@ const storage2 = multer.diskStorage({
 const upload2 = multer({ 
     storage: storage2, // ใช้ storage2 แทน storage
     limits: { fileSize: 50 * 1024 * 1024 }
- }).single('image');
+}).single('image');
 
 const user_ideas = async (req, res) => {
-  try {
-    const user = await Family.findOne({ username: req.session.username });
+    try {
+        const user = await Family.findOne({ username: req.session.username });
 
-    const ideas = await Idea.find({ isDeleted: false })
-      .populate('authorId', 'familyName')
-      .populate('comments.author', 'familyName')
-      .sort({ createdAt: -1});
+        const ideas = await Idea.find({ isDeleted: false })
+            .populate('authorId', 'familyName')
+            .populate('comments.author', 'familyName')
+            .sort({ createdAt: -1});
 
-    res.render('user/ideas', {
-      posts: ideas,
-      user
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Server Error');
-  }
+        res.render('user/ideas', {
+            posts: ideas,
+            user
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server Error');
+    }
 };
 
 const create_idea = [
-  upload2, async (req, res) => {
-    try {
-        const username = req.session.username; // ดึง username จาก session
-        if (!username) {
-            return res.status(401).send('Unauthorized');
+    upload2, async (req, res) => {
+        try {
+            const username = req.session.username; // ดึง username จาก session
+            if (!username) {
+                return res.status(401).send('Unauthorized');
+            }
+
+            // ค้นหา user จาก username (สมมติ Family คือ collection user)
+            const user = await Family.findOne({ username: username });
+            if (!user) {
+                return res.status(404).render('404', { mytitle: 'User not found' });
+            }
+
+            const { title, category, content } = req.body;
+            // ตรวจสอบรูปภาพที่อัปโหลด
+            const imagePath = req.file
+                ? `/ideasImg/${req.file.filename}` // ใช้ backticks สำหรับการแทรกค่า
+                : 'no_image';
+
+            // สร้าง Idea โดยใช้ user._id เป็น authorId
+            await Idea.create({
+                authorId: user._id,
+                title,
+                category,
+                content,
+                imageUrl: imagePath
+            });
+
+            return res.redirect('/user/ideas');
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Server error');
         }
-
-        // ค้นหา user จาก username (สมมติ Family คือ collection user)
-        const user = await Family.findOne({ username: username });
-        if (!user) {
-            return res.status(404).render('404', { mytitle: 'User not found' });
-        }
-
-        const { title, category, content } = req.body;
-        // ตรวจสอบรูปภาพที่อัปโหลด
-        const imagePath = req.file
-            ? `/ideasImg/${req.file.filename}` // ใช้ backticks สำหรับการแทรกค่า
-            : 'no_image';
-
-        // สร้าง Idea โดยใช้ user._id เป็น authorId
-        await Idea.create({
-            authorId: user._id,
-            title,
-            category,
-            content,
-            imageUrl: imagePath
-        });
-
-      return res.redirect('/user/ideas');
-    } catch (error) {
-      console.error(error);
-      res.status(500).send('Server error');
     }
-  }
 ];
 // กดไลค์
 const like_idea = async (req, res) => {
-  try {
-    const idea = await Idea.findById(req.params.id);
-    if (!idea) return res.status(404).json({ success: false, message: 'Idea not found' });
+    try {
+        const idea = await Idea.findById(req.params.id);
+        if (!idea) return res.status(404).json({ success: false, message: 'Idea not found' });
 
-    const userId = req.user ? req.user._id.toString() : null;
-    if (!userId) return res.status(401).json({ success: false, message: 'Please login to like' });
+        const userId = req.user ? req.user._id.toString() : null;
+        if (!userId) return res.status(401).json({ success: false, message: 'Please login to like' });
 
-    const index = idea.likes.findIndex(id => id.toString() === userId);
-    if (index === -1) {
-      idea.likes.push(userId);
-    } else {
-      idea.likes.splice(index, 1);
+        const index = idea.likes.findIndex(id => id.toString() === userId);
+        if (index === -1) {
+        idea.likes.push(userId);
+        } else {
+        idea.likes.splice(index, 1);
+        }
+        await idea.save();
+
+        res.json({ success: true, likeCount: idea.likes.length });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false });
     }
-    await idea.save();
-
-    res.json({ success: true, likeCount: idea.likes.length });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false });
-  }
 };
 
 
 // คอมเมนต์
 const comment_idea = async (req, res) => {
-  try {
-    const username = req.session.username;
-    if (!username) {
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    try {
+        const username = req.session.username;
+        if (!username) {
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        }
+
+        const user = await Family.findOne({ username });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        const { comment } = req.body;
+        if (!comment || comment.trim() === '') {
+            return res.status(400).json({ success: false, message: 'Comment is required' });
+        }
+
+        const idea = await Idea.findById(req.params.id);
+        if (!idea) {
+            return res.status(404).json({ success: false, message: 'Idea not found' });
+        }
+
+        const newComment = {
+            author: user._id,
+            content: comment.trim(),
+            createdAt: new Date()
+        };
+
+        idea.comments.push(newComment);
+        await idea.save();
+
+        // ดึง comment ล่าสุดพร้อม populate
+        await idea.populate('comments.author', 'familyName');
+        const lastComment = idea.comments.at(-1);
+
+        res.status(200).json({ success: true, comment: lastComment });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Error posting comment' });
     }
-
-    const user = await Family.findOne({ username });
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
-
-    const { comment } = req.body;
-    if (!comment || comment.trim() === '') {
-      return res.status(400).json({ success: false, message: 'Comment is required' });
-    }
-
-    const idea = await Idea.findById(req.params.id);
-    if (!idea) {
-      return res.status(404).json({ success: false, message: 'Idea not found' });
-    }
-
-    const newComment = {
-      author: user._id,
-      content: comment.trim(),
-      createdAt: new Date()
-    };
-
-    idea.comments.push(newComment);
-    await idea.save();
-
-    // ดึง comment ล่าสุดพร้อม populate
-    await idea.populate('comments.author', 'familyName');
-    const lastComment = idea.comments.at(-1);
-
-    res.status(200).json({ success: true, comment: lastComment });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: 'Error posting comment' });
-  }
 };
 
 const delete_ideas = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const post = await Idea.findById(id);
+    try {
+        const { id } = req.params;
+        const post = await Idea.findById(id);
 
-    if (!post) {
-      return res.status(404).json({ success: false, message: 'ไม่พบโพสต์ที่ต้องการลบ' });
-    }
+        if (!post) {
+            return res.status(404).json({ success: false, message: 'ไม่พบโพสต์ที่ต้องการลบ' });
+        }
 
-    const result = await Idea.findByIdAndUpdate(id, { isDeleted: true });
+        const result = await Idea.findByIdAndUpdate(id, { isDeleted: true });
 
-    if (!result) {
-      return res.status(404).json({ success: false, message: 'ไม่สามารถอัปเดตสถานะลบได้' });
-    }
+        if (!result) {
+            return res.status(404).json({ success: false, message: 'ไม่สามารถอัปเดตสถานะลบได้' });
+        }
 
-    return res.status(200).json({ success: true, message: 'ลบโพสต์สำเร็จ' });
-  } catch (err) {
-    console.error(err);
+        return res.status(200).json({ success: true, message: 'ลบโพสต์สำเร็จ' });
+    } catch (err) {
+        console.error(err);
     return res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดระหว่างลบ' });
-  }
+    }
 };
 const storage4 = multer.diskStorage({
-  destination: './public/ideasImg', // โฟลเดอร์เก็บรูป
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname);
-  }
+    destination: './public/ideasImg', // โฟลเดอร์เก็บรูป
+        filename: (req, file, cb) => {
+        cb(null, Date.now() + '-' + file.originalname);
+    }
 });
 
 const upload4 = multer({ storage: storage4 }).single('image');  // แก้จาก storage2 -> storage4
 
 const edit_idea = (req, res) => {
-  upload4(req, res, async (err) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดในการอัปโหลดไฟล์' });
-    }
+    upload4(req, res, async (err) => {
+        if (err) {
+        console.error(err);
+        return res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดในการอัปโหลดไฟล์' });
+        }
 
-    try {
-      const id = req.params.id;
-      const { title, content, category } = req.body;
+        try {
+            const id = req.params.id;
+            const { title, content, category } = req.body;
 
-      if (!title || !content || !category) {
-        return res.status(400).json({ success: false, message: 'กรุณากรอกข้อมูลให้ครบ' });
-      }
+            if (!title || !content || !category) {
+                return res.status(400).json({ success: false, message: 'กรุณากรอกข้อมูลให้ครบ' });
+            }
 
-      const post = await Idea.findById(id);
-      if (!post) {
-        return res.status(404).json({ success: false, message: 'ไม่พบโพสต์' });
-      }
+            const post = await Idea.findById(id);
+            if (!post) {
+                return res.status(404).json({ success: false, message: 'ไม่พบโพสต์' });
+            }
 
-      post.title = title;
-      post.content = content;
-      post.category = category;
+            post.title = title;
+            post.content = content;
+            post.category = category;
 
-      if (req.file) {
-        post.imageUrl = `/ideasImg/${req.file.filename}`;
-      }
+            if (req.file) {
+                post.imageUrl = `/ideasImg/${req.file.filename}`;
+            }
 
-      await post.save();
-      res.json({ success: true, message: 'แก้ไขโพสต์เรียบร้อยแล้ว' });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์' });
-    }
-  });
+            await post.save();
+            res.json({ success: true, message: 'แก้ไขโพสต์เรียบร้อยแล้ว' });
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์' });
+        }
+    });
 };
-
 
 // exports เพื่อให้ไฟล์อื่นสามารถเรียกใช้งานได้
 module.exports = {

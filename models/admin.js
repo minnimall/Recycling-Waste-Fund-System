@@ -12,13 +12,11 @@ const adminSchema = new mongoose.Schema({
     },
     firstname:{
         type: String,
-        required: true,
-        unique: true
+        required: true
     },
     lastname:{
         type: String,
-        required: true,
-        unique: true
+        required: true
     },
     tel: {
         type: String,

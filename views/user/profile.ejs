@@ -156,7 +156,7 @@
       </div>
     </div>
 
-        <!-- Profile Content -->
+    <!-- Profile Content -->
     <section class="py-8">
         <div class="container mx-auto px-4">
             <div class="max-w-6xl mx-auto">
@@ -205,22 +205,22 @@
                                     </div>
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">เบอร์โทรศัพท์</label>
-                                        <input type="tel" value="<%= member.phone %>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                        <input type="tel" value="<%= member.phone %>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" readonly>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">อีเมล</label>
-                                        <input type="email" value="<%= member.email %>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                        <input type="email" value="<%= member.email %>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" readonly>
                                     </div>
                                 </div>
                                 <div class="space-y-6">
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">ที่อยู่</label>
-                                        <textarea rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">บ้านเลขที่ <%= address.houseNumber %> หมู่ <%= address.moo %> ตำบล <%= address.subdistrict %> อำเภอ <%= address.district %> จังหวัด <%= address.province %> รหัสไปรษณีย์ <%= address.postalCode %>
+                                        <textarea rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" readonly>บ้านเลขที่ <%= address.houseNumber %> หมู่ <%= village.villageNumber %> (<%= village.villageName %>) ตำบล <%= address.subdistrict %> อำเภอ <%= address.district %> จังหวัด <%= address.province %> รหัสไปรษณีย์ <%= address.postalCode %>
                                         </textarea>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">หมายเลขบัญชีธนาคาร</label>
-                                        <input type="text" value="<%= wasteBankAccount ? wasteBankAccount.AccountNumber : '-' %>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                        <input type="text" value="<%= wasteBankAccount ? wasteBankAccount.AccountNumber : '-' %>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" readonly>
                                     </div>
                                     <!-- <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">ธนาคาร</label>
@@ -303,7 +303,15 @@
 
                         <!-- Waste Sale Requests Tab -->
                         <div id="requests" class="tab-content hidden">
-                            <h3 class="text-xl font-semibold text-gray-800 mb-6">ประวัติการแจ้งความประสงค์ขายขยะ</h3>
+                            <div class="flex justify-between items-center mb-5">
+                                <h3 class="text-xl font-semibold text-gray-800 mb-6">ประวัติการแจ้งความประสงค์ขายขยะ</h3>
+                                <div class="text-center">
+                                    <a href="/user/wasteSaleRequest"><button class="px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" data-bs-toggle="modal" data-bs-target="#newComplaintModalyy">
+                                        <i class="fas fa-plus me-2"></i>แจ้งประสงค์ขายขยะใหม่
+                                    </button></a>
+                                </div>
+                            </div>
+                            
                             <div class="space-y-4">
                                     
                                 <% if (wasteSaleRequests.length > 0) { %>
@@ -319,7 +327,7 @@
                                         <% } else if (request.status === 'รอดำเนินการ') { %>
                                             <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm">รอดำเนินการ</span>
                                         <% } else { %> 
-                                            <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm">error</span>
+                                            <!-- <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm">error</span> -->
                                         <% } %>
                                         </div>
                                         <div class="grid md:grid-cols-2 gap-4 text-sm">
@@ -358,7 +366,14 @@
                         
                         <!-- Complaints Tab -->
                         <div id="complaints" class="tab-content hidden">
-                            <h3 class="text-xl font-semibold text-gray-800 mb-6">ประวัติคำร้องเรียน</h3>
+                            <div class="flex justify-between items-center mb-5">
+                                <h3 class="text-xl font-semibold text-gray-800 mb-6">ประวัติคำร้องเรียน</h3>
+                                <div class="text-center">
+                                    <a href="/user/complaint"><button class="px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" data-bs-toggle="modal" data-bs-target="#newComplaintModalyy">
+                                        <i class="fas fa-plus me-2"></i>แจ้งคำร้องเรียนใหม่
+                                    </button></a>
+                                </div>
+                            </div>
                             <div class="space-y-4">
                             <% complaints.forEach((com) => { %>
                                 <div class="bg-gray-50 rounded-lg p-4">
@@ -367,7 +382,7 @@
                                             <h4 class="font-semibold text-gray-800 py-4">คำร้องเรียน</h4>
                                             <p class="text-sm text-gray-600">วันที่ <%= com.createdAt.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) %> เวลา</p>
                                         </div>
-                                        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">แก้ไขแล้ว</span>
+                                        <!-- <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">แก้ไขแล้ว</span> -->
                                     </div>
                                     <p class="text-gray-700 mb-3">คำอธิบาย : <%= com.complaintMessage %></p>
                                     <div class="text-sm text-gray-600">
@@ -379,7 +394,7 @@
                             </div>
                         </div>
 
-<!-- My Ideas Tab -->
+                        <!-- My Ideas Tab -->
                         <div id="ideas" class="tab-content hidden">
                             <div class="flex justify-between items-center mb-6">
                                 <h3 class="text-xl font-semibold text-gray-800">ไอเดียการจัดการขยะของฉัน</h3>
@@ -415,7 +430,7 @@
                                 </div>
                                 </section>
                             <div class="grid gap-6">
-                                      <div class="container mx-auto px-4">
+                                    <div class="container mx-auto px-4">
                                         <div class="mx-auto" id="posts-container">
                                         <% posts.forEach(post=> { %>
                                             <article class="idea-post bg-white rounded-lg shadow-lg mb-6 overflow-hidden"
@@ -572,12 +587,17 @@
                             <div class="flex justify-between items-center mb-6">
                                 <h3 class="text-xl font-semibold text-gray-800 mb-6">ประวัติการขายขยะ</h3>
                                 <div class="flex space-x-2">
-                                    <select class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-                                        <option>มกราคม 2568</option>
-                                        <!-- เพิ่ม filter ตามเดือนในอนาคตได้ -->
+                                    <select id="salesMonthFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                        <option value="">ทุกเดือน</option>
+                                        <% monthOptions.forEach(option => { %>
+                                            <option value="<%= option.value %>-<%= option.year %>" <%= option.selected ? 'selected' : '' %>>
+                                                <%= option.name %>
+                                            </option>
+                                        <% }) %>
                                     </select>
                                 </div>
                             </div>
+                            
                             <div class="bg-white rounded-lg border overflow-hidden">
                                 <div class="overflow-x-auto">
                                     <table class="w-full">
@@ -620,7 +640,9 @@
                                                 } else {
                                             %>
                                                 <tr>
-                                                    <td colspan="5" class="text-center text-muted py-4">ไม่มีประวัติการขายขยะ</td>
+                                                    <td colspan="5" class="px-4 py-6 text-center text-gray-500">
+                                                        <%= selectedMonth ? 'ไม่มีประวัติการขายขยะในเดือนที่เลือก' : 'ไม่มีประวัติการขายขยะ' %>
+                                                    </td>
                                                 </tr>
                                             <% } %>
                                         </tbody>
@@ -641,9 +663,13 @@
                             <div class="flex justify-between items-center mb-6">
                                 <h3 class="text-xl font-semibold text-gray-800">สมุดบัญชี</h3>
                                 <div class="flex space-x-2">
-                                    <select class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-                                        <option>มกราคม 2568</option>
-                                        <!-- เพิ่ม filter ตามเดือนในอนาคตได้ -->
+                                    <select id="accountMonthFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                        <option value="">ทุกเดือน</option>
+                                        <% monthOptions.forEach(option => { %>
+                                            <option value="<%= option.value %>-<%= option.year %>" <%= option.selected ? 'selected' : '' %>>
+                                                <%= option.name %>
+                                            </option>
+                                        <% }) %>
                                     </select>
                                 </div>
                             </div>
@@ -653,7 +679,7 @@
                                 <div class="bg-green-50 rounded-lg p-4">
                                     <div class="flex items-center justify-between">
                                         <div>
-                                            <p class="text-green-600 text-sm font-semibold">ยอดคงเหลือปัจจุบัน</p>
+                                            <p class="text-green-600 text-sm font-semibold">ยอดคงเหลือ (บาท)</p>
                                             <p class="text-2xl font-bold text-green-700"><%= wasteBankAccount.Balance.toFixed(2) %> บาท</p>
                                         </div>
                                         <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
@@ -666,7 +692,12 @@
                                     <div class="flex items-center justify-between">
                                         <div>
                                             <p class="text-blue-600 text-sm font-semibold">จำนวนครั้งที่ขาย</p>
-                                            <p class="text-2xl font-bold text-blue-700"><%= wastePurchases.length %> ครั้ง</p>
+                                            <p class="text-2xl font-bold text-blue-700">
+                                                <%= wastePurchases.length %> ครั้ง
+                                                <% if (selectedMonth) { %>
+                                                    <span class="text-sm font-normal text-blue-600">(เดือนนี้)</span>
+                                                <% } %>
+                                            </p>
                                         </div>
                                         <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
                                             <i class="fas fa-chart-line text-white"></i>
@@ -678,7 +709,12 @@
                                     <div class="flex items-center justify-between">
                                         <div>
                                             <p class="text-purple-600 text-sm font-semibold">น้ำหนักรวม</p>
-                                            <p class="text-2xl font-bold text-purple-700"><%= totalWasteItems %> กก.</p>
+                                            <p class="text-2xl font-bold text-purple-700">
+                                                <%= totalWasteItems %> กก.
+                                                <% if (selectedMonth) { %>
+                                                    <span class="text-sm font-normal text-purple-600">(เดือนนี้)</span>
+                                                <% } %>
+                                            </p>
                                         </div>
                                         <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center">
                                             <i class="fas fa-weight text-white"></i>
@@ -690,7 +726,14 @@
                             <!-- Transaction History -->
                             <div class="bg-white rounded-lg border overflow-hidden">
                                 <div class="px-4 py-3 bg-gray-50 border-b">
-                                    <h4 class="font-semibold text-gray-800">รายการธุรกรรม</h4>
+                                    <h4 class="font-semibold text-gray-800">
+                                        รายการธุรกรรม
+                                        <% if (selectedMonth) { %>
+                                            <span class="text-sm font-normal text-gray-600">
+                                                - <%= monthOptions.find(m => m.selected)?.name || 'เดือนที่เลือก' %>
+                                            </span>
+                                        <% } %>
+                                    </h4>
                                 </div>
                                 <div class="divide-y">
                                     <% if (statement.length > 0) { %>
@@ -702,8 +745,11 @@
                                                     </p>
                                                     <p class="text-sm text-gray-600">
                                                         <%= new Date(item.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) %> 
-                                                        เวลา <%= new Date(item.date).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) %>
+                                                        เวลา <%= new Date(item.date).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) %> น.
                                                     </p>
+                                                    <% if (item.details) { %>
+                                                        <p class="text-xs text-gray-500"><%= item.details %></p>
+                                                    <% } %>
                                                 </div>
                                                 <div class="text-right">
                                                     <p class="font-semibold <%= item.type === 'withdraw' ? 'text-red-600' : 'text-green-600' %>">
@@ -712,12 +758,17 @@
                                                     <p class="text-sm text-gray-600">
                                                         <%= item.type === 'withdraw' ? 'ถอนจากบัญชี' : 'โอนเข้าบัญชี' %>
                                                     </p>
+                                                    <!-- <% if (item.status) { %>
+                                                        <p class="text-xs <%= item.status === 'approved' ? 'text-green-500' : item.status === 'pending' ? 'text-yellow-500' : 'text-red-500' %>">
+                                                            <%= item.status === 'approved' ? 'อนุมัติแล้ว' : item.status === 'pending' ? 'รอการอนุมัติ' : 'ถูกปฏิเสธ' %>
+                                                        </p>
+                                                    <% } %> -->
                                                 </div>
                                             </div>
                                         <% }) %>
                                     <% } else { %>
                                         <div class="px-4 py-6 text-center text-gray-500">
-                                            ยังไม่มีรายการธุรกรรม
+                                            <%= selectedMonth ? 'ไม่มีรายการธุรกรรมในเดือนที่เลือก' : 'ยังไม่มีรายการธุรกรรม' %>
                                         </div>
                                     <% } %>
                                 </div>
@@ -728,604 +779,6 @@
             </div>
         </div>
     </section>
-    
-    <div class="content container py-5">
-        <!-- Profile Header -->
-        <div class="profile-header row align-items-center">
-            <div class="col-md-3 text-center">
-                <img src="/img/avatar.png" alt="รูปโปรไฟล์" class="profile-img mb-3">
-                <h4 class="mb-0"><%= username %></h4>
-                <p class="text-muted">สมาชิกกองทุนขยะรีไซเคิล</p>
-            </div>
-            <div class="col-md-9">
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><i class="fas fa-home me-2"></i><strong>ที่อยู่:</strong> <%= address.houseNumber %> หมู่ <%= address.moo %> ต.<%= address.subdistrict %> อ.<%= address.district %> จ.<%= address.province %> <%= address.postalCode %></p>
-                        <p><i class="fas fa-phone me-2"></i><strong>เบอร์โทร:</strong> </p>
-                        <p><i class="fas fa-envelope me-2"></i><strong>อีเมล:</strong> </p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>หมายเลขบัญชี:</strong> <%= wasteBankAccount ? wasteBankAccount.AccountNumber : '-' %></p>
-                        <p><i class="fas fa-calendar me-2"></i><strong>วันที่เข้าร่วมเป็นสมาชิก:</strong> <%= createdAt.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) %> </p>
-                        <!-- <p><i class="fas fa-recycle me-2"></i><strong>จำนวนครั้งที่ขายขยะ:</strong> 24 ครั้ง</p> -->
-                        <div class="d-flex mt-3">
-                            <button class="btn btn-success action-btn" data-bs-toggle="modal" data-bs-target="#wasteHistoryModal">
-                                <i class="fas fa-history me-2"></i>ประวัติการขายขยะ
-                            </button>
-                            <button class="btn btn-primary action-btn" data-bs-toggle="modal" data-bs-target="#accountBookModal">
-                                <i class="fas fa-book me-2"></i>สมุดบัญชี
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Main Content Tabs -->
-        <ul class="nav nav-tabs mt-5" id="profileTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="family-tab" data-bs-toggle="tab" data-bs-target="#family" type="button" role="tab" aria-controls="family" aria-selected="true">
-                    <i class="fas fa-users me-2"></i>สมาชิกในครอบครัว
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="requests-tab" data-bs-toggle="tab" data-bs-target="#requests" type="button" role="tab" aria-controls="requests" aria-selected="false">
-                    <i class="fas fa-clipboard-list me-2"></i>ประวัติการแจ้งความประสงค์
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="complaints-tab" data-bs-toggle="tab" data-bs-target="#complaints" type="button" role="tab" aria-controls="complaints" aria-selected="false">
-                    <i class="fas fa-exclamation-circle me-2"></i>ประวัติคำร้องเรียน
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="ideas-tab" data-bs-toggle="tab" data-bs-target="#ideas" type="button" role="tab" aria-controls="ideas" aria-selected="false">
-                    <i class="fas fa-lightbulb me-2"></i>ไอเดียการจัดการขยะ
-                </button>
-            </li>
-        </ul>
-        
-        <div class="tab-content" id="profileTabsContent">
-            <!-- Family Members Tab -->
-            <div class="tab-pane fade show active" id="family" role="tabpanel" aria-labelledby="family-tab">
-                <h4 class="section-title">สมาชิกในครอบครัว</h4>
-                <div class="row">
-                    <% members.forEach(function(member) { %>
-                        <div class="col-md-4">
-                            <div class="card family-card">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center mb-3">
-                                        <img src="/img/avatar2.png" alt="รูปสมาชิก" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;">
-                                        <div>
-                                            <h5 class="card-title mb-0"><%= member.name %></h5>
-                                            <span class="badge bg-info badge-status">ตัวแทนสมาชิกในครัวเรือน</span>
-                                        </div>
-                                    </div>
-                                    <p class="card-text"><i class="fas fa-phone me-2"></i><%= member.phone %></p>
-                                    <p class="card-text"><i class="fas fa-calendar me-2"></i>อายุ: <%= member.age %></p>
-                                </div>
-                            </div>
-                        </div>
-                    <% }) %>
-                </div>
-                <!-- <div class="text-center mt-3">
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addFamilyModal">
-                        <i class="fas fa-plus me-2"></i>เพิ่มสมาชิกในครอบครัว
-                    </button>
-                </div> -->
-            </div>
-
-            
-            <!-- Complaints Tab -->
-            <div class="tab-pane fade" id="complaints" role="tabpanel" aria-labelledby="complaints-tab">
-                <h4 class="section-title">ประวัติคำร้องเรียน</h4>
-                <div class="row">
-                    <% complaints.forEach((com) => { %>
-                    <div class="col-md-6">
-                        <div class="card history-card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <!-- <span><i class="fas fa-exclamation-circle me-2 text-warning"></i>เลขที่คำร้อง: CM20230001</span> -->
-                                <span class="badge bg-warning">รอดำเนินการ</span>
-                            </div>
-                            <div class="card-body">
-                                <p class="card-text"><%= com.complaintMessage %></p>
-                                <p class="text-muted"><i class="fas fa-calendar me-2"></i>วันที่แจ้ง: <%= com.createdAt.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) %></p>
-                                <!-- <button class="btn btn-sm btn-outline-info">ดูรายละเอียด</button> -->
-                            </div>
-                        </div>
-                    </div>
-                    <% }); %>
-                </div>
-                <div class="text-center mt-3">
-                    <a href="/user/complaint"><button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newComplaintModalyy">
-                        <i class="fas fa-plus me-2"></i>แจ้งคำร้องเรียนใหม่
-                    </button></a>
-                </div>
-            </div>
-            
-            <!-- Ideas Tab -->
-            <div class="tab-pane fade" id="ideas" role="tabpanel" aria-labelledby="ideas-tab">
-                <h4 class="section-title">ไอเดียการจัดการขยะของคุณ</h4>
-                <div class="row">
-                    <div class="col-md-4 mb-4">
-                        <div class="card idea-card">
-                            <img src="/img/shoe_bin.png" class="card-img-top" alt="ไอเดียรีไซเคิล" style="height: 200px; object-fit: cover;">
-                            <div class="card-body">
-                                <h5 class="card-title">การทำกระถางต้นไม้จากขวดพลาสติก</h5>
-                                <p class="card-text">วิธีการนำขวดพลาสติกมาทำเป็นกระถางปลูกต้นไม้แบบแขวน ช่วยประหยัดพื้นที่และสวยงาม</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <small class="text-muted"><i class="fas fa-calendar me-1"></i>15 ม.ค. 2566</small>
-                                    <div>
-                                        <span class="me-2"><i class="fas fa-heart text-danger"></i> 24</span>
-                                        <span><i class="fas fa-comment text-primary"></i> 8</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-footer bg-transparent">
-                                <button class="btn btn-sm btn-outline-primary w-100">อ่านเพิ่มเติม</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-4">
-                        <div class="card idea-card">
-                            <img src="/img/idea-recycle.png" class="card-img-top" alt="ไอเดียรีไซเคิล" style="height: 200px; object-fit: cover;">
-                            <div class="card-body">
-                                <h5 class="card-title">การทำปุ๋ยหมักจากเศษอาหาร</h5>
-                                <p class="card-text">วิธีการทำปุ๋ยหมักอย่างง่ายจากเศษอาหารในครัวเรือน ช่วยลดปริมาณขยะและได้ปุ๋ยคุณภาพดี</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <small class="text-muted"><i class="fas fa-calendar me-1"></i>20 ก.พ. 2566</small>
-                                    <div>
-                                        <span class="me-2"><i class="fas fa-heart text-danger"></i> 32</span>
-                                        <span><i class="fas fa-comment text-primary"></i> 12</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-footer bg-transparent">
-                                <button class="btn btn-sm btn-outline-primary w-100">อ่านเพิ่มเติม</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-4">
-                        <div class="card idea-card">
-                            <img src="/img/eco-bricks.png" class="card-img-top" alt="ไอเดียรีไซเคิล" style="height: 200px; object-fit: cover;">
-                            <div class="card-body">
-                                <h5 class="card-title">การทำของใช้จากกล่องนม</h5>
-                                <p class="card-text">ไอเดียการนำกล่องนมมาทำเป็นกระเป๋าสตางค์ กระเป๋าถือ และของใช้อื่นๆ ที่น่าสนใจ</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <small class="text-muted"><i class="fas fa-calendar me-1"></i>5 มี.ค. 2566</small>
-                                    <div>
-                                        <span class="me-2"><i class="fas fa-heart text-danger"></i> 18</span>
-                                        <span><i class="fas fa-comment text-primary"></i> 5</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-footer bg-transparent">
-                                <button class="btn btn-sm btn-outline-primary w-100">อ่านเพิ่มเติม</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- <div class="text-center mt-3">
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newIdeaModal">
-                        <i class="fas fa-plus me-2"></i>แชร์ไอเดียใหม่
-                    </button>
-                </div> -->
-            </div>
-        </div>
-    </div>
-    
-    <!-- Waste History Modal -->
-    <div class="modal fade" id="wasteHistoryModal" tabindex="-1" aria-labelledby="wasteHistoryModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title" id="wasteHistoryModalLabel"><i class="fas fa-history me-2"></i>ประวัติการขายขยะ</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-search"></i></span>
-                            <input type="text" class="form-control" id="wasteSearchInput" placeholder="ค้นหาประวัติการขาย...">
-                            <button class="btn btn-outline-secondary" type="button" onclick="searchWasteHistory()">ค้นหา</button>
-                        </div>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>วันที่</th>
-                                    <th>รายละเอียด</th>
-                                    <th>จำนวนเงิน (บาท)</th>
-                                    <th>ผู้รับซื้อ</th>
-                                </tr>
-                            </thead>
-                            <tbody id="wasteHistoryTableBody">
-                                <% if (wastePurchases && wastePurchases.length > 0) { %>
-                                    <% wastePurchases.forEach(purchase => { %>
-                                        <tr>
-                                            <td><%= new Date(purchase.purchaseDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
-                                            <td>
-                                                <% if (purchase.wasteItems && purchase.wasteItems.length > 0) { %>
-                                                    <%= purchase.wasteItems.map(item => item.name || 'ไม่ระบุ').join(', ') %>
-                                                <% } else { %>
-                                                    ขายขยะ
-                                                <% } %>
-                                            </td>
-                                            <td class="transaction-in">฿<%= purchase.totalAmount.toLocaleString() %></td>
-                                            <td><%= purchase.addBy || '-' %></td>
-                                        </tr>
-                                    <% }) %>
-                                <% } else { %>
-                                    <tr>
-                                        <td colspan="4" class="text-center text-muted">ไม่มีประวัติการขายขยะ</td>
-                                    </tr>
-                                <% } %>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mt-3">
-                        <div>
-                            <span class="text-muted">แสดง <%= wastePurchases ? wastePurchases.length : 0 %> รายการ</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
-                    <button type="button" class="btn btn-success" onclick="exportWasteData()">
-                        <i class="fas fa-file-excel me-2"></i>ส่งออกข้อมูล
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Account Book Modal -->
-    <div class="modal fade" id="accountBookModal" tabindex="-1" aria-labelledby="accountBookModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="accountBookModalLabel"><i class="fas fa-book me-2"></i>สมุดบัญชี</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="card mb-4">
-                        <div class="card-body text-center">
-                            <h6 class="text-muted mb-2">ยอดเงินคงเหลือ</h6>
-                            <div class="account-balance">฿<%= wasteBankAccount ? wasteBankAccount.Balance.toLocaleString() : '0' %></div>
-                            <!-- <div class="mt-3">
-                                <button class="btn btn-success me-2" onclick="showDepositForm()">
-                                    <i class="fas fa-plus-circle me-2"></i>ฝากเงิน
-                                </button>
-                                <button class="btn btn-danger" onclick="showWithdrawForm()">
-                                    <i class="fas fa-minus-circle me-2"></i>ถอนเงิน
-                                </button>
-                            </div> -->
-                        </div>
-                    </div>
-                    
-                    <h6 class="mb-3">รายการธุรกรรมย้อนหลัง</h6>
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>วันที่</th>
-                                    <th>รายการ</th>
-                                    <th>เงินเข้า</th>
-                                    <th>เงินออก</th>
-                                    <th>คงเหลือ</th>
-                                    <th>หมายเหตุ</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% if (wastePurchases && wastePurchases.length > 0) { %>
-                                    <% let runningBalance = wasteBankAccount ? wasteBankAccount.Balance : 0; %>
-                                    <% wastePurchases.slice().reverse().forEach((purchase, index) => { %>
-                                        <tr>
-                                            <td><%= new Date(purchase.purchaseDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
-                                            <td>ขายขยะ</td>
-                                            <td class="transaction-in">+฿<%= purchase.totalAmount.toLocaleString() %></td>
-                                            <td>-</td>
-                                            <td>฿<%= runningBalance.toLocaleString() %></td>
-                                            <td>
-                                                <% if (purchase.wasteItems && purchase.wasteItems.length > 0) { %>
-                                                    <%= purchase.wasteItems.map(item => item.name || 'ขยะ').join(', ') %>
-                                                <% } else { %>
-                                                    ขายขยะรีไซเคิล
-                                                <% } %>
-                                            </td>
-                                        </tr>
-                                        <% runningBalance -= purchase.totalAmount; %>
-                                    <% }) %>
-                                <% } else { %>
-                                    <tr>
-                                        <td colspan="6" class="text-center text-muted">ไม่มีรายการธุรกรรม</td>
-                                    </tr>
-                                <% } %>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mt-3">
-                        <div>
-                            <span class="text-muted">แสดง <%= wastePurchases ? wastePurchases.length : 0 %> รายการ</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-
-
-    <!-- พวก modal -->
-    
-    <!-- Add Family Member Modal -->
-    <div class="modal fade" id="addFamilyModal" tabindex="-1" aria-labelledby="addFamilyModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title" id="addFamilyModalLabel"><i class="fas fa-user-plus me-2"></i>เพิ่มสมาชิกในครอบครัว</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="mb-3">
-                            <label for="familyMemberName" class="form-label">ชื่อ-นามสกุล</label>
-                            <input type="text" class="form-control" id="familyMemberName" placeholder="กรอกชื่อ-นามสกุล">
-                        </div>
-                        <div class="mb-3">
-                            <label for="familyMemberStatus" class="form-label">สถานะในครอบครัว</label>
-                            <select class="form-select" id="familyMemberStatus">
-                                <option selected disabled>เลือกสถานะ</option>
-                                <option value="father">บิดา</option>
-                                <option value="mother">มารดา</option>
-                                <option value="spouse">คู่สมรส</option>
-                                <option value="child">บุตร</option>
-                                <option value="other">อื่นๆ</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="familyMemberAge" class="form-label">อายุ</label>
-                            <input type="number" class="form-control" id="familyMemberAge" placeholder="กรอกอายุ">
-                        </div>
-                        <div class="mb-3">
-                            <label for="familyMemberPhone" class="form-label">เบอร์โทรศัพท์ (ถ้ามี)</label>
-                            <input type="tel" class="form-control" id="familyMemberPhone" placeholder="กรอกเบอร์โทรศัพท์">
-                        </div>
-                        <div class="mb-3">
-                            <label for="familyMemberPhoto" class="form-label">รูปถ่าย (ถ้ามี)</label>
-                            <input type="file" class="form-control" id="familyMemberPhoto">
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
-                    <button type="button" class="btn btn-success">บันทึกข้อมูล</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- New Request Modal -->
-    <div class="modal fade" id="newRequestModal" tabindex="-1" aria-labelledby="newRequestModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title" id="newRequestModalLabel"><i class="fas fa-recycle me-2"></i>แจ้งความประสงค์ขายขยะ</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="mb-3">
-                            <label class="form-label">ประเภทขยะที่ต้องการขาย</label>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="wasteTypePlastic">
-                                <label class="form-check-label" for="wasteTypePlastic">
-                                    ขวดพลาสติก
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="wasteTypePaper">
-                                <label class="form-check-label" for="wasteTypePaper">
-                                    กระดาษ
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="wasteTypeGlass">
-                                <label class="form-check-label" for="wasteTypeGlass">
-                                    ขวดแก้ว
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="wasteTypeMetal">
-                                <label class="form-check-label" for="wasteTypeMetal">
-                                    กระป๋องอลูมิเนียม/โลหะ
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="wasteTypeOther">
-                                <label class="form-check-label" for="wasteTypeOther">
-                                    อื่นๆ
-                                </label>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="wasteWeight" class="form-label">น้ำหนักโดยประมาณ (กิโลกรัม)</label>
-                            <input type="number" class="form-control" id="wasteWeight" step="0.1" min="0.1">
-                        </div>
-                        <div class="mb-3">
-                            <label for="pickupDate" class="form-label">วันที่ต้องการให้มารับ</label>
-                            <input type="date" class="form-control" id="pickupDate">
-                        </div>
-                        <div class="mb-3">
-                            <label for="pickupTime" class="form-label">ช่วงเวลาที่สะดวก</label>
-                            <select class="form-select" id="pickupTime">
-                                <option selected disabled>เลือกช่วงเวลา</option>
-                                <option value="morning">เช้า (8.00-12.00 น.)</option>
-                                <option value="afternoon">บ่าย (13.00-17.00 น.)</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="requestNote" class="form-label">หมายเหตุ (ถ้ามี)</label>
-                            <textarea class="form-control" id="requestNote" rows="3"></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
-                    <button type="button" class="btn btn-success">ส่งคำขอ</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- New Complaint Modal -->
-    <div class="modal fade" id="newComplaintModal" tabindex="-1" aria-labelledby="newComplaintModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title" id="newComplaintModalLabel"><i class="fas fa-exclamation-circle me-2"></i>แจ้งคำร้องเรียน</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="mb-3">
-                            <label for="complaintTitle" class="form-label">หัวข้อคำร้องเรียน</label>
-                            <input type="text" class="form-control" id="complaintTitle" placeholder="ระบุหัวข้อคำร้องเรียน">
-                        </div>
-                        <div class="mb-3">
-                            <label for="complaintType" class="form-label">ประเภทคำร้องเรียน</label>
-                            <select class="form-select" id="complaintType">
-                                <option selected disabled>เลือกประเภท</option>
-                                <option value="collection">การจัดเก็บขยะ</option>
-                                <option value="equipment">อุปกรณ์/ถังขยะชำรุด</option>
-                                <option value="staff">พนักงาน/เจ้าหน้าที่</option>
-                                <option value="environment">สิ่งแวดล้อม</option>
-                                <option value="other">อื่นๆ</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="complaintDetail" class="form-label">รายละเอียด</label>
-                            <textarea class="form-control" id="complaintDetail" rows="4" placeholder="อธิบายรายละเอียดของปัญหา"></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="complaintLocation" class="form-label">สถานที่เกิดเหตุ</label>
-                            <input type="text" class="form-control" id="complaintLocation" placeholder="ระบุสถานที่">
-                        </div>
-                        <div class="mb-3">
-                            <label for="complaintPhoto" class="form-label">รูปภาพประกอบ (ถ้ามี)</label>
-                            <input type="file" class="form-control" id="complaintPhoto" multiple>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
-                    <button type="button" class="btn btn-danger">ส่งคำร้องเรียน</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- New Idea Modal -->
-    <div class="modal fade" id="newIdeaModal" tabindex="-1" aria-labelledby="newIdeaModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title" id="newIdeaModalLabel"><i class="fas fa-lightbulb me-2"></i>แชร์ไอเดียการจัดการขยะ</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="mb-3">
-                            <label for="ideaTitle" class="form-label">หัวข้อไอเดีย</label>
-                            <input type="text" class="form-control" id="ideaTitle" placeholder="ระบุหัวข้อไอเดีย">
-                        </div>
-                        <div class="mb-3">
-                            <label for="ideaCategory" class="form-label">หมวดหมู่</label>
-                            <select class="form-select" id="ideaCategory">
-                                <option selected disabled>เลือกหมวดหมู่</option>
-                                <option value="reuse">การนำกลับมาใช้ใหม่ (Reuse)</option>
-                                <option value="recycle">การรีไซเคิล (Recycle)</option>
-                                <option value="reduce">การลดปริมาณขยะ (Reduce)</option>
-                                <option value="compost">การทำปุ๋ยหมัก (Compost)</option>
-                                <option value="other">อื่นๆ</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="ideaDetail" class="form-label">รายละเอียด</label>
-                            <textarea class="form-control" id="ideaDetail" rows="5" placeholder="อธิบายรายละเอียดของไอเดีย"></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="ideaPhoto" class="form-label">รูปภาพประกอบ</label>
-                            <input type="file" class="form-control" id="ideaPhoto" multiple>
-                        </div>
-                        <div class="mb-3">
-                            <label for="ideaVideo" class="form-label">วิดีโอประกอบ (ถ้ามี)</label>
-                            <input type="text" class="form-control" id="ideaVideo" placeholder="ลิงก์วิดีโอ YouTube">
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
-                    <button type="button" class="btn btn-success">แชร์ไอเดีย</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Edit Profile Modal -->
-    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title" id="editProfileModalLabel"><i class="fas fa-user-edit me-2"></i>แก้ไขข้อมูลส่วนตัว</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="mb-3 text-center">
-                            <img src="/img/profile-placeholder.jpg" alt="รูปโปรไฟล์" class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;">
-                            <div>
-                                <button type="button" class="btn btn-sm btn-outline-primary">เปลี่ยนรูปโปรไฟล์</button>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editName" class="form-label">ชื่อ-นามสกุล</label>
-                            <input type="text" class="form-control" id="editName" value="สมชาย ใจดี">
-                        </div>
-                        <div class="mb-3">
-                            <label for="editPhone" class="form-label">เบอร์โทรศัพท์</label>
-                            <input type="tel" class="form-control" id="editPhone" value="089-123-4567">
-                        </div>
-                        <div class="mb-3">
-                            <label for="editEmail" class="form-label">อีเมล</label>
-                            <input type="email" class="form-control" id="editEmail" value="somchai@example.com">
-                        </div>
-                        <div class="mb-3">
-                            <label for="editAddress" class="form-label">ที่อยู่</label>
-                            <textarea class="form-control" id="editAddress" rows="3">123 หมู่ 4 ต.ขามป้อม อ.เปือยน้อย จ.ขอนแก่น 40340</textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editPassword" class="form-label">เปลี่ยนรหัสผ่าน</label>
-                            <input type="password" class="form-control" id="editPassword" placeholder="ใส่รหัสผ่านใหม่">
-                        </div>
-                        <div class="mb-3">
-                            <label for="confirmPassword" class="form-label">ยืนยันรหัสผ่าน</label>
-                            <input type="password" class="form-control" id="confirmPassword" placeholder="ยืนยันรหัสผ่านใหม่">
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
-                    <button type="button" class="btn btn-warning">บันทึกการเปลี่ยนแปลง</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <%- include('../partials/userPartials/footer.ejs') %>
     <script>
@@ -1371,6 +824,54 @@
         // Download account statement
         document.querySelector('#account button[class*="download"]').addEventListener('click', () => {
             alert('กำลังดาวน์โหลดสมุดบัญชี...');
+        });
+    </script>
+
+    <script>
+        // JavaScript สำหรับ filter การขายขยะ
+        document.getElementById('salesMonthFilter').addEventListener('change', function() {
+            const selectedValue = this.value;
+            const currentUrl = new URL(window.location);
+            
+            if (selectedValue) {
+                const [month, year] = selectedValue.split('-');
+                currentUrl.searchParams.set('month', month);
+                currentUrl.searchParams.set('year', year);
+            } else {
+                currentUrl.searchParams.delete('month');
+                currentUrl.searchParams.delete('year');
+            }
+            
+            // กรอกไว้เผื่อมี hash สำหรับ tab
+            if (window.location.hash) {
+                currentUrl.hash = window.location.hash;
+            }
+            
+            window.location.href = currentUrl.toString();
+        });
+    </script>
+
+    <script>
+        // JavaScript สำหรับ filter สมุดบัญชี
+        document.getElementById('accountMonthFilter').addEventListener('change', function() {
+            const selectedValue = this.value;
+            const currentUrl = new URL(window.location);
+            
+            if (selectedValue) {
+                const [month, year] = selectedValue.split('-');
+                currentUrl.searchParams.set('month', month);
+                currentUrl.searchParams.set('year', year);
+            } else {
+                currentUrl.searchParams.delete('month');
+                currentUrl.searchParams.delete('year');
+            }
+            
+            // กรอกไว้เผื่อมี hash สำหรับ tab
+            if (window.location.hash) {
+                currentUrl.hash = window.location.hash;
+            }
+            
+            window.location.href = currentUrl.toString();
         });
     </script>
 
