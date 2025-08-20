@@ -365,52 +365,69 @@ const user_detailActivity = (req, res) => {
         });
 };
 
+// เก็บรูปภาพที่อัปโหลดจาก complaint
+const Storage = multer.diskStorage({
+    destination: './public/upload/complaint/',
+    filename: function (req, file, cb) {
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+    }
+});
+
+const Upload3 = multer({
+    storage: Storage,   // ✅ ใช้ Storage ตัวใหญ่
+    limits: { fileSize: 10 * 1024 * 1024 } // จำกัด 10MB
+}).single('image');     // ✅ ต้องตรงกับ name="image" ใน form
+
+
 // หน้าคำร้องเรียน
 const user_complaint = (req, res)=> {
-    res.render('user/complaint')
+    res.render('user/complaint', { session: req.session });
 }
 
-const complaintPost = async (req, res) => {
-    try {
-        // ตรวจสอบ session
-        if (!req.session || !req.session.username) {
-            console.log('No session username');
-            return res.redirect('/user/complaint?error=กรุณาเข้าสู่ระบบก่อนทำรายการ');
+const complaintPost = (req, res) => {
+    Upload3(req, res, async (err) => {
+        if (err) {
+            console.error("Multer upload error:", err);
+            return res.redirect('/user/complaint?error=อัปโหลดไฟล์ไม่สำเร็จ');
         }
 
-        // ค้นหาครอบครัว
-        const family = await Family.findOne({ username: req.session.username });
-        
-        if (!family) {
-            console.log('Family not found');
-            return res.redirect('/user/complaint?error=ไม่พบข้อมูลครัวเรือน');
+        try {
+            if (!req.session || !req.session.username) {
+                return res.redirect('/user/complaint?error=กรุณาเข้าสู่ระบบก่อนทำรายการ');
+            }
+
+            const family = await Family.findOne({ username: req.session.username });
+            if (!family) {
+                return res.redirect('/user/complaint?error=ไม่พบข้อมูลครัวเรือน');
+            }
+
+            // ✅ ต้องใช้ filename ไม่ใช่ name
+            const imagePath = req.file 
+                ? `/upload/complaint/${req.file.filename}` 
+                : '/img/no_image.jpg';
+
+            const { complaintMessage, category } = req.body;
+
+            if (!complaintMessage || !category) {
+                return res.redirect('/user/complaint?error=กรุณากรอกข้อมูลให้ครบถ้วน');
+            }
+
+            const newComplaint = new Complaint({
+                family: family._id,
+                complaintMessage: complaintMessage.trim(),
+                category,
+                image: imagePath
+            });
+
+            await newComplaint.save();
+
+            res.redirect('/user/complaint?message=ส่งแบบฟอร์มสำเร็จ');
+
+        } catch (err) {
+            console.error('Complaint submission error:', err);
+            res.redirect('/user/complaint?error=เกิดข้อผิดพลาดในระบบ');
         }
-
-        // ตรวจสอบข้อความร้องเรียน
-        const complaintMessage = req.body.complaintMessage 
-            ? req.body.complaintMessage.trim() 
-            : '';
-
-        console.log('Processed Complaint Message:', complaintMessage);
-
-        if (!complaintMessage) {
-            console.log('Empty complaint message');
-            return res.redirect('/user/complaint?error=กรุณากรอกข้อร้องเรียนหรือข้อเสนอแนะ');
-        }
-
-        const newComplaint = new Complaint({
-            family: family._id,
-            complaintMessage: complaintMessage
-        });
-
-        await newComplaint.save();
-
-        res.redirect('/user/complaint?message=ส่งแบบฟอร์มสำเร็จ');
-
-    } catch (err) {
-        console.error('Complaint submission FULL ERROR:', err);
-        res.redirect('/user/complaint?error=เกิดข้อผิดพลาดในระบบ');
-    }
+    });
 };
 
 // หน้ารายละเอียดข่าวประชามสัมพันธ์

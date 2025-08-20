@@ -12,6 +12,20 @@ const complaintSchema = new Schema(
             type: String,
             required: true
         },
+        category: {
+            type: String,
+            enum: ['waste', 'service', 'noise','sale', 'other'],
+            required: true
+        },
+        image: {
+            type: String,
+            required: false
+        },
+        status: {
+            type: String,
+            enum: ['pending', 'in-progress', 'resolved'],
+            default: 'pending'
+        },
         isDeleted: {
             type: Boolean,
             default: false
@@ -19,6 +33,7 @@ const complaintSchema = new Schema(
     },
     { timestamps: true }
 );
+
 
 const Complaint = mongoose.model('complaint', complaintSchema);
 module.exports = Complaint;

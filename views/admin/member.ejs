@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <%- include('../partials/employeePartials/doctype.ejs') %>
+    <%- include('../partials/adminPartials/doctype.ejs') %>
     <title><%= mytitle %></title>
     <link rel="stylesheet" href="/style_employee/member.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -10,8 +10,8 @@
 </head>
 
 <body>
-    <%- include('../partials/employeePartials/empHeader.ejs') %>
-    <%- include('../partials/employeePartials/empSidebar.ejs') %>
+    <%- include('../partials/adminPartials/adminHeader.ejs') %>
+    <%- include('../partials/adminPartials/adminSidebar.ejs') %>
     <script>
         // เช็คข้อความที่ส่งมาจาก URL
         const urlParams = new URLSearchParams(window.location.search);
@@ -163,7 +163,7 @@
             <div class="bg-white p-6 rounded-lg shadow-md">
                 <h1 class="text-2xl font-bold mb-6">สมัครเข้าร่วมกองทุนขยะรีไซเคิล</h1>
                 
-                <form action="/employee/memberRegister" method="POST" class="space-y-6">
+                <form action="/admin/memberRegister" method="POST" class="space-y-6">
                     
                     <!-- ส่วนที่ 1: ข้อมูลครัวเรือน -->
                     <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
@@ -636,7 +636,7 @@
                 confirmButtonText: "ยืนยัน"
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch(`employee/MemberDelete//${id}`, {
+                    fetch(`admin/MemberDelete//${id}`, {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json',

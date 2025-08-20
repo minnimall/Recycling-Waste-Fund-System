@@ -42,6 +42,10 @@ router.post('/employeeRegister', adminController.employeeRegister);
 router.delete('/employeeDelete/:id', adminController.employeeDelete);
 router.post('/employeeEdit', adminController.editEmployee);
 
+// สมาชิกกองทุนขยะรีไซเคิล
+router.get('/member', adminController.memberIndex);
+router.post('/memberRegister', adminController.memberRegister);
+
 // หมู่บ้าน
 router.get('/village', adminController.villageIndex);
 router.post('/villagePost', adminController.villagePost);

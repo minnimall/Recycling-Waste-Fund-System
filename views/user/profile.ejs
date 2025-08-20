@@ -369,28 +369,182 @@
                             <div class="flex justify-between items-center mb-5">
                                 <h3 class="text-xl font-semibold text-gray-800 mb-6">ประวัติคำร้องเรียน</h3>
                                 <div class="text-center">
-                                    <a href="/user/complaint"><button class="px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" data-bs-toggle="modal" data-bs-target="#newComplaintModalyy">
-                                        <i class="fas fa-plus me-2"></i>แจ้งคำร้องเรียนใหม่
-                                    </button></a>
+                                    <a href="/user/complaint">
+                                        <button class="px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                            <i class="fas fa-plus me-2"></i>แจ้งคำร้องเรียนใหม่
+                                        </button>
+                                    </a>
                                 </div>
                             </div>
+
                             <div class="space-y-4">
-                            <% complaints.forEach((com) => { %>
-                                <div class="bg-gray-50 rounded-lg p-4">
-                                    <div class="flex justify-between items-start mb-3">
-                                        <div>
-                                            <h4 class="font-semibold text-gray-800 py-4">คำร้องเรียน</h4>
-                                            <p class="text-sm text-gray-600">วันที่ <%= com.createdAt.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) %> เวลา</p>
+                                <% if (complaints && complaints.length > 0) { %>
+                                    <% complaints.forEach((com) => { %>
+                                        <div class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-300">
+                                            <div class="p-6">
+                                                <!-- Header Section -->
+                                                <div class="flex flex-col md:flex-row justify-between items-start mb-4">
+                                                    <div class="flex-1">
+                                                        <div class="flex items-center mb-2">
+                                                            <h4 class="font-semibold text-gray-800 text-lg mr-3">คำร้องเรียน</h4>
+                                                        </div>
+                                                        
+                                                        <!-- Date and Category -->
+                                                        <div class="flex flex-col sm:flex-row sm:items-center text-sm text-gray-600 space-y-1 sm:space-y-0 sm:space-x-4">
+                                                            <div class="flex items-center">
+                                                                <i class="far fa-calendar-alt mr-2"></i>
+                                                                <span>วันที่ <%= com.createdAt.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) %></span>
+                                                                <span class="mx-1">เวลา</span>
+                                                                <span><%= com.createdAt.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) %></span>
+                                                            </div>
+                                                            <div class="flex items-center">
+                                                                <i class="fas fa-tag mr-2"></i>
+                                                                <span>หมวดหมู่: 
+                                                                    <% if (com.category === 'waste') { %>
+                                                                        การจัดการขยะ
+                                                                    <% } else if (com.category === 'service') { %>
+                                                                        การบริการของเจ้าหน้าที่
+                                                                    <% } else if (com.category === 'noise') { %>
+                                                                        เสียงรบกวน
+                                                                    <% } else if (com.category === 'sale') { %>
+                                                                        การขายขยะ
+                                                                    <% } else { %>
+                                                                        อื่นๆ
+                                                                    <% } %>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- Reference ID -->
+                                                    <div class="mt-3 md:mt-0">
+                                                        <!-- Status Badge -->
+                                                            <span class="px-3 py-1 rounded-full text-sm font-medium
+                                                                <% if (com.status === 'pending') { %>
+                                                                    bg-yellow-100 text-yellow-800
+                                                                <% } else if (com.status === 'in-progress') { %>
+                                                                    bg-blue-100 text-blue-800
+                                                                <% } else if (com.status === 'resolved') { %>
+                                                                    bg-green-100 text-green-800
+                                                                <% } %>
+                                                            ">
+                                                                <% if (com.status === 'pending') { %>
+                                                                    <i class="fas fa-clock mr-1"></i>รอดำเนินการ
+                                                                <% } else if (com.status === 'in-progress') { %>
+                                                                    <i class="fas fa-cog mr-1"></i>กำลังดำเนินการ
+                                                                <% } else if (com.status === 'resolved') { %>
+                                                                    <i class="fas fa-check-circle mr-1"></i>เสร็จสิ้น
+                                                                <% } %>
+                                                            </span>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Description -->
+                                                <div class="mb-4">
+                                                    <h5 class="text-sm font-medium text-gray-700 mb-2">รายละเอียดคำร้อง:</h5>
+                                                    <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                                                        <p class="text-gray-800 whitespace-pre-line"><%= com.complaintMessage %></p>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Image Section -->
+                                                <% if (com.image) { %>
+                                                    <div class="mb-4">
+                                                        <h5 class="text-sm font-medium text-gray-700 mb-2">รูปภาพประกอบ:</h5>
+                                                        <div class="relative inline-block">
+                                                            <img src="<%= com.image %>" 
+                                                                alt="รูปภาพประกอบคำร้อง" 
+                                                                class="max-w-xs max-h-48 rounded-lg border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
+                                                                onclick="showImageModal('<%= com.image %>')">
+                                                            <div class="absolute top-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">
+                                                                <i class="fas fa-expand-alt mr-1"></i>คลิกเพื่อขยาย
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                <% } %>
+
+                                                <!-- Status Progress Bar -->
+                                                <!-- <div class="mt-4 pt-4 border-t border-gray-100">
+                                                    <div class="flex items-center justify-between text-xs text-gray-600 mb-2">
+                                                        <span>ความคืบหน้า</span>
+                                                        <span>
+                                                            <% if (com.status === 'pending') { %>
+                                                                33%
+                                                            <% } else if (com.status === 'in-progress') { %>
+                                                                66%
+                                                            <% } else if (com.status === 'resolved') { %>
+                                                                100%
+                                                            <% } %>
+                                                        </span>
+                                                    </div>
+                                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                                        <div class="h-2 rounded-full transition-all duration-300
+                                                            <% if (com.status === 'pending') { %>
+                                                                bg-yellow-500 w-1/3
+                                                            <% } else if (com.status === 'in-progress') { %>
+                                                                bg-blue-500 w-2/3
+                                                            <% } else if (com.status === 'resolved') { %>
+                                                                bg-green-500 w-full
+                                                            <% } %>
+                                                        "></div>
+                                                    </div>
+                                                    <div class="flex justify-between text-xs text-gray-500 mt-2">
+                                                        <span class="<%= com.status === 'pending' || com.status === 'in-progress' || com.status === 'resolved' ? 'text-green-600 font-semibold' : '' %>">
+                                                            <i class="fas fa-circle text-xs mr-1"></i>รับเรื่อง
+                                                        </span>
+                                                        <span class="<%= com.status === 'in-progress' || com.status === 'resolved' ? 'text-blue-600 font-semibold' : '' %>">
+                                                            <i class="fas fa-circle text-xs mr-1"></i>ดำเนินการ
+                                                        </span>
+                                                        <span class="<%= com.status === 'resolved' ? 'text-green-600 font-semibold' : '' %>">
+                                                            <i class="fas fa-circle text-xs mr-1"></i>เสร็จสิ้น
+                                                        </span>
+                                                    </div>
+                                                </div> -->
+
+                                                <!-- Action Buttons -->
+                                                <!-- <div class="mt-4 pt-4 border-t border-gray-100 flex justify-end space-x-2">
+                                                    <% if (com.status !== 'resolved') { %>
+                                                        <button class="px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                                                                onclick="trackComplaint('<%= com._id %>')">
+                                                            <i class="fas fa-search mr-1"></i>ติดตามสถานะ
+                                                        </button>
+                                                    <% } %>
+                                                    
+                                                    <button class="px-3 py-2 text-sm text-blue-600 border border-blue-300 rounded-md hover:bg-blue-50 transition-colors"
+                                                            onclick="showComplaintDetails('<%= com._id %>')">
+                                                        <i class="fas fa-eye mr-1"></i>ดูรายละเอียด
+                                                    </button>
+                                                </div> -->
+                                            </div>
                                         </div>
-                                        <!-- <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">แก้ไขแล้ว</span> -->
+                                    <% }); %>
+                                <% } else { %>
+                                    <!-- Empty State -->
+                                    <div class="text-center py-12">
+                                        <div class="mx-auto h-24 w-24 text-gray-300 mb-4">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                            </svg>
+                                        </div>
+                                        <h3 class="text-lg font-medium text-gray-700 mb-2">ยังไม่มีคำร้องเรียน</h3>
+                                        <p class="text-gray-500 mb-6">คุณยังไม่เคยแจ้งคำร้องเรียนในระบบ</p>
+                                        <a href="/user/complaint">
+                                            <button class="px-6 py-3 bg-green-700 text-white rounded-md hover:bg-green-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                                <i class="fas fa-plus mr-2"></i>แจ้งคำร้องเรียนแรก
+                                            </button>
+                                        </a>
                                     </div>
-                                    <p class="text-gray-700 mb-3">คำอธิบาย : <%= com.complaintMessage %></p>
-                                    <div class="text-sm text-gray-600">
-                                        <p><strong>การตอบสนอง:</strong> ขออภัยในความไม่สะดวก เนื่องจากรถเสียในระหว่างทาง ได้จัดรถสำรองมารับแล้ว</p>
-                                        <p class="mt-1"><strong>วันที่แก้ไข:</strong> 2 มกราคม 2568</p>
-                                    </div>
-                                </div>
-                            <% }); %>
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <!-- Image Modal -->
+                        <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+                            <div class="relative max-w-4xl max-h-full p-4">
+                                <button onclick="closeImageModal()" class="absolute top-4 right-4 text-white hover:text-gray-300 z-10">
+                                    <i class="fas fa-times text-2xl"></i>
+                                </button>
+                                <img id="modalImage" src="" alt="รูปภาพขยาย" class="max-w-full max-h-full object-contain rounded-lg">
                             </div>
                         </div>
 
@@ -781,6 +935,63 @@
     </section>
 
     <%- include('../partials/userPartials/footer.ejs') %>
+
+    <script>
+      // Image modal functions
+      function showImageModal(imageSrc) {
+          const modal = document.getElementById('imageModal');
+          const modalImage = document.getElementById('modalImage');
+          modalImage.src = imageSrc;
+          modal.classList.remove('hidden');
+          document.body.style.overflow = 'hidden';
+      }
+
+      function closeImageModal() {
+          const modal = document.getElementById('imageModal');
+          modal.classList.add('hidden');
+          document.body.style.overflow = 'auto';
+      }
+
+      // Close modal when clicking outside the image
+      document.getElementById('imageModal').addEventListener('click', function(e) {
+          if (e.target === this) {
+              closeImageModal();
+          }
+      });
+
+      // Track complaint function
+      function trackComplaint(complaintId) {
+          Swal.fire({
+              title: 'ติดตามสถานะคำร้อง',
+              html: `
+                  <div class="text-left">
+                      <p class="mb-3">รหัสคำร้อง: <strong>#${complaintId.slice(-6).toUpperCase()}</strong></p>
+                      <p class="text-sm text-gray-600">
+                          คุณสามารถติดตามความคืบหน้าของคำร้องได้ในหน้านี้ หรือติดต่อสอบถามได้ที่เจ้าหน้าที่
+                      </p>
+                  </div>
+              `,
+              icon: 'info',
+              confirmButtonText: 'รับทราบ',
+              confirmButtonColor: '#16a34a'
+          });
+      }
+
+      // Show complaint details function
+      function showComplaintDetails(complaintId) {
+          // You can implement a detailed modal or redirect to a detail page
+          console.log('Show details for complaint:', complaintId);
+          // Example: window.location.href = `/user/complaint/${complaintId}`;
+      }
+
+      // Close image modal with Escape key
+      document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape') {
+              closeImageModal();
+          }
+      });
+    </script>
+
     <script>
 
         // Tab functionality

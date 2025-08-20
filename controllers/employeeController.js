@@ -476,6 +476,29 @@ const complaintIndex = async (req, res) => {
     }
 };
 
+// เปลี่ยนสถานะของคำร้อง
+const updateComplaintStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        const complaint = await Complaint.findByIdAndUpdate(
+            id,
+            { status },
+            { new: true }
+        );
+
+        if (!complaint) {
+            return res.status(404).json({ error: 'ไม่พบคำร้อง' });
+        }
+
+        res.json({ success: true, complaint });
+    } catch (error) {
+        console.error('Error updating complaint status:', error);
+        res.status(500).json({ error: 'เกิดข้อผิดพลาดในการอัปเดตสถานะ' });
+    }
+};
+
 //หน้าตรวจสอบความประสงค์ขายขยะ
 const wasteSaleRequestIndex = async (req, res) => {
     try {
@@ -969,7 +992,7 @@ module.exports = {
     //หน้าสมาชิกกองทุนขยะรีไซเคิล
     memberIndex,memberRegister,
     //หน้าคำร้องหรือหรือข้อร้องเรียน
-    complaintIndex,
+    complaintIndex,updateComplaintStatus,
     //หน้าตรวจสอบความประสงค์ขายขยะ
     wasteSaleRequestIndex,
     //หน้าสต๊อกขยะ

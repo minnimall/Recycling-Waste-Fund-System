@@ -19,6 +19,7 @@ router.post('/memberRegister', employeeController.memberRegister);
 
 // คำร้องหรือหรือข้อร้องเรียน
 router.get('/complaint', employeeController.complaintIndex);
+router.patch('/complaint/:id/status', employeeController.updateComplaintStatus);
 
 // ตรวจสอบความประสงค์ขายขยะ
 router.get('/wasteSaleRequest', employeeController.wasteSaleRequestIndex);
