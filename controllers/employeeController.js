@@ -31,7 +31,7 @@ router.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
 // หน้าแดชบอร์ด
 const dashboardIndex = (req, res)=> {
-    res.render('employee/dashboard', { mytitle: 'Employeedashboard | Dashboard'})
+    res.render('employee/dashboard', { mytitle: 'แดชบอร์ด'})
 }
 
 const wastePurchaseIndex = async (req, res) => {

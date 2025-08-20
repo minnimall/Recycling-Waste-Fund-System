@@ -36,6 +36,9 @@ router.post('/wasteTypePost', adminController.wasteTypePost);
 router.post('/wasteTypeEdit', adminController.wasteTypeEdit);
 router.delete('/deletewasteType/:id', adminController.wasteTypeDelete);
 
+// สต๊อกขยะ
+router.get('/wasteStock', adminController.wasteStockIndex);
+
 // พนักงาน
 router.get('/employee', adminController.employeeIndex);
 router.post('/employeeRegister', adminController.employeeRegister);

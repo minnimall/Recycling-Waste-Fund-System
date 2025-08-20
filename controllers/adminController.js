@@ -6,6 +6,7 @@ const myMedia = require('../models/media');
 const MyAdmin = require('../models/admin');
 const myWaste= require('../models/waste');
 const myWasteType = require('../models/wastetype');
+const WasteItem = require('../models/wasteItem');
 const myNews = require('../models/news');
 const myActivity = require('../models/activity');
 const Village = require('../models/village')
@@ -14,6 +15,7 @@ const WastePriceHistory = require('../models/wastePriceHistory');
 const Family = require('../models/family');
 const WasteBankAccount = require('../models/wasteBankAccount');
 const Member = require('../models/member');
+const WastePurchase = require('../models/wastePurchase');
 const mongoose = require('mongoose');
 const path = require('path');
 const bcrypt = require('bcryptjs');
@@ -594,6 +596,356 @@ const wasteTypeDelete = async (req, res) => {
         res.status(500).redirect('/admin/wasteType?message=เกิดข้อผิดพลาดในการลบข้อมูลประเภทขยะ');
     }
 };
+//หน้าสต๊อกขยะ (เพิ่ม filter เดือน/ปี) - Fixed Version
+const wasteStockIndex = async (req, res) => {
+    const villageId = req.query.villageId || null;
+    const wasteName = req.query.name || null;
+    const selectedMonth = req.query.month || null; // YYYY-MM format
+    const selectedYear = req.query.year || null;
+
+    try {
+        console.log('Starting wasteStockIndex with params:', { villageId, wasteName, selectedMonth, selectedYear });
+
+        const matchCondition = { isDeleted: false };
+
+        // เพิ่ม date filter
+        if (selectedMonth) {
+            const [year, month] = selectedMonth.split('-');
+            const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+            const endDate = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59);
+            matchCondition.purchaseDate = { $gte: startDate, $lte: endDate };
+            console.log('Date filter (month):', { startDate, endDate });
+        } else if (selectedYear) {
+            const startDate = new Date(parseInt(selectedYear), 0, 1);
+            const endDate = new Date(parseInt(selectedYear), 11, 31, 23, 59, 59);
+            matchCondition.purchaseDate = { $gte: startDate, $lte: endDate };
+            console.log('Date filter (year):', { startDate, endDate });
+        }
+
+        console.log('Match condition:', matchCondition);
+
+        // Pipeline แบบ step by step เพื่อ debug ง่าย
+        const pipeline = [
+            { $match: matchCondition }
+        ];
+
+        // ตรวจสอบว่ามีข้อมูล purchase ไหม
+        const purchaseCount = await WastePurchase.countDocuments(matchCondition);
+        console.log('Purchase count after date filter:', purchaseCount);
+
+        if (purchaseCount === 0) {
+            console.log('No purchases found, returning empty data');
+            return res.render('admin/wasteStock', {
+                mytitle: 'สต๊อกขยะ',
+                stockData: [],
+                selectedVillageId: villageId,
+                villages: await Village.find({ isDeleted: false }).sort({ villageNumber: 1 }) || [],
+                searchName: wasteName,
+                selectedMonth: selectedMonth,
+                selectedYear: selectedYear,
+                monthlyOptions: []
+            });
+        }
+
+        // Join WasteBankAccount
+        pipeline.push(
+            {
+                $lookup: {
+                    from: 'wastebankaccounts',
+                    localField: 'accountId',
+                    foreignField: '_id',
+                    as: 'accountInfo'
+                }
+            },
+            {
+                $match: {
+                    'accountInfo': { $ne: [] } // มี account info
+                }
+            },
+            { $unwind: '$accountInfo' }
+        );
+
+        // Join Family
+        pipeline.push(
+            {
+                $lookup: {
+                    from: 'families',
+                    localField: 'accountInfo.familyID',
+                    foreignField: '_id',
+                    as: 'familyInfo'
+                }
+            },
+            {
+                $match: {
+                    'familyInfo': { $ne: [] } // มี family info
+                }
+            },
+            { $unwind: '$familyInfo' }
+        );
+
+        // ถ้าเลือกหมู่บ้าน
+        if (villageId) {
+            try {
+                const villageObjectId = new mongoose.Types.ObjectId(villageId);
+                pipeline.push({
+                    $match: { 'familyInfo.village': villageObjectId }
+                });
+                console.log('Added village filter:', villageId);
+            } catch (villageError) {
+                console.error('Invalid village ID:', villageId);
+                // ถ้า villageId ผิด format ให้ skip filter นี้
+            }
+        }
+
+        // Join WasteItem - ปรับปรุงให้ handle array properly
+        pipeline.push(
+            {
+                $lookup: {
+                    from: 'wasteitems',
+                    localField: 'wasteItems',
+                    foreignField: '_id',
+                    as: 'wasteItemDetails'
+                }
+            },
+            {
+                $match: {
+                    'wasteItemDetails': { $ne: [] } // มี waste items
+                }
+            },
+            { $unwind: '$wasteItemDetails' }
+        );
+
+        // ถ้าใส่ชื่อขยะ
+        if (wasteName && wasteName.trim() !== '') {
+            pipeline.push({
+                $match: { 
+                    'wasteItemDetails.name': { 
+                        $regex: wasteName.trim(), 
+                        $options: 'i' 
+                    } 
+                }
+            });
+            console.log('Added waste name filter:', wasteName);
+        }
+
+        // Join กับ Waste model
+        pipeline.push(
+            {
+                $lookup: {
+                    from: 'wastes',
+                    localField: 'wasteItemDetails.name',
+                    foreignField: 'wasteName',
+                    as: 'currentWasteInfo'
+                }
+            },
+            
+            // เพิ่ม field เดือน/ปี สำหรับ grouping
+            {
+                $addFields: {
+                    purchaseMonth: { 
+                        $dateToString: { 
+                            format: "%Y-%m", 
+                            date: "$purchaseDate",
+                            timezone: "Asia/Bangkok"
+                        } 
+                    },
+                    purchaseYear: { $year: "$purchaseDate" },
+                    // ป้องกัน null/undefined values
+                    wasteQuantity: { 
+                        $ifNull: ['$wasteItemDetails.quantity', 0] 
+                    },
+                    wastePricePerUnit: { 
+                        $ifNull: ['$wasteItemDetails.pricePerUnit', 0] 
+                    },
+                    currentPricePerUnit: {
+                        $ifNull: [{ $arrayElemAt: ['$currentWasteInfo.pricePerUnit', 0] }, 0]
+                    }
+                }
+            }
+        );
+
+        // Group แบบใหม่ - แยกตาม wasteName และ เดือน
+        pipeline.push(
+            {
+                $group: {
+                    _id: {
+                        wasteName: '$wasteItemDetails.name',
+                        month: '$purchaseMonth'
+                    },
+                    totalQuantityKg: { $sum: '$wasteQuantity' },
+                    avgPriceInMonth: { $avg: '$wastePricePerUnit' },
+                    monthlyAmount: { 
+                        $sum: { 
+                            $multiply: ['$wasteQuantity', '$wastePricePerUnit'] 
+                        } 
+                    },
+                    currentPrice: { $first: '$currentPricePerUnit' },
+                    currentMonthlyValue: { 
+                        $sum: { 
+                            $multiply: ['$wasteQuantity', '$currentPricePerUnit'] 
+                        } 
+                    },
+                    purchaseCount: { $sum: 1 },
+                    purchaseDates: { $push: '$purchaseDate' }
+                }
+            },
+            
+            // Group อีกครั้งเพื่อรวมทุกเดือนของแต่ละประเภทขยะ
+            {
+                $group: {
+                    _id: '$_id.wasteName',
+                    totalQuantityKg: { $sum: '$totalQuantityKg' },
+                    
+                    // รวมยอดเงินจากทุกเดือน (แม่นยำ)
+                    historicalTotalAmount: { $sum: '$monthlyAmount' },
+                    currentTotalAmount: { $sum: '$currentMonthlyValue' },
+                    
+                    // เก็บข้อมูลสำหรับคำนวณราคาเฉลี่ย
+                    totalMonthlyAmount: { $sum: '$monthlyAmount' },
+                    totalMonthlyQuantity: { $sum: '$totalQuantityKg' },
+                    
+                    currentPrice: { $first: '$currentPrice' },
+                    purchaseCount: { $sum: '$purchaseCount' },
+                    lastUpdated: { $max: { $max: '$purchaseDates' } },
+                    
+                    // เก็บรายละเอียดรายเดือน
+                    monthlyBreakdown: {
+                        $push: {
+                            month: '$_id.month',
+                            quantity: '$totalQuantityKg',
+                            avgPrice: '$avgPriceInMonth',
+                            amount: '$monthlyAmount',
+                            currentValue: '$currentMonthlyValue',
+                            purchases: '$purchaseCount'
+                        }
+                    }
+                }
+            },
+            
+            {
+                $addFields: {
+                    // คำนวณราคาเฉลี่ยแบบ weighted average
+                    avgHistoricalPrice: {
+                        $cond: {
+                            if: { $gt: ['$totalQuantityKg', 0] },
+                            then: {
+                                $divide: ['$totalMonthlyAmount', '$totalQuantityKg']
+                            },
+                            else: 0
+                        }
+                    },
+                    pricePerKg: { $ifNull: ['$currentPrice', 0] },
+                    totalAmount: { $ifNull: ['$historicalTotalAmount', 0] },
+                    currentValueIfSoldToday: { $ifNull: ['$currentTotalAmount', 0] },
+                    lastUpdatedFormatted: {
+                        $cond: {
+                            if: { $ne: ['$lastUpdated', null] },
+                            then: {
+                                $dateToString: {
+                                    format: "%d/%m/%Y",
+                                    date: '$lastUpdated',
+                                    timezone: "Asia/Bangkok"
+                                }
+                            },
+                            else: "ไม่ระบุ"
+                        }
+                    }
+                }
+            },
+            
+            {
+                $addFields: {
+                    // คำนวณส่วนต่างราคา (ต้องทำแยกเพราะต้องใช้ avgHistoricalPrice ที่คำนวณแล้ว)
+                    priceDifference: { 
+                        $subtract: [
+                            { $ifNull: ['$currentPrice', 0] }, 
+                            { $ifNull: ['$avgHistoricalPrice', 0] }
+                        ] 
+                    },
+                    avgPricePerUnit: { $ifNull: ['$avgHistoricalPrice', 0] }
+                }
+            },
+            
+            { $sort: { _id: 1 } }
+        );
+
+        console.log('Executing main aggregation pipeline...');
+        const stockData = await WastePurchase.aggregate(pipeline);
+        console.log('Stock data count:', stockData.length);
+
+        // สร้าง dropdown options สำหรับเดือน/ปี
+        let monthlyOptions = [];
+        try {
+            monthlyOptions = await WastePurchase.aggregate([
+                { $match: { isDeleted: false } },
+                {
+                    $group: {
+                        _id: {
+                            year: { $year: '$purchaseDate' },
+                            month: { $month: '$purchaseDate' }
+                        },
+                        count: { $sum: 1 }
+                    }
+                },
+                { $sort: { '_id.year': -1, '_id.month': -1 } }
+            ]);
+            console.log('Monthly options count:', monthlyOptions.length);
+        } catch (monthlyError) {
+            console.error('Error getting monthly options:', monthlyError);
+            monthlyOptions = [];
+        }
+
+        // ดึงข้อมูลหมู่บ้าน
+        let allVillages = [];
+        try {
+            allVillages = await Village.find({ isDeleted: false }).sort({ villageNumber: 1 });
+            console.log('Villages count:', allVillages.length);
+        } catch (villageError) {
+            console.error('Error getting villages:', villageError);
+            allVillages = [];
+        }
+
+        console.log('Rendering page with data...');
+        res.render('admin/wasteStock', {
+            mytitle: 'สต๊อกขยะ',
+            stockData: stockData || [],
+            selectedVillageId: villageId,
+            villages: allVillages,
+            searchName: wasteName,
+            selectedMonth: selectedMonth,
+            selectedYear: selectedYear,
+            monthlyOptions: monthlyOptions
+        });
+
+    } catch (err) {
+        console.error('Error in wasteStockIndex:', err);
+        console.error('Stack trace:', err.stack);
+        
+        // ส่ง error details ไปยัง view สำหรับ debugging (ในโหมด development)
+        if (process.env.NODE_ENV === 'development') {
+            return res.status(500).render('error', {
+                message: 'เกิดข้อผิดพลาดในระบบ',
+                error: {
+                    message: err.message,
+                    stack: err.stack
+                }
+            });
+        }
+        
+        // สำหรับ production ให้ส่งหน้า error ธรรมดา
+        res.status(500).render('admin/wasteStock', {
+            mytitle: 'สต๊อกขยะ - เกิดข้อผิดพลาด',
+            stockData: [],
+            selectedVillageId: null,
+            villages: [],
+            searchName: null,
+            selectedMonth: null,
+            selectedYear: null,
+            monthlyOptions: [],
+            errorMessage: 'เกิดข้อผิดพลาดในการโหลดข้อมูล กรุณาลองใหม่อีกครั้ง'
+        });
+    }
+};
 
 
 // หน้า employee(พนักงาน)
@@ -1116,6 +1468,8 @@ module.exports = {
     wasteIndex,wastePost,wasteDelete,wasteEdit,
     //ประเภทขยะ
     wasteTypeIndex,wasteTypePost,wasteTypeEdit,wasteTypeDelete,
+    //สต๊อกขยะ
+    wasteStockIndex,
     //พนักงาน
     employeeIndex,employeeRegister,employeeDelete,editEmployee,
     //สมาชิกกองทุน
