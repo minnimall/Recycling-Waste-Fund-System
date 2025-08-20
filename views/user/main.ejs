@@ -349,7 +349,6 @@
                             <% news.forEach((item, index) => { %>
                         <div class="bg-gray-50 rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
                             <div class="flex items-start space-x-4">
-                                <img src="/placeholder.svg?height=80&width=120" alt="ข่าวประชาสัมพันธ์" class="w-20 h-20 object-cover rounded-lg flex-shrink-0">
                                 <div class="flex-1">
                                     <div class="flex items-center space-x-2 mb-2">
                                         <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">ข้อมูล</span>
@@ -361,10 +360,6 @@
                                     <p class="text-gray-600 text-sm mb-3">
                                         <%= item.newsDescription %>
                                     </p>
-                                    <!-- <div class="flex items-center space-x-4 text-sm text-gray-500">
-                                        <span><i class="fas fa-eye mr-1"></i>234 ครั้ง</span>
-                                        <span><i class="fas fa-comment mr-1"></i>12 ความคิดเห็น</span>
-                                    </div> -->
                                 </div>
                             </div>
                         </div>
@@ -395,7 +390,7 @@
                         <!-- PDF Document 1 -->
                         <% if (news.length = 5) { %>
                             <% news.forEach((item, index) => { %>
-                            <div class="bg-white rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer" onclick="openPDF('<%= item.newsTitle %>', '<%= item.newsFile.replace(/\\/g, '/') %>')">
+                            <div class="bg-white rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer" onclick="openPDF('<%= item.newsTitle %>', '<%= item.newsFile %>')">
                                 <div class="flex items-start space-x-3">
                                     <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
                                         <i class="fas fa-file-pdf text-red-500"></i>
@@ -407,10 +402,10 @@
                                         <div class="w-full max-w-[320px]">
                                             <p class="text-gray-600 text-xs mb-2"><%= item.newsDescription %></p>
                                         </div>
-                                        <div class="flex items-center justify-between text-xs text-gray-500">
+                                        <!-- <div class="flex items-center justify-between text-xs text-gray-500">
                                             <span>PDF • 2.5 MB</span>
                                             <span><i class="fas fa-download mr-1"></i>234</span>
-                                        </div>
+                                        </div> -->
                                     </div>
                                 </div>
                             </div>
@@ -471,7 +466,7 @@
             pdfTitle.textContent = title;
 
             // แสดง PDF ใน iframe
-            iframe.src = `/documents/${fileUrl}`; // หรือใช้ fileUrl ตรง ๆ ถ้าเป็น path เต็ม
+            iframe.src = `${fileUrl}`; // หรือใช้ fileUrl ตรง ๆ ถ้าเป็น path เต็ม
 
             // แสดง modal
             pdfModal.classList.remove('hidden');
@@ -479,7 +474,7 @@
             // ฟังก์ชันดาวน์โหลด
             downloadBtn.onclick = function () {
                 const a = document.createElement('a');
-                a.href = `/documents/${fileUrl}`; // หรือใช้ fileUrl ตรง ๆ เช่น https://...
+                a.href = `${fileUrl}`; // หรือใช้ fileUrl ตรง ๆ เช่น https://...
                 a.download = fileUrl;
                 a.style.display = 'none';
                 document.body.appendChild(a);

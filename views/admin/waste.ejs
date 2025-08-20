@@ -42,7 +42,7 @@
     <div class="content bg-gray-50 min-screen">
         <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
             <div>
-                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">ขยะ</h1>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">ขยะ <span class="text-blue-600 text-xl ml-2 font-normal">(ทั้งหมด <%= waste.length %> รายการ)</span></h1>
                 <p class="text-gray-600">รายการขยะทั้งหมดที่รับซื้อของกองทุนขยะรีไซเคิล</p>
             </div>
             
@@ -54,11 +54,30 @@
         <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
             <div class="mb-4 border-b border-gray-200 border-b border-gray-200 pb-4">
                 <h2 class="text-base font-semibold text-gray-800 mb-4 md:mb-0">
-                    จำนวนขยะทั้งหมด <span class="text-blue-600 text-base font-normal"> <%= waste.length %> รายการ</span>
+                    จำนวนขยะทั้งหมด <span id="totalItems" class="text-blue-600 text-base font-normal"> 0 รายการ</span> 
+
                 </h2>
             </div>
-        
-            <div class="overflow-x-auto">
+            <!-- Search + ItemsPerPage -->
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4 mx-4 mb-4">
+                <div class="flex-1 relative w-full">
+                    <input type="text" id="searchInput" placeholder="ค้นหาขยะ..." 
+                        class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                    <div class="absolute left-3 top-2.5 text-gray-400">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <label for="itemsPerPage" class="text-sm text-gray-600">แสดง:</label>
+                    <select id="itemsPerPage" class="border rounded-lg px-2 py-1 focus:ring-2 focus:ring-green-500">
+                        <option value="5" selected>5</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto mx-4 mb-6 bg-white">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-100">
                         <tr>
@@ -70,41 +89,13 @@
                             <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">จัดการ</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <% if (waste.length > 0) { %>
-                            <% waste.forEach((wastes, index) => { %>
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-4 py-3 text-sm whitespace-nowrap text-center"><%= (currentPage - 1) * 10 + index + 1 %></td>
-                                    <td class="px-4 py-3 text-sm whitespace-nowrap"><%= wastes.wasteName %></td>
-                                    <td class="px-4 py-3 text-sm whitespace-nowrap"><%= wastes.wasteType.wasteTypeName %></td>
-                                    <td class="px-4 py-3 text-sm whitespace-nowrap text-center"><%= wastes.pricePerUnit %></td>
-                                    <td class="px-4 py-3 text-sm whitespace-nowrap">
-                                        <% if (wastes.img) { %>
-                                                <img src="<%= wastes.img %>" alt="รูป <%= wastes.img %>" class="waste-img">
-                                            <% } else { %>
-                                                <span>ไม่มีรูปภาพ</span>
-                                            <% } %>
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-left">
-                                        <button type="button" class="was-row-<%= index + 1 %> row-active edit-btn" 
-                                            onclick="setWasteForm('<%= index + 1 %>', '<%= wastes._id %>', '<%= wastes.wasteName %>',
-                                                                '<%= wastes.pricePerUnit %>', '<%= wastes.wasteType._id %>', '<%= wastes.img %>')">
-                                            <i class="fa fa-edit"></i>
-                                        </button>
-                                        <button onclick="deleteEmp(['<%= index + 1 %>', '<%= wastes._id %>','<%= wastes.wasteName %>'])" class="delete-btn">
-                                            <i class="fa fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            <% }); %>
-                        <% } else { %>
-                            <tr>
-                                <td colspan="6" class="text-center py-2 px-4">- ไม่มีข้อมูลขยะ -</td>
-                            </tr>
-                        <% } %>
-                    </tbody>                    
+                    <tbody class="bg-white divide-y divide-gray-200" id="tableBody"></tbody>
                 </table>
+
+                <div id="noResults" class="text-center py-4 text-gray-500 hidden">- ไม่มีข้อมูลขยะ -</div>
+                <div id="pagination" class="flex justify-center mt-4 gap-2"></div>
             </div>
+
         </div>
 
         <!-- Modal Add -->
@@ -265,28 +256,6 @@
                     </div>
                 </form>
             </div>
-        </div>
-
-        <div class="pagination flex justify-center items-center mt-4 space-x-2">
-                    <% if (currentPage > 1) { %>
-                        <a href="?page=<%= currentPage - 1 %>"
-                            class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                            ก่อนหน้า
-                        </a>
-                    <% } %>
-                    <% for (let i = 1; i <= totalPages; i++) { %>
-                        <a href="?page=<%= i %>"
-                            class="px-3 py-1 border border-gray-300 rounded-md 
-                                <%= currentPage === i ? 'page-current text-white' : 'text-gray-700 hover:bg-gray-100' %>">
-                            <%= i %>
-                        </a>
-                    <% } %>
-                    <% if (currentPage < totalPages) { %>
-                        <a href="?page=<%= currentPage + 1 %>"
-                            class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                            ถัดไป
-                        </a>
-                    <% } %>
         </div>
     </div>
 </body>
@@ -468,7 +437,95 @@
             previewImage.src = '';
         }
     });
+    const wasteData = <%- JSON.stringify(waste) %>; // ดึงข้อมูลจาก server
+    const searchInput = document.getElementById("searchInput");
+    const itemsPerPageSelect = document.getElementById("itemsPerPage");
+    const tableBody = document.getElementById("tableBody");
+    const pagination = document.getElementById("pagination");
+    const noResults = document.getElementById("noResults");
 
+    document.getElementById("totalItems").textContent = `${wasteData.length} รายการ`
+
+    let currentPage = 1;
+    let itemsPerPage = parseInt(itemsPerPageSelect.value);
+    let filteredData = [...wasteData];
+
+    function createRow(item, index) {
+        return `
+            <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-4 py-3 text-sm whitespace-nowrap text-center">${index + 1}</td>
+                <td class="px-4 py-3 text-sm whitespace-nowrap">${item.wasteName}</td>
+                <td class="px-4 py-3 text-sm whitespace-nowrap">${item.wasteType.wasteTypeName}</td>
+                <td class="px-4 py-3 text-sm whitespace-nowrap text-center">${item.pricePerUnit}</td>
+                <td class="px-4 py-3 text-sm whitespace-nowrap">
+                    ${item.img ? `<img src="${item.img}" alt="รูป" class="waste-img" />` : "<span>ไม่มีรูปภาพ</span>"}
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-left">
+                    <button class="edit-btn" onclick="setWasteForm('${item._id}', '${item.wasteName}', '${item.pricePerUnit}', '${item.wasteType._id}', '${item.img}')">
+                        <i class="fa fa-edit"></i>
+                    </button>
+                    <button onclick="deleteEmp('${item._id}', '${item.wasteName}')" class="delete-btn">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    }
+    function displayData() {
+
+        const start = (currentPage - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        const dataToShow = filteredData.slice(start, end);
+
+        if (dataToShow.length === 0) {
+            noResults.classList.remove("hidden");
+            tableBody.innerHTML = "";
+            pagination.innerHTML = "";
+            return;
+        }
+
+        noResults.classList.add("hidden");
+        tableBody.innerHTML = dataToShow.map((item, i) => createRow(item, start + i)).join("");
+        renderPagination();
+    }
+
+    function renderPagination() {
+        const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+        if (totalPages <= 1) {
+            pagination.innerHTML = "";
+            return;
+        }
+        let html = "";
+        for (let i = 1; i <= totalPages; i++) {
+            html += `<button onclick="goToPage(${i})" class="px-3 py-1 border rounded ${i === currentPage ? 'bg-green-600 text-white' : 'bg-white text-gray-700'}">${i}</button>`;
+        }
+        pagination.innerHTML = html;
+    }
+
+    function goToPage(page) {
+        currentPage = page;
+        displayData();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    searchInput.addEventListener("input", () => {
+        const term = searchInput.value.toLowerCase();
+        filteredData = wasteData.filter(w => 
+            w.wasteName.toLowerCase().includes(term) || 
+            w.wasteType.wasteTypeName.toLowerCase().includes(term)
+        );
+        document.getElementById("totalItems").textContent = `${filteredData.length} รายการ`
+        currentPage = 1;
+        displayData();
+    });
+
+    itemsPerPageSelect.addEventListener("change", () => {
+        itemsPerPage = parseInt(itemsPerPageSelect.value);
+        currentPage = 1;
+        displayData();
+    });
+
+    // Init
+    displayData();
 </script>
-
 </html>
