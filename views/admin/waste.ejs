@@ -54,7 +54,7 @@
         <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
             <div class="mb-4 border-b border-gray-200 border-b border-gray-200 pb-4">
                 <h2 class="text-base font-semibold text-gray-800 mb-4 md:mb-0">
-                    จำนวนขยะทั้งหมด <span id="totalItems" class="text-blue-600 text-base font-normal"> 0 รายการ</span> 
+                    ขยะ <span id="totalItems" class="text-blue-600 text-base font-normal"> 0 รายการ</span> 
 
                 </h2>
             </div>
@@ -77,7 +77,7 @@
                 </div>
             </div>
 
-            <div class="overflow-x-auto mx-4 mb-6 bg-white">
+                        <div class="overflow-x-auto mx-4 mb-6 bg-white">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-100">
                         <tr>
@@ -95,7 +95,6 @@
                 <div id="noResults" class="text-center py-4 text-gray-500 hidden">- ไม่มีข้อมูลขยะ -</div>
                 <div id="pagination" class="flex justify-center mt-4 gap-2"></div>
             </div>
-
         </div>
 
         <!-- Modal Add -->
@@ -257,6 +256,7 @@
                 </form>
             </div>
         </div>
+
     </div>
 </body>
 <%- include('../partials/adminPartials/adminFooter.ejs') %>
@@ -290,12 +290,10 @@
 
         const selectedRow = document.querySelector(`.was-row-${Index}`);
         if (lastClickedRow === selectedRow) {
-            selectedRow.style.backgroundColor = '';
             lastClickedRow = null;
             editForm.style.display = 'none';
         } else {
             if (lastClickedRow) lastClickedRow.style.backgroundColor = '';
-            selectedRow.style.backgroundColor = '#8EDBA4';
             editForm.style.display = 'block';
             lastClickedRow = selectedRow;
         }
@@ -437,6 +435,7 @@
             previewImage.src = '';
         }
     });
+
     const wasteData = <%- JSON.stringify(waste) %>; // ดึงข้อมูลจาก server
     const searchInput = document.getElementById("searchInput");
     const itemsPerPageSelect = document.getElementById("itemsPerPage");
@@ -461,10 +460,13 @@
                     ${item.img ? `<img src="${item.img}" alt="รูป" class="waste-img" />` : "<span>ไม่มีรูปภาพ</span>"}
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-left">
-                    <button class="edit-btn" onclick="setWasteForm('${item._id}', '${item.wasteName}', '${item.pricePerUnit}', '${item.wasteType._id}', '${item.img}')">
+
+                    <button type="button" class="was-row-${index + 1} row-active edit-btn" 
+                        onclick="setWasteForm('${index + 1}', '${item._id}', '${item.wasteName}',
+                                            '${item.pricePerUnit}', '${item.wasteType._id}', '${item.img}')">
                         <i class="fa fa-edit"></i>
                     </button>
-                    <button onclick="deleteEmp('${item._id}', '${item.wasteName}')" class="delete-btn">
+                    <button onclick="deleteEmp(['${index + 1}', '${item._id}','${item.wasteName}'])" class="delete-btn">
                         <i class="fa fa-trash"></i>
                     </button>
                 </td>
@@ -527,5 +529,7 @@
 
     // Init
     displayData();
+
 </script>
+
 </html>

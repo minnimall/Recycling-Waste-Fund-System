@@ -48,7 +48,7 @@
     <div class="content bg-gray-50 min-screen">
         <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
             <div>
-                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">พนักงาน</h1>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">พนักงาน <span class="text-blue-600 text-xl ml-2 font-normal">(ทั้งหมด <%= emp.length %> รายการ)</span></h1>
                 <p class="text-gray-600">จำนวนพนักงานทั้งหมดในระบบกองทุนขยะรีไซเคิล</p>
             </div>
 
@@ -73,95 +73,66 @@
             </div>
         </div>
 
-        <!-- Search and Filter Section -->
+        <!-- Search + Filter -->
         <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
-            <form action="" method="GET">
-                <div class="flex flex-col md:flex-row gap-4">
-                    <div class="flex-1">
-                        <div class="relative">
-                            <input type="text" id="search" name="search" value="<%= search || '' %>" placeholder="ค้นหาพนักงาน" 
-                                class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                            <div class="absolute left-3 top-2.5 text-gray-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="md:w-64">
-                        <select name="role" id="role" class="w-full py-2 px-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                            <option value="">All</option>
-                            <option value="admin" <%= role === 'admin' ? 'selected' : '' %>>Admin</option>
-                            <option value="employee" <%= role === 'employee' ? 'selected' : '' %>>Employee</option>
-                            <option value="user" <%= role === 'user' ? 'selected' : '' %>>User</option>
-                        </select>
-                    </div>
-                    <div>
-                        <button class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                            <i class="fas fa-search mr-2"></i>ค้นหา
-                        </button>
-                    </div>
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1 relative">
+                <input type="text" id="searchInput" placeholder="ค้นหาพนักงาน"
+                        class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                <div class="absolute left-3 top-2.5 text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
                 </div>
-            </form>
+                </div>
+                <div class="flex items-center space-x-2">
+                <label for="perPage" class="text-sm text-gray-600">ตำแหน่ง:</label>
+                <select id="roleFilter" class="w-full py-2 px-3 rounded-lg border border-gray-300">
+                    <option value="">All</option>
+                    <option value="admin">Admin</option>
+                    <option value="employee">Employee</option>
+                    <option value="user">User</option>
+                </select>
+                </div>
+                <div class="flex items-center space-x-2">
+                <label for="perPage" class="text-sm text-gray-600">แสดง:</label>
+                <select id="itemsPerPage" class="w-full py-2 px-3 rounded-lg border border-gray-300">
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="20">20</option>
+                </select>
+                </div>
+            </div>
         </div>
 
         <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
-            <div class="mb-4 border-b border-gray-200 border-b border-gray-200 pb-4">
-                <h2 class="text-base font-semibold text-gray-800 mb-4 md:mb-0">
-                    จำนวนสมาชิกทั้งหมด <span class="text-blue-600 text-base font-normal"><%= emp.length %> รายการ</span>
-                </h2>
-            </div>
-        
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">ลำดับที่</th>
-                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">ชื่อผู้ใช้</th>
-                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">อีเมล</th>
-                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">เบอร์โทร</th>
-                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">บทบาท</th>
-                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">จัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <% if (emp && emp.length > 0) { %>
-                            <% emp.forEach((employee, index) => { %>
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-4 py-3 text-sm whitespace-nowrap text-center"><%= (currentPage - 1) * 10 + index + 1 %></td>
-                                    <td class="px-4 py-3 text-sm whitespace-nowrap"><%= employee.firstname %> <%= employee.lastname %></td>
-                                    <td class="px-4 py-3 text-sm whitespace-nowrap"><%= employee.email %></td>
-                                    <td class="px-4 py-3 text-sm whitespace-nowrap"><%= employee.tel %></td>
-                                    <td class="px-4 py-3 text-sm whitespace-nowrap">
-                                        <div class="role-tag <%= employee.role === 'admin' ? 'admin-role-bg' : 'employee-role-bg' %>">
-                                            <%= employee.role %>
-                                        </div>
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-center">
-                                        <button type="button" class="was-row-<%= index + 1 %> row-active edit-btn" 
-                                            onclick="setEmpEditForm('<%= index + 1 %>', '<%= employee._id %>', '<%= employee.username %>',
-                                                                    '<%= employee.firstname %>', '<%= employee.lastname %>', '<%= employee.tel %>',
-                                                                    '<%= employee.email %>','<%= employee.role %>')">
-                                            <i class="fa fa-edit"></i>
-                                        </button>
-                                        <button
-                                            onclick="deleteEmp(['<%= index + 1 %>', '<%= employee._id %>','<%= employee.username %>','<%= employee.firstname %>','<%= employee.lastname %>'])"
-                                            class="delete-btn">
-                                            <i class="fa fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            <% }); %>
-                        <% } else { %>
-                            <tr>
-                                <td colspan="8" class="text-center py-4 text-gray-500">- ไม่พบข้อมูล -</td>
-                            </tr>
-                        <% } %>
-                    </tbody>                    
-                </table>
-            </div>
-        </div>
 
+  <!-- Table -->
+  <div class="overflow-x-auto">
+    <div class="mb-4 border-b border-gray-200 border-b border-gray-200 pb-4">
+        <h2 class="text-base font-semibold text-gray-800 mb-4 md:mb-0">
+            สมาชิก <span class="text-blue-600 text-base font-normal" id="totalItems">0 รายการ</span>
+        </h2>
+    </div>
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="px-4 py-3 text-sm font-medium text-center">ลำดับที่</th>
+          <th class="px-4 py-3 text-sm font-medium text-left">ชื่อผู้ใช้</th>
+          <th class="px-4 py-3 text-sm font-medium text-left">อีเมล</th>
+          <th class="px-4 py-3 text-sm font-medium text-left">เบอร์โทร</th>
+          <th class="px-4 py-3 text-sm font-medium text-left">บทบาท</th>
+          <th class="px-4 py-3 text-sm font-medium text-center">จัดการ</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody" class="bg-white divide-y divide-gray-200"></tbody>
+    </table>
+  </div>
+
+  <div class="mt-4 flex justify-between items-center">
+    <div id="pagination" class="flex gap-2"></div>
+  </div>
+</div>
         <!-- Add Employee Form -->
         <div id="add_emp" class="fixed inset-0 z-50 bg-black bg-opacity-30 flex items-center justify-center hidden">
             <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl px-4">
@@ -313,29 +284,6 @@
                 </form>
             </div>
         </div>
-
-
-        <div class="pagination flex justify-center items-center mt-4 space-x-2">
-            <% if (currentPage > 1) { %>
-                <a href="?page=<%= currentPage - 1 %>&role=<%= role %>&search=<%= search %>"
-                        class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                            ก่อนหน้า
-                </a>
-            <% } %>
-            <% for (let i = 1; i <= totalPages; i++) { %>
-                <a href="?page=<%= i %>&role=<%= role %>&search=<%= search %>"
-                        class="px-3 py-1 border border-gray-300 rounded-md 
-                            <%= currentPage === i ? 'page-current text-white' : 'text-gray-700 hover:bg-gray-100' %>">
-                            <%= i %>
-                </a>
-            <% } %>
-            <% if (currentPage < totalPages) { %>
-                <a href="?page=<%= currentPage + 1 %>&role=<%= role %>&search=<%= search %>"
-                        class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                            ถัดไป
-                </a>
-            <% } %>
-        </div>
     </div>
 </body>
 <%- include('../partials/adminPartials/adminFooter.ejs') %>
@@ -452,4 +400,104 @@
             }
         }
     </script>
+    <script>
+  const empData = <%- JSON.stringify(emp) %>; // Array ของพนักงานจาก server
+  const tableBody = document.getElementById('tableBody');
+  const searchInput = document.getElementById('searchInput');
+  const roleFilter = document.getElementById('roleFilter');
+  const itemsPerPageSelect = document.getElementById('itemsPerPage');
+  const pagination = document.getElementById('pagination');
+  const totalItemsEl = document.getElementById('totalItems');
+
+  let currentPage = 1;
+  let itemsPerPage = parseInt(itemsPerPageSelect.value);
+  let filteredData = [...empData];
+
+  function createRow(employee, index){
+    return `
+      <tr class="hover:bg-gray-50 transition-colors">
+        <td class="px-4 py-3 text-sm text-center">${(currentPage-1)*itemsPerPage + index + 1}</td>
+        <td class="px-4 py-3 text-sm">${employee.firstname} ${employee.lastname}</td>
+        <td class="px-4 py-3 text-sm">${employee.email}</td>
+        <td class="px-4 py-3 text-sm">${employee.tel}</td>
+        <td class="px-4 py-3 text-sm">
+          <div class="role-tag ${employee.role === 'admin' ? 'admin-role-bg' : 'employee-role-bg'}">${employee.role}</div>
+        </td>
+        <td class="px-4 py-3 text-center">
+          <button type="button" class="was-row-${(currentPage-1)*itemsPerPage + index + 1} row-active edit-btn" 
+              onclick="setEmpEditForm('${(currentPage-1)*itemsPerPage + index + 1}', '${employee._id}', '${employee.username}',
+                                      '${employee.firstname}', '${employee.lastname}', '${employee.tel}',
+                                      '${employee.email}','${employee.role}')">
+              <i class="fa fa-edit"></i>
+          </button>
+          <button
+              onclick="deleteEmp(['${(currentPage-1)*itemsPerPage + index + 1}', '${employee._id}','${employee.username}','${employee.firstname}','${employee.lastname}'])"
+              class="delete-btn">
+              <i class="fa fa-trash"></i>
+          </button>
+        </td>
+      </tr>
+    `;
+  }
+
+  function displayData(){
+    // แสดงผล pagination
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const dataToShow = filteredData.slice(start, end);
+
+    totalItemsEl.textContent = `${filteredData.length} รายการ`;
+
+    if(dataToShow.length === 0){
+      tableBody.innerHTML = '<tr><td colspan="6" class="text-center py-2">- ไม่พบข้อมูล -</td></tr>';
+      pagination.innerHTML = '';
+      return;
+    }
+
+    tableBody.innerHTML = dataToShow.map(createRow).join('');
+    renderPagination();
+  }
+
+  function renderPagination(){
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    if(totalPages <= 1) { pagination.innerHTML = ''; return; }
+
+    let html = '';
+    for(let i=1; i<=totalPages; i++){
+      html += `<button onclick="goToPage(${i})" class="px-3 py-1 border rounded ${i===currentPage ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'}">${i}</button>`;
+    }
+    pagination.innerHTML = html;
+  }
+
+  function goToPage(page){
+    currentPage = page;
+    displayData();
+  }
+
+  function applyFilter(){
+    const term = searchInput.value.toLowerCase();
+    const role = roleFilter.value;
+
+    filteredData = empData.filter(e => {
+      const matchesSearch = e.firstname.toLowerCase().includes(term) || e.lastname.toLowerCase().includes(term) || e.email.toLowerCase().includes(term);
+      const matchesRole = role === '' || e.role === role;
+      return matchesSearch && matchesRole;
+    });
+
+    currentPage = 1;
+    displayData();
+  }
+
+  // Event listeners
+  searchInput.addEventListener('input', applyFilter);
+  roleFilter.addEventListener('change', applyFilter);
+  itemsPerPageSelect.addEventListener('change', () => {
+    itemsPerPage = parseInt(itemsPerPageSelect.value);
+    currentPage = 1;
+    displayData();
+  });
+
+  // Initial render
+  displayData();
+</script>
 </html>
