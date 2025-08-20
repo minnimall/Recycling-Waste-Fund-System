@@ -88,10 +88,9 @@
                 <div class="flex items-center space-x-2">
                 <label for="perPage" class="text-sm text-gray-600">ตำแหน่ง:</label>
                 <select id="roleFilter" class="w-full py-2 px-3 rounded-lg border border-gray-300">
-                    <option value="">All</option>
-                    <option value="admin">Admin</option>
-                    <option value="employee">Employee</option>
-                    <option value="user">User</option>
+                    <option value="">ทั้งหมด</option>
+                    <option value="admin">ผู้ดูแลระบบ</option>
+                    <option value="employee">พนักงาน อบต.</option>
                 </select>
                 </div>
                 <div class="flex items-center space-x-2">
@@ -464,7 +463,7 @@
 
     let html = '';
     for(let i=1; i<=totalPages; i++){
-      html += `<button onclick="goToPage(${i})" class="px-3 py-1 border rounded ${i===currentPage ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'}">${i}</button>`;
+      html += `<button onclick="goToPage(${i})" class="px-3 py-1 border rounded ${i===currentPage ? 'bg-green-600 text-white' : 'bg-white text-gray-700'}">${i}</button>`;
     }
     pagination.innerHTML = html;
   }

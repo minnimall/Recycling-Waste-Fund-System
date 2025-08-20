@@ -27,7 +27,10 @@ router.post('/upload-image', (req, res) => {
 
 //แดชบอร์ด
 const dashboardIndex = (req, res)=> {
-    res.render('admin/dashboard', { mytitle: 'Admindashboard | Dashboard'})
+
+    res.render('admin/dashboard', { 
+        mytitle: 'Admindashboard | Dashboard'
+    })
 }
 
 // สื่อ

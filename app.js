@@ -146,6 +146,9 @@ app.get('/register', (req, res) => {
 app.get('/login', (req, res) => {
     res.render('login');
 });
+app.get('/forgot-password', (req, res) => {
+    res.render('forgotPassword');
+});
 
 //รับค่าจากการ login
 app.post('/login', async (req, res) => {
