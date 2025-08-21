@@ -492,9 +492,17 @@ const wastePurchaseTotalIndex = async (req, res) => {
         const wastePurchases = await WastePurchase.find(query)
             .populate('wasteItems')
             .populate('accountId')
-            .populate('addBy') // This line is key
             .skip(skip)
             .limit(limit);
+        // map addBy จาก username เป็น firstname+lastname
+        const adminUsernames = wastePurchases.map(p => p.addBy);
+        const admins = await myAdmin.find({ username: { $in: adminUsernames } });
+        const adminMap = {};
+        admins.forEach(a => adminMap[a.username] = a.firstname + ' ' + a.lastname);
+        wastePurchases.forEach(p => {
+            p.addByName = adminMap[p.addBy] || p.addBy; // สร้างฟิลด์ชั่วคราวสำหรับ view
+        });
+
         const totalCount = await WastePurchase.countDocuments(query);
         const totalPages = Math.ceil(totalCount / limit);
         const purchaseCount = await WastePurchase.countDocuments(query);

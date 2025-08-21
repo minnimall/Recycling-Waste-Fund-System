@@ -173,17 +173,17 @@
                                 <td class="px-6 py-4 text-center text-sm text-gray-900"><%= `${day}/${month}/${year} เวลา ${hours}:${minutes}:${seconds}` %></td>
                                 <td class="px-6 py-4 text-center text-sm">
                                     <a href="#"
-                                    data-items="<%= JSON.stringify({ wasteItems: purchase.wasteItems, accountId: purchase.accountId, purchaseDate: purchase.purchaseDate ,purchaseAddby: purchase.addBy }) %>"
+                                    data-items="<%= JSON.stringify({ wasteItems: purchase.wasteItems, accountId: purchase.accountId, purchaseDate: purchase.purchaseDate ,purchaseAddby: purchase.addByName }) %>"
                                         class="item-link text-blue-600 hover:text-blue-800 hover:underline flex items-center justify-center">
                                         <i class="fas fa-receipt mr-1"></i> รายการขยะ
                                     </a>
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-900"><%= purchase.addBy ? purchase.addBy : 'Unknown' %></td>
+                                <td class="px-6 py-4 text-sm text-gray-900"><%= purchase.addByName ? purchase.addByName : 'Unknown' %></td>
                                 <td class="px-6 py-4 text-center text-sm font-medium">
                                     <div class="flex items-center justify-center gap-2">
-                                        <button onclick="showModalEdit('purchase', '<%= purchase._id %>', 'purchaseHistory')" class="edit-btn"> <!-- text-blue-600 hover:text-blue-800 transition-colors -->
+                                        <!-- <button onclick="showModalEdit('purchase', '<%= purchase._id %>', 'purchaseHistory')" class="edit-btn">
                                             <i class="fa fa-edit"></i>
-                                        </button>
+                                        </button> -->
                                         <button onclick="showModalDelete('<%= index + 1 %>','<%= purchase._id %>')" class="delete-btn"> <!-- text-red-600 hover:text-red-800 transition-colors -->
                                             <i class="fa fa-trash"></i>
                                         </button>
