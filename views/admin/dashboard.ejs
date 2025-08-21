@@ -195,69 +195,38 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
+                        <% let dailyTotalQuantity = 0; %>
+                        <% let dailyTotalAmount = 0; %>
+                        <% stockData.slice(0, 5).forEach(item => { %>
+                            <% 
+                            // สร้าง colorTheme แบบอัตโนมัติตามลำดับ
+                            const colors = ['bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-red-500', 'bg-purple-500'];
+                            const colorTheme = colors[Math.floor(Math.random() * colors.length)];
+
+                            dailyTotalQuantity += item.totalQuantityKg;
+                            dailyTotalAmount += item.currentValueIfSoldToday;
+                            const avgPrice = item.avgPricePerUnit > 0 ? item.avgPricePerUnit : item.pricePerKg;
+                            %>
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="h-3 w-3 rounded-full bg-blue-500 mr-2"></div>
-                                        <div class="text-sm font-medium text-gray-900">พลาสติก PET</div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">320</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">฿25</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">฿8,000</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                <div class="h-3 w-3 rounded-full <%= colorTheme %> mr-2"></div>
+                                <div class="text-sm font-medium text-gray-900"><%= item._id %></div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500"><%= item.totalQuantityKg %></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">฿<%= avgPrice.toFixed(2) %></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">฿<%= item.currentValueIfSoldToday.toLocaleString() %></td>
                             </tr>
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="h-3 w-3 rounded-full bg-green-500 mr-2"></div>
-                                        <div class="text-sm font-medium text-gray-900">กระดาษ</div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">450</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">฿5</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">฿2,250</td>
-                            </tr>
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="h-3 w-3 rounded-full bg-yellow-500 mr-2"></div>
-                                        <div class="text-sm font-medium text-gray-900">โลหะ</div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">120</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">฿15</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">฿1,800</td>
-                            </tr>
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="h-3 w-3 rounded-full bg-red-500 mr-2"></div>
-                                        <div class="text-sm font-medium text-gray-900">แก้ว</div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">80</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">฿3</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">฿240</td>
-                            </tr>
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="h-3 w-3 rounded-full bg-purple-500 mr-2"></div>
-                                        <div class="text-sm font-medium text-gray-900">อื่นๆ</div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">60</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">฿1</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">฿60</td>
-                            </tr>
+                        <% }) %>
                         </tbody>
                         <tfoot class="bg-gray-50">
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">รวมทั้งหมด</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900">1,030 กก.</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900"></td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-green-600">฿12,350</td>
-                            </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">รวมทั้งหมด</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900"><%= dailyTotalQuantity %> กก.</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-green-600">฿<%= dailyTotalAmount.toLocaleString() %></td>
+                        </tr>
                         </tfoot>
                     </table>
                 </div>
