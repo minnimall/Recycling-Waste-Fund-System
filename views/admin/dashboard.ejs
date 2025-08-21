@@ -54,12 +54,12 @@
                 <p class="text-gray-500">ข้อมูลสรุปและการวิเคราะห์</p>
             </div>
             <div class="flex space-x-2">
-                <select id="timeRange" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                <!-- <select id="timeRange" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
                     <option value="today">วันนี้</option>
                     <option value="week">สัปดาห์นี้</option>
                     <option value="month">เดือนนี้</option>
                     <option value="year">ปีนี้</option>
-                </select>
+                </select> -->
                 <button id="refreshData" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
                     <i class="fas fa-sync-alt mr-2"></i>รีเฟรช
                 </button>
@@ -71,54 +71,76 @@
             <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-blue-500 transition-transform hover:scale-105">
                 <div class="flex justify-between items-start">
                     <div>
-                        <p class="text-gray-500 mb-1">ปริมาณขยะทั้งหมด</p>
-                        <h2 class="text-3xl font-bold text-gray-800">2,540 <span class="text-sm font-normal">กก.</span></h2>
+                        <p class="text-gray-500 mb-1">ปริมาณขยะทั้งหมด (เดือนที่แล้ว)</p>
+                        <h2 class="text-3xl font-bold text-gray-800">
+                            <%= totalWaste %> <span class="text-sm font-normal">กก.</span>
+                        </h2>
                     </div>
                     <div class="p-3 bg-blue-100 rounded-full">
                         <i class="fas fa-trash text-blue-500"></i>
                     </div>
                 </div>
                 <div class="mt-4 flex items-center">
-                    <span class="text-green-500 flex items-center">
-                        <i class="fas fa-arrow-up mr-1"></i> 12%
-                    </span>
-                    <span class="text-gray-400 ml-2">จากเดือนที่แล้ว</span>
+                    <% if (percentChange >= 0) { %>
+                        <span class="text-green-500 flex items-center">
+                            <i class="fas fa-arrow-up mr-1"></i> <%= percentChange %>%
+                        </span>
+                    <% } else { %>
+                        <span class="text-red-500 flex items-center">
+                            <i class="fas fa-arrow-down mr-1"></i> <%= Math.abs(percentChange) %>%
+                        </span>
+                    <% } %>
+                    <span class="text-gray-400 ml-2">เทียบกับเดือนก่อนหน้า</span>
                 </div>
             </div>
             
             <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-green-500 transition-transform hover:scale-105">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-gray-500 mb-1">ยอดรับซื้อวันนี้</p>
-                        <h2 class="text-3xl font-bold text-gray-800">฿12,350</h2>
-                    </div>
-                    <div class="p-3 bg-green-100 rounded-full">
-                        <i class="fas fa-money-bill-wave text-green-500"></i>
-                    </div>
+            <div class="flex justify-between items-start">
+                <div>
+                <p class="text-gray-500 mb-1">ยอดรับซื้อวันนี้</p>
+                <h2 class="text-3xl font-bold text-gray-800">
+                    ฿<%= todayTotal.toLocaleString() %>
+                </h2>
                 </div>
-                <div class="mt-4 flex items-center">
-                    <span class="text-green-500 flex items-center">
-                        <i class="fas fa-arrow-up mr-1"></i> 8%
-                    </span>
-                    <span class="text-gray-400 ml-2">จากเมื่อวาน</span>
+                <div class="p-3 bg-green-100 rounded-full">
+                <i class="fas fa-money-bill-wave text-green-500"></i>
                 </div>
+            </div>
+            <div class="mt-4 flex items-center">
+                <% if (todayPercentChange >= 0) { %>
+                <span class="text-green-500 flex items-center">
+                    <i class="fas fa-arrow-up mr-1"></i> <%= todayPercentChange %>%
+                </span>
+                <% } else { %>
+                <span class="text-red-500 flex items-center">
+                    <i class="fas fa-arrow-down mr-1"></i> <%= Math.abs(todayPercentChange) %>%
+                </span>
+                <% } %>
+                <span class="text-gray-400 ml-2">จากเมื่อวาน</span>
+            </div>
             </div>
             
             <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-purple-500 transition-transform hover:scale-105">
                 <div class="flex justify-between items-start">
                     <div>
-                        <p class="text-gray-500 mb-1">จำนวนธุรกรรม</p>
-                        <h2 class="text-3xl font-bold text-gray-800">48</h2>
+                        <p class="text-gray-500 mb-1">จำนวนธุรกรรมวันนี้</p>
+                        <h2 class="text-3xl font-bold text-gray-800"><%= transactionToday %></h2>
                     </div>
                     <div class="p-3 bg-purple-100 rounded-full">
                         <i class="fas fa-exchange-alt text-purple-500"></i>
                     </div>
                 </div>
                 <div class="mt-4 flex items-center">
-                    <span class="text-red-500 flex items-center">
-                        <i class="fas fa-arrow-down mr-1"></i> 3%
-                    </span>
-                    <span class="text-gray-400 ml-2">จากเมื่อวาน</span>
+                    <% if (transactionPercentChange >= 0) { %>
+                        <span class="text-green-500 flex items-center">
+                            <i class="fas fa-arrow-up mr-1"></i> <%= transactionPercentChange %>%
+                        </span>
+                    <% } else { %>
+                        <span class="text-red-500 flex items-center">
+                            <i class="fas fa-arrow-down mr-1"></i> <%= Math.abs(transactionPercentChange) %>%
+                        </span>
+                    <% } %>
+                    <span class="text-gray-400 ml-2">จากเมื่อวาน (<%= transactionYesterday %>)</span>
                 </div>
             </div>
             
@@ -126,14 +148,14 @@
                 <div class="flex justify-between items-start">
                     <div>
                         <p class="text-gray-500 mb-1">ขยะมูลค่าสูงสุด</p>
-                        <h2 class="text-3xl font-bold text-gray-800">พลาสติก PET</h2>
+                        <h2 class="text-3xl font-bold text-gray-800"><%= highestWaste && highestWaste.wasteId ? highestWaste.wasteId.wasteName : '-' %></h2>
                     </div>
                     <div class="p-3 bg-yellow-100 rounded-full">
                         <i class="fas fa-crown text-yellow-500"></i>
                     </div>
                 </div>
                 <div class="mt-4 flex items-center">
-                    <span class="text-gray-800">฿25 / กก.</span>
+                    <span class="text-gray-800">฿<%= highestWaste ? highestWaste.pricePerUnit : 0 %> / กก.</span>
                     <span class="text-gray-400 ml-2">ราคาปัจจุบัน</span>
                 </div>
             </div>
@@ -243,7 +265,7 @@
         </div>
 
         <!-- Section 3: Price Prediction -->
-        <div class="mx-4 bg-white rounded-lg shadow p-6 mb-8">
+        <!-- <div class="mx-4 bg-white rounded-lg shadow p-6 mb-8">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">การพยากรณ์ราคาขยะในอนาคต</h2>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-2">
@@ -311,13 +333,14 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 
     <%- include('../partials/adminPartials/adminFooter.ejs') %>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+
             // Village Waste Chart (3D Pie)
             const villageCtx = document.getElementById('villageWasteChart').getContext('2d');
             const villageWasteChart = new Chart(villageCtx, {
@@ -474,8 +497,7 @@
 
             // Event listener for refresh button
             document.getElementById('refreshData').addEventListener('click', function() {
-                // ในสถานการณ์จริง คุณจะต้องเรียก API เพื่อรีเฟรชข้อมูล
-                alert('กำลังรีเฟรชข้อมูล...');
+                window.location.reload()
             });
         });
     </script>
