@@ -4,10 +4,10 @@ const adminController = require('../controllers/adminController')
 const router = express.Router()
 
 // แดชบอร์ด
-router.get('/dashboard', adminController.dashboardIndex);
+router.get('/', adminController.dashboardIndex);
 
 // สื่อ
-router.get('/', adminController.mediaIndex);
+router.get('/media', adminController.mediaIndex);
 router.post('/mediaPost', adminController.mediaPost);
 router.post('/mediaEdit/:id', adminController.mediaEdit);
 router.delete('/mediaDelete/:id', adminController.mediaDelete);

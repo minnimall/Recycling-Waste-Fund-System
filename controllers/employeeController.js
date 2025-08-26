@@ -438,7 +438,9 @@ const dashboardIndex = async (req, res) => {
                 startDate: startDate || '',
                 endDate: endDate || '',
                 dateRange: dateRange || 'all'
-            }
+            },
+
+            currentPage: 'dashboard',
         });
 
     } catch (err) {
@@ -517,7 +519,8 @@ const wastePurchaseIndex = async (req, res) => {
             wasteTypes: wasteTypeData,
             searchQuery: searchQuery,
             selectedWasteType: selectedWasteType,
-            allWasteBankAccount: allWasteBankAccount
+            allWasteBankAccount: allWasteBankAccount,
+            currentPage: 'wastePurchase',
         });
 
     } catch (err) {
@@ -690,6 +693,7 @@ const wastePurchaseTotalIndex = async (req, res) => {
             wastePurchases: wastePurchases,
             startIndex: startIndex,
             search: search,
+            currentPage: 'wastePurchaseTotal',
             query: req.query // ส่ง req.query ไปยัง view เพื่อเก็บค่า search
         });
     } catch (error) {
@@ -769,6 +773,7 @@ const memberIndex = async (req, res) => {
             villages,
             allFamilies,
             Account,
+            currentPage: 'member',
             query: req.query  
         });
     } catch (error) {
@@ -929,7 +934,8 @@ const complaintIndex = async (req, res) => {
 
         res.render('employee/complaint', {
             mytitle: 'รายการคำร้องหรือหรือข้อร้องเรียน',
-            complaint
+            complaint,
+            currentPage: 'complaint',
         });
     } catch (error) {
         console.error('Error fetching complaint requests:', error);
@@ -975,7 +981,8 @@ const wasteSaleRequestIndex = async (req, res) => {
 
         res.render('employee/wasteSaleRequest', {
             mytitle: 'รายการความประสงค์ขายขยะ',
-            wasteSaleRequests
+            wasteSaleRequests,
+            currentPage: 'wasteSaleRequest',
         });
     } catch (error) {
         console.error('Error fetching waste sale requests:', error);
@@ -1305,7 +1312,8 @@ const wasteStockIndex = async (req, res) => {
             searchName: wasteName,
             selectedMonth: selectedMonth,
             selectedYear: selectedYear,
-            monthlyOptions: monthlyOptions
+            monthlyOptions: monthlyOptions,
+            currentPage: 'wasteStock',
         });
 
     } catch (err) {
@@ -1333,6 +1341,7 @@ const wasteStockIndex = async (req, res) => {
             selectedMonth: null,
             selectedYear: null,
             monthlyOptions: [],
+            currentPage: 'wasteStock',
             errorMessage: 'เกิดข้อผิดพลาดในการโหลดข้อมูล กรุณาลองใหม่อีกครั้ง'
         });
     }
@@ -1401,7 +1410,8 @@ const showWithdrawPage = async (req, res) => {
             mytitle: 'เบิกถอนเงิน',
             transactions,
             message: req.query.message || null,
-            error: req.query.error || null
+            error: req.query.error || null,
+            currentPage: 'withDraw',
         });
     } catch (err) {
         console.error(err);
@@ -1440,11 +1450,11 @@ const getAccountByNumber = async (req, res) => {
 
 //หน้าฌาปนกิจสงเคราะห์
 const funeralAidIndex = (req, res)=> {
-    res.render('employee/funeralAid',{mytitle: 'ฌาปนกิจสงเคราะห์'})
+    res.render('employee/funeralAid',{mytitle: 'ฌาปนกิจสงเคราะห์',currentPage: 'funeralAid',})
 }
 
 const mapIndex = (req, res)=> {
-    res.render('employee/map',{mytitle: 'แผนที่จุดเข้ารับซื้อ'})
+    res.render('employee/map',{mytitle: 'แผนที่จุดเข้ารับซื้อ',currentPage: 'map',})
 }
 
 module.exports = {

@@ -319,6 +319,7 @@ const dashboardIndex = async (req, res)=> {
       todayTotal,
       todayPercentChange,
       stockData: stockData || [],
+      currentPage: 'dashboard',
     });
 
   } catch (err) {
@@ -337,7 +338,8 @@ const mediaIndex = (req, res) => {
                     });
                     res.render('admin/media', { 
                         mytitle: 'Admindashboard | Media', 
-                        media: result
+                        media: result,
+                        currentPage: 'media',
                     });
                 })
                 .catch((err) => {
@@ -419,6 +421,7 @@ const newsIndex = (req, res) => {
                     res.render('admin/news', { 
                         mytitle: 'Admindashboard | News', 
                         news: result,
+                        currentPage: 'news',
                     });
                 })
                 .catch((err) => {
@@ -522,6 +525,7 @@ const activityIndex = (req, res) => {
                     res.render('admin/activity', { 
                         mytitle: 'Admindashboard | Activity', 
                         activity: result,
+                        currentPage: 'activity',
                     });
                 })
                 .catch((err) => {
@@ -638,7 +642,8 @@ const wasteIndex = (req, res) => {
         res.render('admin/waste', {
             mytitle: 'Admindashboard | Waste',
             waste: wasteData,
-            wasteTypes: wasteTypeData
+            wasteTypes: wasteTypeData,
+            currentPage: 'waste',
         });
     })
     .catch((err) => {
@@ -810,6 +815,7 @@ const wasteTypeIndex = async function (req, res, next) {
             currentPage: page,
             totalPages: Math.ceil(totalDocuments / limit),
             search, // ส่งค่าการค้นหาปัจจุบันกลับไป
+            currentPage: 'wasteType',
         });
     } catch (err) {
         console.error('Error fetching WasteType:', err);
@@ -884,6 +890,8 @@ const wasteTypeDelete = async (req, res) => {
         res.status(500).redirect('/admin/wasteType?message=เกิดข้อผิดพลาดในการลบข้อมูลประเภทขยะ');
     }
 };
+
+
 //หน้าสต๊อกขยะ (เพิ่ม filter เดือน/ปี) - Fixed Version
 const wasteStockIndex = async (req, res) => {
     const villageId = req.query.villageId || null;
@@ -1202,7 +1210,8 @@ const wasteStockIndex = async (req, res) => {
             searchName: wasteName,
             selectedMonth: selectedMonth,
             selectedYear: selectedYear,
-            monthlyOptions: monthlyOptions
+            monthlyOptions: monthlyOptions,
+            currentPage: 'wasteStock',
         });
 
     } catch (err) {
@@ -1271,7 +1280,8 @@ const employeeIndex = (req, res) => {
                         search,
                         currentPage: page,
                         totalPages: totalPages,
-                        totalItems: totalItems
+                        totalItems: totalItems,
+                        currentPage: 'employee',
                     });
                 })
                 .catch((err) => {
@@ -1409,7 +1419,8 @@ const memberIndex = async (req, res) => {
             villages,
             allFamilies,
             Account,
-            query: req.query  
+            query: req.query,
+            currentPage: 'member',
         });
     } catch (error) {
         console.error(error);
@@ -1569,7 +1580,8 @@ const villageIndex = async (req, res) => {
             villages: villages,
             currentPage: page,
             totalPages: totalPages,
-            totalItems: totalItems
+            totalItems: totalItems,
+            currentPage: 'village',
         });
     } catch (err) {
         console.error('เกิดข้อผิดพลาดในการดึงข้อมูลหมู่บ้าน:', err);
@@ -1676,7 +1688,8 @@ const roundIndex = (req, res) => {
             rounds: roundResult,
             currentPage: page,
             totalPages: totalPages,
-            totalItems: totalItems
+            totalItems: totalItems,
+            currentPage: 'round',
         });
     })
     .catch((err) => {
@@ -1745,7 +1758,7 @@ const roundDelete = (req, res) => {
 
 //หน้าฌาปนกิจสงเคราะห์
 const funeralAidIndex = (req, res)=> {
-    res.render('admin/funeralAid',{mytitle: 'ฌาปนกิจสงเคราะห์'})
+    res.render('admin/funeralAid',{mytitle: 'ฌาปนกิจสงเคราะห์',currentPage: 'funeralAid',})
 }
 
 module.exports = {
