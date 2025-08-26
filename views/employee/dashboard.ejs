@@ -62,20 +62,122 @@
 
     <!-- Main content -->
     <div class="content bg-gray-50 min-h-screen">
-        <!-- Header -->
-        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
-            <div>
-                <h1 class="text-2xl font-semibold text-gray-800">แดชบอร์ด</h1>
-                <p class="text-gray-500">ข้อมูลสรุปและการวิเคราะห์ระบบธนาคารขยะ</p>
+        <!-- Header with Filters -->
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h1 class="text-2xl font-semibold text-gray-800">แดชบอร์ด</h1>
+                    <p class="text-gray-500">ข้อมูลสรุปและการวิเคราะห์ระบบธนาคารขยะ</p>
+                </div>
+                <!-- <div class="flex space-x-2">
+                    <button id="refreshData" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+                        <i class="fas fa-sync-alt mr-2"></i>รีเฟรช
+                    </button>
+                </div> -->
             </div>
-            <div class="flex space-x-2">
-                <button id="exportReport" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
-                    <i class="fas fa-file-export mr-2"></i>ส่งออกรายงาน
-                </button>
-                <button id="refreshData" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
-                    <i class="fas fa-sync-alt mr-2"></i>รีเฟรช
-                </button>
-            </div>
+
+            <!-- Filter Form -->
+            <form method="GET" action="/employee" class="bg-gray-50 p-4 rounded-lg">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                    <!-- Date Range Selection -->
+                    <div>
+                        <label for="dateRange" class="block text-sm font-medium text-gray-700 mb-1">ช่วงเวลา</label>
+                        <select name="dateRange" id="dateRange" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="all" <%= currentFilters.dateRange === 'all' ? 'selected' : '' %>>ทั้งหมด</option>
+                            <option value="today" <%= currentFilters.dateRange === 'today' ? 'selected' : '' %>>วันนี้</option>
+                            <option value="yesterday" <%= currentFilters.dateRange === 'yesterday' ? 'selected' : '' %>>เมื่อวาน</option>
+                            <option value="thisMonth" <%= currentFilters.dateRange === 'thisMonth' ? 'selected' : '' %>>เดือนนี้</option>
+                            <option value="lastMonth" <%= currentFilters.dateRange === 'lastMonth' ? 'selected' : '' %>>เดือนที่แล้ว</option>
+                            <% 
+                                // สร้างตัวเลือกเดือน 12 เดือนย้อนหลัง
+                                const now = new Date();
+                                for (let i = 2; i <= 12; i++) {
+                                    const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                                    const monthValue = `month-${i}`;
+                                    const monthNames = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+                                                        'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+                                    const monthName = monthNames[monthDate.getMonth()];
+                                    const year = monthDate.getFullYear() + 543; // แปลงเป็น พ.ศ.
+                            %>
+                                <option value="<%= monthValue %>" <%= currentFilters.dateRange === monthValue ? 'selected' : '' %>>
+                                    <%= monthName %> <%= year %>
+                                </option>
+                            <% } %>
+                        </select>
+                    </div>
+
+                    <!-- Single Date Selection -->
+                    <div>
+                        <label for="selectedDate" class="block text-sm font-medium text-gray-700 mb-1">เลือกวันที่</label>
+                        <input type="date" name="selectedDate" id="selectedDate" value="<%= currentFilters.startDate %>" 
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="เลือกวันที่เฉพาะ">
+                    </div>
+
+                    <!-- Village Filter -->
+                    <div>
+                        <label for="village" class="block text-sm font-medium text-gray-700 mb-1">หมู่บ้าน</label>
+                        <select name="village" id="village" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">ทุกหมู่บ้าน</option>
+                            <% if (allVillages && allVillages.length > 0) { %>
+                                <% allVillages.forEach(village => { %>
+                                    <option value="<%= village._id %>" <%= currentFilters.village === village._id.toString() ? 'selected' : '' %>>
+                                        <%= village.villageName || `หมู่บ้านที่ ${village.villageNumber}` %>
+                                    </option>
+                                <% }) %>
+                            <% } %>
+                        </select>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div>
+                        <button type="submit" class="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+                            <i class="fas fa-search mr-2"></i>ค้นหา
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Current Filter Display -->
+                <% if (filterInfo && (filterInfo.dateRange !== 'all' || filterInfo.village)) { %>
+                    <div class="mt-3 flex flex-wrap items-center gap-2">
+                        <span class="text-sm text-gray-600">ตัวกรองปัจจุบัน:</span>
+                        
+                        <% if (filterInfo.dateRange !== 'all') { %>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                <i class="fas fa-calendar mr-1"></i>
+                                <% if (filterInfo.dateRange === 'today') { %>วันนี้
+                                <% } else if (filterInfo.dateRange === 'yesterday') { %>เมื่อวาน
+                                <% } else if (filterInfo.dateRange === 'thisMonth') { %>เดือนนี้
+                                <% } else if (filterInfo.dateRange === 'lastMonth') { %>เดือนที่แล้ว
+                                <% } else if (filterInfo.dateRange && filterInfo.dateRange.startsWith('month-')) { %>
+                                    <% 
+                                        const monthIndex = parseInt(filterInfo.dateRange.replace('month-', ''));
+                                        const monthDate = new Date();
+                                        monthDate.setMonth(monthDate.getMonth() - monthIndex);
+                                        const monthNames = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+                                                            'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+                                        const monthName = monthNames[monthDate.getMonth()];
+                                        const year = monthDate.getFullYear() + 543;
+                                    %>
+                                    <%= monthName %> <%= year %>
+                                <% } else if (filterInfo.startDate) { %>
+                                    วันที่ <%= filterInfo.startDate %>
+                                <% } %>
+                            </span>
+                        <% } %>
+                        
+                        <% if (filterInfo.village && filterInfo.villageName) { %>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <i class="fas fa-map-marker-alt mr-1"></i><%= filterInfo.villageName %>
+                            </span>
+                        <% } %>
+
+                        <a href="/employee" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-times mr-1"></i>ล้างตัวกรอง
+                        </a>
+                    </div>
+                <% } %>
+            </form>
         </div>
 
         <!-- Stats cards -->
@@ -84,40 +186,65 @@
             <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-blue-500 transition-transform hover:scale-105">
                 <div class="flex justify-between items-start">
                     <div>
-                        <p class="text-gray-500 mb-1">ปริมาณขยะทั้งหมด (เดือนที่แล้ว)</p>
+                        <p class="text-gray-500 mb-1">ปริมาณขยะทั้งหมด</p>
                         <h2 class="text-3xl font-bold text-gray-800">
-                            <%= totalWaste.toLocaleString() %> <span class="text-sm font-normal">กก.</span>
+                            <%= totalQuantity.toLocaleString() %> <span class="text-sm font-normal">กก.</span>
                         </h2>
                     </div>
                     <div class="p-3 bg-blue-100 rounded-full">
-                        <i class="fas fa-trash text-blue-500 text-xl"></i>
+                        <i class="fas fa-weight-hanging text-blue-500 text-xl"></i>
                     </div>
                 </div>
                 <div class="mt-4 flex items-center">
-                    <% if (percentChange >= 0) { %>
-                        <span class="text-green-500 flex items-center text-sm">
-                            <i class="fas fa-arrow-up mr-1"></i> <%= percentChange %>%
-                        </span>
-                    <% } else { %>
-                        <span class="text-red-500 flex items-center text-sm">
-                            <i class="fas fa-arrow-down mr-1"></i> <%= Math.abs(percentChange) %>%
-                        </span>
-                    <% } %>
-                    <span class="text-gray-400 ml-2 text-sm">เทียบกับเดือนก่อนหน้า</span>
+                    <span class="text-gray-500 text-sm">ปริมาณขยะที่รับซื้อทั้งหมด</span>
                 </div>
             </div>
             
-            <!-- Card 2: ยอดรับซื้อวันนี้ -->
+            <!-- Card 2: ยอดเงินทั้งหมด -->
             <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-green-500 transition-transform hover:scale-105">
                 <div class="flex justify-between items-start">
                     <div>
-                        <p class="text-gray-500 mb-1">ยอดรับซื้อวันนี้</p>
+                        <p class="text-gray-500 mb-1">ยอดเงินทั้งหมด</p>
                         <h2 class="text-3xl font-bold text-gray-800">
-                            ฿<%= todayTotal.toLocaleString() %>
+                            ฿<%= totalAmount.toLocaleString() %>
                         </h2>
                     </div>
                     <div class="p-3 bg-green-100 rounded-full">
                         <i class="fas fa-money-bill-wave text-green-500 text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center">
+                    <span class="text-gray-500 text-sm">มูลค่าการรับซื้อขยะทั้งหมด</span>
+                </div>
+            </div>
+            
+            <!-- Card 3: จำนวนธุรกรรมทั้งหมด -->
+            <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-purple-500 transition-transform hover:scale-105">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-500 mb-1">จำนวนธุรกรรม</p>
+                        <h2 class="text-3xl font-bold text-gray-800"><%= totalTransactions.toLocaleString() %></h2>
+                    </div>
+                    <div class="p-3 bg-purple-100 rounded-full">
+                        <i class="fas fa-exchange-alt text-purple-500 text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center">
+                    <span class="text-gray-500 text-sm">ธุรกรรมการรับซื้อขยะทั้งหมด</span>
+                </div>
+            </div>
+            
+            <!-- Card 4: ยอดรับซื้อวันนี้ vs เมื่อวาน -->
+            <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-yellow-500 transition-transform hover:scale-105">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-500 mb-1">ยอดรับซื้อวันนี้</p>
+                        <h2 class="text-2xl font-bold text-gray-800">
+                            ฿<%= todayTotal.toLocaleString() %>
+                        </h2>
+                    </div>
+                    <div class="p-3 bg-yellow-100 rounded-full">
+                        <i class="fas fa-chart-line text-yellow-500 text-xl"></i>
                     </div>
                 </div>
                 <div class="mt-4 flex items-center">
@@ -133,60 +260,16 @@
                     <span class="text-gray-400 ml-2 text-sm">จากเมื่อวาน</span>
                 </div>
             </div>
-            
-            <!-- Card 3: จำนวนธุรกรรมวันนี้ -->
-            <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-purple-500 transition-transform hover:scale-105">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-gray-500 mb-1">จำนวนธุรกรรมวันนี้</p>
-                        <h2 class="text-3xl font-bold text-gray-800"><%= transactionToday %></h2>
-                    </div>
-                    <div class="p-3 bg-purple-100 rounded-full">
-                        <i class="fas fa-exchange-alt text-purple-500 text-xl"></i>
-                    </div>
-                </div>
-                <div class="mt-4 flex items-center">
-                    <% if (transactionPercentChange >= 0) { %>
-                        <span class="text-green-500 flex items-center text-sm">
-                            <i class="fas fa-arrow-up mr-1"></i> <%= transactionPercentChange %>%
-                        </span>
-                    <% } else { %>
-                        <span class="text-red-500 flex items-center text-sm">
-                            <i class="fas fa-arrow-down mr-1"></i> <%= Math.abs(transactionPercentChange) %>%
-                        </span>
-                    <% } %>
-                    <span class="text-gray-400 ml-2 text-sm">จากเมื่อวาน (<%= transactionYesterday %>)</span>
-                </div>
-            </div>
-            
-            <!-- Card 4: ขยะมูลค่าสูงสุด -->
-            <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-yellow-500 transition-transform hover:scale-105">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-gray-500 mb-1">ขยะมูลค่าสูงสุด</p>
-                        <h2 class="text-lg font-bold text-gray-800">
-                            <%= highestWaste && highestWaste.wasteId ? highestWaste.wasteId.wasteName : 'ไม่มีข้อมูล' %>
-                        </h2>
-                    </div>
-                    <div class="p-3 bg-yellow-100 rounded-full">
-                        <i class="fas fa-crown text-yellow-500 text-xl"></i>
-                    </div>
-                </div>
-                <div class="mt-4 flex items-center">
-                    <span class="text-gray-800 font-semibold">฿<%= highestWaste ? highestWaste.pricePerUnit : 0 %> / กก.</span>
-                    <span class="text-gray-400 ml-2 text-sm">ราคาปัจจุบัน</span>
-                </div>
-            </div>
         </div>
 
         <!-- Main dashboard sections -->
         <div class="mx-4 grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <!-- Section 1: 3D Pie Chart for Village Waste -->
+            <!-- Section 1: Village Data Chart -->
             <div class="bg-white rounded-lg shadow p-6">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-semibold text-gray-800">ปริมาณขยะแต่ละหมู่บ้าน</h2>
+                    <h2 class="text-xl font-semibold text-gray-800">ข้อมูลแต่ละหมู่บ้าน</h2>
                     <div class="text-sm text-gray-500">
-                        <i class="fas fa-calendar-alt mr-1"></i>เดือนที่แล้ว
+                        <i class="fas fa-chart-pie mr-1"></i>ตามตัวกรอง
                     </div>
                 </div>
                 <div class="h-80 flex items-center justify-center">
@@ -199,8 +282,8 @@
                         </div>
                     <% } %>
                 </div>
-                <div class="mt-4 grid grid-cols-2 gap-4">
-                    <% if (villageData && villageData.length > 0) { %>
+                <% if (villageData && villageData.length > 0) { %>
+                    <div class="mt-4 grid grid-cols-2 gap-4">
                         <% const maxQuantityVillage = villageData.reduce((max, village) => village.totalQuantity > max.totalQuantity ? village : max); %>
                         <% const maxAmountVillage = villageData.reduce((max, village) => village.totalAmount > max.totalAmount ? village : max); %>
                         <div class="bg-gray-50 p-3 rounded-lg">
@@ -217,20 +300,16 @@
                             </p>
                             <p class="text-sm text-gray-600">฿<%= Math.round(maxAmountVillage.totalAmount).toLocaleString() %></p>
                         </div>
-                    <% } else { %>
-                        <div class="bg-gray-50 p-3 rounded-lg col-span-2">
-                            <p class="text-gray-500 text-center">ไม่มีข้อมูลหมู่บ้าน</p>
-                        </div>
-                    <% } %>
-                </div>
+                    </div>
+                <% } %>
             </div>
 
-            <!-- Section 2: Daily Purchase Summary -->
+            <!-- Section 2: Waste Type Summary -->
             <div class="bg-white rounded-lg shadow p-6">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-semibold text-gray-800">สรุปการรับซื้อประจำวัน</h2>
+                    <h2 class="text-xl font-semibold text-gray-800">สรุปตามประเภทขยะ</h2>
                     <div class="text-sm text-gray-500">
-                        <i class="fas fa-calendar-day mr-1"></i>วันนี้
+                        <i class="fas fa-list mr-1"></i>10 อันดับแรก
                     </div>
                 </div>
                 <div class="overflow-x-auto">
@@ -239,14 +318,14 @@
                             <tr>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ประเภทขยะ</th>
                                 <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">ปริมาณ (กก.)</th>
-                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">ราคา/หน่วย</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">ยอดรวม</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">ราคาเฉลี่ย</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">มูลค่ารวม</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            <% if (dailyWasteSummary && dailyWasteSummary.length > 0) { %>
+                            <% if (wasteSummary && wasteSummary.length > 0) { %>
                                 <% const colors = ['blue', 'green', 'yellow', 'red', 'purple', 'indigo', 'pink', 'gray', 'orange', 'teal']; %>
-                                <% dailyWasteSummary.forEach((waste, index) => { %>
+                                <% wasteSummary.forEach((waste, index) => { %>
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-4 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
@@ -255,10 +334,10 @@
                                             </div>
                                         </td>
                                         <td class="px-4 py-4 whitespace-nowrap text-center text-sm text-gray-500">
-                                            <%= Math.round(waste.totalQuantity) %>
+                                            <%= Math.round(waste.totalQuantity).toLocaleString() %>
                                         </td>
                                         <td class="px-4 py-4 whitespace-nowrap text-center text-sm text-gray-500">
-                                            ฿<%= Math.round(waste.avgPrice) %>
+                                            ฿<%= Math.round(waste.avgPrice).toLocaleString() %>
                                         </td>
                                         <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             ฿<%= Math.round(waste.totalAmount).toLocaleString() %>
@@ -269,34 +348,18 @@
                                 <tr>
                                     <td colspan="4" class="px-4 py-8 text-center text-gray-500">
                                         <i class="fas fa-inbox text-4xl mb-2"></i>
-                                        <p>ไม่มีข้อมูลการรับซื้อในวันนี้</p>
+                                        <p>ไม่มีข้อมูลการรับซื้อ</p>
                                     </td>
                                 </tr>
                             <% } %>
                         </tbody>
-                        <% if (dailyWasteSummary && dailyWasteSummary.length > 0) { %>
-                            <tfoot class="bg-gray-50">
-                                <tr>
-                                    <% const totalQty = dailyWasteSummary.reduce((sum, waste) => sum + waste.totalQuantity, 0); %>
-                                    <% const totalAmt = dailyWasteSummary.reduce((sum, waste) => sum + waste.totalAmount, 0); %>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">รวมทั้งหมด</td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900">
-                                        <%= Math.round(totalQty) %> กก.
-                                    </td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900">-</td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium text-green-600">
-                                        ฿<%= Math.round(totalAmt).toLocaleString() %>
-                                    </td>
-                                </tr>
-                            </tfoot>
-                        <% } %>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- Section 3: Price Trends (ถ้ามีข้อมูล) -->
-        <% if (priceTrends && priceTrends.length > 0) { %>
+        <!-- Price Trends Section -->
+        <!-- <% if (priceTrends && priceTrends.length > 0) { %>
             <div class="mx-4 bg-white rounded-lg shadow p-6 mb-8">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-semibold text-gray-800">แนวโน้มราคาขยะ</h2>
@@ -311,12 +374,11 @@
                         </div>
                     </div>
                     <div class="bg-gray-50 p-4 rounded-lg">
-                        <h3 class="font-semibold text-gray-800 mb-4">แนวโน้มราคาขยะ</h3>
+                        <h3 class="font-semibold text-gray-800 mb-4">แนวโน้มราคา</h3>
                         <div class="space-y-3">
                             <% priceTrends.slice(0, 5).forEach((trend, index) => { %>
                                 <% const colors = ['blue', 'green', 'yellow', 'red', 'purple']; %>
                                 <% 
-                                    // คำนวณแนวโน้ม (เปรียบเทียบราคาเดือนแรกและเดือนล่าสุด)
                                     const sortedData = trend.monthlyData.sort((a, b) => a.month.localeCompare(b.month));
                                     const firstPrice = sortedData[0]?.avgPrice || 0;
                                     const lastPrice = sortedData[sortedData.length - 1]?.avgPrice || 0;
@@ -337,56 +399,76 @@
                                 </div>
                             <% }) %>
                         </div>
-                        <div class="mt-4 p-3 bg-white rounded border border-blue-200">
-                            <h4 class="text-sm font-medium text-blue-800 mb-2">
-                                <i class="fas fa-lightbulb mr-1"></i>ข้อแนะนำ
-                            </h4>
-                            <p class="text-sm text-blue-600">แนวโน้มราคาอาจเปลี่ยนแปลงตามสภาวะตลาด ควรติดตามราคาขยะอย่างสม่ำเสมอเพื่อการตัดสินใจที่ดีที่สุด</p>
-                        </div>
                     </div>
                 </div>
             </div>
-        <% } %>
+        <% } %> -->
 
-        <!-- Section 4: Quick Actions -->
-        <div class="mx-4 grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white rounded-lg shadow p-6">
-                <div class="flex items-center mb-4">
-                    <div class="p-3 bg-blue-100 rounded-full mr-3">
-                        <i class="fas fa-plus text-blue-500"></i>
+        <!-- Additional Stats Section -->
+        <div class="mx-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="flex items-center">
+                    <div class="p-3 bg-orange-100 rounded-full">
+                        <i class="fas fa-crown text-orange-500"></i>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-800">รับซื้อขยะ</h3>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-500">ขยะมูลค่าสูงสุด</p>
+                        <p class="text-lg font-semibold text-gray-800">
+                            <%= highestWaste && highestWaste._id ? highestWaste._id.wasteName : 'ไม่มีข้อมูล' %>
+                        </p>
+                        <p class="text-sm text-orange-600">฿<%= highestWaste ? highestWaste.pricePerUnit : 0 %> / กก.</p>
+                    </div>
                 </div>
-                <p class="text-gray-600 text-sm mb-4">เพิ่มข้อมูลการรับซื้อขยะใหม่</p>
-                <a href="/employee/waste-purchase" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors text-sm">
-                    เริ่มรับซื้อ
-                </a>
             </div>
-            
-            <div class="bg-white rounded-lg shadow p-6">
-                <div class="flex items-center mb-4">
-                    <div class="p-3 bg-green-100 rounded-full mr-3">
-                        <i class="fas fa-warehouse text-green-500"></i>
+
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="flex items-center">
+                    <div class="p-3 bg-teal-100 rounded-full">
+                        <i class="fas fa-calendar-day text-teal-500"></i>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-800">จัดการสต๊อก</h3>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-500">ธุรกรรมวันนี้</p>
+                        <p class="text-lg font-semibold text-gray-800"><%= transactionToday %></p>
+                        <p class="text-sm text-teal-600">
+                            <% if (transactionPercentChange >= 0) { %>
+                                <i class="fas fa-arrow-up"></i> <%= transactionPercentChange %>%
+                            <% } else { %>
+                                <i class="fas fa-arrow-down"></i> <%= Math.abs(transactionPercentChange) %>%
+                            <% } %>
+                            จากเมื่อวาน
+                        </p>
+                    </div>
                 </div>
-                <p class="text-gray-600 text-sm mb-4">ตรวจสอบและจัดการสต๊อกขยะ</p>
-                <a href="/employee/waste-stock" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors text-sm">
-                    ดูสต๊อก
-                </a>
             </div>
-            
-            <div class="bg-white rounded-lg shadow p-6">
-                <div class="flex items-center mb-4">
-                    <div class="p-3 bg-purple-100 rounded-full mr-3">
-                        <i class="fas fa-chart-bar text-purple-500"></i>
+
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="flex items-center">
+                    <div class="p-3 bg-pink-100 rounded-full">
+                        <i class="fas fa-balance-scale text-pink-500"></i>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-800">รายงาน</h3>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-500">เดือนที่แล้ว</p>
+                        <p class="text-lg font-semibold text-gray-800">
+                            <%= lastMonthQuantity.toLocaleString() %> กก.
+                        </p>
+                        <p class="text-sm text-pink-600">฿<%= lastMonthTotal.toLocaleString() %></p>
+                    </div>
                 </div>
-                <p class="text-gray-600 text-sm mb-4">ดูรายงานและสถิติต่างๆ</p>
-                <a href="/employee/reports" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 transition-colors text-sm">
-                    ดูรายงาน
-                </a>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="flex items-center">
+                    <div class="p-3 bg-indigo-100 rounded-full">
+                        <i class="fas fa-home text-indigo-500"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-500">จำนวนหมู่บ้าน</p>
+                        <p class="text-lg font-semibold text-gray-800">
+                            <%= villageData ? villageData.length : 0 %> หมู่บ้าน
+                        </p>
+                        <p class="text-sm text-indigo-600">ที่มีการรับซื้อขยะ</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -397,31 +479,24 @@
         document.addEventListener('DOMContentLoaded', function() {
             // ข้อมูลจากเซิร์ฟเวอร์
             const villageData = <%- JSON.stringify(villageData || []) %>;
-            const dailyWasteSummary = <%- JSON.stringify(dailyWasteSummary || []) %>;
+            const wasteSummary = <%- JSON.stringify(wasteSummary || []) %>;
             const priceTrends = <%- JSON.stringify(priceTrends || []) %>;
 
             console.log('Village Data:', villageData);
-            console.log('Daily Waste Summary:', dailyWasteSummary);
+            console.log('Waste Summary:', wasteSummary);
             console.log('Price Trends:', priceTrends);
 
-            // Village Waste Chart (3D Pie)
+            // Village Waste Chart
             const villageCtx = document.getElementById('villageWasteChart');
             if (villageCtx && villageData.length > 0) {
-                // เตรียมข้อมูลสำหรับกราฟหมู่บ้าน
                 const villageLabels = villageData.map(village => 
                     village.villageName || `หมู่บ้านที่ ${village.villageNumber}`
                 );
                 const villageQuantities = villageData.map(village => Math.round(village.totalQuantity));
                 const villageColors = [
-                    'rgba(255, 99, 132, 0.8)',
-                    'rgba(54, 162, 235, 0.8)',
-                    'rgba(255, 206, 86, 0.8)',
-                    'rgba(75, 192, 192, 0.8)',
-                    'rgba(153, 102, 255, 0.8)',
-                    'rgba(255, 159, 64, 0.8)',
-                    'rgba(199, 199, 199, 0.8)',
-                    'rgba(83, 102, 255, 0.8)',
-                    'rgba(40, 159, 64, 0.8)',
+                    'rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 206, 86, 0.8)',
+                    'rgba(75, 192, 192, 0.8)', 'rgba(153, 102, 255, 0.8)', 'rgba(255, 159, 64, 0.8)',
+                    'rgba(199, 199, 199, 0.8)', 'rgba(83, 102, 255, 0.8)', 'rgba(40, 159, 64, 0.8)',
                     'rgba(210, 99, 132, 0.8)'
                 ];
 
@@ -446,9 +521,7 @@
                                 labels: {
                                     boxWidth: 15,
                                     padding: 15,
-                                    font: {
-                                        size: 12
-                                    }
+                                    font: { size: 12 }
                                 }
                             },
                             tooltip: {
@@ -462,7 +535,7 @@
                                         const amount = villageInfo ? Math.round(villageInfo.totalAmount) : 0;
                                         return [
                                             `${label}`,
-                                            `ปริมาณ: ${value} กก. (${percentage}%)`,
+                                            `ปริมาณ: ${value.toLocaleString()} กก. (${percentage}%)`,
                                             `มูลค่า: ฿${amount.toLocaleString()}`
                                         ];
                                     }
@@ -477,10 +550,9 @@
                 });
             }
 
-            // Price Trend Chart (ถ้ามีข้อมูล)
+            // Price Trend Chart
             const priceTrendCtx = document.getElementById('priceTrendChart');
             if (priceTrendCtx && priceTrends.length > 0) {
-                // เตรียมข้อมูลสำหรับกราฟแนวโน้มราคา
                 const months = [];
                 const datasets = [];
                 
@@ -496,12 +568,8 @@
 
                 // สร้าง datasets สำหรับแต่ละประเภทขยะ
                 const trendColors = [
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)',
+                    'rgba(54, 162, 235, 1)', 'rgba(75, 192, 192, 1)', 'rgba(255, 206, 86, 1)',
+                    'rgba(255, 99, 132, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)',
                     'rgba(199, 199, 199, 1)'
                 ];
 
@@ -532,7 +600,7 @@
                         labels: months.map(month => {
                             const [year, monthNum] = month.split('-');
                             const monthNames = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
-                                              'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+                                                'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
                             return monthNames[parseInt(monthNum) - 1] + ' ' + year.slice(-2);
                         }),
                         datasets: datasets
@@ -540,35 +608,24 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        interaction: {
-                            mode: 'index',
-                            intersect: false,
-                        },
+                        interaction: { mode: 'index', intersect: false },
                         scales: {
                             y: {
                                 beginAtZero: false,
                                 title: {
                                     display: true,
                                     text: 'ราคา (บาท/กก.)',
-                                    font: {
-                                        size: 12
-                                    }
+                                    font: { size: 12 }
                                 },
-                                grid: {
-                                    color: 'rgba(0, 0, 0, 0.1)'
-                                }
+                                grid: { color: 'rgba(0, 0, 0, 0.1)' }
                             },
                             x: {
                                 title: {
                                     display: true,
                                     text: 'เดือน',
-                                    font: {
-                                        size: 12
-                                    }
+                                    font: { size: 12 }
                                 },
-                                grid: {
-                                    color: 'rgba(0, 0, 0, 0.1)'
-                                }
+                                grid: { color: 'rgba(0, 0, 0, 0.1)' }
                             }
                         },
                         plugins: {
@@ -577,9 +634,7 @@
                                 labels: {
                                     boxWidth: 15,
                                     padding: 15,
-                                    font: {
-                                        size: 12
-                                    }
+                                    font: { size: 12 }
                                 }
                             },
                             tooltip: {
@@ -595,69 +650,66 @@
                                 bodyColor: '#fff'
                             }
                         },
-                        animation: {
-                            duration: 2000,
-                            easing: 'easeOutQuart'
-                        }
+                        animation: { duration: 2000, easing: 'easeOutQuart' }
                     }
                 });
             }
 
-            // Event listener for export report button
-            document.getElementById('exportReport').addEventListener('click', function() {
-                Swal.fire({
-                    title: 'ส่งออกรายงาน',
-                    text: 'เลือกรูปแบบรายงานที่ต้องการ',
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'PDF',
-                    cancelButtonText: 'Excel',
-                    showDenyButton: true,
-                    denyButtonText: 'ยกเลิก',
-                    denyButtonColor: '#6c757d'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = '/employee/dashboard/export/pdf';
-                    } else if (result.isDismissed && result.dismiss === Swal.DismissReason.cancel) {
-                        window.location.href = '/employee/dashboard/export/excel';
-                    }
-                });
-            });
-
-            // Event listener for refresh button
+            // Event listeners
             document.getElementById('refreshData').addEventListener('click', function() {
-                // แสดง loading
                 const originalText = this.innerHTML;
                 this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>กำลังโหลด...';
                 this.disabled = true;
                 
-                // รีเฟรชหน้า
                 setTimeout(() => {
                     window.location.reload();
                 }, 1000);
             });
 
-            // Auto refresh every 5 minutes
-            setInterval(function() {
-                console.log('Auto refreshing dashboard data...');
-                // แสดง toast notification
-                Swal.fire({
-                    title: 'อัพเดทข้อมูล',
-                    text: 'กำลังรีเฟรชข้อมูลอัตโนมัติ...',
-                    icon: 'info',
-                    timer: 2000,
-                    timerProgressBar: true,
-                    showConfirmButton: false,
-                    toast: true,
-                    position: 'top-end'
-                }).then(() => {
-                    window.location.reload();
-                });
-            }, 300000); // 5 นาที
+            // Filter form enhancements
+            const dateRangeSelect = document.getElementById('dateRange');
+            const selectedDateInput = document.getElementById('selectedDate');
 
-            // เพิ่ม animation เมื่อโหลดหน้า
+            dateRangeSelect.addEventListener('change', function() {
+                if (this.value !== 'all') {
+                    selectedDateInput.value = '';
+                    selectedDateInput.disabled = true;
+                } else {
+                    selectedDateInput.disabled = false;
+                }
+            });
+
+            // Initialize form state
+            if (dateRangeSelect.value !== 'all') {
+                selectedDateInput.disabled = true;
+            }
+
+            // Auto refresh every 5 minutes (if on 'all' filter)
+            const currentFilters = {
+                dateRange: '<%= currentFilters.dateRange %>',
+                village: '<%= currentFilters.village %>',
+                selectedDate: '<%= currentFilters.startDate %>'
+            };
+
+            if (currentFilters.dateRange === 'all' && !currentFilters.village) {
+                setInterval(function() {
+                    console.log('Auto refreshing dashboard data...');
+                    Swal.fire({
+                        title: 'อัพเดทข้อมูล',
+                        text: 'กำลังรีเฟรชข้อมูลอัตโนมัติ...',
+                        icon: 'info',
+                        timer: 2000,
+                        timerProgressBar: true,
+                        showConfirmButton: false,
+                        toast: true,
+                        position: 'top-end'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                }, 300000); // 5 นาที
+            }
+
+            // Animation for cards on load
             const cards = document.querySelectorAll('.hover\\:scale-105');
             cards.forEach((card, index) => {
                 card.style.opacity = '0';
@@ -670,7 +722,7 @@
                 }, index * 150);
             });
 
-            // เพิ่ม hover effect สำหรับ table rows
+            // Hover effect for table rows
             const tableRows = document.querySelectorAll('tbody tr');
             tableRows.forEach(row => {
                 row.addEventListener('mouseenter', function() {
@@ -683,94 +735,19 @@
                 });
             });
 
-            // เพิ่ม loading skeleton effect
-            function showLoadingSkeleton() {
-                const skeletonHTML = `
-                    <div class="animate-pulse">
-                        <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                        <div class="h-4 bg-gray-200 rounded w-1/2"></div>
-                    </div>
-                `;
-                // แทนที่ content ด้วย skeleton (ถ้าต้องการ)
-            }
-
-            // Real-time clock
-            function updateClock() {
-                const now = new Date();
-                const timeString = now.toLocaleTimeString('th-TH');
-                const dateString = now.toLocaleDateString('th-TH', { 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                });
-                
-                // อัพเดท clock ถ้ามี element
-                const clockElement = document.getElementById('realTimeClock');
-                if (clockElement) {
-                    clockElement.innerHTML = `${dateString} ${timeString}`;
-                }
-            }
-
-            // อัพเดท clock ทุกวินาที
-            setInterval(updateClock, 1000);
-            updateClock(); // เรียกครั้งแรกทันที
-
-            // เพิ่ม real-time notifications (ถ้าต้องการ)
-            function checkForUpdates() {
-                // ตรวจสอบการอัพเดทใหม่จาก server
-                // และแสดง notification ถ้ามีข้อมูลใหม่
-            }
-
-            // ตรวจสอบการอัพเดททุก 30 วินาที
-            setInterval(checkForUpdates, 30000);
-
-            // เพิ่ม smooth scrolling สำหรับ anchor links
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const target = document.querySelector(this.getAttribute('href'));
-                    if (target) {
-                        target.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }
-                });
-            });
-
-            // Add keyboard shortcuts
+            // Keyboard shortcuts
             document.addEventListener('keydown', function(e) {
                 // Ctrl/Cmd + R สำหรับ refresh
                 if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
                     e.preventDefault();
                     document.getElementById('refreshData').click();
                 }
-                
-                // Ctrl/Cmd + E สำหรับ export
-                if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
-                    e.preventDefault();
-                    document.getElementById('exportReport').click();
-                }
             });
-
-            // เพิ่ม error handling สำหรับ charts
-            Chart.defaults.plugins.legend.onError = function(error) {
-                console.error('Chart error:', error);
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'เกิดปัญหาในการแสดงกราฟ',
-                    text: 'กรุณารีเฟรชหน้าเว็บ',
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-            };
 
             console.log('Dashboard initialized successfully');
         });
 
-        // เพิ่มฟังก์ชัน utility
+        // Utility functions
         function formatNumber(num) {
             return new Intl.NumberFormat('th-TH').format(num);
         }
@@ -782,17 +759,9 @@
             }).format(amount);
         }
 
-        function getPercentageColor(percentage) {
-            if (percentage > 0) return 'text-green-500';
-            if (percentage < 0) return 'text-red-500';
-            return 'text-gray-500';
-        }
-
-        // Export functions สำหรับใช้ในส่วนอื่นๆ
         window.dashboardUtils = {
             formatNumber,
-            formatCurrency,
-            getPercentageColor
+            formatCurrency
         };
     </script>
 
@@ -811,12 +780,8 @@
         }
         
         @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: .5;
-            }
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
         }
         
         /* Custom scrollbar */
@@ -856,12 +821,8 @@
         }
         
         @keyframes fa-spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
         /* Card hover effects */
@@ -873,6 +834,60 @@
         .swal2-top-end {
             top: 20px !important;
             right: 20px !important;
+        }
+
+        /* Filter form styling */
+        .filter-form {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        /* Disabled input styling */
+        input:disabled {
+            background-color: #f9fafb;
+            cursor: not-allowed;
+        }
+
+        /* Filter badges */
+        .filter-badge {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Table hover effect enhancement */
+        tbody tr:hover {
+            background-color: #f8fafc;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Chart loading placeholder */
+        .chart-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 320px;
+            background: #f9fafb;
+            border-radius: 8px;
+            border: 2px dashed #d1d5db;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 640px) {
+            .content {
+                padding: 0 16px;
+            }
+            
+            .mx-4 {
+                margin-left: 0;
+                margin-right: 0;
+            }
+            
+            .grid-cols-1 {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </body>

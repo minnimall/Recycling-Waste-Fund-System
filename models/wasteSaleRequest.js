@@ -32,6 +32,11 @@ const wasteSaleRequestSchema = new Schema(
             ref: 'Family',
             required: true
         },
+        status: {
+            type: String,
+            enum: ['pending', 'in-progress', 'resolved'],
+            default: 'pending'
+        },
         isDeleted: {
             type: Boolean,
             default: false

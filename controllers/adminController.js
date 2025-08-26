@@ -1743,6 +1743,11 @@ const roundDelete = (req, res) => {
         });
 };
 
+//หน้าฌาปนกิจสงเคราะห์
+const funeralAidIndex = (req, res)=> {
+    res.render('admin/funeralAid',{mytitle: 'ฌาปนกิจสงเคราะห์'})
+}
+
 module.exports = {
     //แดชบอร์ด
     dashboardIndex,
@@ -1766,4 +1771,6 @@ module.exports = {
     villageIndex,villagePost,villageEdit,villageDelete,
     //รอบการรับซื้อขยะ
     roundIndex,roundPost,roundEdit,roundDelete,
+    //ฌาปนกิจสงเคราะห์
+    funeralAidIndex,
 }

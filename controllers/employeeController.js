@@ -34,19 +34,56 @@ const dashboardIndex = async (req, res) => {
     try {
         console.log('Starting dashboardIndex...');
         
-        // กำหนดช่วงวันที่สำหรับการคำนวณ
+        // รับ query parameters สำหรับ filter
+        const { 
+            village, 
+            startDate, 
+            endDate, 
+            dateRange = 'all' // all, today, yesterday, thisMonth, lastMonth
+        } = req.query;
+
+        // กำหนดช่วงวันที่ตามการเลือก
         const now = new Date();
+        let filterStartDate, filterEndDate;
+        
+        if (startDate && endDate) {
+            // ใช้ช่วงวันที่ที่ผู้ใช้เลือก
+            filterStartDate = new Date(startDate);
+            filterEndDate = new Date(endDate);
+            filterEndDate.setHours(23, 59, 59);
+        } else {
+            // ใช้ช่วงวันที่ตาม dateRange
+            switch (dateRange) {
+                case 'today':
+                    filterStartDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    filterEndDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+                    break;
+                case 'yesterday':
+                    filterStartDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+                    filterEndDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 23, 59, 59);
+                    break;
+                case 'thisMonth':
+                    filterStartDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                    filterEndDate = now;
+                    break;
+                case 'lastMonth':
+                    filterStartDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                    filterEndDate = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+                    break;
+                default: // 'all'
+                    filterStartDate = null;
+                    filterEndDate = null;
+                    break;
+            }
+        }
+
+        // วันที่สำหรับเปรียบเทียบ
         const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
-        
         const yesterdayStart = new Date(todayStart);
         yesterdayStart.setDate(yesterdayStart.getDate() - 1);
         const yesterdayEnd = new Date(todayEnd);
         yesterdayEnd.setDate(yesterdayEnd.getDate() - 1);
-
-        const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-        const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-        const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
 
         // Pipeline สำหรับข้อมูลทั้งหมด
         const basePipeline = [
@@ -89,7 +126,58 @@ const dashboardIndex = async (req, res) => {
             { $unwind: '$wasteItemDetails' }
         ];
 
-        // 1. ยอดรับซื้อวันนี้
+        // เพิ่ม filter สำหรับหมู่บ้านถ้ามี
+        let filterPipeline = [...basePipeline];
+        
+        if (village) {
+            filterPipeline.push({
+                $lookup: {
+                    from: 'villages',
+                    localField: 'familyInfo.village',
+                    foreignField: '_id',
+                    as: 'villageInfo'
+                }
+            });
+            filterPipeline.push({ $unwind: '$villageInfo' });
+            filterPipeline.push({
+                $match: { 'villageInfo._id': new mongoose.Types.ObjectId(village) }
+            });
+        }
+
+        // เพิ่ม filter สำหรับช่วงวันที่ถ้ามี
+        const dateMatch = {};
+        if (filterStartDate && filterEndDate) {
+            dateMatch.purchaseDate = { $gte: filterStartDate, $lte: filterEndDate };
+        } else if (filterStartDate) {
+            dateMatch.purchaseDate = { $gte: filterStartDate };
+        } else if (filterEndDate) {
+            dateMatch.purchaseDate = { $lte: filterEndDate };
+        }
+
+        // 1. ข้อมูลทั้งหมดตาม filter ที่เลือก
+        console.log('Calculating filtered totals...');
+        let totalDataPipeline = [...filterPipeline];
+        if (Object.keys(dateMatch).length > 0) {
+            totalDataPipeline.push({ $match: dateMatch });
+        }
+
+        const totalData = await WastePurchase.aggregate([
+            ...totalDataPipeline,
+            {
+                $group: {
+                    _id: null,
+                    totalAmount: {
+                        $sum: {
+                            $multiply: ['$wasteItemDetails.quantity', '$wasteItemDetails.pricePerUnit']
+                        }
+                    },
+                    totalQuantity: { $sum: '$wasteItemDetails.quantity' },
+                    totalTransactions: { $sum: 1 }
+                }
+            }
+        ]);
+
+        // 2. ยอดรับซื้อวันนี้ (สำหรับเปรียบเทียบ)
         console.log('Calculating today\'s total...');
         const todayData = await WastePurchase.aggregate([
             ...basePipeline,
@@ -111,7 +199,7 @@ const dashboardIndex = async (req, res) => {
             }
         ]);
 
-        // 2. ยอดรับซื้อเมื่อวาน
+        // 3. ยอดรับซื้อเมื่อวาน (สำหรับเปรียบเทียบ)
         console.log('Calculating yesterday\'s total...');
         const yesterdayData = await WastePurchase.aggregate([
             ...basePipeline,
@@ -133,9 +221,11 @@ const dashboardIndex = async (req, res) => {
             }
         ]);
 
-        // 3. ปริมาณขยะเดือนที่แล้ว
-        console.log('Calculating last month\'s waste...');
-        const lastMonthWaste = await WastePurchase.aggregate([
+        // 4. ข้อมูลเดือนที่แล้วสำหรับเปรียบเทียบ
+        const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+        
+        const lastMonthData = await WastePurchase.aggregate([
             ...basePipeline,
             {
                 $match: {
@@ -145,25 +235,11 @@ const dashboardIndex = async (req, res) => {
             {
                 $group: {
                     _id: null,
-                    totalQuantity: { $sum: '$wasteItemDetails.quantity' }
-                }
-            }
-        ]);
-
-        // 4. ปริมาณขยะสองเดือนที่แล้ว (สำหรับเปรียบเทียบ)
-        const twoMonthsAgoStart = new Date(now.getFullYear(), now.getMonth() - 2, 1);
-        const twoMonthsAgoEnd = new Date(now.getFullYear(), now.getMonth() - 1, 0, 23, 59, 59);
-        
-        const twoMonthsAgoWaste = await WastePurchase.aggregate([
-            ...basePipeline,
-            {
-                $match: {
-                    purchaseDate: { $gte: twoMonthsAgoStart, $lte: twoMonthsAgoEnd }
-                }
-            },
-            {
-                $group: {
-                    _id: null,
+                    totalAmount: {
+                        $sum: {
+                            $multiply: ['$wasteItemDetails.quantity', '$wasteItemDetails.pricePerUnit']
+                        }
+                    },
                     totalQuantity: { $sum: '$wasteItemDetails.quantity' }
                 }
             }
@@ -175,24 +251,34 @@ const dashboardIndex = async (req, res) => {
             .populate('_id')
             .sort({ pricePerUnit: -1 });
 
-        // 6. ข้อมูลแต่ละหมู่บ้าน (สำหรับ 3D Pie Chart)
+        // 6. ข้อมูลแต่ละหมู่บ้าน (สำหรับ 3D Pie Chart) - ใช้ filter ที่เลือก
         console.log('Calculating village data...');
+        let villageDataPipeline = [...filterPipeline];
+        if (Object.keys(dateMatch).length > 0) {
+            villageDataPipeline.push({ $match: dateMatch });
+        }
+
+        // เพิ่ม lookup village ถ้ายังไม่มี
+        const hasVillageInfo = villageDataPipeline.some(stage => 
+            stage.$lookup && stage.$lookup.from === 'villages'
+        );
+        
+        if (!hasVillageInfo) {
+            villageDataPipeline.push(
+                {
+                    $lookup: {
+                        from: 'villages',
+                        localField: 'familyInfo.village',
+                        foreignField: '_id',
+                        as: 'villageInfo'
+                    }
+                },
+                { $unwind: '$villageInfo' }
+            );
+        }
+
         const villageData = await WastePurchase.aggregate([
-            ...basePipeline,
-            {
-                $match: {
-                    purchaseDate: { $gte: lastMonthStart, $lte: now }
-                }
-            },
-            {
-                $lookup: {
-                    from: 'villages',
-                    localField: 'familyInfo.village',
-                    foreignField: '_id',
-                    as: 'villageInfo'
-                }
-            },
-            { $unwind: '$villageInfo' },
+            ...villageDataPipeline,
             {
                 $group: {
                     _id: '$villageInfo._id',
@@ -210,15 +296,10 @@ const dashboardIndex = async (req, res) => {
             { $sort: { villageNumber: 1 } }
         ]);
 
-        // 7. สรุปการรับซื้อประจำวัน (ตามประเภทขยะ)
-        console.log('Calculating daily waste summary...');
-        const dailyWasteSummary = await WastePurchase.aggregate([
-            ...basePipeline,
-            {
-                $match: {
-                    purchaseDate: { $gte: todayStart, $lte: todayEnd }
-                }
-            },
+        // 7. สรุปการรับซื้อตาม filter ที่เลือก (ตามประเภทขยะ)
+        console.log('Calculating waste summary...');
+        const wasteSummary = await WastePurchase.aggregate([
+            ...totalDataPipeline,
             {
                 $group: {
                     _id: '$wasteItemDetails.name',
@@ -280,7 +361,16 @@ const dashboardIndex = async (req, res) => {
             { $sort: { _id: 1 } }
         ]);
 
+        // 9. ดึงรายการหมู่บ้านทั้งหมดสำหรับ filter dropdown
+        const allVillages = await Village.find({ isDeleted: { $ne: true } })
+            .select('villageName villageNumber')
+            .sort({ villageNumber: 1 });
+
         // คำนวณเปอร์เซ็นต์การเปลี่ยนแปลง
+        const totalAmount = totalData[0]?.totalAmount || 0;
+        const totalQuantity = totalData[0]?.totalQuantity || 0;
+        const totalTransactions = totalData[0]?.totalTransactions || 0;
+
         const todayTotal = todayData[0]?.totalAmount || 0;
         const yesterdayTotal = yesterdayData[0]?.totalAmount || 0;
         const todayPercentChange = yesterdayTotal > 0 
@@ -293,31 +383,62 @@ const dashboardIndex = async (req, res) => {
             ? Math.round(((transactionToday - transactionYesterday) / transactionYesterday) * 100)
             : 0;
 
-        const totalWaste = lastMonthWaste[0]?.totalQuantity || 0;
-        const previousMonthWaste = twoMonthsAgoWaste[0]?.totalQuantity || 0;
-        const percentChange = previousMonthWaste > 0
-            ? Math.round(((totalWaste - previousMonthWaste) / previousMonthWaste) * 100)
-            : 0;
+        const lastMonthTotal = lastMonthData[0]?.totalAmount || 0;
+        const lastMonthQuantity = lastMonthData[0]?.totalQuantity || 0;
+
+        // สร้าง filter info สำหรับแสดงผล
+        let filterInfo = {
+            dateRange,
+            startDate: filterStartDate ? filterStartDate.toISOString().split('T')[0] : '',
+            endDate: filterEndDate ? filterEndDate.toISOString().split('T')[0] : '',
+            village,
+            villageName: ''
+        };
+
+        if (village && allVillages) {
+            const selectedVillage = allVillages.find(v => v._id.toString() === village);
+            if (selectedVillage) {
+                filterInfo.villageName = selectedVillage.villageName || `หมู่บ้านที่ ${selectedVillage.villageNumber}`;
+            }
+        }
 
         console.log('Rendering dashboard...');
         
         res.render('employee/dashboard', {
             mytitle: 'แดชบอร์ด',
             
-            // ข้อมูลสถิติ
-            totalWaste: Math.round(totalWaste),
-            percentChange: percentChange,
+            // ข้อมูลสถิติหลัก (ตาม filter)
+            totalQuantity: Math.round(totalQuantity),
+            totalAmount: Math.round(totalAmount),
+            totalTransactions: totalTransactions,
+            
+            // ข้อมูลเปรียบเทียบ
             todayTotal: Math.round(todayTotal),
             todayPercentChange: todayPercentChange,
             transactionToday: transactionToday,
             transactionYesterday: transactionYesterday,
             transactionPercentChange: transactionPercentChange,
+            lastMonthTotal: Math.round(lastMonthTotal),
+            lastMonthQuantity: Math.round(lastMonthQuantity),
+            
             highestWaste: highestWaste,
             
             // ข้อมูลสำหรับกราฟ
             villageData: villageData || [],
-            dailyWasteSummary: dailyWasteSummary || [],
-            priceTrends: priceTrends || []
+            wasteSummary: wasteSummary || [],
+            priceTrends: priceTrends || [],
+            
+            // ข้อมูล filter
+            allVillages: allVillages || [],
+            filterInfo: filterInfo,
+            
+            // Query parameters สำหรับ form
+            currentFilters: {
+                village: village || '',
+                startDate: startDate || '',
+                endDate: endDate || '',
+                dateRange: dateRange || 'all'
+            }
         });
 
     } catch (err) {
@@ -336,17 +457,34 @@ const dashboardIndex = async (req, res) => {
         
         res.status(500).render('employee/dashboard', {
             mytitle: 'แดชบอร์ด - เกิดข้อผิดพลาด',
-            totalWaste: 0,
-            percentChange: 0,
+            totalQuantity: 0,
+            totalAmount: 0,
+            totalTransactions: 0,
             todayTotal: 0,
             todayPercentChange: 0,
             transactionToday: 0,
             transactionYesterday: 0,
             transactionPercentChange: 0,
+            lastMonthTotal: 0,
+            lastMonthQuantity: 0,
             highestWaste: null,
             villageData: [],
-            dailyWasteSummary: [],
+            wasteSummary: [],
             priceTrends: [],
+            allVillages: [],
+            filterInfo: {
+                dateRange: 'all',
+                startDate: '',
+                endDate: '',
+                village: '',
+                villageName: ''
+            },
+            currentFilters: {
+                village: '',
+                startDate: '',
+                endDate: '',
+                dateRange: 'all'
+            },
             errorMessage: 'เกิดข้อผิดพลาดในการโหลดข้อมูล กรุณาลองใหม่อีกครั้ง'
         });
     }

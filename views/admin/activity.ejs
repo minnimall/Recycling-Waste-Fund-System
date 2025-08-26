@@ -56,43 +56,43 @@
             </div>
         </div>
 
-<!-- Search + ItemsPerPage -->
-<div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex flex-col md:flex-row justify-between items-center gap-4">
-    <div class="flex-1 relative w-full">
-        <input type="text" id="searchInput" placeholder="ค้นหากิจกรรม..." 
-            class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-        <div class="absolute left-3 top-2.5 text-gray-400">
-            <i class="fas fa-search"></i>
+    <!-- Search + ItemsPerPage -->
+    <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex-1 relative w-full">
+            <input type="text" id="searchInput" placeholder="ค้นหากิจกรรม..." 
+                class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+            <div class="absolute left-3 top-2.5 text-gray-400">
+                <i class="fas fa-search"></i>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <label for="itemsPerPage" class="text-sm text-gray-600">แสดง:</label>
+            <select id="itemsPerPage" class="border rounded-lg px-2 py-1 focus:ring-2 focus:ring-green-500">
+                <option value="5" selected>5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+            </select>
         </div>
     </div>
-    <div class="flex items-center gap-2">
-        <label for="itemsPerPage" class="text-sm text-gray-600">แสดง:</label>
-        <select id="itemsPerPage" class="border rounded-lg px-2 py-1 focus:ring-2 focus:ring-green-500">
-            <option value="5" selected>5</option>
-            <option value="10">10</option>
-            <option value="20">20</option>
-        </select>
+
+    <!-- Container -->
+    <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+        <div class="mb-4 border-b border-gray-200 pb-4">
+            <h2 class="text-base font-semibold text-gray-800">
+                สื่อความรู้ <span id="totalItems" class="text-blue-600 text-base font-normal"></span>
+            </h2>
+        </div>
+
+        <div id="cardsContainer" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6"></div>
+
+        <!-- No results -->
+        <div id="noResults" class="hidden text-center py-8 text-gray-500">
+            - ไม่พบข้อมูล -
+        </div>
+
+        <!-- Pagination -->
+        <div id="pagination" class="flex justify-center mt-6 gap-2"></div>
     </div>
-</div>
-
-<!-- Container -->
-<div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
-    <div class="mb-4 border-b border-gray-200 pb-4">
-        <h2 class="text-base font-semibold text-gray-800">
-            สื่อความรู้ <span id="totalItems" class="text-blue-600 text-base font-normal"></span>
-        </h2>
-    </div>
-
-    <div id="cardsContainer" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6"></div>
-
-    <!-- No results -->
-    <div id="noResults" class="hidden text-center py-8 text-gray-500">
-        - ไม่พบข้อมูล -
-    </div>
-
-    <!-- Pagination -->
-    <div id="pagination" class="flex justify-center mt-6 gap-2"></div>
-</div>
 
     </div>
 

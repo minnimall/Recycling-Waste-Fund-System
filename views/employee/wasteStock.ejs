@@ -129,7 +129,7 @@
         </div>
 
         <!-- Summary Cards with Enhanced Information -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <!-- Total Weight -->
             <div class="mx-4 bg-blue-50 rounded-lg shadow p-6">
                 <div class="flex items-center justify-between">
@@ -191,7 +191,7 @@
             </div>
 
             <!-- Price Difference -->
-            <div class="mx-4 bg-purple-50 rounded-lg shadow p-6">
+            <!-- <div class="mx-4 bg-purple-50 rounded-lg shadow p-6">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-purple-600">ส่วนต่างมูลค่า</p>
@@ -216,7 +216,7 @@
                         <i class="fas fa-<%= difference >= 0 ? 'arrow-trend-up' : 'arrow-trend-down' %> text-purple-600"></i>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </div>
 
         <!-- Detailed Waste Table -->
@@ -291,8 +291,8 @@
                                 </div>
                                 <div class="text-xs font-medium <%= (item.priceDifference || 0) >= 0 ? 'text-green-600' : 'text-red-600' %>">
                                     <%= (item.currentPrice || 0).toFixed(2) %> 
-                                    <%= (item.priceDifference || 0) >= 0 ? '↗' : '↘' %>
-                                    <%= Math.abs(item.priceDifference || 0).toFixed(2) %>
+                                    <!-- <%= (item.priceDifference || 0) >= 0 ? '↗' : '↘' %>
+                                    <%= Math.abs(item.priceDifference || 0).toFixed(2) %> -->
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">

@@ -110,16 +110,16 @@
         <!-- Stats cards -->
         <div class="mx-4 grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div class="bg-blue-50 rounded-lg p-6 shadow-sm border border-blue-100 transition-transform hover:scale-105">
-                <div class="text-3xl font-bold text-blue-700 mb-2"><%= purchaseCount %></div>
-                <div class="text-gray-600">จำนวนการรับซื้อ</div>
+                <p class="text-sm font-medium text-blue-600">จำนวนการรับซื้อ</p>
+                <div class="text-3xl font-bold text-blue-900"><%= purchaseCount %></div>
             </div>
             <div class="bg-green-50 rounded-lg p-6 shadow-sm border border-green-100 transition-transform hover:scale-105">
-                <div class="text-3xl font-bold text-green-700 mb-2"><%= customerCount %></div>
-                <div class="text-gray-600">จำนวนลูกค้า</div>
+                <p class="text-sm font-medium text-green-600">จำนวนลูกค้า</p>
+                <div class="text-3xl font-bold text-green-900 mb-2"><%= customerCount %></div>
             </div>
             <div class="bg-purple-50 rounded-lg p-6 shadow-sm border border-purple-100 transition-transform hover:scale-105">
-                <div class="text-3xl font-bold text-purple-700 mb-2"><%= totalAmount.toLocaleString('th-TH') %>฿</div>
-                <div class="text-gray-600">ยอดการรับซื้อ</div>
+                <p class="text-sm font-medium text-purple-600">ยอดการรับซื้อ</p>
+                <div class="text-3xl font-bold text-purple-900 mb-2"><%= totalAmount.toLocaleString('th-TH') %> บาท</div>
             </div>
         </div>
 

@@ -59,6 +59,9 @@ router.delete('/villageDelete/:id', adminController.villageDelete);
 router.get('/round', adminController.roundIndex);
 router.post('/roundPost', adminController.roundPost);
 router.post('/roundEdit', adminController.roundEdit);
-router.delete('/roundDelete/:id', adminController.roundDelete)
+router.delete('/roundDelete/:id', adminController.roundDelete);
+
+// ฌาปนกิจสงเคราะห์
+router.get('/funeralAid', adminController.funeralAidIndex);
 
 module.exports = router
