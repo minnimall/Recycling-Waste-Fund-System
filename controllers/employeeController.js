@@ -33,53 +33,78 @@ router.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 const dashboardIndex = async (req, res) => {
     try {
         console.log('Starting dashboardIndex...');
+        console.log('Query parameters:', req.query);
         
         // รับ query parameters สำหรับ filter
         const { 
             village, 
             startDate, 
             endDate, 
-            dateRange = 'all' // all, today, yesterday, thisMonth, lastMonth
+            dateRange = 'all',
+            selectedDate // เพิ่ม selectedDate parameter
         } = req.query;
 
         // กำหนดช่วงวันที่ตามการเลือก
         const now = new Date();
         let filterStartDate, filterEndDate;
         
-        if (startDate && endDate) {
+        // ตรวจสอบการเลือกวันที่เฉพาะก่อน
+        if (selectedDate) {
+            console.log('Using selectedDate:', selectedDate);
+            filterStartDate = new Date(selectedDate);
+            filterEndDate = new Date(selectedDate);
+            filterEndDate.setHours(23, 59, 59, 999);
+        } else if (startDate && endDate) {
             // ใช้ช่วงวันที่ที่ผู้ใช้เลือก
+            console.log('Using date range:', startDate, 'to', endDate);
             filterStartDate = new Date(startDate);
             filterEndDate = new Date(endDate);
-            filterEndDate.setHours(23, 59, 59);
+            filterEndDate.setHours(23, 59, 59, 999);
         } else {
             // ใช้ช่วงวันที่ตาม dateRange
+            console.log('Using dateRange:', dateRange);
             switch (dateRange) {
                 case 'today':
                     filterStartDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                    filterEndDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+                    filterEndDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
                     break;
                 case 'yesterday':
                     filterStartDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-                    filterEndDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 23, 59, 59);
+                    filterEndDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 23, 59, 59, 999);
                     break;
                 case 'thisMonth':
                     filterStartDate = new Date(now.getFullYear(), now.getMonth(), 1);
-                    filterEndDate = now;
+                    filterEndDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
                     break;
                 case 'lastMonth':
                     filterStartDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-                    filterEndDate = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+                    filterEndDate = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
                     break;
-                default: // 'all'
-                    filterStartDate = null;
-                    filterEndDate = null;
+                default:
+                    // จัดการกรณี month-x (เดือนย้อนหลัง)
+                    if (dateRange && dateRange.startsWith('month-')) {
+                        const monthsBack = parseInt(dateRange.replace('month-', ''));
+                        filterStartDate = new Date(now.getFullYear(), now.getMonth() - monthsBack, 1);
+                        filterEndDate = new Date(now.getFullYear(), now.getMonth() - monthsBack + 1, 0, 23, 59, 59, 999);
+                    } else {
+                        // 'all' หรือไม่ระบุ
+                        filterStartDate = null;
+                        filterEndDate = null;
+                    }
                     break;
             }
         }
 
-        // วันที่สำหรับเปรียบเทียบ
+        console.log('Filter dates:', {
+            filterStartDate,
+            filterEndDate,
+            selectedDate,
+            dateRange
+        });
+
+        // วันที่สำหรับเปรียบเทียบ (คงเดิม)
         const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+        const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
         const yesterdayStart = new Date(todayStart);
         yesterdayStart.setDate(yesterdayStart.getDate() - 1);
         const yesterdayEnd = new Date(todayEnd);
@@ -126,9 +151,10 @@ const dashboardIndex = async (req, res) => {
             { $unwind: '$wasteItemDetails' }
         ];
 
-        // เพิ่ม filter สำหรับหมู่บ้านถ้ามี
+        // สร้าง filter pipeline พื้นฐาน
         let filterPipeline = [...basePipeline];
         
+        // เพิ่ม filter สำหรับหมู่บ้านถ้ามี
         if (village) {
             filterPipeline.push({
                 $lookup: {
@@ -144,15 +170,24 @@ const dashboardIndex = async (req, res) => {
             });
         }
 
-        // เพิ่ม filter สำหรับช่วงวันที่ถ้ามี
-        const dateMatch = {};
-        if (filterStartDate && filterEndDate) {
-            dateMatch.purchaseDate = { $gte: filterStartDate, $lte: filterEndDate };
-        } else if (filterStartDate) {
-            dateMatch.purchaseDate = { $gte: filterStartDate };
-        } else if (filterEndDate) {
-            dateMatch.purchaseDate = { $lte: filterEndDate };
-        }
+        // สร้าง match condition สำหรับวันที่
+        const createDateMatch = (startDate, endDate) => {
+            const match = {};
+            if (startDate && endDate) {
+                match.purchaseDate = { 
+                    $gte: startDate, 
+                    $lte: endDate 
+                };
+            } else if (startDate) {
+                match.purchaseDate = { $gte: startDate };
+            } else if (endDate) {
+                match.purchaseDate = { $lte: endDate };
+            }
+            return match;
+        };
+
+        const dateMatch = createDateMatch(filterStartDate, filterEndDate);
+        console.log('Date match condition:', dateMatch);
 
         // 1. ข้อมูลทั้งหมดตาม filter ที่เลือก
         console.log('Calculating filtered totals...');
@@ -176,6 +211,8 @@ const dashboardIndex = async (req, res) => {
                 }
             }
         ]);
+
+        console.log('Total data result:', totalData);
 
         // 2. ยอดรับซื้อวันนี้ (สำหรับเปรียบเทียบ)
         console.log('Calculating today\'s total...');
@@ -223,7 +260,7 @@ const dashboardIndex = async (req, res) => {
 
         // 4. ข้อมูลเดือนที่แล้วสำหรับเปรียบเทียบ
         const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-        const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+        const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
         
         const lastMonthData = await WastePurchase.aggregate([
             ...basePipeline,
@@ -391,6 +428,7 @@ const dashboardIndex = async (req, res) => {
             dateRange,
             startDate: filterStartDate ? filterStartDate.toISOString().split('T')[0] : '',
             endDate: filterEndDate ? filterEndDate.toISOString().split('T')[0] : '',
+            selectedDate: selectedDate || '',
             village,
             villageName: ''
         };
@@ -402,6 +440,7 @@ const dashboardIndex = async (req, res) => {
             }
         }
 
+        console.log('Final filter info:', filterInfo);
         console.log('Rendering dashboard...');
         
         res.render('employee/dashboard', {
@@ -437,6 +476,7 @@ const dashboardIndex = async (req, res) => {
                 village: village || '',
                 startDate: startDate || '',
                 endDate: endDate || '',
+                selectedDate: selectedDate || '',
                 dateRange: dateRange || 'all'
             },
 
@@ -478,6 +518,7 @@ const dashboardIndex = async (req, res) => {
                 dateRange: 'all',
                 startDate: '',
                 endDate: '',
+                selectedDate: '',
                 village: '',
                 villageName: ''
             },
@@ -485,6 +526,7 @@ const dashboardIndex = async (req, res) => {
                 village: '',
                 startDate: '',
                 endDate: '',
+                selectedDate: '',
                 dateRange: 'all'
             },
             errorMessage: 'เกิดข้อผิดพลาดในการโหลดข้อมูล กรุณาลองใหม่อีกครั้ง'
@@ -811,6 +853,14 @@ const memberRegister = async (req, res) => {
             await session.abortTransaction();
             session.endSession();
             return res.redirect('/employee/member?error=ชื่อผู้ใช้ต้องมี 5-20 ตัวอักษร และไม่มีอักขระพิเศษ');
+        }
+
+        // ตรวจสอบ password 
+        const passwordRegex = /^\d{6,8}$/;
+        if (!passwordRegex.test(req.body.password)) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.redirect('/employee/member?error=รหัสผ่านต้องเป็นตัวเลข 6-8 หลัก');
         }
 
         // ตรวจสอบว่าชื่อผู้ใช้ซ้ำหรือไม่

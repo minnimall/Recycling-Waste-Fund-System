@@ -3,6 +3,8 @@
 
 <head>
     <%- include('../partials/employeePartials/doctype.ejs') %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= mytitle %></title>
     <link rel="stylesheet" href="/style_employee/dashboard.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,18 +16,18 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
 
-<body class="bg-gray-100">
+<body>
     <%- include('../partials/employeePartials/empHeader.ejs') %>
     <%- include('../partials/employeePartials/empSidebar.ejs') %>
-    
     <script>
         // เช็คข้อความที่ส่งมาจาก URL
         const urlParams = new URLSearchParams(window.location.search);
         const successMessage = urlParams.get('message');
         const errorMessage = urlParams.get('error');
-        const serverError = '<%= typeof errorMessage !== "undefined" ? errorMessage : "" %>';
 
         if (successMessage) {
             Swal.fire({
@@ -40,28 +42,18 @@
 
         if (errorMessage) {
             Swal.fire({
+                toast: true,
+                position: 'top-end',
                 icon: 'error',
-                title: 'เกิดข้อผิดพลาด!',
-                text: errorMessage,
-                confirmButtonText: 'ตกลง',
-                confirmButtonColor: '#d33',
+                title: errorMessage,
+                showConfirmButton: false,
                 timer: 3000
-            });
-        }
-
-        if (serverError && serverError.trim() !== '') {
-            Swal.fire({
-                icon: 'error',
-                title: 'เกิดข้อผิดพลาด!',
-                text: serverError,
-                confirmButtonText: 'ตกลง',
-                confirmButtonColor: '#d33'
             });
         }
     </script>
 
     <!-- Main content -->
-    <div class="content bg-gray-50 min-h-screen">
+    <div class="content bg-gray-50 min-screen">
         <!-- Header with Filters -->
         <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
             <div class="flex justify-between items-center mb-4">
@@ -69,11 +61,6 @@
                     <h1 class="text-2xl font-semibold text-gray-800">แดชบอร์ด</h1>
                     <p class="text-gray-500">ข้อมูลสรุปและการวิเคราะห์ระบบธนาคารขยะ</p>
                 </div>
-                <!-- <div class="flex space-x-2">
-                    <button id="refreshData" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
-                        <i class="fas fa-sync-alt mr-2"></i>รีเฟรช
-                    </button>
-                </div> -->
             </div>
 
             <!-- Filter Form -->
@@ -82,16 +69,17 @@
 
                     <!-- Single Date Selection -->
                     <div>
-                        <label for="selectedDate" class="block text-sm font-medium text-gray-700 mb-1">เลือกวันที่</label>
-                        <input type="date" name="selectedDate" id="selectedDate" value="<%= currentFilters.startDate %>" 
-                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="เลือกวันที่เฉพาะ">
+                        <label for="selectedDate" class="block text-sm font-medium text-gray-700 mb-1">เลือกวันที่เฉพาะ</label>
+                        <input type="date" name="selectedDate" id="selectedDate" 
+                            value="<%= currentFilters.selectedDate %>" 
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
 
                     <!-- Date Range Selection -->
                     <div>
-                        <label for="dateRange" class="block text-sm font-medium text-gray-700 mb-1">เดือน</label>
-                        <select name="dateRange" id="dateRange" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <label for="dateRange" class="block text-sm font-medium text-gray-700 mb-1">ช่วงเวลา</label>
+                        <select name="dateRange" id="dateRange" 
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="all" <%= currentFilters.dateRange === 'all' ? 'selected' : '' %>>ทั้งหมด</option>
                             <option value="today" <%= currentFilters.dateRange === 'today' ? 'selected' : '' %>>วันนี้</option>
                             <option value="yesterday" <%= currentFilters.dateRange === 'yesterday' ? 'selected' : '' %>>เมื่อวาน</option>
@@ -118,7 +106,8 @@
                     <!-- Village Filter -->
                     <div>
                         <label for="village" class="block text-sm font-medium text-gray-700 mb-1">หมู่บ้าน</label>
-                        <select name="village" id="village" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <select name="village" id="village" 
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="">ทุกหมู่บ้าน</option>
                             <% if (allVillages && allVillages.length > 0) { %>
                                 <% allVillages.forEach(village => { %>
@@ -139,11 +128,15 @@
                 </div>
 
                 <!-- Current Filter Display -->
-                <% if (filterInfo && (filterInfo.dateRange !== 'all' || filterInfo.village)) { %>
+                <% if (filterInfo && (filterInfo.selectedDate || filterInfo.dateRange !== 'all' || filterInfo.village)) { %>
                     <div class="mt-3 flex flex-wrap items-center gap-2">
                         <span class="text-sm text-gray-600">ตัวกรองปัจจุบัน:</span>
                         
-                        <% if (filterInfo.dateRange !== 'all') { %>
+                        <% if (filterInfo.selectedDate) { %>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                <i class="fas fa-calendar-day mr-1"></i>วันที่ <%= filterInfo.selectedDate %>
+                            </span>
+                        <% } else if (filterInfo.dateRange !== 'all') { %>
                             <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                 <i class="fas fa-calendar mr-1"></i>
                                 <% if (filterInfo.dateRange === 'today') { %>วันนี้
@@ -161,8 +154,6 @@
                                         const year = monthDate.getFullYear() + 543;
                                     %>
                                     <%= monthName %> <%= year %>
-                                <% } else if (filterInfo.startDate) { %>
-                                    วันที่ <%= filterInfo.startDate %>
                                 <% } %>
                             </span>
                         <% } %>
@@ -309,9 +300,6 @@
             <div class="bg-white rounded-lg shadow p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-semibold text-gray-800">สรุปตามประเภทขยะ</h2>
-                    <!-- <div class="text-sm text-gray-500">
-                        <i class="fas fa-list mr-1"></i>10 อันดับแรก
-                    </div> -->
                 </div>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
@@ -319,7 +307,6 @@
                             <tr>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ประเภทขยะ</th>
                                 <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">ปริมาณ (กก.)</th>
-                                <!-- <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">ราคาเฉลี่ย</th> -->
                                 <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">มูลค่ารวม</th>
                             </tr>
                         </thead>
@@ -337,9 +324,6 @@
                                         <td class="px-4 py-4 whitespace-nowrap text-center text-sm text-gray-500">
                                             <%= Math.round(waste.totalQuantity).toLocaleString() %>
                                         </td>
-                                        <!-- <td class="px-4 py-4 whitespace-nowrap text-center text-sm text-gray-500">
-                                            ฿<%= Math.round(waste.avgPrice).toLocaleString() %>
-                                        </td> -->
                                         <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             ฿<%= Math.round(waste.totalAmount).toLocaleString() %>
                                         </td>
@@ -347,7 +331,7 @@
                                 <% }) %>
                             <% } else { %>
                                 <tr>
-                                    <td colspan="4" class="px-4 py-8 text-center text-gray-500">
+                                    <td colspan="3" class="px-4 py-8 text-center text-gray-500">
                                         <i class="fas fa-inbox text-4xl mb-2"></i>
                                         <p>ไม่มีข้อมูลการรับซื้อ</p>
                                     </td>
@@ -358,52 +342,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Price Trends Section -->
-        <!-- <% if (priceTrends && priceTrends.length > 0) { %>
-            <div class="mx-4 bg-white rounded-lg shadow p-6 mb-8">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-semibold text-gray-800">แนวโน้มราคาขยะ</h2>
-                    <div class="text-sm text-gray-500">
-                        <i class="fas fa-chart-line mr-1"></i>3 เดือนย้อนหลัง
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-2">
-                        <div class="h-80">
-                            <canvas id="priceTrendChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <h3 class="font-semibold text-gray-800 mb-4">แนวโน้มราคา</h3>
-                        <div class="space-y-3">
-                            <% priceTrends.slice(0, 5).forEach((trend, index) => { %>
-                                <% const colors = ['blue', 'green', 'yellow', 'red', 'purple']; %>
-                                <% 
-                                    const sortedData = trend.monthlyData.sort((a, b) => a.month.localeCompare(b.month));
-                                    const firstPrice = sortedData[0]?.avgPrice || 0;
-                                    const lastPrice = sortedData[sortedData.length - 1]?.avgPrice || 0;
-                                    const percentChange = firstPrice > 0 ? ((lastPrice - firstPrice) / firstPrice * 100).toFixed(1) : 0;
-                                %>
-                                <div class="flex justify-between items-center p-2 bg-white rounded border">
-                                    <div class="flex items-center">
-                                        <div class="h-3 w-3 rounded-full bg-<%= colors[index] %>-500 mr-3"></div>
-                                        <div>
-                                            <p class="text-sm font-medium text-gray-900"><%= trend._id %></p>
-                                            <p class="text-xs text-gray-500">฿<%= Math.round(lastPrice) %>/กก.</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center <%= percentChange >= 0 ? 'text-green-600' : 'text-red-600' %>">
-                                        <i class="fas fa-arrow-<%= percentChange >= 0 ? 'up' : 'down' %> mr-1"></i>
-                                        <span class="text-sm font-medium"><%= Math.abs(percentChange) %>%</span>
-                                    </div>
-                                </div>
-                            <% }) %>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        <% } %> -->
 
         <!-- Additional Stats Section -->
         <div class="mx-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -474,8 +412,6 @@
         </div>
     </div>
 
-    <%- include('../partials/employeePartials/empFooter.ejs') %>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // ข้อมูลจากเซิร์ฟเวอร์
@@ -487,7 +423,7 @@
             console.log('Waste Summary:', wasteSummary);
             console.log('Price Trends:', priceTrends);
 
-            // Village Waste Chart
+            // 3D Village Waste Chart
             const villageCtx = document.getElementById('villageWasteChart');
             if (villageCtx && villageData.length > 0) {
                 const villageLabels = villageData.map(village => 
@@ -498,8 +434,61 @@
                     'rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 206, 86, 0.8)',
                     'rgba(75, 192, 192, 0.8)', 'rgba(153, 102, 255, 0.8)', 'rgba(255, 159, 64, 0.8)',
                     'rgba(199, 199, 199, 0.8)', 'rgba(83, 102, 255, 0.8)', 'rgba(40, 159, 64, 0.8)',
-                    'rgba(210, 99, 132, 0.8)'
+                    'rgba(210, 99, 132, 0.8)', 'rgba(127, 255, 212, 0.8)', 'rgba(255, 20, 147, 0.8)'
                 ];
+
+                // Custom 3D effect plugin
+                const threeDPiePlugin = {
+                    id: 'threeDPie',
+                    beforeDraw: function(chart) {
+                        const ctx = chart.ctx;
+                        const chartArea = chart.chartArea;
+                        const centerX = (chartArea.left + chartArea.right) / 2;
+                        const centerY = (chartArea.top + chartArea.bottom) / 2;
+                        const radius = Math.min(chartArea.right - chartArea.left, chartArea.bottom - chartArea.top) / 2 * 0.8;
+                        const depth = 20; // ความลึกของ 3D effect
+                        
+                        // วาดเงาด้านล่าง
+                        ctx.save();
+                        ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+                        ctx.shadowBlur = 15;
+                        ctx.shadowOffsetX = 5;
+                        ctx.shadowOffsetY = 5;
+                        
+                        let currentAngle = -Math.PI / 2;
+                        const data = chart.data.datasets[0].data;
+                        const total = data.reduce((sum, value) => sum + value, 0);
+                        
+                        // วาดส่วน 3D ด้านข้าง
+                        for (let i = 0; i < data.length; i++) {
+                            const sliceAngle = (data[i] / total) * 2 * Math.PI;
+                            const color = villageColors[i % villageColors.length];
+                            const darkerColor = color.replace('0.8)', '0.6)').replace('rgba', 'rgba').replace(/,\s*0\.6\)/, ', 0.6)');
+                            
+                            // วาดด้านข้างของแต่ละส่วน
+                            ctx.fillStyle = darkerColor;
+                            ctx.beginPath();
+                            ctx.moveTo(centerX, centerY);
+                            ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle);
+                            ctx.lineTo(centerX, centerY + depth);
+                            ctx.arc(centerX, centerY + depth, radius, currentAngle + sliceAngle, currentAngle, true);
+                            ctx.closePath();
+                            ctx.fill();
+                            
+                            // วาดขอบด้านข้าง
+                            ctx.strokeStyle = darkerColor.replace('0.6)', '1)');
+                            ctx.lineWidth = 1;
+                            ctx.stroke();
+                            
+                            currentAngle += sliceAngle;
+                        }
+                        
+                        ctx.restore();
+                    }
+                };
+
+                // ลงทะเบียน plugin
+                Chart.register(threeDPiePlugin);
 
                 const villageWasteChart = new Chart(villageCtx, {
                     type: 'pie',
@@ -508,25 +497,78 @@
                         datasets: [{
                             data: villageQuantities,
                             backgroundColor: villageColors.slice(0, villageData.length),
-                            borderColor: villageColors.slice(0, villageData.length).map(color => color.replace('0.8', '1')),
-                            borderWidth: 2,
-                            hoverOffset: 4
+                            borderColor: '#ffffff',
+                            borderWidth: 3,
+                            hoverOffset: 15,
+                            hoverBorderWidth: 4,
+                            // เพิ่ม gradient effect
+                            backgroundColorHover: villageColors.slice(0, villageData.length).map(color => 
+                                color.replace('0.8)', '1)')
+                            )
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        layout: {
+                            padding: {
+                                top: 20,
+                                bottom: 30,
+                                left: 20,
+                                right: 20
+                            }
+                        },
                         plugins: {
                             legend: {
                                 position: 'right',
                                 labels: {
-                                    boxWidth: 15,
+                                    boxWidth: 16,
+                                    boxHeight: 16,
                                     padding: 15,
-                                    font: { size: 12 }
+                                    font: { 
+                                        size: 12,
+                                        family: 'Arial, sans-serif'
+                                    },
+                                    usePointStyle: true,
+                                    pointStyle: 'circle',
+                                    generateLabels: function(chart) {
+                                        const data = chart.data;
+                                        if (data.labels.length && data.datasets.length) {
+                                            return data.labels.map((label, i) => {
+                                                const dataset = data.datasets[0];
+                                                const value = dataset.data[i];
+                                                const total = dataset.data.reduce((sum, val) => sum + val, 0);
+                                                const percentage = Math.round((value / total) * 100);
+                                                
+                                                return {
+                                                    text: `${label} (${percentage}%)`,
+                                                    fillStyle: dataset.backgroundColor[i],
+                                                    strokeStyle: dataset.borderColor,
+                                                    lineWidth: dataset.borderWidth,
+                                                    hidden: false,
+                                                    index: i,
+                                                    pointStyle: 'circle'
+                                                };
+                                            });
+                                        }
+                                        return [];
+                                    }
                                 }
                             },
                             tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                titleColor: '#ffffff',
+                                bodyColor: '#ffffff',
+                                borderColor: 'rgba(255, 255, 255, 0.2)',
+                                borderWidth: 1,
+                                cornerRadius: 10,
+                                displayColors: true,
+                                boxWidth: 15,
+                                boxHeight: 15,
                                 callbacks: {
+                                    title: function(context) {
+                                        return context[0].label || '';
+                                    },
                                     label: function(context) {
                                         const label = context.label || '';
                                         const value = context.raw || 0;
@@ -534,24 +576,74 @@
                                         const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
                                         const villageInfo = villageData[context.dataIndex];
                                         const amount = villageInfo ? Math.round(villageInfo.totalAmount) : 0;
+                                        const transactions = villageInfo ? villageInfo.transactionCount : 0;
+                                        
                                         return [
-                                            `${label}`,
                                             `ปริมาณ: ${value.toLocaleString()} กก. (${percentage}%)`,
-                                            `มูลค่า: ฿${amount.toLocaleString()}`
+                                            `มูลค่า: ฿${amount.toLocaleString()}`,
+                                            `ธุรกรรม: ${transactions.toLocaleString()} ครั้ง`
                                         ];
+                                    },
+                                    labelColor: function(context) {
+                                        return {
+                                            borderColor: context.dataset.backgroundColor[context.dataIndex],
+                                            backgroundColor: context.dataset.backgroundColor[context.dataIndex]
+                                        };
                                     }
                                 }
                             }
                         },
                         animation: {
                             animateRotate: true,
-                            animateScale: true
+                            animateScale: true,
+                            duration: 2000,
+                            easing: 'easeOutBounce'
+                        },
+                        interaction: {
+                            intersect: false,
+                            mode: 'point'
+                        },
+                        onHover: (event, activeElements, chart) => {
+                            event.native.target.style.cursor = activeElements.length > 0 ? 'pointer' : 'default';
+                        },
+                        onClick: (event, activeElements, chart) => {
+                            if (activeElements.length > 0) {
+                                const dataIndex = activeElements[0].index;
+                                const villageInfo = villageData[dataIndex];
+                                
+                                // แสดง modal หรือ alert ข้อมูลเพิ่มเติม
+                                Swal.fire({
+                                    title: villageInfo.villageName || `หมู่บ้านที่ ${villageInfo.villageNumber}`,
+                                    html: `
+                                        <div class="text-left">
+                                            <p><strong>ปริมาณขยะ:</strong> ${Math.round(villageInfo.totalQuantity).toLocaleString()} กิโลกรัม</p>
+                                            <p><strong>มูลค่ารวม:</strong> ฿${Math.round(villageInfo.totalAmount).toLocaleString()}</p>
+                                            <p><strong>จำนวนธุรกรรม:</strong> ${villageInfo.transactionCount.toLocaleString()} ครั้ง</p>
+                                            <p><strong>ราคาเฉลี่ย:</strong> ฿${Math.round(villageInfo.totalAmount / villageInfo.totalQuantity * 100) / 100} ต่อกก.</p>
+                                        </div>
+                                    `,
+                                    icon: 'info',
+                                    confirmButtonText: 'ตกลง',
+                                    confirmButtonColor: villageColors[dataIndex].replace('0.8)', '1)')
+                                });
+                            }
                         }
+                    },
+                    plugins: [threeDPiePlugin]
+                });
+
+                // เพิ่ม animation เมื่อ hover
+                villageCtx.addEventListener('mousemove', function(event) {
+                    const points = villageWasteChart.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true);
+                    if (points.length) {
+                        villageCtx.style.cursor = 'pointer';
+                    } else {
+                        villageCtx.style.cursor = 'default';
                     }
                 });
             }
 
-            // Price Trend Chart
+            // Price Trend Chart (ใช้โค้ดเดิม)
             const priceTrendCtx = document.getElementById('priceTrendChart');
             if (priceTrendCtx && priceTrends.length > 0) {
                 const months = [];
@@ -656,61 +748,44 @@
                 });
             }
 
-            // Event listeners
-            document.getElementById('refreshData').addEventListener('click', function() {
-                const originalText = this.innerHTML;
-                this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>กำลังโหลด...';
-                this.disabled = true;
-                
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
-            });
-
-            // Filter form enhancements
+            // Event listeners สำหรับ form filters
             const dateRangeSelect = document.getElementById('dateRange');
             const selectedDateInput = document.getElementById('selectedDate');
 
-            dateRangeSelect.addEventListener('change', function() {
-                if (this.value !== 'all') {
-                    selectedDateInput.value = '';
-                    selectedDateInput.disabled = true;
-                } else {
-                    selectedDateInput.disabled = false;
-                }
-            });
+            // ฟังก์ชันสำหรับจัดการการเปลี่ยนแปลง filter
+            function handleFilterChange() {
+                selectedDateInput.addEventListener('change', function() {
+                    if (this.value) {
+                        dateRangeSelect.value = 'all';
+                        dateRangeSelect.disabled = true;
+                    } else {
+                        dateRangeSelect.disabled = false;
+                    }
+                });
 
-            // Initialize form state
-            if (dateRangeSelect.value !== 'all') {
+                dateRangeSelect.addEventListener('change', function() {
+                    if (this.value !== 'all') {
+                        selectedDateInput.value = '';
+                        selectedDateInput.disabled = true;
+                    } else {
+                        selectedDateInput.disabled = false;
+                    }
+                });
+            }
+
+            handleFilterChange();
+
+            // ตั้งค่าเริ่มต้นของ form
+            const currentSelectedDate = selectedDateInput.value;
+            const currentDateRange = dateRangeSelect.value;
+            
+            if (currentSelectedDate) {
+                dateRangeSelect.disabled = true;
+            } else if (currentDateRange !== 'all') {
                 selectedDateInput.disabled = true;
             }
 
-            // Auto refresh every 5 minutes (if on 'all' filter)
-            const currentFilters = {
-                dateRange: '<%= currentFilters.dateRange %>',
-                village: '<%= currentFilters.village %>',
-                selectedDate: '<%= currentFilters.startDate %>'
-            };
-
-            if (currentFilters.dateRange === 'all' && !currentFilters.village) {
-                setInterval(function() {
-                    console.log('Auto refreshing dashboard data...');
-                    Swal.fire({
-                        title: 'อัพเดทข้อมูล',
-                        text: 'กำลังรีเฟรชข้อมูลอัตโนมัติ...',
-                        icon: 'info',
-                        timer: 2000,
-                        timerProgressBar: true,
-                        showConfirmButton: false,
-                        toast: true,
-                        position: 'top-end'
-                    }).then(() => {
-                        window.location.reload();
-                    });
-                }, 300000); // 5 นาที
-            }
-
-            // Animation for cards on load
+            // Animation สำหรับ cards เมื่อโหลดหน้า
             const cards = document.querySelectorAll('.hover\\:scale-105');
             cards.forEach((card, index) => {
                 card.style.opacity = '0';
@@ -723,29 +798,7 @@
                 }, index * 150);
             });
 
-            // Hover effect for table rows
-            const tableRows = document.querySelectorAll('tbody tr');
-            tableRows.forEach(row => {
-                row.addEventListener('mouseenter', function() {
-                    this.style.transform = 'scale(1.01)';
-                    this.style.transition = 'transform 0.2s ease';
-                });
-                
-                row.addEventListener('mouseleave', function() {
-                    this.style.transform = 'scale(1)';
-                });
-            });
-
-            // Keyboard shortcuts
-            document.addEventListener('keydown', function(e) {
-                // Ctrl/Cmd + R สำหรับ refresh
-                if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
-                    e.preventDefault();
-                    document.getElementById('refreshData').click();
-                }
-            });
-
-            console.log('Dashboard initialized successfully');
+            console.log('Dashboard with 3D charts initialized successfully');
         });
 
         // Utility functions
@@ -767,129 +820,218 @@
     </script>
 
     <style>
-        /* Custom CSS สำหรับ Dashboard */
-        .content {
-            transition: margin-left 0.3s ease;
-        }
-        
-        .hover\:scale-105:hover {
-            transform: scale(1.05);
-        }
-        
-        .animate-pulse {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: .5; }
-        }
-        
-        /* Custom scrollbar */
-        .overflow-x-auto::-webkit-scrollbar {
-            height: 6px;
-        }
-        
-        .overflow-x-auto::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 3px;
-        }
-        
-        .overflow-x-auto::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 3px;
-        }
-        
-        .overflow-x-auto::-webkit-scrollbar-thumb:hover {
-            background: #a1a1a1;
-        }
-        
-        /* Chart container styling */
-        canvas {
-            max-height: 100% !important;
-        }
-        
-        /* Responsive table */
-        @media (max-width: 768px) {
-            .overflow-x-auto table {
-                min-width: 600px;
-            }
-        }
-        
-        /* Loading animation */
-        .fa-spinner {
-            animation: fa-spin 1s infinite linear;
-        }
-        
-        @keyframes fa-spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* Card hover effects */
-        .transition-transform {
-            transition: transform 0.3s ease;
-        }
-        
-        /* Toast notifications positioning */
-        .swal2-top-end {
-            top: 20px !important;
-            right: 20px !important;
-        }
-
-        /* Filter form styling */
-        .filter-form {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        /* Disabled input styling */
-        input:disabled {
-            background-color: #f9fafb;
-            cursor: not-allowed;
-        }
-
-        /* Filter badges */
-        .filter-badge {
-            animation: fadeIn 0.3s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Table hover effect enhancement */
-        tbody tr:hover {
-            background-color: #f8fafc;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Chart loading placeholder */
-        .chart-placeholder {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 320px;
-            background: #f9fafb;
-            border-radius: 8px;
-            border: 2px dashed #d1d5db;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 640px) {
+            /* Custom CSS สำหรับ 3D Dashboard */
             .content {
-                padding: 0 16px;
+                transition: margin-left 0.3s ease;
             }
             
-            .mx-4 {
-                margin-left: 0;
-                margin-right: 0;
+            .hover\:scale-105:hover {
+                transform: scale(1.05);
             }
             
-            .grid-cols-1 {
-                grid-template-columns: 1fr;
+            .animate-pulse {
+                animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
             }
-        }
+            
+            @keyframes pulse {
+                0%, 100% { opacity: 1; }
+                50% { opacity: .5; }
+            }
+            
+            /* 3D Chart container enhancement */
+            canvas {
+                max-height: 100% !important;
+                transition: transform 0.3s ease;
+            }
+            
+            canvas:hover {
+                transform: perspective(1000px) rotateX(2deg) rotateY(2deg);
+            }
+            
+            /* Chart container with shadow */
+            .chart-container {
+                position: relative;
+                background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+                border-radius: 12px;
+                box-shadow: 
+                    0 10px 25px rgba(0, 0, 0, 0.1),
+                    0 4px 10px rgba(0, 0, 0, 0.05),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+                overflow: hidden;
+            }
+            
+            .chart-container::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+                z-index: 1;
+            }
+            
+            /* Enhanced card styling */
+            .stat-card {
+                position: relative;
+                background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+                border-radius: 16px;
+                box-shadow: 
+                    0 8px 32px rgba(0, 0, 0, 0.1),
+                    0 4px 16px rgba(0, 0, 0, 0.05);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                overflow: hidden;
+            }
+            
+            .stat-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: var(--accent-color, linear-gradient(90deg, #667eea 0%, #764ba2 100%));
+            }
+            
+            .stat-card:hover {
+                transform: translateY(-8px) scale(1.02);
+                box-shadow: 
+                    0 20px 40px rgba(0, 0, 0, 0.15),
+                    0 8px 24px rgba(0, 0, 0, 0.1);
+            }
+            
+            /* Custom scrollbar */
+            .overflow-x-auto::-webkit-scrollbar {
+                height: 8px;
+            }
+            
+            .overflow-x-auto::-webkit-scrollbar-track {
+                background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 100%);
+                border-radius: 4px;
+            }
+            
+            .overflow-x-auto::-webkit-scrollbar-thumb {
+                background: linear-gradient(90deg, #cbd5e1 0%, #94a3b8 100%);
+                border-radius: 4px;
+                transition: background 0.3s ease;
+            }
+            
+            .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+                background: linear-gradient(90deg, #94a3b8 0%, #64748b 100%);
+            }
+            
+            /* Loading animation enhancement */
+            .fa-spinner {
+                animation: fa-spin 1s infinite linear;
+            }
+            
+            @keyframes fa-spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+            
+            /* Filter form styling */
+            .filter-form {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border-radius: 12px;
+                box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+            }
+            
+            /* Disabled input styling */
+            input:disabled, select:disabled {
+                background: linear-gradient(145deg, #f1f5f9 0%, #e2e8f0 100%);
+                cursor: not-allowed;
+                opacity: 0.7;
+            }
+            
+            /* Filter badges with animation */
+            .filter-badge {
+                animation: slideInDown 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                background: linear-gradient(145deg, var(--badge-color, #3b82f6) 0%, var(--badge-color-dark, #1d4ed8) 100%);
+                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            }
+            
+            @keyframes slideInDown {
+                0% { 
+                    opacity: 0; 
+                    transform: translateY(-20px) scale(0.8);
+                }
+                100% { 
+                    opacity: 1; 
+                    transform: translateY(0) scale(1);
+                }
+            }
+            
+            /* Enhanced table hover effect */
+            tbody tr {
+                transition: all 0.3s ease;
+            }
+            
+            tbody tr:hover {
+                background: linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%);
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+                transform: translateX(4px);
+            }
+            
+            /* Chart loading placeholder enhancement */
+            .chart-placeholder {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 320px;
+                background: linear-gradient(145deg, #f9fafb 0%, #f1f5f9 100%);
+                border-radius: 12px;
+                border: 2px dashed #cbd5e1;
+                animation: breathe 3s ease-in-out infinite;
+            }
+            
+            @keyframes breathe {
+                0%, 100% { opacity: 0.7; }
+                50% { opacity: 1; }
+            }
+            
+            /* Tooltip enhancement */
+            .swal2-popup {
+                border-radius: 16px !important;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2) !important;
+            }
+            
+            /* Responsive enhancements */
+            @media (max-width: 768px) {
+                .stat-card:hover {
+                    transform: scale(1.01);
+                }
+                
+                canvas:hover {
+                    transform: none;
+                }
+                
+                .chart-container {
+                    margin: 0 8px;
+                }
+            }
+            
+            @media (max-width: 640px) {
+                .content {
+                    padding: 0 12px;
+                }
+                
+                .mx-4 {
+                    margin-left: 0;
+                    margin-right: 0;
+                }
+            }
+            
+            /* Progress bar animation */
+            @keyframes progressBar {
+                0% { width: 0%; }
+                100% { width: 100%; }
+            }
+            
+            .progress-bar {
+                animation: progressBar 2s ease-out;
+            }
     </style>
 </body>
 </html>
