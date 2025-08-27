@@ -15,6 +15,7 @@ router.delete('/mediaDelete/:id', adminController.mediaDelete);
 // ข่าวสาร
 router.get('/news', adminController.newsIndex);
 router.post('/newsPost', adminController.newsPost);
+router.post('/newsPostEdit/:id', adminController.newsEdit);
 router.delete('/deleteNews/:id', adminController.deleteNews);
 
 // กิจกรรม

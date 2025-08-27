@@ -117,54 +117,99 @@
             <div id="pagination" class="flex justify-center mt-4 space-x-2"></div>
             </div>
         </div>
+                    <!-- Modal -->
+                    <div id="modal" class="fixed top-0 left-0 w-full h-full z-50 bg-black bg-opacity-30 hidden">
+                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl px-4">
+                            <form action="/admin/newsPost" method="POST" enctype="multipart/form-data"
+                                class="bg-white rounded-xl shadow-lg p-6 space-y-5" id="newsForm">
 
-            <!-- Modal -->
-            <div id="modal" class="fixed top-0 left-0 w-full h-full z-50 bg-black bg-opacity-30 hidden">
-            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl px-4">
-                <form action="/admin/newsPost" method="POST" enctype="multipart/form-data"
-                    class="bg-white rounded-xl shadow-lg p-6 space-y-5" id="newsForm">
+                                <!-- หัวฟอร์ม -->
+                                <div class="flex items-center space-x-3 border-b pb-3">
+                                    <ion-icon name="information-circle-outline" class="text-blue-500 text-2xl"></ion-icon>
+                                    <span class="text-xl font-semibold text-gray-800">เพิ่มกิจกรรม/ข่าวสาร</span>
+                                </div>
 
-                    <!-- หัวฟอร์ม -->
-                    <div class="flex items-center space-x-3 border-b pb-3">
-                        <ion-icon name="information-circle-outline" class="text-blue-500 text-2xl"></ion-icon>
-                        <span class="text-xl font-semibold text-gray-800">เพิ่มกิจกรรม/ข่าวสาร</span>
+                                <!-- หัวข้อกิจกรรม -->
+                                <div>
+                                    <label for="newsTitle" class="block text-sm font-medium text-gray-700 mb-1">หัวข้อกิจกรรม</label>
+                                    <input type="text" name="newsTitle" id="newsTitle" required placeholder="ระบุหัวข้อกิจกรรม"
+                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
+                                </div>
+
+                                <!-- คำอธิบาย -->
+                                <div>
+                                    <label for="newsDescription" class="block text-sm font-medium text-gray-700 mb-1">คำอธิบาย</label>
+                                    <input type="text" name="newsDescription" id="newsDescription" required placeholder="คำอธิบาย"
+                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
+                                </div>
+
+                                <!-- ผู้เขียน -->
+                                <input type="hidden" name="newsAuthor" id="newsAuthor" value="<%= username %>" />
+
+                                <!-- อัปโหลด PDF -->
+                                <div>
+                                    <label for="newsFile" class="block text-sm font-medium text-gray-700 mb-1">รายละเอียดกิจกรรม (ไฟล์
+                                        PDF)</label>
+                                    <input type="file" name="newsFile" id="newsFile" accept=".pdf" required
+                                        class="block w-full text-sm text-slate-500 border border-gray-300 rounded-lg px-4 py-2 bg-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100" />
+                                </div>
+
+                                <!-- ปุ่ม -->
+                                <div class="flex justify-end space-x-3 pt-2">
+                                    <button type="button" onclick="closeModal()"
+                                        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition">ยกเลิก</button>
+                                    <button type="submit"
+                                        class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition">ยืนยัน</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
+        
 
-                    <!-- หัวข้อกิจกรรม -->
-                    <div>
-                        <label for="newsTitle" class="block text-sm font-medium text-gray-700 mb-1">หัวข้อกิจกรรม</label>
-                        <input type="text" name="newsTitle" id="newsTitle" required placeholder="ระบุหัวข้อกิจกรรม"
-                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
+                    <!-- Modal -->
+                    <div id="modalEdit" class="fixed top-0 left-0 w-full h-full z-50 bg-black bg-opacity-30 hidden">
+                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl px-4">
+                            <form action="/admin/newsEdit" id="newsEditForm" method="POST" enctype="multipart/form-data""
+                                class="bg-white rounded-xl shadow-lg p-6 space-y-5" id="newsEditForm">
+                    
+                                <!-- หัวฟอร์ม -->
+                                <div class="flex items-center space-x-3 border-b pb-3">
+                                    <ion-icon name="information-circle-outline" class="text-blue-500 text-2xl"></ion-icon>
+                                    <span class="text-xl font-semibold text-gray-800">แก้ไขกิจกรรม/ข่าวสาร</span>
+                                </div>
+                    
+                                <!-- หัวข้อกิจกรรม -->
+                                <div>
+                                    <label for="newsTitle" class="block text-sm font-medium text-gray-700 mb-1">หัวข้อกิจกรรม</label>
+                                    <input type="text" name="newsEditTitle" id="newsEditTitle" required placeholder="ระบุหัวข้อกิจกรรม"
+                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
+                                </div>
+                    
+                                <!-- คำอธิบาย -->
+                                <div>
+                                    <label for="newsEditDescription" class="block text-sm font-medium text-gray-700 mb-1">คำอธิบาย</label>
+                                    <input type="text" name="newsEditDescription" id="newsEditDescription" required placeholder="คำอธิบาย"
+                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
+                                </div>
+                    
+                                <!-- อัปโหลด PDF -->
+                                <div>
+                                    <label for="newsEditFile" class="block text-sm font-medium text-gray-700 mb-1">รายละเอียดกิจกรรม (ไฟล์
+                                        PDF)</label>
+                                    <input type="file" name="newsEditFile" id="newsEditFile" accept=".pdf"
+                                        class="block w-full text-sm text-slate-500 border border-gray-300 rounded-lg px-4 py-2 bg-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100" />
+                                </div>
+                    
+                                <!-- ปุ่ม -->
+                                <div class="flex justify-end space-x-3 pt-2">
+                                    <button type="button" onclick="closeModal()"
+                                        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition">ยกเลิก</button>
+                                    <button type="submit"
+                                        class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition">ยืนยัน</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-
-                    <!-- คำอธิบาย -->
-                    <div>
-                        <label for="newsDescription" class="block text-sm font-medium text-gray-700 mb-1">คำอธิบาย</label>
-                        <input type="text" name="newsDescription" id="newsDescription" required placeholder="คำอธิบาย"
-                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
-                    </div>
-
-                    <!-- ผู้เขียน -->
-                    <input type="hidden" name="newsAuthor" id="newsAuthor" value="<%= username %>" />
-
-                    <!-- อัปโหลด PDF -->
-                    <div>
-                        <label for="newsFile" class="block text-sm font-medium text-gray-700 mb-1">รายละเอียดกิจกรรม (ไฟล์ PDF)</label>
-                        <input type="file" name="newsFile" id="newsFile" accept=".pdf" required
-                            class="block w-full text-sm text-slate-500 border border-gray-300 rounded-lg px-4 py-2 bg-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100" />
-                    </div>
-
-                    <!-- ปุ่ม -->
-                    <div class="flex justify-end space-x-3 pt-2">
-                        <button type="button" onclick="closeModal()"
-                                class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition">ยกเลิก</button>
-                        <button type="submit"
-                                class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition">ยืนยัน</button>
-                    </div>
-
-                </form>
-            </div>
-        </div>
     </div>
 </body>
     <%- include('../partials/adminPartials/adminFooter.ejs') %>
@@ -180,6 +225,7 @@
         }
 
         const modal = document.getElementById('modal');
+        const modalEdit = document.getElementById('modalEdit');
 
         // ✅ เปิด Modal แบบใหม่
         function openModal() {
@@ -187,11 +233,23 @@
             // ล้างค่า input ถ้าต้องการ
             document.getElementById('newsForm')?.reset();
         }
+        function openEditModal(id, title, description, file) {
+            modalEdit.classList.remove('hidden');
+            document.getElementById('newsEditForm')?.reset();
+
+            document.getElementById('newsEditTitle').value = title;
+            document.getElementById('newsEditDescription').value = description;
+
+            // ตั้ง action ใหม่ให้ส่งไปที่ newsPostEdit/:id
+            document.getElementById('newsEditForm').action = `/admin/newsPostEdit/${id}`;
+        }
 
         // ✅ ปิด Modal แบบใหม่
         function closeModal() {
             modal.classList.add('hidden');
+            modalEdit.classList.add('hidden');
             document.getElementById('newsForm')?.reset();
+            document.getElementById('newsEditForm')?.reset();
         }
 
         // ✅ ฟังก์ชันลบข่าว/กิจกรรม
@@ -246,7 +304,7 @@
         const filtered = news.filter(item =>
             item.newsTitle.toLowerCase().includes(search) ||
             item.newsDescription.toLowerCase().includes(search) ||
-            item.newsAuthor.toLowerCase().includes(search)
+            (item.newsAuthor && item.newsAuthor.toLowerCase().includes(search))
         );
 
         // จำนวนทั้งหมด
@@ -268,7 +326,7 @@
             <td class="px-4 py-3 text-sm text-center">${formatDate(item.createdAt)}</td>
             <td class="px-4 py-3 text-sm text-center">${item.newsAuthor}</td>
             <td class="px-4 py-3 text-center">
-                <button onclick="openEditModal('${item._id}')" class="edit-btn mr-2">
+                <button onclick="openEditModal('${item._id}','${item.newsTitle}','${item.newsDescription}','${item.newsFile}')" class="edit-btn mr-2">
                 <i class="fa fa-edit"></i>
                 </button>
                 <button onclick="deleteNews('${item._id}', '${item.newsTitle}')" class="delete-btn">
@@ -294,11 +352,6 @@
         function goToPage(page) {
         currentPage = page;
         renderNews();
-        }
-
-        // ฟังก์ชันตัวอย่าง
-        function openEditModal(id) {
-        alert("แก้ไขข่าว ID: " + id);
         }
 
         // render ครั้งแรก

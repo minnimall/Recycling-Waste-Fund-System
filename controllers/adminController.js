@@ -618,23 +618,41 @@ const mediaEdit = (req, res) => {
 
 
 // ข่าวสาร
-const newsIndex = (req, res) => {
-    const filter = { isDeleted: false };
-    myNews.find(filter)
-        .then((result) => {
-                    result.forEach(item => {
-                        item.formattedDate = moment(item.createdAt).format('YYYY-MM-DD');
-                    });
-                    res.render('admin/news', { 
-                        mytitle: 'Admindashboard | News', 
-                        news: result,
-                        currentPage: 'news',
-                    });
-                })
-                .catch((err) => {
-                    console.log(err);
-                    res.status(500).send('Internal Server Error');
-                });
+const newsIndex = async (req, res) => {
+    try {
+        const filter = { isDeleted: false };
+
+        // ดึงข่าวทั้งหมด
+        const newsList = await myNews.find(filter);
+
+        // ดึง username ของผู้เขียนทั้งหมด
+        const adminUsernames = newsList.map(p => p.newsAuthor);
+
+        // หา admin ที่ตรงกับ username
+        const admins = await MyAdmin.find({ username: { $in: adminUsernames } });
+
+        // ทำเป็น map: { username: "Firstname Lastname" }
+        const adminMap = {};
+        admins.forEach(a => {
+            adminMap[a.username] = `${a.firstname} ${a.lastname}`;
+        });
+
+        // เขียนทับ newsAuthor เป็น fullname ไปเลย
+        newsList.forEach(item => {
+            item.newsAuthor = adminMap[item.newsAuthor] || item.newsAuthor;
+            item.formattedDate = moment(item.createdAt).format('YYYY-MM-DD');
+        });
+
+        res.render('admin/news', { 
+            mytitle: 'Admindashboard | News', 
+            news: newsList,
+            currentPage: 'news',
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+    }
 };
 
 
@@ -688,6 +706,62 @@ const newsPost = async (req, res) => {
         }
     });
 };
+const uploadNewsEdit = multer({
+    storage: storageNews,
+    limits: { fileSize: 50 * 1024 * 1024 },
+    fileFilter: function (req, file, cb) {
+        if (file.mimetype === 'application/pdf') {
+            cb(null, true);
+        } else {
+            cb(new Error('Only PDF files are allowed!'), false);
+        }
+    }
+}).single('newsEditFile');
+
+const newsEdit = async (req, res) => {
+    uploadNewsEdit(req, res, async (err) => {
+        if (err) {
+            console.error('Error uploading file:', err);
+            if (err instanceof multer.MulterError) {
+                return res.status(400).send({ error: 'File upload failed', details: err.message });
+            } else {
+                return res.status(400).send({ error: 'Invalid file type', details: err.message });
+            }
+        }
+
+        try {
+            const { newsEditTitle, newsEditDescription, newsEditAuthor } = req.body;
+            const newsId = req.params.id;
+
+            // หาไฟล์ใหม่ ถ้ามีอัปโหลดมา
+            const fileNews = req.file
+                ? `/uploads/news/PDF/${req.file.filename}`
+                : undefined; // ถ้าไม่ได้อัปโหลดใหม่ จะไม่แก้ไฟล์
+
+            // เตรียม object สำหรับอัปเดต
+            const updateData = {
+                newsTitle: newsEditTitle,
+                newsDescription: newsEditDescription,
+                newsAuthor: newsEditAuthor,
+            };
+
+            if (fileNews) updateData.newsFile = fileNews;
+
+            // อัปเดตข่าวสาร
+            const updatedNews = await myNews.findByIdAndUpdate(newsId, updateData, { new: true });
+
+            if (!updatedNews) {
+                return res.status(404).send({ error: 'News not found' });
+            }
+
+            res.redirect('/admin/news?message=แก้ไขข่าวสารสำเร็จ');
+        } catch (error) {
+            console.error('Error updating news:', error);
+            res.status(500).send({ error: 'Failed to update news', details: error.message });
+        }
+    });
+};
+
 const deleteNews = async (req, res) => {
     try {
         const { id } = req.params;
@@ -1980,7 +2054,7 @@ module.exports = {
     //สื่อ
     mediaIndex,mediaPost,mediaEdit,mediaDelete,
     //ข่าวสาร
-    newsIndex,newsPost,deleteNews,
+    newsIndex,newsPost,newsEdit,deleteNews,
     //กิจกรรม
     activityIndex,activityPost,activityEdit,deleteActivity,
     //ขยะ
