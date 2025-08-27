@@ -236,10 +236,16 @@ const wasteSaleRequestPost = (req, res) => {
                 }
 
                 const imagePath = req.file ? `/upload_imgWasteSaleRequest/${req.file.filename}` : '/img/no_image.jpg';
-                const { waste, weight, date, location } = req.body;
+                // เพิ่ม latitude และ longitude ในการรับค่าจาก req.body
+                const { waste, weight, date, location, latitude, longitude } = req.body;
 
                 if (!waste || waste.length === 0) {
                     res.redirect('/user/wasteSaleRequest?error=กรุณาเลือกขยะที่ต้องการขาย');
+                }
+
+                // ตรวจสอบว่ามีค่า latitude และ longitude หรือไม่
+                if (!latitude || !longitude) {
+                    res.redirect('/user/wasteSaleRequest?error=กรุณาเลือกตำแหน่งบนแผนที่');
                 }
 
                 // สร้างการแจ้งความประสงค์ขายขยะ
@@ -248,6 +254,8 @@ const wasteSaleRequestPost = (req, res) => {
                     weight: weight ? parseFloat(weight) : undefined, 
                     date: new Date(date),
                     location,
+                    latitude: parseFloat(latitude),  // เพิ่มค่า latitude
+                    longitude: parseFloat(longitude), // เพิ่มค่า longitude
                     img: imagePath,
                     family: family._id  // ใช้ _id ของ family ที่ค้นหามา
                 });

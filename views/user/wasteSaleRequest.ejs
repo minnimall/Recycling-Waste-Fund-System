@@ -6,7 +6,13 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
     <%- include('../partials/userPartials/head.ejs') %>
+
     <style>
         .select2-container--default .select2-selection--multiple {
             border: 1px solid #d1d5db;
@@ -31,6 +37,27 @@
             border: 1px solid #d1d5db;
             border-radius: 0.5rem;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        #search-results {
+            position: relative;
+            z-index: 1000;
+        }
+        
+        /* Map Styles */
+        #map {
+            height: 400px;
+            width: 100%;
+            border-radius: 0.5rem;
+            border: 1px solid #d1d5db;
+        }
+        
+        .coordinates-display {
+            background: linear-gradient(135deg, #059669, #047857);
+            color: white;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
         }
     </style>
 </head>
@@ -84,9 +111,6 @@
                         <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                             <h2 class="text-2xl font-bold">ฟอร์มกรอกข้อมูลเบื้องต้น</h2>
                             <div class="flex items-center gap-2">
-                                <!-- <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4m-6 0h6m-6 0V7a1 1 0 00-1 1v12a1 1 0 001 1h6a1 1 0 001-1V8a1 1 0 00-1-1H8z"></path>
-                                </svg> -->
                                 <p id="time" class="block text-white text-sm mb-2">วันที่ <span id="date-time"></span></p>
                             </div>
                         </div>
@@ -96,8 +120,10 @@
                     <div class="p-8">
                         <form id="waste-sale-form" action="/user/wasteSaleRequestPost" method="POST" enctype="multipart/form-data" class="space-y-6">
                             <input type="hidden" name="username" value="<%= session.username %>">
+                            <input type="hidden" name="latitude" id="latitude" value="">
+                            <input type="hidden" name="longitude" id="longitude" value="">
                             
-                            <!-- Waste Type Selection -->
+                            <!-- Waste Type -->
                             <div class="space-y-2">
                                 <label for="waste" class="block text-gray-700 font-semibold mb-2">
                                     <span class="flex items-center gap-2">
@@ -118,9 +144,6 @@
                             <div class="space-y-2">
                                 <label for="weight" class="block text-gray-700 font-semibold mb-2">
                                     <span class="flex items-center gap-2">
-                                        <!-- <svg class="w-5 h-5 text-primary-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16l3-1m-3 1l-3-1"></path>
-                                        </svg> -->
                                         น้ำหนัก (กิโลกรัม)
                                     </span>
                                 </label>
@@ -137,54 +160,92 @@
                             <div class="space-y-2">
                                 <label for="date" class="block text-gray-700 font-semibold mb-2">
                                     <span class="flex items-center gap-2">
-                                        <!-- <svg class="w-5 h-5 text-primary-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4m-6 0h6m-6 0V7a1 1 0 00-1 1v12a1 1 0 001 1h6a1 1 0 001-1V8a1 1 0 00-1-1H8z"></path>
-                                        </svg> -->
                                         วันที่ให้เข้ามารับซื้อ
                                     </span>
                                 </label>
                                 <input type="date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-primary-green transition-colors" id="date" name="date" required>
                             </div>
 
-                            <!-- Location Input -->
+                            <!-- Map Selection -->
+                            <div class="space-y-2">
+                                <label class="block text-gray-700 font-semibold mb-2">
+                                    <span class="flex items-center gap-2">
+                                        เลือกตำแหน่งที่จะให้เข้ามารับซื้อ
+                                    </span>
+                                </label>
+                                <p class="text-sm text-gray-600 mb-2">คลิกบนแผนที่เพื่อเลือกตำแหน่ง</p>
+                                
+                                <!-- Search Box and Current Location -->
+                                <div class="mb-4 space-y-3">
+                                    <div class="flex gap-3">
+                                        <div class="relative flex-1">
+                                            <input type="text" id="search-input" placeholder="ค้นหาสถานที่..." class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-primary-green transition-colors">
+                                            <svg class="absolute left-3 top-3.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                            </svg>
+                                        </div>
+                                        <button type="button" id="current-location-btn" class="px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors flex items-center gap-2 min-w-fit">
+                                            <svg id="location-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            </svg>
+                                            <span id="location-text" class="hidden sm:inline">ตำแหน่งปัจจุบัน</span>
+                                        </button>
+                                    </div>
+                                    <div id="search-results" class="hidden absolute z-50 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto"></div>
+                                </div>
+                                
+                                <div id="map" class="z-0"></div>
+                                
+                                <!-- Coordinates Display -->
+                                <div id="coordinates-display" class="coordinates-display" style="display: none;">
+                                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+                                        <div>
+                                            <strong>พิกัดที่เลือก:</strong>
+                                        </div>
+                                        <div class="text-sm">
+                                            <span class="bg-white bg-opacity-20 px-2 py-1 rounded">
+                                                ละติจูด: <span id="display-lat">-</span>
+                                            </span>
+                                            <span class="bg-white bg-opacity-20 px-2 py-1 rounded ml-2">
+                                                ลองติจูด: <span id="display-lng">-</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Additional Details Input -->
                             <div class="space-y-2">
                                 <label for="location" class="block text-gray-700 font-semibold mb-2">
                                     <span class="flex items-center gap-2">
-                                        <!-- <svg class="w-5 h-5 text-primary-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                        </svg> -->
-                                        พิกัดที่จะให้เข้ามารับซื้อ
+                                        รายละเอียดเพิ่มเติม
                                     </span>
                                 </label>
-                                <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-primary-green transition-colors" id="location" name="location" required placeholder="ระบุที่อยู่หรือพิกัดสำหรับรับซื้อ">
+                                <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-primary-green transition-colors" id="location" name="location" rows="3" placeholder="ระบุรายละเอียดเพิ่มเติม เช่น จุดสังเกต, ชื่อหมู่บ้าน, ซอย ถนน หรือข้อมูลที่จำเป็นสำหรับการเข้ามารับซื้อ"></textarea>
                             </div>
 
                             <!-- Image Upload -->
                             <div class="space-y-2">
                                 <label for="image" class="block text-gray-700 font-semibold mb-2">
                                     <span class="flex items-center gap-2">
-                                        <!-- <svg class="w-5 h-5 text-primary-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                        </svg> -->
                                         อัปโหลดรูปภาพขยะ
                                     </span>
                                 </label>
                                 <div class="relative">
                                     <input type="file" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-primary-green transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-green file:text-white hover:file:bg-green-600 cursor-pointer" id="image" name="image" accept="image/*">
                                 </div>
-                                <!-- <p class="text-sm text-gray-500">รองรับไฟล์ภาพ JPG, PNG, GIF ขนาดไม่เกิน 5MB</p> -->
                             </div>
 
                             <!-- Submit Button -->
                             <div class="flex flex-col sm:flex-row gap-4">
-                                <button type="submit" class="flex-1 bg-primary-green text-white py-3 px-6 rounded-lg font-semibold hover:bg-secondary-green transition-colors">
-                                    <!-- <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                                    </svg> -->
+                                <button type="submit" id="submit-btn" class="flex-1 bg-gray-400 text-white py-3 px-6 rounded-lg font-semibold cursor-not-allowed transition-colors" disabled>
                                     ส่งความประสงค์
                                 </button>
                             </div>
+                            
+                            <p class="text-sm text-red-500 text-center">
+                                * กรุณาเลือกตำแหน่งบนแผนที่ก่อนส่งฟอร์ม
+                            </p>
                         </form>
                     </div>
                 </div>
@@ -193,6 +254,7 @@
     </section>
 
     <%- include('../partials/userPartials/footer.ejs') %>
+
     <script>
         // แสดงวัน
         function updateTime() {
@@ -222,6 +284,281 @@
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('date').setAttribute('min', today);
         });
+
+        // Initialize Map
+        let map;
+        let marker;
+        let selectedLat = null;
+        let selectedLng = null;
+
+        function initializeMap() {
+            // set จุดเริ่มหน้าแมพเป็น อบต.ขามป้อม
+            const initialLat = 15.9493;
+            const initialLng = 102.8551;
+            
+            // Initialize map centered on อบต.ขามป้อม
+            map = L.map('map').setView([initialLat, initialLng], 13);
+
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 19
+            }).addTo(map);
+
+            // Add click event to map
+            map.on('click', function(e) {
+                const lat = e.latlng.lat;
+                const lng = e.latlng.lng;
+                
+                addMarkerAtLocation(lat, lng);
+            });
+
+            // Try to get user's current location (optional)
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    // Don't change the map view, just log the user's location
+                    console.log('User location:', position.coords.latitude, position.coords.longitude);
+                }, function(error) {
+                    console.log('Geolocation error:', error);
+                });
+            }
+        }
+
+        // Function to add marker at specific location
+        function addMarkerAtLocation(lat, lng) {
+            // Remove existing marker (only one marker allowed)
+            if (marker) {
+                map.removeLayer(marker);
+            }
+            
+            // Add new marker
+            marker = L.marker([lat, lng]).addTo(map);
+            
+            // Update coordinates
+            selectedLat = lat;
+            selectedLng = lng;
+            
+            // Update hidden inputs
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lng;
+            
+            // Update display
+            document.getElementById('display-lat').textContent = lat.toFixed(6);
+            document.getElementById('display-lng').textContent = lng.toFixed(6);
+            document.getElementById('coordinates-display').style.display = 'block';
+            
+            // Enable submit button
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+            submitBtn.classList.add('bg-primary-green', 'hover:bg-secondary-green');
+        }
+
+        // Search functionality
+        let searchTimeout;
+        document.getElementById('search-input').addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            const query = this.value.trim();
+            
+            if (query.length < 3) {
+                document.getElementById('search-results').classList.add('hidden');
+                return;
+            }
+            
+            searchTimeout = setTimeout(() => {
+                searchLocation(query);
+            }, 500);
+        });
+
+        function searchLocation(query) {
+            // Using Nominatim API for geocoding
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=th`;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    displaySearchResults(data);
+                })
+                .catch(error => {
+                    console.error('Search error:', error);
+                });
+        }
+
+        function displaySearchResults(results) {
+            const resultsContainer = document.getElementById('search-results');
+            resultsContainer.innerHTML = '';
+            
+            if (results.length === 0) {
+                resultsContainer.innerHTML = '<div class="p-3 text-gray-500">ไม่พบสถานที่ที่ค้นหา</div>';
+                resultsContainer.classList.remove('hidden');
+                return;
+            }
+            
+            results.forEach(result => {
+                const div = document.createElement('div');
+                div.className = 'p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-200 last:border-b-0';
+                div.innerHTML = `
+                    <div class="font-medium text-gray-900">${result.display_name}</div>
+                    <div class="text-sm text-gray-500">ละติจูด: ${parseFloat(result.lat).toFixed(6)}, ลองติจูด: ${parseFloat(result.lon).toFixed(6)}</div>
+                `;
+                
+                div.addEventListener('click', function() {
+                    const lat = parseFloat(result.lat);
+                    const lng = parseFloat(result.lon);
+                    
+                    // Move map to location and add marker
+                    map.setView([lat, lng], 16);
+                    addMarkerAtLocation(lat, lng);
+                    
+                    // Clear search
+                    document.getElementById('search-input').value = result.display_name.split(',')[0];
+                    resultsContainer.classList.add('hidden');
+                });
+                
+                resultsContainer.appendChild(div);
+            });
+            
+            resultsContainer.classList.remove('hidden');
+        }
+
+        // Current Location functionality
+        document.getElementById('current-location-btn').addEventListener('click', function() {
+            const button = this;
+            const icon = document.getElementById('location-icon');
+            const text = document.getElementById('location-text');
+            
+            // Check if geolocation is supported
+            if (!navigator.geolocation) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่รองรับ',
+                    text: 'เบราว์เซอร์ของคุณไม่รองรับการระบุตำแหน่ง',
+                    confirmButtonColor: '#059669'
+                });
+                return;
+            }
+            
+            // Show loading state
+            button.disabled = true;
+            button.classList.add('opacity-75');
+            icon.innerHTML = `<svg class="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>`;
+            text.textContent = 'กำลังค้นหา...';
+            
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    
+                    // Move map to user location and add marker
+                    map.setView([lat, lng], 16);
+                    addMarkerAtLocation(lat, lng);
+                    
+                    // Get address from coordinates
+                    reverseGeocode(lat, lng);
+                    
+                    // Reset button state
+                    resetLocationButton();
+                    
+                    // Show success message
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'สำเร็จ!',
+                        text: 'ใช้ตำแหน่งปัจจุบันของคุณแล้ว',
+                        timer: 2000,
+                        showConfirmButton: false,
+                        confirmButtonColor: '#059669'
+                    });
+                },
+                function(error) {
+                    resetLocationButton();
+                    
+                    let errorMessage = 'ไม่สามารถระบุตำแหน่งได้';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage = 'คุณได้ปฏิเสธการเข้าถึงตำแหน่ง กรุณาอนุญาตในเบราว์เซอร์';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage = 'ข้อมูลตำแหน่งไม่พร้อมใช้งาน';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage = 'หมดเวลาในการค้นหาตำแหน่ง';
+                            break;
+                    }
+                    
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ไม่สามารถระบุตำแหน่งได้',
+                        text: errorMessage,
+                        confirmButtonColor: '#059669'
+                    });
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 60000
+                }
+            );
+        });
+
+        function resetLocationButton() {
+            const button = document.getElementById('current-location-btn');
+            const icon = document.getElementById('location-icon');
+            const text = document.getElementById('location-text');
+            
+            button.disabled = false;
+            button.classList.remove('opacity-75');
+            icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>`;
+            text.textContent = 'ตำแหน่งปัจจุบัน';
+        }
+
+        function reverseGeocode(lat, lng) {
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&accept-language=th`;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.display_name) {
+                        // Update the search input with the address
+                        document.getElementById('search-input').value = data.display_name.split(',').slice(0, 3).join(', ');
+                    }
+                })
+                .catch(error => {
+                    console.error('Reverse geocoding error:', error);
+                });
+        }
+
+        // Hide search results when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('#search-input') && !e.target.closest('#search-results')) {
+                document.getElementById('search-results').classList.add('hidden');
+            }
+        });
+
+        // Initialize map when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeMap();
+        });
+
+        // Form validation
+        document.getElementById('waste-sale-form').addEventListener('submit', function(e) {
+            if (!selectedLat || !selectedLng) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'กรุณาเลือกตำแหน่ง',
+                    text: 'กรุณาคลิกบนแผนที่เพื่อเลือกตำแหน่งที่ต้องการให้เข้ามารับซื้อ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#059669'
+                });
+            }
+        });
+
+        // Custom styles for the color scheme
+        document.documentElement.style.setProperty('--primary-green', '#059669');
+        document.documentElement.style.setProperty('--secondary-green', '#047857');
     </script>
 </body>
 </html>

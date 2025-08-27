@@ -23,6 +23,14 @@ const wasteSaleRequestSchema = new Schema(
             type: String,
             required: true
         },
+        latitude: {          // เพิ่มฟิลด์ latitude
+            type: Number,
+            required: true
+        },
+        longitude: {         // เพิ่มฟิลด์ longitude
+            type: Number,
+            required: true
+        },
         img: {
             type: String,
             required: false
