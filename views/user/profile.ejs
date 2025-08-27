@@ -737,103 +737,128 @@
                         </div>
 
 
-                        <!-- Sales History Tab -->
                          <!-- Sales History Tab -->
-<div id="sales" class="tab-content hidden">
-    <div class="flex justify-between items-center mb-6">
-        <h3 class="text-xl font-semibold text-gray-800 mb-6">ประวัติการขายขยะ</h3>
-        <div class="flex space-x-2">
-            <select id="salesMonthFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-            </select>
-        </div>
-    </div>
-    
-    <div class="bg-white rounded-lg border overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-700">วันที่</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-700">ประเภทขยะ</th>
-                        <th class="px-4 py-3 text-right font-semibold text-gray-700">น้ำหนัก (กก.)</th>
-                        <th class="px-4 py-3 text-right font-semibold text-gray-700">ราคา/กก.</th>
-                        <th class="px-4 py-3 text-right font-semibold text-gray-700">รายได้</th>
-                    </tr>
-                </thead>
-                <tbody id="salesTableBody">
-                    <!-- JS จะเติมข้อมูลตรงนี้ -->
-                </tbody>
-                <tfoot class="bg-gray-50">
-                    <tr>
-                        <td colspan="4" class="px-4 py-3 font-semibold text-right">รวมทั้งหมด:</td>
-                        <td id="totalIncomeCell" class="px-4 py-3 font-bold text-right text-green-600">0.00 บาท</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-    </div>
-</div>
+                        <div id="sales" class="tab-content hidden">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="text-xl font-semibold text-gray-800 mb-6">ประวัติการขายขยะ</h3>
+                                <div class="flex space-x-2">
+                                    <select id="salesMonthFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                    </select>
+                                </div>
+                            </div>    
+                            <!-- Summary Cards -->
+                            <div class="grid md:grid-cols-2 gap-6 mb-6">
+
+                                <div class="bg-blue-50 rounded-lg p-4">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-blue-600 text-sm font-semibold">จำนวนครั้งที่ขาย</p>
+                                            <p class="text-2xl font-bold text-blue-700" id="wasteSaleCount">0 ครั้ง</p>
+                                        </div>
+                                        <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-chart-line text-white"></i>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            <div class="bg-purple-50 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-purple-600 text-sm font-semibold">น้ำหนักรวม</p>
+                                        <p class="text-2xl font-bold text-purple-700" id="totalWeightSales">0 กก.</p>
+                                    </div>
+                                    <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-weight text-white"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                            <div class="bg-white rounded-lg border overflow-hidden">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th class="px-4 py-3 text-left font-semibold text-gray-700">วันที่</th>
+                                                <th class="px-4 py-3 text-left font-semibold text-gray-700">ประเภทขยะ</th>
+                                                <th class="px-4 py-3 text-right font-semibold text-gray-700">น้ำหนัก (กก.)</th>
+                                                <th class="px-4 py-3 text-right font-semibold text-gray-700">ราคา/กก.</th>
+                                                <th class="px-4 py-3 text-right font-semibold text-gray-700">รายได้</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="salesTableBody">
+                                            <!-- JS จะเติมข้อมูลตรงนี้ -->
+                                        </tbody>
+                                        <tfoot class="bg-gray-50">
+                                            <tr>
+                                                <td colspan="4" class="px-4 py-3 font-semibold text-right">รวมทั้งหมด:</td>
+                                                <td id="totalIncomeCell" class="px-4 py-3 font-bold text-right text-green-600">0.00 บาท</td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
 
 
-<!-- Account Book Tab -->
-<div id="account" class="tab-content hidden">
-    <div class="flex justify-between items-center mb-6">
-        <h3 class="text-xl font-semibold text-gray-800">สมุดบัญชี</h3>
-        <div class="flex space-x-2">
-            <select id="accountMonthFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-            </select>
-        </div>
-    </div>
+                      <!-- Account Book Tab -->
+                      <div id="account" class="tab-content hidden">
+                          <div class="flex justify-between items-center mb-6">
+                              <h3 class="text-xl font-semibold text-gray-800">สมุดบัญชี</h3>
+                              <div class="flex space-x-2">
+                                  <select id="accountMonthFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                  </select>
+                              </div>
+                          </div>
 
-    <!-- Summary Cards -->
-    <div class="grid md:grid-cols-3 gap-6 mb-6">
-        <div class="bg-green-50 rounded-lg p-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-green-600 text-sm font-semibold">ยอดคงเหลือ (บาท)</p>
-                    <p class="text-2xl font-bold text-green-700" id="balanceCell">0.00 บาท</p>
-                </div>
-                <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
-                    <i class="fas fa-coins text-white"></i>
-                </div>
-            </div>
-        </div>
+                          <!-- Summary Cards -->
+                          <div class="grid md:grid-cols-3 gap-6 mb-6">
+                              <div class="bg-emerald-50 rounded-lg p-4">
+                                  <div class="flex items-center justify-between">
+                                      <div>
+                                          <p class="text-emerald-600 text-sm font-semibold">เลขบัญชี</p>
+                                          <p class="text-2xl font-bold text-green-700"><%= wasteBankAccount.AccountNumber %></p>
+                                      </div>
+                                      <div class="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center">
+                                          <i class="fas fa-users text-white"></i>
+                                      </div>
+                                  </div>
+                              </div>
+                              
+                              <div class="bg-green-50 rounded-lg p-4">
+                                  <div class="flex items-center justify-between">
+                                      <div>
+                                          <p class="text-green-600 text-sm font-semibold">ยอดคงเหลือ (บาท)</p>
+                                          <p class="text-2xl font-bold text-green-700" id="balanceCell">0.00 บาท</p>
+                                      </div>
+                                      <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+                                          <i class="fas fa-coins text-white"></i>
+                                      </div>
+                                  </div>
+                              </div>
 
-        <div class="bg-blue-50 rounded-lg p-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-blue-600 text-sm font-semibold">จำนวนครั้งที่ขาย</p>
-                    <p class="text-2xl font-bold text-blue-700" id="transactionCount">0 ครั้ง</p>
-                </div>
-                <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
-                    <i class="fas fa-chart-line text-white"></i>
-                </div>
-            </div>
-        </div>
+                              <div class="bg-blue-50 rounded-lg p-4">
+                                  <div class="flex items-center justify-between">
+                                      <div>
+                                          <p class="text-blue-600 text-sm font-semibold">จำนวนรายการธุรกรรม</p>
+                                          <p class="text-2xl font-bold text-blue-700" id="transactionCount">0 รายการ</p>
+                                      </div>
+                                      <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
+                                          <i class="fas fa-chart-line text-white"></i>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
 
-        <div class="bg-purple-50 rounded-lg p-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-purple-600 text-sm font-semibold">น้ำหนักรวม</p>
-                    <p class="text-2xl font-bold text-purple-700" id="totalWeight">0 กก.</p>
-                </div>
-                <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center">
-                    <i class="fas fa-weight text-white"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Transaction History -->
-    <div class="bg-white rounded-lg border overflow-hidden">
-        <div class="px-4 py-3 bg-gray-50 border-b">
-            <h4 class="font-semibold text-gray-800">รายการธุรกรรม</h4>
-        </div>
-        <div id="accountTransactions" class="divide-y">
-            <!-- JS จะเติมข้อมูลตรงนี้ -->
-        </div>
-    </div>
-</div>
+                          <!-- Transaction History -->
+                          <div class="bg-white rounded-lg border overflow-hidden">
+                              <div class="px-4 py-3 bg-gray-50 border-b">
+                                  <h4 class="font-semibold text-gray-800">รายการธุรกรรม</h4>
+                              </div>
+                              <div id="accountTransactions" class="divide-y">
+                                  <!-- JS จะเติมข้อมูลตรงนี้ -->
+                              </div>
+                          </div>
+                      </div>
                     </div>
                 </div>
             </div>
@@ -1386,7 +1411,6 @@ document.addEventListener("DOMContentLoaded", () => {
 const wastePurchases = <%- JSON.stringify(wastePurchases) %>;
 const statement = <%- JSON.stringify(statement) %>;
 let balance = <%= wasteBankAccount.Balance.toFixed(2) %>;
-let totalWasteItems = <%= totalWasteItems %>;
 const now = new Date();
 const monthNames = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
 
@@ -1416,7 +1440,10 @@ function renderSalesTable(filterMonth = '') {
     const tbody = document.getElementById('salesTableBody');
     tbody.innerHTML = '';
     let totalIncome = 0;
+    let totalTransactions = 0;
+    let totalWeight = 0;
 
+    // กรองข้อมูลตามเดือน
     const filtered = wastePurchases.filter(purchase => {
         if (!filterMonth) return true;
         const date = new Date(purchase.purchaseDate);
@@ -1426,34 +1453,44 @@ function renderSalesTable(filterMonth = '') {
     if(filtered.length === 0){
         tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-6 text-center text-gray-500">ไม่มีประวัติการขายขยะ</td></tr>`;
         document.getElementById('totalIncomeCell').textContent = '0.00 บาท';
+        document.getElementById('wasteSaleCount').textContent = '0 ครั้ง';
+        document.getElementById('totalWeightSales').textContent = '0 กก.';
         return;
     }
 
     filtered.forEach(purchase => {
         const items = purchase.wasteItems || [];
+        totalTransactions += items.length;
         items.forEach((item, index) => {
-            const income = (item.quantity || 0) * (item.pricePerUnit || 0);
+            const quantity = item.quantity || 0;
+            const price = item.pricePerUnit || 0;
+            const income = quantity * price;
             totalIncome += income;
+            totalWeight += quantity;
+
             tbody.innerHTML += `
                 <tr class="border-b hover:bg-gray-50">
                     ${index === 0 ? `<td class="px-4 py-3" rowspan="${items.length}">${new Date(purchase.purchaseDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' })}</td>` : ''}
                     <td class="px-4 py-3">${item.name || 'ไม่ระบุ'}</td>
-                    <td class="px-4 py-3 text-right">${(item.quantity || 0).toFixed(2)}</td>
-                    <td class="px-4 py-3 text-right">${(item.pricePerUnit || 0).toFixed(2)}</td>
+                    <td class="px-4 py-3 text-right">${quantity.toFixed(2)}</td>
+                    <td class="px-4 py-3 text-right">${price.toFixed(2)}</td>
                     <td class="px-4 py-3 text-right font-semibold text-green-600">${income.toFixed(2)}</td>
                 </tr>
             `;
         });
     });
 
+    // อัพเดต summary cards
     document.getElementById('totalIncomeCell').textContent = totalIncome.toFixed(2) + ' บาท';
+    document.getElementById('wasteSaleCount').textContent = totalTransactions + ' ครั้ง';
+    document.getElementById('totalWeightSales').textContent = totalWeight.toFixed(2) + ' กก.';
 }
 
 salesMonthFilter.addEventListener('change', e => {
     renderSalesTable(e.target.value === 'all' ? '' : e.target.value);
 });
 
-renderSalesTable(); // render default
+renderSalesTable();
 
 /* ==================== Account Book ==================== */
 const accountMonthFilter = document.getElementById('accountMonthFilter');
@@ -1476,7 +1513,7 @@ function renderAccountTable(filterMonth = '') {
     } else {
         filteredStatement.forEach(item => {
             transactionCount++;
-            if(item.wasteWeight) weightSum += item.wasteWeight; // สมมติมี key น้ำหนัก
+            if(item.wasteWeight) weightSum += item.wasteWeight;
 
             container.innerHTML += `
                 <div class="px-4 py-3 flex justify-between items-center">
@@ -1501,15 +1538,15 @@ function renderAccountTable(filterMonth = '') {
 
     // update summary cards
     document.getElementById('balanceCell').textContent = balance.toFixed(2) + ' บาท';
-    document.getElementById('transactionCount').textContent = transactionCount + ' ครั้ง';
-    document.getElementById('totalWeight').textContent = weightSum + ' กก.';
+    document.getElementById('transactionCount').textContent = transactionCount + ' รายการ';
+    document.getElementById('totalWeight').textContent = weightSum.toFixed(2) + ' กก.';
 }
 
 accountMonthFilter.addEventListener('change', e => {
     renderAccountTable(e.target.value === 'all' ? '' : e.target.value);
 });
 
-renderAccountTable(); // render default
+renderAccountTable();
 </script>
 
 </body>
