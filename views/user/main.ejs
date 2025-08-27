@@ -236,7 +236,7 @@
             </div>
 
             <!-- Price Update Info -->
-            <!-- <div class="mt-12 bg-white bg-opacity-10 rounded-lg p-6 px-4">
+            <div class="mt-12 bg-white bg-opacity-10 rounded-lg p-6 px-4">
                 <div class="flex flex-col md:flex-row items-center justify-between">
                     <div class="text-white mb-4 md:mb-0">
                         <h4 class="font-semibold mb-2">ข้อมูลราคา</h4>
@@ -250,7 +250,7 @@
                         </a>
                     </div>
                 </div>
-            </div> -->
+            </div>
         </div>
     </section>
 
@@ -334,51 +334,7 @@
                 <p class="text-gray-600">ข่าวสารและประกาศสำคัญจากองค์การบริหารส่วนตำบลขามป้อม</p>
             </div>
 
-            <div class="grid lg:grid-cols-3 gap-8 px-4">
-                <!-- Latest News -->
-                <div class="lg:col-span-2">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-xl font-semibold text-gray-800">ข่าวล่าสุด</h3>
-                        <a href="news.html" class="text-primary hover:text-primary-dark transition-colors">
-                            ดูทั้งหมด <i class="fas fa-arrow-right ml-1"></i>
-                        </a>
-                    </div>
-
-                    <div class="space-y-6">
-                        <!-- News Item 1 -->
-                        <% if (news.length = 4) { %>
-                            <% news.forEach((item, index) => { %>
-                        <div class="bg-gray-50 rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
-                            <div class="flex items-start space-x-4">
-                                <div class="flex-1">
-                                    <div class="flex items-center space-x-2 mb-2">
-                                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">ข้อมูล</span>
-                                        <span class="text-sm text-gray-500">วันที่: <%= item.createdAt ? new Date(item.createdAt).toLocaleDateString('th-TH') : 'ไม่ระบุ' %></span>
-                                    </div>
-                                    <h4 class="font-semibold text-gray-800 mb-2 hover:text-primary cursor-pointer">
-                                        <%= item.newsTitle %>
-                                    </h4>
-                                    <p class="text-gray-600 text-sm mb-3">
-                                        <%= item.newsDescription %>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                            <% }); %>
-                        <% } else { %>
-                            <div class="empty-state p-4 text-center">
-                                <div class="empty-icon mb-3">
-                                    <i class="fas fa-inbox fa-3x text-muted"></i>
-                                </div>
-                                <h6 class="text-muted"><%= item.newsTitle %></h6>
-                                <p class="small text-muted mb-0"><%= item.newsDescription %></p>
-                            </div>
-                        <% } %>
-
-                    </div>
-                </div>
-
+            <div class="grid lg:grid-cols-1 px-4">
                 <!-- Documents & PDFs -->
                 <div class="lg:col-span-1">
                     <div class="bg-gray-50 rounded-lg p-6">
@@ -397,6 +353,10 @@
                                         <i class="fas fa-file-pdf text-red-500"></i>
                                     </div>
                                     <div class="flex-1">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">ข้อมูล</span>
+                                            <span class="text-sm text-gray-500">วันที่: <%= item.createdAt ? new Date(item.createdAt).toLocaleDateString('th-TH') : 'ไม่ระบุ' %></span>
+                                        </div>
                                         <div class="w-full max-w-[320px]">
                                             <h4 class="font-semibold text-gray-800 text-sm mb-1 truncate"><%= item.newsTitle %></h4>
                                         </div>
@@ -417,11 +377,11 @@
                         </div>
 
                         <!-- View All Documents Button -->
-                        <div class="mt-6 text-center">
-                            <a href="documents.html" class="text-primary hover:text-primary-dark transition-colors text-sm">
+                        <!-- <div class="mt-6 text-center">
+                            <a href="/user/allActivity" class="bg-primary-gray bg-gray-600 text-white px-8 py-3 rounded-lg hover:bg-primary-dark transition-colors inline-flex items-center">
                                 ดูเอกสารทั้งหมด <i class="fas fa-arrow-right ml-1"></i>
                             </a>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>

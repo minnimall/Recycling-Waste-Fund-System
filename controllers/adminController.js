@@ -1138,7 +1138,7 @@ const wasteStockIndex = async (req, res) => {
 
         if (purchaseCount === 0) {
             console.log('No purchases found, returning empty data');
-            return res.render('admin/wasteStock', {
+            return res.render('employee/wasteStock', {
                 mytitle: 'สต๊อกขยะ',
                 stockData: [],
                 selectedVillageId: villageId,
@@ -1446,6 +1446,7 @@ const wasteStockIndex = async (req, res) => {
             selectedMonth: null,
             selectedYear: null,
             monthlyOptions: [],
+            currentPage: 'wasteStock',
             errorMessage: 'เกิดข้อผิดพลาดในการโหลดข้อมูล กรุณาลองใหม่อีกครั้ง'
         });
     }
