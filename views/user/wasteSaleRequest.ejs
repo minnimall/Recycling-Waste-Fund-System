@@ -198,6 +198,7 @@
                                 
                                 <!-- Coordinates Display -->
                                 <div id="coordinates-display" class="coordinates-display" style="display: none;">
+
                                     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
                                         <div>
                                             <strong>พิกัดที่เลือก:</strong>
@@ -211,17 +212,34 @@
                                             </span>
                                         </div>
                                     </div>
+                                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mt-3">
+                                        <div>
+                                            <strong>รายละเอียดสถานที่:</strong>
+                                        </div>
+                                        <div class="text-sm">
+                                            <div class="bg-white bg-opacity-20 px-2 py-1 rounded">
+                                                <span id="display-location">-</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
                             <!-- Additional Details Input -->
+                            <input class="hidden" id="location" name="location">
                             <div class="space-y-2">
-                                <label for="location" class="block text-gray-700 font-semibold mb-2">
+                                <label for="locationMoreDetail" class="block text-gray-700 font-semibold mb-2">
                                     <span class="flex items-center gap-2">
                                         รายละเอียดเพิ่มเติม
                                     </span>
                                 </label>
-                                <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-primary-green transition-colors" id="location" name="location" rows="3" placeholder="ระบุรายละเอียดเพิ่มเติม เช่น จุดสังเกต, ชื่อหมู่บ้าน, ซอย ถนน หรือข้อมูลที่จำเป็นสำหรับการเข้ามารับซื้อ"></textarea>
+                                <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-primary-green transition-colors" id="locationMoreDetail" name="locationMoreDetail" rows="3" placeholder="ระบุรายละเอียดเพิ่มเติม เช่น จุดสังเกต, ชื่อหมู่บ้าน, ซอย ถนน หรือข้อมูลที่จำเป็นสำหรับการเข้ามารับซื้อ"></textarea>
+                                <p class="text-sm text-red-500 flex items-center gap-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                    </svg>
+                                    * สามารถระบุหรือไม่ระบุก็ได้
+                                </p>
                             </div>
 
                             <!-- Image Upload -->
@@ -325,7 +343,7 @@
         }
 
         // Function to add marker at specific location
-        function addMarkerAtLocation(lat, lng) {
+        async function addMarkerAtLocation(lat, lng) {
             // Remove existing marker (only one marker allowed)
             if (marker) {
                 map.removeLayer(marker);
@@ -346,6 +364,11 @@
             document.getElementById('display-lat').textContent = lat.toFixed(6);
             document.getElementById('display-lng').textContent = lng.toFixed(6);
             document.getElementById('coordinates-display').style.display = 'block';
+
+            const address = await getAddressFromLatLng(lat, lng);
+            document.getElementById('search-input').value = address;
+            document.getElementById('location').value = address;
+            document.getElementById("display-location").innerHTML = address;
             
             // Enable submit button
             const submitBtn = document.getElementById('submit-btn');
@@ -383,6 +406,13 @@
                     console.error('Search error:', error);
                 });
         }
+        // ฟังก์ชันดึงที่อยู่จาก lat,lng
+        async function getAddressFromLatLng(lat, lng) {
+            const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=th&limit=5&countrycodes=th`;
+            const response = await fetch(url);
+            const data = await response.json();
+            return data.display_name || `${lat}, ${lng}`;
+        }
 
         function displaySearchResults(results) {
             const resultsContainer = document.getElementById('search-results');
@@ -402,7 +432,7 @@
                     <div class="text-sm text-gray-500">ละติจูด: ${parseFloat(result.lat).toFixed(6)}, ลองติจูด: ${parseFloat(result.lon).toFixed(6)}</div>
                 `;
                 
-                div.addEventListener('click', function() {
+                div.addEventListener('click',async function() {
                     const lat = parseFloat(result.lat);
                     const lng = parseFloat(result.lon);
                     
@@ -410,8 +440,11 @@
                     map.setView([lat, lng], 16);
                     addMarkerAtLocation(lat, lng);
                     
+                    const address = await getAddressFromLatLng(lat, lng);
+                    document.getElementById("display-location").innerHTML = address;
                     // Clear search
-                    document.getElementById('search-input').value = result.display_name.split(',')[0];
+                    // document.getElementById('search-input').value = result.display_name.split(',')[0];
+                    document.getElementById('search-input').value = address;
                     resultsContainer.classList.add('hidden');
                 });
                 
@@ -522,7 +555,7 @@
                 .then(data => {
                     if (data && data.display_name) {
                         // Update the search input with the address
-                        document.getElementById('search-input').value = data.display_name.split(',').slice(0, 3).join(', ');
+                        // document.getElementById('search-input').value = data.display_name.split(',').slice(0, 3).join(', ');
                     }
                 })
                 .catch(error => {

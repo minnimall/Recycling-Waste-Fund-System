@@ -237,7 +237,7 @@ const wasteSaleRequestPost = (req, res) => {
 
                 const imagePath = req.file ? `/upload_imgWasteSaleRequest/${req.file.filename}` : '/img/no_image.jpg';
                 // เพิ่ม latitude และ longitude ในการรับค่าจาก req.body
-                const { waste, weight, date, location, latitude, longitude } = req.body;
+                const { waste, weight, date, location, latitude, longitude, locationMoreDetail } = req.body;
 
                 if (!waste || waste.length === 0) {
                     res.redirect('/user/wasteSaleRequest?error=กรุณาเลือกขยะที่ต้องการขาย');
@@ -254,6 +254,7 @@ const wasteSaleRequestPost = (req, res) => {
                     weight: weight ? parseFloat(weight) : undefined, 
                     date: new Date(date),
                     location,
+                    locationMoreDetail: locationMoreDetail || '',
                     latitude: parseFloat(latitude),  // เพิ่มค่า latitude
                     longitude: parseFloat(longitude), // เพิ่มค่า longitude
                     img: imagePath,
