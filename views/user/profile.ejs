@@ -323,13 +323,27 @@
                                                 <h4 class="font-semibold text-gray-800 py-4">แจ้งขายขยะรีไซเคิล</h4>
                                                 <p class="text-sm text-gray-600">วันที่ <%= request.createdAt.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) %> เวลา 14:30</p>
                                             </div>
-                                        <% if (request.status === 'สำเร็จ') { %> 
-                                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">เสร็จสิ้น</span>
-                                        <% } else if (request.status === 'รอดำเนินการ') { %>
-                                            <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm">รอดำเนินการ</span>
-                                        <% } else { %> 
-                                            <!-- <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm">error</span> -->
-                                        <% } %>
+                                        <!-- Reference ID -->
+                                                    <div class="mt-3 md:mt-0">
+                                                        <!-- Status Badge -->
+                                                            <span class="px-3 py-1 rounded-full text-sm font-medium
+                                                                <% if (request.status === 'pending') { %>
+                                                                    bg-yellow-100 text-yellow-800
+                                                                <% } else if (request.status === 'in-progress') { %>
+                                                                    bg-blue-100 text-blue-800
+                                                                <% } else if (request.status === 'resolved') { %>
+                                                                    bg-green-100 text-green-800
+                                                                <% } %>
+                                                            ">
+                                                                <% if (request.status === 'pending') { %>
+                                                                    <i class="fas fa-clock mr-1"></i>รอดำเนินการ
+                                                                <% } else if (request.status === 'in-progress') { %>
+                                                                    <i class="fas fa-cog mr-1"></i>กำลังดำเนินการ
+                                                                <% } else if (request.status === 'resolved') { %>
+                                                                    <i class="fas fa-check-circle mr-1"></i>เสร็จสิ้น
+                                                                <% } %>
+                                                            </span>
+                                                    </div>
                                         </div>
                                         <div class="grid md:grid-cols-2 gap-4 text-sm">
                                             <div>

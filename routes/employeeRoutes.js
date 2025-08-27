@@ -23,6 +23,7 @@ router.patch('/complaint/:id/status', employeeController.updateComplaintStatus);
 
 // ตรวจสอบความประสงค์ขายขยะ
 router.get('/wasteSaleRequest', employeeController.wasteSaleRequestIndex);
+router.put('/wasteSaleRequest/:id/status',  employeeController.updateWasteSaleRequestStatus);
 
 // สต๊อกขยะ
 router.get('/wasteStock', employeeController.wasteStockIndex);

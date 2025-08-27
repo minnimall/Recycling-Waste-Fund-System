@@ -109,7 +109,7 @@
                 <% if (complaint.length > 0) { %>
                     <% complaint.forEach(com => { %>
                         <div class="complaint-item border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-300" 
-                             data-status="<%= com.status %>" data-id="<%= com._id %>" data-family="<%= com.family.familyName %>">
+                            data-status="<%= com.status %>" data-id="<%= com._id %>" data-family="<%= com.family.familyName %>">
                             <div class="flex flex-col md:flex-row">
                                 <div class="flex-grow p-5">
                                     <div class="flex flex-col md:flex-row md:items-center justify-between">
@@ -398,13 +398,16 @@
                     const complaintItem = document.querySelector(`[data-id="${id}"]`);
                     complaintItem.setAttribute('data-status', status);
 
+                    // แสดงข้อความสำเร็จ
                     Swal.fire({
-                        toast: true,
-                        position: 'top-end',
                         icon: 'success',
-                        title: 'อัปเดตสถานะสำเร็จ',
-                        showConfirmButton: false,
-                        timer: 2000
+                        title: 'สำเร็จ!',
+                        text: result.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // รีโหลดหน้าเพื่อแสดงสถานะใหม่
+                        window.location.reload();
                     });
                 } else {
                     throw new Error(result.error || 'เกิดข้อผิดพลาด');

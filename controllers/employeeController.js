@@ -1014,7 +1014,7 @@ const updateComplaintStatus = async (req, res) => {
             return res.status(404).json({ error: 'ไม่พบคำร้อง' });
         }
 
-        res.json({ success: true, complaint });
+        res.json({ success: true, complaint, message: 'อัปเดตสถานะเรียบร้อยแล้ว'});
     } catch (error) {
         console.error('Error updating complaint status:', error);
         res.status(500).json({ error: 'เกิดข้อผิดพลาดในการอัปเดตสถานะ' });
@@ -1025,10 +1025,20 @@ const updateComplaintStatus = async (req, res) => {
 const wasteSaleRequestIndex = async (req, res) => {
     try {
         const wasteSaleRequests = await wasteSaleRequest
-            .find()
+            .find({ isDeleted: { $ne: true } }) // เพิ่มเงื่อนไขไม่แสดงรายการที่ถูกลบ
             .populate('waste') // ดึงข้อมูลขยะจาก ObjectId
-            .populate('family')
-            .sort({ date: -1 });
+            .populate('family') // ดึงข้อมูลครอบครัว
+            .sort({ createdAt: -1 }); // เรียงตามวันที่สร้างล่าสุด
+
+        console.log('Fetched requests:', wasteSaleRequests.length); // Debug log
+        
+        // Debug log เพื่อดูข้อมูลที่ดึงมา
+        if (wasteSaleRequests.length > 0) {
+            console.log('Sample request coordinates:', {
+                latitude: wasteSaleRequests[0].latitude,
+                longitude: wasteSaleRequests[0].longitude
+            });
+        }
 
         res.render('employee/wasteSaleRequest', {
             mytitle: 'รายการความประสงค์ขายขยะ',
@@ -1040,7 +1050,51 @@ const wasteSaleRequestIndex = async (req, res) => {
         res.render('employee/wasteSaleRequest', {
             mytitle: 'รายการความประสงค์ขายขยะ',
             wasteSaleRequests: [],
+            currentPage: 'wasteSaleRequest',
             error: 'ไม่สามารถโหลดข้อมูลได้'
+        });
+    }
+};
+
+// Controller สำหรับอัปเดตสถานะ
+const updateWasteSaleRequestStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        // ตรวจสอบ status ที่อนุญาต
+        const allowedStatuses = ['pending', 'in-progress', 'resolved'];
+        if (!allowedStatuses.includes(status)) {
+            return res.status(400).json({ 
+                error: 'สถานะไม่ถูกต้อง', 
+                allowedStatuses 
+            });
+        }
+
+        const wastesalerequest = await wasteSaleRequest
+            .findByIdAndUpdate(
+                id,
+                { status },
+                { new: true }
+            )
+            .populate('waste')
+            .populate('family');
+
+        if (!wastesalerequest) {
+            return res.status(404).json({ error: 'ไม่พบรายการความประสงค์ขายขยะ' });
+        }
+
+        // ส่งข้อมูลกลับเป็น JSON สำหรับ AJAX
+        res.json({ 
+            success: true, 
+            wastesalerequest,
+            message: 'อัปเดตสถานะเรียบร้อยแล้ว'
+        });
+    } catch (error) {
+        console.error('Error updating waste sale request status:', error);
+        res.status(500).json({ 
+            error: 'เกิดข้อผิดพลาดในการอัปเดตสถานะ',
+            details: error.message 
         });
     }
 };
@@ -1562,7 +1616,7 @@ module.exports = {
     //หน้าคำร้องหรือหรือข้อร้องเรียน
     complaintIndex,updateComplaintStatus,
     //หน้าตรวจสอบความประสงค์ขายขยะ
-    wasteSaleRequestIndex,
+    wasteSaleRequestIndex,updateWasteSaleRequestStatus,
     //หน้าสต๊อกขยะ
     wasteStockIndex,
     //หน้าเบิกถอน

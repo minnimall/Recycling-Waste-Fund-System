@@ -14,6 +14,7 @@
 <body>
     <%- include('../partials/employeePartials/empHeader.ejs') %>
     <%- include('../partials/employeePartials/empSidebar.ejs') %>
+    
     <script>
         // เช็คข้อความที่ส่งมาจาก URL
         const urlParams = new URLSearchParams(window.location.search);
@@ -26,7 +27,7 @@
                 title: 'สำเร็จ!',
                 text: successMessage,
                 confirmButtonText: 'ตกลง',
-                confirmButtonColor: '#28a745', // สีเขียวสำหรับความสำเร็จ
+                confirmButtonColor: '#28a745',
                 timer: 3000
             });
         }
@@ -61,16 +62,16 @@
                 <div class="flex items-center">
                     <span class="text-gray-700 font-medium mr-3">สถานะ:</span>
                     <div class="flex space-x-2">
-                        <button class="px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-700 transition-colors">
+                        <button id="filter-all" class="filter-btn px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-600 transition-colors active">
                             ทั้งหมด (<%= wasteSaleRequests.length %>)
                         </button>
-                        <button class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
-                            ใหม่
+                        <button id="filter-pending" class="filter-btn px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                            รอดำเนินการ
                         </button>
-                        <button class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                        <button id="filter-in-progress" class="filter-btn px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
                             กำลังดำเนินการ
                         </button>
-                        <button class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                        <button id="filter-resolved" class="filter-btn px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
                             เสร็จสิ้น
                         </button>
                     </div>
@@ -78,7 +79,7 @@
                 
                 <div class="w-full md:w-auto">
                     <div class="relative">
-                        <input type="text" placeholder="ค้นหารายการ..." class="w-full md:w-80 px-4 py-2 pl-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <input type="text" id="search-input" placeholder="ค้นหารายการ..." class="w-full md:w-80 px-4 py-2 pl-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
@@ -93,19 +94,14 @@
                 <h2 class="text-base font-semibold text-gray-800">
                     รายการทั้งหมด <span class="text-blue-600 text-base font-normal"><%= wasteSaleRequests.length %> รายการ</span>
                 </h2>
-                <div class="flex items-center space-x-2">
-                    <span class="text-gray-600">เรียงตาม:</span>
-                    <select class="px-3 py-2 border border-gray-300 rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="newest">ล่าสุด</option>
-                        <option value="oldest">เก่าสุด</option>
-                        <option value="status">สถานะ</option>
-                    </select>
-                </div>
             </div>
+            
             <div class="space-y-4">
                 <% if (wasteSaleRequests.length > 0) { %>
                     <% wasteSaleRequests.forEach(request => { %>
-                        <div class="border border-gray-200 p-4 rounded-lg shadow-sm bg-white hover:bg-gray-50 card-transition relative">
+                        <div class="border border-gray-200 p-4 rounded-lg shadow-sm bg-white  relative" 
+                             data-status="<%= request.status %>" 
+                             data-search="<%= request.family.familyName %> <%= request.location %> <%= request.waste.map(w => w.wasteName).join(' ') %>">
                             <div class="flex flex-col md:flex-row md:items-center justify-between">
                                 <div class="mb-3 md:mb-0">
                                     <div class="flex items-center mb-2">
@@ -113,6 +109,32 @@
                                         <h2 class="text-xl font-semibold text-gray-700">
                                             <%= request.family.familyName %>
                                         </h2>
+                                        
+                                        <!-- Status Badge -->
+                                        <% 
+                                        let statusClass = '';
+                                        let statusText = '';
+                                        switch(request.status) {
+                                            case 'pending':
+                                                statusClass = 'bg-yellow-500';
+                                                statusText = 'รอดำเนินการ';
+                                                break;
+                                            case 'in-progress':
+                                                statusClass = 'bg-blue-500';
+                                                statusText = 'กำลังดำเนินการ';
+                                                break;
+                                            case 'resolved':
+                                                statusClass = 'bg-green-500';
+                                                statusText = 'เสร็จสิ้น';
+                                                break;
+                                            default:
+                                                statusClass = 'bg-gray-500';
+                                                statusText = 'ไม่ระบุ';
+                                        }
+                                        %>
+                                        <span class="ml-2 px-2 py-1 rounded-full text-xs text-white <%= statusClass %>">
+                                            <%= statusText %>
+                                        </span>
                                     </div>
                                     
                                     <div class="flex flex-wrap items-center text-sm text-gray-600">
@@ -127,27 +149,55 @@
                                         </div>
                                     </div>
 
-                                    
                                     <div class="flex flex-wrap items-center text-sm text-gray-600">
                                         <span>รายการขาย : </span>
-                                        <% request.waste.forEach(w => { %>
-                                            <span><%= w.wasteName %>,</span>
+                                        <% request.waste.forEach((w, index) => { %>
+                                            <span><%= w.wasteName %><%= index < request.waste.length - 1 ? ', ' : '' %></span>
                                         <% }) %>
                                     </div>
-                                    
                                 </div>
                                 
-                                <div class="flex items-center">
-                                    <button onclick="openModal('<%= request._id %>')" class="btn-primary px-4 py-2 rounded-lg flex items-center">
-                                        <i class="fas fa-eye mr-2"></i>
+                                <div class="flex items-center space-x-2">
+                                    <!-- ปุ่มเปลี่ยนสถานะ -->
+                                    <div class="relative">
+                                        <button id="statusBtn-<%= request._id %>" 
+                                                class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
+                                                onclick="toggleStatusMenu('<%= request._id %>')">
+                                            <i class="fas fa-edit mr-2"></i>
+                                            เปลี่ยนสถานะ
+                                            <i class="fas fa-chevron-down ml-2"></i>
+                                        </button>
+                                        
+                                        <!-- Dropdown Menu -->
+                                        <div id="statusMenu-<%= request._id %>" 
+                                            class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50 hidden">
+                                            <div class="py-1">
+                                                <button onclick="updateStatus('<%= request._id %>', 'pending')" 
+                                                        class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                    <i class="fas fa-clock text-yellow-500 mr-2"></i>
+                                                    รอดำเนินการ
+                                                </button>
+                                                <button onclick="updateStatus('<%= request._id %>', 'in-progress')" 
+                                                        class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                    <i class="fas fa-spinner text-blue-500 mr-2"></i>
+                                                    กำลังดำเนินการ
+                                                </button>
+                                                <button onclick="updateStatus('<%= request._id %>', 'resolved')" 
+                                                        class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                    <i class="fas fa-check text-green-500 mr-2"></i>
+                                                    เสร็จสิ้น
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <button onclick="openModal('<%= request._id %>')" 
+                                        class="px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-600 transition-colors flex items-center">
+                                        <!-- <i class="fas fa-eye mr-2"></i> -->
                                         ดูรายละเอียด
                                     </button>
                                 </div>
                             </div>
-                            
-                            <% if (request.status === 'new') { %>
-                                <div class="badge bg-green-500 text-white">ใหม่</div>
-                            <% } %>
                         </div>
                         
                         <!-- Modal -->
@@ -196,6 +246,26 @@
                                                     <i class="fas fa-weight text-blue-500 mr-2"></i>
                                                     <%= request.weight %> กิโลกรัม
                                                 </p>
+                                            </div>
+                                            
+                                            <!-- พิกัดที่ตั้ง -->
+                                            <div class="mb-4">
+                                                <h4 class="text-sm text-gray-500 mb-1">พิกัดที่ตั้ง (Latitude, Longitude)</h4>
+                                                <p class="text-lg font-semibold flex items-center">
+                                                    <i class="fas fa-map-pin text-red-500 mr-2"></i>
+                                                    <%= request.latitude %>, <%= request.longitude %>
+                                                </p>
+                                            </div>
+                                            
+                                            <!-- Google Maps Link -->
+                                            <div class="mb-4">
+                                                <h4 class="text-sm text-gray-500 mb-1">ดูใน Google Maps</h4>
+                                                <a href="https://www.google.com/maps?q=<%= request.latitude %>,<%= request.longitude %>" 
+                                                   target="_blank" 
+                                                   class="text-blue-600 hover:text-blue-800 flex items-center">
+                                                    <i class="fas fa-external-link-alt mr-2"></i>
+                                                    เปิดแผนที่
+                                                </a>
                                             </div>
                                         </div>
                                         
@@ -256,7 +326,7 @@
                         </div>
                     <% }) %>
                 <% } else { %>
-                    <div class="empty-state">
+                    <div class="empty-state text-center py-8">
                         <i class="fas fa-clipboard-list text-gray-300 text-5xl mb-4"></i>
                         <h3 class="text-xl font-medium text-gray-500">ไม่พบรายการความประสงค์ขายขยะ</h3>
                         <p class="text-gray-400 mt-2">กรุณาเพิ่มรายการใหม่เพื่อแสดงที่นี่</p>
@@ -265,217 +335,11 @@
             </div>
         </div>
     </div>
-
-    <main class="container mx-auto mt-5">
-        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-4 border-b border-gray-200">
-                <div>
-                    <h2 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
-                        <!-- <i class="fas fa-clipboard-list text-green-600 mr-3"></i> -->
-                        รายการความประสงค์ขายขยะ
-                    </h2>
-                    <p class="text-gray-600 mt-1">ทั้งหมด <%= wasteSaleRequests.length %> รายการ</p>
-                </div>
-                
-                <div class="mt-4 md:mt-0 w-full md:w-auto">
-                    <div class="relative">
-                        <input type="text" placeholder="ค้นหารายการ..." class="w-full md:w-64 px-4 py-2 pr-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                        <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="space-y-4">
-                <% if (wasteSaleRequests.length > 0) { %>
-                    <% wasteSaleRequests.forEach(request => { %>
-                        <div class="border border-gray-200 p-4 rounded-lg shadow-sm bg-white hover:bg-gray-50 card-transition relative">
-                            <div class="flex flex-col md:flex-row md:items-center justify-between">
-                                <div class="mb-3 md:mb-0">
-                                    <div class="flex items-center mb-2">
-                                        <i class="fas fa-user-circle text-gray-600 mr-2 text-xl"></i>
-                                        <h2 class="text-xl font-semibold text-gray-700">
-                                            <%= request.family.familyName %>
-                                        </h2>
-                                    </div>
-                                    
-                                    <div class="flex flex-wrap items-center text-sm text-gray-600">
-                                        <div class="flex items-center mr-4 mb-2 md:mb-0">
-                                            <i class="far fa-calendar-alt mr-1"></i> 
-                                            <span>วันให้เข้ารับซื้อ : <%= request.date.toISOString().split('T')[0] %></span>
-                                        </div>
-                                        
-                                        <div class="flex items-center mr-4 mb-2 md:mb-0">
-                                            <i class="fas fa-map-marker-alt mr-1"></i>
-                                            <span>พิกัด : <%= request.location %></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="flex items-center">
-                                    <button onclick="openModal('<%= request._id %>')" class="btn-primary px-4 py-2 rounded-lg flex items-center">
-                                        <i class="fas fa-eye mr-2"></i>
-                                        ดูรายละเอียด
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <% if (request.status === 'new') { %>
-                                <div class="badge bg-green-500 text-white">ใหม่</div>
-                            <% } %>
-                        </div>
-                        
-                        <!-- Modal -->
-                        <div id="modal-<%= request._id %>" class="fixed inset-0 hidden z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
-                            <div class="bg-white rounded-lg shadow-lg w-11/12 md:w-2/3 lg:w-1/2 xl:w-2/5 modal-transition modal-content">
-                                <div class="flex justify-between items-center p-4 border-b border-gray-200">
-                                    <h3 class="text-xl font-semibold text-gray-800">
-                                        <i class="fas fa-info-circle text-green-600 mr-2"></i>
-                                        รายละเอียดความประสงค์ขายขยะ
-                                    </h3>
-                                    <button onclick="closeModal('<%= request._id %>')" class="text-gray-500 hover:text-gray-700 text-2xl focus:outline-none">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                                
-                                <div class="p-6">
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div>
-                                            <div class="mb-4">
-                                                <h4 class="text-sm text-gray-500 mb-1">ผู้ขาย</h4>
-                                                <p class="text-lg font-semibold flex items-center">
-                                                    <i class="fas fa-user-circle text-gray-600 mr-2"></i>
-                                                    <%= request.family.familyName %>
-                                                </p>
-                                            </div>
-                                            
-                                            <div class="mb-4">
-                                                <h4 class="text-sm text-gray-500 mb-1">วันที่ให้เข้ารับซื้อ</h4>
-                                                <p class="text-lg font-semibold flex items-center">
-                                                    <i class="far fa-calendar-alt text-green-600 mr-2"></i>
-                                                    <%= request.date.toISOString().split('T')[0] %>
-                                                </p>
-                                            </div>
-                                            
-                                            <div class="mb-4">
-                                                <h4 class="text-sm text-gray-500 mb-1">ตำแหน่งให้เข้าไปรับซื้อ</h4>
-                                                <p class="text-lg font-semibold flex items-center">
-                                                    <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>
-                                                    <%= request.location %>
-                                                </p>
-                                            </div>
-                                            
-                                            <div class="mb-4">
-                                                <h4 class="text-sm text-gray-500 mb-1">น้ำหนักรวม</h4>
-                                                <p class="text-lg font-semibold flex items-center">
-                                                    <i class="fas fa-weight text-blue-500 mr-2"></i>
-                                                    <%= request.weight %> กิโลกรัม
-                                                </p>
-                                            </div>
-                                        </div>
-                                        
-                                        <div>
-                                            <h4 class="text-sm text-gray-500 mb-2">รูปภาพ</h4>
-                                            <% if (request.img) { %>
-                                                <div class="rounded-lg overflow-hidden border border-gray-200 shadow-sm">
-                                                    <img src="<%= request.img %>" alt="รูปภาพขยะ" class="w-full h-50 object-cover">
-                                                </div>
-                                            <% } else { %>
-                                                <div class="rounded-lg border border-gray-200 bg-gray-50 h-48 flex items-center justify-center">
-                                                    <p class="text-gray-400 italic">
-                                                        <i class="fas fa-image mr-2"></i>
-                                                        ไม่มีรูปภาพ
-                                                    </p>
-                                                </div>
-                                            <% } %>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="mt-6">
-                                        <h4 class="font-semibold text-gray-700 mb-3 flex items-center">
-                                            <i class="fas fa-recycle text-green-600 mr-2"></i>
-                                            รายการขยะ
-                                        </h4>
-                                        
-                                        <div class="bg-gray-50 rounded-lg p-4">
-                                            <table class="w-full">
-                                                <thead>
-                                                    <tr class="border-b border-gray-200">
-                                                        <th class="text-left py-2 text-gray-600">ขยะ</th>
-                                                        <th class="text-right py-2 text-gray-600">ราคา/หน่วย</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <% request.waste.forEach(w => { %>
-                                                        <tr class="border-b border-gray-100">
-                                                            <td class="py-3">
-                                                                <span class="font-medium"><%= w.wasteName %></span>
-                                                            </td>
-                                                            <td class="py-3 text-right font-medium text-green-700">
-                                                                <%= w.pricePerUnit %> บาท/กก.
-                                                            </td>
-                                                        </tr>
-                                                    <% }) %>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="border-t border-gray-200 p-4 flex justify-end space-x-3">
-                                    <button onclick="closeModal('<%= request._id %>')" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
-                                        ปิด
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    <% }) %>
-                <% } else { %>
-                    <div class="empty-state">
-                        <i class="fas fa-clipboard-list text-gray-300 text-5xl mb-4"></i>
-                        <h3 class="text-xl font-medium text-gray-500">ไม่พบรายการความประสงค์ขายขยะ</h3>
-                        <p class="text-gray-400 mt-2">กรุณาเพิ่มรายการใหม่เพื่อแสดงที่นี่</p>
-                    </div>
-                <% } %>
-            </div>  
-            <!-- Pagination -->
-            <% if (wasteSaleRequests.length > 0) { %>
-                <div class="mt-8 flex justify-center">
-                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                            <span class="sr-only">Previous</span>
-                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                            </svg>
-                        </a>
-                        <a href="#" aria-current="page" class="z-10 bg-blue-50 border-blue-500 text-blue-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                            1
-                        </a>
-                        <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                            2
-                        </a>
-                        <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                            3
-                        </a>
-                        <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
-                            ...
-                        </span>
-                        <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                            8
-                        </a>
-                        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                            <span class="sr-only">Next</span>
-                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                            </svg>
-                        </a>
-                    </nav>
-                </div>
-            <% } %>          
-        </div>
-    </main>  
     
 </body>
+
 <script>
+    // Modal Functions
     function openModal(id) {
         document.getElementById(`modal-${id}`).classList.remove('hidden');
         document.body.style.overflow = 'hidden';
@@ -486,8 +350,123 @@
         document.body.style.overflow = 'auto';
     }
     
-    // Close modal when clicking outside
+    // Status Menu Functions
+    function toggleStatusMenu(id) {
+        const menu = document.getElementById(`statusMenu-${id}`);
+        const allMenus = document.querySelectorAll('[id^="statusMenu-"]');
+        
+        // ปิดเมนูอื่นๆ
+        allMenus.forEach(m => {
+            if (m.id !== `statusMenu-${id}`) {
+                m.classList.add('hidden');
+            }
+        });
+        
+        // Toggle เมนูปัจจุบัน
+        menu.classList.toggle('hidden');
+    }
+    
+    // Update Status Function
+    async function updateStatus(id, status) {
+        try {
+            const response = await fetch(`/employee/wasteSaleRequest/${id}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // แสดงข้อความสำเร็จ
+                Swal.fire({
+                    icon: 'success',
+                    title: 'สำเร็จ!',
+                    text: result.message,
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    // รีโหลดหน้าเพื่อแสดงสถานะใหม่
+                    window.location.reload();
+                });
+            } else {
+                throw new Error(result.error);
+            }
+        } catch (error) {
+            console.error('Error updating status:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด!',
+                text: 'ไม่สามารถอัปเดตสถานะได้',
+                confirmButtonText: 'ตกลง'
+            });
+        }
+        
+        // ปิดเมนู
+        document.getElementById(`statusMenu-${id}`).classList.add('hidden');
+    }
+    
+    // Filter Functions
+    function filterRequests(status) {
+        const cards = document.querySelectorAll('[data-status]');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        
+        // Reset button styles
+        filterButtons.forEach(btn => {
+            btn.classList.remove('bg-green-700', 'text-white');
+            btn.classList.add('bg-white', 'border-gray-300', 'text-gray-700');
+        });
+        
+        // Set active button
+        const activeBtn = document.getElementById(`filter-${status}`);
+        if (activeBtn) {
+            activeBtn.classList.remove('bg-white', 'border-gray-300', 'text-gray-700');
+            activeBtn.classList.add('bg-green-700', 'text-white');
+        }
+        
+        // Show/hide cards
+        cards.forEach(card => {
+            if (status === 'all' || card.dataset.status === status) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+    
+    // Search Function
+    function searchRequests(query) {
+        const cards = document.querySelectorAll('[data-search]');
+        
+        cards.forEach(card => {
+            const searchText = card.dataset.search.toLowerCase();
+            if (searchText.includes(query.toLowerCase())) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+    
+    // Event Listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        // Filter buttons
+        document.getElementById('filter-all').addEventListener('click', () => filterRequests('all'));
+        document.getElementById('filter-pending').addEventListener('click', () => filterRequests('pending'));
+        document.getElementById('filter-in-progress').addEventListener('click', () => filterRequests('in-progress'));
+        document.getElementById('filter-resolved').addEventListener('click', () => filterRequests('resolved'));
+        
+        // Search input
+        document.getElementById('search-input').addEventListener('input', function() {
+            searchRequests(this.value);
+        });
+    });
+    
+    // Close modal and dropdown when clicking outside
     document.addEventListener('click', function(event) {
+        // ปิด Modal
         const modals = document.querySelectorAll('[id^="modal-"]');
         modals.forEach(modal => {
             if (event.target === modal) {
@@ -495,6 +474,25 @@
                 closeModal(id);
             }
         });
+        
+        // ปิด Status Menu
+        const statusMenus = document.querySelectorAll('[id^="statusMenu-"]');
+        const statusButtons = document.querySelectorAll('[id^="statusBtn-"]');
+        
+        let clickedOnButton = false;
+        statusButtons.forEach(btn => {
+            if (btn.contains(event.target)) {
+                clickedOnButton = true;
+            }
+        });
+        
+        if (!clickedOnButton) {
+            statusMenus.forEach(menu => {
+                if (!menu.contains(event.target)) {
+                    menu.classList.add('hidden');
+                }
+            });
+        }
     });
 </script>
 </html>
