@@ -42,5 +42,8 @@ router.get('/funeralAid', employeeController.funeralAidIndex);
 
 // แผนที่
 router.get('/map', employeeController.mapIndex);
+// จัดการจุดรับซื้อ
+router.get('/wastePoint', employeeController.wastePointIndex);
+router.post('/wastePointPost', employeeController.wastePointPost);
 
 module.exports = router

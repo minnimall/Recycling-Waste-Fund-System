@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <%- include('../partials/employeePartials/doctype.ejs') %>
+        <title>
+            <%= mytitle %>
+        </title>
+        <link rel="stylesheet" href="/style_employee/funeral-assistance.css">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+        <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+        <!-- Leaflet -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+        <!-- Leaflet Control Geocoder -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+        <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+        <style>
+            .leaflet-container {
+                height: 400px;
+                border-radius: 0.5rem;
+            }
+            
+            @media (min-width: 768px) {
+                .leaflet-container {
+                    height: 500px;
+                }
+            }
+        </style>
+</head>
+
+<body class="bg-gray-50">
+    <%- include('../partials/employeePartials/empHeader.ejs') %>
+        <%- include('../partials/employeePartials/empSidebar.ejs') %>
+
+            <script>
+                // แสดง popup message จาก query string
+                const urlParams = new URLSearchParams(window.location.search);
+                const successMessage = urlParams.get('message');
+                const errorMessage = urlParams.get('error');
+
+                if (successMessage) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'สำเร็จ!',
+                        text: successMessage,
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#28a745',
+                        timer: 3000
+                    });
+                }
+
+                if (errorMessage) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'error',
+                        title: errorMessage,
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                }
+            </script>
+
+            <div class="content bg-gray-50 min-screen">
+                <!-- Page Header -->
+                <div class="mx-4 mb-3 bg-white rounded-lg shadow p-4">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                        <div>
+                            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
+                                เบิกถอนเงิน
+                            </h1>
+                            <p class="text-gray-600 mt-2">ระบบจัดการเบิกถอนเงินการขายขยะสำหรับครัวเรือนในชุมชน</p>
+                        </div>
+                        <button onclick="showFormModal()" class="bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-200 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            เพิ่มจุดรับซื้อ
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Content Area -->
+                <div class="flex-1 overflow-auto p-6">
+                    <div class="mx-auto space-y-6">
+                        <!-- Map -->
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">แผนที่จุดรับซื้อขยะ</h3>
+                            <div id="map" class="leaflet-container z-10"></div>
+                            <p class="text-sm text-gray-600 mt-2">คลิกบนแผนที่เพื่อเลือกตำแหน่งจุดรับซื้อขยะ</p>
+                        </div>
+
+                        <!-- Points List -->
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2 sm:mb-0">รายการจุดรับซื้อขยะ</h3>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-sm text-gray-600">ทั้งหมด:</span>
+                                    <span id="total-points"
+                                        class="bg-primary-100 text-primary-800 px-2 py-1 rounded-full text-sm font-medium">0</span>
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                ชื่อจุดรับซื้อ</th>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
+                                                ที่อยู่</th>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                สถานะ</th>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                จัดการ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="points-table-body" class="bg-white divide-y divide-gray-200">
+                                        <tr>
+                                            <td
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                1</td>
+                                            <td
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
+                                                123123123123123123</td>
+                                            <td
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                เปิด</td>
+                                            <td
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                จัดการ</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+<!-- Form Modal -->
+<div id="form-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+  <div class="bg-white rounded-lg p-6 m-4 max-w-lg w-full max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold text-gray-800" id="form-title">เพิ่มจุดรับซื้อขยะใหม่</h2>
+      <button id="close-modal" onclick="hideFormModal()" class="text-gray-400 hover:text-gray-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+        <form id="waste-point-form" class="space-y-4"  action="/employee/wastePointPost" method="POST">
+            <input type="hidden" id="addBy" name="addBy" value="<%= username %>">
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อจุดรับซื้อ</label>
+                <input type="text" id="point-name" name="wastePointName" required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">ที่อยู่</label>
+                <textarea id="point-address" name="location" required rows="3"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"></textarea>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ละติจูด</label>
+                    <input type="number" id="point-lat" name="latitude" step="any" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ลองจิจูด</label>
+                    <input type="number" id="point-lng" name="longitude" step="any" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">เบอร์โทรศัพท์</label>
+                <input type="tel" id="point-phone" name="tel" required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">วันที่เปิดทำการ</label>
+                <input type="date" id="point-date" name="date" required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">เวลาเปิด</label>
+                    <input type="time" id="point-start" name="startTime" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">เวลาปิด</label>
+                    <input type="time" id="point-end" name="endTime" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">สถานะ</label>
+                <select id="point-status" name="status"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                    <option value="active">เปิดใช้งาน</option>
+                    <option value="inactive">ปิดใช้งาน</option>
+                </select>
+            </div>
+
+            <div class="flex space-x-3 pt-4">
+                <button type="submit"
+                        class="flex-1 bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition duration-200">
+                    <span id="submit-text">เพิ่มจุดรับซื้อ</span>
+                </button>
+                <button type="button" id="cancel-btn" onclick="hideFormModal()"
+                        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition duration-200">
+                    ยกเลิก
+                </button>
+            </div>
+        </form>
+  </div>
+</div>
+</body>
+<script>
+    
+        function showFormModal() {
+            document.getElementById('form-modal').classList.remove('hidden');
+            document.getElementById('form-modal').classList.add('flex');
+        }
+        function hideFormModal() {
+            document.getElementById('form-modal').classList.add('hidden');
+            document.getElementById('form-modal').classList.remove('flex');
+            resetForm();
+        }
+        // Global variables
+        let map;
+        let wastePoints = [];
+        let markers = [];
+        let editingId = null;
+        let deleteId = null;
+
+        // Initialize map
+        function initMap() {
+            map = L.map('map').setView([13.7563, 100.5018], 10); // Bangkok center
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Click event to add new point
+            map.on('click', function(e) {
+                document.getElementById('point-lat').value = e.latlng.lat.toFixed(6);
+                document.getElementById('point-lng').value = e.latlng.lng.toFixed(6);
+
+                // ลบ marker เก่าออก (ถ้ามี)
+                if (markers.length > 0) {
+                    map.removeLayer(markers[0]);
+                    markers = [];
+                }
+
+                // เพิ่ม marker ใหม่
+                const marker = L.marker(e.latlng).addTo(map);
+                markers.push(marker);
+            });
+        }
+        // Load sample data
+        function loadSampleData() {
+            wastePoints = [
+               {
+                    id: 1,
+                    name: 'จุดรับซื้อขยะ สาขา 1',
+                    address: '123 ถนนสุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพฯ 10110',
+                    lat: 13.7563,
+                    lng: 100.5018,
+                    phone: '02-123-4567',
+                    hours: '08:00-17:00',
+                    status: 'active'
+                },
+                {
+                    id: 2,
+                    name: 'จุดรับซื้อขยะ สาขา 2',
+                    address: '456 ถนนพหลโยธิน แขวงลาดยาว เขตจตุจักร กรุงเทพฯ 10900',
+                    lat: 13.8200,
+                    lng: 100.5500,
+                    phone: '02-234-5678',
+                    hours: '09:00-18:00',
+                    status: 'active'
+                }
+            ];
+            updatePointsList();
+            updateMap(); 
+        }
+
+        // Update points list in table
+        function updatePointsList() {
+            const tbody = document.getElementById('points-table-body');
+            const totalPoints = document.getElementById('total-points');
+            
+            tbody.innerHTML = '';
+            totalPoints.textContent = wastePoints.length;
+
+            wastePoints.forEach(point => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-4 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${point.name}</div>
+                        <div class="text-sm text-gray-500 md:hidden">${point.address.substring(0, 50)}...</div>
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap hidden md:table-cell">
+                        <div class="text-sm text-gray-900">${point.address}</div>
+                        <div class="text-sm text-gray-500">${point.phone || 'ไม่ระบุ'}</div>
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            point.status === 'active' 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-red-100 text-red-800'
+                        }">
+                            ${point.status === 'active' ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}
+                        </span>
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onclick="editPoint(${point.id})" class="text-primary-600 hover:text-primary-900 mr-3">แก้ไข</button>
+                        <button onclick="showDeleteModal(${point.id})" class="text-red-600 hover:text-red-900">ลบ</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Update map markers
+        function updateMap() {
+            // Clear existing markers
+            markers.forEach(marker => map.removeLayer(marker));
+            markers = [];
+
+            // Add new markers
+            wastePoints.forEach(point => {
+                const marker = L.marker([point.lat, point.lng])
+                    .addTo(map)
+                    .bindPopup(`
+                        <div class="p-2">
+                            <h3 class="font-semibold text-primary-700">${point.name}</h3>
+                            <p class="text-sm text-gray-600 mt-1">${point.address}</p>
+                            ${point.phone ? `<p class="text-sm text-gray-600">โทร: ${point.phone}</p>` : ''}
+                            ${point.hours ? `<p class="text-sm text-gray-600">เวลา: ${point.hours}</p>` : ''}
+                            <span class="inline-block mt-2 px-2 py-1 text-xs rounded-full ${
+                                point.status === 'active' 
+                                    ? 'bg-green-100 text-green-800' 
+                                    : 'bg-red-100 text-red-800'
+                            }">
+                                ${point.status === 'active' ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}
+                            </span>
+                        </div>
+                    `);
+                markers.push(marker);
+            });
+
+            // Fit map to show all markers
+            if (markers.length > 0) {
+                const group = new L.featureGroup(markers);
+                map.fitBounds(group.getBounds().pad(0.1));
+            }
+        }
+        initMap();
+        loadSampleData();
+</script>
+</html>

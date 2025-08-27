@@ -19,6 +19,7 @@ const WasteBankAccount = require('../models/wasteBankAccount');
 const Complaint = require('../models/complaint');
 const Transaction = require('../models/transactionMoney');
 const WastePriceHistory = require('../models/wastePriceHistory');
+const WastePoint = require("../models/wastePoint");
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const moment = require('moment');
@@ -1506,6 +1507,48 @@ const funeralAidIndex = (req, res)=> {
 const mapIndex = (req, res)=> {
     res.render('employee/map',{mytitle: 'แผนที่จุดเข้ารับซื้อ',currentPage: 'map',})
 }
+const wastePointIndex = (req, res)=> {
+    res.render('employee/wastePoint',{mytitle: 'แผนที่จุดเข้ารับซื้อ',currentPage: 'wastePoint',})
+}
+
+const wastePointPost = async (req, res) => {
+    try {
+        const {
+            addBy,
+            wastePointName,
+            location,
+            latitude,
+            longitude,
+            tel,
+            date,
+            startTime,
+            endTime,
+            status
+        } = req.body;
+
+        const newPoint = new WastePoint({
+            wastePointName,
+            location,
+            latitude: latitude.toString(),   // แปลงให้ตรง Schema
+            longitude: longitude.toString(), // แปลงให้ตรง Schema
+            tel: Number(tel),                // แปลงจาก string → number
+            date: new Date(date),            // แปลงจาก string → Date
+            startTime,
+            endTime,
+            status,
+            addBy
+        });
+
+    await newPoint.save();
+
+    // redirect กลับหน้า list พร้อม success message
+    res.redirect('/employee/wastePoint?message=เพิ่มจุดรับซื้อสำเร็จ');
+
+  } catch (err) {
+    console.error("❌ Error saving waste point:", err);
+    res.redirect('/employee/wastePoint?error=เกิดข้อผิดพลาดในการบันทึก');
+  }
+};
 
 module.exports = {
     //หน้าแดชบอร์ด
@@ -1528,4 +1571,8 @@ module.exports = {
     funeralAidIndex,
     //หน้าแผนที่เข้ารับซื้อ
     mapIndex,
+    //หน้าจัดการจุดรับซื้อ
+    wastePointIndex,wastePointPost
+
+   
 }
