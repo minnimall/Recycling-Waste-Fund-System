@@ -1460,7 +1460,7 @@ function renderSalesTable(filterMonth = '') {
 
     filtered.forEach(purchase => {
         const items = purchase.wasteItems || [];
-        totalTransactions += items.length;
+        totalTransactions++; // ✅ นับตามจำนวนวันที่ขาย (purchase)
         items.forEach((item, index) => {
             const quantity = item.quantity || 0;
             const price = item.pricePerUnit || 0;
@@ -1485,6 +1485,7 @@ function renderSalesTable(filterMonth = '') {
     document.getElementById('wasteSaleCount').textContent = totalTransactions + ' ครั้ง';
     document.getElementById('totalWeightSales').textContent = totalWeight.toFixed(2) + ' กก.';
 }
+
 
 salesMonthFilter.addEventListener('change', e => {
     renderSalesTable(e.target.value === 'all' ? '' : e.target.value);
