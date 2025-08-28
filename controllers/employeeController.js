@@ -445,7 +445,7 @@ const dashboardIndex = async (req, res) => {
         console.log('Rendering dashboard...');
         
         res.render('employee/dashboard', {
-            mytitle: 'แดชบอร์ด',
+            mytitle: 'พนักงาน | แดชบอร์ด',
             
             // ข้อมูลสถิติหลัก (ตาม filter)
             totalQuantity: Math.round(totalQuantity),
@@ -557,7 +557,7 @@ const wastePurchaseIndex = async (req, res) => {
         ]);
 
         res.render('employee/wastePurchase', {
-            mytitle: 'Employeedashboard | WastePurchase',
+            mytitle: 'พนักงาน | รับซื้อขยะ',
             waste: wasteData,
             wasteTypes: wasteTypeData,
             searchQuery: searchQuery,
@@ -725,7 +725,7 @@ const wastePurchaseTotalIndex = async (req, res) => {
         const startIndex = (page - 1) * limit;
         res.render('employee/wastePurchaseTotal', {
             wastePurchases,
-            mytitle: 'Employeedashboard | wastePurchaseTotal',
+            mytitle: 'พนักงาน | สรุปการรับซื้อขยะ',
             purchaseCount,
             customerCount,
             totalAmount,
@@ -812,7 +812,7 @@ const memberIndex = async (req, res) => {
         });
 
         res.render('employee/member', { 
-            mytitle: 'Employeedashboard | Member',
+            mytitle: 'พนักงาน | สมาชิกกองทุนขยะรีไซเคิล',
             villages,
             allFamilies,
             Account,
@@ -981,10 +981,10 @@ const complaintIndex = async (req, res) => {
         const complaint = await Complaint
             .find()
             .populate('family')
-            .sort({ date: -1 });
+            .sort({ createdAt: -1 });
 
         res.render('employee/complaint', {
-            mytitle: 'รายการคำร้องหรือหรือข้อร้องเรียน',
+            mytitle: 'พนักงาน | รายการคำร้องหรือหรือข้อร้องเรียน',
             complaint,
             currentPage: 'complaint',
         });
@@ -1025,7 +1025,7 @@ const updateComplaintStatus = async (req, res) => {
 const wasteSaleRequestIndex = async (req, res) => {
     try {
         const wasteSaleRequests = await wasteSaleRequest
-            .find({ isDeleted: { $ne: true } }) // เพิ่มเงื่อนไขไม่แสดงรายการที่ถูกลบ
+            .find({ isDeleted: false }) // เพิ่มเงื่อนไขไม่แสดงรายการที่ถูกลบ
             .populate('waste') // ดึงข้อมูลขยะจาก ObjectId
             .populate('family') // ดึงข้อมูลครอบครัว
             .sort({ createdAt: -1 }); // เรียงตามวันที่สร้างล่าสุด
@@ -1041,7 +1041,7 @@ const wasteSaleRequestIndex = async (req, res) => {
         }
 
         res.render('employee/wasteSaleRequest', {
-            mytitle: 'รายการความประสงค์ขายขยะ',
+            mytitle: 'พนักงาน | ความประสงค์ขายขยะ',
             wasteSaleRequests,
             currentPage: 'wasteSaleRequest',
         });
@@ -1410,7 +1410,7 @@ const wasteStockIndex = async (req, res) => {
 
         console.log('Rendering page with data...');
         res.render('employee/wasteStock', {
-            mytitle: 'สต๊อกขยะ',
+            mytitle: 'พนักงาน | สต๊อกขยะ',
             stockData: stockData || [],
             selectedVillageId: villageId,
             villages: allVillages,
@@ -1512,7 +1512,7 @@ const showWithdrawPage = async (req, res) => {
             .populate('family');
 
         res.render('employee/withdraw', {
-            mytitle: 'เบิกถอนเงิน',
+            mytitle: 'พนักงาน | เบิกถอนเงิน',
             transactions,
             message: req.query.message || null,
             error: req.query.error || null,
@@ -1555,14 +1555,14 @@ const getAccountByNumber = async (req, res) => {
 
 //หน้าฌาปนกิจสงเคราะห์
 const funeralAidIndex = (req, res)=> {
-    res.render('employee/funeralAid',{mytitle: 'ฌาปนกิจสงเคราะห์',currentPage: 'funeralAid',})
+    res.render('employee/funeralAid',{mytitle: 'พนักงาน | ฌาปนกิจสงเคราะห์',currentPage: 'funeralAid',})
 }
 
 const mapIndex = (req, res)=> {
-    res.render('employee/map',{mytitle: 'แผนที่จุดเข้ารับซื้อ',currentPage: 'map',})
+    res.render('employee/map',{mytitle: 'พนักงาน | แผนที่จุดเข้ารับซื้อ',currentPage: 'map',})
 }
 const wastePointIndex = (req, res)=> {
-    res.render('employee/wastePoint',{mytitle: 'แผนที่จุดเข้ารับซื้อ',currentPage: 'wastePoint',})
+    res.render('employee/wastePoint',{mytitle: 'พนักงาน | แผนที่จุดเข้ารับซื้อ',currentPage: 'wastePoint',})
 }
 
 const wastePointPost = async (req, res) => {

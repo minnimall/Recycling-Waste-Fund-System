@@ -58,8 +58,8 @@
     <div class="content bg-gray-50 min-screen">
         <div class="flex gap-6 p-6">
             <!-- ฝั่งซ้าย: รายการขยะ -->
-            <div class="border p-4 rounded-lg shadow-lg left-box bg-white border">
-                <div class="flex justify-between items-center mb-5">
+            <div class="border p-4 rounded-lg shadow-lg left-box bg-white border h-[680px] flex flex-col">
+                <div class="flex justify-between items-center mb-5 flex-shrink-0">
                     <h2 class="text-lg font-bold mb-4">เลือกรายการขยะ</h2>
                     <div class="flex items-center gap-4">
                         <!-- ปุ่มเปลี่ยน Layout -->
@@ -93,7 +93,7 @@
                 </div>
 
                 <!-- Optional: Stats or Info Bar -->
-                <div class="mt-4 pt-4 border-t border-gray-200 mb-5">
+                <div class="mt-4 pt-4 border-t border-gray-200 mb-5 flex-shrink-0">
                     <div class="flex flex-wrap items-center justify-between gap-4 text-sm text-gray-600">
                         <div class="flex items-center gap-4">
                             <p class="text-base font-semibold text-gray-800 mb-4 md:mb-0">
@@ -113,10 +113,10 @@
                 </div>
 
                 <!-- แบบตาราง -->
-                <div id="tableView" style="display: none;">
-                    <div class="overflow-y-scroll h-[530px]">
+                <div id="tableView" class="flex-1 overflow-hidden" style="display: none;">
+                    <div class="h-full overflow-y-auto border border-gray-200 rounded-lg">
                         <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-100">
+                            <thead class="bg-gray-100 sticky top-0 z-10">
                                 <tr>
                                     <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase w-[10%]">ลำดับ</th>
                                     <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-700 uppercase w-[40%]">ชื่อรายการขยะ</th>
@@ -137,17 +137,8 @@
                                             </td>
                                             <td class="px-6 py-4 text-sm text-center text-gray-900"><%= item.pricePerUnit %></td>
                                             <td class="px-6 py-4 text-sm text-center">
-                                                <input
-                                                    type="number"
-                                                    min="0.1"
-                                                    step="0.1"
-                                                    placeholder="0.0"
-                                                    class="weight-input w-24 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                                    id="table-weight-<%= index %>"
-                                                    data-index="<%= index %>"
-                                                    data-name="<%= item.wasteName %>"
-                                                    data-price="<%= item.pricePerUnit %>"
-                                                    data-layout="table"
+                                                <input type="number" min="0.1" step="0.1" placeholder="0.0" class="weight-input w-24 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                                    id="table-weight-<%= index %>" data-index="<%= index %>" data-name="<%= item.wasteName %>" data-price="<%= item.pricePerUnit %>" data-layout="table"
                                                     oninput="handleWeightInput('<%= index %>', 'table')"
                                                     onblur="handleWeightBlur('<%= index %>', 'table')"
                                                 >
@@ -165,37 +156,30 @@
                 </div>
 
                 <!-- แบบการ์ด -->
-                <div id="cardView" style="display: block;">
-                    <div class="grid grid-cols-5 gap-4 min-h-[200px] max-h-[530px] overflow-y-auto">
-                        <% if (waste.length > 0) { %>
-                            <% waste.forEach((item, index) => { %>
-                                <div class="border p-3 rounded-lg shadow-md h-auto" id="waste-card-<%= index %>">
-                                    <img class="w-full h-32 object-cover mb-2" src="<%= item.img %>" alt="รูป <%= item.wasteName %>">
-                                    <p class="text-center font-semibold mb-2"><%= item.wasteName %></p>
-                                    <p class="text-center text-sm text-gray-500 mb-3">฿ <%= item.pricePerUnit %> บาท/กก.</p>
-                                    <div class="space-y-2">
-                                        <input
-                                            type="number"
-                                            min="0.1"
-                                            step="0.1"
-                                            placeholder="น้ำหนัก (กก.)"
-                                            class="w-full p-2 text-sm border rounded weight-input"
-                                            id="card-weight-<%= index %>"
-                                            data-index="<%= index %>"
-                                            data-name="<%= item.wasteName %>"
-                                            data-price="<%= item.pricePerUnit %>"
-                                            data-layout="card"
-                                            oninput="handleWeightInput('<%= index %>', 'card')"
-                                            onblur="handleWeightBlur('<%= index %>', 'card')"
-                                        >
+                <div id="cardView" class="flex-1 overflow-hidden" style="display: block;">
+                    <div class="h-full overflow-y-auto border border-gray-200 rounded-lg p-4">
+                        <div class="grid grid-cols-5 gap-4">
+                            <% if (waste.length > 0) { %>
+                                <% waste.forEach((item, index) => { %>
+                                    <div class="border p-3 rounded-lg shadow-md h-auto" id="waste-card-<%= index %>">
+                                        <img class="w-full h-32 object-cover mb-2 rounded" src="<%= item.img %>" alt="รูป <%= item.wasteName %>">
+                                        <p class="text-center font-semibold mb-2 text-sm"><%= item.wasteName %></p>
+                                        <p class="text-center text-xs text-gray-500 mb-3">฿ <%= item.pricePerUnit %> บาท/กก.</p>
+                                        <div class="space-y-2">
+                                            <input type="number" min="0.1" step="0.1" placeholder="น้ำหนัก (กก.)" class="w-full p-2 text-sm border rounded weight-input focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                                id="card-weight-<%= index %>" data-index="<%= index %>" data-name="<%= item.wasteName %>" data-price="<%= item.pricePerUnit %>" data-layout="card"
+                                                oninput="handleWeightInput('<%= index %>', 'card')"
+                                                onblur="handleWeightBlur('<%= index %>', 'card')"
+                                            >
+                                        </div>
                                     </div>
+                                <% }); %>
+                            <% } else { %>
+                                <div class="col-span-5 mt-3 no-data-container text-center">
+                                    <span class="text-gray-500">- ยังไม่มีข้อมูล -</span>
                                 </div>
-                            <% }); %>
-                        <% } else { %>
-                            <div class="col-span-5 mt-3 no-data-container text-center">
-                                <span>- ยังไม่มีข้อมูล -</span>
-                            </div>
-                        <% } %>
+                            <% } %>
+                        </div>
                     </div>
                 </div>
             </div>           

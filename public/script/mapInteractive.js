@@ -87,7 +87,11 @@
     ];
 
     // Initialize map
-    const map = L.map('map').setView([13.7563, 100.5018], 13);
+    // set จุดเริ่มหน้าแมพเป็น อบต.ขามป้อม
+    const initialLat = 15.948741697876695;
+    const initialLng = 102.85523133360921;
+            
+    map = L.map('map').setView([initialLat, initialLng], 15); // ตัวเลขมันคือระยะการซูม
 
     // Add tile layer
     let currentTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -97,12 +101,12 @@
     // Custom icons
     const icons = {
         center: L.divIcon({
-            html: '<i class="fas fa-building text-white"></i>',
+            html: '<i class="fas fa-users text-white"></i>',
             iconSize: [30, 30],
             className: 'custom-div-icon bg-green-500 rounded-full flex items-center justify-center'
         }),
         mobile: L.divIcon({
-            html: '<i class="fas fa-truck text-white"></i>',
+            html: '<i class="fas fa-users text-white"></i>',
             iconSize: [30, 30],
             className: 'custom-div-icon bg-blue-500 rounded-full flex items-center justify-center'
         }),

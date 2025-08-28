@@ -99,9 +99,9 @@
             <div class="space-y-4">
                 <% if (wasteSaleRequests.length > 0) { %>
                     <% wasteSaleRequests.forEach(request => { %>
-                        <div class="border border-gray-200 p-4 rounded-lg shadow-sm bg-white  relative" 
-                             data-status="<%= request.status %>" 
-                             data-search="<%= request.family.familyName %> <%= request.location %> <%= request.waste.map(w => w.wasteName).join(' ') %>">
+                        <div class="border border-gray-200 rounded-lg hover:shadow-md transition-shadow duration-300 p-4 rounded-lg shadow-sm bg-white  relative" 
+                            data-status="<%= request.status %>" 
+                            data-search="<%= request.family.familyName %> <%= request.location %> <%= request.waste.map(w => w.wasteName).join(' ') %>">
                             <div class="flex flex-col md:flex-row md:items-center justify-between">
                                 <div class="mb-3 md:mb-0">
                                     <div class="flex items-center mb-2">
@@ -158,34 +158,43 @@
                                 </div>
                                 
                                 <div class="flex items-center space-x-2">
-                                    <!-- ปุ่มเปลี่ยนสถานะ -->
+                                    <!-- ปุ่มเปลี่ยนสถานะสำหรับ request -->
                                     <div class="relative">
-                                        <button id="statusBtn-<%= request._id %>" 
+                                        <button id="statusBtn-<%= request._id %>"
                                                 class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
                                                 onclick="toggleStatusMenu('<%= request._id %>')">
-                                            <i class="fas fa-edit mr-2"></i>
+                                            <!-- <i class="fas fa-edit mr-2"></i> -->
                                             เปลี่ยนสถานะ
                                             <i class="fas fa-chevron-down ml-2"></i>
                                         </button>
                                         
                                         <!-- Dropdown Menu -->
-                                        <div id="statusMenu-<%= request._id %>" 
+                                        <div id="statusMenu-<%= request._id %>"
                                             class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50 hidden">
                                             <div class="py-1">
-                                                <button onclick="updateStatus('<%= request._id %>', 'pending')" 
-                                                        class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                <button onclick="updateStatus('<%= request._id %>', 'pending')"
+                                                        class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 <%= request.status === 'pending' ? 'bg-blue-50 text-blue-700' : '' %>">
                                                     <i class="fas fa-clock text-yellow-500 mr-2"></i>
                                                     รอดำเนินการ
+                                                    <% if (request.status === 'pending') { %>
+                                                        <i class="fas fa-check text-blue-500 ml-auto float-right mt-0.5"></i>
+                                                    <% } %>
                                                 </button>
-                                                <button onclick="updateStatus('<%= request._id %>', 'in-progress')" 
-                                                        class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                <button onclick="updateStatus('<%= request._id %>', 'in-progress')"
+                                                        class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 <%= request.status === 'in-progress' ? 'bg-blue-50 text-blue-700' : '' %>">
                                                     <i class="fas fa-spinner text-blue-500 mr-2"></i>
                                                     กำลังดำเนินการ
+                                                    <% if (request.status === 'in-progress') { %>
+                                                        <i class="fas fa-check text-blue-500 ml-auto float-right mt-0.5"></i>
+                                                    <% } %>
                                                 </button>
-                                                <button onclick="updateStatus('<%= request._id %>', 'resolved')" 
-                                                        class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                <button onclick="updateStatus('<%= request._id %>', 'resolved')"
+                                                        class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 <%= request.status === 'resolved' ? 'bg-blue-50 text-blue-700' : '' %>">
                                                     <i class="fas fa-check text-green-500 mr-2"></i>
                                                     เสร็จสิ้น
+                                                    <% if (request.status === 'resolved') { %>
+                                                        <i class="fas fa-check text-blue-500 ml-auto float-right mt-0.5"></i>
+                                                    <% } %>
                                                 </button>
                                             </div>
                                         </div>
@@ -204,7 +213,7 @@
                         <div id="modal-<%= request._id %>" class="fixed inset-0 hidden z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
                             <div class="bg-white rounded-lg shadow-lg w-11/12 md:w-2/3 lg:w-1/2 xl:w-2/5 modal-transition modal-content">
                                 <div class="flex justify-between items-center p-4 border-b border-gray-200">
-                                    <h3 class="text-xl font-semibold text-gray-800">
+                                    <h3 class="text-lg leading-6 font-medium text-gray-900 flex items-center">
                                         <i class="fas fa-info-circle text-green-600 mr-2"></i>
                                         รายละเอียดความประสงค์ขายขยะ
                                     </h3>
@@ -217,32 +226,32 @@
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div>
                                             <div class="mb-4">
-                                                <h4 class="text-sm text-gray-500 mb-1">ผู้ขาย</h4>
-                                                <p class="text-lg font-semibold flex items-center">
+                                                <h4 class="text-base font-semibold text-gray-800 mb-1">ผู้ขาย</h4>
+                                                <p class="text-base text-gray-700 flex items-center">
                                                     <i class="fas fa-user-circle text-gray-600 mr-2"></i>
                                                     <%= request.family.familyName %>
                                                 </p>
                                             </div>
                                             
                                             <div class="mb-4">
-                                                <h4 class="text-sm text-gray-500 mb-1">วันที่ให้เข้ารับซื้อ</h4>
-                                                <p class="text-lg font-semibold flex items-center">
+                                                <h4 class="text-base font-semibold text-gray-800 mb-1">วันที่ให้เข้ารับซื้อ</h4>
+                                                <p class="text-base text-gray-700 flex items-center">
                                                     <i class="far fa-calendar-alt text-green-600 mr-2"></i>
                                                     <%= request.date.toISOString().split('T')[0] %>
                                                 </p>
                                             </div>
                                             
                                             <div class="mb-4">
-                                                <h4 class="text-sm text-gray-500 mb-1">ตำแหน่งให้เข้าไปรับซื้อ</h4>
-                                                <p class="text-lg font-semibold flex items-center">
+                                                <h4 class="text-base font-semibold text-gray-800 mb-1">ตำแหน่งให้เข้าไปรับซื้อ</h4>
+                                                <p class="text-base text-gray-700 flex items-center">
                                                     <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>
                                                     <%= request.location %>
                                                 </p>
                                             </div>
                                             
                                             <div class="mb-4">
-                                                <h4 class="text-sm text-gray-500 mb-1">น้ำหนักรวม</h4>
-                                                <p class="text-lg font-semibold flex items-center">
+                                                <h4 class="text-base font-semibold text-gray-800 mb-1">น้ำหนักรวม</h4>
+                                                <p class="text-base text-gray-700 flex items-center">
                                                     <i class="fas fa-weight text-blue-500 mr-2"></i>
                                                     <%= request.weight %> กิโลกรัม
                                                 </p>
@@ -250,8 +259,8 @@
                                             
                                             <!-- พิกัดที่ตั้ง -->
                                             <div class="mb-4">
-                                                <h4 class="text-sm text-gray-500 mb-1">พิกัดที่ตั้ง (Latitude, Longitude)</h4>
-                                                <p class="text-lg font-semibold flex items-center">
+                                                <h4 class="text-base font-semibold text-gray-800 mb-1">พิกัดที่ตั้ง (Latitude, Longitude)</h4>
+                                                <p class="text-base text-gray-700 flex items-center">
                                                     <i class="fas fa-map-pin text-red-500 mr-2"></i>
                                                     <%= request.latitude %>, <%= request.longitude %>
                                                 </p>
@@ -259,10 +268,10 @@
                                             
                                             <!-- Google Maps Link -->
                                             <div class="mb-4">
-                                                <h4 class="text-sm text-gray-500 mb-1">ดูใน Google Maps</h4>
+                                                <h4 class="text-base font-semibold text-gray-800 mb-1">ดูพิกัดจุดใน Google Maps</h4>
                                                 <a href="https://www.google.com/maps?q=<%= request.latitude %>,<%= request.longitude %>" 
-                                                   target="_blank" 
-                                                   class="text-blue-600 hover:text-blue-800 flex items-center">
+                                                    target="_blank" 
+                                                    class="text-blue-600 hover:text-blue-800 flex items-center">
                                                     <i class="fas fa-external-link-alt mr-2"></i>
                                                     เปิดแผนที่
                                                 </a>
@@ -287,7 +296,7 @@
                                     </div>
                                     
                                     <div class="mt-6">
-                                        <h4 class="font-semibold text-gray-700 mb-3 flex items-center">
+                                        <h4 class="text-base font-semibold text-gray-800 mb-1">
                                             <i class="fas fa-recycle text-green-600 mr-2"></i>
                                             รายการขยะ
                                         </h4>
@@ -369,6 +378,12 @@
     // Update Status Function
     async function updateStatus(id, status) {
         try {
+            // ปิด dropdown หลังจากเลือก
+            const menu = document.getElementById('statusMenu-' + id);
+            if (menu) {
+                menu.classList.add('hidden');
+            }
+
             const response = await fetch(`/employee/wasteSaleRequest/${id}/status`, {
                 method: 'PUT',
                 headers: {
@@ -380,6 +395,74 @@
             const result = await response.json();
             
             if (result.success) {
+                // Update status badge in the list
+                const statusBadge = document.querySelector(`[data-id="${id}"] .status-badge`);
+                const modalStatus = document.getElementById(`modal-status-${id}`);
+                const modalSelect = document.getElementById(`modal-status-select-${id}`);
+                
+                // Update dropdown button
+                const statusBtn = document.getElementById(`statusBtn-${id}`);
+                
+                // Update badge classes and text
+                if (statusBadge) {
+                    statusBadge.className = 'status-badge ml-3 px-2 py-1 text-xs font-medium rounded-full ';
+                }
+                if (modalStatus) {
+                    modalStatus.className = 'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ';
+                }
+                
+                let statusText = '';
+                if (status === 'pending') {
+                    if (statusBadge) statusBadge.className += 'bg-yellow-100 text-yellow-800';
+                    if (modalStatus) modalStatus.className += 'bg-yellow-100 text-yellow-800';
+                    statusText = 'รอดำเนินการ';
+                } else if (status === 'in-progress') {
+                    if (statusBadge) statusBadge.className += 'bg-blue-100 text-blue-800';
+                    if (modalStatus) modalStatus.className += 'bg-blue-100 text-blue-800';
+                    statusText = 'กำลังดำเนินการ';
+                } else if (status === 'resolved') {
+                    if (statusBadge) statusBadge.className += 'bg-green-100 text-green-800';
+                    if (modalStatus) modalStatus.className += 'bg-green-100 text-green-800';
+                    statusText = 'เสร็จสิ้น';
+                }
+                
+                if (statusBadge) statusBadge.textContent = statusText;
+                if (modalStatus) modalStatus.textContent = statusText;
+                
+                // ปุ่ม dropdown ยังคงแสดงข้อความ "เปลี่ยนสถานะ" เสมอ (ไม่เปลี่ยน)
+                
+                // Update modal select
+                if (modalSelect) {
+                    modalSelect.value = status;
+                }
+
+                // Update data attribute for filtering
+                const requestItem = document.querySelector(`[data-id="${id}"]`);
+                if (requestItem) {
+                    requestItem.setAttribute('data-status', status);
+                }
+
+                // Update dropdown menu highlights
+                const menuButtons = document.querySelectorAll(`#statusMenu-${id} button`);
+                menuButtons.forEach(btn => {
+                    btn.classList.remove('bg-blue-50', 'text-blue-700');
+                    btn.classList.add('text-gray-700');
+                    // Remove check mark
+                    const checkIcon = btn.querySelector('.fa-check.float-right');
+                    if (checkIcon) {
+                        checkIcon.remove();
+                    }
+                });
+                
+                // Highlight selected status
+                const selectedBtn = document.querySelector(`#statusMenu-${id} button[onclick*="'${status}'"]`);
+                if (selectedBtn) {
+                    selectedBtn.classList.remove('text-gray-700');
+                    selectedBtn.classList.add('bg-blue-50', 'text-blue-700');
+                    // Add check mark
+                    selectedBtn.innerHTML += '<i class="fas fa-check text-blue-500 ml-auto float-right mt-0.5"></i>';
+                }
+
                 // แสดงข้อความสำเร็จ
                 Swal.fire({
                     icon: 'success',
@@ -387,9 +470,6 @@
                     text: result.message,
                     timer: 2000,
                     showConfirmButton: false
-                }).then(() => {
-                    // รีโหลดหน้าเพื่อแสดงสถานะใหม่
-                    window.location.reload();
                 });
             } else {
                 throw new Error(result.error);
@@ -403,9 +483,6 @@
                 confirmButtonText: 'ตกลง'
             });
         }
-        
-        // ปิดเมนู
-        document.getElementById(`statusMenu-${id}`).classList.add('hidden');
     }
     
     // Filter Functions
@@ -426,45 +503,133 @@
             activeBtn.classList.add('bg-green-700', 'text-white');
         }
         
+        let visibleCount = 0;
+        
         // Show/hide cards
         cards.forEach(card => {
             if (status === 'all' || card.dataset.status === status) {
                 card.style.display = 'block';
+                visibleCount++;
             } else {
                 card.style.display = 'none';
             }
         });
+
+        // Update total count if element exists
+        const totalCountElement = document.getElementById('total-count');
+        if (totalCountElement) {
+            totalCountElement.textContent = `${visibleCount} รายการ`;
+        }
     }
     
     // Search Function
     function searchRequests(query) {
         const cards = document.querySelectorAll('[data-search]');
+        let visibleCount = 0;
         
         cards.forEach(card => {
             const searchText = card.dataset.search.toLowerCase();
             if (searchText.includes(query.toLowerCase())) {
-                card.style.display = 'block';
+                // Only show if it also matches current filter
+                const currentFilter = document.querySelector('.filter-btn.bg-green-700');
+                const status = card.getAttribute('data-status');
+                let shouldShow = false;
+
+                if (currentFilter && currentFilter.id === 'filter-all') {
+                    shouldShow = true;
+                } else if (currentFilter && currentFilter.id === `filter-${status}`) {
+                    shouldShow = true;
+                }
+
+                if (shouldShow) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
             } else {
                 card.style.display = 'none';
             }
         });
+
+        // Update total count if element exists
+        const totalCountElement = document.getElementById('total-count');
+        if (totalCountElement) {
+            totalCountElement.textContent = `${visibleCount} รายการ`;
+        }
+    }
+
+    // Sort Function
+    function sortRequests() {
+        const sortSelect = document.getElementById('sort-select');
+        if (!sortSelect) return;
+        
+        const sortBy = sortSelect.value;
+        const container = document.getElementById('requests-container') || document.querySelector('.grid');
+        if (!container) return;
+        
+        const items = Array.from(container.children);
+
+        items.sort((a, b) => {
+            if (sortBy === 'newest') {
+                // Sort by creation date (newest first) - using data-id as proxy
+                return b.getAttribute('data-id').localeCompare(a.getAttribute('data-id'));
+            } else if (sortBy === 'oldest') {
+                // Sort by creation date (oldest first)
+                return a.getAttribute('data-id').localeCompare(b.getAttribute('data-id'));
+            } else if (sortBy === 'status') {
+                // Sort by status: pending, in-progress, resolved
+                const statusOrder = { 'pending': 0, 'in-progress': 1, 'resolved': 2 };
+                const statusA = statusOrder[a.getAttribute('data-status')] || 999;
+                const statusB = statusOrder[b.getAttribute('data-status')] || 999;
+                return statusA - statusB;
+            }
+            return 0;
+        });
+
+        // Remove existing items and re-add in sorted order
+        items.forEach(item => item.remove());
+        items.forEach(item => container.appendChild(item));
     }
     
     // Event Listeners
     document.addEventListener('DOMContentLoaded', function() {
         // Filter buttons
-        document.getElementById('filter-all').addEventListener('click', () => filterRequests('all'));
-        document.getElementById('filter-pending').addEventListener('click', () => filterRequests('pending'));
-        document.getElementById('filter-in-progress').addEventListener('click', () => filterRequests('in-progress'));
-        document.getElementById('filter-resolved').addEventListener('click', () => filterRequests('resolved'));
+        const filterAll = document.getElementById('filter-all');
+        const filterPending = document.getElementById('filter-pending');
+        const filterInProgress = document.getElementById('filter-in-progress');
+        const filterResolved = document.getElementById('filter-resolved');
+        
+        if (filterAll) filterAll.addEventListener('click', () => filterRequests('all'));
+        if (filterPending) filterPending.addEventListener('click', () => filterRequests('pending'));
+        if (filterInProgress) filterInProgress.addEventListener('click', () => filterRequests('in-progress'));
+        if (filterResolved) filterResolved.addEventListener('click', () => filterRequests('resolved'));
         
         // Search input
-        document.getElementById('search-input').addEventListener('input', function() {
-            searchRequests(this.value);
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                searchRequests(this.value);
+            });
+        }
+
+        // Sort select
+        const sortSelect = document.getElementById('sort-select');
+        if (sortSelect) {
+            sortSelect.addEventListener('change', sortRequests);
+        }
+
+        // ปิด dropdown เมื่อคลิกนอกบริเวณ
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('[id^="statusBtn-"]') && !event.target.closest('[id^="statusMenu-"]')) {
+                document.querySelectorAll('[id^="statusMenu-"]').forEach(menu => {
+                    menu.classList.add('hidden');
+                });
+            }
         });
     });
     
-    // Close modal and dropdown when clicking outside
+    // Close modal when clicking outside
     document.addEventListener('click', function(event) {
         // ปิด Modal
         const modals = document.querySelectorAll('[id^="modal-"]');
@@ -474,25 +639,6 @@
                 closeModal(id);
             }
         });
-        
-        // ปิด Status Menu
-        const statusMenus = document.querySelectorAll('[id^="statusMenu-"]');
-        const statusButtons = document.querySelectorAll('[id^="statusBtn-"]');
-        
-        let clickedOnButton = false;
-        statusButtons.forEach(btn => {
-            if (btn.contains(event.target)) {
-                clickedOnButton = true;
-            }
-        });
-        
-        if (!clickedOnButton) {
-            statusMenus.forEach(menu => {
-                if (!menu.contains(event.target)) {
-                    menu.classList.add('hidden');
-                }
-            });
-        }
     });
 </script>
 </html>
