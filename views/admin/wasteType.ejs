@@ -233,14 +233,44 @@
             const editForm = document.getElementById('edit_Form');
             const addForm = document.getElementById('add_Form');
 
-            editForm.style.display = 'none';
-            if (add_Form.style.display === 'block') {
-                add_Form.style.display = 'none';
+            // ซ่อน edit form
+            editForm.classList.add('hidden');
+            
+            // ยกเลิกแรเงาแถวที่เลือก
+            if (lastClickedRow) {
+                lastClickedRow.style.backgroundColor = '';
+                lastClickedRow = null;
             }
-            else {
-                add_Form.style.display = 'block';
+            
+            // toggle add form
+            if (addForm.classList.contains('hidden')) {
+                addForm.classList.remove('hidden');
+            } else {
+                addForm.classList.add('hidden');
             }
         }
+        function setupModalClickOutside() {
+            const editModal = document.getElementById('edit_Form');
+            const addModal = document.getElementById('add_Form');
+            
+            // สำหรับ edit modal
+            editModal.addEventListener('click', function(e) {
+                if (e.target === editModal) {
+                    cancelForm();
+                }
+            });
+            
+            // สำหรับ add modal
+            addModal.addEventListener('click', function(e) {
+                if (e.target === addModal) {
+                    cancelForm();
+                }
+            });
+        }
+        // เรียกใช้เมื่อโหลดหน้า
+        document.addEventListener('DOMContentLoaded', function() {
+            setupModalClickOutside();
+        });
         function deleteWasteType(data) {
             Swal.fire({
                 title: `ลบ "${data[2]}" หรือไม่?`,
@@ -282,12 +312,16 @@
             const editForm = document.getElementById('edit_Form');
             const addForm = document.getElementById('add_Form');
 
+            // ซ่อน modal ทั้งสอง
             editForm.classList.add('hidden');
             addForm.classList.add('hidden');
 
             // Reset ฟอร์ม
-            editForm.querySelector('form').reset();
-            addForm.querySelector('form')?.reset();
+            const editFormElement = editForm.querySelector('form');
+            const addFormElement = addForm.querySelector('form');
+            
+            if (editFormElement) editFormElement.reset();
+            if (addFormElement) addFormElement.reset();
 
             // ยกเลิกแรเงาแถว
             if (lastClickedRow) {
