@@ -283,14 +283,14 @@
                             <p class="font-semibold text-blue-600">
                                 <%= maxQuantityVillage.villageName || `หมู่บ้านที่ ${maxQuantityVillage.villageNumber}` %>
                             </p>
-                            <p class="text-sm text-gray-600"><%= Math.round(maxQuantityVillage.totalQuantity) %> กก.</p>
+                            <p class="text-sm text-gray-600"><%= maxQuantityVillage.totalQuantity.toLocaleString() %> กก.</p>
                         </div>
                         <div class="bg-gray-50 p-3 rounded-lg">
                             <p class="text-gray-500 text-sm">หมู่บ้านที่มีมูลค่าขยะมากที่สุด</p>
                             <p class="font-semibold text-green-600">
                                 <%= maxAmountVillage.villageName || `หมู่บ้านที่ ${maxAmountVillage.villageNumber}` %>
                             </p>
-                            <p class="text-sm text-gray-600">฿<%= Math.round(maxAmountVillage.totalAmount).toLocaleString() %></p>
+                            <p class="text-sm text-gray-600">฿<%= maxAmountVillage.totalAmount.toLocaleString() %></p>
                         </div>
                     </div>
                 <% } %>
@@ -322,10 +322,10 @@
                                             </div>
                                         </td>
                                         <td class="px-4 py-4 whitespace-nowrap text-center text-sm text-gray-500">
-                                            <%= Math.round(waste.totalQuantity).toLocaleString() %>
+                                            <%= waste.totalQuantity.toLocaleString() %>
                                         </td>
                                         <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            ฿<%= Math.round(waste.totalAmount).toLocaleString() %>
+                                            ฿<%= waste.totalAmount.toLocaleString() %>
                                         </td>
                                     </tr>
                                 <% }) %>
@@ -415,9 +415,9 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // ข้อมูลจากเซิร์ฟเวอร์
-            const villageData = <%- JSON.stringify(villageData || []) %>;
-            const wasteSummary = <%- JSON.stringify(wasteSummary || []) %>;
-            const priceTrends = <%- JSON.stringify(priceTrends || []) %>;
+            const villageData   = JSON.parse('<%- JSON.stringify(villageData || []) %>');
+            const wasteSummary  = JSON.parse('<%- JSON.stringify(wasteSummary || []) %>');
+            const priceTrends   = JSON.parse('<%- JSON.stringify(priceTrends || []) %>');
 
             console.log('Village Data:', villageData);
             console.log('Waste Summary:', wasteSummary);
@@ -429,7 +429,7 @@
                 const villageLabels = villageData.map(village => 
                     village.villageName || `หมู่บ้านที่ ${village.villageNumber}`
                 );
-                const villageQuantities = villageData.map(village => Math.round(village.totalQuantity));
+                const villageQuantities = villageData.map(village => village.totalQuantity); // เอา Math.round() ออก
                 const villageColors = [
                     'rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 206, 86, 0.8)',
                     'rgba(75, 192, 192, 0.8)', 'rgba(153, 102, 255, 0.8)', 'rgba(255, 159, 64, 0.8)',
@@ -538,7 +538,7 @@
                                                 const dataset = data.datasets[0];
                                                 const value = dataset.data[i];
                                                 const total = dataset.data.reduce((sum, val) => sum + val, 0);
-                                                const percentage = Math.round((value / total) * 100);
+                                                const percentage = ((value / total) * 100).toFixed(1); // เปลี่ยนจาก Math.round เป็น toFixed(1)
                                                 
                                                 return {
                                                     text: `${label} (${percentage}%)`,
@@ -573,9 +573,9 @@
                                         const label = context.label || '';
                                         const value = context.raw || 0;
                                         const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0; // เปลี่ยนจาก Math.round เป็น toFixed(1)
                                         const villageInfo = villageData[context.dataIndex];
-                                        const amount = villageInfo ? Math.round(villageInfo.totalAmount) : 0;
+                                        const amount = villageInfo ? villageInfo.totalAmount : 0; // เอา Math.round() ออก
                                         const transactions = villageInfo ? villageInfo.transactionCount : 0;
                                         
                                         return [
@@ -616,10 +616,10 @@
                                     title: villageInfo.villageName || `หมู่บ้านที่ ${villageInfo.villageNumber}`,
                                     html: `
                                         <div class="text-left">
-                                            <p><strong>ปริมาณขยะ:</strong> ${Math.round(villageInfo.totalQuantity).toLocaleString()} กิโลกรัม</p>
-                                            <p><strong>มูลค่ารวม:</strong> ฿${Math.round(villageInfo.totalAmount).toLocaleString()}</p>
+                                            <p><strong>ปริมาณขยะ:</strong> ${villageInfo.totalQuantity.toLocaleString()} กิโลกรัม</p>
+                                            <p><strong>มูลค่ารวม:</strong> ฿${villageInfo.totalAmount.toLocaleString()}</p>
                                             <p><strong>จำนวนธุรกรรม:</strong> ${villageInfo.transactionCount.toLocaleString()} ครั้ง</p>
-                                            <p><strong>ราคาเฉลี่ย:</strong> ฿${Math.round(villageInfo.totalAmount / villageInfo.totalQuantity * 100) / 100} ต่อกก.</p>
+                                            <p><strong>ราคาเฉลี่ย:</strong> ฿${(villageInfo.totalAmount / villageInfo.totalQuantity).toFixed(2)} ต่อกก.</p>
                                         </div>
                                     `,
                                     icon: 'info',

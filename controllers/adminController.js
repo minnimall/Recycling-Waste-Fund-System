@@ -404,7 +404,7 @@ const dashboardIndex = async (req, res) => {
             .select('villageName villageNumber')
             .sort({ villageNumber: 1 });
 
-        // คำนวณเปอร์เซ็นต์การเปลี่ยนแปลง
+        // คำนวณเปอร์เซ็นต์การเปลี่ยนแปลง (ไม่ปัดเศษ)
         const totalAmount = totalData[0]?.totalAmount || 0;
         const totalQuantity = totalData[0]?.totalQuantity || 0;
         const totalTransactions = totalData[0]?.totalTransactions || 0;
@@ -412,13 +412,13 @@ const dashboardIndex = async (req, res) => {
         const todayTotal = todayData[0]?.totalAmount || 0;
         const yesterdayTotal = yesterdayData[0]?.totalAmount || 0;
         const todayPercentChange = yesterdayTotal > 0 
-            ? Math.round(((todayTotal - yesterdayTotal) / yesterdayTotal) * 100)
+            ? ((todayTotal - yesterdayTotal) / yesterdayTotal) * 100
             : 0;
 
         const transactionToday = todayData[0]?.totalTransactions || 0;
         const transactionYesterday = yesterdayData[0]?.totalTransactions || 0;
         const transactionPercentChange = transactionYesterday > 0
-            ? Math.round(((transactionToday - transactionYesterday) / transactionYesterday) * 100)
+            ? ((transactionToday - transactionYesterday) / transactionYesterday) * 100
             : 0;
 
         const lastMonthTotal = lastMonthData[0]?.totalAmount || 0;
@@ -445,21 +445,21 @@ const dashboardIndex = async (req, res) => {
         console.log('Rendering dashboard...');
         
         res.render('admin/dashboard', {
-            mytitle: 'แดชบอร์ด',
+            mytitle: 'พนักงาน | แดชบอร์ด',
             
-            // ข้อมูลสถิติหลัก (ตาม filter)
-            totalQuantity: Math.round(totalQuantity),
-            totalAmount: Math.round(totalAmount),
+            // ข้อมูลสถิติหลัก (ไม่ปัดเศษ)
+            totalQuantity: totalQuantity,
+            totalAmount: totalAmount,
             totalTransactions: totalTransactions,
             
-            // ข้อมูลเปรียบเทียบ
-            todayTotal: Math.round(todayTotal),
+            // ข้อมูลเปรียบเทียบ (ไม่ปัดเศษ)
+            todayTotal: todayTotal,
             todayPercentChange: todayPercentChange,
             transactionToday: transactionToday,
             transactionYesterday: transactionYesterday,
             transactionPercentChange: transactionPercentChange,
-            lastMonthTotal: Math.round(lastMonthTotal),
-            lastMonthQuantity: Math.round(lastMonthQuantity),
+            lastMonthTotal: lastMonthTotal,
+            lastMonthQuantity: lastMonthQuantity,
             
             highestWaste: highestWaste,
             
