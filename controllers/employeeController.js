@@ -647,13 +647,18 @@ const wastePurchasePost = async (req, res) => {
 const wastePurchaseTotalIndex = async (req, res) => {
     try {
         const searchDate = req.query.searchDate;
+        const searchMonth = req.query.searchMonth; // เพิ่ม filter เดือน
+        const villageId = req.query.villageId; // เพิ่ม filter หมู่บ้าน
         const accountIdParam = req.query.accountId;
         const page = parseInt(req.query.page) || 1;
         const limit = 10;
         const skip = (page - 1) * limit;
         const search = req.query.search;
+        
         let query = { isDeleted: false };
         let monthlyQuery = { isDeleted: false };
+
+        // Filter ตามวันที่
         if (searchDate) {
             const startDate = new Date(searchDate);
             startDate.setHours(0, 0, 0, 0);
@@ -663,6 +668,7 @@ const wastePurchaseTotalIndex = async (req, res) => {
                 $gte: startDate,
                 $lte: endDate
             };
+            
             const year = startDate.getFullYear();
             const month = startDate.getMonth();
             const firstDayOfMonth = new Date(year, month, 1);
@@ -672,6 +678,48 @@ const wastePurchaseTotalIndex = async (req, res) => {
                 $lte: lastDayOfMonth
             };
         }
+
+        // Filter ตามเดือน (ใหม่)
+        if (searchMonth && !searchDate) {
+            const [year, month] = searchMonth.split('-');
+            const firstDayOfMonth = new Date(year, month - 1, 1);
+            const lastDayOfMonth = new Date(year, month, 0, 23, 59, 59, 999);
+            
+            query.purchaseDate = {
+                $gte: firstDayOfMonth,
+                $lte: lastDayOfMonth
+            };
+            monthlyQuery.purchaseDate = {
+                $gte: firstDayOfMonth,
+                $lte: lastDayOfMonth
+            };
+        }
+
+        // Filter ตามหมู่บ้าน (ใหม่)
+        let accountIdsFromVillage = [];
+        if (villageId) {
+            // หา Family ที่อยู่ในหมู่บ้านนั้น
+            const families = await Family.find({ 
+                village: villageId, 
+                isDeleted: false 
+            }).select('_id');
+            
+            // หา Account ที่เชื่อมกับ Family เหล่านั้น
+            const accounts = await WasteBankAccount.find({
+                familyID: { $in: families.map(f => f._id) },
+                isDeleted: false
+            }).select('_id');
+            
+            accountIdsFromVillage = accounts.map(acc => acc._id);
+            
+            if (accountIdsFromVillage.length > 0) {
+                query.accountId = { $in: accountIdsFromVillage };
+            } else {
+                query.accountId = null;
+            }
+        }
+
+        // Filter ตามเลขบัญชี
         if (accountIdParam) {
             const foundAccount = await WasteBankAccount.findOne({ 
                 AccountNumber: accountIdParam, 
@@ -684,14 +732,16 @@ const wastePurchaseTotalIndex = async (req, res) => {
                 query.accountId = null;
             }
         }
-        // คล้ายกับโค้ด memberIndex
+
+        // ค้นหาทั่วไป
         if (search) {
             const searchRegex = new RegExp(search, 'i');
             const accountSearchQuery = {
                 $or: [
                     { AccountNumber: searchRegex },
                     { AccountName: searchRegex }
-                ]
+                ],
+                isDeleted: false
             };
             const accountsMatching = await WasteBankAccount.find(accountSearchQuery).select('_id');
             if (accountsMatching.length > 0) {
@@ -700,44 +750,87 @@ const wastePurchaseTotalIndex = async (req, res) => {
                 query.accountId = null;
             }
         }
+
+        // ดึงข้อมูล WastePurchase พร้อม populate
         const wastePurchases = await WastePurchase.find(query)
-            .populate('wasteItems')
-            .populate('accountId')
+            .populate({
+                path: 'wasteItems'
+            })
+            .populate({
+                path: 'accountId',
+                populate: {
+                    path: 'familyID',
+                    populate: {
+                        path: 'village'
+                    }
+                }
+            })
+            .sort({ purchaseDate: -1 })
             .skip(skip)
             .limit(limit);
-        // map addBy จาก username เป็น firstname+lastname
+
+        // หา Member ของแต่ละ Family แยกต่างหาก
+        for (let purchase of wastePurchases) {
+            if (purchase.accountId && purchase.accountId.length > 0 && purchase.accountId[0].familyID) {
+                const familyId = purchase.accountId[0].familyID._id;
+                const members = await Member.find({ 
+                    familyID: familyId, 
+                    isDeleted: false,
+                    Status: 'living'
+                }).select('name');
+                
+                // เพิ่ม members เป็น property ชั่วคราว
+                purchase.accountId[0].familyID.members = members;
+            }
+        }
+
+        // Map ชื่อพนักงาน
         const adminUsernames = wastePurchases.map(p => p.addBy);
         const admins = await myAdmin.find({ username: { $in: adminUsernames } });
         const adminMap = {};
         admins.forEach(a => adminMap[a.username] = a.firstname + ' ' + a.lastname);
         wastePurchases.forEach(p => {
-            p.addByName = adminMap[p.addBy] || p.addBy; // สร้างฟิลด์ชั่วคราวสำหรับ view
+            p.addByName = adminMap[p.addBy] || p.addBy;
         });
 
+        // นับจำนวน
         const totalCount = await WastePurchase.countDocuments(query);
         const totalPages = Math.ceil(totalCount / limit);
         const purchaseCount = await WastePurchase.countDocuments(query);
-        const customerCount = new Set(wastePurchases.map(purchase => purchase.accountId && purchase.accountId.length > 0 ? purchase.accountId[0]._id : null)).size;
+        const customerCount = new Set(
+            wastePurchases
+                .filter(purchase => purchase.accountId && purchase.accountId.length > 0)
+                .map(purchase => purchase.accountId[0]._id.toString())
+        ).size;
 
-        // คำนวณ totalAmount จากข้อมูลที่กรองตามเดือน
+        // คำนวณยอดเงินรวม
         const monthlyWastePurchases = await WastePurchase.find(monthlyQuery);
-        const totalAmount = monthlyWastePurchases.reduce((sum, purchase) => sum + (purchase.totalAmount || 0), 0);
+        const totalAmount = monthlyWastePurchases.reduce((sum, purchase) => 
+            sum + (purchase.totalAmount || 0), 0
+        );
+
+        // ดึงรายการหมู่บ้านทั้งหมดสำหรับ dropdown
+        const villages = await Village.find({ isDeleted: false }).sort({ villageNumber: 1 });
+
         const startIndex = (page - 1) * limit;
+
         res.render('employee/wastePurchaseTotal', {
             wastePurchases,
             mytitle: 'พนักงาน | สรุปการรับซื้อขยะ',
             purchaseCount,
             customerCount,
             totalAmount,
-            searchDate: searchDate,
-            accountId: accountIdParam,
+            searchDate: searchDate || '',
+            searchMonth: searchMonth || '',
+            villageId: villageId || '',
+            accountId: accountIdParam || '',
             currentPage: page,
             totalPages: totalPages,
-            wastePurchases: wastePurchases,
             startIndex: startIndex,
-            search: search,
+            search: search || '',
+            villages: villages,
             currentPage: 'wastePurchaseTotal',
-            query: req.query // ส่ง req.query ไปยัง view เพื่อเก็บค่า search
+            query: req.query
         });
     } catch (error) {
         console.error(error);

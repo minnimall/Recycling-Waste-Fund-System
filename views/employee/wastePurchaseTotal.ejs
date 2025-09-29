@@ -3,332 +3,509 @@
 
 <head>
     <%- include('../partials/employeePartials/doctype.ejs') %>
-    <title><%= mytitle %></title>
-    <link rel="stylesheet" href="/style_employee/wastePurchase.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+        <title><%= mytitle %></title>
+        <link rel="stylesheet" href="/style_employee/wastePurchase.css">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+        <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
 
 <body>
     <%- include('../partials/employeePartials/empHeader.ejs') %>
-    <%- include('../partials/employeePartials/empSidebar.ejs') %>
-    <script>
-        // เช็คข้อความที่ส่งมาจาก URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const successMessage = urlParams.get('message');
-        const errorMessage = urlParams.get('error');
+        <%- include('../partials/employeePartials/empSidebar.ejs') %>
 
-        if (successMessage) {
-            Swal.fire({
-                icon: 'success',
-                title: 'สำเร็จ!',
-                text: successMessage,
-                confirmButtonText: 'ตกลง',
-                confirmButtonColor: '#28a745',
-                timer: 3000
-            });
-        }
+            <script>
+                const urlParams = new URLSearchParams(window.location.search);
+                const successMessage = urlParams.get('message');
+                const errorMessage = urlParams.get('error');
 
-        if (errorMessage) {
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: 'error',
-                title: errorMessage,
-                showConfirmButton: false,
-                timer: 3000
-            });
-        }
-    </script>
+                if (successMessage) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'สำเร็จ!',
+                        text: successMessage,
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#28a745',
+                        timer: 3000
+                    });
+                }
 
-    <!-- Modal -->
-    <div id="itemModal" class="fixed inset-0 overflow-y-auto hidden">
-        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
-                <div class="absolute inset-0 bg-black opacity-75"></div>
+                if (errorMessage) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'error',
+                        title: errorMessage,
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                }
+            </script>
+
+            <!-- Modal -->
+            <div id="itemModal" class="fixed inset-0 overflow-y-auto hidden z-50">
+                <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+                    <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                        <div class="absolute inset-0 bg-black opacity-75"></div>
+                    </div>
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                    <div class="max-w-full inline-block overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle"
+                        role="dialog" aria-modal="true" aria-labelledby="modal-headline">
+                        <div class="px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
+                            <h3 class="text-lg font-medium leading-6 text-gray-900" id="modal-headline">
+                                รายละเอียดการรับซื้อ</h3>
+                            <div class="mt-2">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th
+                                                class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">
+                                                เลขบัญชี</th>
+                                            <th
+                                                class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                                                ชื่อบัญชี</th>
+                                            <th
+                                                class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">
+                                                หมู่ที่</th>
+                                            <th
+                                                class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                                                ผู้ขาย</th>
+                                            <th
+                                                class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">
+                                                ยอดรวมสุทธิ (฿)</th>
+                                            <th
+                                                class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">
+                                                วันที่รับซื้อ</th>
+                                            <th
+                                                class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">
+                                                เวลา</th>
+                                            <th
+                                                class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                                                พนักงาน</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="modalHeaderInfo" class="bg-white divide-y divide-gray-200">
+                                    </tbody>
+                                </table>
+                                <table class="min-w-full divide-y divide-gray-200 mt-4">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th
+                                                class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">
+                                                ลำดับที่</th>
+                                            <th
+                                                class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                                                ชื่อสินค้า</th>
+                                            <th
+                                                class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">
+                                                จำนวน/หน่วย</th>
+                                            <th
+                                                class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">
+                                                ราคา/หน่วย</th>
+                                            <th
+                                                class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">
+                                                ยอดรวม (฿)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="modalItemTable" class="bg-white divide-y divide-gray-200">
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="4" class="px-6 py-4 text-right font-semibold">ยอดรวมทั้งหมด
+                                            </td>
+                                            <td id="totalAmount" class="px-6 py-4 text-center font-semibold"></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="px-4 py-3 bg-gray-50 sm:px-6 sm:flex sm:flex-row-reverse">
+                            <button type="button"
+                                class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 closeModal">
+                                ปิด
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div class="max-w-full inline-block overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
-                <div class="px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
-                    <h3 class="text-lg font-medium leading-6 text-gray-900" id="modal-headline">รายละเอียดการรับซื้อ</h3>
-                    <div class="mt-2">
+
+            <!-- Main -->
+            <div class="content bg-gray-50 min-screen">
+                <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">สรุปการรับซื้อขยะ
+                        </h1>
+                        <p class="text-gray-600">ข้อมูลสรุปในการออกรับซื้อขยะ</p>
+                    </div>
+                </div>
+
+                <!-- Stats cards -->
+                <div class="mx-4 grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div
+                        class="bg-blue-50 rounded-lg p-6 shadow-sm border border-blue-100 transition-transform hover:scale-105">
+                        <p class="text-sm font-medium text-blue-600">จำนวนการรับซื้อ</p>
+                        <div class="text-3xl font-bold text-blue-900">
+                            <%= purchaseCount %>
+                        </div>
+                    </div>
+                    <div
+                        class="bg-green-50 rounded-lg p-6 shadow-sm border border-green-100 transition-transform hover:scale-105">
+                        <p class="text-sm font-medium text-green-600">จำนวนลูกค้า</p>
+                        <div class="text-3xl font-bold text-green-900 mb-2">
+                            <%= customerCount %>
+                        </div>
+                    </div>
+                    <div
+                        class="bg-purple-50 rounded-lg p-6 shadow-sm border border-purple-100 transition-transform hover:scale-105">
+                        <p class="text-sm font-medium text-purple-600">ยอดการรับซื้อ</p>
+                        <div class="text-3xl font-bold text-purple-900 mb-2">
+                            <%= totalAmount.toLocaleString('th-TH') %> บาท
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search form and table -->
+                <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+                    <div class="mb-6 border-b border-gray-200 pb-4">
+
+                        <!-- Filter Form -->
+                        <form action="" method="GET">
+                            <div class="flex flex-wrap items-end gap-3">
+                                <!-- Filter วันที่ -->
+                                <div class="flex-1 min-w-[150px]">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">วันที่</label>
+                                    <input type="date" name="searchDate" value="<%= searchDate %>" 
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                                </div>
+
+                                <!-- Filter เดือน -->
+                                <div class="flex-1 min-w-[150px]">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">เดือน</label>
+                                    <input type="month" name="searchMonth" value="<%= searchMonth %>" 
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                                </div>
+
+                                <!-- Filter หมู่บ้าน -->
+                                <div class="flex-1 min-w-[180px]">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">หมู่บ้าน</label>
+                                    <select name="villageId" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                                        <option value="">ทั้งหมด</option>
+                                        <% villages.forEach(village => { %>
+                                            <option value="<%= village._id %>" <%= villageId == village._id ? 'selected' : '' %>>
+                                                หมู่ <%= village.villageNumber %> - <%= village.villageName %>
+                                            </option>
+                                        <% }); %>
+                                    </select>
+                                </div>
+
+                                <!-- ค้นหาเลขบัญชี -->
+                                <div class="flex-1 min-w-[150px]">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">เลขบัญชี</label>
+                                    <input type="text" name="accountId" value="<%= accountId %>" placeholder="เลขที่บัญชี" 
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                                </div>
+
+                                <!-- ปุ่มค้นหา -->
+                                <div class="flex gap-2">
+                                    <button type="submit" class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 whitespace-nowrap">
+                                        <i class="fas fa-search mr-2"></i>ค้นหา
+                                    </button>
+                                    <!-- <a href="/employee/wastePurchaseTotal" class="px-6 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 whitespace-nowrap">
+                                        <i class="fas fa-redo mr-2"></i>รีเซ็ต
+                                    </a> -->
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <h2 class="text-base font-semibold text-gray-800 mb-4">
+                            ข้อมูลการรับซื้อ <span class="text-blue-600 text-base font-normal">
+                                <%= purchaseCount %> รายการ
+                            </span>
+                        </h2>
                         <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
+                            <thead class="bg-gray-100">
                                 <tr>
-                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">เลขบัญชี</th>
-                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">ชื่อบัญชี</th>
-                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">ยอดรวมสุทธิ (฿)</th>
-                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">วันที่รับซื้อ</th>
-                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">เวลา</th>
-                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">พนักงาน</th>
+                                    <th
+                                        class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">
+                                        ลำดับที่</th>
+                                    <th
+                                        class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">
+                                        หมู่ที่</th>
+                                    <th
+                                        class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-700 uppercase">
+                                        เลขที่บัญชี</th>
+                                    <!-- <th
+                                        class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-700 uppercase">
+                                        ชื่อบัญชี</th> -->
+                                    <th
+                                        class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-700 uppercase">
+                                        ผู้ขาย</th>
+                                    <th
+                                        class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">
+                                        ยอดรวม (฿)</th>
+                                    <th
+                                        class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">
+                                        วัน-เวลาที่รับซื้อ</th>
+                                    <th
+                                        class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">
+                                        รายการขยะ</th>
+                                    <th
+                                        class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-700 uppercase">
+                                        พนักงาน</th>
+                                    <th
+                                        class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">
+                                        จัดการ</th>
                                 </tr>
                             </thead>
-                            <tbody id="modalHeaderInfo" class="bg-white divide-y divide-gray-200">
-                                </tbody>
-                        </table>
-                        <table class="min-w-full divide-y divide-gray-200 mt-4">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">ลำดับที่</th>
-                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">ชื่อสินค้า</th>
-                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">จำนวน/หน่วย</th>
-                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">ราคา/หน่วย</th>
-                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">ยอดรวม (฿)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="modalItemTable" class="bg-white divide-y divide-gray-200">
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <td colspan="4" class="px-6 py-4 text-right">ยอดรวมทั้งหมด</td>
-                                        <td id="totalAmount" class="px-6 py-4 text-center"></td>
-                                    </tr>
-                                </tfoot>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <% if (wastePurchases.length> 0) { %>
+                                    <% wastePurchases.forEach((purchase, index)=> { %>
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <td class="px-6 py-4 text-center text-sm text-gray-900">
+                                                <%= startIndex + index + 1 %>
+                                            </td>
+
+                                            <!-- หมู่ที่ (ใหม่) -->
+                                            <td class="px-6 py-4 text-center text-sm text-gray-900">
+                                                <% if (purchase.accountId && purchase.accountId.length> 0 &&
+                                                    purchase.accountId[0].familyID &&
+                                                    purchase.accountId[0].familyID.village) { %>
+                                                    หมู่ <%= purchase.accountId[0].familyID.village.villageNumber %>
+                                                        <% } else { %>
+                                                            -
+                                                            <% } %>
+                                            </td>
+
+                                            <td class="px-6 py-4 text-sm text-gray-900">
+                                                <%= purchase.accountId && purchase.accountId.length> 0 ?
+                                                    purchase.accountId[0].AccountNumber : '-' %>
+                                            </td>
+                                            <!-- <td class="px-6 py-4 text-sm text-gray-900">
+                                                <%= purchase.accountId && purchase.accountId.length> 0 ?
+                                                    purchase.accountId[0].AccountName : '-' %>
+                                            </td> -->
+
+                                            <!-- ชื่อผู้ขาย (ใหม่) -->
+                                            <td class="px-6 py-4 text-sm text-gray-900">
+                                                <% if (purchase.accountId && purchase.accountId.length> 0 &&
+                                                    purchase.accountId[0].familyID &&
+                                                    purchase.accountId[0].familyID.members &&
+                                                    purchase.accountId[0].familyID.members.length > 0) { %>
+                                                    <div class="flex flex-col">
+                                                        <% purchase.accountId[0].familyID.members.forEach((member,
+                                                            idx)=> { %>
+                                                            <span class="<%= idx > 0 ? 'mt-1' : '' %>">
+                                                                <%= member.name %>
+                                                            </span>
+                                                            <% }); %>
+                                                    </div>
+                                                    <% } else { %>
+                                                        -
+                                                        <% } %>
+                                            </td>
+
+                                            <td class="px-6 py-4 text-center text-sm text-gray-900">
+                                                <%= (purchase.totalAmount || 0).toLocaleString('th-TH') %> บาท
+                                            </td>
+
+                                            <% const d=new Date(purchase.purchaseDate); const
+                                                day=d.getDate().toString().padStart(2, '0' ); const month=(d.getMonth()
+                                                + 1).toString().padStart(2, '0' ); const year=d.getFullYear() + 543;
+                                                const hours=d.getHours().toString().padStart(2, '0' ); const
+                                                minutes=d.getMinutes().toString().padStart(2, '0' ); const
+                                                seconds=d.getSeconds().toString().padStart(2, '0' ); %>
+                                                <td class="px-6 py-4 text-center text-sm text-gray-900">
+                                                    <%= `${day}/${month}/${year} เวลา ${hours}:${minutes}:${seconds}` %>
+                                                </td>
+
+                                                <td class="px-6 py-4 text-center text-sm">
+                                                    <a href="#" data-items="<%= JSON.stringify({ 
+                                            wasteItems: purchase.wasteItems, 
+                                            accountId: purchase.accountId, 
+                                            purchaseDate: purchase.purchaseDate,
+                                            purchaseAddby: purchase.addByName 
+                                        }) %>" class="item-link text-blue-600 hover:text-blue-800 hover:underline flex items-center justify-center">
+                                                        <i class="fas fa-receipt mr-1"></i> รายการขยะ
+                                                    </a>
+                                                </td>
+
+                                                <td class="px-6 py-4 text-sm text-gray-900">
+                                                    <%= purchase.addByName ? purchase.addByName : 'Unknown' %>
+                                                </td>
+
+                                                <td class="px-6 py-4 text-center text-sm font-medium">
+                                                    <div class="flex items-center justify-center gap-2">
+                                                        <button
+                                                            onclick="showModalDelete('<%= index + 1 %>','<%= purchase._id %>')"
+                                                            class="text-red-600 hover:text-red-800 transition-colors">
+                                                            <i class="fa fa-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                        </tr>
+                                        <% }); %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="10" class="px-6 py-10 text-center text-gray-500">-
+                                                        ยังไม่มีข้อมูล -</td>
+                                                </tr>
+                                                <% } %>
+                            </tbody>
                         </table>
                     </div>
                 </div>
-                <div class="px-4 py-3 bg-gray-50 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <button type="button" class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white border border-transparent rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 closeModal">
-                        ปิด
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Main -->
-    <div class="content bg-gray-50 min-screen">
-        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
-            <div>
-                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">สรุปการรับซื้อขยะ</h1>
-                <p class="text-gray-600">ข้อมูลสรุปในการออกรับซื้อขยะ</p>
-            </div>
-        </div>
-
-        <!-- Stats cards -->
-        <div class="mx-4 grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-blue-50 rounded-lg p-6 shadow-sm border border-blue-100 transition-transform hover:scale-105">
-                <p class="text-sm font-medium text-blue-600">จำนวนการรับซื้อ</p>
-                <div class="text-3xl font-bold text-blue-900"><%= purchaseCount %></div>
-            </div>
-            <div class="bg-green-50 rounded-lg p-6 shadow-sm border border-green-100 transition-transform hover:scale-105">
-                <p class="text-sm font-medium text-green-600">จำนวนลูกค้า</p>
-                <div class="text-3xl font-bold text-green-900 mb-2"><%= customerCount %></div>
-            </div>
-            <div class="bg-purple-50 rounded-lg p-6 shadow-sm border border-purple-100 transition-transform hover:scale-105">
-                <p class="text-sm font-medium text-purple-600">ยอดการรับซื้อ</p>
-                <div class="text-3xl font-bold text-purple-900 mb-2"><%= totalAmount.toLocaleString('th-TH') %> บาท</div>
-            </div>
-        </div>
-
-        <!-- Search form and table -->
-        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
-            <div class="mb-6 flex justify-between items-center border-b border-gray-200 pb-4">
-                <h2 class="text-base font-semibold text-gray-800 mb-4 md:mb-0">
-                    ข้อมูลการรับซื้อ <span class="text-blue-600 text-base font-normal"><%= purchaseCount %> รายการ</span>
-                </h2>
-                <form action="" method="GET" class="flex flex-col md:flex-row gap-2">
-                    <div class="flex gap-2">
-                        <input type="date" name="searchDate" value="<%= searchDate %>" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                        <input type="text" name="accountId" value="<%= accountId %>" placeholder="เลขที่บัญชี" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                    </div>
-                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                        <i class="fas fa-search mr-2"></i>ค้นหา
-                    </button>
-                </form>
-            </div>
-            <div class="">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">ลำดับที่</th>
-                            <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-700 uppercase">เลขที่บัญชี</th>
-                            <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-700 uppercase">ชื่อบัญชี</th>
-                            <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">ยอดรวม (บาท ฿)</th>
-                            <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">วัน-เวลาที่รับซื้อ</th>
-                            <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">รายการขยะ</th>
-                            <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-700 uppercase">พนักงาน</th>
-                            <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">จัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <% if (wastePurchases.length > 0) { %>
-                            <% wastePurchases.forEach((purchase, index) => { %>
-                            <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="px-6 py-4 text-center text-sm text-gray-900"><%= startIndex + index + 1 %></td>
-                                <td class="px-6 py-4 text-sm text-gray-900"><%= purchase.accountId && purchase.accountId.length > 0 ? purchase.accountId[0].AccountNumber : '' %></td>
-                                <td class="px-6 py-4 text-sm text-gray-900"><%= purchase.accountId && purchase.accountId.length > 0 ? purchase.accountId[0].AccountName : '' %></td>
-                                <td class="px-6 py-4 text-center text-sm text-gray-900"><%= (purchase.totalAmount || 0).toLocaleString('th-TH')  %></td>
-                                <%
-                                    const d = new Date(purchase.purchaseDate);
-                                    const day = d.getDate().toString().padStart(2, '0');
-                                    const month = (d.getMonth() + 1).toString().padStart(2, '0'); // JavaScript months start from 0
-                                    const year = d.getFullYear() + 543; // แปลง ค.ศ. เป็น พ.ศ.
-                                    const hours = d.getHours().toString().padStart(2, '0');
-                                    const minutes = d.getMinutes().toString().padStart(2, '0');
-                                    const seconds = d.getSeconds().toString().padStart(2, '0');
-                                %>
-                                <td class="px-6 py-4 text-center text-sm text-gray-900"><%= `${day}/${month}/${year} เวลา ${hours}:${minutes}:${seconds}` %></td>
-                                <td class="px-6 py-4 text-center text-sm">
-                                    <a href="#"
-                                    data-items="<%= JSON.stringify({ wasteItems: purchase.wasteItems, accountId: purchase.accountId, purchaseDate: purchase.purchaseDate ,purchaseAddby: purchase.addByName }) %>"
-                                        class="item-link text-blue-600 hover:text-blue-800 hover:underline flex items-center justify-center">
-                                        <i class="fas fa-receipt mr-1"></i> รายการขยะ
-                                    </a>
-                                </td>
-                                <td class="px-6 py-4 text-sm text-gray-900"><%= purchase.addByName ? purchase.addByName : 'Unknown' %></td>
-                                <td class="px-6 py-4 text-center text-sm font-medium">
-                                    <div class="flex items-center justify-center gap-2">
-                                        <!-- <button onclick="showModalEdit('purchase', '<%= purchase._id %>', 'purchaseHistory')" class="edit-btn">
-                                            <i class="fa fa-edit"></i>
-                                        </button> -->
-                                        <button onclick="showModalDelete('<%= index + 1 %>','<%= purchase._id %>')" class="delete-btn"> <!-- text-red-600 hover:text-red-800 transition-colors -->
-                                            <i class="fa fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <% }); %>
-                        <% } else { %>
-                            <tr>
-                                <td colspan="8" class="px-6 py-10 text-center text-gray-500">- ยังไม่มีข้อมูล -</td>
-                            </tr>
+                <!-- Pagination -->
+                <div class="pagination flex justify-center items-center mt-4 mb-6 space-x-2">
+                    <% if (currentPage> 1) { %>
+                        <a href="?page=<%= currentPage - 1 %><%= searchDate ? '&searchDate=' + searchDate : '' %><%= searchMonth ? '&searchMonth=' + searchMonth : '' %><%= villageId ? '&villageId=' + villageId : '' %><%= accountId ? '&accountId=' + accountId : '' %><%= search ? '&search=' + search : '' %>"
+                            class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                            ก่อนหน้า
+                        </a>
                         <% } %>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="pagination flex justify-center items-center mt-4 space-x-2">
-            <% if (currentPage > 1) { %>
-                <a href="?page=<%= currentPage - 1 %><%= search ? '&search=' + search : '' %>"
-                    class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                    ก่อนหน้า
-                </a>
-            <% } %>
-            <% for (let i = 1; i <= totalPages; i++) { %>
-                <a href="?page=<%= i %><%= search ? '&search=' + search : '' %>"
-                    class="px-3 py-1 border border-gray-300 rounded-md 
+                            <% for (let i=1; i <=totalPages; i++) { %>
+                                <a href="?page=<%= i %><%= searchDate ? '&searchDate=' + searchDate : '' %><%= searchMonth ? '&searchMonth=' + searchMonth : '' %><%= villageId ? '&villageId=' + villageId : '' %><%= accountId ? '&accountId=' + accountId : '' %><%= search ? '&search=' + search : '' %>"
+                                    class="px-3 py-1 border border-gray-300 rounded-md 
                         <%= currentPage === i ? 'bg-blue-500 text-white' : 'text-gray-700 hover:bg-gray-100' %>">
-                    <%= i %>
-                </a>
-            <% } %>
-            <% if (currentPage < totalPages) { %>
-                <a href="?page=<%= currentPage + 1 %><%= search ? '&search=' + search : '' %>"
-                    class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                    ถัดไป
-                </a>
-            <% } %>
-        </div>
-    </div>
+                                    <%= i %>
+                                </a>
+                                <% } %>
+                                    <% if (currentPage < totalPages) { %>
+                                        <a href="?page=<%= currentPage + 1 %><%= searchDate ? '&searchDate=' + searchDate : '' %><%= searchMonth ? '&searchMonth=' + searchMonth : '' %><%= villageId ? '&villageId=' + villageId : '' %><%= accountId ? '&accountId=' + accountId : '' %><%= search ? '&search=' + search : '' %>"
+                                            class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                                            ถัดไป
+                                        </a>
+                                        <% } %>
+                </div>
+            </div>
 </body>
+
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const itemLinks = document.querySelectorAll('.item-link');
-    const itemModal = document.getElementById('itemModal');
-    const modalHeaderInfo = document.getElementById('modalHeaderInfo');
-    const modalItemTable = document.getElementById('modalItemTable');
-    const closeModalButton = document.querySelector('.closeModal');
+    document.addEventListener('DOMContentLoaded', function () {
+        const itemLinks = document.querySelectorAll('.item-link');
+        const itemModal = document.getElementById('itemModal');
+        const modalHeaderInfo = document.getElementById('modalHeaderInfo');
+        const modalItemTable = document.getElementById('modalItemTable');
+        const closeModalButton = document.querySelector('.closeModal');
 
-    itemLinks.forEach(link => {
-        link.addEventListener('click', function (event) {
-            event.preventDefault();
-            const data = JSON.parse(this.dataset.items);
-            const items = data.wasteItems;
-            const accountId = data.accountId[0].AccountNumber;
-            const accountName = data.accountId[0].AccountName;
-            const accountAddBy = data.purchaseAddby;
-            const purchaseDate = new Date(data.purchaseDate);
-            const formattedDate = purchaseDate.toLocaleDateString();
-            const formattedTime = purchaseDate.toLocaleTimeString();
+        itemLinks.forEach(link => {
+            link.addEventListener('click', function (event) {
+                event.preventDefault();
+                const data = JSON.parse(this.dataset.items);
+                const items = data.wasteItems;
+                const accountData = data.accountId[0];
+                const accountId = accountData.AccountNumber;
+                const accountName = accountData.AccountName;
+                const accountAddBy = data.purchaseAddby;
+                const purchaseDate = new Date(data.purchaseDate);
+                const formattedDate = purchaseDate.toLocaleDateString('th-TH');
+                const formattedTime = purchaseDate.toLocaleTimeString('th-TH');
 
-            
-            // ข้อมูลส่วนหัว
-            const headerRow = `<tr>
+                // หมู่ที่
+                let villageNumber = '-';
+                if (accountData.familyID && accountData.familyID.village) {
+                    villageNumber = 'หมู่ ' + accountData.familyID.village.villageNumber;
+                }
+
+                // ชื่อผู้ขาย
+                let sellerNames = '-';
+                if (accountData.familyID && accountData.familyID.members && accountData.familyID.members.length > 0) {
+                    sellerNames = accountData.familyID.members.map(m => m.name).join(', ');
+                }
+
+                // คำนวณยอดรวม
+                const totalAmount = items.reduce((sum, item) => sum + (item.quantity * item.pricePerUnit), 0);
+
+                // ข้อมูลส่วนหัว
+                const headerRow = `<tr>
                 <td class="px-6 py-4 whitespace-nowrap text-center">${accountId}</td>
                 <td class="px-6 py-4 whitespace-nowrap">${accountName}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-center">${items.reduce((sum, item) => sum + (item.quantity * item.pricePerUnit), 0).toLocaleString('th-TH')}฿</td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">${villageNumber}</td>
+                <td class="px-6 py-4 whitespace-nowrap">${sellerNames}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">${totalAmount.toLocaleString('th-TH')}฿</td>
                 <td class="px-6 py-4 whitespace-nowrap text-center">${formattedDate}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-center">${formattedTime}</td>
                 <td class="px-6 py-4 whitespace-nowrap">${accountAddBy}</td>
             </tr>`;
-            modalHeaderInfo.innerHTML = headerRow;
+                modalHeaderInfo.innerHTML = headerRow;
 
-            // รายการสินค้า
-            let itemRows = '';
-            let total = 0;
-            items.forEach((item, index) => {
-                const subtotal = item.quantity * item.pricePerUnit;
-                total += subtotal;
-                itemRows += `<tr>
+                // รายการสินค้า
+                let itemRows = '';
+                let total = 0;
+                items.forEach((item, index) => {
+                    const subtotal = item.quantity * item.pricePerUnit;
+                    total += subtotal;
+                    itemRows += `<tr>
                     <td class="px-6 py-4 whitespace-nowrap text-center">${index + 1}</td>
                     <td class="px-6 py-4 whitespace-nowrap">${item.name}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-center">${item.quantity.toLocaleString('th-TH')} กก.</td>
                     <td class="px-6 py-4 whitespace-nowrap text-center">฿${item.pricePerUnit.toLocaleString('th-TH')}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-center">฿${subtotal.toLocaleString('th-TH')}</td>
                 </tr>`;
-            });
-            modalItemTable.innerHTML = itemRows;
-            document.getElementById('totalAmount').textContent = `฿${total.toLocaleString('th-TH')}`;
+                });
+                modalItemTable.innerHTML = itemRows;
+                document.getElementById('totalAmount').textContent = `฿${total.toLocaleString('th-TH')}`;
 
-            itemModal.classList.remove('hidden');
+                itemModal.classList.remove('hidden');
+            });
+        });
+
+        closeModalButton.addEventListener('click', function () {
+            itemModal.classList.add('hidden');
+        });
+
+        window.addEventListener('click', function (event) {
+            if (event.target === itemModal) {
+                itemModal.classList.add('hidden');
+            }
         });
     });
 
-    closeModalButton.addEventListener('click', function () {
-        itemModal.classList.add('hidden'); // ซ่อน Modal
-    });
-
-    window.addEventListener('click', function (event) {
-        if (event.target === itemModal) {
-            itemModal.classList.add('hidden');
-        }
-    });
-});
-function showModalDelete(index,id) {
-    Swal.fire({
-        title: `ลบรายการลำดับที่ "${index}" หรือไม่?`,
-        text: "คุณจะไม่สามารถกู้คืนข้อมูลนี้ได้!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "ยืนยัน",
-        cancelButtonText: "ยกเลิก"
-    }).then((result) => {
-        if (result.isConfirmed) {
-            fetch(`/employee/wastePurchaseDelete/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            })
-            .then(response => {
-                if (response.redirected) {
-                    window.location.href = response.url;  // If redirected, go to that URL
-                } else {
-                    return response.json(); // Parse JSON if no redirect
-                }
-            })
-            .then(data => {
-                if (data && data.success) {
-                    Swal.fire("ลบสำเร็จ!", "ข้อมูลถูกลบเรียบร้อย", "success")
-                    .then(() => {
-                        location.reload(); // Refresh page after successful deletion
+    function showModalDelete(index, id) {
+        Swal.fire({
+            title: `ลบรายการลำดับที่ "${index}" หรือไม่?`,
+            text: "คุณจะไม่สามารถกู้คืนข้อมูลนี้ได้!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "ยืนยัน",
+            cancelButtonText: "ยกเลิก"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/employee/wastePurchaseDelete/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                    .then(response => {
+                        if (response.redirected) {
+                            window.location.href = response.url;
+                        } else {
+                            return response.json();
+                        }
+                    })
+                    .then(data => {
+                        if (data && data.success) {
+                            Swal.fire("ลบสำเร็จ!", "ข้อมูลถูกลบเรียบร้อย", "success")
+                                .then(() => {
+                                    location.reload();
+                                });
+                        } else if (data) {
+                            Swal.fire("เกิดข้อผิดพลาด!", data.message || "ไม่สามารถลบข้อมูลได้", "error");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                        Swal.fire("เกิดข้อผิดพลาด!", "ไม่สามารถติดต่อเซิร์ฟเวอร์ได้", "error");
                     });
-                } else if (data) {
-                    Swal.fire("เกิดข้อผิดพลาด!", data.message || "ไม่สามารถลบข้อมูลได้", "error");
-                }
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                Swal.fire("เกิดข้อผิดพลาด!", "ไม่สามารถติดต่อเซิร์ฟเวอร์ได้", "error");
-            });
-        }
-    });
-}
-
+            }
+        });
+    }
 </script>
+
 </html>
