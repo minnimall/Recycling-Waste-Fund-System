@@ -17,31 +17,38 @@
 
     <script>
         // แสดง popup message จาก query string
-        const urlParams = new URLSearchParams(window.location.search);
-        const successMessage = urlParams.get('message');
-        const errorMessage = urlParams.get('error');
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const successMessage = urlParams.get('message');
+            const errorMessage = urlParams.get('error');
 
-        if (successMessage) {
-            Swal.fire({
-                icon: 'success',
-                title: 'สำเร็จ!',
-                text: successMessage,
-                confirmButtonText: 'ตกลง',
-                confirmButtonColor: '#28a745',
-                timer: 3000
-            });
-        }
+            if (successMessage) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'สำเร็จ!',
+                    text: decodeURIComponent(successMessage),
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#28a745',
+                    timer: 3000
+                }).then(() => {
+                    // ล้าง query string หลังแสดง popup
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                });
+            }
 
-        if (errorMessage) {
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: 'error',
-                title: errorMessage,
-                showConfirmButton: false,
-                timer: 3000
-            });
-        }
+            if (errorMessage) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: decodeURIComponent(errorMessage),
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#dc3545',
+                }).then(() => {
+                    // ล้าง query string หลังแสดง popup
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                });
+            }
+        });
     </script>
 
     <div class="content bg-gray-50 min-screen">
@@ -70,7 +77,7 @@
                                 <div class="flex">
                                     <input type="text" id="accountId" name="accountId"
                                         class="flex-1 rounded-l-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50 p-3"
-                                        placeholder="กรอกเลขบัญชี">
+                                        placeholder="กรอกเลขบัญชี" required>
                                     <button type="submit"
                                         class="bg-green-600 text-white px-4 py-2 rounded-r-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition">
                                         <ion-icon name="search-outline"></ion-icon>
@@ -119,7 +126,7 @@
                             </div>
                         </div>
 
-                        <!-- ถอนเงิน -->
+                        <!-- ฟอร์มถอนเงิน -->
                         <form id="withdrawalForm" class="space-y-4" method="POST" action="/employee/withdraw">
                             <input type="hidden" id="hiddenAccountNumber" name="accountId" value="">
 
@@ -131,7 +138,7 @@
                                     </div>
                                     <input type="number" id="withdrawAmount" name="withdrawAmount"
                                         class="pl-8 py-2 px-4 w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50"
-                                        placeholder="0.00" step="0.01" min="0" disabled oninput="validateAmount()">
+                                        placeholder="0.00" step="0.01" min="0.01" disabled oninput="validateAmount()">
                                 </div>
                                 <p id="amountError" class="mt-1 text-sm text-red-600"></p>
                             </div>
@@ -181,7 +188,7 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            <% if (transactions.length === 0) { %>
+                            <% if (!transactions || transactions.length === 0) { %>
                             <tr>
                                 <td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
                                     ไม่มีข้อมูลการถอนเงิน
@@ -219,6 +226,7 @@
     <script>
         async function searchAccount() {
             const accountId = document.getElementById('accountId').value.trim();
+            
             if (!accountId) {
                 Swal.fire({
                     icon: 'warning',
@@ -234,15 +242,36 @@
             document.getElementById('accountDetails').classList.add('hidden');
 
             try {
-                const response = await fetch(`/employee/withdraw/account/${accountId}`);
-                if (!response.ok) throw new Error('ไม่พบบัญชีที่ระบุ');
+                console.log('กำลังค้นหาบัญชี:', accountId);
+                
+                const response = await fetch(`/employee/withdraw/account/${encodeURIComponent(accountId)}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                console.log('Response status:', response.status);
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ error: 'ไม่พบบัญชีที่ระบุ' }));
+                    throw new Error(errorData.error || 'ไม่พบบัญชีที่ระบุ');
+                }
 
                 const data = await response.json();
+                console.log('ข้อมูลบัญชี:', data);
+
+                if (!data.success && data.error) {
+                    throw new Error(data.error);
+                }
 
                 // เติมข้อมูลในส่วนรายละเอียดบัญชี
                 document.getElementById('accountName').textContent = data.accountName || '-';
                 document.getElementById('accountNumber').textContent = data.accountNumber || '-';
-                document.getElementById('accountBalance').textContent = Number(data.balance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                document.getElementById('accountBalance').textContent = Number(data.balance || 0).toLocaleString(undefined, { 
+                    minimumFractionDigits: 2, 
+                    maximumFractionDigits: 2 
+                });
 
                 // ซ่อน loading และแสดงรายละเอียด
                 document.getElementById('loadingState').classList.add('hidden');
@@ -251,22 +280,24 @@
                 // กำหนดค่า hidden input สำหรับส่ง accountId ไปในฟอร์มถอนเงิน
                 document.getElementById('hiddenAccountNumber').value = data.accountNumber;
 
-                // เปิด input ถอนเงิน และปุ่มถอนเงิน (ปุ่ม disabled รอ validate)
+                // เปิด input ถอนเงิน
                 document.getElementById('withdrawAmount').disabled = false;
-                document.getElementById('withdrawButton').disabled = true; // รอกรอกจำนวนก่อน
+                document.getElementById('withdrawButton').disabled = true;
 
                 // ล้างช่องกรอกจำนวนเงินและ error
                 document.getElementById('withdrawAmount').value = '';
                 document.getElementById('amountError').textContent = '';
 
             } catch (error) {
+                console.error('เกิดข้อผิดพลาด:', error);
+                
                 document.getElementById('loadingState').classList.add('hidden');
                 document.getElementById('accountDetails').classList.add('hidden');
 
                 Swal.fire({
                     icon: 'error',
                     title: 'ไม่พบข้อมูลบัญชี',
-                    text: error.message,
+                    text: error.message || 'เกิดข้อผิดพลาดในการค้นหาบัญชี',
                     confirmButtonText: 'ตกลง',
                     confirmButtonColor: '#dc3545',
                 });
@@ -274,23 +305,34 @@
         }
 
         function validateAmount() {
-            const amount = parseFloat(document.getElementById('withdrawAmount').value);
-            const balance = parseFloat(document.getElementById('accountBalance').textContent.replace(/,/g, ''));
+            const amountInput = document.getElementById('withdrawAmount');
+            const amount = parseFloat(amountInput.value);
+            const balanceText = document.getElementById('accountBalance').textContent.replace(/,/g, '');
+            const balance = parseFloat(balanceText);
+
+            const errorElement = document.getElementById('amountError');
+            const withdrawButton = document.getElementById('withdrawButton');
+
+            if (!amountInput.value || amountInput.value.trim() === '') {
+                errorElement.textContent = '';
+                withdrawButton.disabled = true;
+                return;
+            }
 
             if (isNaN(amount) || amount <= 0) {
-                document.getElementById('amountError').textContent = 'กรุณากรอกจำนวนเงินที่ถูกต้อง';
-                document.getElementById('withdrawButton').disabled = true;
+                errorElement.textContent = 'กรุณากรอกจำนวนเงินที่ถูกต้อง';
+                withdrawButton.disabled = true;
                 return;
             }
 
             if (amount > balance) {
-                document.getElementById('amountError').textContent = 'จำนวนเงินที่ถอนมากกว่ายอดเงินในบัญชี';
-                document.getElementById('withdrawButton').disabled = true;
+                errorElement.textContent = 'จำนวนเงินที่ถอนมากกว่ายอดเงินในบัญชี';
+                withdrawButton.disabled = true;
                 return;
             }
 
-            document.getElementById('amountError').textContent = '';
-            document.getElementById('withdrawButton').disabled = false;
+            errorElement.textContent = '';
+            withdrawButton.disabled = false;
         }
 
         document.getElementById('withdrawalForm').addEventListener('submit', function(e) {
@@ -299,9 +341,20 @@
             const amount = document.getElementById('withdrawAmount').value;
             const accountId = document.getElementById('hiddenAccountNumber').value;
 
+            if (!amount || !accountId) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ข้อมูลไม่ครบถ้วน',
+                    text: 'กรุณาตรวจสอบข้อมูลอีกครั้ง',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#dc3545',
+                });
+                return;
+            }
+
             Swal.fire({
                 title: 'ยืนยันการถอนเงิน',
-                text: `คุณต้องการถอนเงินจำนวน ${amount} บาท จากบัญชี ${accountId} ใช่หรือไม่?`,
+                text: `คุณต้องการถอนเงินจำนวน ${Number(amount).toLocaleString(undefined, {minimumFractionDigits: 2})} บาท จากบัญชี ${accountId} ใช่หรือไม่?`,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonText: 'ยืนยัน',
@@ -310,6 +363,7 @@
                 cancelButtonColor: '#dc3545',
             }).then((result) => {
                 if (result.isConfirmed) {
+                    console.log('ส่งฟอร์มถอนเงิน:', { accountId, amount });
                     this.submit();
                 }
             });
