@@ -844,6 +844,8 @@
                 
                 // Create routing control for the entire route
                 const waypoints = route.map(point => L.latLng(point.lat, point.lng));
+                // เพิ่มจุดเริ่มต้นเข้าไปในตอนท้ายเพื่อสร้าง round trip
+                waypoints.push(L.latLng(route[0].lat, route[0].lng));
                 
                 const routingControl = L.Routing.control({ 
                     waypoints: waypoints, // กำหนดจุดทั้งหมดที่ต้องไป
@@ -888,15 +890,18 @@
                 
                 // Calculate segment distances and durations 
                 // ส่วนนี้จะวนลูปเพื่อคำนวณระยะทางและเวลาระหว่าง แต่ละคู่จุด ในเส้นทางที่เรียงลำดับแล้ว
-                for (let i = 0; i < route.length - 1; i++) {
+                for (let i = 0; i < route.length; i++) {
                     try {
-                        const result = await calculateRoadDistance(route[i], route[i + 1]);
+                        // คำนวณระยะทางไปจุดถัดไป หรือกลับจุดเริ่มต้นถ้าเป็นจุดสุดท้าย
+                        const nextPoint = (i === route.length - 1) ? route[0] : route[i + 1];
+                        const result = await calculateRoadDistance(route[i], nextPoint);
                         totalDistance += result.distance;
                         totalDuration += result.duration;
                         routeSegments.push(result);
                     } catch (error) {
                         console.warn(`Error calculating segment ${i+1}:`, error.message);
-                        const fallbackDist = calculateStraightLineDistance(route[i], route[i + 1]);
+                        const nextPoint = (i === route.length - 1) ? route[0] : route[i + 1];
+                        const fallbackDist = calculateStraightLineDistance(route[i], nextPoint);
                         const fallbackResult = { distance: fallbackDist, duration: (fallbackDist / 40) * 60 };
                         totalDistance += fallbackResult.distance;
                         totalDuration += fallbackResult.duration;
@@ -919,8 +924,7 @@
                                 <div class="text-center">
                                     <b>จุดที่ ${index + 1}</b><br>
                                     <div class="text-sm mt-1">${point.address}</div>
-                                    ${index === 0 ? '<div class="text-green-600 text-xs mt-1">จุดเริ่มต้น</div>' : 
-                                    index === route.length - 1 ? '<div class="text-red-600 text-xs mt-1">จุดสุดท้าย</div>' : ''}
+                                    ${index === 0 ? '<div class="text-green-600 text-xs mt-1">จุดเริ่มต้น/สิ้นสุด</div>' : ''}
                                 </div>
                             `)
                             .addTo(map);
@@ -979,7 +983,7 @@
                 <div class="mb-4 p-4 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg border border-blue-200">
                     <h4 class="font-bold text-blue-800 mb-3 flex items-center">
                         <ion-icon name="analytics-outline" class="mr-2"></ion-icon>
-                        สรุปเส้นทางที่เหมาะสม
+                        สรุปเส้นทาง Round Trip
                     </h4>
                     <div class="grid grid-cols-2 gap-4 text-sm">
                         <div class="bg-white p-3 rounded-lg shadow-sm">
@@ -998,20 +1002,20 @@
                 <div>
                     <h4 class="font-semibold text-blue-700 mb-3 flex items-center">
                         <ion-icon name="navigate-outline" class="mr-2"></ion-icon>
-                        ลำดับการเดินทางที่เหมาะสม
+                        ลำดับการเดินทาง
                     </h4>
                     <div class="space-y-2">
             `;
             
+            // แสดงทุกจุดรวมถึงการกลับจุดเริ่มต้น
             route.forEach((point, index) => {
-                const segment = segments[index - 1];
+                const segment = segments[index];
                 const isFirst = index === 0;
-                const isLast = index === route.length - 1;
                 
                 html += `
-                    <div class="flex items-start space-x-3 p-3 ${index % 2 === 0 ? 'bg-blue-50' : 'bg-white'} rounded-lg border ${isFirst ? 'border-green-300 bg-green-50' : isLast ? 'border-red-300 bg-red-50' : 'border-gray-200'}">
+                    <div class="flex items-start space-x-3 p-3 ${index % 2 === 0 ? 'bg-blue-50' : 'bg-white'} rounded-lg border ${isFirst ? 'border-green-300 bg-green-50' : 'border-gray-200'}">
                         <div class="flex-shrink-0">
-                            <div class="${isFirst ? 'bg-green-600' : isLast ? 'bg-red-600' : 'bg-blue-600'} text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold shadow-md">
+                            <div class="${isFirst ? 'bg-green-600' : 'bg-blue-600'} text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold shadow-md">
                                 ${index + 1}
                             </div>
                         </div>
@@ -1020,7 +1024,7 @@
                             <div class="text-xs text-gray-500 mt-1">
                                 ${point.lat.toFixed(4)}, ${point.lng.toFixed(4)}
                             </div>
-                            ${!isFirst && segment ? `
+                            ${segment ? `
                                 <div class="mt-2 p-2 bg-white rounded border-l-4 border-blue-400">
                                     <div class="grid grid-cols-2 gap-2 text-xs">
                                         <div>
@@ -1037,19 +1041,54 @@
                         </div>
                         <div class="flex-shrink-0">
                             ${isFirst ? '<ion-icon name="play-circle" class="text-green-600 text-lg"></ion-icon>' :
-                            isLast ? '<ion-icon name="checkmark-circle" class="text-red-600 text-lg"></ion-icon>' :
                             '<ion-icon name="arrow-forward-circle" class="text-blue-600 text-lg"></ion-icon>'}
                         </div>
                     </div>
                 `;
             });
             
+            // เพิ่มส่วนแสดงการกลับจุดเริ่มต้น
+            const returnSegment = segments[segments.length - 1];
+            html += `
+                <div class="flex items-start space-x-3 p-3 bg-green-50 rounded-lg border border-green-300">
+                    <div class="flex-shrink-0">
+                        <div class="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold shadow-md">
+                            ${route.length + 1}
+                        </div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-medium text-gray-800 text-sm leading-tight">${route[0].address}</div>
+                        <div class="text-xs text-green-600 mt-1 font-medium">🏁 กลับจุดเริ่มต้น</div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            ${route[0].lat.toFixed(4)}, ${route[0].lng.toFixed(4)}
+                        </div>
+                        ${returnSegment ? `
+                            <div class="mt-2 p-2 bg-white rounded border-l-4 border-green-400">
+                                <div class="grid grid-cols-2 gap-2 text-xs">
+                                    <div>
+                                        <span class="text-gray-600">ระยะทาง:</span>
+                                        <span class="font-semibold text-blue-600">${returnSegment.distance.toFixed(2)} กม.</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-600">เวลา:</span>
+                                        <span class="font-semibold text-green-600">${Math.round(returnSegment.duration)} นาที</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="flex-shrink-0">
+                        <ion-icon name="checkmark-circle" class="text-green-600 text-lg"></ion-icon>
+                    </div>
+                </div>
+            `;
+            
             html += `
                     </div>
                     <div class="mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
                         <div class="flex items-center text-yellow-800 text-sm">
                             <ion-icon name="information-circle" class="mr-2 flex-shrink-0"></ion-icon>
-                            <span>เส้นทางนี้คำนวณจากระยะทางจริงบนถนนและใช้อัลกอริธึม TSP เพื่อหาเส้นทางที่สั้นที่สุด</span>
+                            <span>เส้นทางแบบ Round Trip ที่คำนวณจากระยะทางจริงบนถนนและใช้อัลกอริธึม TSP</span>
                         </div>
                     </div>
                 </div>
@@ -1061,17 +1100,31 @@
         
         // Clear route from map
         function clearRoute() {
+            // ลบ routing control layer
             if (routeLayer) {
-                map.removeLayer(routeLayer);
+                try {
+                    map.removeControl(routeLayer); // ใช้ removeControl แทน removeLayer
+                } catch (e) {
+                    console.warn('Error removing route layer:', e);
+                }
                 routeLayer = null;
             }
             
+            // ลบ custom markers ทั้งหมด
             routeMarkers.forEach(marker => {
-                map.removeLayer(marker);
+                try {
+                    map.removeLayer(marker);
+                } catch (e) {
+                    console.warn('Error removing marker:', e);
+                }
             });
             routeMarkers = [];
             
+            // ซ่อนผลลัพธ์
             document.getElementById('routeResults').classList.add('hidden');
+            
+            // ล้าง distance matrix cache
+            distanceMatrix = {};
         }
         
         // Clear all points
