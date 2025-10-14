@@ -319,6 +319,8 @@
                                                 seconds=d.getSeconds().toString().padStart(2, '0' ); %>
                                                 <td class="px-6 py-4 text-center text-sm text-gray-900">
                                                     <%= `${day}/${month}/${year} เวลา ${hours}:${minutes}:${seconds}` %>
+                                                    <%= purchase.purchaseDate.toLocaleDateString('th-TH') %>
+                                                    <%= purchase.purchaseDate.toLocaleTimeString('th-TH') %>
                                                 </td>
 
                                                 <td class="px-6 py-4 text-center text-sm">
