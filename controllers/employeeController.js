@@ -553,7 +553,7 @@ const wastePurchaseIndex = async (req, res) => {
         const [wasteData, wasteTypeData, allWasteBankAccount] = await Promise.all([
             myWaste.find(filter).populate('wasteType', 'wasteTypeName'),
             myWasteType.find({ isDeleted: false }),
-            WasteBankAccount.find({ isDeleted: false }) // Fetch WasteBankAccount data
+            WasteBankAccount.find({ isDeleted: false })
         ]);
 
         res.render('employee/wastePurchase', {
@@ -647,8 +647,8 @@ const wastePurchasePost = async (req, res) => {
 const wastePurchaseTotalIndex = async (req, res) => {
     try {
         const searchDate = req.query.searchDate;
-        const searchMonth = req.query.searchMonth; // เพิ่ม filter เดือน
-        const villageId = req.query.villageId; // เพิ่ม filter หมู่บ้าน
+        const searchMonth = req.query.searchMonth;
+        const villageId = req.query.villageId;
         const accountIdParam = req.query.accountId;
         const page = parseInt(req.query.page) || 1;
         const limit = 10;
@@ -1942,10 +1942,10 @@ const wastePointPost = async (req, res) => {
     // redirect กลับหน้า list พร้อม success message
     res.redirect('/employee/wastePoint?message=เพิ่มจุดรับซื้อสำเร็จ');
 
-  } catch (err) {
-    console.error("❌ Error saving waste point:", err);
-    res.redirect('/employee/wastePoint?error=เกิดข้อผิดพลาดในการบันทึก');
-  }
+    } catch (err) {
+        console.error("❌ Error saving waste point:", err);
+        res.redirect('/employee/wastePoint?error=เกิดข้อผิดพลาดในการบันทึก');
+    }
 };
 
 module.exports = {

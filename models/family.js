@@ -33,7 +33,7 @@ const FamilySchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId, 
                 ref: 'Village', required: true
     },
-    Type: { // ประเภทครัวเรือน เช่น บ้าน, โรงเรียน, อปท. หรือ ชุมชน
+    Type: {
         type: String,
         enum: ['household', 'school', 'municipality', 'community','temple'],
         required: true

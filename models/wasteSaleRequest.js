@@ -27,11 +27,11 @@ const wasteSaleRequestSchema = new Schema(
             type: String,
             required: false
         },
-        latitude: {          // เพิ่มฟิลด์ latitude
+        latitude: {          
             type: Number,
             required: true
         },
-        longitude: {         // เพิ่มฟิลด์ longitude
+        longitude: {         
             type: Number,
             required: true
         },
