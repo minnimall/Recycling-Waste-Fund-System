@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <!-- <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>กองทุนขยะรีไซเคิล องค์การบริหารส่วนตำบลขามป้อม อำเภอเปือยน้อย จังหวัดขอนแก่น</title>
+        <link rel="icon" href="/img/logo_เปือยน้อย.png" type="image/png">
+        <link rel="stylesheet" href="/style_user/style_contact.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script> -->
+    <%- include('../partials/userPartials/head.ejs') %>
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // เช็คข้อความที่ส่งมาจาก URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const successMessage = urlParams.get('message');
+        const errorMessage = urlParams.get('error');
+
+        if (successMessage) {
+            Swal.fire({
+                icon: 'success',
+                title: 'สำเร็จ!',
+                text: successMessage,
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#28a745',
+                timer: 3000
+            });
+        }
+
+        if (errorMessage) {
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด!',
+                text: errorMessage,
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#d33',
+                timer: 3000
+            });
+        }
+
+    </script>
+    <%- include('../partials/userPartials/header.ejs') %>
+
+    <!-- Page Header -->
+    <section class="bg-gradient-to-r from-primary-green to-secondary-green text-white py-16">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl md:text-5xl font-bold mb-4">การแจ้งเตือน</h2>
+            <p class="text-xl opacity-90">กล่องข้อความการแจ้งเตือน/แจ้งประสงค์/คำร้อง</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+
+        <!-- Filters and Search -->
+        <div class="bg-white rounded-2xl shadow-lg p-4 md:p-6 mb-8 border border-gray-100">
+            <div class="flex flex-col lg:flex-row gap-4 items-center justify-between">
+                <!-- Filter Buttons -->
+                <div class="flex flex-wrap gap-2 md:gap-3 w-full lg:w-auto">
+                    <button class="filter-btn flex-1 sm:flex-none px-4 md:px-6 py-2 md:py-3 rounded-xl border-2 border-primary-green bg-primary-green text-white font-medium transition-all duration-300 hover:shadow-lg" data-filter="all">
+                        <i class="fas fa-list mr-2"></i>ทั้งหมด
+                    </button>
+                    <button class="filter-btn flex-1 sm:flex-none px-4 md:px-6 py-2 md:py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-700 font-medium transition-all duration-300 hover:border-primary-green hover:text-primary-green hover:shadow-md" data-filter="unread">
+                        <i class="fas fa-envelope mr-2"></i>ยังไม่อ่าน
+                    </button>
+                    <button class="filter-btn flex-1 sm:flex-none px-4 md:px-6 py-2 md:py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-700 font-medium transition-all duration-300 hover:border-primary-green hover:text-primary-green hover:shadow-md" data-filter="announcements">
+                        <i class="fas fa-bullhorn mr-2"></i>ประกาศ
+                    </button>
+                    <button class="filter-btn flex-1 sm:flex-none px-4 md:px-6 py-2 md:py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-700 font-medium transition-all duration-300 hover:border-primary-green hover:text-primary-green hover:shadow-md" data-filter="system">
+                        <i class="fas fa-wrench mr-2"></i>ระบบ
+                    </button>
+                    <button class="filter-btn flex-1 sm:flex-none px-4 md:px-6 py-2 md:py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-700 font-medium transition-all duration-300 hover:border-primary-green hover:text-primary-green hover:shadow-md" data-filter="request">
+                        <i class="fas fa-comment mr-2"></i>แจ้งประสงค์/คำร้อง
+                    </button>
+                    <button class="filter-btn flex-1 sm:flex-none px-4 md:px-6 py-2 md:py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-700 font-medium transition-all duration-300 hover:border-primary-green hover:text-primary-green hover:shadow-md" data-filter="message">
+                        <i class="fas fa-message mr-2"></i>ข้อความ
+                    </button>
+                </div>
+
+                <!-- Search Box -->
+                <div class="relative w-full lg:w-96">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input 
+                        type="text" 
+                        id="search-input" 
+                        placeholder="ค้นหาการแจ้งเตือน..." 
+                        class="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all duration-300"
+                    >
+                </div>
+            </div>
+        </div>
+
+<!-- Notifications List -->
+<div class="bg-white rounded-2xl shadow-lg p-4 md:p-6 border border-gray-100">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-gray-800 flex items-center">
+            <i class="fas fa-inbox mr-2 text-primary-green"></i>
+            รายการแจ้งเตือน
+        </h2>
+    </div>
+
+    <!-- Container ที่ JS จะ render รายการแจ้งเตือน -->
+    <div id="notifications-container" class="space-y-3">
+        <!-- ตัวอย่าง initial state -->
+        <div class="text-center py-16 px-4">
+            <i class="fas fa-spinner fa-spin text-6xl text-gray-300 mb-4"></i>
+            <p class="text-lg font-medium text-gray-600 mb-2">กำลังโหลดการแจ้งเตือน...</p>
+        </div>
+    </div>
+
+    <!-- Pagination จะถูกสร้างโดย JS -->
+    <div id="pagination" class="flex justify-center mt-4 gap-2"></div>
+</div>
+
+
+        </div>
+    </div>
+
+    <!-- Modal Popup -->
+    <div id="notification-modal" class="fixed inset-0 z-[60] hidden">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm animate-backdrop-in" id="modal-backdrop"></div>
+        
+        <!-- Modal Content -->
+        <div class="relative flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden animate-modal-in" id="modal-content">
+                <!-- Modal Header -->
+                <div class="bg-primary-green p-6 text-white relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
+                    <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"></div>
+                    <div class="relative flex items-start justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div id="modal-icon" class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                                    <i class="fas fa-bell text-2xl"></i>
+                                </div>
+                                <div>
+                                    <div id="modal-type-badge" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/30 backdrop-blur-sm mb-1">
+                                        ประเภท
+                                    </div>
+                                    <h3 id="modalTitle" class="text-xl md:text-2xl font-bold">ชื่อการแจ้งเตือน</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="close-modal" class="ml-4 w-10 h-10 flex items-center justify-center bg-white/20 hover:bg-white/30 rounded-lg transition-all duration-300 hover:rotate-90">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="p-6 md:p-8 overflow-y-auto max-h-[60vh]">
+                    <!-- Meta Information -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 pb-6 border-b border-gray-200">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-hashtag text-purple-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500 font-medium">รหัสอ้างอิง</div>
+                                <div id="modal-reference" class="text-sm font-semibold text-gray-800">-</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <i id="modal-status-icon" class="fas fa-circle-dot text-orange-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500 font-medium">สถานะ</div>
+                                <div id="modal-status" class="text-sm font-semibold text-gray-800">-</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-calendar text-blue-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500 font-medium">วันที่สร้าง</div>
+                                <div id="modal-created-date" class="text-sm font-semibold text-gray-800">-</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-clock text-green-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500 font-medium">เวลา</div>
+                                <div id="modal-created-time" class="text-sm font-semibold text-gray-800">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="mb-6">
+                        <h4 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
+                            <i class="fas fa-file-alt text-primary mr-2"></i>
+                            รายละเอียด
+                        </h4>
+                        <div id="modal-content-text" class="text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-xl border border-gray-200">
+                            เนื้อหาการแจ้งเตือน...
+                        </div>
+                    </div>
+
+                    <!-- Additional Info (if any) -->
+                    <div id="modal-additional-info" class="hidden">
+                        <h4 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
+                            <i class="fas fa-info-circle text-primary mr-2"></i>
+                            ข้อมูลเพิ่มเติม
+                        </h4>
+                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                            <ul id="modal-additional-list" class="space-y-2 text-sm text-gray-700">
+                                <!-- Additional info will be inserted here -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="bg-gray-50 px-6 md:px-8 py-4 flex items-center justify-between gap-3 border-t border-gray-200">
+                    <div class="flex gap-2">
+                        <!-- <button id="modal-toggle-important" class="px-4 py-2 bg-white border-2 border-gray-300 text-gray-700 rounded-lg hover:border-yellow-500 hover:text-yellow-600 transition-all duration-300 flex items-center gap-2 font-medium">
+                            <i class="far fa-star"></i>
+                            <span class="hidden sm:inline">ทำเครื่องหมาย</span>
+                        </button>
+                        <button id="modal-delete" class="px-4 py-2 bg-white border-2 border-gray-300 text-red-600 rounded-lg hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-300 flex items-center gap-2 font-medium">
+                            <i class="fas fa-trash"></i>
+                            <span class="hidden sm:inline">ลบ</span>
+                        </button> -->
+                    </div>
+                    <button id="modal-close-btn" class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-primary-dark transition-all duration-300 font-medium">
+                        ปิด
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Send Notification Form -->
+    <div class="max-w-lg mx-auto bg-white p-6 rounded-2xl shadow-md mt-10">
+        <h2 class="text-2xl font-bold mb-4 text-center text-gray-700">
+            📢 ส่งการแจ้งเตือน
+        </h2>
+
+        <form id="notifyForm" class="space-y-4" action="/user/notificationPost" method="POST">
+            <!-- Notification Type -->
+            <div>
+                <label class="block font-medium mb-1">ประเภทแจ้งเตือน</label>
+                <select id="type" name="type" class="w-full border rounded-lg p-2">
+                    <option value="system">System</option>
+                    <option value="message">Message</option>
+                    <option value="request">Request</option>
+                    <option value="announcements">Announcements</option>
+                </select>
+            </div>
+
+            <!-- Title -->
+            <div>
+                <label class="block font-medium mb-1">หัวข้อ</label>
+                <input id="title" name="title" type="text" class="w-full border rounded-lg p-2" placeholder="เช่น ระบบจะปิดปรับปรุงคืนนี้">
+            </div>
+
+            <!-- Content -->
+            <div>
+                <label class="block font-medium mb-1">เนื้อหา</label>
+                <textarea id="content" name="content" class="w-full border rounded-lg p-2" rows="3"
+                    placeholder="รายละเอียดเพิ่มเติม..."></textarea>
+            </div>
+
+            <!-- Link -->
+            <div>
+                <label class="block font-medium mb-1">ลิงก์ (ถ้ามี)</label>
+                <input id="link" name="link" type="text" class="w-full border rounded-lg p-2" placeholder="/post/123">
+            </div>
+
+            <!-- Target Type -->
+            <div>
+                <label class="block font-medium mb-1">ส่งถึง</label>
+                <div class="flex gap-4">
+                    <label class="flex items-center">
+                        <input type="radio" name="targetType" value="all" checked>
+                        <span class="ml-2">ผู้ใช้ทุกคน</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" name="targetType" value="specific">
+                        <span class="ml-2">ระบุผู้ใช้</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Specific User -->
+            <div id="specificUserDiv" class="hidden">
+                <label class="block font-medium mb-1 mt-2">รายชื่อผู้ใช้ (Username)</label>
+                <!-- <select name="userIds" id="userIds" class="w-full border rounded-lg p-2">
+                    <option value="family1234">Family1234</option>
+                </select> -->
+                <input id="userIds" name="userIds" type="text" class="w-full border rounded-lg p-2"
+                    placeholder="ใส่หลายคนคั่นด้วยเครื่องหมายจุลภาค (,)">
+            </div>
+
+            <button type="submit"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition">
+                ✅ ส่งการแจ้งเตือน
+            </button>
+        </form>
+
+
+        <div id="result" class="text-center mt-4 text-sm text-gray-600"></div>
+    </div>
+
+    <%- include('../partials/userPartials/footer.ejs') %>
+
+</body>
+<script>
+    const targetRadios = document.querySelectorAll('input[name="targetType"]');
+    const specificUserDiv = document.getElementById('specificUserDiv');
+
+    targetRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+            if (radio.value === 'specific' && radio.checked) {
+                specificUserDiv.classList.remove('hidden');
+            } else {
+                specificUserDiv.classList.add('hidden');
+            }
+        });
+    });
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    const container = document.getElementById("notifications-container");
+    const searchInput = document.getElementById("search-input");
+    const filterButtons = document.querySelectorAll(".filter-btn");
+
+    // ดึงข้อมูลจาก EJS
+    const notifications = <%- JSON.stringify(notifications.filter(m => !m.isDeleted)) %>;
+
+    let currentFilter = "all";
+    let currentPage = 1;
+    const itemsPerPage = 5;
+
+    // Modal elements
+    const modal = document.getElementById('notification-modal');
+    const modalBackdrop = document.getElementById('modal-backdrop');
+    const modalClose = document.getElementById('close-modal');
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+
+    const modalTitle = document.getElementById('modalTitle');
+    const modalCreatedDate = document.getElementById('modal-created-date');
+    const modalCreatedTime = document.getElementById('modal-created-time');
+    const modalReference = document.getElementById('modal-reference');
+    const modalStatus = document.getElementById('modal-status');
+    const modalStatusIcon = document.getElementById('modal-status-icon');
+    const modalContentText = document.getElementById('modal-content-text');
+    const modalTypeBadge = document.getElementById('modal-type-badge');
+
+    function renderNotifications() {
+        let filtered = notifications.filter(n => {
+            const matchesFilter =
+                currentFilter === "all" ||
+                (currentFilter === "unread" && !n.read) ||
+                n.type === currentFilter;
+
+            const matchesSearch = n.title.toLowerCase().includes(searchInput.value.toLowerCase()) ||
+                                  n.content.toLowerCase().includes(searchInput.value.toLowerCase());
+
+            return matchesFilter && matchesSearch;
+        });
+
+        const totalPages = Math.ceil(filtered.length / itemsPerPage);
+        if (currentPage > totalPages) currentPage = totalPages || 1;
+
+        const start = (currentPage - 1) * itemsPerPage;
+        const paginated = filtered.slice(start, start + itemsPerPage);
+
+        if (paginated.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-16 px-4">
+                    <i class="fas fa-bell-slash text-6xl text-gray-300 mb-4"></i>
+                    <p class="text-lg font-medium text-gray-600 mb-2">ไม่มีการแจ้งเตือน</p>
+                    <p class="text-sm text-gray-500">ไม่พบการแจ้งเตือนที่ตรงกับการค้นหา</p>
+                </div>
+            `;
+            renderPagination(0);
+            return;
+        }
+
+        container.innerHTML = paginated.map(n => `
+            <div class="p-4 md:p-6 rounded-xl mb-3 cursor-pointer ${n.read ? 'border-2 border-gray-300' : 'border-2 border-red-300'} hover:shadow-md transition-all duration-100 hover:-translate-x-1"
+                 data-notification-id="${n._id}" data-title="${n.title}" data-content='${n.content}'
+                 data-type="${n.type}" data-createdat="${n.createdAt}" data-read="${n.read}">
+                <div class="flex items-start gap-3 md:gap-4">
+                <div class="w-12 h-12 ${
+                    n.type === 'system' ? 'bg-gray-800' :
+                    n.type === 'message' ? 'bg-primary-green' :
+                    n.type === 'request' ? 'bg-blue-600' :
+                    n.type === 'announcements' ? 'bg-orange-500' :
+                    n.type === 'purchase' ? 'bg-green-600' :
+                    n.type === 'round' ? 'bg-green-400' :
+                    'bg-gray-400'
+                } rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                    <i class="${
+                        n.type === 'system' ? 'fas fa-wrench' :
+                        n.type === 'message' ? 'fas fa-message' :
+                        n.type === 'request' ? 'fas fa-comment' :
+                        n.type === 'announcements' ? 'fas fa-bullhorn' :
+                        n.type === 'purchase' ? 'fas fa-money-bill' :
+                        n.type === 'round' ? 'fas fa-truck' :
+                        'fas fa-bell'
+                    } text-white text-xl"></i>
+                </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-start justify-between gap-2 mb-2">
+                            <h3 class="text-base md:text-lg font-semibold text-gray-800 flex items-center gap-2 flex-wrap">
+                                <span class="break-words">${n.title}</span>
+                                ${!n.read ? '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-red-500 to-red-600 text-white shadow-sm animate-pulse-slow">ใหม่</span>' :
+                                '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-200 text-gray-600">อ่านแล้ว</span>'}
+                            </h3>
+                        </div>
+                        <div class="text-sm md:text-base text-gray-600 mb-3 leading-relaxed overflow-hidden max-h-6">${n.content}</div>
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <span class="text-xs md:text-sm text-gray-500 flex items-center">
+                                <i class="far fa-clock mr-1"></i>
+                                ${new Date(n.createdAt).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join("");
+
+        renderPagination(totalPages);
+        attachCardEvents();
+    }
+
+    function renderPagination(totalPages) {
+        let pagination = document.getElementById("pagination");
+        if (!pagination) {
+            pagination = document.createElement("div");
+            pagination.id = "pagination";
+            pagination.className = "flex justify-center mt-4 gap-2";
+            container.parentNode.appendChild(pagination);
+        }
+
+        if (totalPages <= 1) {
+            pagination.innerHTML = "";
+            return;
+        }
+
+        let html = "";
+        for (let i = 1; i <= totalPages; i++) {
+            html += `<button class="px-3 py-1 border rounded ${i===currentPage?'bg-primary-green text-white':'bg-white text-gray-700 border-gray-300'}">${i}</button>`;
+        }
+        pagination.innerHTML = html;
+
+        pagination.querySelectorAll("button").forEach(btn => {
+            btn.addEventListener("click", () => {
+                currentPage = Number(btn.textContent);
+                renderNotifications();
+            });
+        });
+    }
+
+    function attachCardEvents() {
+        const notificationCards = container.querySelectorAll('[data-notification-id]');
+        notificationCards.forEach(card => {
+            card.addEventListener('click', async () => {
+                const data = {
+                    id: card.dataset.notificationId,
+                    title: card.dataset.title,
+                    content: card.dataset.content,
+                    type: card.dataset.type,
+                    createdAt: card.dataset.createdat,
+                    read: card.dataset.read === 'true'
+                };
+                openModal(data);
+            });
+        });
+    }
+
+    async function openModal(data) {
+        try {
+            modalTitle.textContent = data.title;
+            modalContentText.innerHTML = data.content;
+            const date = new Date(data.createdAt);
+            modalCreatedDate.textContent = date.toLocaleDateString('th-TH', { year:'numeric', month:'long', day:'numeric' });
+            modalCreatedTime.textContent = date.toLocaleTimeString('th-TH', { hour:'numeric', minute:'numeric' });
+            modalReference.textContent = data.id || 'N/A';
+            modalTypeBadge.textContent = data.type || 'ทั่วไป';
+
+            if (data.read) {
+                modalStatus.textContent = 'อ่านแล้ว';
+                modalStatusIcon.className = 'fas fa-check-circle text-green-500';
+            } else {
+                modalStatus.textContent = 'ยังไม่อ่าน';
+                modalStatusIcon.className = 'fas fa-circle-dot text-red-500';
+
+                // อัปเดตสถานะอ่าน
+                const response = await fetch(`/user/notification/${data.id}/read`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ read: true })
+                });
+                if (response.ok) {
+                    modalStatus.textContent = 'อ่านแล้ว';
+                    modalStatusIcon.className = 'fas fa-check-circle text-green-500';
+
+                    // อัปเดต badge และ border การ์ด
+                    const card = document.querySelector(`[data-notification-id="${data.id}"]`);
+                    if (card) {
+                        card.classList.remove('border-red-300');
+                        card.classList.add('border-gray-300');
+                        card.querySelector('.animate-pulse-slow')?.remove();
+                        const badge = card.querySelector('span.bg-gray-200');
+                        if (!badge) {
+                            const readBadge = document.createElement('span');
+                            readBadge.className = 'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-200 text-gray-600';
+                            readBadge.textContent = 'อ่านแล้ว';
+                            card.querySelector('h3').appendChild(readBadge);
+                        }
+                    }
+                }
+            }
+
+            modal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+
+        } catch (err) {
+            console.error('Error loading notification:', err);
+            alert('ไม่สามารถโหลดข้อมูลการแจ้งเตือนได้');
+        }
+    }
+
+    function closeModal() {
+        modal.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+    }
+
+    // Event listeners
+    searchInput.addEventListener("input", () => { currentPage = 1; renderNotifications(); });
+    filterButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            filterButtons.forEach(b => {
+                // รีเซ็ตปุ่มเป็นสีปกติ
+                b.classList.remove('border-primary-green', 'bg-primary-green', 'text-white');
+                b.classList.add('border-gray-300', 'bg-white', 'text-gray-700');
+            });
+
+            // ตั้งปุ่มที่ถูกคลิกเป็น active
+            btn.classList.remove('border-gray-300', 'bg-white', 'text-gray-700');
+            btn.classList.add('border-primary-green', 'bg-primary-green', 'text-white');
+
+            currentFilter = btn.dataset.filter;
+            currentPage = 1;
+            renderNotifications();
+        });
+    });
+
+
+    [modalBackdrop, modalClose, modalCloseBtn].forEach(btn => btn.addEventListener('click', closeModal));
+    document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+
+    renderNotifications();
+});
+</script>
+
+</html>

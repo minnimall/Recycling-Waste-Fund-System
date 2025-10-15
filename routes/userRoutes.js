@@ -52,4 +52,8 @@ router.post('/ideas/:id/comment', userController.comment_idea);
 router.delete('/ideas/delete/:id', userController.delete_ideas);
 router.post('/ideas/edit/:id', userController.edit_idea);
 
+router.get('/notification', userController.notification)
+router.post('/notificationPost', userController.notificationPost);
+router.post('/notification/:id/read', userController.markNotificationAsRead);
+
 module.exports = router

@@ -17,6 +17,7 @@ const WasteBankAccount = require('../models/wasteBankAccount');
 const WastePriceHistory = require('../models/wastePriceHistory');
 const transactionMoney = require('../models/transactionMoney');
 const Idea = require('../models/ideas');
+const Notification = require('../models/notification');
 const path = require('path');
 const moment = require('moment');
 
@@ -840,6 +841,95 @@ const edit_idea = (req, res) => {
     });
 };
 
+const notification = async (req, res) => {
+  try {
+    // หา ObjectId ของผู้ใช้จาก session
+    const user = await Family.findOne({ username: req.session.username });
+    if (!user) return res.status(404).redirect('/login');
+
+    const userId = user._id;
+
+    // ดึงการแจ้งเตือนทั้งหมดของ user
+    const notifications = await Notification.find({ userId }).sort({ createdAt: -1 });
+    const notificationUnRead = await Notification.find({ userId, read: false }).sort({ createdAt: -1});
+    const notificationUnReadCount = notificationUnRead.length;
+    // render หน้า พร้อมส่งข้อมูลไปยัง view
+    res.render('user/notification', { notifications, notificationUnReadCount });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('เกิดข้อผิดพลาดในการโหลดการแจ้งเตือน');
+  }
+};
+const notificationPost = async (req, res) => {
+  try {
+    const { type, title, content, link, targetType, userIds } = req.body;
+
+    if (!title || !content) {
+      return res.status(400).json({ message: 'กรุณากรอก title และ content' });
+    }
+
+    let targetUsers = [];
+
+    if (targetType === 'all') {
+      const users = await Family.find({}, '_id');
+      targetUsers = users.map(u => u._id.toString());
+    } else if (userIds) {
+      const users = await Family.find({ username: { $in: userIds.split(',').map(u => u.trim()) } }, '_id');
+      targetUsers = users.map(u => u._id.toString());
+    }
+
+    if (targetUsers.length === 0) {
+      return res.status(400).json({ message: 'ไม่พบผู้ใช้เป้าหมาย' });
+    }
+
+    const notifications = targetUsers.map(userId => ({
+      userId,
+      type: type,
+      title,
+      content,
+      link: link || null,
+      read: false,
+      createdAt: new Date()
+    }));
+
+    await Notification.insertMany(notifications);
+
+    // res.json({ message: `✅ ส่งแจ้งเตือนสำเร็จ ${notifications.length} คน` });
+    res.redirect(`/user/notification`)
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "❌ เกิดข้อผิดพลาดในการส่งแจ้งเตือน", error: err.message });
+  }
+};
+
+// ดึงข้อมูลแจ้งเตือนตาม id
+const markNotificationAsRead = async (req, res) => {
+    try {
+        const notification = await Notification.findById(req.params.id);
+        if (!notification) return res.status(404).json({ success: false, message: 'Notification not found' });
+
+        // ดึง userId จาก session แทน req.user
+        const username = req.session.username;
+        if (!username) return res.status(401).json({ success: false, message: 'Please login first' });
+
+        const user = await Family.findOne({ username });
+        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+        const userId = user._id.toString();
+
+        if (notification.userId.toString() !== userId) {
+            return res.status(403).json({ success: false, message: 'Access denied' });
+        }
+
+        notification.read = true;
+        await notification.save();
+
+        res.json({ success: true, read: notification.read });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
 // exports เพื่อให้ไฟล์อื่นสามารถเรียกใช้งานได้
 module.exports = {
     user_index,
@@ -858,5 +948,8 @@ module.exports = {
     like_idea,    
     comment_idea,
     delete_ideas,
-    edit_idea
+    edit_idea,
+    notification,
+    notificationPost,
+    markNotificationAsRead
 }

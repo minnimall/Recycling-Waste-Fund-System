@@ -16,6 +16,7 @@ const Family = require('../models/family');
 const WasteBankAccount = require('../models/wasteBankAccount');
 const Member = require('../models/member');
 const WastePurchase = require('../models/wastePurchase');
+const Notification = require('../models/notification')
 const mongoose = require('mongoose');
 const path = require('path');
 const bcrypt = require('bcryptjs');
@@ -1035,9 +1036,17 @@ const wasteEdit = async (req, res) => {
             let percentChange = null;
             let changeDirection = 'none';
 
-            if (oldPrice !== 0 && oldPrice !== newPrice) {
+             if (oldPrice !== 0 && oldPrice !== newPrice) {
                 percentChange = ((newPrice - oldPrice) / oldPrice) * 100;
                 changeDirection = percentChange > 0 ? 'up' : 'down';
+                const absPercent = Math.abs(percentChange).toFixed(2);
+
+                changeText =
+                    changeDirection === 'up'
+                        ? `📈 <span class="text-green-600">ราคาเพิ่มขึ้น ${absPercent}%</span>`
+                        : `📉 <span class="text-red-600">ราคาลดลง ${absPercent}%</span>`;
+            } else {
+                changeText = 'ราคาไม่เปลี่ยนแปลง';
             }
 
             // 📝 บันทึกประวัติราคาใหม่
@@ -1046,10 +1055,31 @@ const wasteEdit = async (req, res) => {
                 pricePerUnit: newPrice,
                 percentChange,
                 changeDirection,
-                location: 'ขอนแก่น' // 🔧 แก้ไขเป็น dynamic location ได้
+                location: 'ขอนแก่น'
             });
 
             await priceLog.save();
+
+                        // 🔔 สร้าง Notification แจ้งเตือนทุกครอบครัวที่เป็นสมาชิก
+            const allFamilies = await WasteBankAccount.find({}, 'familyID'); // ดึงทุก familyID
+            const notifications = allFamilies.map(family => ({
+                userId: family.familyID,
+                type: 'price_update',
+                title: `อัปเดตราคาขยะ: ${wasteName}`,
+                content: `
+                    <div>
+                        <p><strong>ประเภทขยะ:</strong> ${wasteName}</p>
+                        <p><strong>ราคาเดิม:</strong> 💰${oldPrice.toFixed(2)} บาท</p>
+                        <p><strong>ราคาปัจจุบัน:</strong> 💰${newPrice.toFixed(2)} บาท</p>
+                        <p>${changeText}</p>
+                    </div>
+                `,
+            }));
+
+            if (notifications.length > 0) {
+                await Notification.insertMany(notifications);
+                console.log(`✅ Created ${notifications.length} price update notifications`);
+            }
 
             console.log('Waste updated successfully');
             res.redirect('/admin/waste?message=แก้ไขข้อมูลขยะสำเร็จ');
@@ -1985,25 +2015,51 @@ const roundIndex = (req, res) => {
     });
 };
 //เพิ่มรอบรับซื้อขยะ 
-const roundPost = (req, res) => {
-    const { roundName, village, date, startTime, endTime } = req.body;
+const roundPost = async (req, res) => {
+    try {
+        const { roundName, village, date, startTime, endTime } = req.body;
 
-    const newRound = new Round({
-        roundName,
-        village, // ใช้ ID ของหมู่บ้านจากฟอร์ม
-        date,
-        startTime,
-        endTime
-    });
-
-    newRound.save()
-        .then(() => {
-            res.redirect('/admin/round?message=เพิ่มรอบการรับซื้อสำเร็จ');
-        })
-        .catch((err) => {
-            console.log(err);
-            res.status(500).send('Error saving round data');
+        const newRound = new Round({
+            roundName,
+            village, // ใช้ ID ของหมู่บ้านจากฟอร์ม
+            date,
+            startTime,
+            endTime
         });
+
+        await newRound.save();
+
+        // ✅ ดึงข้อมูลหมู่บ้านจริงจากฐานข้อมูล
+        const villageData = await Village.findById(village);
+        if (!villageData) {
+            throw new Error("ไม่พบข้อมูลหมู่บ้าน");
+        }
+
+        // ✅ ดึงครอบครัวทั้งหมดในหมู่บ้านนั้น
+        const families = await Family.find({ village });
+        if (families.length > 0) {
+            const notifications = families.map(family => ({
+                userId: family._id,
+                type: 'round',
+                title: `📢 แจ้งรอบรับซื้อขยะใหม่: ${roundName}`,
+                content: `
+                    <ul>
+                        <li><strong>หมู่บ้าน:</strong> ${villageData.villageName}</li>
+                        <li><strong>วันที่:</strong> ${new Date(date).toLocaleDateString('th-TH', { year:'numeric', month:'long', day:'numeric' })}</li>
+                        <li><strong>เวลา:</strong> ${startTime} - ${endTime}</li>
+                    </ul>
+                `
+            }));
+
+            await Notification.insertMany(notifications);
+            console.log(`✅ ส่งแจ้งเตือนให้ครอบครัวในหมู่บ้าน ${villageData.villageName} จำนวน ${families.length} ครอบครัว`);
+        }
+
+        res.redirect('/admin/round?message=เพิ่มรอบการรับซื้อสำเร็จ');
+    } catch (error) {
+        console.error('Error creating round:', error);
+        res.status(500).send('เกิดข้อผิดพลาดในการบันทึกรอบรับซื้อขยะ');
+    }
 };
 // แก้ไขรอบรับซื้อขยะ
 const roundEdit = async (req, res) => {
@@ -2024,11 +2080,36 @@ const roundEdit = async (req, res) => {
             endTime
         });
 
-        res.redirect('/admin/round?message=แก้ไขรอบการรับซื้อสำเร็จ'); // กลับไปหน้าจัดการรอบรับซื้อขยะ
+        // ดึงข้อมูลหมู่บ้านจริง
+        const villageData = await Village.findById(village);
+        if (!villageData) throw new Error("ไม่พบข้อมูลหมู่บ้าน");
+
+        // ดึงครอบครัวทั้งหมดในหมู่บ้านนั้น
+        const families = await Family.find({ village }).populate('village');
+
+        if (families.length > 0) {
+            const notifications = families.map(family => ({
+                userId: family._id,
+                type: 'round',
+                title: `🛠️ มีการแก้ไขรอบรับซื้อขยะ: ${roundName}`,
+                content: `
+                    <ul>
+                        <li><strong>หมู่บ้าน:</strong> ${villageData.villageName}</li>
+                        <li><strong>วันที่:</strong> ${new Date(date).toLocaleDateString('th-TH', { year:'numeric', month:'long', day:'numeric' })}</li>
+                        <li><strong>เวลาใหม่:</strong> ${startTime} - ${endTime}</li>
+                    </ul>
+                `
+            }));
+
+            await Notification.insertMany(notifications);
+            console.log(`✅ แจ้งเตือนครอบครัวในหมู่บ้าน ${villageData.villageName} จำนวน ${families.length} ครอบครัว`);
+        }
+
+        res.redirect('/admin/round?message=แก้ไขรอบการรับซื้อสำเร็จ');
     } catch (error) {
         console.error(error);
-        req.flash('error_msg', 'เกิดข้อผิดพลาดในการแก้ไขรอบรับซื้อขยะ');
-        res.redirect('/admin/manageRounds');
+        console.error('Error updating round:', error);
+        res.redirect('/admin/round?error=เกิดข้อผิดพลาดในการแก้ไขรอบรับซื้อขยะ');
     }
 };
 // ลบรอบรับซื้อขยะ (softDelete)

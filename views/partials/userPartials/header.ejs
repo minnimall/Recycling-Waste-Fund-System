@@ -1,3 +1,20 @@
+<style>
+        .notification-bell-badge {
+            animation: bellPulse 2s infinite;
+        }
+            @keyframes bellPulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            }
+        }
+</style>
+
 <!-- Header -->
 <header class="bg-primary-green shadow-lg sticky top-0 z-50">
     <div class="container mx-auto px-4">
@@ -38,7 +55,7 @@
                     </button>
                     <!-- Dropdown Content -->
                     <div id="user-dropdown"
-                        class="hidden absolute right-0 mt-2 w-48 bg-stone-900 border border-stone-700 shadow-md rounded-lg overflow-hidden z-[10]">
+                        class="hidden absolute right-0 mt-2 w-64 bg-stone-900 border border-stone-700 shadow-md rounded-lg overflow-hidden z-[10]">
                         <div class="text-m text-white px-4 py-2 flex items-center">
                             <img src="../img/admin/logo.png" class="h-10 mr-2">
                             <div class="text-xs">
@@ -50,6 +67,10 @@
                         <a href="/user/profile"
                             class="block px-4 py-2 text-green-400 hover:bg-green-800 hover:text-white hover:bg-opacity-30 border-t border-stone-700">
                             <i class="fa-solid fa-user mr-2"></i> โปรไฟล์
+                        </a>
+                        <a href="/user/notification"
+                            class="flex items-center px-4 py-2 text-green-400 hover:bg-green-800 hover:text-white hover:bg-opacity-30 border-t border-stone-700">
+                            <i class="fa-solid fa-envelope mr-2"></i> กล่องข้อความ
                         </a>
                         <a href="#" id="logoutBtn"
                             class="block px-4 py-2 text-red-400 hover:bg-red-800 hover:text-white hover:bg-opacity-30 border-t border-stone-700">
@@ -100,6 +121,65 @@
     </div>
 </header>
 
+    <!-- Chat Widget -->
+    <div class="chat-widget">
+        <button id="chat-button" class="chat-button">
+            <i class="fas fa-comments"></i>
+        </button>
+        
+        <div id="chat-window" class="chat-window">
+            <div class="chat-header">
+                <div class="chat-header-info">
+                    <div class="chat-avatar">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="chat-status">
+                        <div class="chat-title">เจ้าหน้าที่ อบต.</div>
+                        <div class="chat-subtitle">
+                            <span class="status-dot"></span>
+                            <span id="chat-status">พร้อมให้บริการ</span>
+                        </div>
+                    </div>
+                </div>
+                <button id="chat-close" class="chat-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div id="chat-messages" class="chat-messages">
+                <div class="chat-message bot">
+                    <div class="message-bubble">
+                        สวัสดีครับ! ยินดีต้อนรับสู่ อบต.ข้ามป้อม 🌿<br>
+                        มีอะไรให้ช่วยเหลือไหมครับ?
+                        <div class="message-time" id="welcome-time"></div>
+                    </div>
+                </div>
+                <div class="quick-replies">
+                    <div class="quick-reply" data-message="ขอทราบเวลาทำการ">⏰ เวลาทำการ</div>
+                    <div class="quick-reply" data-message="ต้องการยื่นคำร้อง">📄 ยื่นคำร้อง</div>
+                    <!-- <div class="quick-reply" data-message="สอบถามการชำระภาษี">💰 ชำระภาษี</div> -->
+                    <div class="quick-reply" data-message="ขอข้อมูลติดต่อ">📞 ข้อมูลติดต่อ</div>
+                </div>
+                
+                <div class="chat-message bot" style="margin-bottom: 0;">
+                    <div class="typing-indicator" id="typing-indicator">
+                        <div class="typing-dots">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <textarea id="chat-input" class="chat-input" placeholder="พิมพ์ข้อความ..." rows="1"></textarea>
+                <button id="chat-send" class="chat-send">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>

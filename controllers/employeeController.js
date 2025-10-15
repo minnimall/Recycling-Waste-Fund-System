@@ -20,6 +20,7 @@ const Complaint = require('../models/complaint');
 const Transaction = require('../models/transactionMoney');
 const WastePriceHistory = require('../models/wastePriceHistory');
 const WastePoint = require("../models/wastePoint");
+const Notification = require("../models/notification");
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const moment = require('moment');
@@ -618,6 +619,41 @@ const wastePurchasePost = async (req, res) => {
         });
         await newWastePurchase.save();
 
+        // ดึง familyID จาก WasteBankAccount
+        const wasteBankAccount = await WasteBankAccount.findById(accountId);
+        if (!wasteBankAccount) {
+            console.error(`Bank account with ID ${accountId} not found`);
+            res.redirect('/employee/wastePurchase?error=Bank account not found');
+            return;
+        }
+
+        // ดึงข้อมูล WasteItem ทั้งหมดสำหรับ Notification
+        const items = await WasteItem.find({ _id: { $in: wasteItemIds } });
+
+        // คำนวณจำนวนรวม
+        const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+        const itemCount = items.length;
+        const formattedAmount = totalAmount.toLocaleString('th-TH', { minimumFractionDigits: 2 });
+
+        // สร้าง content รายการขยะ
+        const contentList = `
+            <div>
+                <p><strong>ยอดขายรวม:</strong> 💰${formattedAmount} บาท</p><br>
+                <h3><strong>รายการทั้งหมด</strong> ${itemCount} รายการ</h3>
+                <ul class="list-decimal ml-5">
+                    ${items.map(item => `<li>${item.name} : ${item.quantity} กิโลกรัม</li>`).join('')}
+                </ul>
+            </div>
+        `;
+        // สร้าง Notification
+        const NotificationPurchase = new Notification({
+            userId: wasteBankAccount.familyID, // ใช้ familyID
+            type: "purchase",
+            title: `คุณได้ขายขยะจำนวนรวม ${totalQuantity} กิโลกรัม`,
+            content: contentList
+        });
+        await NotificationPurchase.save();
+
         // Update the WasteBankAccount balance
         if (accountId) {
             // Get the WasteBankAccount
@@ -882,13 +918,16 @@ const memberIndex = async (req, res) => {
 
         if (familyName) searchQuery.familyName = { $regex: familyName, $options: 'i' };
         if (AccountName) searchQuery.AccountName = { $regex: AccountName, $options: 'i' };
-        if (village) searchQuery.village = village; // ใช้ _id ของหมู่บ้านโดยตรง
+        if (village) searchQuery.village = village;
         if (Type) searchQuery.Type = Type;
 
         // ดึงข้อมูล
         const villages = await Village.find(); 
         const allFamilies = await Family.find(searchQuery).populate('village').lean();
+
+        // ดึงข้อมูลบัญชีทั้งหมด แล้วทำ mapping ตาม familyID
         const accounts = await WasteBankAccount.find({ isDeleted: false }).lean();
+
 
         // แผนที่ Type -> ภาษาไทย
         const typeMap = {
@@ -896,19 +935,22 @@ const memberIndex = async (req, res) => {
             school: 'โรงเรียน',
             municipality: 'องค์กรปกครองส่วนท้องถิ่น',
             community: 'ชุมชน',
-            temple:'วัด'
+            temple: 'วัด'
         };
 
         // สร้าง Map เพื่อเชื่อมโยง familyID กับ AccountName
         const accountMap = {};
         accounts.forEach(acc => {
-            accountMap[acc.familyID.toString()] = acc.AccountName;
+            if (acc.familyID) accountMap[acc.familyID.toString()] = acc;
         });
 
-        // เพิ่ม field typeThai ให้ทุกครัวเรือน
+        // เพิ่ม field ให้ทุกครัวเรือน
         allFamilies.forEach(family => {
+            const account = accountMap[family._id.toString()];
+            family.AccountNumber = account ? account.AccountNumber : '-';
+            family.AccountName = family.username || '-';
+            family.Balance = account ? account.Balance : 0;
             family.typeThai = typeMap[family.Type] || family.Type;
-            family.AccountName = accountMap[family._id.toString()] || 'ไม่มีข้อมูล';
         });
 
         // ถ้ามีการค้นหาด้วย AccountName ให้กรองเพิ่ม
