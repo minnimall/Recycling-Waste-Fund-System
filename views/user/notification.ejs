@@ -78,8 +78,8 @@
                     <button class="filter-btn flex-1 sm:flex-none px-4 md:px-6 py-2 md:py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-700 font-medium transition-all duration-300 hover:border-primary-green hover:text-primary-green hover:shadow-md" data-filter="request">
                         <i class="fas fa-comment mr-2"></i>แจ้งประสงค์/คำร้อง
                     </button>
-                    <button class="filter-btn flex-1 sm:flex-none px-4 md:px-6 py-2 md:py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-700 font-medium transition-all duration-300 hover:border-primary-green hover:text-primary-green hover:shadow-md" data-filter="message">
-                        <i class="fas fa-message mr-2"></i>ข้อความ
+                    <button class="filter-btn flex-1 sm:flex-none px-4 md:px-6 py-2 md:py-3 rounded-xl border-2 border-gray-300 bg-white text-gray-700 font-medium transition-all duration-300 hover:border-primary-green hover:text-primary-green hover:shadow-md" data-filter="purchase">
+                        <i class="fas fa-money-bill mr-2"></i>การขายขยะ
                     </button>
                 </div>
 
@@ -158,7 +158,7 @@
                 <div class="p-6 md:p-8 overflow-y-auto max-h-[60vh]">
                     <!-- Meta Information -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 pb-6 border-b border-gray-200">
-                        <div class="flex items-center gap-3">
+                        <!-- <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                                 <i class="fas fa-hashtag text-purple-600"></i>
                             </div>
@@ -166,8 +166,8 @@
                                 <div class="text-xs text-gray-500 font-medium">รหัสอ้างอิง</div>
                                 <div id="modal-reference" class="text-sm font-semibold text-gray-800">-</div>
                             </div>
-                        </div>
-                        <div class="flex items-center gap-3">
+                        </div> -->
+                        <!-- <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
                                 <i id="modal-status-icon" class="fas fa-circle-dot text-orange-600"></i>
                             </div>
@@ -175,7 +175,7 @@
                                 <div class="text-xs text-gray-500 font-medium">สถานะ</div>
                                 <div id="modal-status" class="text-sm font-semibold text-gray-800">-</div>
                             </div>
-                        </div>
+                        </div> -->
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                                 <i class="fas fa-calendar text-blue-600"></i>
@@ -401,6 +401,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     n.type === 'announcements' ? 'bg-orange-500' :
                     n.type === 'purchase' ? 'bg-green-600' :
                     n.type === 'round' ? 'bg-green-400' :
+                    n.type === 'price_update' ? 'bg-yellow-600' :
                     'bg-gray-400'
                 } rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
                     <i class="${
@@ -410,6 +411,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         n.type === 'announcements' ? 'fas fa-bullhorn' :
                         n.type === 'purchase' ? 'fas fa-money-bill' :
                         n.type === 'round' ? 'fas fa-truck' :
+                        n.type === 'price_update' ? 'fas fa-tag' :
                         'fas fa-bell'
                     } text-white text-xl"></i>
                 </div>
@@ -489,15 +491,15 @@ document.addEventListener("DOMContentLoaded", () => {
             const date = new Date(data.createdAt);
             modalCreatedDate.textContent = date.toLocaleDateString('th-TH', { year:'numeric', month:'long', day:'numeric' });
             modalCreatedTime.textContent = date.toLocaleTimeString('th-TH', { hour:'numeric', minute:'numeric' });
-            modalReference.textContent = data.id || 'N/A';
+           // modalReference.textContent = data.id || 'N/A';
             modalTypeBadge.textContent = data.type || 'ทั่วไป';
 
             if (data.read) {
-                modalStatus.textContent = 'อ่านแล้ว';
-                modalStatusIcon.className = 'fas fa-check-circle text-green-500';
+                // modalStatus.textContent = 'อ่านแล้ว';
+                // modalStatusIcon.className = 'fas fa-check-circle text-green-500';
             } else {
-                modalStatus.textContent = 'ยังไม่อ่าน';
-                modalStatusIcon.className = 'fas fa-circle-dot text-red-500';
+                // modalStatus.textContent = 'ยังไม่อ่าน';
+                // modalStatusIcon.className = 'fas fa-circle-dot text-red-500';
 
                 // อัปเดตสถานะอ่าน
                 const response = await fetch(`/user/notification/${data.id}/read`, {
@@ -542,16 +544,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Event listeners
     searchInput.addEventListener("input", () => { currentPage = 1; renderNotifications(); });
+    
     filterButtons.forEach(btn => {
         btn.addEventListener("click", () => {
             filterButtons.forEach(b => {
                 // รีเซ็ตปุ่มเป็นสีปกติ
                 b.classList.remove('border-primary-green', 'bg-primary-green', 'text-white');
-                b.classList.add('border-gray-300', 'bg-white', 'text-gray-700');
+                b.classList.add('border-gray-300', 'bg-white', 'text-gray-700', 'hover:text-primary-green');
             });
 
             // ตั้งปุ่มที่ถูกคลิกเป็น active
-            btn.classList.remove('border-gray-300', 'bg-white', 'text-gray-700');
+            btn.classList.remove('border-gray-300', 'bg-white', 'text-gray-700', 'hover:text-primary-green');
             btn.classList.add('border-primary-green', 'bg-primary-green', 'text-white');
 
             currentFilter = btn.dataset.filter;
