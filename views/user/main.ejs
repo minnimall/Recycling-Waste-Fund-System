@@ -496,204 +496,190 @@
     <section class="py-16 bg-gray-100">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <h3 class="text-3xl font-bold text-center text-gray-800 mb-12">รอบการรับซื้อขยะ</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <% village.forEach(v => { %>
-                    <%
-                        const round = roundsByVillage[v._id];
-                        const currentDate = moment().format('YYYY-MM-DD');
-                        const threeDaysLater = moment().add(3, 'days').format('YYYY-MM-DD');
+            
+            <%
+                // แยกหมู่บ้านออกเป็น 2 กลุ่ม
+                const villagesWithUpcomingRounds = [];
+                const villagesWithoutRounds = [];
+                const currentDate = moment().startOf('day');
+                const threeDaysLater = moment().add(3, 'days').startOf('day');
+                
+                village.forEach(v => {
+                    const round = roundsByVillage[v._id];
+                    
+                    if (!round) {
+                        villagesWithoutRounds.push(v);
+                    } else {
+                        const roundDate = moment(round.formattedDateYYMMDD).startOf('day');
                         
-                        // ตรวจสอบว่า round มีข้อมูลหรือไม่
-                        if (round) {
-                            const roundDate = moment(round.formattedDateYYMMDD).format('YYYY-MM-DD');
-                            const diffDays = moment(roundDate).diff(moment(), 'days'); // Get the difference in days
-                            
-                            // แสดงผลเฉพาะรอบที่ถึงวันนี้หรือจะถึงในอีก 3 วัน
-                            if (roundDate >= currentDate && roundDate <= threeDaysLater) {
-                    %>
-                        <div class="group">
-                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 h-full flex flex-col <%= round.isActive ? 'ring-2 ring-green-500 border-green-200' : '' %>">
-                                <!-- Header -->
-                                <div class="<%= round.isActive ? 'bg-gradient-to-r from-green-500 to-green-600 text-white' : 'bg-gray-50 text-gray-900' %> px-6 py-4 rounded-t-xl">
-                                    <h5 class="text-base font-semibold flex items-center gap-2">
-                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-                                        </svg>
-                                        หมู่ที่ <%= v.villageNumber %> <%= v.villageName %>
-                                    </h5>
-                                </div>
-                                
-                                <!-- Body -->
-                                <div class="px-6 py-5 flex-1">
-                                    <div class="space-y-4">
-                                        <!-- วันที่ -->
-                                        <div class="flex items-center justify-between py-2 border-b border-gray-100">
-                                            <span class="text-gray-600 font-medium flex items-center gap-2">
-                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
-                                                </svg>
-                                                วันที่
-                                            </span>
-                                            <span class="font-bold text-gray-900"><%= round.formattedDateThai %></span>
-                                        </div>
-                                        
-                                        <!-- เวลา -->
-                                        <div class="flex items-center justify-between py-2 border-b border-gray-100">
-                                            <span class="text-gray-600 font-medium flex items-center gap-2">
-                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-                                                </svg>
-                                                เวลา
-                                            </span>
-                                            <span class="font-bold text-gray-900"><%= round.startTime %> - <%= round.endTime %></span>
-                                        </div>
-                                        
-                                        <!-- รอบการรับซื้อ -->
-                                        <div class="flex items-center justify-between py-2 border-b border-gray-100">
-                                            <span class="text-gray-600 font-medium flex items-center gap-2">
-                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
-                                                </svg>
-                                                รอบ
-                                            </span>
-                                            <span class="font-bold text-gray-900"><%= round.roundName %></span>
-                                        </div>
-                                        
-                                        <!-- สถานะ -->
-                                        <% if (round.isActive) { %>
-                                            <div class="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
-                                                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                                                    <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        if (roundDate.isSameOrAfter(currentDate) && roundDate.isSameOrBefore(threeDaysLater)) {
+                            const diffDays = roundDate.diff(currentDate, 'days');
+                            villagesWithUpcomingRounds.push({village: v, round: round, diffDays: diffDays});
+                        }
+                    }
+                });
+            %>
+            
+            <!-- ส่วนที่ 1: รอบที่ใกล้จะถึง (0-3 วัน) -->
+            <% if (villagesWithUpcomingRounds.length > 0) { %>
+                <div class="mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <% villagesWithUpcomingRounds.forEach(item => { %>
+                            <% const v = item.village; const round = item.round; const diffDays = item.diffDays; %>
+                            <div class="group">
+                                <div class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 h-full flex flex-col <%= round.isActive ? 'ring-2 ring-green-500 border-green-200' : '' %>">
+                                    <!-- Header -->
+                                    <div class="<%= round.isActive ? 'bg-gradient-to-r from-green-500 to-green-600 text-white' : 'bg-gray-50 text-gray-900' %> px-6 py-4 rounded-t-xl">
+                                        <h5 class="text-base font-semibold flex items-center gap-2">
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                                            </svg>
+                                            หมู่ที่ <%= v.villageNumber %> <%= v.villageName %>
+                                        </h5>
+                                    </div>
+                                    
+                                    <!-- Body -->
+                                    <div class="px-6 py-5 flex-1">
+                                        <div class="space-y-4">
+                                            <!-- วันที่ -->
+                                            <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                                <span class="text-gray-600 font-medium flex items-center gap-2">
+                                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
                                                     </svg>
+                                                    วันที่
+                                                </span>
+                                                <span class="font-bold text-gray-900"><%= round.formattedDateThai %></span>
+                                            </div>
+                                            
+                                            <!-- เวลา -->
+                                            <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                                <span class="text-gray-600 font-medium flex items-center gap-2">
+                                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                    เวลา
+                                                </span>
+                                                <span class="font-bold text-gray-900"><%= round.startTime %> - <%= round.endTime %></span>
+                                            </div>
+                                            
+                                            <!-- รอบการรับซื้อ -->
+                                            <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                                <span class="text-gray-600 font-medium flex items-center gap-2">
+                                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                    รอบ
+                                                </span>
+                                                <span class="font-bold text-gray-900"><%= round.roundName %></span>
+                                            </div>
+                                            
+                                            <!-- สถานะ -->
+                                            <% if (round.isActive) { %>
+                                                <div class="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
+                                                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                                        <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                                        </svg>
+                                                    </div>
+                                                    <div class="text-green-800 font-medium">กำลังเปิดรับซื้อขยะ</div>
                                                 </div>
-                                                <div class="text-green-800 font-medium">กำลังเปิดรับซื้อขยะ</div>
+                                            <% } else { %>
+                                                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 flex items-center gap-3">
+                                                    <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                                                        <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                                        </svg>
+                                                    </div>
+                                                    <div class="text-gray-600 font-medium">ปิดรับซื้อขยะ</div>
+                                                </div>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Footer -->
+                                    <div class="px-6 py-4 bg-gray-50 rounded-b-xl">
+                                        <% if (diffDays > 0) { %>
+                                            <div class="flex items-center justify-center">
+                                                <div class="bg-amber-100 text-amber-800 px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2">
+                                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                    อีก <%= diffDays %> วัน จะถึงรอบการรับซื้อขยะ
+                                                </div>
+                                            </div>
+                                        <% } else if (diffDays === 0) { %>
+                                            <div class="flex items-center justify-center">
+                                                <div class="bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2">
+                                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                    วันนี้คือรอบการรับซื้อขยะ!
+                                                </div>
                                             </div>
                                         <% } else { %>
-                                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 flex items-center gap-3">
-                                                <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                                                    <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                            <div class="flex items-center justify-center">
+                                                <div class="bg-gray-100 text-gray-600 px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2">
+                                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
                                                     </svg>
+                                                    รอบการรับซื้อขยะได้ปิดไปแล้ว
                                                 </div>
-                                                <div class="text-gray-600 font-medium">ปิดรับซื้อขยะ</div>
                                             </div>
                                         <% } %>
                                     </div>
                                 </div>
-                                
-                                <!-- Footer -->
-                                <div class="px-6 py-4 bg-gray-50 rounded-b-xl">
-                                    <% if (diffDays > 0) { %>
-                                        <div class="flex items-center justify-center">
-                                            <div class="bg-amber-100 text-amber-800 px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2">
-                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-                                                </svg>
-                                                อีก <%= diffDays %> วัน จะถึงรอบการรับซื้อขยะ
-                                            </div>
-                                        </div>
-                                    <% } else if (diffDays === 0) { %>
-                                        <div class="flex items-center justify-center">
-                                            <div class="bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2">
-                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
-                                                </svg>
-                                                วันนี้คือรอบการรับซื้อขยะ!
-                                            </div>
-                                        </div>
-                                    <% } else { %>
-                                        <div class="flex items-center justify-center">
-                                            <div class="bg-gray-100 text-gray-600 px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2">
-                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
-                                                </svg>
-                                                รอบการรับซื้อขยะได้ปิดไปแล้ว
-                                            </div>
-                                        </div>
-                                    <% } %>
-                                </div>
                             </div>
+                        <% }) %>
+                    </div>
+                </div>
+            <% } %>
+            
+            <!-- ส่วนที่ 2: หมู่บ้านที่ยังไม่มีรอบ -->
+            <% if (villagesWithoutRounds.length > 0) { %>
+                <div class="<%= villagesWithUpcomingRounds.length > 0 ? 'mt-8' : '' %>">
+                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                            </svg>
+                            หมู่บ้านที่ยังไม่มีรอบการรับซื้อขยะ
+                        </h4>
+                        <div class="flex flex-wrap gap-2">
+                            <% villagesWithoutRounds.forEach(v => { %>
+                                <span class="inline-flex items-center gap-1.5 bg-white border border-blue-200 text-blue-800 px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                                    </svg>
+                                    หมู่ที่ <%= v.villageNumber %> <%= v.villageName %>
+                                </span>
+                            <% }) %>
                         </div>
-                    <%
-                            }
-                        } else {
-                            // กรณีที่ยังไม่มีรอบการรับซื้อขยะ
-                    %>
-                        <div class="group">
-                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 h-full flex flex-col border-dashed">
-                                <!-- Header -->
-                                <div class="bg-gray-50 text-gray-900 px-6 py-4 rounded-t-xl">
-                                    <h5 class="text-base font-semibold flex items-center gap-2">
-                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-                                        </svg>
-                                        หมู่ที่ <%= v.villageNumber %> <%= v.villageName %>
-                                    </h5>
-                                </div>
-                                
-                                <!-- Body -->
-                                <div class="px-6 py-8 flex-1 flex flex-col items-center justify-center text-center">
-                                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4v10m6-10v10m-6-4h6"/>
-                                        </svg>
-                                    </div>
-                                    <h6 class="text-lg font-semibold text-gray-700 mb-2">ยังไม่มีรอบการรับซื้อขยะ</h6>
-                                    <p class="text-gray-500 text-sm mb-4">ยังไม่ได้กำหนดรอบการรับซื้อขยะสำหรับหมู่บ้านนี้</p>
-                                    
-                                    <!-- ข้อมูลพื้นฐาน -->
-                                    <!-- <div class="w-full space-y-3 mt-4">
-                                        <div class="flex items-center justify-between py-2 border-b border-gray-100">
-                                            <span class="text-gray-600 font-medium flex items-center gap-2">
-                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
-                                                </svg>
-                                                วันที่
-                                            </span>
-                                            <span class="text-gray-400">-</span>
-                                        </div>
-                                        
-                                        <div class="flex items-center justify-between py-2 border-b border-gray-100">
-                                            <span class="text-gray-600 font-medium flex items-center gap-2">
-                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-                                                </svg>
-                                                เวลา
-                                            </span>
-                                            <span class="text-gray-400">-</span>
-                                        </div>
-                                        
-                                        <div class="flex items-center justify-between py-2 border-b border-gray-100">
-                                            <span class="text-gray-600 font-medium flex items-center gap-2">
-                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
-                                                </svg>
-                                                รอบ
-                                            </span>
-                                            <span class="text-gray-400">-</span>
-                                        </div>
-                                    </div> -->
-                                </div>
-                                
-                                <!-- Footer -->
-                                <div class="px-6 py-4 bg-gray-50 rounded-b-xl">
-                                    <div class="flex items-center justify-center">
-                                        <div class="bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2">
-                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                                            </svg>
-                                            รอการกำหนดรอบการรับซื้อขยะ
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <p class="text-blue-700 text-sm mt-3 flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                            </svg>
+                            กรุณาติดต่อเจ้าหน้าที่เพื่อกำหนดรอบการรับซื้อขยะ
+                        </p>
+                    </div>
+                </div>
+            <% } %>
+            
+            <!-- ส่วนที่ 3: กรณีไม่มีข้อมูลเลย -->
+            <% if (villagesWithUpcomingRounds.length === 0 && villagesWithoutRounds.length === 0) { %>
+                <div class="text-center">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 max-w-md mx-auto">
+                        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                            </svg>
                         </div>
-                    <%
-                        }
-                    %>
-                <% }) %>
-            </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">ยังไม่มีรอบการรับซื้อขยะ</h3>
+                        <p class="text-gray-600">ยังไม่มีรอบการรับซื้อขยะในขณะนี้</p>
+                    </div>
+                </div>
+            <% } %>
+            
         </div>
     </section>
 

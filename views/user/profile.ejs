@@ -269,10 +269,21 @@
                                         </div>
                                     </div>
                                     <div class="text-sm text-gray-600 space-y-1">
-                                        <p><i class="fas fa-phone mr-2"></i><%= member.phone %></p>
-                                        <p><i class="fas fa-birthday-cake mr-2"></i><%= member.age %> ปี</p>
+                                        <!-- <p><i class="fas fa-phone mr-2"></i> -->เบอร์โทรศัพท์ : <%= member.phone %></p>
+                                        <p>อายุ : <%= member.age %> ปี</p>
                                     </div>
                                 </div>
+
+                                <% 
+                                  function translateDistribution(type) {
+                                      switch(type) {
+                                          case 'full': return 'รับเต็มจำนวน';
+                                          case 'equal': return 'แบ่งเท่ากัน';
+                                          case 'other': return 'อื่นๆ';
+                                          default: return type;
+                                      }
+                                  }
+                                %>
 
                                 <!-- ผู้รับผลประโยชน์ -->
                                 <% if (member.beneficiaries && member.beneficiaries.length > 0) { %>
@@ -288,7 +299,7 @@
                                                 </div>
                                             </div>
                                             <div class="text-sm text-gray-600 space-y-1">
-                                                <p><i class="fas fa-percent mr-2"></i>การแบ่ง: <%= beneficiary.distributionType %></p>
+                                                <p>การแบ่งเงิน: <%= translateDistribution(beneficiary.distributionType) %></p>
                                                 <% if (beneficiary.distributionType === 'other') { %>
                                                     <p><i class="fas fa-info-circle mr-2"></i><%= beneficiary.distributionDetail %></p>
                                                 <% } %>
@@ -314,7 +325,6 @@
                             </div>
                             
                             <div class="space-y-4">
-                                    
                                 <% if (wasteSaleRequests.length > 0) { %>
                                     <% wasteSaleRequests.forEach((request) => { %>
                                     <div class="bg-gray-50 rounded-lg p-4">
@@ -356,10 +366,21 @@
                                                     </span>
                                                 <% }); %></p>
                                             </div>
-                                            <div>
-                                                <p class="text-gray-600">น้ำหนักประมาณ:</p>
-                                                <p class="font-semibold"><%= request.weight %> กิโลกรัม</p>
-                                            </div>
+                                            <!-- Image Section -->
+                                            
+                                                    <div class="mb-4">
+                                                        <h5 class="text-sm font-medium text-gray-700 mb-2">รูปภาพประกอบ:</h5>
+                                                        <div class="relative inline-block">
+                                                            <img src="<%= request.img %>" 
+                                                                alt="รูปภาพประกอบคำร้อง" 
+                                                                class="max-w-xs max-h-48 rounded-lg border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
+                                                                onclick="showImageModal('<%= request.img %>')">
+                                                            <!-- <div class="absolute top-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">
+                                                                <i class="fas fa-expand-alt mr-1"></i>คลิกเพื่อขยาย
+                                                            </div> -->
+                                                        </div>
+                                                    </div>
+                                            
                                             <div>
                                                 <p class="text-gray-600">วันที่ต้องการขาย:</p>
                                                 <p class="font-semibold">
@@ -375,7 +396,7 @@
                                     <% }); %>
                                 <% } else { %>
                                         <div>ยังไม่มีข้อมูลคำร้องขอขายขยะ</div>
-                                    <% } %>   
+                                <% } %>   
                             </div>
                         </div> 
                         
@@ -471,9 +492,9 @@
                                                                 alt="รูปภาพประกอบคำร้อง" 
                                                                 class="max-w-xs max-h-48 rounded-lg border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
                                                                 onclick="showImageModal('<%= com.image %>')">
-                                                            <div class="absolute top-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">
+                                                            <!-- <div class="absolute top-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">
                                                                 <i class="fas fa-expand-alt mr-1"></i>คลิกเพื่อขยาย
-                                                            </div>
+                                                            </div> -->
                                                         </div>
                                                     </div>
                                                 <% } %>

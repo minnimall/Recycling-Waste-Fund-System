@@ -579,10 +579,10 @@ const user_profile = async (req, res) => {
         statement.sort((a, b) => new Date(b.date) - new Date(a.date));
 
         // ดึงข้อมูลคำร้องขายขยะ (ไม่ต้อง filter เพราะเป็นข้อมูลทั่วไป)
-        const wasteSaleRequests = await wasteSaleRequest.find({ family: family._id }).populate('waste');
+        const wasteSaleRequests = await wasteSaleRequest.find({ family: family._id }).populate('waste').sort({ createdAt: -1 });
 
         // ดึงข้อมูลข้อร้องเรียน (ไม่ต้อง filter เพราะเป็นข้อมูลทั่วไป)
-        const complaints = await Complaint.find({ family: family._id });
+        const complaints = await Complaint.find({ family: family._id }).sort({ createdAt: -1 });
 
         // คำนวณรายได้รวม / จำนวนรายการขยะ (จากข้อมูลที่ filter แล้ว)
         const totalEarnings = wastePurchases.reduce((sum, purchase) => sum + purchase.totalAmount, 0);
