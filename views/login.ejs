@@ -5,9 +5,6 @@
 </head>
 <body>
     <%- include('partials/userPartials/header.ejs') %>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    
     <!-- Login Section -->
     <section class="flex items-center justify-center py-16">
         <div class="container mx-auto px-4">
@@ -21,11 +18,20 @@
                         <h2 class="text-2xl font-bold text-primary-green">เข้าสู่ระบบ</h2>
                     </div>
 
+                    <!-- Error Message Box -->
+                    <div id="error-message" class="hidden mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
+                            <span class="text-red-700 text-sm" id="error-text"></span>
+                        </div>
+                    </div>
+
                     <form id="login-form" class="space-y-6" action="/login" method="POST">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อผู้ใช้</label>
                             <div class="relative">
-                                <input type="text" type="text" name="username" placeholder=" ชื่อผู้ใช้งาน" required class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <input type="text" name="username" id="username" placeholder="ชื่อผู้ใช้งาน" required 
+                                    class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-transparent">
                                 <i class="fas fa-user absolute left-3 top-3 text-gray-400"></i>
                             </div>
                         </div>
@@ -33,7 +39,8 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">รหัสผ่าน</label>
                             <div class="relative">
-                                <input type="password" type="password" id="password" name="password" placeholder="รหัสผ่าน" required class="w-full pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <input type="password" id="password" name="password" placeholder="รหัสผ่าน" required 
+                                    class="w-full pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-transparent">
                                 <i class="fas fa-lock absolute left-3 top-3 text-gray-400"></i>
                                 <button type="button" id="toggle-password" class="absolute right-3 top-3 text-gray-400 hover:text-gray-600">
                                     <i class="fas fa-eye"></i>
@@ -42,7 +49,7 @@
                         </div>
 
                         <div class="flex items-center justify-end">
-                            <a href="#" class="text-sm text-primary hover:text-primary-dark">ลืมรหัสผ่าน?</a>
+                            <a href="#" class="text-sm text-primary-green hover:text-primary-dark">ลืมรหัสผ่าน?</a>
                         </div>
 
                         <button type="submit" class="w-full bg-primary-green text-white py-2 px-4 rounded-lg hover:bg-primary-dark transition-colors font-semibold">
@@ -55,21 +62,7 @@
     </section>
 
     <script>
-        // สำหรับช่องรหัสผ่าน
-        // const togglePassword1 = document.querySelector("#togglePassword1");
-        // const passwordInput = document.querySelector("#password");
-
-        togglePassword1.addEventListener("click", () => {
-            const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
-            passwordInput.setAttribute("type", type);
-            togglePassword1.innerHTML = type === "password" 
-                ? '<i class="fa fa-eye"></i>' 
-                : '<i class="fa fa-eye-slash"></i>';
-        });
-    </script>
-
-    <script>
-                // Password toggle
+        // Password toggle
         const togglePassword = document.getElementById('toggle-password');
         const passwordInput = document.getElementById('password');
 
@@ -82,22 +75,37 @@
             icon.classList.toggle('fa-eye-slash');
         });
 
-
-        // ตรวจสอบ query string ว่ามี error หรือไม่
+        // Show error message if exists in URL
         const urlParams = new URLSearchParams(window.location.search);
         const error = urlParams.get('error');
 
-        // หากมี error ให้แสดง alert สวยงาม
         if (error) {
-            Swal.fire({
-                icon: 'error',
-                title: 'เกิดข้อผิดพลาด!',
-                text: error,
-                confirmButtonText: 'ตกลง',
-                confirmButtonColor: '#d33',
-                timer: 3000
-            });
+            const errorMessage = document.getElementById('error-message');
+            const errorText = document.getElementById('error-text');
+            
+            errorText.textContent = decodeURIComponent(error);
+            errorMessage.classList.remove('hidden');
+            
+            // Add red border to inputs
+            document.getElementById('username').classList.add('border-red-300', 'focus:ring-red-500');
+            document.getElementById('password').classList.add('border-red-300', 'focus:ring-red-500');
+            
+            // Scroll to error message
+            errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
+
+        // Clear error when user starts typing
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('input', () => {
+                const errorMessage = document.getElementById('error-message');
+                if (!errorMessage.classList.contains('hidden')) {
+                    errorMessage.classList.add('hidden');
+                    document.getElementById('username').classList.remove('border-red-300', 'focus:ring-red-500');
+                    document.getElementById('password').classList.remove('border-red-300', 'focus:ring-red-500');
+                }
+            });
+        });
     </script>
     <%- include('partials/userPartials/footer.ejs') %>
 </body>
