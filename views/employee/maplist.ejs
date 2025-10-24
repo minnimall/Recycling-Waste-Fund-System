@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <%- include('../partials/employeePartials/doctype.ejs') %>
+    <title>รายการเส้นทาง | <%= mytitle %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+</head>
+
+<body class="bg-gray-50">
+    <%- include('../partials/employeePartials/empHeader.ejs') %>
+    <%- include('../partials/employeePartials/empSidebar.ejs') %>
+
+    <main class="content p-6">
+        <!-- Page Header -->
+        <div class="mb-6 bg-white rounded-lg shadow p-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800 flex items-center">
+                        <ion-icon name="map" class="mr-3 text-blue-600"></ion-icon>
+                        รายการเส้นทางที่บันทึก
+                    </h1>
+                    <p class="text-gray-600 mt-2">จัดการและดูข้อมูลเส้นทางทั้งหมด</p>
+                </div>
+                <div class="mt-4 md:mt-0">
+                    <a href="/map" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                        <ion-icon name="add-circle-outline" class="mr-2"></ion-icon>
+                        สร้างเส้นทางใหม่
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="mb-6 bg-white rounded-lg shadow p-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="md:col-span-2">
+                    <div class="relative">
+                        <input type="text" id="searchInput" 
+                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                            placeholder="ค้นหาเส้นทาง...">
+                        <ion-icon name="search-outline" class="absolute left-3 top-3 text-gray-400"></ion-icon>
+                    </div>
+                </div>
+                <div>
+                    <select id="statusFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">ทุกสถานะ</option>
+                        <option value="active">ใช้งานอยู่</option>
+                        <option value="draft">แบบร่าง</option>
+                        <option value="completed">เสร็จสิ้น</option>
+                        <option value="archived">เก็บถาวร</option>
+                    </select>
+                </div>
+                <div>
+                    <select id="sortBy" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="newest">ล่าสุด</option>
+                        <option value="oldest">เก่าสุด</option>
+                        <option value="name">ชื่อ A-Z</option>
+                        <option value="distance">ระยะทาง</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Routes List -->
+        <div id="routesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Routes will be loaded here -->
+            <div class="col-span-full text-center py-12">
+                <ion-icon name="refresh-outline" class="text-6xl text-gray-400 animate-spin"></ion-icon>
+                <p class="mt-4 text-gray-600">กำลังโหลดข้อมูล...</p>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div id="pagination" class="mt-6 flex justify-center">
+            <!-- Pagination will be loaded here -->
+        </div>
+    </main>
+
+    <script>
+        let currentPage = 1;
+        let currentStatus = '';
+        let currentSearch = '';
+
+        // โหลดข้อมูลเส้นทาง
+        async function loadRoutes(page = 1) {
+            try {
+                const params = new URLSearchParams({
+                    page: page,
+                    limit: 9,
+                    status: currentStatus,
+                    search: currentSearch
+                });
+
+                const response = await fetch(`/api/routes?${params}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    displayRoutes(result.data);
+                    displayPagination(result.currentPage, result.totalPages);
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error('Error loading routes:', error);
+                document.getElementById('routesList').innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <ion-icon name="alert-circle" class="text-6xl text-red-400"></ion-icon>
+                        <p class="mt-4 text-gray-600">เกิดข้อผิดพลาดในการโหลดข้อมูล</p>
+                        <button onclick="loadRoutes()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            ลองใหม่อีกครั้ง
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // แสดงเส้นทาง
+        function displayRoutes(routes) {
+            const container = document.getElementById('routesList');
+
+            if (routes.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <ion-icon name="map-outline" class="text-6xl text-gray-400"></ion-icon>
+                        <p class="mt-4 text-gray-600">ไม่พบเส้นทางที่บันทึกไว้</p>
+                        <a href="/map" class="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            สร้างเส้นทางใหม่
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            routes.forEach(route => {
+                const statusColors = {
+                    active: 'bg-green-100 text-green-800',
+                    draft: 'bg-gray-100 text-gray-800',
+                    completed: 'bg-blue-100 text-blue-800',
+                    archived: 'bg-yellow-100 text-yellow-800'
+                };
+
+                const statusLabels = {
+                    active: 'ใช้งานอยู่',
+                    draft: 'แบบร่าง',
+                    completed: 'เสร็จสิ้น',
+                    archived: 'เก็บถาวร'
+                };
+
+                html += `
+                    <div class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
+                        <div class="p-6">
+                            <div class="flex justify-between items-start mb-4">
+                                <h3 class="text-lg font-bold text-gray-800 line-clamp-1">
+                                    ${route.routeName}
+                                </h3>
+                                <span class="px-2 py-1 text-xs font-medium rounded-full ${statusColors[route.status]}">
+                                    ${statusLabels[route.status]}
+                                </span>
+                            </div>
+
+                            ${route.description ? `
+                                <p class="text-sm text-gray-600 mb-4 line-clamp-2">
+                                    ${route.description}
+                                </p>
+                            ` : ''}
+
+                            <div class="space-y-2 mb-4">
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <ion-icon name="location" class="mr-2 text-blue-600"></ion-icon>
+                                    <span>${route.analysis.numberOfPoints} จุด</span>
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <ion-icon name="navigate" class="mr-2 text-green-600"></ion-icon>
+                                    <span>${route.analysis.totalDistance.toFixed(2)} กม.</span>
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <ion-icon name="time" class="mr-2 text-purple-600"></ion-icon>
+                                    <span>${Math.round(route.analysis.totalDuration)} นาที</span>
+                                </div>
+                            </div>
+
+                            ${route.tags && route.tags.length > 0 ? `
+                                <div class="flex flex-wrap gap-1 mb-4">
+                                    ${route.tags.slice(0, 3).map(tag => `
+                                        <span class="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded">
+                                            ${tag}
+                                        </span>
+                                    `).join('')}
+                                    ${route.tags.length > 3 ? `
+                                        <span class="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
+                                            +${route.tags.length - 3}
+                                        </span>
+                                    ` : ''}
+                                </div>
+                            ` : ''}
+
+                            <div class="text-xs text-gray-500 mb-4">
+                                <div>สร้างเมื่อ: ${new Date(route.createdAt).toLocaleDateString('th-TH', {
+                                    year: 'numeric',
+                                    month: 'short',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })}</div>
+                                ${route.usageStats.timesViewed > 0 ? `
+                                    <div class="mt-1">ดู ${route.usageStats.timesViewed} ครั้ง</div>
+                                ` : ''}
+                            </div>
+
+                            <div class="flex gap-2">
+                                <button onclick="viewRoute('${route._id}')" 
+                                    class="flex-1 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
+                                    <ion-icon name="eye-outline" class="align-middle"></ion-icon>
+                                    ดู
+                                </button>
+                                <button onclick="editRoute('${route._id}')" 
+                                    class="px-4 py-2 bg-gray-200 text-gray-700 text-sm rounded-lg hover:bg-gray-300 transition">
+                                    <ion-icon name="create-outline" class="align-middle"></ion-icon>
+                                </button>
+                                <button onclick="deleteRoute('${route._id}')" 
+                                    class="px-4 py-2 bg-red-100 text-red-600 text-sm rounded-lg hover:bg-red-200 transition">
+                                    <ion-icon name="trash-outline" class="align-middle"></ion-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // แสดง Pagination
+        function displayPagination(current, total) {
+            const container = document.getElementById('pagination');
+            
+            if (total <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '<div class="flex gap-2">';
+
+            // Previous button
+            html += `
+                <button onclick="changePage(${current - 1})" 
+                    ${current === 1 ? 'disabled' : ''} 
+                    class="px-4 py-2 border rounded-lg ${current === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-50'}">
+                    <ion-icon name="chevron-back-outline"></ion-icon>
+                </button>
+            `;
+
+            // Page numbers
+            for (let i = 1; i <= total; i++) {
+                if (i === 1 || i === total || (i >= current - 1 && i <= current + 1)) {
+                    html += `
+                        <button onclick="changePage(${i})" 
+                            class="px-4 py-2 border rounded-lg ${i === current ? 'bg-blue-600 text-white' : 'bg-white hover:bg-gray-50'}">
+                            ${i}
+                        </button>
+                    `;
+                } else if (i === current - 2 || i === current + 2) {
+                    html += '<span class="px-2 py-2">...</span>';
+                }
+            }
+
+            // Next button
+            html += `
+                <button onclick="changePage(${current + 1})" 
+                    ${current === total ? 'disabled' : ''} 
+                    class="px-4 py-2 border rounded-lg ${current === total ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-50'}">
+                    <ion-icon name="chevron-forward-outline"></ion-icon>
+                </button>
+            `;
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // เปลี่ยนหน้า
+        function changePage(page) {
+            currentPage = page;
+            loadRoutes(page);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ดูเส้นทาง
+        function viewRoute(id) {
+            window.location.href = `/routes/${id}/view`;
+        }
+
+        // แก้ไขเส้นทาง
+        function editRoute(id) {
+            window.location.href = `/routes/${id}/edit`;
+        }
+
+        // ลบเส้นทาง
+        async function deleteRoute(id) {
+            const result = await Swal.fire({
+                title: 'ยืนยันการลบ?',
+                text: 'คุณต้องการลบเส้นทางนี้หรือไม่? การดำเนินการนี้ไม่สามารถยกเลิกได้',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#EF4444',
+                cancelButtonColor: '#6B7280',
+                confirmButtonText: 'ลบ',
+                cancelButtonText: 'ยกเลิก'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`/api/routes/${id}`, {
+                        method: 'DELETE'
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'ลบสำเร็จ',
+                            text: 'ลบเส้นทางเรียบร้อยแล้ว',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                        loadRoutes(currentPage);
+                    } else {
+                        throw new Error(result.message);
+                    }
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: error.message || 'ไม่สามารถลบเส้นทางได้'
+                    });
+                }
+            }
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            loadRoutes(1);
+
+            // Search
+            let searchTimeout;
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    currentSearch = e.target.value;
+                    currentPage = 1;
+                    loadRoutes(1);
+                }, 500);
+            });
+
+            // Status Filter
+            document.getElementById('statusFilter').addEventListener('change', function(e) {
+                currentStatus = e.target.value;
+                currentPage = 1;
+                loadRoutes(1);
+            });
+
+            // Sort
+            document.getElementById('sortBy').addEventListener('change', function(e) {
+                // Implement sorting logic
+                loadRoutes(currentPage);
+            });
+        });
+    </script>
+</body>
+</html>

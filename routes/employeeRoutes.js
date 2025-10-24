@@ -45,6 +45,16 @@ router.get('/funeralAid', employeeController.funeralAidIndex);
 
 // แผนที่
 router.get('/map', employeeController.mapIndex);
+// API Routes
+router.post('/api/routes', employeeController.saveRouteAnalysis);
+router.get('/api/routes', employeeController.getEmployeeRoutes);
+router.get('/api/routes/:id', employeeController.getRouteById);
+router.put('/api/routes/:id', employeeController.updateRoute);
+router.delete('/api/routes/:id', employeeController.deleteRoute);
+router.post('/api/routes/snapshot', employeeController.captureMapSnapshot);
+router.get('/api/routes/:id/export', employeeController.exportRoute);
+
+
 // จัดการจุดรับซื้อ
 router.get('/wastePoint', employeeController.wastePointIndex);
 router.post('/wastePointPost', employeeController.wastePointPost);
