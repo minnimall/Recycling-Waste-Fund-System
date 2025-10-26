@@ -2014,37 +2014,36 @@ const roundIndex = (req, res) => {
         res.status(500).send('Error retrieving village and round data');
     });
 };
-//เพิ่มรอบรับซื้อขยะ 
+// เพิ่มรอบรับซื้อขยะ 
 const roundPost = async (req, res) => {
     try {
         const { roundName, village, date, startTime, endTime } = req.body;
 
+        // ✅ บันทึกข้อมูลรอบรับซื้อขยะใหม่
         const newRound = new Round({
             roundName,
-            village, // ใช้ ID ของหมู่บ้านจากฟอร์ม
+            village, // ใช้ ID ของหมู่บ้านจากฟอร์ม (สำหรับแสดงในตาราง)
             date,
             startTime,
             endTime
         });
-
         await newRound.save();
 
-        // ✅ ดึงข้อมูลหมู่บ้านจริงจากฐานข้อมูล
+        // ✅ ดึงข้อมูลหมู่บ้านจริง (เพื่อแสดงชื่อใน notification)
         const villageData = await Village.findById(village);
-        if (!villageData) {
-            throw new Error("ไม่พบข้อมูลหมู่บ้าน");
-        }
+        const villageName = villageData ? villageData.villageName : "ทุกหมู่บ้าน";
 
-        // ✅ ดึงครอบครัวทั้งหมดในหมู่บ้านนั้น
-        const families = await Family.find({ village });
-        if (families.length > 0) {
-            const notifications = families.map(family => ({
+        // ✅ ดึง "ทุกครอบครัว" จากฐานข้อมูล (ไม่กรองตามหมู่บ้าน)
+        const allFamilies = await Family.find({ isDeleted: false });
+        if (allFamilies.length > 0) {
+            // ✅ สร้าง notifications สำหรับทุกครอบครัว
+            const notifications = allFamilies.map(family => ({
                 userId: family._id,
                 type: 'round',
                 title: `📢 แจ้งรอบรับซื้อขยะใหม่: ${roundName}`,
                 content: `
                     <ul>
-                        <li><strong>หมู่บ้าน:</strong> ${villageData.villageName}</li>
+                        <li><strong>หมู่บ้าน:</strong> ${villageName}</li>
                         <li><strong>วันที่:</strong> ${new Date(date).toLocaleDateString('th-TH', { year:'numeric', month:'long', day:'numeric' })}</li>
                         <li><strong>เวลา:</strong> ${startTime} - ${endTime}</li>
                     </ul>
@@ -2052,7 +2051,7 @@ const roundPost = async (req, res) => {
             }));
 
             await Notification.insertMany(notifications);
-            console.log(`✅ ส่งแจ้งเตือนให้ครอบครัวในหมู่บ้าน ${villageData.villageName} จำนวน ${families.length} ครอบครัว`);
+            console.log(`✅ ส่งแจ้งเตือนให้ทุกครอบครัวทั้งหมด ${allFamilies.length} ครอบครัว`);
         }
 
         res.redirect('/admin/round?message=เพิ่มรอบการรับซื้อสำเร็จ');
@@ -2061,17 +2060,17 @@ const roundPost = async (req, res) => {
         res.status(500).send('เกิดข้อผิดพลาดในการบันทึกรอบรับซื้อขยะ');
     }
 };
+
 // แก้ไขรอบรับซื้อขยะ
 const roundEdit = async (req, res) => {
     try {
         const { _id, roundName, village, date, startTime, endTime } = req.body;
 
-        // ตรวจสอบว่าข้อมูลที่ส่งมาครบหรือไม่
         if (!_id || !roundName || !village || !date || !startTime || !endTime) {
             return res.redirect('/admin/round?error=กรอกข้อมูลให้ครบ');
         }
 
-        // ค้นหาและอัปเดตรอบรับซื้อขยะในฐานข้อมูล
+        // อัปเดตรอบ
         await Round.findByIdAndUpdate(_id, {
             roundName,
             village,
@@ -2107,7 +2106,6 @@ const roundEdit = async (req, res) => {
 
         res.redirect('/admin/round?message=แก้ไขรอบการรับซื้อสำเร็จ');
     } catch (error) {
-        console.error(error);
         console.error('Error updating round:', error);
         res.redirect('/admin/round?error=เกิดข้อผิดพลาดในการแก้ไขรอบรับซื้อขยะ');
     }

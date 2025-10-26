@@ -1,64 +1,57 @@
-<header>
+<header class="flex items-center justify-between bg-primary-green px-6 py-3 shadow-lg">
     <!-- Logo -->
     <div class="flex items-center space-x-3">
-        <a href="/"><img src="/img/logo_เปือยน้อย.png" class="w-[55px]" ></a>
-        <!-- <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center">
-            <span class="text-primary-green font-bold text-xl">
-            </span>
-        </div> -->
+        <a href="/"><img src="/img/logo_เปือยน้อย.png" class="w-[55px]"></a>
         <div class="text-white">
             <h1 class="text-xl font-bold">กองทุนขยะรีไซเคิล</h1>
             <p class="text-sm opacity-90">องค์การบริหารส่วนตำบลขามป้อม</p>
         </div>
     </div>
+
+    <!-- User Menu -->
     <div class="relative">
         <button id="user-menu-button"
-            class="text-m text-white px-4 py-2 rounded-lg shadow-md bg-gray-800 border border-gray-700 flex items-center">
+            class="flex items-center gap-3 text-white bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg border border-gray-700 shadow transition-all">
             <img src="../img/admin/logo.png" class="h-12 mr-2 rounded-full">
             <div class="text-left">
-                <div class="font-semibold">ยินดีต้อนรับ : <%= firstname %> <%= lastname %> ▾</div>
-                <div>
-                    <span class="text-yellow-300">ตำแหน่ง : </span> 
-                    <% if (role === 'admin') { %>
-                        ผู้ดูแลระบบ
-                    <% } else if (role === 'employee') { %>
-                        พนักงาน
-                    <% } else if (role === 'user') { %>
-                        ผู้ใช้ทั่วไป
-                    <% } else { %>
-                        ไม่ทราบตำแหน่ง
-                    <% } %>
+                <div class="font-semibold">ยินดีต้อนรับ : <%= firstname %> <%= lastname %></div>
+                <div class="text-sm">
+                    <span class="text-yellow-300">ตำแหน่ง : </span>
+                    <% if (role === 'admin') { %>ผู้ดูแลระบบ
+                    <% } else if (role === 'employee') { %>พนักงาน
+                    <% } else if (role === 'user') { %>ผู้ใช้ทั่วไป
+                    <% } else { %>ไม่ทราบตำแหน่ง<% } %>
                 </div>
             </div>
+            <i id="dropdown-arrow" class="fa-solid fa-chevron-down ml-2 text-sm transition-transform duration-200"></i>
         </button>
 
-        <!-- Dropdown Content -->
+        <!-- Dropdown -->
         <div id="user-dropdown"
-            class="hidden absolute right-0 mt-2 w-48 bg-stone-900 border border-stone-700 shadow-md rounded-lg overflow-hidden z-[10]">
-            <div class="text-m text-white px-4 py-2 flex items-center">
+            class="absolute right-0 mt-3 w-56 bg-stone-900 border border-stone-700 shadow-xl rounded-xl overflow-hidden opacity-0 scale-95 translate-y-[-10px] pointer-events-none transition-all duration-200 z-50">
+            
+            <!-- ลูกศร -->
+            <div class="absolute right-6 -top-2 w-4 h-4 bg-stone-900 border-l border-t border-stone-700 rotate-45"></div>
+            
+            <!-- Header -->
+            <div class="flex items-center gap-3 px-4 py-3 border-b border-stone-700">
                 <img src="../img/admin/logo.png" class="h-10 mr-2">
-                <div class="text-xs">
-                    <div class="font-bold">
-                        <%= firstname %> <%= lastname %>
-                    </div>
-                    <div>
-                        <span class="text-yellow-300">ตำแหน่ง : </span> 
-                        <% if (role === 'admin') { %>
-                            ผู้ดูแลระบบ
-                        <% } else if (role === 'employee') { %>
-                            พนักงาน
-                        <% } else if (role === 'user') { %>
-                            ผู้ใช้ทั่วไป
-                        <% } else { %>
-                            ไม่ทราบตำแหน่ง
-                        <% } %>
+                <div class="text-white text-sm">
+                    <div class="font-bold"><%= firstname %> <%= lastname %></div>
+                    <div class="text-gray-400 text-xs">
+                        <% if (role === 'admin') { %>ผู้ดูแลระบบ
+                        <% } else if (role === 'employee') { %>พนักงาน
+                        <% } else if (role === 'user') { %>ผู้ใช้ทั่วไป
+                        <% } else { %>ไม่ทราบตำแหน่ง<% } %>
                     </div>
                 </div>
             </div>
-            <a href="/logout" id="logoutBtn"
-                class="block px-4 py-2 text-red-400 hover:bg-red-800 hover:text-white hover:bg-opacity-30 border-t border-stone-700">
-                <i class="fa-solid fa-right-from-bracket mr-2"></i> ออกจากระบบ
-            </a>
+
+            <!-- Logout -->
+            <button id="logoutBtn"
+                class="w-full text-left flex items-center gap-2 px-4 py-2 text-red-400 hover:bg-red-800 hover:bg-opacity-30 transition-all">
+                <i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบ
+            </button>
         </div>
     </div>
 </header>
@@ -66,42 +59,60 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    document.getElementById("user-menu-button").addEventListener("click", function () {
-    document.getElementById("user-dropdown").classList.toggle("hidden");
-    });
+document.addEventListener("DOMContentLoaded", () => {
+    const button = document.getElementById("user-menu-button");
+    const dropdown = document.getElementById("user-dropdown");
+    const arrow = document.getElementById("dropdown-arrow");
 
-    document.addEventListener("click", function (event) {
-        const dropdown = document.getElementById("user-dropdown");
-        const button = document.getElementById("user-menu-button");
-        if (!button.contains(event.target) && !dropdown.contains(event.target)) {
-        dropdown.classList.add("hidden");
+    // ✅ เปิด/ปิด dropdown
+    button.addEventListener("click", () => {
+        const isOpen = !dropdown.classList.contains("pointer-events-none");
+        if (isOpen) {
+            closeDropdown();
+        } else {
+            openDropdown();
         }
     });
 
-    document.addEventListener("DOMContentLoaded", function () {
+    const openDropdown = () => {
+        dropdown.classList.remove("opacity-0", "scale-95", "translate-y-[-10px]", "pointer-events-none");
+        dropdown.classList.add("opacity-100", "scale-100", "translate-y-0");
+        arrow.classList.add("rotate-180");
+    };
+
+    const closeDropdown = () => {
+        dropdown.classList.add("opacity-0", "scale-95", "translate-y-[-10px]", "pointer-events-none");
+        dropdown.classList.remove("opacity-100", "scale-100", "translate-y-0");
+        arrow.classList.remove("rotate-180");
+    };
+
+    // ✅ ปิดเมื่อคลิกนอก
+    document.addEventListener("click", (event) => {
+        if (!button.contains(event.target) && !dropdown.contains(event.target)) {
+            closeDropdown();
+        }
+    });
+
+    // ✅ SweetAlert ออกจากระบบ
     const logoutBtn = document.getElementById('logoutBtn');
-
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', function (event) {
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', (event) => {
             event.preventDefault();
-
             Swal.fire({
-            title: "คุณต้องการออกจากระบบหรือไม่?",
-            text: "หากออกจากระบบ คุณต้องเข้าสู่ระบบใหม่",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
-            confirmButtonText: "ออกจากระบบ",
-            cancelButtonText: "ยกเลิก"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = "/logout";
-            }
+                title: "คุณต้องการออกจากระบบหรือไม่?",
+                text: "หากออกจากระบบ คุณต้องเข้าสู่ระบบใหม่",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "ออกจากระบบ",
+                cancelButtonText: "ยกเลิก"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "/logout";
+                }
             });
         });
-    } else {
-        console.error("ไม่พบปุ่มออกจากระบบ (logoutBtn)");
     }
 });
 </script>

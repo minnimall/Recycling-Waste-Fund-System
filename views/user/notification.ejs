@@ -508,8 +508,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     body: JSON.stringify({ read: true })
                 });
                 if (response.ok) {
-                    modalStatus.textContent = 'อ่านแล้ว';
-                    modalStatusIcon.className = 'fas fa-check-circle text-green-500';
 
                     // อัปเดต badge และ border การ์ด
                     const card = document.querySelector(`[data-notification-id="${data.id}"]`);
