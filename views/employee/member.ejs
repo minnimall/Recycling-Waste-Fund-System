@@ -77,6 +77,20 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="flex-1 md:flex-1">
+                                <div class="relative">
+                                    <input type="text" id="searchAccountNumber" name="AccountNumber"
+                                        value="<%= query.AccountNumber || '' %>" placeholder="เลขบัญชี..."
+                                        class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <div class="absolute left-3 top-2.5 text-gray-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="md:w-64">
                                 <select name="village"
                                     class="w-full py-2 px-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
@@ -249,10 +263,19 @@
                                         <input type="text" name="username" class="w-full p-2 border rounded" required>
                                     </div>
 
-                                    <div>
-                                        <label class="block text-gray-700 mb-2">รหัสผ่าน (กรอกตัวเลข 6-8 หลัก)</label>
-                                        <input type="password" name="password" class="w-full p-2 border rounded"
-                                            minlength="6" maxlength="8" pattern="\d{6,8}" required>
+                                    <div class="mb-4">
+                                        <label for="password" class="block font-medium mb-1">รหัสผ่าน</label>
+                                        <input type="password" name="password" id="password"
+                                            class="w-full p-2 border border-gray-300 rounded focus:ring focus:ring-blue-200" placeholder="กรอกรหัสผ่าน"
+                                            required>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <label for="confirmPassword" class="block font-medium mb-1">ยืนยันรหัสผ่าน</label>
+                                        <input type="password" name="confirmPassword" id="confirmPassword"
+                                            class="w-full p-2 border border-gray-300 rounded focus:ring focus:ring-blue-200"
+                                            placeholder="กรอกรหัสผ่านอีกครั้ง" required>
+                                        <p id="passwordError" class="text-red-500 text-sm mt-1 hidden">รหัสผ่านไม่ตรงกัน</p>
                                     </div>
                                 </div>
 
@@ -319,10 +342,13 @@
                                         <input type="text" name="name" class="w-full p-2 border rounded" required>
                                     </div>
 
-                                    <div>
-                                        <label class="block text-gray-700 mb-2">เลขบัตรประชาชน</label>
-                                        <input type="text" name="idCardNumber" class="w-full p-2 border rounded"
-                                            maxlength="13" required>
+
+                                    <div class="mb-4">
+                                        <label for="idCardNumber" class="block font-medium mb-1">เลขบัตรประชาชน</label>
+                                        <input type="text" name="idCardNumber" id="idCardNumber"
+                                            class="w-full p-2 border border-gray-300 rounded focus:ring focus:ring-blue-200"
+                                            placeholder="กรอกเลขบัตรประชาชน 13 หลัก เช่น X-XXXX-XXXXX-XX-X" required>
+                                        <p id="idCardError" class="text-red-500 text-sm mt-1 hidden">เลขบัตรประชาชนไม่ถูกต้อง</p>
                                     </div>
 
                                     <div>
@@ -813,7 +839,9 @@
         }
     }
     function ShowAddFamilyForm() {
-        document.getElementById('ShowAddFamilyForm').classList.remove("hidden");
+        const modal = document.getElementById('ShowAddFamilyForm');
+        modal.classList.remove("hidden");
+        modal.scrollTo({ top: 0, behavior: 'smooth' });
     }
     function closeAddFamilyForm() {
         Swal.fire({
@@ -1068,6 +1096,98 @@
             }
         });
     }
+
+    // ตรวจสอบรหัสผ่านก่อนส่งฟอร์ม
+    document.addEventListener("DOMContentLoaded", () => {
+    const password = document.getElementById("password");
+    const confirmPassword = document.getElementById("confirmPassword");
+    const passwordError = document.getElementById("passwordError");
+    const form = document.querySelector("form");
+
+    // ฟังก์ชันตรวจสอบความตรงกัน
+    function checkPasswordMatch() {
+        if (confirmPassword.value === "") {
+        confirmPassword.classList.remove("border-red-500", "focus:ring-red-300");
+        passwordError.classList.add("hidden");
+        return true;
+        }
+
+        if (password.value !== confirmPassword.value) {
+        confirmPassword.classList.add("border-red-500", "focus:ring-red-300");
+        passwordError.classList.remove("hidden");
+        return false;
+        } else {
+        confirmPassword.classList.remove("border-red-500", "focus:ring-red-300");
+        passwordError.classList.add("hidden");
+        return true;
+        }
+    }
+
+    // ตรวจสอบแบบ real-time
+    confirmPassword.addEventListener("input", checkPasswordMatch);
+    password.addEventListener("input", checkPasswordMatch);
+
+    // ตรวจสอบตอนส่งฟอร์ม
+    form.addEventListener("submit", (e) => {
+        if (!checkPasswordMatch()) {
+        e.preventDefault();
+        Swal.fire({
+            icon: "error",
+            title: "รหัสผ่านไม่ตรงกัน",
+            text: "กรุณากรอกให้ตรงกันทั้งสองช่อง",
+            confirmButtonColor: "#ef4444"
+        });
+        }
+    });
+    });
+
+    // Format IDCard ให้เป็น Pattern ไทย
+    const idInput = document.getElementById("idCardNumber");
+    const idError = document.getElementById("idCardError");
+
+    // ฟังก์ชันฟอร์แมตเลขบัตรประชาชนไทย
+    function formatThaiID(value) {
+    // เอาเฉพาะตัวเลข
+    let numbers = value.replace(/\D/g, '').slice(0, 13);
+
+    // ใส่ขีดตามตำแหน่ง 1-4-5-2-1
+    let formatted = '';
+    if(numbers.length > 0) formatted += numbers.substr(0,1);
+    if(numbers.length > 1) formatted += '-' + numbers.substr(1,4);
+    if(numbers.length > 5) formatted += '-' + numbers.substr(5,5);
+    if(numbers.length > 10) formatted += '-' + numbers.substr(10,2);
+    if(numbers.length > 12) formatted += '-' + numbers.substr(12,1);
+
+    return formatted;
+    }
+
+    // ฟอร์แมตแบบ real-time
+    idInput.addEventListener('input', (e) => {
+    e.target.value = formatThaiID(e.target.value);
+    });
+
+    // ตรวจสอบตอน submit
+    document.getElementById("ShowAddFamilyForm").addEventListener("submit", function(e) {
+        // เอาเฉพาะตัวเลขมาลอง validate
+        const numbersOnly = idInput.value.replace(/\D/g, '');
+        if(numbersOnly.length !== 13) {
+            e.preventDefault();
+            idError.classList.remove('hidden');
+            idInput.classList.add('border-red-500', 'focus:ring-red-300');
+            Swal.fire({
+                icon: 'error',
+                title: 'เลขบัตรประชาชนไม่ถูกต้อง',
+                text: 'กรุณากรอกเลขบัตรประชาชนให้ครบ 13 หลัก',
+                confirmButtonColor: '#ef4444'
+            });
+        } else {
+            // ✅ เอาขีดออกก่อนส่ง
+            idInput.value = numbersOnly;
+
+            idError.classList.add('hidden');
+            idInput.classList.remove('border-red-500', 'focus:ring-red-300');
+        }
+    });
 </script>
 
 </html>

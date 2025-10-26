@@ -311,16 +311,10 @@
                                                 <%= (purchase.totalAmount || 0).toLocaleString('th-TH') %> บาท
                                             </td>
 
-                                            <% const d=new Date(purchase.purchaseDate); const
-                                                day=d.getDate().toString().padStart(2, '0' ); const month=(d.getMonth()
-                                                + 1).toString().padStart(2, '0' ); const year=d.getFullYear() + 543;
-                                                const hours=d.getHours().toString().padStart(2, '0' ); const
-                                                minutes=d.getMinutes().toString().padStart(2, '0' ); const
-                                                seconds=d.getSeconds().toString().padStart(2, '0' ); %>
+                                        
                                                 <td class="px-6 py-4 text-center text-sm text-gray-900">
-                                                    <%= `${day}/${month}/${year} เวลา ${hours}:${minutes}:${seconds}` %>
                                                     <%= purchase.purchaseDate.toLocaleDateString('th-TH') %>
-                                                    <%= purchase.purchaseDate.toLocaleTimeString('th-TH') %>
+                                                    <%= purchase.purchaseDate.toLocaleTimeString('th-TH', { hour:'numeric', minute:'numeric' }) %>
                                                 </td>
 
                                                 <td class="px-6 py-4 text-center text-sm">
@@ -426,7 +420,7 @@
                 <td class="px-6 py-4 whitespace-nowrap text-center">${accountId}</td>
                 <td class="px-6 py-4 whitespace-nowrap">${accountName}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-center">${villageNumber}</td>
-                <td class="px-6 py-4 whitespace-nowrap">${sellerNames}</td>
+                // <td class="px-6 py-4 whitespace-nowrap">${sellerNames}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-center">${totalAmount.toLocaleString('th-TH')}฿</td>
                 <td class="px-6 py-4 whitespace-nowrap text-center">${formattedDate}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-center">${formattedTime}</td>

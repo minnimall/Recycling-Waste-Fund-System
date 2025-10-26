@@ -844,23 +844,22 @@ const wastePurchaseDelete = async (req, res) => {
 // หน้าสมาชิกกองทุนขยะรีไซเคิล
 const memberIndex = async (req, res) => {
     try {
-        const { familyName, AccountName, village, Type } = req.query;
+        const { familyName, AccountName, AccountNumber, village, Type } = req.query;
         let searchQuery = { isDeleted: false };
 
         if (familyName) searchQuery.familyName = { $regex: familyName, $options: 'i' };
-        if (AccountName) searchQuery.AccountName = { $regex: AccountName, $options: 'i' };
-        if (village) searchQuery.village = village;
         if (Type) searchQuery.Type = Type;
+        if (village) searchQuery.village = village;
 
-        // ดึงข้อมูล
         const villages = await Village.find(); 
         const allFamilies = await Family.find(searchQuery).populate('village').lean();
 
-        // ดึงข้อมูลบัญชีทั้งหมด แล้วทำ mapping ตาม familyID
         const accounts = await WasteBankAccount.find({ isDeleted: false }).lean();
+        const accountMap = {};
+        accounts.forEach(acc => {
+            if (acc.familyID) accountMap[acc.familyID.toString()] = acc;
+        });
 
-
-        // แผนที่ Type -> ภาษาไทย
         const typeMap = {
             household: 'บ้าน',
             school: 'โรงเรียน',
@@ -869,33 +868,33 @@ const memberIndex = async (req, res) => {
             temple: 'วัด'
         };
 
-        // สร้าง Map เพื่อเชื่อมโยง familyID กับ AccountName
-        const accountMap = {};
-        accounts.forEach(acc => {
-            if (acc.familyID) accountMap[acc.familyID.toString()] = acc;
-        });
-
-        // เพิ่ม field ให้ทุกครัวเรือน
-        allFamilies.forEach(family => {
+        let familiesWithAccount = allFamilies.map(family => {
             const account = accountMap[family._id.toString()];
-            family.AccountNumber = account ? account.AccountNumber : '-';
-            family.AccountName = family.username || '-';
-            family.Balance = account ? account.Balance : 0;
-            family.typeThai = typeMap[family.Type] || family.Type;
+            return {
+                ...family,
+                AccountNumber: account ? account.AccountNumber : '-',
+                AccountName: family.username || '-',
+                Balance: account ? account.Balance : 0,
+                typeThai: typeMap[family.Type] || family.Type
+            };
         });
 
-        // ถ้ามีการค้นหาด้วย AccountName ให้กรองเพิ่ม
-        let filteredFamilies = allFamilies;
         if (AccountName) {
-            filteredFamilies = allFamilies.filter(family => 
-                family.AccountName.includes(AccountName)
+            familiesWithAccount = familiesWithAccount.filter(family => 
+                family.AccountName.toLowerCase().includes(AccountName.toLowerCase())
+            );
+        }
+
+        if (AccountNumber) {
+            familiesWithAccount = familiesWithAccount.filter(family =>
+                family.AccountNumber.includes(AccountNumber)
             );
         }
 
         res.render('employee/member', { 
             mytitle: 'พนักงาน | สมาชิกกองทุนขยะรีไซเคิล',
             villages,
-            allFamilies: filteredFamilies,
+            allFamilies: familiesWithAccount,
             currentPage: 'member',
             query: req.query  
         });
@@ -904,6 +903,7 @@ const memberIndex = async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 };
+
 
 // ฟังก์ชันลงทะเบียนครัวเรือนและสมาชิกใหม่
 const memberRegister = async (req, res) => {
@@ -1007,7 +1007,7 @@ const memberRegister = async (req, res) => {
             name: req.body.name,
             email: req.body.email,
             phone: req.body.phone,
-            idCardNumber: req.body.idCardNumber,
+            idCardNumber: req.body.idCardNumber.replace(/\D/g, ''),
             birthDate: req.body.birthDate,
             occupation: req.body.occupation,
             age: req.body.age,
