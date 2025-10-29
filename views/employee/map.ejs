@@ -70,13 +70,19 @@
 
     <main class="content bg-gray-50 min-screen">
         <!-- Page Header -->
-        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
                 <div>
                     <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
                         ระบบแผนที่จุดรับซื้อขยะรีไซเคิล
                     </h1>
                     <p class="text-gray-600 mt-2">เลือกจุดรับซื้อและวิเคราะห์เส้นทางที่สั้นที่สุด</p>
+                </div>
+                <div>
+                    <a href="/employee/routeList"
+                        class="inline-flex items-center bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition shadow-md">
+                        เส้นทางทั้งหมด
+                    </a>
                 </div>
             </div>
         </div>
@@ -156,7 +162,8 @@
                             </button>
 
                             <button id="saveRouteBtn" 
-                                    class="w-full bg-purple-600 text-white py-3 px-4 rounded-lg hover:bg-purple-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed" 
+                                    class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed" 
+                                    onclick="saveCurrentRoute()"
                                     disabled>
                                 <ion-icon name="save-outline" class="inline-block mr-2"></ion-icon>
                                 บันทึกเส้นทาง
@@ -197,8 +204,6 @@
         let distanceMatrix = {};
         let isCalculatingDistances = false;
         let searchTimeout = null;
-        // Global variable สำหรับเก็บข้อมูลเส้นทางที่วิเคราะห์แล้ว
-        let currentAnalyzedRoute = null;
         
         // Initialize map ส่วนแสดงแผนที่
         function initMap() {
@@ -589,15 +594,9 @@
         function updateButtons() {
             const analyzeBtn = document.getElementById('analyzeBtn');
             const clearBtn = document.getElementById('clearBtn');
-            const saveRouteBtn = document.getElementById('saveRouteBtn');
             
             analyzeBtn.disabled = selectedPoints.length < 2;
             clearBtn.disabled = selectedPoints.length === 0;
-
-            // ปิดปุ่มบันทึกเมื่อไม่มีเส้นทางที่วิเคราะห์
-            if (saveRouteBtn) {
-                saveRouteBtn.disabled = !currentAnalyzedRoute;
-            }
         }
         
 
@@ -952,14 +951,6 @@
                 
                 // Display detailed results
                 displayDetailedRouteResults(route, routeSegments, totalDistance, totalDuration);
-
-                // เก็บข้อมูลเส้นทางที่วิเคราะห์แล้ว
-                currentAnalyzedRoute = {
-                    points: route,
-                    segments: routeSegments,
-                    totalDistance: totalDistance,
-                    totalDuration: totalDuration
-                };
                 
                 // Fit map to route bounds
                 setTimeout(() => {
@@ -1148,15 +1139,6 @@
             
             // ล้าง distance matrix cache
             distanceMatrix = {};
-
-            // ล้างข้อมูลเส้นทางที่เก็บไว้
-            currentAnalyzedRoute = null;
-            
-            // ปิดปุ่มบันทึก
-            const saveRouteBtn = document.getElementById('saveRouteBtn');
-            if (saveRouteBtn) {
-                saveRouteBtn.disabled = true;
-            }
         }
         
         // Clear all points
@@ -1201,67 +1183,38 @@
             
             document.getElementById('analyzeBtn').addEventListener('click', analyzeRoute);
             document.getElementById('clearBtn').addEventListener('click', clearAllPoints);
-
-            // เพิ่ม event listener สำหรับปุ่มบันทึก
-            const saveRouteBtn = document.getElementById('saveRouteBtn');
-            if (saveRouteBtn) {
-                saveRouteBtn.addEventListener('click', saveRoute);
-            }
             
             updateButtons();
         });
 
         // ฟังก์ชันบันทึกเส้นทาง
-        async function saveRoute() {
-            if (!currentAnalyzedRoute) {
+        async function saveCurrentRoute() {
+            // ตรวจสอบว่ามีการวิเคราะห์เส้นทางแล้วหรือไม่
+            if (selectedPoints.length < 2) {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'ไม่มีข้อมูลเส้นทาง',
-                    text: 'กรุณาวิเคราะห์เส้นทางก่อนบันทึก',
-                    timer: 3000
+                    title: 'ไม่สามารถบันทึกได้',
+                    text: 'กรุณาเลือกจุดอย่างน้อย 2 จุดและวิเคราะห์เส้นทางก่อน',
+                    confirmButtonText: 'ตกลง'
                 });
                 return;
             }
-
-            // แสดง Form สำหรับกรอกข้อมูล
+            
+            // ให้ผู้ใช้ตั้งชื่อเส้นทาง
             const { value: formValues } = await Swal.fire({
                 title: 'บันทึกเส้นทาง',
                 html: `
-                    <div class="text-left space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                ชื่อเส้นทาง <span class="text-red-500">*</span>
-                            </label>
-                            <input id="routeName" class="swal2-input w-full" placeholder="เช่น เส้นทางรับขยะวันจันทร์" required>
-                        </div>
+                    <div class="text-left">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อเส้นทาง *</label>
+                        <input id="routeName" class="swal2-input w-full" placeholder="เช่น เส้นทางเก็บขยะเขต 1">
                         
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                คำอธิบาย
-                            </label>
-                            <textarea id="routeDescription" class="swal2-textarea w-full" placeholder="รายละเอียดเพิ่มเติม..."></textarea>
-                        </div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2 mt-4">หมายเหตุ (ถ้ามี)</label>
+                        <textarea id="routeNote" class="swal2-textarea w-full" placeholder="เพิ่มหมายเหตุ..."></textarea>
                         
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Tags (คั่นด้วยเครื่องหมายจุลภาค)
-                            </label>
-                            <input id="routeTags" class="swal2-input w-full" placeholder="เช่น ขยะพลาสติก, ขยะกระดาษ">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                หมายเหตุ
-                            </label>
-                            <textarea id="routeNotes" class="swal2-textarea w-full" placeholder="หมายเหตุเพิ่มเติม..."></textarea>
-                        </div>
-                        
-                        <div class="bg-blue-50 p-3 rounded-lg">
-                            <div class="text-sm text-gray-700">
-                                <div><strong>จำนวนจุด:</strong> ${currentAnalyzedRoute.points.length} จุด</div>
-                                <div><strong>ระยะทางรวม:</strong> ${currentAnalyzedRoute.totalDistance.toFixed(2)} กม.</div>
-                                <div><strong>เวลารวม:</strong> ${Math.round(currentAnalyzedRoute.totalDuration)} นาที</div>
-                            </div>
+                        <div class="mt-4 p-3 bg-blue-50 rounded text-sm">
+                            <div class="font-medium text-blue-800 mb-2">ข้อมูลเส้นทาง:</div>
+                            <div class="text-gray-700">• จำนวนจุด: ${selectedPoints.length} จุด</div>
+                            <div class="text-gray-700">• ระยะทาง: ${calculateTotalDistance()} กม.</div>
                         </div>
                     </div>
                 `,
@@ -1269,150 +1222,141 @@
                 showCancelButton: true,
                 confirmButtonText: 'บันทึก',
                 cancelButtonText: 'ยกเลิก',
-                confirmButtonColor: '#7C3AED',
-                width: '600px',
+                confirmButtonColor: '#3B82F6',
                 preConfirm: () => {
                     const routeName = document.getElementById('routeName').value;
-                    const routeDescription = document.getElementById('routeDescription').value;
-                    const routeTags = document.getElementById('routeTags').value;
-                    const routeNotes = document.getElementById('routeNotes').value;
-
+                    const routeNote = document.getElementById('routeNote').value;
+                    
                     if (!routeName) {
-                        Swal.showValidationMessage('กรุณาระบุชื่อเส้นทาง');
+                        Swal.showValidationMessage('กรุณากรอกชื่อเส้นทาง');
                         return false;
                     }
-
+                    
                     return {
-                        routeName,
-                        routeDescription,
-                        routeTags,
-                        routeNotes
+                        routeName: routeName,
+                        routeNote: routeNote
                     };
                 }
             });
-
-            if (formValues) {
-                // แสดง Loading
-                Swal.fire({
-                    title: 'กำลังบันทึก...',
-                    html: 'กรุณารอสักครู่',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-
-                try {
-                    // เตรียมข้อมูลสำหรับส่ง
-                    const tags = formValues.routeTags 
-                        ? formValues.routeTags.split(',').map(tag => tag.trim()).filter(tag => tag)
-                        : [];
-
-                    const routeData = {
-                        routeName: formValues.routeName,
-                        description: formValues.routeDescription,
-                        points: currentAnalyzedRoute.points.map((point, index) => ({
-                            lat: point.lat,
-                            lng: point.lng,
-                            address: point.address,
-                            distanceToNext: currentAnalyzedRoute.segments[index]?.distance || 0,
-                            durationToNext: currentAnalyzedRoute.segments[index]?.duration || 0
-                        })),
-                        analysis: {
-                            totalDistance: currentAnalyzedRoute.totalDistance,
-                            totalDuration: currentAnalyzedRoute.totalDuration,
-                            numberOfPoints: currentAnalyzedRoute.points.length,
-                            isRoundTrip: true,
-                            optimizationMethod: 'TSP-2OPT'
-                        },
-                        routeGeometry: extractRouteGeometry(), // ฟังก์ชันสำหรับดึง GeoJSON
-                        tags: tags,
-                        notes: formValues.routeNotes
-                    };
-
-                    // ส่งข้อมูลไปยัง API
-                    const response = await fetch('/api/routes', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(routeData)
-                    });
-
-                    const result = await response.json();
-
-                    if (result.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'บันทึกสำเร็จ!',
-                            html: `
-                                <div class="text-left">
-                                    <p class="mb-2">บันทึกเส้นทาง "${formValues.routeName}" เรียบร้อยแล้ว</p>
-                                    <div class="text-sm text-gray-600">
-                                        <div>รหัสเส้นทาง: ${result.data._id}</div>
-                                    </div>
-                                </div>
-                            `,
-                            confirmButtonText: 'ตกลง',
-                            confirmButtonColor: '#10B981'
-                        }).then(() => {
-                            // Option: Redirect to route list หรือ clear current route
-                            // window.location.href = '/routes';
-                        });
-                    } else {
-                        throw new Error(result.message || 'เกิดข้อผิดพลาด');
-                    }
-
-                } catch (error) {
-                    console.error('Error saving route:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'เกิดข้อผิดพลาด',
-                        text: error.message || 'ไม่สามารถบันทึกเส้นทางได้',
-                        confirmButtonText: 'ลองใหม่'
-                    });
+            
+            // ถ้ายกเลิก
+            if (!formValues) return;
+            
+            // แสดงสถานะกำลังบันทึก
+            Swal.fire({
+                title: 'กำลังบันทึก...',
+                html: 'กรุณารอสักครู่',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
                 }
-            }
-        }
-
-        // ฟังก์ชันดึง GeoJSON จากเส้นทาง
-        function extractRouteGeometry() {
-            if (!currentAnalyzedRoute || !currentAnalyzedRoute.points) {
-                return null;
-            }
-
+            });
+            
             try {
-                const coordinates = [];
+                // เตรียมข้อมูลที่จะส่ง
+                const routeData = {
+                    routeName: formValues.routeName,
+                    points: selectedPoints.map((point, index) => ({
+                        pointNumber: index + 1,
+                        lat: point.lat,
+                        lng: point.lng,
+                        address: point.address
+                    })),
+                    totalDistance: calculateTotalDistance(),
+                    totalDuration: calculateTotalDuration(),
+                    note: formValues.routeNote || ''
+                };
                 
-                // เพิ่มพิกัดทุกจุด
-                currentAnalyzedRoute.points.forEach(point => {
-                    coordinates.push([
-                        parseFloat(point.lng), // Longitude ก่อน (GeoJSON format)
-                        parseFloat(point.lat)  // Latitude หลัง
-                    ]);
+                // ส่งข้อมูลไปยัง server
+                const response = await fetch('/employee/routes/save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(routeData)
                 });
                 
-                // เพิ่มจุดแรกเพื่อปิด loop (round trip)
-                if (currentAnalyzedRoute.points.length > 0) {
-                    const firstPoint = currentAnalyzedRoute.points[0];
-                    coordinates.push([
-                        parseFloat(firstPoint.lng),
-                        parseFloat(firstPoint.lat)
-                    ]);
+                const result = await response.json();
+                
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'บันทึกสำเร็จ!',
+                        text: result.message,
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#10B981',
+                        timer: 3000
+                    }).then(() => {
+                        // ถามว่าต้องการดูรายการเส้นทางหรือไม่
+                        Swal.fire({
+                            title: 'ดูรายการเส้นทาง?',
+                            text: 'ต้องการไปยังหน้ารายการเส้นทางที่บันทึกหรือไม่',
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonText: 'ไปดู',
+                            cancelButtonText: 'อยู่หน้านี้',
+                            confirmButtonColor: '#3B82F6'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '/employee/routeList';
+                            }
+                        });
+                    });
+                } else {
+                    throw new Error(result.message);
                 }
-
-                return {
-                    type: 'LineString',
-                    coordinates: coordinates
-                };
+                
             } catch (error) {
-                console.error('Error extracting route geometry:', error);
-                return null;
+                console.error('Error saving route:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: error.message || 'ไม่สามารถบันทึกเส้นทางได้',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#EF4444'
+                });
             }
         }
 
-        // เปิดใช้งานปุ่มบันทึก
-        document.getElementById('saveRouteBtn').disabled = false;
+        // ฟังก์ชันคำนวณระยะทางรวม (ถ้ายังไม่มี)
+        function calculateTotalDistance() {
+            if (selectedPoints.length < 2) return 0;
+            
+            let totalDist = 0;
+            for (let i = 0; i < selectedPoints.length - 1; i++) {
+                const dist = calculateStraightLineDistance(selectedPoints[i], selectedPoints[i + 1]);
+                totalDist += dist;
+            }
+            // รวมระยะทางกลับจุดเริ่มต้น
+            if (selectedPoints.length > 0) {
+                totalDist += calculateStraightLineDistance(
+                    selectedPoints[selectedPoints.length - 1], 
+                    selectedPoints[0]
+                );
+            }
+            return totalDist.toFixed(2);
+        }
+
+        // ฟังก์ชันคำนวณเวลารวม (ถ้ายังไม่มี)
+        function calculateTotalDuration() {
+            const distance = parseFloat(calculateTotalDistance());
+            const avgSpeed = 40; // ความเร็วเฉลี่ย 40 กม./ชม.
+            return Math.round((distance / avgSpeed) * 60); // แปลงเป็นนาที
+        }
+
+        // อัปเดต updateButtons() เพื่อเปิด/ปิดปุ่มบันทึก
+        function updateButtons() {
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const saveRouteBtn = document.getElementById('saveRouteBtn');
+            
+            analyzeBtn.disabled = selectedPoints.length < 2;
+            clearBtn.disabled = selectedPoints.length === 0;
+            
+            if (saveRouteBtn) {
+                saveRouteBtn.disabled = selectedPoints.length < 2;
+            }
+        }
     </script>
 
 </body>

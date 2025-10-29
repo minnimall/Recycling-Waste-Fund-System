@@ -27,6 +27,7 @@ const moment = require('moment');
 const mongoose = require('mongoose');
 const myAdmin = require('../models/admin');
 const RouteAnalysis = require('../models/map');
+const Route = require('../models/route');
 
 router.use(express.static(path.join(__dirname, '../public')));
 
@@ -1879,385 +1880,160 @@ const funeralAidIndex = (req, res)=> {
 const mapIndex = (req, res)=> {
     res.render('employee/map',{mytitle: 'พนักงาน | แผนที่จุดเข้ารับซื้อ',currentPage: 'map',})
 }
-// บันทึกเส้นทางที่วิเคราะห์
-const saveRouteAnalysis = async (req, res) => {
+// บันทึกเส้นทาง
+const saveRoute = async (req, res) => {
     try {
-        const {
-            routeName,
-            description,
-            points,
-            analysis,
-            routeGeometry,
-            tags,
-            notes
-        } = req.body;
-
-        // Validate ข้อมูล
-        if (!routeName || !routeName.trim()) {
+        const { routeName, points, totalDistance, totalDuration, note } = req.body;
+        
+        // ตรวจสอบข้อมูลพื้นฐาน
+        if (!routeName || !points || points.length < 2) {
             return res.status(400).json({
                 success: false,
-                message: 'กรุณาระบุชื่อเส้นทาง'
+                message: 'กรุณากรอกข้อมูลให้ครบถ้วน และต้องมีอย่างน้อย 2 จุด'
             });
         }
-
-        if (!points || !Array.isArray(points) || points.length < 2) {
-            return res.status(400).json({
-                success: false,
-                message: 'กรุณาเลือกจุดอย่างน้อย 2 จุด'
-            });
-        }
-
-        // ตรวจสอบ authentication
-        if (!req.user || !req.user._id) {
-            return res.status(401).json({
-                success: false,
-                message: 'กรุณาเข้าสู่ระบบก่อนบันทึกเส้นทาง'
-            });
-        }
-
-        // Validate analysis data
-        if (!analysis || !analysis.totalDistance || !analysis.totalDuration) {
-            return res.status(400).json({
-                success: false,
-                message: 'ข้อมูลการวิเคราะห์ไม่ครบถ้วน'
-            });
-        }
-
-        // สร้างข้อมูลเส้นทางใหม่
-        const newRoute = new RouteAnalysis({
-            routeName: routeName.trim(),
-            description: description ? description.trim() : '',
-            createdBy: req.user._id,
-            points: points.map((point, index) => ({
-                pointNumber: index + 1,
-                latitude: parseFloat(point.lat),
-                longitude: parseFloat(point.lng),
-                address: point.address || `จุดที่ ${index + 1}`,
-                distanceToNext: parseFloat(point.distanceToNext) || 0,
-                durationToNext: parseFloat(point.durationToNext) || 0
-            })),
-            analysis: {
-                totalDistance: parseFloat(analysis.totalDistance),
-                totalDuration: parseFloat(analysis.totalDuration),
-                numberOfPoints: points.length,
-                isRoundTrip: analysis.isRoundTrip !== false,
-                optimizationMethod: analysis.optimizationMethod || 'TSP-2OPT'
-            },
-            routeGeometry: routeGeometry && routeGeometry.coordinates && routeGeometry.coordinates.length > 0 
-                ? {
-                    type: 'LineString',
-                    coordinates: routeGeometry.coordinates
-                  }
-                : null,
-            tags: Array.isArray(tags) ? tags.filter(tag => tag && tag.trim()) : [],
-            notes: notes ? notes.trim() : '',
-            status: 'active'
+        
+        // สร้างเส้นทางใหม่
+        const newRoute = new Route({
+            routeName: routeName,
+            points: points,
+            totalDistance: totalDistance,
+            totalDuration: totalDuration,
+            numberOfPoints: points.length,
+            createdBy: req.user._id, // หรือ req.user._id ตามระบบ auth ที่ใช้
+            note: note || ''
         });
-
+        
+        // บันทึกลงฐานข้อมูล
         await newRoute.save();
-
+        
         res.status(201).json({
             success: true,
             message: 'บันทึกเส้นทางเรียบร้อยแล้ว',
-            data: {
-                _id: newRoute._id,
-                routeName: newRoute.routeName,
-                totalDistance: newRoute.analysis.totalDistance,
-                totalDuration: newRoute.analysis.totalDuration,
-                numberOfPoints: newRoute.analysis.numberOfPoints,
-                createdAt: newRoute.createdAt
-            }
+            routeId: newRoute._id
         });
-
-    } catch (error) {
-        console.error('❌ Error saving route:', error);
         
-        // Handle validation errors
-        if (error.name === 'ValidationError') {
-            const messages = Object.values(error.errors).map(err => err.message);
-            return res.status(400).json({
-                success: false,
-                message: 'ข้อมูลไม่ถูกต้อง',
-                errors: messages
-            });
-        }
-
+    } catch (error) {
+        console.error('Error saving route:', error);
         res.status(500).json({
             success: false,
-            message: 'เกิดข้อผิดพลาดในการบันทึกเส้นทาง',
-            error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+            message: 'เกิดข้อผิดพลาดในการบันทึกเส้นทาง'
         });
     }
 };
 
-// ดึงเส้นทางทั้งหมดของพนักงาน
-const getEmployeeRoutes = async (req, res) => {
+// ดูรายการเส้นทางที่บันทึกไว้ทั้งหมด
+const getAllRoutes = async (req, res) => {
     try {
-        const { page = 1, limit = 10, status, search } = req.query;
-
-        const query = { createdBy: req.user._id };
-
-        if (status && ['draft', 'active', 'completed', 'archived'].includes(status)) {
-            query.status = status;
-        }
-
-        if (search && search.trim()) {
-            query.$or = [
-                { routeName: { $regex: search.trim(), $options: 'i' } },
-                { description: { $regex: search.trim(), $options: 'i' } },
-                { tags: { $in: [new RegExp(search.trim(), 'i')] } }
-            ];
-        }
-
-        const pageNum = parseInt(page);
-        const limitNum = parseInt(limit);
-
-        const routes = await RouteAnalysis.find(query)
-            .sort({ createdAt: -1 })
-            .limit(limitNum)
-            .skip((pageNum - 1) * limitNum)
-            .populate('createdBy', 'name email')
-            .select('-routeGeometry') // ไม่ส่ง geometry เพื่อลดขนาดข้อมูล
-            .lean()
-            .exec();
-
-        const count = await RouteAnalysis.countDocuments(query);
-
-        res.json({
-            success: true,
-            data: routes,
-            pagination: {
-                total: count,
-                totalPages: Math.ceil(count / limitNum),
-                currentPage: pageNum,
-                limit: limitNum
-            }
-        });
-
-    } catch (error) {
-        console.error('❌ Error fetching routes:', error);
-        res.status(500).json({
-            success: false,
-            message: 'เกิดข้อผิดพลาดในการดึงข้อมูล',
-            error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
-        });
-    }
-};
-
-// ดึงเส้นทางเฉพาะ
-const getRouteById = async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        // Validate ObjectId
-        if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-            return res.status(400).json({
-                success: false,
-                message: 'รูปแบบ ID ไม่ถูกต้อง'
-            });
-        }
-
-        const route = await RouteAnalysis.findById(id)
-            .populate('createdBy', 'name email');
-
-        if (!route) {
-            return res.status(404).json({
-                success: false,
-                message: 'ไม่พบเส้นทางที่ระบุ'
-            });
-        }
-
-        // เพิ่มจำนวนการดู
-        await route.incrementView();
-
-        res.json({
-            success: true,
-            data: route
-        });
-
-    } catch (error) {
-        console.error('❌ Error fetching route:', error);
-        res.status(500).json({
-            success: false,
-            message: 'เกิดข้อผิดพลาดในการดึงข้อมูล',
-            error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
-        });
-    }
-};
-
-// อัพเดทเส้นทาง
-const updateRoute = async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        // Validate ObjectId
-        if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-            return res.status(400).json({
-                success: false,
-                message: 'รูปแบบ ID ไม่ถูกต้อง'
-            });
-        }
-
-        const route = await RouteAnalysis.findById(id);
-
-        if (!route) {
-            return res.status(404).json({
-                success: false,
-                message: 'ไม่พบเส้นทางที่ระบุ'
-            });
-        }
-
-        // ตรวจสอบสิทธิ์
-        if (route.createdBy.toString() !== req.user._id.toString()) {
-            return res.status(403).json({
-                success: false,
-                message: 'คุณไม่มีสิทธิ์แก้ไขเส้นทางนี้'
-            });
-        }
-
-        // อัพเดทข้อมูล
-        const allowedUpdates = ['routeName', 'description', 'tags', 'notes', 'status'];
-        let hasChanges = false;
-
-        allowedUpdates.forEach(field => {
-            if (req.body[field] !== undefined) {
-                // Validate status
-                if (field === 'status' && !['draft', 'active', 'completed', 'archived'].includes(req.body[field])) {
-                    return;
-                }
-                
-                route[field] = req.body[field];
-                hasChanges = true;
-            }
-        });
-
-        if (!hasChanges) {
-            return res.status(400).json({
-                success: false,
-                message: 'ไม่มีข้อมูลที่ต้องอัพเดท'
-            });
-        }
-
-        await route.incrementModified();
-        await route.save();
-
-        res.json({
-            success: true,
-            message: 'อัพเดทเส้นทางเรียบร้อยแล้ว',
-            data: route
-        });
-
-    } catch (error) {
-        console.error('❌ Error updating route:', error);
+        const routes = await Route.find({ 
+            status: 'active'
+        })
+        .sort({ createdAt: -1 })
+        .populate('createdBy', 'name'); // ดึงชื่อพนักงานมาด้วย
         
-        if (error.name === 'ValidationError') {
-            const messages = Object.values(error.errors).map(err => err.message);
-            return res.status(400).json({
-                success: false,
-                message: 'ข้อมูลไม่ถูกต้อง',
-                errors: messages
-            });
-        }
-
-        res.status(500).json({
-            success: false,
-            message: 'เกิดข้อผิดพลาดในการอัพเดท',
-            error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+        res.render('employee/routeList', {
+            mytitle: 'รายการเส้นทางที่บันทึก',
+            currentPage: 'routes',
+            routes: routes
         });
+        
+    } catch (error) {
+        console.error('Error getting routes:', error);
+        res.redirect('/employee/map?error=ไม่สามารถโหลดข้อมูลได้');
     }
 };
 
-// ลบเส้นทาง
+// ดูรายละเอียดเส้นทาง
+const getRouteDetail = async (req, res) => {
+    try {
+        const { routeId } = req.params;
+        
+        const route = await Route.findById(routeId)
+            .populate('createdBy', 'firstname lastname email');
+        
+        if (!route) {
+            return res.redirect('/employee/routeList?error=ไม่พบเส้นทางที่ต้องการ');
+        }
+        
+        res.render('employee/routeDetail', {
+            mytitle: 'รายละเอียดเส้นทาง',
+            currentPage: 'routes',
+            route: route
+        });
+        
+    } catch (error) {
+        console.error('Error getting route detail:', error);
+        res.redirect('/employee/routeList?error=เกิดข้อผิดพลาด');
+    }
+};
+
+// ลบเส้นทาง (ไม่ลบจริง แค่เปลี่ยนสถานะ)
 const deleteRoute = async (req, res) => {
     try {
-        const { id } = req.params;
-
-        // Validate ObjectId
-        if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-            return res.status(400).json({
-                success: false,
-                message: 'รูปแบบ ID ไม่ถูกต้อง'
-            });
-        }
-
-        const route = await RouteAnalysis.findById(id);
-
+        const { routeId } = req.params;
+        
+        const route = await Route.findOneAndUpdate(
+            { _id: routeId },
+            { status: 'archived' },
+            { new: true }
+        );
+        
         if (!route) {
             return res.status(404).json({
                 success: false,
-                message: 'ไม่พบเส้นทางที่ระบุ'
+                message: 'ไม่พบเส้นทางที่ต้องการลบ'
             });
         }
-
-        // ตรวจสอบสิทธิ์
-        if (route.createdBy.toString() !== req.user._id.toString()) {
-            return res.status(403).json({
-                success: false,
-                message: 'คุณไม่มีสิทธิ์ลบเส้นทางนี้'
-            });
-        }
-
-        await RouteAnalysis.findByIdAndDelete(id);
-
+        
         res.json({
             success: true,
             message: 'ลบเส้นทางเรียบร้อยแล้ว'
         });
-
+        
     } catch (error) {
-        console.error('❌ Error deleting route:', error);
+        console.error('Error deleting route:', error);
         res.status(500).json({
             success: false,
-            message: 'เกิดข้อผิดพลาดในการลบ',
-            error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+            message: 'เกิดข้อผิดพลาดในการลบเส้นทาง'
         });
     }
 };
 
-// Export route (ฟีเจอร์เสริม)
-const exportRoute = async (req, res) => {
+// อัปเดตชื่อหรือหมายเหตุของเส้นทาง
+const updateRoute = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { format = 'json' } = req.query;
-
-        const route = await RouteAnalysis.findById(id)
-            .populate('createdBy', 'name email');
-
+        const { routeId } = req.params;
+        const { routeName, note } = req.body;
+        
+        const route = await Route.findOneAndUpdate(
+            { _id: routeId, createdBy: req.user._id },
+            { 
+                routeName: routeName,
+                note: note
+            },
+            { new: true, runValidators: true }
+        );
+        
         if (!route) {
             return res.status(404).json({
                 success: false,
-                message: 'ไม่พบเส้นทางที่ระบุ'
+                message: 'ไม่พบเส้นทางที่ต้องการแก้ไข'
             });
         }
-
-        if (format === 'json') {
-            res.json({
-                success: true,
-                data: route
-            });
-        } else {
-            res.status(400).json({
-                success: false,
-                message: 'รองรับเฉพาะ format: json เท่านั้นในขณะนี้'
-            });
-        }
-
+        
+        res.json({
+            success: true,
+            message: 'แก้ไขเส้นทางเรียบร้อยแล้ว',
+            route: route
+        });
+        
     } catch (error) {
-        console.error('❌ Error exporting route:', error);
+        console.error('Error updating route:', error);
         res.status(500).json({
             success: false,
-            message: 'เกิดข้อผิดพลาดในการส่งออกข้อมูล',
-            error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+            message: 'เกิดข้อผิดพลาดในการแก้ไขเส้นทาง'
         });
     }
-};
-
-// Capture map snapshot (optional - ใช้เมื่อมี puppeteer)
-const captureMapSnapshot = async (req, res) => {
-    res.status(501).json({
-        success: false,
-        message: 'ฟีเจอร์นี้กำลังพัฒนา (ต้องการ Puppeteer)'
-    });
 };
 
 // จุดรับซื้อขยะ
@@ -2325,7 +2101,7 @@ module.exports = {
     //หน้าฌาปนกิจสงเคราะห์
     funeralAidIndex,
     //หน้าแผนที่เข้ารับซื้อ
-    mapIndex,saveRouteAnalysis,getEmployeeRoutes,getRouteById,updateRoute,deleteRoute,captureMapSnapshot,exportRoute,
+    mapIndex,saveRoute,getAllRoutes,getRouteDetail,deleteRoute,updateRoute,
     //หน้าจัดการจุดรับซื้อ
     wastePointIndex,wastePointPost
 }

@@ -45,14 +45,21 @@ router.get('/funeralAid', employeeController.funeralAidIndex);
 
 // แผนที่
 router.get('/map', employeeController.mapIndex);
-// API Routes
-router.post('/api/routes', employeeController.saveRouteAnalysis);
-router.get('/api/routes', employeeController.getEmployeeRoutes);
-router.get('/api/routes/:id', employeeController.getRouteById);
-router.put('/api/routes/:id', employeeController.updateRoute);
-router.delete('/api/routes/:id', employeeController.deleteRoute);
-router.post('/api/routes/snapshot', employeeController.captureMapSnapshot);
-router.get('/api/routes/:id/export', employeeController.exportRoute);
+
+// บันทึกเส้นทาง
+router.post('/routes/save', employeeController.saveRoute);
+
+// ดูรายการเส้นทางทั้งหมด
+router.get('/routeList', employeeController.getAllRoutes);
+
+// ดูรายละเอียดเส้นทาง
+router.get('/routeList/:routeId', employeeController.getRouteDetail);
+
+// แก้ไขเส้นทาง
+router.put('/routeList/:routeId', employeeController.updateRoute);
+
+// ลบเส้นทาง
+router.delete('/routeList/:routeId', employeeController.deleteRoute);
 
 
 // จัดการจุดรับซื้อ
