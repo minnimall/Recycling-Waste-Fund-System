@@ -198,7 +198,7 @@
         <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
             <div class="mb-4 border-b border-gray-200 border-b border-gray-200 pb-4">
                 <h2 class="text-base font-semibold text-gray-800 mb-4 md:mb-0">
-                    คณะกรรมการ <span id="totalItems" class="text-blue-600 text-base font-normal"> 0 รายการ</span> 
+                    คณะกรรมการ <span id="totalItems" class="text-blue-600 text-base font-normal"> <%= board.length %> รายการ</span> 
                 </h2>
             </div>
             <!-- ตารางแสดงข้อมูล -->
@@ -255,12 +255,6 @@
 
     <script>
         let lastClickedRow = null;
-
-        // อัปเดตจำนวนรายการ
-        document.addEventListener('DOMContentLoaded', function() {
-            const totalItems = <%= board.length %>;
-            document.getElementById('totalItems').textContent = totalItems + ' รายการ';
-        });
 
         // ฟังก์ชันลบ
         function deleteBoard(id) {
