@@ -33,31 +33,26 @@ router.get('/wasteStock', employeeController.wasteStockIndex);
 // เบิกถอน
 // หน้าเบิกถอน
 router.get('/withdraw', employeeController.showWithdrawPage);
-
 // POST ถอนเงิน
 router.post('/withdraw', employeeController.withDrawIndex);
-
 // AJAX ดึงข้อมูลบัญชี
 router.get('/withdraw/account/:accountNumber', employeeController.getAccountByNumber);
+
 
 // ฌาปนกิจสงเคราะห์
 router.get('/funeralAid', employeeController.funeralAidIndex);
 
+
 // แผนที่
 router.get('/map', employeeController.mapIndex);
-
 // บันทึกเส้นทาง
 router.post('/routes/save', employeeController.saveRoute);
-
 // ดูรายการเส้นทางทั้งหมด
 router.get('/routeList', employeeController.getAllRoutes);
-
 // ดูรายละเอียดเส้นทาง
 router.get('/routeList/:routeId', employeeController.getRouteDetail);
-
 // แก้ไขเส้นทาง
 router.put('/routeList/:routeId', employeeController.updateRoute);
-
 // ลบเส้นทาง
 router.delete('/routeList/:routeId', employeeController.deleteRoute);
 

@@ -3,514 +3,765 @@
 
 <head>
     <%- include('../partials/adminPartials/doctype.ejs') %>
-    <title><%= mytitle %></title>
-    <link rel="stylesheet" href="/style_employee/member.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <title>
+            <%= mytitle %>
+        </title>
+        <link rel="stylesheet" href="/style_employee/member.css">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
     <%- include('../partials/adminPartials/adminHeader.ejs') %>
+
     <%- include('../partials/adminPartials/adminSidebar.ejs') %>
-    <script>
-        // เช็คข้อความที่ส่งมาจาก URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const successMessage = urlParams.get('message');
-        const errorMessage = urlParams.get('error');
+            <script>
+                // เช็คข้อความที่ส่งมาจาก URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const successMessage = urlParams.get('message');
+                const errorMessage = urlParams.get('error');
 
-        if (successMessage) {
-            Swal.fire({
-                icon: 'success',
-                title: 'สำเร็จ!',
-                text: successMessage,
-                confirmButtonText: 'ตกลง',
-                confirmButtonColor: '#28a745', // สีเขียวสำหรับความสำเร็จ
-                timer: 3000
-            });
-        }
+                if (successMessage) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'สำเร็จ!',
+                        text: successMessage,
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#28a745', // สีเขียวสำหรับความสำเร็จ
+                        timer: 3000
+                    });
+                }
 
-        if (errorMessage) {
-            Swal.fire({
-                icon: 'error',
-                title: 'เกิดข้อผิดพลาด!',
-                text: errorMessage,
-                confirmButtonText: 'ตกลง',
-                confirmButtonColor: '#d33',
-                timer: 3000
-            });
-        }
-    </script>
+                if (errorMessage) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด!',
+                        text: errorMessage,
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#d33',
+                        timer: 3000
+                    });
+                }
+            </script>
 
-    <div class="content bg-gray-50 min-screen">
-        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
-            <div>
-                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">สมาชิกกองทุนขยะรีไซเคิล</h1>
-                <p class="text-gray-600">ข้อมูลสมาชิกกองทุนขยะรีไซเคิลทั้งหมด</p>
-            </div>
-            
-            <div>
-                <button type="button" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition duration-300" onclick="ShowAddFamilyForm()">เพิ่มสมาชิก</button>
-            </div>
-        </div>
-        
-
-        <!-- Search and Filter Section -->
-        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
-            <form action="" method="GET">
-                <div class="flex flex-col md:flex-row gap-4">
-                    <div class="flex-1">
-                        <div class="relative">
-                            <input type="text" id="search" name="familyName" value="<%= query.familyName || '' %>" placeholder="ชื่อครัวเรือน..." 
-                                class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                            <div class="absolute left-3 top-2.5 text-gray-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="md:w-64">
-                        <select name="village" class="w-full py-2 px-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                            <option value="">เลือกหมู่บ้าน</option>
-                                <% villages.forEach(v => { %>
-                                    <option value="<%= v._id %>" <%= query.village == v._id ? 'selected' : '' %>><%= v.villageName %></option>
-                                <% }) %>
-                        </select>
-                    </div>
-                    <div class="md:w-64">
-                        <select name="Type" class="w-full py-2 px-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                            <option value="">เลือกประเภท</option>
-                            <option value="household" <%= query.Type === 'household' ? 'selected' : '' %>>บ้าน</option>
-                            <option value="school" <%= query.Type === 'school' ? 'selected' : '' %>>โรงเรียน</option>
-                            <option value="municipality" <%= query.Type === 'municipality' ? 'selected' : '' %>>อปท.</option>
-                            <option value="community" <%= query.Type === 'community' ? 'selected' : '' %>>ชุมชน</option>>
-                            <option value="temple" <%= query.Type === 'temple' ? 'selected' : '' %>>วัด</option>>
-                        </select>
-                    </div>
+            <div class="content bg-gray-50 min-screen">
+                <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
                     <div>
-                        <button class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                            <i class="fas fa-search mr-2"></i>ค้นหา
-                        </button>
+                        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
+                            สมาชิกกองทุนขยะรีไซเคิล</h1>
+                        <p class="text-gray-600">ข้อมูลสมาชิกกองทุนขยะรีไซเคิลทั้งหมด</p>
+                    </div>
+
+                    <div>
+                        <button type="button"
+                            class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition duration-300"
+                            onclick="ShowAddFamilyForm()">เพิ่มสมาชิก</button>
                     </div>
                 </div>
-            </form>
-        </div>
 
-        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
-            <div class="mb-4 border-b border-gray-200 border-b border-gray-200 pb-4">
-                <h2 class="text-base font-semibold text-gray-800 mb-4 md:mb-0">
-                    จำนวนสมาชิกทั้งหมด <span class="text-blue-600 text-base font-normal"><%= allFamilies.length %> รายการ</span>
-                </h2>
-            </div>
-        
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">ลำดับที่</th>
-                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">ชื่อครัวเรือน</th>
-                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">ชื่อบัญชีครัวเรือน</th>
-                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">ที่อยู่</th>
-                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">หมู่บ้าน</th>
-                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">จำนวนสมาชิก</th>
-                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">ประเภท</th>
-                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">จัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <% if (allFamilies.length > 0) { %>
-                            <% allFamilies.forEach((family, index) => { %>
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-4 py-3 text-sm whitespace-nowrap text-center"><%= index + 1 %></td>
-                                    <td class="px-4 py-3 text-sm whitespace-nowrap"><%= family.familyName %></td>
-                                    <td class="px-4 py-3 text-sm whitespace-nowrap"><%= family.username %></td>
-                                    <td class="px-4 py-3 text-sm whitespace-nowrap">
-                                        <a href="#" onclick='ShowLocation(<%= JSON.stringify(family) %>)' class="text-blue-500 hover:text-blue-700 hover:underline transition-colors">
-                                            ข้อมูลที่อยู่ของครัวเรือน
-                                        </a>
-                                    </td>
-                                    <td class="px-4 py-3 text-sm whitespace-nowrap"><%= family.village.villageName %></td>
-                                    <td class="px-4 py-3 text-sm whitespace-nowrap text-center"><%= family.NumFamilyMembers %></td>
-                                    <td class="px-4 py-3 text-sm whitespace-nowrap">
-                                        <span class="px-2 py-1 rounded-full text-sm font-medium">
-                                            <%= family.typeThai %>
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-center">
-                                        <button class="edit-btn">
-                                            <i class="fa-solid fa-pen-to-square"></i>
-                                        </button>
-                                        <button onclick="showModalDelete('<%= index + 1 %>','<%= family._id %>')" class="delete-btn">
-                                            <i class="fa-solid fa-trash"></i>
-                                        </button>
-                                    </td>
+
+                <!-- Search and Filter Section -->
+                <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+                    <form action="" method="GET">
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <div class="flex-1">
+                                <div class="relative">
+                                    <input type="text" id="search" name="familyName"
+                                        value="<%= query.familyName || '' %>" placeholder="ชื่อครัวเรือน..."
+                                        class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <div class="absolute left-3 top-2.5 text-gray-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex-1 md:flex-1">
+                                <div class="relative">
+                                    <input type="text" id="searchAccountNumber" name="AccountNumber"
+                                        value="<%= query.AccountNumber || '' %>" placeholder="เลขบัญชี..."
+                                        class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <div class="absolute left-3 top-2.5 text-gray-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="md:w-64">
+                                <select name="village"
+                                    class="w-full py-2 px-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="">เลือกหมู่บ้าน</option>
+                                    <% villages.forEach(v=> { %>
+                                        <option value="<%= v._id %>" <%=query.village==v._id ? 'selected' : '' %>><%=
+                                                v.villageName %>
+                                        </option>
+                                        <% }) %>
+                                </select>
+                            </div>
+                            <div class="md:w-64">
+                                <select name="Type"
+                                    class="w-full py-2 px-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="">เลือกประเภท</option>
+                                    <option value="household" <%=query.Type==='household' ? 'selected' : '' %>>บ้าน
+                                    </option>
+                                    <option value="school" <%=query.Type==='school' ? 'selected' : '' %>>โรงเรียน
+                                    </option>
+                                    <option value="municipality" <%=query.Type==='municipality' ? 'selected' : '' %>
+                                        >อปท.</option>
+                                    <option value="community" <%=query.Type==='community' ? 'selected' : '' %>>ชุมชน
+                                    </option>>
+                                    <option value="temple" <%=query.Type==='temple' ? 'selected' : '' %>>วัด</option>>
+                                </select>
+                            </div>
+                            <div>
+                                <button
+                                    class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                    <i class="fas fa-search mr-2"></i>ค้นหา
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+                    <div class="mb-4 border-b border-gray-200 border-b border-gray-200 pb-4">
+                        <h2 class="text-base font-semibold text-gray-800 mb-4 md:mb-0">
+                            จำนวนสมาชิกทั้งหมด <span class="text-blue-600 text-base font-normal">
+                                <%= allFamilies.length %> รายการ
+                            </span>
+                        </h2>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th
+                                        class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">
+                                        ลำดับที่</th>
+                                    <th
+                                        class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">
+                                        เลขบัญชี</th>
+                                    <th
+                                        class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">
+                                        ชื่อครัวเรือน</th>
+                                    <th
+                                        class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">
+                                        ชื่อบัญชีครัวเรือน</th>
+                                    <th
+                                        class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">
+                                        ที่อยู่</th>
+                                    <th
+                                        class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">
+                                        หมู่บ้าน</th>
+                                    <th
+                                        class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">
+                                        จำนวนสมาชิก</th>
+                                    <th
+                                        class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">
+                                        ประเภท</th>
+                                    <th
+                                        class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">
+                                        จัดการ</th>
                                 </tr>
-                            <% }); %>
-                        <% } else { %>
-                            <tr>
-                                <td colspan="8" class="text-center py-4 text-gray-500">- ไม่พบข้อมูลสมาชิก -</td>
-                            </tr>
-                        <% } %>
-                    </tbody>                    
-                </table>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <% if (allFamilies.length> 0) { %>
+                                    <% allFamilies.forEach((family, index)=> { %>
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <td class="px-4 py-3 text-sm whitespace-nowrap text-center">
+                                                <%= index + 1 %>
+                                            </td>
+                                            <td class="px-4 py-3 text-sm whitespace-nowrap">
+                                                <%= family.AccountNumber %>
+                                            </td>
+                                            <td class="px-4 py-3 text-sm whitespace-nowrap">
+                                                <%= family.familyName %>
+                                            </td>
+                                            <td class="px-4 py-3 text-sm whitespace-nowrap">
+                                                <%= family.AccountName %>
+                                            </td>
+                                            <td class="px-4 py-3 text-sm whitespace-nowrap">
+                                                <a href="#" onclick='ShowLocation(<%= JSON.stringify(family) %>)'
+                                                    class="text-blue-500 hover:text-blue-700 hover:underline transition-colors">
+                                                    ข้อมูลที่อยู่ของครัวเรือน
+                                                </a>
+                                            </td>
+                                            <td class="px-4 py-3 text-sm whitespace-nowrap">
+                                                <%= family.village.villageName %>
+                                            </td>
+                                            <td class="px-4 py-3 text-sm whitespace-nowrap text-center">
+                                                <%= family.NumFamilyMembers %>
+                                            </td>
+                                            <td class="px-4 py-3 text-sm whitespace-nowrap">
+                                                <span class="px-2 py-1 rounded-full text-sm font-medium">
+                                                    <%= family.typeThai %>
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-center">
+                                                <button onclick="showEditModal('<%= family._id %>')" class="edit-btn">
+                                                    <i class="fa-solid fa-pen-to-square"></i>
+                                                </button>
+                                                <button
+                                                    onclick="showModalDelete('<%= index + 1 %>','<%= family._id %>')"
+                                                    class="delete-btn">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <% }); %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="8" class="text-center py-4 text-gray-500">
+                                                        -ไม่พบข้อมูลสมาชิก -</td>
+                                                </tr>
+                                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
 
-    <!-- ฟอร์มลงทะเบียนครัวเรือน -->
-    <div id="ShowAddFamilyForm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden overflow-y-scroll">
-        <div class="container mx-auto p-6 my-auto">
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <h1 class="text-2xl font-bold mb-6">สมัครเข้าร่วมกองทุนขยะรีไซเคิล</h1>
-                
-                <form action="/admin/memberRegister" method="POST" class="space-y-6">
-                    
-                    <!-- ส่วนที่ 1: ข้อมูลครัวเรือน -->
-                    <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
-                        <h2 class="text-lg font-semibold mb-4 text-green-700">1. ข้อมูลครัวเรือน</h2>
-                        
+            <!-- modal ฟอร์มลงทะเบียนครัวเรือน -->
+            <div id="ShowAddFamilyForm"
+                class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden overflow-y-scroll">
+                <div class="container mx-auto p-6 my-auto">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h1 class="text-2xl font-bold mb-6">สมัครเข้าร่วมกองทุนขยะรีไซเคิล</h1>
+
+                        <form action="/admin/memberRegister" method="POST" class="space-y-6">
+
+                            <!-- ส่วนที่ 1: ข้อมูลครัวเรือน -->
+                            <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+                                <h2 class="text-lg font-semibold mb-4 text-green-700">1. ข้อมูลครัวเรือน</h2>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">ชื่อครัวเรือน</label>
+                                        <input type="text" name="familyName" class="w-full p-2 border rounded" required>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">ประเภทครัวเรือน</label>
+                                        <select name="Type" class="w-full p-2 border rounded" required>
+                                            <option value="household">บ้านเรือน</option>
+                                            <option value="school">โรงเรียน</option>
+                                            <option value="municipality">อปท.</option>
+                                            <option value="community">ชุมชน</option>
+                                            <option value="temple">วัด</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">ชื่อผู้ใช้ (Username)</label>
+                                        <input type="text" name="username" class="w-full p-2 border rounded" required>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label for="password" class="block font-medium mb-1">รหัสผ่าน</label>
+                                        <input type="password" name="password" id="password"
+                                            class="w-full p-2 border border-gray-300 rounded focus:ring focus:ring-blue-200" placeholder="กรอกรหัสผ่าน"
+                                            required>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <label for="confirmPassword" class="block font-medium mb-1">ยืนยันรหัสผ่าน</label>
+                                        <input type="password" name="confirmPassword" id="confirmPassword"
+                                            class="w-full p-2 border border-gray-300 rounded focus:ring focus:ring-blue-200"
+                                            placeholder="กรอกรหัสผ่านอีกครั้ง" required>
+                                        <p id="passwordError" class="text-red-500 text-sm mt-1 hidden">รหัสผ่านไม่ตรงกัน</p>
+                                    </div>
+                                </div>
+
+                                <h3 class="font-medium text-gray-700 mt-4 mb-2">ที่อยู่</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">บ้านเลขที่</label>
+                                        <input type="text" name="houseNumber" class="w-full p-2 border rounded"
+                                            required>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">หมู่บ้าน</label>
+                                        <select name="village" class="w-full p-2 border rounded">
+                                            <% villages.forEach(village=> { %>
+                                                <option value="<%= village._id %>">หมู่ <%= village.villageNumber %> -
+                                                        <%= village.villageName %>
+                                                </option>
+                                                <% }); %>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">ถนน</label>
+                                        <input type="text" name="road" class="w-full p-2 border rounded">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">ตำบล</label>
+                                        <input type="text" name="subdistrict" class="w-full p-2 border rounded"
+                                            value="ขามป้อม" required>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">อำเภอ</label>
+                                        <input type="text" name="district" class="w-full p-2 border rounded"
+                                            value="เปือยน้อย" required>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">จังหวัด</label>
+                                        <input type="text" name="province" class="w-full p-2 border rounded"
+                                            value="ขอนแก่น" required>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4">
+                                    <label class="block text-gray-700 mb-2">รหัสไปรษณีย์</label>
+                                    <input type="text" name="postalCode" class="w-full md:w-1/3 p-2 border rounded "
+                                        value="40340" required>
+                                </div>
+                            </div>
+
+                            <!-- ส่วนที่ 2: ข้อมูลสมาชิก (ตัวแทนครอบครัว) -->
+                            <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+                                <h2 class="text-lg font-semibold mb-4 text-green-700">2. ข้อมูลสมาชิก (ตัวแทนครอบครัว)
+                                </h2>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">ชื่อ-สกุล</label>
+                                        <input type="text" name="name" class="w-full p-2 border rounded" required>
+                                    </div>
+
+
+                                    <div class="mb-4">
+                                        <label for="idCardNumber" class="block font-medium mb-1">เลขบัตรประชาชน</label>
+                                        <input type="text" name="idCardNumber" id="idCardNumber"
+                                            class="w-full p-2 border border-gray-300 rounded focus:ring focus:ring-blue-200"
+                                            placeholder="กรอกเลขบัตรประชาชน 13 หลัก เช่น X-XXXX-XXXXX-XX-X" required>
+                                        <p id="idCardError" class="text-red-500 text-sm mt-1 hidden">เลขบัตรประชาชนไม่ถูกต้อง</p>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">วัน/เดือน/ปีเกิด</label>
+                                        <input type="date" name="birthDate" class="w-full p-2 border rounded">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">อาชีพ</label>
+                                        <input type="text" name="occupation" class="w-full p-2 border rounded">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">อายุ (ปี)</label>
+                                        <input type="text" name="age" class="w-full p-2 border rounded">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">สัญชาติ</label>
+                                        <input type="text" name="nationality" class="w-full p-2 border rounded"
+                                            value="ไทย">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">เชื้อชาติ</label>
+                                        <input type="text" name="ethnicity" class="w-full p-2 border rounded"
+                                            value="ไทย">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">ศาสนา</label>
+                                        <input type="text" name="religion" class="w-full p-2 border rounded"
+                                            value="พุทธ">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">เบอร์โทรศัพท์</label>
+                                        <input type="tel" name="phone" class="w-full p-2 border rounded">
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="block text-gray-700 mb-2">อีเมล</label>
+                                    <input type="email" name="email" class="w-full md:w-1/2 p-2 border rounded">
+                                </div>
+                            </div>
+
+                            <!-- ส่วนที่ 3: ผู้รับผลประโยชน์ -->
+                            <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+                                <h2 class="text-lg font-semibold mb-4 text-green-700">3. เงื่อนไขการรับสวัสดิการ</h2>
+
+                                <div id="beneficiaries-container">
+                                    <div class="beneficiary-item border-b pb-4 mb-4">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                            <div>
+                                                <label class="block text-gray-700 mb-2">ชื่อ-สกุล
+                                                    ผู้รับผลประโยชน์</label>
+                                                <input type="text" name="beneficiaries[0][name]"
+                                                    class="w-full p-2 border rounded">
+                                            </div>
+
+                                            <div>
+                                                <label class="block text-gray-700 mb-2">ความสัมพันธ์</label>
+                                                <input type="text" name="beneficiaries[0][relation]"
+                                                    class="w-full p-2 border rounded">
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-4 text-start">
+                                            <label class="block text-gray-700 mb-2">เงื่อนไขการรับเงิน</label>
+                                            <div class="flex flex-col space-y-3">
+                                                <div class="grid grid-cols-[24px_1fr] items-start gap-2">
+                                                    <input type="radio" name="beneficiaries[0][distributionType]"
+                                                        value="full" class="mt-0.5" checked>
+                                                    <label class="text-gray-700">ให้ได้รับเต็มจำนวน</label>
+                                                </div>
+
+                                                <div class="grid grid-cols-[24px_1fr] items-start gap-2">
+                                                    <input type="radio" name="beneficiaries[0][distributionType]"
+                                                        value="equal" class="mt-0.5">
+                                                    <label class="text-gray-700">ให้ได้รับส่วนแบ่งเท่ากัน</label>
+                                                </div>
+
+                                                <div class="grid grid-cols-[24px_1fr] items-start gap-2">
+                                                    <input type="radio" name="beneficiaries[0][distributionType]"
+                                                        value="other" class="mt-0.5">
+                                                    <label class="text-gray-700">อื่นๆ</label>
+                                                </div>
+
+                                                <div class="pl-[24px]">
+                                                    <input type="text" name="beneficiaries[0][distributionDetail]"
+                                                        class="p-2 border rounded w-full md:w-1/2"
+                                                        placeholder="โปรดระบุ">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button type="button" id="add-beneficiary"
+                                    class="text-blue-500 hover:text-blue-700 font-medium flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20"
+                                        fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    เพิ่มผู้รับผลประโยชน์
+                                </button>
+
+                                <div class="mt-6">
+                                    <label class="block text-gray-700 mb-2">จำนวนคนที่อาศัยในครัวเรือน (คน)</label>
+                                    <input type="number" name="NumFamilyMembers"
+                                        class="w-full md:w-1/4 p-2 border rounded">
+                                </div>
+                            </div>
+
+                            <div class="p-4 bg-gray-100 rounded-md border border-gray-200">
+                                <p class="mb-4">ข้าพเจ้าได้อ่านเข้าใจในเงื่อนไขและระเบียบกองทุนขยะรีไซเคิลแล้ว
+                                    ยินดีปฏิบัติตามทุกประการ</p>
+                                <p class="text-gray-600 text-sm mb-4"><strong>หมายเหตุ:</strong> ผู้ที่เข้าร่วมกองทุนฯ
+                                    ต้องดำเนินการคัดแยกขยะตามประเภท เพื่อเป็นการลดขยะตั้งแต่ต้นทาง</p>
+                            </div>
+
+                            <div class="flex gap-4">
+                                <button type="submit"
+                                    class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded font-medium flex-1">ลงทะเบียน</button>
+                                <button type="button"
+                                    class="bg-gray-500 text-white hover:bg-gray-700 px-6 py-3 rounded font-medium flex-1"
+                                    onclick="closeAddFamilyForm()">ปิด</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- แสดงข้อมูลที่อยู่ของครัวเรือน -->
+            <div id="ShowLocationModal"
+                class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+                <div class="bg-white p-6 w-1/2 rounded-lg relative">
+                    <h3 class="text-xl font-medium leading-6 text-gray-800">ข้อมูลที่อยู่ของครัวเรือน</h3>
+                    <hr class="my-3">
+                    <div class="bg-gray-50 p-4">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
                                 <label class="block text-gray-700 mb-2">ชื่อครัวเรือน</label>
-                                <input type="text" name="familyName" class="w-full p-2 border rounded" required>
+                                <input type="text" name="familyName" class="w-full p-2 border rounded" disabled>
                             </div>
-                            
+
                             <div>
                                 <label class="block text-gray-700 mb-2">ประเภทครัวเรือน</label>
-                                <select name="Type" class="w-full p-2 border rounded" required>
+                                <select name="Type" class="w-full p-2 border rounded" disabled>
                                     <option value="household">บ้านเรือน</option>
                                     <option value="school">โรงเรียน</option>
                                     <option value="municipality">อปท.</option>
                                     <option value="community">ชุมชน</option>
-                                    <option value="temple">วัด</option>
                                 </select>
                             </div>
                         </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <label class="block text-gray-700 mb-2">ชื่อผู้ใช้ (Username)</label>
-                                <input type="text" name="username" class="w-full p-2 border rounded" required>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-gray-700 mb-2">รหัสผ่าน</label>
-                                <input type="password" name="password" class="w-full p-2 border rounded" required>
-                            </div>
-                        </div>
-                        
                         <h3 class="font-medium text-gray-700 mt-4 mb-2">ที่อยู่</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label class="block text-gray-700 mb-2">บ้านเลขที่</label>
-                                <input type="text" name="houseNumber" class="w-full p-2 border rounded" required>
+                                <input type="text" name="houseNumber" class="w-full p-2 border rounded" disabled>
                             </div>
-                            
-                            <div>
-                                <label class="block text-gray-700 mb-2">หมู่บ้าน</label>
-                                <select name="village" class="w-full p-2 border rounded">
-                                    <% villages.forEach(village => { %>
-                                        <option value="<%= village._id %>">หมู่ <%= village.villageNumber %> - <%= village.villageName %></option>
-                                    <% }); %>
-                                </select>
-                            </div>
-                            
+
                             <div>
                                 <label class="block text-gray-700 mb-2">ถนน</label>
-                                <input type="text" name="road" class="w-full p-2 border rounded">
+                                <input type="text" name="road" class="w-full p-2 border rounded" disabled>
                             </div>
-                        </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+
                             <div>
                                 <label class="block text-gray-700 mb-2">ตำบล</label>
-                                <input type="text" name="subdistrict" class="w-full p-2 border rounded" value="ขามป้อม" required>
+                                <input type="text" name="subdistrict" class="w-full p-2 border rounded" disabled>
                             </div>
-                            
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                             <div>
                                 <label class="block text-gray-700 mb-2">อำเภอ</label>
-                                <input type="text" name="district" class="w-full p-2 border rounded" value="เปือยน้อย" required>
+                                <input type="text" name="district" class="w-full p-2 border rounded" disabled>
                             </div>
-                            
                             <div>
                                 <label class="block text-gray-700 mb-2">จังหวัด</label>
-                                <input type="text" name="province" class="w-full p-2 border rounded" value="ขอนแก่น" required>
+                                <input type="text" name="province" class="w-full p-2 border rounded" value="ขอนแก่น"
+                                    disabled>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-2">รหัสไปรษณีย์</label>
+                                <input type="text" name="postalCode" class="w-full md:w-1/3 p-2 border rounded"
+                                    disabled>
                             </div>
                         </div>
-                        
-                        <div class="mt-4">
-                            <label class="block text-gray-700 mb-2">รหัสไปรษณีย์</label>
-                            <input type="text" name="postalCode" class="w-full md:w-1/3 p-2 border rounded " value="40340" required>
-                        </div>
-                    </div>
-                    
-                    <!-- ส่วนที่ 2: ข้อมูลสมาชิก (ตัวแทนครอบครัว) -->
-                    <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
-                        <h2 class="text-lg font-semibold mb-4 text-green-700">2. ข้อมูลสมาชิก (ตัวแทนครอบครัว)</h2>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                            <div>
-                                <label class="block text-gray-700 mb-2">ชื่อ-สกุล</label>
-                                <input type="text" name="name" class="w-full p-2 border rounded" required>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-gray-700 mb-2">เลขบัตรประชาชน</label>
-                                <input type="text" name="idCardNumber" class="w-full p-2 border rounded" maxlength="13" required>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-gray-700 mb-2">วัน/เดือน/ปีเกิด</label>
-                                <input type="date" name="birthDate" class="w-full p-2 border rounded">
-                            </div>
-                        </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                            <div>
-                                <label class="block text-gray-700 mb-2">อาชีพ</label>
-                                <input type="text" name="occupation" class="w-full p-2 border rounded">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-gray-700 mb-2">อายุ (ปี)</label>
-                                <input type="text" name="age" class="w-full p-2 border rounded">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-gray-700 mb-2">สัญชาติ</label>
-                                <input type="text" name="nationality" class="w-full p-2 border rounded" value="ไทย">
-                            </div>
-                        </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                            <div>
-                                <label class="block text-gray-700 mb-2">เชื้อชาติ</label>
-                                <input type="text" name="ethnicity" class="w-full p-2 border rounded" value="ไทย">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-gray-700 mb-2">ศาสนา</label>
-                                <input type="text" name="religion" class="w-full p-2 border rounded" value="พุทธ">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-gray-700 mb-2">เบอร์โทรศัพท์</label>
-                                <input type="tel" name="phone" class="w-full p-2 border rounded" >
-                            </div>
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label class="block text-gray-700 mb-2">อีเมล</label>
-                            <input type="email" name="email" class="w-full md:w-1/2 p-2 border rounded">
+                        <hr class="my-6">
+                        <div class="mt-4 flex justify-end">
+                            <button class="bg-red-500 text-white px-4 py-2 rounded"
+                                onclick="CloseLocationModal()">ปิด</button>
                         </div>
                     </div>
-                    
-                    <!-- ส่วนที่ 3: ผู้รับผลประโยชน์ -->
-                    <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
-                        <h2 class="text-lg font-semibold mb-4 text-green-700">3. เงื่อนไขการรับสวัสดิการ</h2>
-                        
-                        <div id="beneficiaries-container">
-                            <div class="beneficiary-item border-b pb-4 mb-4">
+                </div>
+            </div>
+
+            <!-- Modal แก้ไขข้อมูลครัวเรือน -->
+            <div id="editFamilyModal"
+                class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden overflow-y-scroll">
+                <div class="container mx-auto p-6 my-auto">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h1 class="text-2xl font-bold mb-6">แก้ไขข้อมูลสมาชิกกองทุนขยะรีไซเคิล</h1>
+
+                        <form id="editFamilyForm" method="POST" class="space-y-6">
+
+                            <!-- ส่วนที่ 1: ข้อมูลครัวเรือน -->
+                            <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+                                <h2 class="text-lg font-semibold mb-4 text-green-700">1. ข้อมูลครัวเรือน</h2>
+
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                     <div>
-                                        <label class="block text-gray-700 mb-2">ชื่อ-สกุล ผู้รับผลประโยชน์</label>
-                                        <input type="text" name="beneficiaries[0][name]" class="w-full p-2 border rounded">
+                                        <label class="block text-gray-700 mb-2">ชื่อครัวเรือน</label>
+                                        <input type="text" name="familyName" class="w-full p-2 border rounded" required>
                                     </div>
-                                    
+
                                     <div>
-                                        <label class="block text-gray-700 mb-2">ความสัมพันธ์</label>
-                                        <input type="text" name="beneficiaries[0][relation]" class="w-full p-2 border rounded">
+                                        <label class="block text-gray-700 mb-2">ประเภทครัวเรือน</label>
+                                        <select name="Type" class="w-full p-2 border rounded" required>
+                                            <option value="household">บ้านเรือน</option>
+                                            <option value="school">โรงเรียน</option>
+                                            <option value="municipality">อปท.</option>
+                                            <option value="community">ชุมชน</option>
+                                            <option value="temple">วัด</option>
+                                        </select>
                                     </div>
                                 </div>
-                                
-                                <div class="mb-4 text-start">
-                                    <label class="block text-gray-700 mb-2">เงื่อนไขการรับเงิน</label>
-                                    <div class="flex flex-col space-y-3">
-                                        <div class="grid grid-cols-[24px_1fr] items-start gap-2">
-                                            <input type="radio" name="beneficiaries[0][distributionType]" value="full" class="mt-0.5" checked>
-                                            <label class="text-gray-700">ให้ได้รับเต็มจำนวน</label>
-                                        </div>
-                                        
-                                        <div class="grid grid-cols-[24px_1fr] items-start gap-2">
-                                            <input type="radio" name="beneficiaries[0][distributionType]" value="equal" class="mt-0.5">
-                                            <label class="text-gray-700">ให้ได้รับส่วนแบ่งเท่ากัน</label>
-                                        </div>
-                                        
-                                        <div class="grid grid-cols-[24px_1fr] items-start gap-2">
-                                            <input type="radio" name="beneficiaries[0][distributionType]" value="other" class="mt-0.5">
-                                            <label class="text-gray-700">อื่นๆ</label>
-                                        </div>
-                                        
-                                        <div class="pl-[24px]">
-                                            <input type="text" name="beneficiaries[0][distributionDetail]" class="p-2 border rounded w-full md:w-1/2" placeholder="โปรดระบุ">
-                                        </div>
-                                    </div>                                
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">ชื่อผู้ใช้ (Username)</label>
+                                        <input type="text" name="username" class="w-full p-2 border rounded" required>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">รหัสผ่านใหม่
+                                            (ปล่อยว่างหากไม่ต้องการเปลี่ยน)</label>
+                                        <input type="password" name="password" class="w-full p-2 border rounded"
+                                            minlength="6" maxlength="8" pattern="\d{6,8}"
+                                            placeholder="กรอกเฉพาะเมื่อต้องการเปลี่ยน">
+                                        <p class="text-sm text-gray-500 mt-1">กรอกตัวเลข 6-8 หลัก หรือปล่อยว่าง</p>
+                                    </div>
+                                </div>
+
+                                <h3 class="font-medium text-gray-700 mt-4 mb-2">ที่อยู่</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">บ้านเลขที่</label>
+                                        <input type="text" name="houseNumber" class="w-full p-2 border rounded"
+                                            required>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">หมู่บ้าน</label>
+                                        <select name="village" class="w-full p-2 border rounded">
+                                            <% villages.forEach(village=> { %>
+                                                <option value="<%= village._id %>">หมู่ <%= village.villageNumber %> -
+                                                        <%= village.villageName %>
+                                                </option>
+                                                <% }); %>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">ถนน</label>
+                                        <input type="text" name="road" class="w-full p-2 border rounded">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">ตำบล</label>
+                                        <input type="text" name="subdistrict" class="w-full p-2 border rounded"
+                                            required>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">อำเภอ</label>
+                                        <input type="text" name="district" class="w-full p-2 border rounded" required>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">จังหวัด</label>
+                                        <input type="text" name="province" class="w-full p-2 border rounded" required>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4">
+                                    <label class="block text-gray-700 mb-2">รหัสไปรษณีย์</label>
+                                    <input type="text" name="postalCode" class="w-full md:w-1/3 p-2 border rounded"
+                                        required>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <button type="button" id="add-beneficiary" class="text-blue-500 hover:text-blue-700 font-medium flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
-                            </svg>
-                            เพิ่มผู้รับผลประโยชน์
-                        </button>
-                        
-                        <div class="mt-6">
-                            <label class="block text-gray-700 mb-2">จำนวนคนที่อาศัยในครัวเรือน (คน)</label>
-                            <input type="number" name="NumFamilyMembers" class="w-full md:w-1/4 p-2 border rounded">
-                        </div>
-                    </div>
-                    
-                    <div class="p-4 bg-gray-100 rounded-md border border-gray-200">
-                        <p class="mb-4">ข้าพเจ้าได้อ่านเข้าใจในเงื่อนไขและระเบียบกองทุนขยะรีไซเคิลแล้ว ยินดีปฏิบัติตามทุกประการ</p>
-                        <p class="text-gray-600 text-sm mb-4"><strong>หมายเหตุ:</strong> ผู้ที่เข้าร่วมกองทุนฯ ต้องดำเนินการคัดแยกขยะตามประเภท เพื่อเป็นการลดขยะตั้งแต่ต้นทาง</p>
-                    </div>
-                    
-                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded font-medium w-full">ลงทะเบียน</button>
-                    <button type="button" class="bg-gray-500 text-white hover:bg-gray-700 px-6 py-3 rounded font-medium w-full" onclick="closeAddFamilyForm()">ปิด</button>
-                </form>
-            </div>
-        </div>
-    </div>
-    
-    <!-- แสดงข้อมูลที่อยู่ของครัวเรือน -->
-    <div id="ShowLocationModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
-        <div class="bg-white p-6 w-1/2 rounded-lg relative">
-            <h3 class="text-xl font-medium leading-6 text-gray-800">ข้อมูลที่อยู่ของครัวเรือน</h3>
-            <hr class="my-3">
-            <div class="bg-gray-50 p-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="block text-gray-700 mb-2">ชื่อครัวเรือน</label>
-                        <input type="text" name="familyName" class="w-full p-2 border rounded" disabled>
-                    </div>
-    
-                    <div>
-                        <label class="block text-gray-700 mb-2">ประเภทครัวเรือน</label>
-                        <select name="Type" class="w-full p-2 border rounded" disabled>
-                            <option value="household">บ้านเรือน</option>
-                            <option value="school">โรงเรียน</option>
-                            <option value="municipality">อปท.</option>
-                            <option value="community">ชุมชน</option>
-                        </select>
-                    </div>
-                </div>
-                <h3 class="font-medium text-gray-700 mt-4 mb-2">ที่อยู่</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-gray-700 mb-2">บ้านเลขที่</label>
-                        <input type="text" name="houseNumber" class="w-full p-2 border rounded" disabled>
-                    </div>
-    
-                    <div>
-                        <label class="block text-gray-700 mb-2">ถนน</label>
-                        <input type="text" name="road" class="w-full p-2 border rounded" disabled>
-                    </div>
-    
-                    <div>
-                        <label class="block text-gray-700 mb-2">ตำบล</label>
-                        <input type="text" name="subdistrict" class="w-full p-2 border rounded" disabled>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                    <div>
-                        <label class="block text-gray-700 mb-2">อำเภอ</label>
-                        <input type="text" name="district" class="w-full p-2 border rounded" disabled>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 mb-2">จังหวัด</label>
-                        <input type="text" name="province" class="w-full p-2 border rounded" value="ขอนแก่น" disabled>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 mb-2">รหัสไปรษณีย์</label>
-                        <input type="text" name="postalCode" class="w-full md:w-1/3 p-2 border rounded" disabled>
-                    </div>
-                </div>
-                <hr class="my-6">
-                <div class="mt-4 flex justify-end">
-                    <button class="bg-red-500 text-white px-4 py-2 rounded" onclick="CloseLocationModal()">ปิด</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- <div class="container mx-auto p-6 bg-white my-2 rounded-lg">
-        <div class="w-full flex items-center justify-between">
-            <h1 class="text-2xl">จำนวนสมาชิก (<%= allFamilies.length %>)</h1>
-            <div class="flex items-center">
-                <form action="" method="GET" class="search-form flex gap-1">
-                    <input type="text" name="familyName" value="<%= query.familyName || '' %>" placeholder="ชื่อครัวเรือน" class="search-input">
-                    <input type="text" name="AccountName" value="<%= query.AccountName || '' %>" placeholder="ชื่อบัญชีครัวเรือน" class="search-input">
-                
-                    <select name="village" class="search-input text-black">
-                        <option value="">-- เลือกหมู่บ้าน --</option>
-                        <% villages.forEach(v => { %>
-                            <option value="<%= v._id %>" <%= query.village == v._id ? 'selected' : '' %>><%= v.villageName %></option>
-                        <% }) %>
-                    </select>
-                
-                    <select name="Type" class="search-input">
-                        <option value="">-- เลือกประเภท --</option>
-                        <option value="household" <%= query.Type === 'household' ? 'selected' : '' %>>บ้าน</option>
-                        <option value="school" <%= query.Type === 'school' ? 'selected' : '' %>>โรงเรียน</option>
-                        <option value="municipality" <%= query.Type === 'municipality' ? 'selected' : '' %>>อปท.</option>
-                        <option value="community" <%= query.Type === 'community' ? 'selected' : '' %>>ชุมชน</option>
-                    </select>
-                
-                    <button type="submit" class="search-button main-bg-color">ค้นหา</button>
-                </form>
-                
-                
-                <div>
-                    <button type="button" class="main-bg-color text-white p-2 shadow rounded-lg ml-2" onclick="ShowAddFamilyForm()">เพิ่มครัวเรือน</button>
+                            <!-- ส่วนที่ 2: ข้อมูลสมาชิก -->
+                            <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+                                <h2 class="text-lg font-semibold mb-4 text-green-700">2. ข้อมูลสมาชิก (ตัวแทนครอบครัว)
+                                </h2>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">ชื่อ-สกุล</label>
+                                        <input type="text" name="name" class="w-full p-2 border rounded" required>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">เลขบัตรประชาชน</label>
+                                        <input type="text" name="idCardNumber" class="w-full p-2 border rounded"
+                                            maxlength="13" required>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">วัน/เดือน/ปีเกิด</label>
+                                        <input type="date" name="birthDate" class="w-full p-2 border rounded">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">อาชีพ</label>
+                                        <input type="text" name="occupation" class="w-full p-2 border rounded">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">อายุ (ปี)</label>
+                                        <input type="text" name="age" class="w-full p-2 border rounded">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">สัญชาติ</label>
+                                        <input type="text" name="nationality" class="w-full p-2 border rounded">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">เชื้อชาติ</label>
+                                        <input type="text" name="ethnicity" class="w-full p-2 border rounded">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">ศาสนา</label>
+                                        <input type="text" name="religion" class="w-full p-2 border rounded">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-gray-700 mb-2">เบอร์โทรศัพท์</label>
+                                        <input type="tel" name="phone" class="w-full p-2 border rounded">
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="block text-gray-700 mb-2">อีเมล</label>
+                                    <input type="email" name="email" class="w-full md:w-1/2 p-2 border rounded">
+                                </div>
+                            </div>
+
+                            <!-- ส่วนที่ 3: ผู้รับผลประโยชน์ -->
+                            <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+                                <h2 class="text-lg font-semibold mb-4 text-green-700">3. เงื่อนไขการรับสวัสดิการ</h2>
+
+                                <div id="edit-beneficiaries-container">
+                                    <!-- ข้อมูลผู้รับผลประโยชน์จะถูกเพิ่มที่นี่โดย JavaScript -->
+                                </div>
+
+                                <button type="button" id="add-edit-beneficiary"
+                                    class="text-blue-500 hover:text-blue-700 font-medium flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20"
+                                        fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    เพิ่มผู้รับผลประโยชน์
+                                </button>
+
+                                <div class="mt-6">
+                                    <label class="block text-gray-700 mb-2">จำนวนคนที่อาศัยในครัวเรือน (คน)</label>
+                                    <input type="number" name="NumFamilyMembers"
+                                        class="w-full md:w-1/4 p-2 border rounded">
+                                </div>
+                            </div>
+
+                            <div class="flex gap-4">
+                                <button type="submit"
+                                    class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded font-medium flex-1">บันทึกการแก้ไข</button>
+                                <button type="button"
+                                    class="bg-gray-500 text-white hover:bg-gray-700 px-6 py-3 rounded font-medium flex-1"
+                                    onclick="closeEditModal()">ยกเลิก</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
-        <table class="min-w-full divide-y divide-gray-200 mt-4 p-4">
-            <thead class="main-bg-color">
-                <tr>
-                    <th class="px-6 py-3 text-lg font-medium tracking-wider text-center text-white uppercase">ลำดับที่</th>
-                    <th class="px-6 py-3 text-lg font-medium tracking-wider text-left text-white uppercase">ชื่อครัวเรือน</th>
-                    <th class="px-6 py-3 text-lg font-medium tracking-wider text-center text-white uppercase">ชื่อบัญชีครัวเรือน</th>
-                    <th class="px-6 py-3 text-lg font-medium tracking-wider text-center text-white uppercase">ที่อยู่</th>
-                    <th class="px-6 py-3 text-lg font-medium tracking-wider text-center text-white uppercase">หมู่บ้าน</th>
-                    <th class="px-6 py-3 text-lg font-medium tracking-wider text-center text-white uppercase">จำนวนสมาชิก</th>
-                    <th class="px-6 py-3 text-lg font-medium tracking-wider text-center text-white uppercase">ประเภท</th>
-                    <th class="px-6 py-3 text-lg font-medium tracking-wider text-center text-white uppercase">จัดการ</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                <% allFamilies.forEach((family, index) => { %>
-                <tr>
-                    <td class="px-6 py-4 text-xl whitespace-nowrap text-center"><%= index + 1 %></td>
-                    <td class="px-6 py-4 text-xl whitespace-nowrap text-left"><%= family.familyName %></td>
-                    <td class="px-6 py-4 text-xl whitespace-nowrap text-center"><%= family.username %></td>
-                    <td class="px-6 py-4 text-xl whitespace-nowrap text-center text-blue-500 hover:underline">
-                        <a href="#" onclick='ShowLocation(<%= JSON.stringify(family) %>)'>ข้อมูลที่อยู่ของครัวเรือน</a>
-                    </td>
-                    <td class="px-6 py-4 text-xl whitespace-nowrap text-center"><%= family.village.villageName %></td>
-                    <td class="px-6 py-4 text-xl whitespace-nowrap text-center"><%= family.NumFamilyMembers %></td>
-                    <td class="px-6 py-4 text-xl whitespace-nowrap text-center"><%= family.Type %></td>
-                    <td class="whitespace-nowrap text-center">
-                        <button class="bg-blue-500 p-3 rounded text-white"><i class="fa-solid fa-pen-to-square"></i></button>
-                        <button class="bg-red-500 p-3 rounded text-white"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                </tr>
-                <% }); %>
-            </tbody>
-        </table> -->
-    </div>
 
-    <%- include('../partials/employeePartials/empFooter.ejs') %>
+            <%- include('../partials/adminPartials/adminFooter.ejs') %>
 </body>
 <script>
     // JavaScript สำหรับเพิ่มผู้รับผลประโยชน์
-    document.getElementById('add-beneficiary').addEventListener('click', function() {
+    document.getElementById('add-beneficiary').addEventListener('click', function () {
         const container = document.getElementById('beneficiaries-container');
         const beneficiaryCount = container.getElementsByClassName('beneficiary-item').length;
         const index = beneficiaryCount;
-        
+
         const newBeneficiary = document.createElement('div');
         newBeneficiary.className = 'beneficiary-item border-b pb-4 mb-4';
         newBeneficiary.innerHTML = `
@@ -558,20 +809,20 @@
                 </div>                                
             </div>
         `;
-        
+
         container.appendChild(newBeneficiary);
-        
+
         // เพิ่ม event listener สำหรับปุ่มลบ
         const removeButtons = document.getElementsByClassName('remove-beneficiary');
         for (let btn of removeButtons) {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', function () {
                 this.closest('.beneficiary-item').remove();
                 // อัพเดต index สำหรับผู้รับผลประโยชน์ที่เหลือ
                 updateBeneficiaryIndexes();
             });
         }
     });
-    
+
     // ฟังก์ชันอัพเดต index ของผู้รับผลประโยชน์
     function updateBeneficiaryIndexes() {
         const beneficiaryItems = document.getElementsByClassName('beneficiary-item');
@@ -581,7 +832,7 @@
                 const name = input.getAttribute('name');
                 input.setAttribute('name', name.replace(/beneficiaries\[\d+\]/, `beneficiaries[${i}]`));
             }
-            
+
             const title = beneficiaryItems[i].querySelector('h3');
             if (title && i > 0) { // ไม่อัพเดตชื่อผู้รับผลประโยชน์คนแรก
                 title.textContent = `ผู้รับผลประโยชน์ ${i + 1}`;
@@ -589,22 +840,24 @@
         }
     }
     function ShowAddFamilyForm() {
-        document.getElementById('ShowAddFamilyForm').classList.remove("hidden");
+        const modal = document.getElementById('ShowAddFamilyForm');
+        modal.classList.remove("hidden");
+        modal.scrollTo({ top: 0, behavior: 'smooth' });
     }
     function closeAddFamilyForm() {
         Swal.fire({
-        title: "คุณต้องการจะปิดฟอร์มนี้ใช่หรือไม่",
-        text: "หากปิดแล้วจะข้อมูลที่กรอกจะหายไป",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#00923f",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "ยืนยัน",
-        cancelButtonText: "ยกเลิก"
+            title: "คุณต้องการจะปิดฟอร์มนี้ใช่หรือไม่",
+            text: "หากปิดแล้วจะข้อมูลที่กรอกจะหายไป",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#00923f",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "ยืนยัน",
+            cancelButtonText: "ยกเลิก"
         }).then((result) => {
-        if (result.isConfirmed) {
-            document.getElementById('ShowAddFamilyForm').classList.add("hidden");
-        }
+            if (result.isConfirmed) {
+                document.getElementById('ShowAddFamilyForm').classList.add("hidden");
+            }
         });
     }
     function ShowLocation(family) {
@@ -624,42 +877,318 @@
     }
 
     // ลบสมัครกองทุน
-    function showModalDelete(index,id){
+    function showModalDelete(index, id) {
         Swal.fire({
-                title: `ลบรายการลำดับที่ "${index}" หรือไม่?`,
-                text: "หากคุณลบแล้วจะไม่สามารถกู้คืนได้!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                cancelButtonText: "ยกเลิก",
-                confirmButtonText: "ยืนยัน"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch(`admin/MemberDelete//${id}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                    })
+            title: `ลบรายการลำดับที่ "${index}" หรือไม่?`,
+            text: "หากคุณลบแล้วจะไม่สามารถกู้คืนได้!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            cancelButtonText: "ยกเลิก",
+            confirmButtonText: "ยืนยัน"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`admin/MemberDelete//${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
                     .then(result => {
-                            if (result.isConfirmed) {
-                                Swal.fire('ลบข้อมูลไม่สำเร็จ', 'ข้อมูลกิจกรรมถูกลบเรียบร้อยแล้ว', 'error')
-                                    .then(() => {
-                                        location.reload();
-                                    });
-                            } else {
-                                Swal.fire('ลบข้อมูลสำเร็จ', 'ข้อมูลสื่อความรู้ถูกลบเรียบร้อยแล้ว', 'success')
+                        if (result.isConfirmed) {
+                            Swal.fire('ลบข้อมูลไม่สำเร็จ', 'ข้อมูลกิจกรรมถูกลบเรียบร้อยแล้ว', 'error')
                                 .then(() => {
-                                        location.reload();
+                                    location.reload();
                                 });
-                            }
-                        })
-                        .catch(error => {
-                            Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้', 'error');
+                        } else {
+                            Swal.fire('ลบข้อมูลสำเร็จ', 'ข้อมูลสื่อความรู้ถูกลบเรียบร้อยแล้ว', 'success')
+                                .then(() => {
+                                    location.reload();
+                                });
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้', 'error');
                     });
-                }
-            });
+            }
+        });
     }
+
+    // ฟังก์ชันเปิด Modal แก้ไขข้อมูล
+    async function showEditModal(familyId) {
+        try {
+            // ดึงข้อมูลจาก API
+            const response = await fetch(`/admin/member/${familyId}/edit`);
+            const result = await response.json();
+
+            if (!result.success) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: result.error || 'ไม่สามารถดึงข้อมูลได้',
+                    confirmButtonColor: '#d33'
+                });
+                return;
+            }
+
+            const { family, member, account } = result.data;
+
+            // แสดง Modal
+            const modal = document.getElementById('editFamilyModal');
+            modal.classList.remove('hidden');
+
+            // เติมข้อมูลครัวเรือน
+            document.querySelector('#editFamilyModal input[name="familyName"]').value = family.familyName || '';
+            document.querySelector('#editFamilyModal select[name="Type"]').value = family.Type || 'household';
+            document.querySelector('#editFamilyModal input[name="username"]').value = family.username || '';
+            document.querySelector('#editFamilyModal input[name="password"]').value = ''; // ไม่แสดงรหัสผ่านเดิม
+
+            // เติมข้อมูลที่อยู่
+            document.querySelector('#editFamilyModal input[name="houseNumber"]').value = family.address?.houseNumber || '';
+            document.querySelector('#editFamilyModal select[name="village"]').value = family.village?._id || '';
+            document.querySelector('#editFamilyModal input[name="road"]').value = family.address?.road || '';
+            document.querySelector('#editFamilyModal input[name="subdistrict"]').value = family.address?.subdistrict || '';
+            document.querySelector('#editFamilyModal input[name="district"]').value = family.address?.district || '';
+            document.querySelector('#editFamilyModal input[name="province"]').value = family.address?.province || '';
+            document.querySelector('#editFamilyModal input[name="postalCode"]').value = family.address?.postalCode || '';
+
+            // เติมข้อมูลสมาชิก
+            document.querySelector('#editFamilyModal input[name="name"]').value = member.name || '';
+            document.querySelector('#editFamilyModal input[name="idCardNumber"]').value = member.idCardNumber || '';
+            document.querySelector('#editFamilyModal input[name="birthDate"]').value = member.birthDate ? member.birthDate.split('T')[0] : '';
+            document.querySelector('#editFamilyModal input[name="occupation"]').value = member.occupation || '';
+            document.querySelector('#editFamilyModal input[name="age"]').value = member.age || '';
+            document.querySelector('#editFamilyModal input[name="nationality"]').value = member.nationality || '';
+            document.querySelector('#editFamilyModal input[name="ethnicity"]').value = member.ethnicity || '';
+            document.querySelector('#editFamilyModal input[name="religion"]').value = member.religion || '';
+            document.querySelector('#editFamilyModal input[name="phone"]').value = member.phone || '';
+            document.querySelector('#editFamilyModal input[name="email"]').value = member.email || '';
+
+            // เติมข้อมูลผู้รับผลประโยชน์
+            const beneficiariesContainer = document.getElementById('edit-beneficiaries-container');
+            beneficiariesContainer.innerHTML = ''; // ล้างข้อมูลเดิม
+
+            if (member.beneficiaries && member.beneficiaries.length > 0) {
+                member.beneficiaries.forEach((beneficiary, index) => {
+                    addEditBeneficiary(index, beneficiary);
+                });
+            } else {
+                // เพิ่มผู้รับผลประโยชน์คนแรกเปล่าๆ
+                addEditBeneficiary(0, {});
+            }
+
+            // เติมจำนวนสมาชิกในครัวเรือน
+            document.querySelector('#editFamilyModal input[name="NumFamilyMembers"]').value = family.NumFamilyMembers || '';
+
+            // เก็บ familyId ไว้ใน form action
+            document.getElementById('editFamilyForm').action = `/admin/memberUpdate/${family._id}`;
+
+        } catch (error) {
+            console.error('Error loading member data:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด',
+                text: 'ไม่สามารถโหลดข้อมูลได้',
+                confirmButtonColor: '#d33'
+            });
+        }
+    }
+
+    // ฟังก์ชันเพิ่มผู้รับผลประโยชน์ใน Modal แก้ไข
+    function addEditBeneficiary(index, data = {}) {
+        const container = document.getElementById('edit-beneficiaries-container');
+
+        const beneficiaryItem = document.createElement('div');
+        beneficiaryItem.className = 'beneficiary-item border-b pb-4 mb-4';
+        beneficiaryItem.innerHTML = `
+            ${index > 0 ? `
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="font-medium">ผู้รับผลประโยชน์ ${index + 1}</h3>
+                <button type="button" class="text-red-500 hover:text-red-700 remove-edit-beneficiary">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+            ` : ''}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-gray-700 mb-2">ชื่อ-สกุล ผู้รับผลประโยชน์</label>
+                    <input type="text" name="beneficiaries[${index}][name]" value="${data.name || ''}" class="w-full p-2 border rounded">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">ความสัมพันธ์</label>
+                    <input type="text" name="beneficiaries[${index}][relation]" value="${data.relation || ''}" class="w-full p-2 border rounded">
+                </div>
+            </div>
+            <div class="mb-4 text-start">
+                <label class="block text-gray-700 mb-2">เงื่อนไขการรับเงิน</label>
+                <div class="flex flex-col space-y-3">
+                    <div class="grid grid-cols-[24px_1fr] items-start gap-2">
+                        <input type="radio" name="beneficiaries[${index}][distributionType]" value="full" ${data.distributionType === 'full' ? 'checked' : ''} class="mt-0.5">
+                        <label class="text-gray-700">ให้ได้รับเต็มจำนวน</label>
+                    </div>
+                    <div class="grid grid-cols-[24px_1fr] items-start gap-2">
+                        <input type="radio" name="beneficiaries[${index}][distributionType]" value="equal" ${!data.distributionType || data.distributionType === 'equal' ? 'checked' : ''} class="mt-0.5">
+                        <label class="text-gray-700">ให้ได้รับส่วนแบ่งเท่ากัน</label>
+                    </div>
+                    <div class="grid grid-cols-[24px_1fr] items-start gap-2">
+                        <input type="radio" name="beneficiaries[${index}][distributionType]" value="other" ${data.distributionType === 'other' ? 'checked' : ''} class="mt-0.5">
+                        <label class="text-gray-700">อื่นๆ</label>
+                    </div>
+                    <div class="pl-[24px]">
+                        <input type="text" name="beneficiaries[${index}][distributionDetail]" value="${data.distributionDetail || ''}" class="p-2 border rounded w-full md:w-1/2" placeholder="โปรดระบุ">
+                    </div>
+                </div>
+            </div>
+        `;
+
+        container.appendChild(beneficiaryItem);
+
+        // เพิ่ม event listener สำหรับปุ่มลบ
+        if (index > 0) {
+            const removeBtn = beneficiaryItem.querySelector('.remove-edit-beneficiary');
+            removeBtn.addEventListener('click', function () {
+                this.closest('.beneficiary-item').remove();
+                updateEditBeneficiaryIndexes();
+            });
+        }
+    }
+
+    // ฟังก์ชันอัปเดต index ของผู้รับผลประโยชน์ใน Modal แก้ไข
+    function updateEditBeneficiaryIndexes() {
+        const beneficiaryItems = document.querySelectorAll('#edit-beneficiaries-container .beneficiary-item');
+        beneficiaryItems.forEach((item, i) => {
+            const inputs = item.querySelectorAll('input[name^="beneficiaries"]');
+            inputs.forEach(input => {
+                const name = input.getAttribute('name');
+                input.setAttribute('name', name.replace(/beneficiaries\[\d+\]/, `beneficiaries[${i}]`));
+            });
+
+            const title = item.querySelector('h3');
+            if (title && i > 0) {
+                title.textContent = `ผู้รับผลประโยชน์ ${i + 1}`;
+            }
+        });
+    }
+
+    // Event listener สำหรับปุ่มเพิ่มผู้รับผลประโยชน์ใน Modal แก้ไข
+    document.getElementById('add-edit-beneficiary')?.addEventListener('click', function () {
+        const container = document.getElementById('edit-beneficiaries-container');
+        const beneficiaryCount = container.getElementsByClassName('beneficiary-item').length;
+        addEditBeneficiary(beneficiaryCount, {});
+    });
+
+    // ฟังก์ชันปิด Modal แก้ไข
+    function closeEditModal() {
+        Swal.fire({
+            title: "คุณต้องการปิดฟอร์มนี้ใช่หรือไม่",
+            text: "หากปิดแล้วข้อมูลที่แก้ไขจะไม่ถูกบันทึก",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#00923f",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "ยืนยัน",
+            cancelButtonText: "ยกเลิก"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('editFamilyModal').classList.add("hidden");
+            }
+        });
+    }
+
+    // ตรวจสอบรหัสผ่านก่อนส่งฟอร์ม
+    document.addEventListener("DOMContentLoaded", () => {
+    const password = document.getElementById("password");
+    const confirmPassword = document.getElementById("confirmPassword");
+    const passwordError = document.getElementById("passwordError");
+    const form = document.querySelector("form");
+
+    // ฟังก์ชันตรวจสอบความตรงกัน
+    function checkPasswordMatch() {
+        if (confirmPassword.value === "") {
+        confirmPassword.classList.remove("border-red-500", "focus:ring-red-300");
+        passwordError.classList.add("hidden");
+        return true;
+        }
+
+        if (password.value !== confirmPassword.value) {
+        confirmPassword.classList.add("border-red-500", "focus:ring-red-300");
+        passwordError.classList.remove("hidden");
+        return false;
+        } else {
+        confirmPassword.classList.remove("border-red-500", "focus:ring-red-300");
+        passwordError.classList.add("hidden");
+        return true;
+        }
+    }
+
+    // ตรวจสอบแบบ real-time
+    confirmPassword.addEventListener("input", checkPasswordMatch);
+    password.addEventListener("input", checkPasswordMatch);
+
+    // ตรวจสอบตอนส่งฟอร์ม
+    form.addEventListener("submit", (e) => {
+        if (!checkPasswordMatch()) {
+        e.preventDefault();
+        Swal.fire({
+            icon: "error",
+            title: "รหัสผ่านไม่ตรงกัน",
+            text: "กรุณากรอกให้ตรงกันทั้งสองช่อง",
+            confirmButtonColor: "#ef4444"
+        });
+        }
+    });
+    });
+
+    // Format IDCard ให้เป็น Pattern ไทย
+    const idInput = document.getElementById("idCardNumber");
+    const idError = document.getElementById("idCardError");
+
+    // ฟังก์ชันฟอร์แมตเลขบัตรประชาชนไทย
+    function formatThaiID(value) {
+    // เอาเฉพาะตัวเลข
+    let numbers = value.replace(/\D/g, '').slice(0, 13);
+
+    // ใส่ขีดตามตำแหน่ง 1-4-5-2-1
+    let formatted = '';
+    if(numbers.length > 0) formatted += numbers.substr(0,1);
+    if(numbers.length > 1) formatted += '-' + numbers.substr(1,4);
+    if(numbers.length > 5) formatted += '-' + numbers.substr(5,5);
+    if(numbers.length > 10) formatted += '-' + numbers.substr(10,2);
+    if(numbers.length > 12) formatted += '-' + numbers.substr(12,1);
+
+    return formatted;
+    }
+
+    // ฟอร์แมตแบบ real-time
+    idInput.addEventListener('input', (e) => {
+    e.target.value = formatThaiID(e.target.value);
+    });
+
+    // ตรวจสอบตอน submit
+    document.getElementById("ShowAddFamilyForm").addEventListener("submit", function(e) {
+        // เอาเฉพาะตัวเลขมาลอง validate
+        const numbersOnly = idInput.value.replace(/\D/g, '');
+        if(numbersOnly.length !== 13) {
+            e.preventDefault();
+            idError.classList.remove('hidden');
+            idInput.classList.add('border-red-500', 'focus:ring-red-300');
+            Swal.fire({
+                icon: 'error',
+                title: 'เลขบัตรประชาชนไม่ถูกต้อง',
+                text: 'กรุณากรอกเลขบัตรประชาชนให้ครบ 13 หลัก',
+                confirmButtonColor: '#ef4444'
+            });
+        } else {
+            // ✅ เอาขีดออกก่อนส่ง
+            idInput.value = numbersOnly;
+
+            idError.classList.add('hidden');
+            idInput.classList.remove('border-red-500', 'focus:ring-red-300');
+        }
+    });
 </script>
+
 </html>

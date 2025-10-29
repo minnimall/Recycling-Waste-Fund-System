@@ -49,6 +49,11 @@ router.post('/employeeEdit', adminController.editEmployee);
 // สมาชิกกองทุนขยะรีไซเคิล
 router.get('/member', adminController.memberIndex);
 router.post('/memberRegister', adminController.memberRegister);
+router.get('/member/:familyId/edit', adminController.getMemberForEdit);
+router.post('/memberUpdate/:familyId', adminController.memberUpdate);
+
+//คณะกรรมการ
+router.get('/board', adminController.boardIndex);
 
 // หมู่บ้าน
 router.get('/village', adminController.villageIndex);

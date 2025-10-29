@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/adminPartials/doctype.ejs') %>
+    <title><%= mytitle %></title>
+    <link rel="stylesheet" href="/style_admin/activity.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+    <%- include('../partials/adminPartials/adminHeader.ejs') %>
+
+    <%- include('../partials/adminPartials/adminSidebar.ejs') %>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // เช็คข้อความที่ส่งมาจาก URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const successMessage = urlParams.get('message');
+        const errorMessage = urlParams.get('error');
+
+        if (successMessage) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: successMessage,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
+
+        if (errorMessage) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: errorMessage,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
+
+    </script>
+
+    <div class="content bg-gray-50 min-screen">
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">คณะกรรมการ</h1>
+                <p class="text-gray-600">คณะกรรมการฝ่ายทั้งหมดของกองทุนขยะรีไซเคิล</p>
+            </div>
+            
+            <div>
+                <button type="button" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition duration-300" onclick="wasFormToggle()">เพิ่มคณะกรรมการ</button>
+            </div>
+        </div>
+
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1 relative">
+                <input type="text" id="searchInput" placeholder="ค้นหาคณะกรรมการ"
+                        class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                <div class="absolute left-3 top-2.5 text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                <label for="perPage" class="text-sm text-gray-600">ตำแหน่ง:</label>
+                <select id="roleFilter" class="w-full py-2 px-3 rounded-lg border border-gray-300">
+
+                </select>
+                </div>
+                <div class="flex items-center space-x-2">
+                <label for="perPage" class="text-sm text-gray-600">แสดง:</label>
+                <select id="itemsPerPage" class="w-full py-2 px-3 rounded-lg border border-gray-300">
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="20">20</option>
+                </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Add -->
+        <div id="add_Form" class="fixed inset-0 z-50 bg-black bg-opacity-30 flex items-center justify-center hidden">
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl px-4">
+                <form action="/admin/boardPost" method="POST" enctype="multipart/form-data"
+                    class="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 space-y-5">
+                    
+                    <div class="flex items-center space-x-3 border-b pb-3">
+                        <ion-icon name="information-circle-outline" class="text-blue-500 text-2xl"></ion-icon>
+                        <span class="text-xl font-semibold text-gray-800">รายละเอียด</span>
+                    </div>
+                    
+                    <div>
+                        <label for="boardName" class="block text-sm font-medium text-gray-700 mb-1">ชื่อคณะกรรมการ</label>
+                        <input type="text" name="name" id="name" placeholder="นายสามารถ ไชยมิตร" required
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
+                    </div>
+
+                    <div>
+                        <label for="role" class="block text-sm font-medium text-gray-700 mb-1">ตำแหน่ง</label>
+                        <input type="text" name="role" id="role" required
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
+                    </div>
+                    
+                    <div>
+                        <label for="department" class="block text-sm font-medium text-gray-700 mb-1">ฝ่าย</label>
+                        <select name="department" id="department" required
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
+                            <option value="" disabled selected>เลือกตำแหน่ง</option>
+                            
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">อีเมล</label>
+                        <input type="text" name="email" id="email" value="Khampom2009@gmail.com" required
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
+                    </div>
+
+                    <div>
+                        <label for="tel" class="block text-sm font-medium text-gray-700 mb-1">เบอร์โทรศัพท์</label>
+                        <input type="text" name="tel" id="tel" required
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">รูปภาพ</label>
+                        <input type="file" name="img" id="img" accept="image/png, image/gif, image/jpeg"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
+                    </div>
+                    
+                    <!-- ปุ่ม -->
+                    <div class="flex justify-end space-x-3 pt-2">
+                        <button type="button" onclick="cancelForm()"
+                            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition">ยกเลิก</button>
+                        <button type="submit"
+                            class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition">บันทึก</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Modal Edit -->
+        <div id="edit_Form" class="fixed top-0 left-0 w-full h-full z-50 bg-black bg-opacity-30 hidden">
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl px-4">
+                <form action="/admin/boardEdit" method="POST" enctype="multipart/form-data"
+                    class="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 space-y-5 max-h-[90vh] overflow-y-auto">
+
+                    <!-- หัวฟอร์ม -->
+                    <div class="flex items-center space-x-3 border-b pb-3">
+                        <ion-icon name="information-circle-outline" class="text-blue-500 text-2xl"></ion-icon>
+                        <span class="text-xl font-semibold text-gray-800">แก้ไขข้อมูลคณะกรรมการ</span>
+                    </div>
+                    
+                    <!-- ส่งค่า _id -->
+                    <input type="hidden" name="_id" id="hiddenBoardId" value="">
+                    
+                    <div>
+                        <label for="editName" class="block text-sm font-medium text-gray-700 mb-1">ชื่อคณะกรรมการ</label>
+                        <input type="text" name="name" id="editName" placeholder="นายสามารถ ไชยมิตร" required
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
+                    </div>
+                    
+                    <div>
+                        <label for="editRole" class="block text-sm font-medium text-gray-700 mb-1">ตำแหน่ง</label>
+                        <input type="text" name="role" id="editRole" required
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
+                    </div>
+
+                    <div>
+                        <label for="editDepartment" class="block text-sm font-medium text-gray-700 mb-1">ฝ่าย</label>
+                        <select name="department" id="Department" required
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
+                            <option value="" disabled selected>เลือกตำหน่ง</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="ediEmail" class="block text-sm font-medium text-gray-700 mb-1">อีเมล</label>
+                        <input type="text" name="email" id="email" required
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
+                    </div>
+                    
+                    <div>
+                        <label for="editTel" class="block text-sm font-medium text-gray-700 mb-1">เบอร์โทรศัพท์</label>
+                        <input type="text" name="tel" id="editTel" required
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">รูปภาพ</label>
+                        <input type="file" name="img" id="img" accept="image/png, image/gif, image/jpeg"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
+                    </div>
+                    
+                    <!-- ปุ่ม -->
+                    <div class="flex justify-end space-x-3 pt-2">
+                        <button type="button" onclick="cancelForm()"
+                            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition">ยกเลิก</button>
+                        <button type="submit"
+                            class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition">บันทึก</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+            <div class="mb-4 border-b border-gray-200 border-b border-gray-200 pb-4">
+                <h2 class="text-base font-semibold text-gray-800 mb-4 md:mb-0">
+                    ขยะ <span id="totalItems" class="text-blue-600 text-base font-normal"> 0 รายการ</span> 
+                </h2>
+            </div>
+            <!-- ตารางแสดงข้อมูล -->
+            <div class="overflow-x-auto mx-4 mb-6 bg-white">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">ลำดับ</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">ชื่อ</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">ตำแหน่ง</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">ฝ่าย</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">อีเมล</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">เบอร์โทรศัพท์</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">รูป</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/adminPartials/adminFooter.ejs') %>
+</body>
+    <script>
+        function setWasteForm(Index, Id, Name, Role, Department, Email, Tel, Img) {
+            const editForm = document.getElementById('edit_Form');
+            const addForm = document.getElementById('add_Form');
+
+            const InputBoardId = document.getElementById('hiddenBoardId');
+            InputBoardId.value = Id;
+
+            const InputName = document.getElementById('editName');
+            InputName.value = Name;
+
+            const InputRole = document.getElementById('editRole');
+            InputRole = Role;
+
+            const InputDepartment = document.getElementById('editDepartment');
+            InputDepartment = Department;
+
+            const InputEmail = document.getElementById('editEmail');
+            InputEmail.value = Email;
+
+            const InputTel = document.getElementById('editTel');
+            InputTel.value = Tel;
+
+            // Update the image preview
+            const currentImg = document.querySelector('.current-img img');
+            if (currentImg) {
+                currentImg.src = Img;
+            }
+
+            // Hide add form and show edit form
+            addForm.style.display = 'none';
+
+            const selectedRow = document.querySelector(`.was-row-${Index}`);
+            if (lastClickedRow === selectedRow) {
+                lastClickedRow = null;
+                editForm.style.display = 'none';
+            } else {
+                if (lastClickedRow) lastClickedRow.style.backgroundColor = '';
+                editForm.style.display = 'block';
+                lastClickedRow = selectedRow;
+            }
+        }
+
+        function wasFormToggle() {
+            const editForm = document.getElementById('edit_Form');
+            const addForm = document.getElementById('add_Form');
+
+            editForm.style.display = 'none';
+            if (add_Form.style.display === 'block') {
+                add_Form.style.display = 'none';
+            }
+            else {
+                add_Form.style.display = 'block';
+            }
+        }
+
+        function cancelForm() {
+            document.getElementById('add_Form').classList.add('hidden');
+            document.getElementById('edit_Form').classList.add('hidden');
+            if (lastClickedRow) {
+                lastClickedRow.style.backgroundColor = '';
+                lastClickedRow = null;
+            }
+        }
+    </script>
+</html>

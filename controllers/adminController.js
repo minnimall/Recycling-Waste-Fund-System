@@ -16,7 +16,8 @@ const Family = require('../models/family');
 const WasteBankAccount = require('../models/wasteBankAccount');
 const Member = require('../models/member');
 const WastePurchase = require('../models/wastePurchase');
-const Notification = require('../models/notification')
+const Notification = require('../models/notification');
+const Board = require('../models/board');
 const mongoose = require('mongoose');
 const path = require('path');
 const bcrypt = require('bcryptjs');
@@ -898,7 +899,7 @@ const activityEdit = (req, res) => {
 };
 
 
-/// สำหรับเก็บรูปภาพที่อัปโหลดจาก waste
+// สำหรับเก็บรูปภาพที่อัปโหลดจาก waste
 const storage2 = multer.diskStorage({
     destination: './public/upload_imgwaste',
     filename: function (req, file, cb) {
@@ -916,7 +917,7 @@ const wasteIndex = (req, res) => {
     const filter = { isDeleted: false };
 
     Promise.all([
-        myWaste.find(filter).populate('wasteType', 'wasteTypeName'), // Populate wasteType with wasteTypeName and apply pagination
+        myWaste.find(filter).populate('wasteType', 'wasteTypeName'),
         myWasteType.find({ isDeleted: false })
     ])
     .then(([wasteData, wasteTypeData]) => {
@@ -1036,7 +1037,7 @@ const wasteEdit = async (req, res) => {
             let percentChange = null;
             let changeDirection = 'none';
 
-             if (oldPrice !== 0 && oldPrice !== newPrice) {
+            if (oldPrice !== 0 && oldPrice !== newPrice) {
                 percentChange = ((newPrice - oldPrice) / oldPrice) * 100;
                 changeDirection = percentChange > 0 ? 'up' : 'down';
                 const absPercent = Math.abs(percentChange).toFixed(2);
@@ -1089,8 +1090,6 @@ const wasteEdit = async (req, res) => {
         }
     });
 };
-
-
 
 // ประเภทขยะ
 const wasteTypeIndex = async function (req, res, next) {
@@ -1704,40 +1703,59 @@ const editEmployee = async (req, res) => {
 // หน้าสมาชิกกองทุนขยะรีไซเคิล
 const memberIndex = async (req, res) => {
     try {
-        const { familyName, AccountName, village, Type } = req.query;
+        const { familyName, AccountName, AccountNumber, village, Type } = req.query;
         let searchQuery = { isDeleted: false };
 
         if (familyName) searchQuery.familyName = { $regex: familyName, $options: 'i' };
-        if (AccountName) searchQuery.AccountName = { $regex: AccountName, $options: 'i' };
-        if (village) searchQuery.village = village; // ใช้ _id ของหมู่บ้านโดยตรง
         if (Type) searchQuery.Type = Type;
+        if (village) searchQuery.village = village;
 
-        // ดึงข้อมูล
         const villages = await Village.find(); 
         const allFamilies = await Family.find(searchQuery).populate('village').lean();
-        const Account = await WasteBankAccount.find(searchQuery);
 
-        // แผนที่ Type -> ภาษาไทย
+        const accounts = await WasteBankAccount.find({ isDeleted: false }).lean();
+        const accountMap = {};
+        accounts.forEach(acc => {
+            if (acc.familyID) accountMap[acc.familyID.toString()] = acc;
+        });
+
         const typeMap = {
             household: 'บ้าน',
             school: 'โรงเรียน',
             municipality: 'องค์กรปกครองส่วนท้องถิ่น',
             community: 'ชุมชน',
-            temple:'วัด'
+            temple: 'วัด'
         };
 
-        // เพิ่ม field typeThai ให้ทุกครัวเรือน
-        allFamilies.forEach(family => {
-            family.typeThai = typeMap[family.Type] || family.Type;
+        let familiesWithAccount = allFamilies.map(family => {
+            const account = accountMap[family._id.toString()];
+            return {
+                ...family,
+                AccountNumber: account ? account.AccountNumber : '-',
+                AccountName: family.username || '-',
+                Balance: account ? account.Balance : 0,
+                typeThai: typeMap[family.Type] || family.Type
+            };
         });
 
+        if (AccountName) {
+            familiesWithAccount = familiesWithAccount.filter(family => 
+                family.AccountName.toLowerCase().includes(AccountName.toLowerCase())
+            );
+        }
+
+        if (AccountNumber) {
+            familiesWithAccount = familiesWithAccount.filter(family =>
+                family.AccountNumber.includes(AccountNumber)
+            );
+        }
+
         res.render('admin/member', { 
-            mytitle: 'สมาชิกกองทุนขยะรีไซเคิล',
+            mytitle: 'พนักงาน | สมาชิกกองทุนขยะรีไซเคิล',
             villages,
-            allFamilies,
-            Account,
-            query: req.query,
+            allFamilies: familiesWithAccount,
             currentPage: 'member',
+            query: req.query  
         });
     } catch (error) {
         console.error(error);
@@ -1764,6 +1782,14 @@ const memberRegister = async (req, res) => {
             await session.abortTransaction();
             session.endSession();
             return res.redirect('/admin/member?error=ชื่อผู้ใช้ต้องมี 5-20 ตัวอักษร และไม่มีอักขระพิเศษ');
+        }
+
+        // ตรวจสอบ password 
+        const passwordRegex = /^\d{6,8}$/;
+        if (!passwordRegex.test(req.body.password)) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.redirect('/admin/member?error=รหัสผ่านต้องเป็นตัวเลข 6-8 หลัก');
         }
 
         // ตรวจสอบว่าชื่อผู้ใช้ซ้ำหรือไม่
@@ -1838,7 +1864,7 @@ const memberRegister = async (req, res) => {
             name: req.body.name,
             email: req.body.email,
             phone: req.body.phone,
-            idCardNumber: req.body.idCardNumber,
+            idCardNumber: req.body.idCardNumber.replace(/\D/g, ''),
             birthDate: req.body.birthDate,
             occupation: req.body.occupation,
             age: req.body.age,
@@ -1876,6 +1902,217 @@ const memberRegister = async (req, res) => {
         res.redirect('/admin/member?error=เกิดข้อผิดพลาดในการลงทะเบียน: ' + error.message);
     }
 };
+// ดึงข้อมูลครัวเรือนและสมาชิกเพื่อแก้ไข
+const getMemberForEdit = async (req, res) => {
+    try {
+        const { familyId } = req.params;
+        
+        // ดึงข้อมูลครัวเรือน
+        const family = await Family.findById(familyId).populate('village').lean();
+        if (!family) {
+            return res.status(404).json({ error: 'ไม่พบข้อมูลครัวเรือน' });
+        }
+
+        // ดึงข้อมูลสมาชิกตัวแทน (คนแรก)
+        const member = await Member.findOne({ familyID: familyId, Status: 'living' }).lean();
+        if (!member) {
+            return res.status(404).json({ error: 'ไม่พบข้อมูลสมาชิก' });
+        }
+
+        // ดึงข้อมูลบัญชีธนาคารขยะ
+        const account = await WasteBankAccount.findOne({ familyID: familyId }).lean();
+
+        res.json({
+            success: true,
+            data: {
+                family,
+                member,
+                account
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching member data:', error);
+        res.status(500).json({ error: 'เกิดข้อผิดพลาดในการดึงข้อมูล' });
+    }
+};
+// อัปเดตข้อมูลครัวเรือนและสมาชิก
+const memberUpdate = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        const { familyId } = req.params;
+
+        // ตรวจสอบว่าครัวเรือนมีอยู่จริง
+        const existingFamily = await Family.findById(familyId).session(session);
+        if (!existingFamily) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.redirect('/admin/member?error=ไม่พบข้อมูลครัวเรือน');
+        }
+
+        // ตรวจสอบ village
+        if (req.body.village) {
+            const village = await Village.findById(req.body.village).session(session);
+            if (!village) {
+                await session.abortTransaction();
+                session.endSession();
+                return res.redirect('/admin/member?error=ไม่พบหมู่บ้านที่ระบุ');
+            }
+        }
+
+        // ตรวจสอบ username (ถ้ามีการเปลี่ยน)
+        if (req.body.username && req.body.username !== existingFamily.username) {
+            const usernameRegex = /^[a-zA-Z0-9_\u0E00-\u0E7F]{5,20}$/;
+            if (!usernameRegex.test(req.body.username)) {
+                await session.abortTransaction();
+                session.endSession();
+                return res.redirect('/admin/member?error=ชื่อผู้ใช้ต้องมี 5-20 ตัวอักษร และไม่มีอักขระพิเศษ');
+            }
+
+            // ตรวจสอบว่าชื่อผู้ใช้ซ้ำหรือไม่
+            const duplicateUsername = await Family.findOne({ 
+                username: req.body.username,
+                _id: { $ne: familyId }
+            }).session(session);
+            
+            if (duplicateUsername) {
+                await session.abortTransaction();
+                session.endSession();
+                return res.redirect('/admin/member?error=ชื่อผู้ใช้นี้ถูกใช้ไปแล้ว');
+            }
+        }
+
+        // ตรวจสอบ password (ถ้ามีการเปลี่ยน)
+        let hashedPassword = existingFamily.password;
+        if (req.body.password && req.body.password.trim() !== '') {
+            const passwordRegex = /^\d{6,8}$/;
+            if (!passwordRegex.test(req.body.password)) {
+                await session.abortTransaction();
+                session.endSession();
+                return res.redirect('/admin/member?error=รหัสผ่านต้องเป็นตัวเลข 6-8 หลัก');
+            }
+            hashedPassword = await bcrypt.hash(req.body.password, 10);
+        }
+
+        // หาข้อมูลสมาชิกเดิม
+        const existingMember = await Member.findOne({ 
+            familyID: familyId,
+            Status: 'living'
+        }).session(session);
+
+        if (!existingMember) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.redirect('/admin/member?error=ไม่พบข้อมูลสมาชิก');
+        }
+
+        // ตรวจสอบอีเมล เบอร์โทร และเลขบัตรประชาชนซ้ำ (ถ้ามีการเปลี่ยน)
+        if (req.body.email !== existingMember.email || 
+            req.body.phone !== existingMember.phone || 
+            req.body.idCardNumber !== existingMember.idCardNumber) {
+            
+            const duplicateMember = await Member.findOne({
+                _id: { $ne: existingMember._id },
+                $or: [
+                    { email: req.body.email },
+                    { phone: req.body.phone },
+                    { idCardNumber: req.body.idCardNumber }
+                ]
+            }).session(session);
+
+            if (duplicateMember) {
+                await session.abortTransaction();
+                session.endSession();
+                return res.redirect('/admin/member?error=อีเมล หมายเลขโทรศัพท์ หรือเลขบัตรประชาชนนี้ถูกใช้ไปแล้ว');
+            }
+        }
+
+        // อัปเดตข้อมูลครัวเรือน
+        await Family.findByIdAndUpdate(
+            familyId,
+            {
+                familyName: req.body.familyName,
+                username: req.body.username,
+                password: hashedPassword,
+                address: {
+                    houseNumber: req.body.houseNumber,
+                    moo: req.body.moo,
+                    road: req.body.road,
+                    subdistrict: req.body.subdistrict,
+                    district: req.body.district,
+                    province: req.body.province,
+                    postalCode: req.body.postalCode
+                },
+                NumFamilyMembers: req.body.NumFamilyMembers,
+                village: req.body.village,
+                Type: req.body.Type
+            },
+            { session }
+        );
+
+        // อัปเดตข้อมูลสมาชิก
+        await Member.findByIdAndUpdate(
+            existingMember._id,
+            {
+                name: req.body.name,
+                email: req.body.email,
+                phone: req.body.phone,
+                idCardNumber: req.body.idCardNumber,
+                birthDate: req.body.birthDate,
+                occupation: req.body.occupation,
+                age: req.body.age,
+                nationality: req.body.nationality,
+                ethnicity: req.body.ethnicity,
+                religion: req.body.religion,
+                beneficiaries: req.body.beneficiaries || []
+            },
+            { session }
+        );
+
+        // อัปเดตชื่อบัญชีธนาคารขยะ (ถ้าชื่อครัวเรือนเปลี่ยน)
+        await WasteBankAccount.findOneAndUpdate(
+            { familyID: familyId },
+            { AccountName: req.body.familyName },
+            { session }
+        );
+
+        // Transaction สำเร็จ
+        await session.commitTransaction();
+        session.endSession();
+
+        res.redirect('/admin/member?message=แก้ไขข้อมูลสำเร็จ');
+
+    } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+
+        console.error('Error updating member:', error);
+        res.redirect('/admin/member?error=เกิดข้อผิดพลาดในการแก้ไขข้อมูล: ' + error.message);
+    }
+};
+
+// สำหรับเก็บรูปภาพที่อัปโหลดจาก board
+const storageBoard = multer.diskStorage({
+    destination: './public/upload_board',
+    filename: function (req, file, cb) {
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+    }
+});
+
+const uploadBoard = multer({
+    storage: storageBoard,
+    limits: { fileSize: 50 * 1024 * 1024 }
+}).single('img');
+
+// หน้าแสดงคณะกรรมการ
+const boardIndex = async (req, res) => {
+        res.render('admin/board', {
+            mytitle: 'คณะกรรมการ',
+            currentPage: 'board',
+        });
+};
+
 
 //หมู่บ้าน
 const villageIndex = async (req, res) => {
@@ -2145,7 +2382,9 @@ module.exports = {
     //พนักงาน
     employeeIndex,employeeRegister,employeeDelete,editEmployee,
     //สมาชิกกองทุน
-    memberIndex,memberRegister,
+    memberIndex,memberRegister,getMemberForEdit,memberUpdate,
+    //คณะกรรมการๆ
+    boardIndex,
     //หมู่บ้าน
     villageIndex,villagePost,villageEdit,villageDelete,
     //รอบการรับซื้อขยะ
