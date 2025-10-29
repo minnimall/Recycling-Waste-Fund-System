@@ -1,23 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <!-- <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>กองทุนขยะรีไซเคิล องค์การบริหารส่วนตำบลขามป้อม อำเภอเปือยน้อย จังหวัดขอนแก่น</title>
-        <link rel="icon" href="/img/logo_เปือยน้อย.png" type="image/png">
-        <link rel="stylesheet" href="/style_user/style_contact.css">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script> -->
     <%- include('../partials/userPartials/head.ejs') %>
 </head>
 <body>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // เช็คข้อความที่ส่งมาจาก URL
         const urlParams = new URLSearchParams(window.location.search);
         const successMessage = urlParams.get('message');
         const errorMessage = urlParams.get('error');
@@ -43,8 +31,8 @@
                 timer: 3000
             });
         }
-
     </script>
+    
     <%- include('../partials/userPartials/header.ejs') %>
 
     <!-- Page Header -->
@@ -58,120 +46,223 @@
     <div class="content mb-5">
         <div class="container mx-auto px-4">
             <section class="mt-3">
-                <!-- หัวเรื่องหลัก -->
-                <!-- <div class="mt-5 flex justify-center items-center">
-                    <h1 class="text-3xl font-bold text-green-700 text-center">ติดต่อ-สอบถาม</h1>
-                </div> -->
                 
                 <!-- คณะกรรมการฝ่ายอำนวยการ -->
+                <% if (boards.executive && boards.executive.length > 0) { %>
                 <div class="mt-8">
                     <h2 class="text-xl font-semibold text-gray-800 mb-6 text-center">คณะกรรมการฝ่ายอำนวยการ</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Profile 1 -->
+                        <% boards.executive.forEach(member => { %>
                         <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
                             <div class="flex flex-col items-center text-center">
-                                <img src="/img/kumson.png" alt="Profile Image" class="w-20 h-20 rounded-full object-cover mb-4 border-2 border-green-200">
+                                <img src="<%= member.img || '/img/default-avatar.png' %>" 
+                                    alt="<%= member.name %>" 
+                                    class="w-20 h-20 rounded-full object-cover mb-4 border-2 border-green-200">
                                 <div class="space-y-2">
-                                    <p class="text-gray-700"><strong class="text-gray-900">ชื่อ:</strong> นายคำสอนธนากุล ไชยปาก</p>
-                                    <p class="text-gray-700"><strong class="text-gray-900">ตำแหน่ง:</strong> นายกองค์การบริหารส่วนตำบล</p>
-                                    <p class="text-gray-700"><strong class="text-gray-900">อีเมล:</strong> Khampom2009@gmail.com</p>
-                                    <p class="text-gray-700"><strong class="text-gray-900">เบอร์โทรศัพท์:</strong> 093-1850590</p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">ชื่อ:</strong> <%= member.name %></p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">ตำแหน่ง:</strong> <%= member.role %></p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">อีเมล:</strong> <%= member.email || '---' %></p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">เบอร์โทรศัพท์:</strong> <%= member.tel || '---' %></p>
                                 </div>
                             </div>
                         </div>
-                        
-                        <!-- Profile 2 -->
-                        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
-                            <div class="flex flex-col items-center text-center">
-                                <img src="/img/punyisa.png" alt="Profile Image" class="w-20 h-20 rounded-full object-cover mb-4 border-2 border-green-200">
-                                <div class="space-y-2">
-                                    <p class="text-gray-700"><strong class="text-gray-900">ชื่อ:</strong> นางสาวปุญญิศา อนัญตศิริ</p>
-                                    <p class="text-gray-700"><strong class="text-gray-900">ตำแหน่ง:</strong> ปลัดองค์การบริหารส่วนตำบล</p>
-                                    <p class="text-gray-700"><strong class="text-gray-900">อีเมล:</strong> Khampom2009@gmail.com</p>
-                                    <p class="text-gray-700"><strong class="text-gray-900">เบอร์โทรศัพท์:</strong> 062-8936517</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Profile 3 -->
-                        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
-                            <div class="flex flex-col items-center text-center">
-                                <img src="/img/supaporn.png" alt="Profile Image" class="w-20 h-20 rounded-full object-cover mb-4 border-2 border-green-200">
-                                <div class="space-y-2">
-                                    <p class="text-gray-700"><strong class="text-gray-900">ชื่อ:</strong> นางศุภาภรณ์ พงศธรศิริ</p>
-                                    <p class="text-gray-700"><strong class="text-gray-900">ตำแหน่ง:</strong> รองปลัดองค์การบริหารส่วนตำบล</p>
-                                    <p class="text-gray-700"><strong class="text-gray-900">อีเมล:</strong> Khampom2009@gmail.com</p>
-                                    <p class="text-gray-700"><strong class="text-gray-900">เบอร์โทรศัพท์:</strong> ---</p>
-                                </div>
-                            </div>
-                        </div>
+                        <% }); %>
                     </div>
                 </div>
+                <% } %>
                 
-                <!-- คณะกรรมการฝ่ายประชาสัมพันธ์/วางแผนดำเนินและติดตาม -->
+                <!-- คณะกรรมการฝ่ายประชาสัมพันธ์/วางแผนดำเนินและติดตามผล -->
+                <% if (boards.pr && boards.pr.length > 0) { %>
                 <div class="mt-12">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-6 text-center">คณะกรรมการฝ่ายประชาสัมพันธ์/วางแผนดำเนินและติดตาม</h2>
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6 text-center">คณะกรรมการฝ่ายประชาสัมพันธ์/วางแผนดำเนินและติดตามผล</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Profile 1 -->
+                        <% boards.pr.forEach(member => { %>
                         <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
                             <div class="flex flex-col items-center text-center">
-                                <img src="/img/bunteng.png" alt="Profile Image" class="w-20 h-20 rounded-full object-cover mb-4 border-2 border-green-200"
-                                >
+                                <img src="<%= member.img || '/img/default-avatar.png' %>" 
+                                    alt="<%= member.name %>" 
+                                    class="w-20 h-20 rounded-full object-cover mb-4 border-2 border-green-200">
                                 <div class="space-y-2">
-                                    <p class="text-gray-700"><strong class="text-gray-900">ชื่อ:</strong> นายบุญเริง ป่อยยิ้ม</p>
-                                    <p class="text-gray-700"><strong class="text-gray-900">ตำแหน่ง:</strong> รองนายก อบต.ขมป้อม</p>
-                                    <p class="text-gray-700"><strong class="text-gray-900">อีเมล:</strong> ---</p>
-                                    <p class="text-gray-700"><strong class="text-gray-900">เบอร์โทรศัพท์:</strong> ---</p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">ชื่อ:</strong> <%= member.name %></p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">ตำแหน่ง:</strong> <%= member.role %></p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">อีเมล:</strong> <%= member.email || '---' %></p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">เบอร์โทรศัพท์:</strong> <%= member.tel || '---' %></p>
                                 </div>
                             </div>
                         </div>
-                        
-                        <!-- Profile 2 -->
-                        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
-                            <div class="flex flex-col items-center text-center">
-                                <img src="/img/punyisa.png" alt="Profile Image" class="w-20 h-20 rounded-full object-cover mb-4 border-2 border-green-200">
-                                <div class="space-y-2">
-                                    <p class="text-gray-700"><strong class="text-gray-900">ชื่อ:</strong> นางสาวปุญญิศา อนัญตศิริ</p>
-                                    <p class="text-gray-700"><strong class="text-gray-900">ตำแหน่ง:</strong> ปลัดองค์การบริหารส่วนตำบล</p>
-                                    <p class="text-gray-700"><strong class="text-gray-900">อีเมล:</strong> Khampom2009@gmail.com</p>
-                                    <p class="text-gray-700"><strong class="text-gray-900">เบอร์โทรศัพท์:</strong> 062-8936517</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Profile 3 -->
-                        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
-                            <div class="flex flex-col items-center text-center">
-                                <img src="/img/supaporn.png" alt="Profile Image" class="w-20 h-20 rounded-full object-cover mb-4 border-2 border-green-200">
-                                <div class="space-y-2">
-                                    <p class="text-gray-700"><strong class="text-gray-900">ชื่อ:</strong> นางศุภาภรณ์ พงศธรศิริ</p>
-                                    <p class="text-gray-700"><strong class="text-gray-900">ตำแหน่ง:</strong> รองปลัดองค์การบริหารส่วนตำบล</p>
-                                    <p class="text-gray-700"><strong class="text-gray-900">อีเมล:</strong> Khampom2009@gmail.com</p>
-                                    <p class="text-gray-700"><strong class="text-gray-900">เบอร์โทรศัพท์:</strong> ---</p>
-                                </div>
-                            </div>
-                        </div>
+                        <% }); %>
                     </div>
                 </div>
+                <% } %>
                 
                 <!-- คณะกรรมการฝ่ายรับสมัคร -->
+                <% if (boards.recruitment && boards.recruitment.length > 0) { %>
                 <div class="mt-12">
                     <h2 class="text-xl font-semibold text-gray-800 mb-6 text-center">คณะกรรมการฝ่ายรับสมัคร</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Profile 1 -->
+                        <% boards.recruitment.forEach(member => { %>
                         <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
                             <div class="flex flex-col items-center text-center">
-                                <img src="/img/anunya.png" alt="Profile Image" class="w-20 h-20 rounded-full object-cover mb-4 border-2 border-green-200">
+                                <img src="<%= member.img || '/img/default-avatar.png' %>" 
+                                    alt="<%= member.name %>" 
+                                    class="w-20 h-20 rounded-full object-cover mb-4 border-2 border-green-200">
                                 <div class="space-y-2">
-                                    <p class="text-gray-700"><strong class="text-gray-900">ชื่อ:</strong> นางอนัญญา ศรีจินดา</p>
-                                    <p class="text-gray-700"><strong class="text-gray-900">ตำแหน่ง:</strong> นักวิชาการศึกษา ขก.</p>
-                                    <p class="text-gray-700"><strong class="text-gray-900">อีเมล:</strong> Khampom2009@gmail.com</p>
-                                    <p class="text-gray-700"><strong class="text-gray-900">เบอร์โทรศัพท์:</strong> 087-6383111</p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">ชื่อ:</strong> <%= member.name %></p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">ตำแหน่ง:</strong> <%= member.role %></p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">อีเมล:</strong> <%= member.email || '---' %></p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">เบอร์โทรศัพท์:</strong> <%= member.tel || '---' %></p>
                                 </div>
                             </div>
                         </div>
+                        <% }); %>
                     </div>
                 </div>
+                <% } %>
+
+                <!-- คณะกรรมการฝ่ายรับซื้อขยะ -->
+                <% if (boards.purchase && boards.purchase.length > 0) { %>
+                <div class="mt-12">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6 text-center">คณะกรรมการฝ่ายรับซื้อขยะ</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <% boards.purchase.forEach(member => { %>
+                        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+                            <div class="flex flex-col items-center text-center">
+                                <img src="<%= member.img || '/img/default-avatar.png' %>" 
+                                    alt="<%= member.name %>" 
+                                    class="w-20 h-20 rounded-full object-cover mb-4 border-2 border-green-200">
+                                <div class="space-y-2">
+                                    <p class="text-gray-700"><strong class="text-gray-900">ชื่อ:</strong> <%= member.name %></p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">ตำแหน่ง:</strong> <%= member.role %></p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">อีเมล:</strong> <%= member.email || '---' %></p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">เบอร์โทรศัพท์:</strong> <%= member.tel || '---' %></p>
+                                </div>
+                            </div>
+                        </div>
+                        <% }); %>
+                    </div>
+                </div>
+                <% } %>
+
+                <!-- คณะกรรมการฝ่ายการเงินและบัญชี -->
+                <% if (boards.finance && boards.finance.length > 0) { %>
+                <div class="mt-12">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6 text-center">คณะกรรมการฝ่ายการเงินและบัญชี</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <% boards.finance.forEach(member => { %>
+                        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+                            <div class="flex flex-col items-center text-center">
+                                <img src="<%= member.img || '/img/default-avatar.png' %>" 
+                                    alt="<%= member.name %>" 
+                                    class="w-20 h-20 rounded-full object-cover mb-4 border-2 border-green-200">
+                                <div class="space-y-2">
+                                    <p class="text-gray-700"><strong class="text-gray-900">ชื่อ:</strong> <%= member.name %></p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">ตำแหน่ง:</strong> <%= member.role %></p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">อีเมล:</strong> <%= member.email || '---' %></p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">เบอร์โทรศัพท์:</strong> <%= member.tel || '---' %></p>
+                                </div>
+                            </div>
+                        </div>
+                        <% }); %>
+                    </div>
+                </div>
+                <% } %>
+
+                <!-- คณะกรรมการฝ่ายเบิกถอนเงินฝากธนาคาร -->
+                <% if (boards.withdrawal && boards.withdrawal.length > 0) { %>
+                <div class="mt-12">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6 text-center">คณะกรรมการฝ่ายเบิกถอนเงินฝากธนาคาร</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <% boards.withdrawal.forEach(member => { %>
+                        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+                            <div class="flex flex-col items-center text-center">
+                                <img src="<%= member.img || '/img/default-avatar.png' %>" 
+                                    alt="<%= member.name %>" 
+                                    class="w-20 h-20 rounded-full object-cover mb-4 border-2 border-green-200">
+                                <div class="space-y-2">
+                                    <p class="text-gray-700"><strong class="text-gray-900">ชื่อ:</strong> <%= member.name %></p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">ตำแหน่ง:</strong> <%= member.role %></p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">อีเมล:</strong> <%= member.email || '---' %></p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">เบอร์โทรศัพท์:</strong> <%= member.tel || '---' %></p>
+                                </div>
+                            </div>
+                        </div>
+                        <% }); %>
+                    </div>
+                </div>
+                <% } %>
+
+                <!-- คณะกรรมการฝ่ายงานทะเบียนและธุรการ -->
+                <% if (boards.registry && boards.registry.length > 0) { %>
+                <div class="mt-12">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6 text-center">คณะกรรมการฝ่ายงานทะเบียนและธุรการ</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <% boards.registry.forEach(member => { %>
+                        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+                            <div class="flex flex-col items-center text-center">
+                                <img src="<%= member.img || '/img/default-avatar.png' %>" 
+                                    alt="<%= member.name %>" 
+                                    class="w-20 h-20 rounded-full object-cover mb-4 border-2 border-green-200">
+                                <div class="space-y-2">
+                                    <p class="text-gray-700"><strong class="text-gray-900">ชื่อ:</strong> <%= member.name %></p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">ตำแหน่ง:</strong> <%= member.role %></p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">อีเมล:</strong> <%= member.email || '---' %></p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">เบอร์โทรศัพท์:</strong> <%= member.tel || '---' %></p>
+                                </div>
+                            </div>
+                        </div>
+                        <% }); %>
+                    </div>
+                </div>
+                <% } %>
+
+                <!-- คณะกรรมการฝ่ายจัดการทุนและฌาปนกิจ -->
+                <% if (boards.fund && boards.fund.length > 0) { %>
+                <div class="mt-12">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6 text-center">คณะกรรมการฝ่ายจัดการทุนและฌาปนกิจ</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <% boards.fund.forEach(member => { %>
+                        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+                            <div class="flex flex-col items-center text-center">
+                                <img src="<%= member.img || '/img/default-avatar.png' %>" 
+                                    alt="<%= member.name %>" 
+                                    class="w-20 h-20 rounded-full object-cover mb-4 border-2 border-green-200">
+                                <div class="space-y-2">
+                                    <p class="text-gray-700"><strong class="text-gray-900">ชื่อ:</strong> <%= member.name %></p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">ตำแหน่ง:</strong> <%= member.role %></p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">อีเมล:</strong> <%= member.email || '---' %></p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">เบอร์โทรศัพท์:</strong> <%= member.tel || '---' %></p>
+                                </div>
+                            </div>
+                        </div>
+                        <% }); %>
+                    </div>
+                </div>
+                <% } %>
+
+                <!-- คณะกรรมการฝ่ายภาพกิจกรรม -->
+                <% if (boards.photo && boards.photo.length > 0) { %>
+                <div class="mt-12">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6 text-center">คณะกรรมการฝ่ายภาพกิจกรรม</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <% boards.photo.forEach(member => { %>
+                        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+                            <div class="flex flex-col items-center text-center">
+                                <img src="<%= member.img || '/img/default-avatar.png' %>" 
+                                    alt="<%= member.name %>" 
+                                    class="w-20 h-20 rounded-full object-cover mb-4 border-2 border-green-200">
+                                <div class="space-y-2">
+                                    <p class="text-gray-700"><strong class="text-gray-900">ชื่อ:</strong> <%= member.name %></p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">ตำแหน่ง:</strong> <%= member.role %></p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">อีเมล:</strong> <%= member.email || '---' %></p>
+                                    <p class="text-gray-700"><strong class="text-gray-900">เบอร์โทรศัพท์:</strong> <%= member.tel || '---' %></p>
+                                </div>
+                            </div>
+                        </div>
+                        <% }); %>
+                    </div>
+                </div>
+                <% } %>
+
             </section>
         </div>
     </div>

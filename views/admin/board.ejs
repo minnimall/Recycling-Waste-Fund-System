@@ -56,34 +56,6 @@
             </div>
         </div>
 
-        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
-            <div class="flex flex-col md:flex-row gap-4">
-                <div class="flex-1 relative">
-                <input type="text" id="searchInput" placeholder="ค้นหาคณะกรรมการ"
-                        class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                <div class="absolute left-3 top-2.5 text-gray-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                </div>
-                </div>
-                <div class="flex items-center space-x-2">
-                <label for="perPage" class="text-sm text-gray-600">ตำแหน่ง:</label>
-                <select id="roleFilter" class="w-full py-2 px-3 rounded-lg border border-gray-300">
-
-                </select>
-                </div>
-                <div class="flex items-center space-x-2">
-                <label for="perPage" class="text-sm text-gray-600">แสดง:</label>
-                <select id="itemsPerPage" class="w-full py-2 px-3 rounded-lg border border-gray-300">
-                    <option value="5">5</option>
-                    <option value="10" selected>10</option>
-                    <option value="20">20</option>
-                </select>
-                </div>
-            </div>
-        </div>
-
         <!-- Modal Add -->
         <div id="add_Form" class="fixed inset-0 z-50 bg-black bg-opacity-30 flex items-center justify-center hidden">
             <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl px-4">
@@ -97,7 +69,7 @@
                     
                     <div>
                         <label for="boardName" class="block text-sm font-medium text-gray-700 mb-1">ชื่อคณะกรรมการ</label>
-                        <input type="text" name="name" id="name" placeholder="นายสามารถ ไชยมิตร" required
+                        <input type="text" name="name" id="name" required
                             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
                     </div>
 
@@ -108,11 +80,17 @@
                     </div>
                     
                     <div>
-                        <label for="department" class="block text-sm font-medium text-gray-700 mb-1">ฝ่าย</label>
-                        <select name="department" id="department" required
-                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
-                            <option value="" disabled selected>เลือกตำแหน่ง</option>
-                            
+                        <select name="department" id="department" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
+                            <option value="" disabled selected>เลือกฝ่าย</option>
+                            <option value="ฝ่ายอำนวยการ">ฝ่ายอำนวยการ</option>
+                            <option value="ฝ่ายประชาสัมพันธ์/วางแผนดำเนินและติดตามผล">ฝ่ายประชาสัมพันธ์/วางแผนดำเนินและติดตามผล</option>
+                            <option value="ฝ่ายรับสมัคร">ฝ่ายรับสมัคร</option>
+                            <option value="ฝ่ายรับซื้อขยะ">ฝ่ายรับซื้อขยะ</option>
+                            <option value="ฝ่ายการเงินและบัญชี">ฝ่ายการเงินและบัญชี</option>
+                            <option value="ฝ่ายเบิกถอนเงินฝากธนาคาร">ฝ่ายเบิกถอนเงินฝากธนาคาร</option>
+                            <option value="ฝ่ายงานทะเบียนและธุรการ">ฝ่ายงานทะเบียนและธุรการ</option>
+                            <option value="ฝ่ายจัดการทุนและฌาปนกิจ">ฝ่ายจัดการทุนและฌาปนกิจ</option>
+                            <option value="ฝ่ายภาพกิจกรรม">ฝ่ายภาพกิจกรรม</option>
                         </select>
                     </div>
                     
@@ -174,15 +152,23 @@
 
                     <div>
                         <label for="editDepartment" class="block text-sm font-medium text-gray-700 mb-1">ฝ่าย</label>
-                        <select name="department" id="Department" required
-                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
-                            <option value="" disabled selected>เลือกตำหน่ง</option>
+                        <select name="department" id="editDepartment" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
+                            <option value="" disabled selected>เลือกฝ่าย</option>
+                            <option value="ฝ่ายอำนวยการ">ฝ่ายอำนวยการ</option>
+                            <option value="ฝ่ายประชาสัมพันธ์/วางแผนดำเนินและติดตามผล">ฝ่ายประชาสัมพันธ์/วางแผนดำเนินและติดตามผล</option>
+                            <option value="ฝ่ายรับสมัคร">ฝ่ายรับสมัคร</option>
+                            <option value="ฝ่ายรับซื้อขยะ">ฝ่ายรับซื้อขยะ</option>
+                            <option value="ฝ่ายการเงินและบัญชี">ฝ่ายการเงินและบัญชี</option>
+                            <option value="ฝ่ายเบิกถอนเงินฝากธนาคาร">ฝ่ายเบิกถอนเงินฝากธนาคาร</option>
+                            <option value="ฝ่ายงานทะเบียนและธุรการ">ฝ่ายงานทะเบียนและธุรการ</option>
+                            <option value="ฝ่ายจัดการทุนและฌาปนกิจ">ฝ่ายจัดการทุนและฌาปนกิจ</option>
+                            <option value="ฝ่ายภาพกิจกรรม">ฝ่ายภาพกิจกรรม</option>
                         </select>
                     </div>
 
                     <div>
-                        <label for="ediEmail" class="block text-sm font-medium text-gray-700 mb-1">อีเมล</label>
-                        <input type="text" name="email" id="email" required
+                        <label for="editEmail" class="block text-sm font-medium text-gray-700 mb-1">อีเมล</label>
+                        <input type="text" name="email" id="editEmail" required
                             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
                     </div>
                     
@@ -212,71 +198,137 @@
         <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
             <div class="mb-4 border-b border-gray-200 border-b border-gray-200 pb-4">
                 <h2 class="text-base font-semibold text-gray-800 mb-4 md:mb-0">
-                    ขยะ <span id="totalItems" class="text-blue-600 text-base font-normal"> 0 รายการ</span> 
+                    คณะกรรมการ <span id="totalItems" class="text-blue-600 text-base font-normal"> 0 รายการ</span> 
                 </h2>
             </div>
             <!-- ตารางแสดงข้อมูล -->
-            <div class="overflow-x-auto mx-4 mb-6 bg-white">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-100">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">ลำดับ</th>
+                        <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">ชื่อ</th>
+                        <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">ตำแหน่ง</th>
+                        <th class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">ฝ่าย</th>
+                        <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">อีเมล</th>
+                        <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">เบอร์โทรศัพท์</th>
+                        <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">รูป</th>
+                        <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <% if (board.length > 0) { %>
+                        <% board.forEach((item, index) => { %>
+                            <tr class="was-row-<%= index %> hover:bg-gray-50 cursor-pointer" 
+                                onclick="setWasteForm('<%= index %>', '<%= item._id %>', '<%= item.name %>', '<%= item.role %>', '<%= item.department %>', '<%= item.email %>', '<%= item.tel %>', '<%= item.img || '' %>')">
+                                <td class="px-4 py-3 text-sm text-center text-gray-900"><%= index + 1 %></td>
+                                <td class="px-4 py-3 text-sm text-gray-900"><%= item.name %></td>
+                                <td class="px-4 py-3 text-sm text-gray-900"><%= item.role %></td>
+                                <td class="px-4 py-3 text-sm text-center text-gray-900"><%= item.department %></td>
+                                <td class="px-4 py-3 text-sm text-gray-900"><%= item.email %></td>
+                                <td class="px-4 py-3 text-sm text-gray-900"><%= item.tel %></td>
+                                <td class="px-4 py-3 text-sm text-gray-900">
+                                    <% if (item.img) { %>
+                                        <img src="<%= item.img %>" alt="<%= item.name %>" class="w-12 h-12 object-cover rounded-full">
+                                    <% } else { %>
+                                        <span class="text-gray-400">ไม่มีรูป</span>
+                                    <% } %>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-900">
+                                    <button onclick="event.stopPropagation(); deleteBoard('<%= item._id %>')" 
+                                            class="text-red-600 hover:text-red-800">
+                                        <ion-icon name="trash-outline" class="text-xl"></ion-icon>
+                                    </button>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
                         <tr>
-                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">ลำดับ</th>
-                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">ชื่อ</th>
-                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">ตำแหน่ง</th>
-                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">ฝ่าย</th>
-                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">อีเมล</th>
-                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">เบอร์โทรศัพท์</th>
-                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">รูป</th>
-                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">จัดการ</th>
+                            <td colspan="8" class="px-4 py-8 text-center text-gray-500">ไม่มีข้อมูลคณะกรรมการ</td>
                         </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200" id="tableBody"></tbody>
-                </table>
-            </div>
+                    <% } %>
+                </tbody>
+            </table>
         </div>
     </div>
 
     <%- include('../partials/adminPartials/adminFooter.ejs') %>
-</body>
+
     <script>
+        let lastClickedRow = null;
+
+        // อัปเดตจำนวนรายการ
+        document.addEventListener('DOMContentLoaded', function() {
+            const totalItems = <%= board.length %>;
+            document.getElementById('totalItems').textContent = totalItems + ' รายการ';
+        });
+
+        // ฟังก์ชันลบ
+        function deleteBoard(id) {
+            Swal.fire({
+                title: 'ยืนยันการลบ?',
+                text: "คุณต้องการลบคณะกรรมการนี้ใช่หรือไม่",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'ลบ',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/admin/boardDelete/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'success',
+                                title: data.message,
+                                showConfirmButton: false,
+                                timer: 3000
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire('เกิดข้อผิดพลาด!', data.message, 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire('เกิดข้อผิดพลาด!', 'ไม่สามารถลบข้อมูลได้', 'error');
+                    });
+                }
+            });
+        }
+
+        // ฟังก์ชันแก้ไข
         function setWasteForm(Index, Id, Name, Role, Department, Email, Tel, Img) {
             const editForm = document.getElementById('edit_Form');
             const addForm = document.getElementById('add_Form');
 
-            const InputBoardId = document.getElementById('hiddenBoardId');
-            InputBoardId.value = Id;
+            document.getElementById('hiddenBoardId').value = Id;
+            document.getElementById('editName').value = Name;
+            document.getElementById('editRole').value = Role;
+            document.getElementById('editDepartment').value = Department;
+            document.getElementById('editEmail').value = Email;
+            document.getElementById('editTel').value = Tel;
 
-            const InputName = document.getElementById('editName');
-            InputName.value = Name;
-
-            const InputRole = document.getElementById('editRole');
-            InputRole = Role;
-
-            const InputDepartment = document.getElementById('editDepartment');
-            InputDepartment = Department;
-
-            const InputEmail = document.getElementById('editEmail');
-            InputEmail.value = Email;
-
-            const InputTel = document.getElementById('editTel');
-            InputTel.value = Tel;
-
-            // Update the image preview
-            const currentImg = document.querySelector('.current-img img');
-            if (currentImg) {
-                currentImg.src = Img;
-            }
-
-            // Hide add form and show edit form
-            addForm.style.display = 'none';
+            addForm.classList.add('hidden');
+            editForm.classList.remove('hidden');
 
             const selectedRow = document.querySelector(`.was-row-${Index}`);
             if (lastClickedRow === selectedRow) {
                 lastClickedRow = null;
-                editForm.style.display = 'none';
+                editForm.classList.add('hidden');
             } else {
                 if (lastClickedRow) lastClickedRow.style.backgroundColor = '';
-                editForm.style.display = 'block';
+                editForm.classList.remove('hidden');
+                selectedRow.style.backgroundColor = '#f3f4f6';
                 lastClickedRow = selectedRow;
             }
         }
@@ -285,13 +337,8 @@
             const editForm = document.getElementById('edit_Form');
             const addForm = document.getElementById('add_Form');
 
-            editForm.style.display = 'none';
-            if (add_Form.style.display === 'block') {
-                add_Form.style.display = 'none';
-            }
-            else {
-                add_Form.style.display = 'block';
-            }
+            editForm.classList.add('hidden');
+            addForm.classList.toggle('hidden');
         }
 
         function cancelForm() {
@@ -303,4 +350,5 @@
             }
         }
     </script>
+</body>
 </html>

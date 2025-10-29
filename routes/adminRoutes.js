@@ -54,6 +54,9 @@ router.post('/memberUpdate/:familyId', adminController.memberUpdate);
 
 //คณะกรรมการ
 router.get('/board', adminController.boardIndex);
+router.post('/boardPost', adminController.boardPost);
+router.post('/boardEdit', adminController.boardEdit);
+router.delete('/boardDelete/:id', adminController.boardDelete);
 
 // หมู่บ้าน
 router.get('/village', adminController.villageIndex);

@@ -18,6 +18,7 @@ const WastePriceHistory = require('../models/wastePriceHistory');
 const transactionMoney = require('../models/transactionMoney');
 const Idea = require('../models/ideas');
 const Notification = require('../models/notification');
+const Board = require('../models/board');
 const path = require('path');
 const moment = require('moment');
 
@@ -279,8 +280,34 @@ const wasteSaleRequestPost = (req, res) => {
 };
 
 // หน้าข้อมูลติดต่อ
-const user_contact = (req, res)=> {
-    res.render('user/contact')
+// หน้าข้อมูลติดต่อ
+const user_contact = async(req, res) => {
+    try {
+        // ดึงข้อมูลคณะกรรมการทั้งหมดที่ยังไม่ถูกลบ
+        const allBoards = await Board.find({ isDeleted: false }).sort({ createdAt: 1 });
+        
+        // แยกข้อมูลตามฝ่าย
+        const boardsByDepartment = {
+            executive: allBoards.filter(b => b.department === 'ฝ่ายอำนวยการ'),
+            pr: allBoards.filter(b => b.department === 'ฝ่ายประชาสัมพันธ์/วางแผนดำเนินและติดตามผล'),
+            recruitment: allBoards.filter(b => b.department === 'ฝ่ายรับสมัคร'),
+            purchase: allBoards.filter(b => b.department === 'ฝ่ายรับซื้อขยะ'),
+            finance: allBoards.filter(b => b.department === 'ฝ่ายการเงินและบัญชี'),
+            withdrawal: allBoards.filter(b => b.department === 'ฝ่ายเบิกถอนเงินฝากธนาคาร'),
+            registry: allBoards.filter(b => b.department === 'ฝ่ายงานทะเบียนและธุรการ'),
+            fund: allBoards.filter(b => b.department === 'ฝ่ายจัดการทุนและฌาปนกิจ'),
+            photo: allBoards.filter(b => b.department === 'ฝ่ายภาพกิจกรรม')
+        };
+        
+        res.render('user/contact', {
+            mytitle: 'ติดต่อ-สอบถาม',
+            currentPage: 'contact',
+            boards: boardsByDepartment
+        });
+    } catch (error) {
+        console.error('Error in user_contact:', error);
+        res.redirect('/user/contact?error=เกิดข้อผิดพลาดในการโหลดข้อมูล');
+    }
 }
 
 const user_wastePrices = async (req, res) => {

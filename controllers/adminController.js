@@ -22,6 +22,7 @@ const mongoose = require('mongoose');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const moment = require('moment');
+const fs = require('fs');
 
 router.use(express.static(path.join(__dirname, '../public')));
 
@@ -2107,10 +2108,129 @@ const uploadBoard = multer({
 
 // หน้าแสดงคณะกรรมการ
 const boardIndex = async (req, res) => {
+    try {
+        const board = await Board.find({ isDeleted: false }).sort({ createdAt: -1 });
         res.render('admin/board', {
             mytitle: 'คณะกรรมการ',
             currentPage: 'board',
+            board: board
         });
+    } catch (error) {
+        console.error(error);
+        res.redirect('/admin/board?error=เกิดข้อผิดพลาดในการโหลดข้อมูล');
+    }
+};
+
+// เพิ่มคณะกรรมการ
+const boardPost = async (req, res) => {
+    uploadBoard(req, res, async (err) => {
+        if (err) {
+            console.error(err);
+            return res.redirect('/admin/board?error=เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ');
+        }
+
+        try {
+            const { name, role, department, email, tel } = req.body;
+
+            // ตรวจสอบข้อมูลที่จำเป็น
+            if (!name || !role || !department || !email || !tel) {
+                return res.redirect('/admin/board?error=กรุณากรอกข้อมูลให้ครบถ้วน');
+            }
+
+            const newBoard = new Board({
+                name,
+                role,
+                department,
+                email,
+                tel,
+                img: req.file ? `/upload_board/${req.file.filename}` : null
+            });
+
+            await newBoard.save();
+            res.redirect('/admin/board?message=เพิ่มคณะกรรมการสำเร็จ');
+        } catch (error) {
+            console.error(error);
+            // ลบไฟล์ที่อัปโหลดถ้าเกิดข้อผิดพลาด
+            if (req.file) {
+                fs.unlinkSync(req.file.path);
+            }
+            res.redirect('/admin/board?error=เกิดข้อผิดพลาดในการเพิ่มข้อมูล');
+        }
+    });
+};
+
+// แก้ไขคณะกรรมการ
+const boardEdit = async (req, res) => {
+    uploadBoard(req, res, async (err) => {
+        if (err) {
+            console.error(err);
+            return res.redirect('/admin/board?error=เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ');
+        }
+
+        try {
+            const { _id, name, role, department, email, tel } = req.body;
+
+            // ตรวจสอบข้อมูลที่จำเป็น
+            if (!_id || !name || !role || !department || !email || !tel) {
+                return res.redirect('/admin/board?error=กรุณากรอกข้อมูลให้ครบถ้วน');
+            }
+
+            const board = await Board.findById(_id);
+            if (!board) {
+                return res.redirect('/admin/board?error=ไม่พบข้อมูลคณะกรรมการ');
+            }
+
+            // อัปเดตข้อมูล
+            board.name = name;
+            board.role = role;
+            board.department = department;
+            board.email = email;
+            board.tel = tel;
+
+            // ถ้ามีการอัปโหลดรูปใหม่
+            if (req.file) {
+                // ลบรูปเก่า
+                if (board.img) {
+                    const oldImgPath = path.join(__dirname, '../public', board.img);
+                    if (fs.existsSync(oldImgPath)) {
+                        fs.unlinkSync(oldImgPath);
+                    }
+                }
+                board.img = `/upload_board/${req.file.filename}`;
+            }
+
+            await board.save();
+            res.redirect('/admin/board?message=แก้ไขข้อมูลสำเร็จ');
+        } catch (error) {
+            console.error(error);
+            // ลบไฟล์ที่อัปโหลดถ้าเกิดข้อผิดพลาด
+            if (req.file) {
+                fs.unlinkSync(req.file.path);
+            }
+            res.redirect('/admin/board?error=เกิดข้อผิดพลาดในการแก้ไขข้อมูล');
+        }
+    });
+};
+
+// ลบคณะกรรมการ (Soft Delete)
+const boardDelete = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const board = await Board.findById(id);
+        if (!board) {
+            return res.status(404).json({ success: false, message: 'ไม่พบข้อมูลคณะกรรมการ' });
+        }
+
+        // Soft delete
+        board.isDeleted = true;
+        await board.save();
+
+        res.json({ success: true, message: 'ลบข้อมูลสำเร็จ' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดในการลบข้อมูล' });
+    }
 };
 
 
@@ -2384,7 +2504,7 @@ module.exports = {
     //สมาชิกกองทุน
     memberIndex,memberRegister,getMemberForEdit,memberUpdate,
     //คณะกรรมการๆ
-    boardIndex,
+    boardIndex,boardPost,boardEdit,boardDelete,
     //หมู่บ้าน
     villageIndex,villagePost,villageEdit,villageDelete,
     //รอบการรับซื้อขยะ
