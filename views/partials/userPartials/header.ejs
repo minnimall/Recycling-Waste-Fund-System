@@ -50,7 +50,7 @@
                 <div class="relative">
                     <button id="user-menu-button"
                         class="flex items-center gap-2 text-white bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg border border-gray-600 transition-all">
-                        <a href="/"><img src="/img/logo_เปือยน้อย.png" class="w-[55px]"></a>
+                        <img src="/img/logo_เปือยน้อย.png" class="w-[55px]">
                         <span class="font-semibold">สวัสดี, <%= locals.session.username %></span>
                         <i class="fa-solid fa-chevron-down ml-1 text-sm transition-transform duration-200" id="dropdown-arrow"></i>
                     </button>
@@ -198,6 +198,36 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+  // --- Mobile Navigation Toggle ---
+  const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+  const mobileMenu = document.getElementById("mobile-menu");
+
+  if (mobileMenuBtn && mobileMenu) {
+    mobileMenuBtn.addEventListener("click", () => {
+      const isHidden = mobileMenu.classList.contains("hidden");
+      if (isHidden) {
+        mobileMenu.classList.remove("hidden");
+        setTimeout(() => mobileMenu.classList.add("show"), 10); // ให้แอนิเมชันทำงานหลังเปิด
+      } else {
+        mobileMenu.classList.remove("show");
+        setTimeout(() => mobileMenu.classList.add("hidden"), 300);
+      }
+    });
+
+    // คลิกนอกเมนู -> ปิด
+    document.addEventListener("click", (e) => {
+      if (
+        !mobileMenu.contains(e.target) &&
+        !mobileMenuBtn.contains(e.target) &&
+        mobileMenu.classList.contains("show")
+      ) {
+        mobileMenu.classList.remove("show");
+        setTimeout(() => mobileMenu.classList.add("hidden"), 300);
+      }
+    });
+  }
+
+  // --- Dropdown + Logout (ของเดิมคงไว้) ---
   const userButton = document.getElementById("user-menu-button");
   const userDropdown = document.getElementById("user-dropdown");
   const arrow = document.getElementById("dropdown-arrow");
@@ -213,13 +243,23 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const openDropdown = () => {
-      userDropdown.classList.remove("opacity-0", "scale-95", "translate-y-[-10px]", "pointer-events-none");
+      userDropdown.classList.remove(
+        "opacity-0",
+        "scale-95",
+        "translate-y-[-10px]",
+        "pointer-events-none"
+      );
       userDropdown.classList.add("opacity-100", "scale-100", "translate-y-0");
       arrow.classList.add("rotate-180");
     };
 
     const closeDropdown = () => {
-      userDropdown.classList.add("opacity-0", "scale-95", "translate-y-[-10px]", "pointer-events-none");
+      userDropdown.classList.add(
+        "opacity-0",
+        "scale-95",
+        "translate-y-[-10px]",
+        "pointer-events-none"
+      );
       userDropdown.classList.remove("opacity-100", "scale-100", "translate-y-0");
       arrow.classList.remove("rotate-180");
     };
@@ -231,7 +271,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Logout confirmation
+  // Logout confirmation (ของเดิม)
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", (e) => {

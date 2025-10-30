@@ -693,22 +693,6 @@
                     <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                 </div>
 
-                <!-- Filter Buttons -->
-                <div class="flex flex-wrap gap-2">
-                    <button class="filter-btn active bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors" data-filter="all">
-                        <i class="fas fa-th-large mr-2"></i>ทั้งหมด
-                    </button>
-                    <!-- <button class="filter-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors" data-filter="center">
-                        <i class="fas fa-building mr-2"></i>ศูนย์รับซื้อ
-                    </button>
-                    <button class="filter-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors" data-filter="mobile">
-                        <i class="fas fa-truck mr-2"></i>รถเคลื่อนที่
-                    </button>
-                    <button class="filter-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors" data-filter="community">
-                        <i class="fas fa-users mr-2"></i>จุดชุมชน
-                    </button> -->
-                </div>
-
                 <!-- My Location Button -->
                 <button id="locate-me" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
                     <i class="fas fa-location-arrow mr-2"></i>ตำแหน่งของฉัน
@@ -724,80 +708,207 @@
                 <!-- Sidebar -->
                 <div class="lg:col-span-1">
                     <div class="bg-white rounded-lg shadow-lg p-6 sticky top-24">
-                        <h3 class="text-xl font-semibold text-gray-800 mb-4">จุดรับซื้อขยะแต่ละหมู่บ้าน</h3>
-                        
-                        <!-- Location List -->
-                        <div id="location-list" class="space-y-4 max-h-128 overflow-y-auto">
-                            <!-- Location Item 1 -->
-                            <div class="location-item border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer" data-id="1">
-                                <div class="flex items-start space-x-3">
-                                    <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                                        <i class="fas fa-users text-white"></i>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h4 class="font-semibold text-gray-800">ศาลากลางหมู่บ้าน</h4>
-                                        <p class="text-sm text-gray-600 mb-2">บ้านวังผือ ตำบล ขามป้อม อำเภอ เปือยน้อย ขอนแก่น 40340</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Location Item 2 -->
-                            <div class="location-item border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer" data-id="2">
-                                <div class="flex items-start space-x-3">
-                                    <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                                        <i class="fas fa-users text-white"></i>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h4 class="font-semibold text-gray-800">วัดชัยสวาส</h4>
-                                        <p class="text-sm text-gray-600 mb-2">หน้าวัดใหญ่ หมู่ 2</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Location Item 3 -->
-                            <div class="location-item border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer" data-id="3">
-                                <div class="flex items-start space-x-3">
-                                    <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                                        <i class="fas fa-users text-white"></i>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h4 class="font-semibold text-gray-800">วัดศรีชัยยาราม</h4>
-                                        <p class="text-sm text-gray-600 mb-2">หน้าวัดใหญ่ หมู่ 3</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Location Item 4 -->
-                            <div class="location-item border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer" data-id="4">
-                                <div class="flex items-start space-x-3">
-                                    <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                                        <i class="fas fa-users text-white"></i>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h4 class="font-semibold text-gray-800">ศาลาอเนกประสงค์บ้านส้มป่อยน้อย</h4>
-                                        <p class="text-sm text-gray-600 mb-2">ตำบล ขามป้อม อำเภอ เปือยน้อย ขอนแก่น 40340</p>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-semibold text-gray-800">จุดรับซื้อขยะ</h3>
+                            <span class="bg-primary-green text-white px-3 py-1 rounded-full text-sm font-semibold">
+                                <span id="location-count"><%= wastePoints.length %></span> จุด
+                            </span>
                         </div>
 
                         <!-- Quick Stats -->
-                        <!-- <div class="mt-6 pt-6 border-t border-gray-200">
-                            <h4 class="font-semibold text-gray-800 mb-3">สถิติด่วน</h4>
-                            <div class="space-y-2 text-sm">
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600">จุดรับซื้อทั้งหมด:</span>
-                                    <span class="font-semibold">12 จุด</span>
+                        <div class="grid grid-cols-2 gap-3 mb-4 pb-4 border-b border-gray-200">
+                            <div class="bg-green-50 rounded-lg p-3 text-center">
+                                <div class="text-2xl font-bold text-green-600">
+                                    <%= wastePoints.filter(w => w.isOpen).length %>
                                 </div>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600">เปิดให้บริการ:</span>
-                                    <span class="font-semibold text-green-600">8 จุด</span>
+                                <div class="text-xs text-gray-600">เปิดบริการ</div>
+                            </div>
+                            <div class="bg-red-50 rounded-lg p-3 text-center">
+                                <div class="text-2xl font-bold text-red-600">
+                                    <%= wastePoints.filter(w => !w.isOpen).length %>
                                 </div>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600">ปิดชั่วคราว:</span>
-                                    <span class="font-semibold text-red-600">4 จุด</span>
+                                <div class="text-xs text-gray-600">ปิดชั่วคราว</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Location List -->
+                        <div id="location-list" class="space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                            <% if (wastePoints.length > 0) { %>
+                                <% wastePoints.forEach((wastePoint, index) => { %>
+                                    <div class="location-item border-2 border-gray-200 rounded-lg p-4 hover:shadow-md hover:border-blue-400 transition-all cursor-pointer group" 
+                                        data-id="<%= wastePoint._id %>">
+                                        <div class="flex items-start space-x-3">
+                                            <!-- Icon -->
+                                            <div class="flex-shrink-0">
+                                                <div class="w-12 h-12 rounded-full flex items-center justify-center text-white shadow-md
+                                                    <% if (wastePoint.type === 'bank') { %> bg-blue-500
+                                                    <% } else if (wastePoint.type === 'center') { %> bg-green-500
+                                                    <% } else if (wastePoint.type === 'community') { %> bg-purple-500
+                                                    <% } else if (wastePoint.type === 'mobile') { %> bg-orange-500
+                                                    <% } else { %> bg-gray-500
+                                                    <% } %> group-hover:scale-110 transition-transform">
+                                                    
+                                                    <% if (wastePoint.type === 'bank') { %>
+                                                        <i class="fas fa-piggy-bank"></i>
+                                                    <% } else if (wastePoint.type === 'center') { %>
+                                                        <i class="fas fa-building"></i>
+                                                    <% } else if (wastePoint.type === 'community') { %>
+                                                        <i class="fas fa-users"></i>
+                                                    <% } else if (wastePoint.type === 'mobile') { %>
+                                                        <i class="fas fa-truck"></i>
+                                                    <% } else { %>
+                                                        <i class="fas fa-map-marker-alt"></i>
+                                                    <% } %>
+                                                </div>
+                                            </div>
+
+                                            <!-- Content -->
+                                            <div class="flex-1 min-w-0">
+                                                <!-- Title -->
+                                                <h4 class="font-semibold text-gray-800 group-hover:text-blue-600 transition-colors truncate mb-1">
+                                                    <%= wastePoint.wastePointName %>
+                                                </h4>
+
+                                                <!-- Type Badge -->
+                                                <div class="flex items-center gap-2 mb-2">
+                                                    <span class="text-xs px-2 py-1 rounded-full font-medium
+                                                        <% if (wastePoint.type === 'bank') { %> bg-blue-100 text-blue-700
+                                                        <% } else if (wastePoint.type === 'center') { %> bg-green-100 text-green-700
+                                                        <% } else if (wastePoint.type === 'community') { %> bg-purple-100 text-purple-700
+                                                        <% } else if (wastePoint.type === 'mobile') { %> bg-orange-100 text-orange-700
+                                                        <% } else { %> bg-gray-100 text-gray-700
+                                                        <% } %>">
+                                                        <% if (wastePoint.type === 'bank') { %>
+                                                            ธนาคารขยะ
+                                                        <% } else if (wastePoint.type === 'center') { %>
+                                                            ศูนย์รับซื้อ
+                                                        <% } else if (wastePoint.type === 'community') { %>
+                                                            จุดชุมชน
+                                                        <% } else if (wastePoint.type === 'mobile') { %>
+                                                            รถเคลื่อนที่
+                                                        <% } else { %>
+                                                            อื่นๆ
+                                                        <% } %>
+                                                    </span>
+
+                                                    <!-- Status Badge -->
+                                                    <span class="text-xs px-2 py-1 rounded-full font-medium flex items-center gap-1
+                                                        <%= wastePoint.isOpen ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' %>">
+                                                        <span class="w-1.5 h-1.5 rounded-full <%= wastePoint.isOpen ? 'bg-green-500' : 'bg-red-500' %>"></span>
+                                                        <%= wastePoint.isOpen ? 'เปิด' : 'ปิด' %>
+                                                    </span>
+                                                </div>
+
+                                                <!-- Details -->
+                                                <div class="space-y-1 text-sm text-gray-600">
+                                                    <!-- Responsible -->
+                                                    <div class="flex items-center gap-2">
+                                                        <i class="fas fa-user w-4 text-gray-400"></i>
+                                                        <span class="truncate"><%= wastePoint.responsible || 'ไม่ระบุ' %></span>
+                                                    </div>
+
+                                                    <!-- Phone -->
+                                                    <% if (wastePoint.phone) { %>
+                                                    <div class="flex items-center gap-2">
+                                                        <i class="fas fa-phone w-4 text-gray-400"></i>
+                                                        <a href="tel:<%= wastePoint.phone %>" 
+                                                        class="text-blue-600 hover:underline"
+                                                        onclick="event.stopPropagation()">
+                                                            <%= wastePoint.phone %>
+                                                        </a>
+                                                    </div>
+                                                    <% } %>
+
+                                                    <!-- Working Hours -->
+                                                    <% if (wastePoint.openTime && wastePoint.closeTime) { %>
+                                                    <div class="flex items-center gap-2">
+                                                        <i class="fas fa-clock w-4 text-gray-400"></i>
+                                                        <span><%= wastePoint.openTime %> - <%= wastePoint.closeTime %></span>
+                                                    </div>
+                                                    <% } %>
+
+                                                    <!-- Waste Types -->
+                                                    <% if (wastePoint.wasteTypes && wastePoint.wasteTypes.length > 0) { %>
+                                                    <div class="flex items-start gap-2 mt-2">
+                                                        <i class="fas fa-recycle w-4 text-gray-400 mt-0.5"></i>
+                                                        <div class="flex flex-wrap gap-1 flex-1">
+                                                            <% wastePoint.wasteTypes.slice(0, 3).forEach(type => { %>
+                                                                <span class="inline-block bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-xs">
+                                                                    <%= type %>
+                                                                </span>
+                                                            <% }); %>
+                                                            <% if (wastePoint.wasteTypes.length > 3) { %>
+                                                                <span class="inline-block bg-gray-100 text-gray-500 px-2 py-0.5 rounded text-xs">
+                                                                    +<%= wastePoint.wasteTypes.length - 3 %>
+                                                                </span>
+                                                            <% } %>
+                                                        </div>
+                                                    </div>
+                                                    <% } %>
+                                                </div>
+
+                                                <!-- Action Buttons -->
+                                                <div class="flex gap-2 mt-3 pt-3 border-t border-gray-100">
+                                                    <button onclick="viewOnMap('<%= wastePoint._id %>'); event.stopPropagation();" 
+                                                            class="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded text-xs font-medium transition">
+                                                        <i class="fas fa-map-marker-alt mr-1"></i>ดูบนแผนที่
+                                                    </button>
+                                                    <% if (wastePoint.phone) { %>
+                                                    <a href="tel:<%= wastePoint.phone %>" 
+                                                    onclick="event.stopPropagation();"
+                                                    class="flex-1 bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded text-xs font-medium text-center transition">
+                                                        <i class="fas fa-phone mr-1"></i>โทร
+                                                    </a>
+                                                    <% } %>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            <% } else { %>
+                                <!-- Empty State -->
+                                <div class="text-center py-12">
+                                    <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <i class="fas fa-map-marked-alt text-gray-400 text-3xl"></i>
+                                    </div>
+                                    <h4 class="text-gray-600 font-semibold mb-2">ยังไม่มีจุดรับซื้อขยะ</h4>
+                                    <p class="text-gray-500 text-sm">กรุณาติดต่อเจ้าหน้าที่เพื่อเพิ่มจุดรับซื้อขยะ</p>
+                                </div>
+                            <% } %>
+                        </div>
+
+                        <!-- Legend -->
+                        <% if (wastePoints.length > 0) { %>
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            <h4 class="text-xs font-semibold text-gray-600 mb-3">สัญลักษณ์บนแผนที่</h4>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-piggy-bank text-white text-xs"></i>
+                                    </div>
+                                    <span class="text-xs text-gray-600">ธนาคารขยะ</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-building text-white text-xs"></i>
+                                    </div>
+                                    <span class="text-xs text-gray-600">ศูนย์รับซื้อ</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-users text-white text-xs"></i>
+                                    </div>
+                                    <span class="text-xs text-gray-600">จุดชุมชน</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-truck text-white text-xs"></i>
+                                    </div>
+                                    <span class="text-xs text-gray-600">รถเคลื่อนที่</span>
                                 </div>
                             </div>
-                        </div> -->
+                        </div>
+                        <% } %>
                     </div>
                 </div>
 
@@ -823,48 +934,7 @@
             </div>
         </div>
     </section>
-
-    <!-- Waste Collection Schedule Section -->
-    <!-- <section class="py-16 bg-white">
-        <div class="container mx-auto px-4">
-            
-            <div class="grid md:grid-cols-3 gap-6">
-                <div class="bg-white rounded-lg shadow-lg p-6 text-center">
-                    <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-bell text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-lg font-semibold mb-2">แจ้งเตือนรถมาถึง</h3>
-                    <p class="text-gray-600 mb-4">รับการแจ้งเตือนเมื่อรถรับซื้อขยะใกล้จะมาถึงบ้านคุณ</p>
-                    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
-                        ตั้งค่าแจ้งเตือน
-                    </button>
-                </div>
-
-                <div class="bg-white rounded-lg shadow-lg p-6 text-center">
-                    <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-calendar-plus text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-lg font-semibold mb-2">แจ้งประสงค์นัดหมายรับซื้อ</h3>
-                    <p class="text-gray-600 mb-4">นัดหมายให้รถมารับซื้อขยะที่บ้านคุณในวันและเวลาที่สะดวก</p>
-                    <button class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
-                        นัดหมายเลย
-                    </button>
-                </div>
-
-                <div class="bg-white rounded-lg shadow-lg p-6 text-center">
-                    <div class="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-history text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-lg font-semibold mb-2">ประวัติการขาย</h3>
-                    <p class="text-gray-600 mb-4">ดูประวัติการขายขยะและรายได้ที่ผ่านมา</p>
-                    <button class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors">
-                        ดูประวัติ
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section> -->
-
+    
 
     <%- include('../partials/userPartials/footer.ejs') %>
 
@@ -877,13 +947,650 @@
         if (error) {
             alert(error);
         }
-    </script>
-    <script src="/script/mapInteractive.js"></script>
+        // โหลดข้อมูลจุดรับซื้อขยะจาก Server
+        const locations = <%- JSON.stringify(wastePoints) %>;
+
+        // ตรวจสอบว่ามีข้อมูลหรือไม่
+        console.log('จำนวนจุดรับซื้อขยะ:', locations.length);
+
+        // Initialize map - ตั้งจุดเริ่มต้นที่ อบต.ขามป้อม
+        const initialLat = 15.948741697876695;
+        const initialLng = 102.85523133360921;
+        
+        const map = L.map('map').setView([initialLat, initialLng], 15);
+
+        // Add tile layer (แผนที่)
+        let currentTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        // กำหนด Custom icons ตามประเภทจุดรับซื้อ
+        const icons = {
+            bank: L.divIcon({
+                html: '<i class="fas fa-piggy-bank text-white"></i>',
+                iconSize: [35, 35],
+                className: 'custom-div-icon bg-blue-500 rounded-full flex items-center justify-center shadow-lg'
+            }),
+            center: L.divIcon({
+                html: '<i class="fas fa-building text-white"></i>',
+                iconSize: [35, 35],
+                className: 'custom-div-icon bg-green-500 rounded-full flex items-center justify-center shadow-lg'
+            }),
+            community: L.divIcon({
+                html: '<i class="fas fa-users text-white"></i>',
+                iconSize: [35, 35],
+                className: 'custom-div-icon bg-purple-500 rounded-full flex items-center justify-center shadow-lg'
+            }),
+            mobile: L.divIcon({
+                html: '<i class="fas fa-truck text-white"></i>',
+                iconSize: [35, 35],
+                className: 'custom-div-icon bg-orange-500 rounded-full flex items-center justify-center shadow-lg'
+            }),
+            user: L.divIcon({
+                html: '<i class="fas fa-user text-white"></i>',
+                iconSize: [30, 30],
+                className: 'custom-div-icon bg-red-500 rounded-full flex items-center justify-center shadow-lg animate-pulse'
+            })
+        };
+
+        // ฟังก์ชันแปลงประเภทเป็นภาษาไทย
+        function getTypeText(type) {
+            const types = {
+                'bank': 'ธนาคารขยะ',
+                'center': 'ศูนย์รับซื้อขยะรีไซเคิล',
+                'community': 'จุดรับซื้อชุมชน',
+                'mobile': 'รถรับซื้อเคลื่อนที่'
+            };
+            return types[type] || type;
+        }
+
+        // ฟังก์ชันแสดงสถานะ
+        function getStatusBadge(isOpen) {
+            if (isOpen) {
+                return '<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold"><i class="fas fa-check-circle mr-1"></i>เปิดบริการ</span>';
+            } else {
+                return '<span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-semibold"><i class="fas fa-times-circle mr-1"></i>ปิดชั่วคราว</span>';
+            }
+        }
+
+        // เพิ่ม Markers ลงบนแผนที่
+        const markers = [];
+        
+        if (locations && locations.length > 0) {
+            locations.forEach(location => {
+                // ตรวจสอบว่ามี latitude และ longitude
+                if (!location.latitude || !location.longitude) {
+                    console.warn('ไม่พบพิกัดของ:', location.wastePointName);
+                    return;
+                }
+
+                // สร้าง marker
+                const marker = L.marker([location.latitude, location.longitude], {
+                    icon: icons[location.type] || icons.community
+                }).addTo(map);
+
+                // สร้างเนื้อหา Popup
+                const wasteTypesHTML = location.wasteTypes && location.wasteTypes.length > 0
+                    ? location.wasteTypes.map(type => 
+                        `<span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs mr-1 mb-1">${type}</span>`
+                    ).join('')
+                    : '<span class="text-gray-500 text-sm">ไม่ระบุ</span>';
+
+                const workingHours = location.openTime && location.closeTime
+                    ? `${location.openTime} - ${location.closeTime}`
+                    : 'ไม่ระบุ';
+
+            const popupContent = `
+                <div class="popup-wrapper" style="min-width: 320px; max-width: 380px;">
+                    <!-- Header with gradient -->
+                    <div class="popup-header" style="
+                        background: linear-gradient(135deg, 
+                            ${location.type === 'bank' ? '#3b82f6, #2563eb' : 
+                              location.type === 'center' ? '#10b981, #059669' :
+                              location.type === 'community' ? '#8b5cf6, #7c3aed' :
+                              location.type === 'mobile' ? '#f59e0b, #d97706' : '#6b7280, #4b5563'}
+                        );
+                        padding: 1rem;
+                        border-radius: 12px 12px 0 0;
+                        color: white;
+                    ">
+                        <div style="display: flex; align-items: start; gap: 0.75rem;">
+                            <div style="
+                                width: 48px;
+                                height: 48px;
+                                background: rgba(255, 255, 255, 0.25);
+                                backdrop-filter: blur(10px);
+                                border-radius: 12px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-size: 1.5rem;
+                                flex-shrink: 0;
+                            ">
+                                ${location.type === 'bank' ? '<i class="fas fa-piggy-bank"></i>' :
+                                  location.type === 'center' ? '<i class="fas fa-building"></i>' :
+                                  location.type === 'community' ? '<i class="fas fa-users"></i>' :
+                                  location.type === 'mobile' ? '<i class="fas fa-truck"></i>' :
+                                  '<i class="fas fa-map-marker-alt"></i>'}
+                            </div>
+                            <div style="flex: 1; min-width: 0;">
+                                <h4 style="font-weight: 700; font-size: 1.125rem; margin: 0 0 0.375rem 0; line-height: 1.4;">
+                                    ${location.wastePointName}
+                                </h4>
+                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                    <span style="
+                                        background: rgba(255, 255, 255, 0.25);
+                                        backdrop-filter: blur(10px);
+                                        padding: 0.25rem 0.625rem;
+                                        border-radius: 9999px;
+                                        font-size: 0.75rem;
+                                        font-weight: 600;
+                                    ">
+                                        ${getTypeText(location.type)}
+                                    </span>
+                                    <span style="
+                                        background: ${location.isOpen ? 'rgba(16, 185, 129, 0.9)' : 'rgba(239, 68, 68, 0.9)'};
+                                        padding: 0.25rem 0.625rem;
+                                        border-radius: 9999px;
+                                        font-size: 0.75rem;
+                                        font-weight: 600;
+                                        display: flex;
+                                        align-items: center;
+                                        gap: 0.25rem;
+                                    ">
+                                        <span style="
+                                            width: 6px;
+                                            height: 6px;
+                                            background: white;
+                                            border-radius: 50%;
+                                            display: inline-block;
+                                        "></span>
+                                        ${location.isOpen ? 'เปิดบริการ' : 'ปิดชั่วคราว'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Body -->
+                    <div style="padding: 1rem; background: white;">
+                        <div style="display: grid; gap: 0.875rem;">
+                            <!-- Responsible -->
+                            <div style="display: flex; gap: 0.75rem;">
+                                <div style="
+                                    width: 36px;
+                                    height: 36px;
+                                    background: #f3f4f6;
+                                    border-radius: 8px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    flex-shrink: 0;
+                                    color: #6b7280;
+                                ">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div style="flex: 1; min-width: 0;">
+                                    <p style="font-size: 0.75rem; color: #9ca3af; margin: 0 0 0.25rem 0; font-weight: 500;">
+                                        ผู้รับผิดชอบ
+                                    </p>
+                                    <p style="font-size: 0.9375rem; color: #1f2937; margin: 0; font-weight: 600;">
+                                        ${location.responsible || 'ไม่ระบุ'}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Phone -->
+                            <div style="display: flex; gap: 0.75rem;">
+                                <div style="
+                                    width: 36px;
+                                    height: 36px;
+                                    background: #dbeafe;
+                                    border-radius: 8px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    flex-shrink: 0;
+                                    color: #2563eb;
+                                ">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                                <div style="flex: 1; min-width: 0;">
+                                    <p style="font-size: 0.75rem; color: #9ca3af; margin: 0 0 0.25rem 0; font-weight: 500;">
+                                        เบอร์โทรศัพท์
+                                    </p>
+                                    <a href="tel:${location.phone}" style="
+                                        font-size: 0.9375rem;
+                                        color: #2563eb;
+                                        margin: 0;
+                                        font-weight: 600;
+                                        text-decoration: none;
+                                        display: block;
+                                    ">
+                                        ${location.phone || 'ไม่ระบุ'}
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Working Hours -->
+                            <div style="display: flex; gap: 0.75rem;">
+                                <div style="
+                                    width: 36px;
+                                    height: 36px;
+                                    background: #fef3c7;
+                                    border-radius: 8px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    flex-shrink: 0;
+                                    color: #d97706;
+                                ">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div style="flex: 1; min-width: 0;">
+                                    <p style="font-size: 0.75rem; color: #9ca3af; margin: 0 0 0.25rem 0; font-weight: 500;">
+                                        เวลาทำการ
+                                    </p>
+                                    <p style="font-size: 0.9375rem; color: #1f2937; margin: 0; font-weight: 600;">
+                                        ${workingHours}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Waste Types -->
+                            ${location.wasteTypes && location.wasteTypes.length > 0 ? `
+                            <div style="display: flex; gap: 0.75rem;">
+                                <div style="
+                                    width: 36px;
+                                    height: 36px;
+                                    background: #d1fae5;
+                                    border-radius: 8px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    flex-shrink: 0;
+                                    color: #059669;
+                                ">
+                                    <i class="fas fa-recycle"></i>
+                                </div>
+                                <div style="flex: 1; min-width: 0;">
+                                    <p style="font-size: 0.75rem; color: #9ca3af; margin: 0 0 0.5rem 0; font-weight: 500;">
+                                        ประเภทขยะที่รับซื้อ
+                                    </p>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 0.375rem;">
+                                        ${wasteTypesHTML}
+                                    </div>
+                                </div>
+                            </div>
+                            ` : ''}
+
+                            <!-- Note -->
+                            ${location.note ? `
+                            <div style="
+                                background: #fef3c7;
+                                border-left: 4px solid #f59e0b;
+                                padding: 0.75rem;
+                                border-radius: 8px;
+                                margin-top: 0.25rem;
+                            ">
+                                <div style="display: flex; gap: 0.5rem; align-items: start;">
+                                    <i class="fas fa-info-circle" style="color: #d97706; margin-top: 0.125rem;"></i>
+                                    <div>
+                                        <p style="font-size: 0.75rem; color: #92400e; font-weight: 600; margin: 0 0 0.25rem 0;">
+                                            หมายเหตุ
+                                        </p>
+                                        <p style="font-size: 0.875rem; color: #78350f; margin: 0; line-height: 1.5;">
+                                            ${location.note}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Footer Actions -->
+                    <div style="
+                        padding: 0.875rem;
+                        background: #f9fafb;
+                        border-radius: 0 0 12px 12px;
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        gap: 0.625rem;
+                    ">
+                        <button onclick="navigateTo(${location.latitude}, ${location.longitude})" style="
+                            background: linear-gradient(135deg, #3b82f6, #2563eb);
+                            color: white;
+                            padding: 0.75rem 1rem;
+                            border: none;
+                            border-radius: 8px;
+                            font-size: 0.875rem;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.2s;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 0.5rem;
+                            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+                        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(59, 130, 246, 0.4)'"
+                           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(59, 130, 246, 0.3)'">
+                            <i class="fas fa-directions"></i>
+                            <span>นำทาง</span>
+                        </button>
+                        <a href="tel:${location.phone}" style="
+                            background: linear-gradient(135deg, #10b981, #059669);
+                            color: white;
+                            padding: 0.75rem 1rem;
+                            border: none;
+                            border-radius: 8px;
+                            font-size: 0.875rem;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.2s;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 0.5rem;
+                            text-decoration: none;
+                            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+                        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(16, 185, 129, 0.4)'"
+                           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(16, 185, 129, 0.3)'">
+                            <i class="fas fa-phone"></i>
+                            <span>โทร</span>
+                        </a>
+                    </div>
+                </div>
+            `;
+
+                // Bind popup
+                marker.bindPopup(popupContent, {
+                    maxWidth: 320,
+                    className: 'custom-popup'
+                });
+
+                // เก็บ marker และข้อมูล
+                markers.push({ marker, location });
+            });
+
+            // ปรับมุมมองแผนที่ให้เห็น markers ทั้งหมด
+            if (markers.length > 0) {
+                const group = new L.featureGroup(markers.map(m => m.marker));
+                map.fitBounds(group.getBounds().pad(0.1));
+            }
+        } else {
+            console.warn('ไม่พบข้อมูลจุดรับซื้อขยะ');
+        }
+
+        // ฟังก์ชันนำทาง
+        function navigateTo(lat, lng) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const userLat = position.coords.latitude;
+                        const userLng = position.coords.longitude;
+                        // เปิด Google Maps
+                        window.open(`https://www.google.com/maps/dir/${userLat},${userLng}/${lat},${lng}`, '_blank');
+                    },
+                    () => {
+                        // ถ้าไม่สามารถหาตำแหน่งได้ ให้เปิด Google Maps ปกติ
+                        window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`, '_blank');
+                    }
+                );
+            } else {
+                window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`, '_blank');
+            }
+        }
+
+        // ===== Filter Functionality =====
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const filter = btn.dataset.filter;
+                
+                // อัปเดตปุ่มที่ active
+                filterBtns.forEach(b => {
+                    b.classList.remove('bg-primary', 'text-white', 'active');
+                    b.classList.add('bg-gray-200', 'text-gray-700');
+                });
+                btn.classList.remove('bg-gray-200', 'text-gray-700');
+                btn.classList.add('bg-primary', 'text-white', 'active');
+                
+                // กรอง markers
+                markers.forEach(({ marker, location }) => {
+                    if (filter === 'all' || location.type === filter) {
+                        marker.addTo(map);
+                    } else {
+                        map.removeLayer(marker);
+                    }
+                });
+                
+                // กรองรายการใน sidebar
+                filterLocationList(filter);
+            });
+        });
+
+        // ฟังก์ชันกรองรายการ
+        function filterLocationList(filter) {
+            const locationItems = document.querySelectorAll('.location-item');
+            locationItems.forEach(item => {
+                const locationId = item.dataset.id;
+                const location = locations.find(l => l._id === locationId);
+                
+                if (location && (filter === 'all' || location.type === filter)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // ===== Location Item Click =====
+        document.querySelectorAll('.location-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const locationId = item.dataset.id;
+                const markerData = markers.find(m => m.location._id === locationId);
+                
+                if (markerData) {
+                    // ซูมไปที่ตำแหน่ง
+                    map.setView([markerData.location.latitude, markerData.location.longitude], 16);
+                    
+                    // เปิด popup
+                    markerData.marker.openPopup();
+                    
+                    // Highlight item - ลบ class active จากทุกรายการ
+                    document.querySelectorAll('.location-item').forEach(i => {
+                        i.classList.remove('active', 'border-blue-500', 'bg-blue-50');
+                    });
+                    
+                    // เพิ่ม class active ให้รายการที่เลือก
+                    item.classList.add('active');
+                    
+                    // Scroll รายการที่เลือกให้อยู่ในมุมมอง (สำหรับมือถือ)
+                    item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            });
+        });
+
+        // ===== Locate User =====
+        let userMarker = null;
+        document.getElementById('locate-me').addEventListener('click', () => {
+            if (navigator.geolocation) {
+                const btn = document.getElementById('locate-me');
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>กำลังค้นหา...';
+                btn.disabled = true;
+
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        // ลบ marker เก่า (ถ้ามี)
+                        if (userMarker) {
+                            map.removeLayer(userMarker);
+                        }
+                        
+                        // เพิ่ม marker ตำแหน่งผู้ใช้
+                        userMarker = L.marker([lat, lng], {
+                            icon: icons.user
+                        }).addTo(map);
+                        
+                        userMarker.bindPopup(`
+                            <div class="p-2">
+                                <h4 class="font-semibold text-red-600 mb-1">
+                                    <i class="fas fa-map-marker-alt mr-1"></i>ตำแหน่งของคุณ
+                                </h4>
+                                <p class="text-sm text-gray-600">
+                                    พิกัด: ${lat.toFixed(6)}, ${lng.toFixed(6)}
+                                </p>
+                            </div>
+                        `).openPopup();
+                        
+                        // ซูมไปที่ตำแหน่งผู้ใช้
+                        map.setView([lat, lng], 15);
+                        
+                        btn.innerHTML = '<i class="fas fa-location-arrow mr-2"></i>ตำแหน่งของฉัน';
+                        btn.disabled = false;
+                    },
+                    (error) => {
+                        console.error('Error getting location:', error);
+                        alert('ไม่สามารถระบุตำแหน่งของคุณได้\nกรุณาเปิดใช้งาน Location Services');
+                        btn.innerHTML = '<i class="fas fa-location-arrow mr-2"></i>ตำแหน่งของฉัน';
+                        btn.disabled = false;
+                    }
+                );
+            } else {
+                alert('เบราว์เซอร์ของคุณไม่รองรับการระบุตำแหน่ง');
+            }
+        });
+
+        // ===== Map View Toggle =====
+        document.getElementById('satellite-view-btn')?.addEventListener('click', () => {
+            map.removeLayer(currentTileLayer);
+            currentTileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles © Esri',
+                maxZoom: 19
+            }).addTo(map);
+            
+            document.getElementById('map-view-btn').classList.remove('bg-primary', 'text-white');
+            document.getElementById('map-view-btn').classList.add('bg-gray-200', 'text-gray-700');
+            document.getElementById('satellite-view-btn').classList.remove('bg-gray-200', 'text-gray-700');
+            document.getElementById('satellite-view-btn').classList.add('bg-primary', 'text-white');
+        });
+
+        document.getElementById('map-view-btn')?.addEventListener('click', () => {
+            map.removeLayer(currentTileLayer);
+            currentTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+            
+            document.getElementById('satellite-view-btn').classList.remove('bg-primary-green', 'text-white');
+            document.getElementById('satellite-view-btn').classList.add('bg-gray-200', 'text-gray-700');
+            document.getElementById('map-view-btn').classList.remove('bg-gray-200', 'text-gray-700');
+            document.getElementById('map-view-btn').classList.add('bg-primary-green', 'text-white');
+        });
+
+        // ===== Search Functionality =====
+        document.getElementById('search-location')?.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase().trim();
+            const locationItems = document.querySelectorAll('.location-item');
+            
+            locationItems.forEach(item => {
+                const locationId = item.dataset.id;
+                const location = locations.find(l => l._id === locationId);
+                
+                if (location) {
+                    const searchText = `${location.wastePointName} ${location.responsible} ${location.phone}`.toLowerCase();
+                    
+                    if (searchText.includes(searchTerm)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                }
+            });
+
+            // กรอง markers บนแผนที่
+            markers.forEach(({ marker, location }) => {
+                const searchText = `${location.wastePointName} ${location.responsible} ${location.phone}`.toLowerCase();
+                
+                if (searchText.includes(searchTerm)) {
+                    marker.addTo(map);
+                } else {
+                    map.removeLayer(marker);
+                }
+            });
+        });
+
+        // ===== Custom Popup Style =====
+        const style = document.createElement('style');
+        style.textContent = `
+            .custom-popup .leaflet-popup-content-wrapper {
+                padding: 0;
+                border-radius: 12px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            }
+            .custom-popup .leaflet-popup-content {
+                margin: 0;
+                width: auto !important;
+            }
+            .custom-popup .leaflet-popup-tip {
+                background: white;
+            }
+            .custom-div-icon {
+                border: 3px solid white;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+                transition: transform 0.2s;
+            }
+            .custom-div-icon:hover {
+                transform: scale(1.1);
+            }
+        `;
+        document.head.appendChild(style);
+
+        function viewOnMap(locationId) {
+    const locationItem = document.querySelector(`.location-item[data-id="${locationId}"]`);
+    if (locationItem) {
+        locationItem.click();
+        // Scroll to map on mobile
+        if (window.innerWidth < 1024) {
+            document.getElementById('map').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+}
+</script>
+    <!-- <script src="/script/mapInteractive.js"></script> -->
 
 <style>
 .custom-div-icon {
     border: 2px solid white;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0;
+}
+
+/* Highlight effect */
+.location-item.active {
+    border-color: #3b82f6 !important;
+    background-color: #eff6ff !important;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
 </style>
 </body>

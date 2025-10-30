@@ -1,10 +1,3 @@
-    // Close dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-        if (!profileDropdown.contains(e.target)) {
-            dropdownMenu.classList.add('hidden');
-        }
-    });
-
     // Sample location data
     const locations = [
         {

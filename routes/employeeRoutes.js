@@ -59,6 +59,11 @@ router.delete('/routeList/:routeId', employeeController.deleteRoute);
 
 // จัดการจุดรับซื้อ
 router.get('/wastePoint', employeeController.wastePointIndex);
+router.get('/wastePoint/create', employeeController.wastePointCreate);
+router.get('/wastePoint/edit/:id', employeeController.wastePointEdit);
+router.post('/wastePointUpdate/:id', employeeController.wastePointUpdate);
+router.get('/wastePoint/toggle/:id', employeeController.wastePointToggle);
 router.post('/wastePointPost', employeeController.wastePointPost);
+router.get('/wastePoint/delete/:id', employeeController.wastePointDelete);
 
 module.exports = router

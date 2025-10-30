@@ -25,7 +25,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const dbURI = 'mongodb+srv://dullapaht:18072546@cluster0.xyho3qt.mongodb.net/RecyclingWasteFundSystem?retryWrites=true&w=majority&appName=Cluster0'
 
 mongoose.connect(dbURI)
-    .then((result) => app.listen(3000))
+    .then((result) => app.listen(3000, () => {console.log(`
+🧙‍♂️ ====================================
+✨  Notistz Portfolio Server Started!  ✨
+🔮 Server running on port 3000
+🌟 Using MongoDB Database
+⚡ API Base URL: http://localhost:3000
+🧙‍♂️ ====================================
+        `)
+    }))
     .catch((err) => console.log(err))
 app.set('view engine', 'ejs')
 

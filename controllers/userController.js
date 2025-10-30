@@ -21,6 +21,7 @@ const Notification = require('../models/notification');
 const Board = require('../models/board');
 const path = require('path');
 const moment = require('moment');
+const WastePoint = require('../models/wastePoint');
 
 // หน้าหลัก
 const formatDate = (date) => moment(date).locale('th').format('ddddที่ D MMMM YYYY');
@@ -107,6 +108,9 @@ const user_index = async (req, res) => {
             return acc;
         }, {});
 
+        
+        const wastePoints = await WastePoint.find({ isDeleted: false });
+
         res.render('user/main', {
             mytitle: 'Admindashboard | Activity',
             activity: activitiesResult,
@@ -115,7 +119,8 @@ const user_index = async (req, res) => {
             roundsByVillage,
             moment: moment,
             news: newsResult,
-            latestPriceUpdateDate
+            latestPriceUpdateDate,
+            wastePoints
         });
 
     } catch (err) {
