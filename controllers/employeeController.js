@@ -1724,7 +1724,7 @@ const withDrawIndex = async (req, res) => {
         // ตรวจสอบข้อมูล input
         if (!accountId || !withdrawAmount) {
             console.error('ข้อมูลไม่ครบถ้วน:', { accountId, withdrawAmount });
-            return res.redirect('/employee/withdraw?error=' + encodeURIComponent('กรุณากรอกข้อมูลให้ครบถ้วน'));
+            return res.redirect('/employee/withDraw?error=' + encodeURIComponent('กรุณากรอกข้อมูลให้ครบถ้วน'));
         }
 
         // ค้นหาบัญชี
@@ -1735,26 +1735,26 @@ const withDrawIndex = async (req, res) => {
 
         if (!account) {
             console.error('ไม่พบบัญชี:', accountId);
-            return res.redirect('/employee/withdraw?error=' + encodeURIComponent('ไม่พบบัญชีที่ระบุ'));
+            return res.redirect('/employee/withDraw?error=' + encodeURIComponent('ไม่พบบัญชีที่ระบุ'));
         }
 
         // ตรวจสอบจำนวนเงิน
         const amount = parseFloat(withdrawAmount);
         if (amount <= 0 || isNaN(amount)) {
             console.error('จำนวนเงินไม่ถูกต้อง:', withdrawAmount);
-            return res.redirect('/employee/withdraw?error=' + encodeURIComponent('จำนวนเงินไม่ถูกต้อง'));
+            return res.redirect('/employee/withDraw?error=' + encodeURIComponent('จำนวนเงินไม่ถูกต้อง'));
         }
 
         if (account.Balance < amount) {
             console.error('ยอดเงินไม่พอ:', { balance: account.Balance, withdraw: amount });
-            return res.redirect('/employee/withdraw?error=' + encodeURIComponent('ยอดเงินในบัญชีไม่เพียงพอ'));
+            return res.redirect('/employee/withDraw?error=' + encodeURIComponent('ยอดเงินในบัญชีไม่เพียงพอ'));
         }
 
         // ค้นหาครอบครัว
         const family = await Family.findById(account.familyID);
         if (!family) {
             console.error('ไม่พบข้อมูลครอบครัว:', account.familyID);
-            return res.redirect('/employee/withdraw?error=' + encodeURIComponent('ไม่พบข้อมูลครอบครัว'));
+            return res.redirect('/employee/withDraw?error=' + encodeURIComponent('ไม่พบข้อมูลครอบครัว'));
         }
 
         // ใช้ session/transaction สำหรับความปลอดภัย
@@ -1779,7 +1779,7 @@ const withDrawIndex = async (req, res) => {
             await session.commitTransaction();
             console.log('ถอนเงินสำเร็จ:', { accountId, amount });
             
-            return res.redirect('/employee/withdraw?message=' + encodeURIComponent('ถอนเงินสำเร็จแล้ว'));
+            return res.redirect('/employee/withDraw?message=' + encodeURIComponent('ถอนเงินสำเร็จแล้ว'));
         } catch (txError) {
             await session.abortTransaction();
             throw txError;
@@ -1789,7 +1789,7 @@ const withDrawIndex = async (req, res) => {
 
     } catch (error) {
         console.error('เกิดข้อผิดพลาดในการถอนเงิน:', error);
-        return res.redirect('/employee/withdraw?error=' + encodeURIComponent('เกิดข้อผิดพลาดในการถอนเงิน: ' + error.message));
+        return res.redirect('/employee/withDraw?error=' + encodeURIComponent('เกิดข้อผิดพลาดในการถอนเงิน: ' + error.message));
     }
 };
 
@@ -1806,7 +1806,7 @@ const showWithdrawPage = async (req, res) => {
         .populate('family')
         .lean(); // เพิ่ม .lean() เพื่อประสิทธิภาพ
 
-        res.render('employee/withdraw', {
+        res.render('employee/withDraw', {
             mytitle: 'พนักงาน | เบิกถอนเงิน',
             transactions: transactions || [],
             message: req.query.message || null,
@@ -1815,7 +1815,7 @@ const showWithdrawPage = async (req, res) => {
         });
     } catch (err) {
         console.error('เกิดข้อผิดพลาดในการโหลดหน้าถอนเงิน:', err);
-        res.render('employee/withdraw', {
+        res.render('employee/withDraw', {
             mytitle: 'เบิกถอนเงิน',
             transactions: [],
             error: 'เกิดข้อผิดพลาดในการโหลดข้อมูล',

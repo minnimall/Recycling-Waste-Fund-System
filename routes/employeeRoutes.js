@@ -32,11 +32,11 @@ router.get('/wasteStock', employeeController.wasteStockIndex);
 
 // เบิกถอน
 // หน้าเบิกถอน
-router.get('/withdraw', employeeController.showWithdrawPage);
+router.get('/withDraw', employeeController.showWithdrawPage);
 // POST ถอนเงิน
-router.post('/withdraw', employeeController.withDrawIndex);
+router.post('/withDraw', employeeController.withDrawIndex);
 // AJAX ดึงข้อมูลบัญชี
-router.get('/withdraw/account/:accountNumber', employeeController.getAccountByNumber);
+router.get('/withDraw/account/:accountNumber', employeeController.getAccountByNumber);
 
 
 // ฌาปนกิจสงเคราะห์

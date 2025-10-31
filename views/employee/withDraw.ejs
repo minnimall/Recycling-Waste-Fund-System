@@ -127,7 +127,7 @@
                         </div>
 
                         <!-- ฟอร์มถอนเงิน -->
-                        <form id="withdrawalForm" class="space-y-4" method="POST" action="/employee/withdraw">
+                        <form id="withdrawalForm" class="space-y-4" method="POST" action="/employee/withDraw">
                             <input type="hidden" id="hiddenAccountNumber" name="accountId" value="">
 
                             <div>
@@ -244,7 +244,7 @@
             try {
                 console.log('กำลังค้นหาบัญชี:', accountId);
                 
-                const response = await fetch(`/employee/withdraw/account/${encodeURIComponent(accountId)}`, {
+                const response = await fetch(`/employee/withDraw/account/${encodeURIComponent(accountId)}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
