@@ -17,6 +17,38 @@
             margin-left: 0;
             padding: 20px;
         }
+        .delete-btn {
+            background-color: #f44336; /* สีแดง */
+            color: white;
+            border: none;
+            margin-top: 10px;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: background-color 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background-color: #d32f2f; /* สีแดงเข้ม */
+        }
+
+        .edit-btn {
+            background-color: #007bff; /* สีฟ้าสำหรับแก้ไข */
+            color: white;
+            border: none;
+            margin-top: 10px;
+            margin-right: 4px;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: background-color 0.3s ease;
+        }
+
+        .edit-btn:hover {
+            background-color: #0155ad;
+        }
     </style>
 </head>
 
@@ -50,22 +82,18 @@
                     </div>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="editRoute()" 
-                            class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition">
-                        <ion-icon name="create-outline" class="align-middle mr-1"></ion-icon>
-                        แก้ไข
+                    <button onclick="editRoute()" class="edit-btn" title="แก้ไข">
+                        <i class="fa fa-edit"></i>
                     </button>
-                    <button onclick="deleteRoute()" 
-                            class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">
-                        <ion-icon name="trash-outline" class="align-middle mr-1"></ion-icon>
-                        ลบ
+                    <button onclick="deleteRoute()" class="delete-btn" title="ลบ">
+                        <i class="fa fa-trash"></i>
                     </button>
                 </div>
             </div>
         </div>
 
         <!-- Summary Cards -->
-        <div class="mx-4 mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- <div class="mx-4 mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-blue-500">
                 <div class="flex items-center justify-between">
                     <div>
@@ -116,7 +144,7 @@
                     <ion-icon name="person-circle" class="text-4xl text-orange-500 opacity-50"></ion-icon>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <!-- Note Section -->
         <% if (route.note) { %>
@@ -131,9 +159,7 @@
         </div>
         <% } %>
 
-        <!-- Map and Route Details -->
         <div class="mx-4 mb-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Route Points List -->
             <div class="lg:col-span-1">
                 <div class="bg-white rounded-lg shadow-lg p-6">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
@@ -166,7 +192,6 @@
                                 </div>
                             </div>
                         <% }); %>
-                        <!-- Return to Start -->
                         <div class="bg-green-50 border-green-300 border rounded-lg p-4">
                             <div class="flex items-start gap-3">
                                 <div class="bg-green-600 text-white rounded-full w-10 h-10 flex items-center justify-center 
@@ -187,7 +212,6 @@
                 </div>
             </div>
 
-            <!-- Map Display -->
             <div class="lg:col-span-2">
                 <div class="bg-white rounded-lg shadow-lg p-4">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
@@ -205,19 +229,18 @@
         let map;
         let routingControl;
 
-        // Initialize map and display route
+        // แสดงแผนที่
         function initMap() {
-            // Create map centered on first point
+            // แสดงที่จุดเริ่มต้นของ point
             const firstPoint = routeData.points[0];
             map = L.map('map').setView([firstPoint.lat, firstPoint.lng], 13);
 
-            // Add tile layer
+            // ใช้ OpenStreetMap เป็นพื้นหลังของแผนที่
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap contributors'
             }).addTo(map);
 
-            // Add custom markers for each point
-            routeData.points.forEach((point, index) => {
+            routeData.points.forEach((point, index) => { // วนลูปทุกจุดใน routeData.points แล้วเพิ่มลงในแผนที่
                 const isStart = index === 0;
                 const markerIcon = L.divIcon({
                     html: `<div class="${isStart ? 'bg-green-600' : 'bg-blue-600'} 
@@ -237,15 +260,15 @@
                             <div class="text-sm mt-2">${point.address}</div>
                             ${isStart ? '<div class="text-green-600 text-xs mt-2 font-bold">🎯 จุดเริ่มต้น</div>' : ''}
                         </div>
-                    `)
+                    `) // bindPopup ข้อความที่จะแสดงเมื่อคลิกหมุด
                     .addTo(map);
             });
 
-            // Create waypoints for routing (including return to start)
+            // สร้างเส้นทางระหว่างจุด
             const waypoints = routeData.points.map(p => L.latLng(p.lat, p.lng));
-            waypoints.push(L.latLng(routeData.points[0].lat, routeData.points[0].lng)); // Add return
+            waypoints.push(L.latLng(routeData.points[0].lat, routeData.points[0].lng)); // กลับมาจุดเริ่มต้น
 
-            // Add route line
+            // สร้างเส้นทางที่แสดงบนแผนที่ ที่บอกเส้นทางที่จะไปแต่ละจุด
             routingControl = L.Routing.control({
                 waypoints: waypoints,
                 routeWhileDragging: false,
@@ -259,12 +282,12 @@
                 },
                 createMarker: function() { return null; },
                 router: L.Routing.osrmv1({
-                    serviceUrl: 'https://router.project-osrm.org/route/v1',
-                    profile: 'driving'
+                    serviceUrl: 'https://router.project-osrm.org/route/v1', // (OSRM) เพื่อคำนวณเส้นทางจริง (ถนนจริง)
+                    profile: 'driving' // คำนวณเส้นทางแบบขับรถ
                 })
             }).addTo(map);
 
-            // Hide routing instructions panel
+            // ซ่อน panel คำแนะนำเส้นทาง Leaflet Routing Machine มี panel แสดงขั้นตอนการขับรถ (เช่น "เลี้ยวขวา", "ตรงไป")
             setTimeout(() => {
                 const container = routingControl.getContainer();
                 if (container && container.style) {
@@ -272,31 +295,61 @@
                 }
             }, 1000);
 
-            // Fit map to show all markers
             setTimeout(() => {
                 const bounds = L.latLngBounds(waypoints);
                 map.fitBounds(bounds.pad(0.1));
             }, 1500);
         }
 
-        // Edit route function
+        // แก้ไขเส้นทาง
         async function editRoute() {
             const { value: formValues } = await Swal.fire({
                 title: 'แก้ไขเส้นทาง',
                 html: `
-                    <div class="text-left">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อเส้นทาง *</label>
-                        <input id="routeName" class="swal2-input w-full" value="${routeData.routeName}">
-                        
-                        <label class="block text-sm font-medium text-gray-700 mb-2 mt-4">หมายเหตุ</label>
-                        <textarea id="routeNote" class="swal2-textarea w-full">${routeData.note || ''}</textarea>
+                    <div class="space-y-6 p-1">
+                        <!-- Route Name Section -->
+                        <div class="space-y-2">
+                            <label for="routeName" class="flex items-center gap-2 text-sm font-semibold text-gray-800">
+                                <span>ชื่อเส้นทาง</span>
+                                <span class="text-red-500">*</span>
+                            </label>
+                            <input 
+                                id="routeName" 
+                                type="text"
+                                value="${routeData.routeName}"
+                                class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg shadow-sm
+                                    focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                                    transition-all duration-200 ease-in-out
+                                    hover:border-gray-400
+                                    text-gray-900 placeholder-gray-400"
+                                placeholder="ระบุชื่อเส้นทาง"
+                            >
+                        </div>
+
+                        <!-- Notes Section -->
+                        <div class="space-y-2">
+                            <label for="routeNote" class="flex items-center gap-2 text-sm font-semibold text-gray-800">
+                                <span>หมายเหตุ</span>
+                                <span class="text-xs text-gray-500 font-normal">(ถ้ามี)</span>
+                            </label>
+                            <textarea 
+                                id="routeNote" 
+                                rows="4"
+                                class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg shadow-sm
+                                    focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                                    transition-all duration-200 ease-in-out
+                                    hover:border-gray-400
+                                    text-gray-900 placeholder-gray-400 resize-none"
+                                placeholder="เพิ่มหมายเหตุหรือรายละเอียดเพิ่มเติม..."
+                            >${routeData.note || ''}</textarea>
+                        </div>
                     </div>
                 `,
                 focusConfirm: false,
                 showCancelButton: true,
                 confirmButtonText: 'บันทึก',
                 cancelButtonText: 'ยกเลิก',
-                confirmButtonColor: '#EAB308',
+                confirmButtonColor: '#3B82F6',
                 preConfirm: () => {
                     const routeName = document.getElementById('routeName').value;
                     if (!routeName) {
@@ -346,17 +399,16 @@
             }
         }
 
-        // Delete route function
+        // ลบเส้นทาง
         async function deleteRoute() {
             const result = await Swal.fire({
                 title: 'ยืนยันการลบ?',
-                html: `ต้องการลบเส้นทาง <strong>"${routeData.routeName}"</strong> หรือไม่?<br>
-                        <span class="text-red-600 text-sm">การดำเนินการนี้ไม่สามารถยกเลิกได้</span>`,
+                html: `ต้องการลบเส้นทาง <strong>"${routeData.routeName}"</strong> หรือไม่?`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#EF4444',
                 cancelButtonColor: '#6B7280',
-                confirmButtonText: 'ลบเลย',
+                confirmButtonText: 'ยืนยัน',
                 cancelButtonText: 'ยกเลิก'
             });
 
@@ -395,7 +447,6 @@
             }
         }
 
-        // Initialize when page loads
         document.addEventListener('DOMContentLoaded', function() {
             initMap();
         });

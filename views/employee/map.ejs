@@ -151,13 +151,13 @@
                             <button id="analyzeBtn" 
                                     class="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed" 
                                     disabled>
-                                <ion-icon name="analytics-outline" class="inline-block mr-2"></ion-icon>
+                                <!-- <ion-icon name="analytics-outline" class="inline-block mr-2"></ion-icon> -->
                                 วิเคราะห์เส้นทาง
                             </button>
                             
                             <button id="clearBtn" 
                                     class="w-full bg-red-600 text-white py-3 px-4 rounded-lg hover:bg-red-700 transition">
-                                <ion-icon name="trash-outline" class="inline-block mr-2"></ion-icon>
+                                <!-- <ion-icon name="trash-outline" class="inline-block mr-2"></ion-icon> -->
                                 ล้างจุดทั้งหมด
                             </button>
 
@@ -165,7 +165,7 @@
                                     class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed" 
                                     onclick="saveCurrentRoute()"
                                     disabled>
-                                <ion-icon name="save-outline" class="inline-block mr-2"></ion-icon>
+                                <!-- <ion-icon name="save-outline" class="inline-block mr-2"></ion-icon> -->
                                 บันทึกเส้นทาง
                             </button>
                         </div>
@@ -204,6 +204,8 @@
         let distanceMatrix = {};
         let isCalculatingDistances = false;
         let searchTimeout = null;
+        let optimizedRoutePoints = []; // เก็บจุดที่วิเคราะห์แล้ว
+        let routeAnalysisData = null; // เก็บข้อมูลการวิเคราะห์
         
         // Initialize map ส่วนแสดงแผนที่
         function initMap() {
@@ -803,6 +805,9 @@
                 
                 updateProgress('เสร็จสิ้น', 100);
                 
+                // อัปเดตสถานะปุ่มบันทึก
+                updateButtons();
+
                 setTimeout(() => {
                     if (Swal.isVisible()) {
                         Swal.close();
@@ -851,6 +856,9 @@
                 }
                 
                 console.log('Displaying route for', route.length, 'points');
+
+                // เก็บเส้นทางที่วิเคราะห์แล้วไว้ใน global variable
+                optimizedRoutePoints = [...route];
                 
                 let totalDistance = 0;
                 let totalDuration = 0;
@@ -951,6 +959,14 @@
                 
                 // Display detailed results
                 displayDetailedRouteResults(route, routeSegments, totalDistance, totalDuration);
+
+                // เก็บข้อมูลการวิเคราะห์
+                routeAnalysisData = {
+                    optimizedRoute: route,
+                    segments: routeSegments,
+                    totalDistance: totalDistance,
+                    totalDuration: totalDuration
+                };
                 
                 // Fit map to route bounds
                 setTimeout(() => {
@@ -1139,6 +1155,10 @@
             
             // ล้าง distance matrix cache
             distanceMatrix = {};
+
+            // ล้างข้อมูลการวิเคราะห์
+            optimizedRoutePoints = [];
+            routeAnalysisData = null;
         }
         
         // Clear all points
@@ -1190,11 +1210,11 @@
         // ฟังก์ชันบันทึกเส้นทาง
         async function saveCurrentRoute() {
             // ตรวจสอบว่ามีการวิเคราะห์เส้นทางแล้วหรือไม่
-            if (selectedPoints.length < 2) {
+            if (!routeAnalysisData || optimizedRoutePoints.length < 2) {
                 Swal.fire({
                     icon: 'warning',
                     title: 'ไม่สามารถบันทึกได้',
-                    text: 'กรุณาเลือกจุดอย่างน้อย 2 จุดและวิเคราะห์เส้นทางก่อน',
+                    text: 'กรุณาวิเคราะห์เส้นทางก่อนบันทึก',
                     confirmButtonText: 'ตกลง'
                 });
                 return;
@@ -1204,17 +1224,89 @@
             const { value: formValues } = await Swal.fire({
                 title: 'บันทึกเส้นทาง',
                 html: `
-                    <div class="text-left">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อเส้นทาง *</label>
-                        <input id="routeName" class="swal2-input w-full" placeholder="เช่น เส้นทางเก็บขยะเขต 1">
-                        
-                        <label class="block text-sm font-medium text-gray-700 mb-2 mt-4">หมายเหตุ (ถ้ามี)</label>
-                        <textarea id="routeNote" class="swal2-textarea w-full" placeholder="เพิ่มหมายเหตุ..."></textarea>
-                        
-                        <div class="mt-4 p-3 bg-blue-50 rounded text-sm">
-                            <div class="font-medium text-blue-800 mb-2">ข้อมูลเส้นทาง:</div>
-                            <div class="text-gray-700">• จำนวนจุด: ${selectedPoints.length} จุด</div>
-                            <div class="text-gray-700">• ระยะทาง: ${calculateTotalDistance()} กม.</div>
+                    <div class="text-left space-y-6 p-1">
+                        <!-- Route Name Input -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-800">
+                                ชื่อเส้นทาง 
+                                <span class="text-red-500">*</span>
+                            </label>
+                            <input 
+                                id="routeName" 
+                                type="text"
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 outline-none text-gray-800 placeholder-gray-400" 
+                                placeholder="เช่น เส้นทางเก็บขยะเขต 1"
+                            >
+                        </div>
+
+                        <!-- Notes Textarea -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-800">
+                                หมายเหตุ 
+                                <span class="text-gray-400 font-normal">(ถ้ามี)</span>
+                            </label>
+                            <textarea 
+                                id="routeNote" 
+                                rows="3"
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 outline-none text-gray-800 placeholder-gray-400 resize-none" 
+                                placeholder="เพิ่มหมายเหตุเพิ่มเติมเกี่ยวกับเส้นทางนี้..."
+                            ></textarea>
+                        </div>
+
+                        <!-- Route Analysis Info Card -->
+                        <div class="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 shadow-sm">
+                            <div class="p-5">
+                                <!-- Header -->
+                                <div class="flex items-center gap-2 mb-4">
+                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                    </svg>
+                                    <h3 class="font-semibold text-blue-900">ข้อมูลเส้นทางที่วิเคราะห์แล้ว</h3>
+                                </div>
+
+                                <!-- Stats Grid -->
+                                <div class="grid grid-cols-1 gap-3 mb-4">
+                                    <!-- Points -->
+                                    <div class="flex items-center gap-3 bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-blue-100/50">
+                                        <div class="flex-shrink-0 w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="text-xs text-gray-600 font-medium">จำนวนจุด</div>
+                                            <div class="text-lg font-bold text-gray-900">${optimizedRoutePoints.length} <span class="text-sm font-normal text-gray-600">จุด</span></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Distance -->
+                                    <div class="flex items-center gap-3 bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-blue-100/50">
+                                        <div class="flex-shrink-0 w-10 h-10 bg-indigo-500 rounded-lg flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="text-xs text-gray-600 font-medium">ระยะทาง</div>
+                                            <div class="text-lg font-bold text-gray-900">${routeAnalysisData.totalDistance.toFixed(2)} <span class="text-sm font-normal text-gray-600">กม.</span></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Duration -->
+                                    <div class="flex items-center gap-3 bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-blue-100/50">
+                                        <div class="flex-shrink-0 w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="text-xs text-gray-600 font-medium">เวลาโดยประมาณ</div>
+                                            <div class="text-lg font-bold text-gray-900">${Math.round(routeAnalysisData.totalDuration)} <span class="text-sm font-normal text-gray-600">นาที</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 `,
@@ -1253,17 +1345,17 @@
             });
             
             try {
-                // เตรียมข้อมูลที่จะส่ง
+                // เตรียมข้อมูลที่จะส่ง - ใช้เส้นทางที่วิเคราะห์แล้ว
                 const routeData = {
                     routeName: formValues.routeName,
-                    points: selectedPoints.map((point, index) => ({
+                    points: optimizedRoutePoints.map((point, index) => ({
                         pointNumber: index + 1,
                         lat: point.lat,
                         lng: point.lng,
                         address: point.address
                     })),
-                    totalDistance: calculateTotalDistance(),
-                    totalDuration: calculateTotalDuration(),
+                    totalDistance: routeAnalysisData.totalDistance,
+                    totalDuration: routeAnalysisData.totalDuration,
                     note: formValues.routeNote || ''
                 };
                 
@@ -1284,7 +1376,7 @@
                         title: 'บันทึกสำเร็จ!',
                         text: result.message,
                         confirmButtonText: 'ตกลง',
-                        confirmButtonColor: '#10B981',
+                        confirmButtonColor: '#28a745',
                         timer: 3000
                     }).then(() => {
                         // ถามว่าต้องการดูรายการเส้นทางหรือไม่
@@ -1353,8 +1445,9 @@
             analyzeBtn.disabled = selectedPoints.length < 2;
             clearBtn.disabled = selectedPoints.length === 0;
             
+            // ปุ่มบันทึกจะเปิดได้ก็ต่อเมื่อวิเคราะห์เส้นทางแล้วเท่านั้น
             if (saveRouteBtn) {
-                saveRouteBtn.disabled = selectedPoints.length < 2;
+                saveRouteBtn.disabled = !routeAnalysisData || optimizedRoutePoints.length < 2;
             }
         }
     </script>

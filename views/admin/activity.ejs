@@ -125,6 +125,8 @@
                 <!-- รูปภาพ -->
                 <div>
                     <label for="img" class="block text-sm font-medium text-gray-700 mb-1">รูปภาพกิจกรรม</label>
+                        <div id="currentImagePreview" class="mb-2"></div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">เปลี่ยนรูปภาพ</label>
                     <input type="file" name="img" id="img" accept="image/png, image/gif, image/jpeg"
                         class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
                 </div>
@@ -153,13 +155,19 @@
             document.getElementById('activityForm').reset();
         }
 
-        function openEditModal(id, title, content) {
+        function openEditModal(id, title, content, img) {
             modal.classList.remove('hidden');
             formAction = '/admin/activityEdit/' + id;
             document.getElementById('activityForm').setAttribute('action', formAction);
             document.getElementById('title').value = title;
             document.getElementById('content').value = content;
-            document.getElementById('img').value = ''; // ไม่สามารถ set รูป preview ได้ด้วย input file
+            // แสดงรูปภาพปัจจุบัน
+            const imagePreview = document.getElementById('currentImagePreview');
+            if (img) {
+                imagePreview.innerHTML = `<img src="${img}" alt="${name}" class="w-40 h-30 border-2 border-gray-300">`;
+            } else {
+                imagePreview.innerHTML = '<p class="text-gray-500 text-sm">ไม่มีรูปภาพ</p>';
+            }
         }
 
         function closeModal() {

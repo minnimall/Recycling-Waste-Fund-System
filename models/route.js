@@ -8,18 +8,18 @@ const routeSchema = new mongoose.Schema({
     },
     // จุดทั้งหมดในเส้นทาง
     points: [{
-        pointNumber: Number,        // ลำดับที่ของจุด
-        lat: Number,                // ละติจูด
-        lng: Number,                // ลองจิจูด
-        address: String             // ที่อยู่
+        pointNumber: Number,  // ลำดับที่ของจุด
+        lat: Number,
+        lng: Number,
+        address: String
     }],
     // ข้อมูลสรุปเส้นทาง
     totalDistance: {
-        type: Number,               // ระยะทางรวม (กิโลเมตร)
+        type: Number, // ระยะทางรวม (กิโลเมตร)
         required: true
     },
     totalDuration: {
-        type: Number,               // เวลารวม (นาที)
+        type: Number, // เวลารวม (นาที)
         required: true
     },
     // จำนวนจุดในเส้นทาง
@@ -27,20 +27,15 @@ const routeSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    // ผู้บันทึก
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Admin',            // อ้างอิงไปยัง admin model
+        ref: 'Admin',
         required: true
     },
-    
-    // หมายเหตุ (ถ้ามี)
     note: {
         type: String,
         trim: true
     },
-    
-    // สถานะการใช้งาน
     status: {
         type: String,
         enum: ['active', 'archived'],
@@ -48,7 +43,7 @@ const routeSchema = new mongoose.Schema({
     }
     
 }, {
-    timestamps: true  // สร้าง createdAt และ updatedAt อัตโนมัติ
+    timestamps: true
 });
 
 // สร้าง index เพื่อค้นหาเร็วขึ้น

@@ -405,14 +405,14 @@ for (let i = 0; i < 12; i++) {
   function createRow(round, index){
     return `
       <tr class="hover:bg-gray-50 transition-colors">
-        <td class="px-4 py-3 text-center">${(currentPage-1)*itemsPerPage + index + 1}</td>
-        <td class="px-4 py-3">${round.roundName}</td>
-        <td class="px-4 py-3">${round.village.villageNumber}</td>
-        <td class="px-4 py-3">${round.village.villageName}</td>
-        <td class="px-4 py-3">${round.formattedDateThai}</td>
-        <td class="px-4 py-3">${round.startTime} น.</td>
-        <td class="px-4 py-3">${round.endTime} น.</td>
-        <td class="px-4 py-3 text-left">
+        <td class="px-4 py-3 text-sm text-center">${(currentPage-1)*itemsPerPage + index + 1}</td>
+        <td class="px-4 py-3 text-sm">${round.roundName}</td>
+        <td class="px-4 py-3 text-sm">${round.village.villageNumber}</td>
+        <td class="px-4 py-3 text-sm">${round.village.villageName}</td>
+        <td class="px-4 py-3 text-sm">${round.formattedDateThai}</td>
+        <td class="px-4 py-3 text-sm">${round.startTime} น.</td>
+        <td class="px-4 py-3 text-sm">${round.endTime} น.</td>
+        <td class="px-4 py-3 text-sm text-left">
           <button type="button" class="was-row-${(currentPage-1)*itemsPerPage + index + 1} row-active edit-btn" 
               onclick="setRoundForm('${(currentPage-1)*itemsPerPage + index + 1}', '${round._id}', '${round.roundName}', '${round.village._id}', '${round.formattedDateThai}', '${round.startTime}', '${round.endTime}')"> 
               <i class="fa fa-edit"></i>

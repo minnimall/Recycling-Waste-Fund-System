@@ -245,12 +245,12 @@
                     <thead class="bg-gray-100">
                         <tr>
                             <th class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">ลำดับ</th>
-                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">รูป</th>
                             <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">ชื่อ</th>
                             <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">ตำแหน่ง</th>
                             <th class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">ฝ่าย</th>
                             <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">อีเมล</th>
                             <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">เบอร์โทรศัพท์</th>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">รูป</th>
                             <th class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">จัดการ</th>
                         </tr>
                     </thead>
@@ -259,15 +259,6 @@
                             <% board.forEach((item, index) => { %>
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-4 py-3 text-sm text-center text-gray-900"><%= index + 1 %></td>
-                                    <td class="px-4 py-3 text-sm text-gray-900">
-                                        <% if (item.img) { %>
-                                            <img src="<%= item.img %>" alt="<%= item.name %>" class="w-12 h-12 object-cover rounded-full border-2 border-gray-200">
-                                        <% } else { %>
-                                            <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-                                                <ion-icon name="person-outline" class="text-2xl text-gray-400"></ion-icon>
-                                            </div>
-                                        <% } %>
-                                    </td>
                                     <td class="px-4 py-3 text-sm text-gray-900"><%= item.name %></td>
                                     <td class="px-4 py-3 text-sm text-gray-900"><%= item.role %></td>
                                     <td class="px-4 py-3 text-sm text-center text-gray-900">
@@ -277,6 +268,15 @@
                                     </td>
                                     <td class="px-4 py-3 text-sm text-gray-900"><%= item.email %></td>
                                     <td class="px-4 py-3 text-sm text-gray-900"><%= item.tel %></td>
+                                    <td class="px-4 py-3 text-sm text-gray-900">
+                                        <% if (item.img) { %>
+                                            <img src="<%= item.img %>" alt="<%= item.name %>" class="w-12 h-12 object-cover rounded-full border-2 border-gray-200">
+                                        <% } else { %>
+                                            <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
+                                                <ion-icon name="person-outline" class="text-2xl text-gray-400"></ion-icon>
+                                            </div>
+                                        <% } %>
+                                    </td>
                                     <td class="px-4 py-3 text-sm text-center">
                                         <div class="flex justify-center space-x-2">
                                             <!-- ปุ่มแก้ไข -->
