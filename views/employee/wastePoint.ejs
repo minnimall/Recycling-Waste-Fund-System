@@ -113,7 +113,7 @@
 
             <div class="content bg-gray-50 min-screen">
                 <!-- Page Header -->
-                <div class="mx-4 mb-3 bg-white rounded-lg shadow p-4">
+                <div class="mx-4 mb-3 bg-white rounded-lg shadow p-4 border border-grey-100">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
                         <div>
                             <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
@@ -131,7 +131,7 @@
                 </div>
 
                 <!-- Content Area -->
-                <div class="flex-1 overflow-auto p-6">
+                <div class="flex-1 overflow-auto p-4">
                     <div class="mx-auto space-y-6">
                         
                         <!-- Statistics Cards -->
@@ -168,7 +168,7 @@
                         </div>
 
                         <!-- Map Section -->
-                        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-grey-100">
                             <!-- Map Header -->
                             <div class="p-6">
                                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -208,7 +208,7 @@
                                     </button>
                                     <button onclick="filterByType('center')" 
                                             class="filter-badge px-4 py-2 rounded-full bg-green-100 text-green-700 text-sm font-medium hover:bg-green-200">
-                                        <i class="fas fa-recycle"></i> ศูนย์รับซื้อ
+                                        <i class="fas fa-recycle"></i> ศูนย์รับซื้อขยะ
                                     </button>
                                     <button onclick="filterByType('community')" 
                                             class="filter-badge px-4 py-2 rounded-full bg-purple-100 text-purple-700 text-sm font-medium hover:bg-purple-200">
@@ -242,7 +242,7 @@
                                             <div class="legend-marker bg-green-500">
                                                 <i class="fas fa-recycle text-xs"></i>
                                             </div>
-                                            <span class="text-sm text-gray-700">ศูนย์รับซื้อ</span>
+                                            <span class="text-sm text-gray-700">ศูนย์รับซื้อขยะ</span>
                                         </div>
                                         <div class="legend-item">
                                             <div class="legend-marker bg-purple-500">
@@ -276,7 +276,7 @@
                         </div>
 
                         <!-- Points List Table -->
-                        <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="bg-white rounded-lg shadow-md p-6 border border-grey-100">
                             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
                                 <h3 class="text-lg font-semibold text-gray-800 mb-2 sm:mb-0">รายการจุดรับซื้อขยะ</h3>
                                 <div class="flex items-center space-x-2">
@@ -375,7 +375,7 @@
         function getTypeLabel(type) {
             const labels = {
                 'bank': 'ธนาคารขยะ',
-                'center': 'ศูนย์รับซื้อขยะรีไซเคิล',
+                'center': 'ศูนย์รับซื้อขยะ',
                 'community': 'จุดรับซื้อชุมชน',
                 'mobile': 'รถรับซื้อเคลื่อนที่'
             };
