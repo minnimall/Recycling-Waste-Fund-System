@@ -510,7 +510,7 @@
                     <td class="px-6 py-4">
                         <div class="flex gap-2">
                             <button onclick="toggleStatus('${point._id}', ${!point.isOpen})" 
-                                    class="px-3 py-1.5 rounded-lg text-xs font-medium text-white transition duration-200 ${
+                                    class="min-w-[70px] px-3 py-1.5 rounded-lg text-xs font-medium text-white transition duration-200 ${
                                         point.isOpen ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'
                                     }">
                                 <i class="fas fa-${point.isOpen ? 'times' : 'check'}-circle mr-1"></i>
