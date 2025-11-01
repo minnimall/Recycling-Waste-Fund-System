@@ -8,21 +8,25 @@ const routeSchema = new mongoose.Schema({
     },
     // จุดทั้งหมดในเส้นทาง
     points: [{
-        pointNumber: Number,  // ลำดับที่ของจุด
+        pointNumber: Number,
         lat: Number,
         lng: Number,
-        address: String
+        address: String,
+        requestId: { // เพิ่มฟิลด์นี้เพื่อเชื่อมโยงกับ wasteSaleRequest
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'wasteSaleRequest',
+            required: false
+        }
     }],
     // ข้อมูลสรุปเส้นทาง
     totalDistance: {
-        type: Number, // ระยะทางรวม (กิโลเมตร)
+        type: Number,
         required: true
     },
     totalDuration: {
-        type: Number, // เวลารวม (นาที)
+        type: Number,
         required: true
     },
-    // จำนวนจุดในเส้นทาง
     numberOfPoints: {
         type: Number,
         required: true
@@ -36,6 +40,11 @@ const routeSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
+    // เพิ่มฟิลด์สำหรับเก็บ wasteSaleRequest ที่เกี่ยวข้อง
+    wasteSaleRequests: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'wasteSaleRequest'
+    }],
     status: {
         type: String,
         enum: ['active', 'archived'],
@@ -46,9 +55,9 @@ const routeSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// สร้าง index เพื่อค้นหาเร็วขึ้น
+// สร้าง index
 routeSchema.index({ createdBy: 1, createdAt: -1 });
-routeSchema.index({ routeName: 'text' }); // สำหรับค้นหาด้วยชื่อ
+routeSchema.index({ routeName: 'text' });
 
 const Route = mongoose.model('Route', routeSchema);
 

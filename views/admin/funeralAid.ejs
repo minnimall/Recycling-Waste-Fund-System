@@ -1,47 +1,73 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 
 <head>
     <%- include('../partials/adminPartials/doctype.ejs') %>
-        <title>
-            <%= mytitle %>
-        </title>
-        <link rel="stylesheet" href="/style_admin/employee.css">
-        <script src="https://cdn.tailwindcss.com"></script>
+    <title><%= mytitle %></title>
+    <link rel="stylesheet" href="/style_employee/funeral-assistance.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <style>
+        /* เพิ่ม custom styles สำหรับ UI ใหม่ */
+        .status-badge {
+            transition: all 0.3s ease;
+        }
+        .status-badge:hover {
+            transform: scale(1.05);
+        }
+        .calculation-card {
+            transition: all 0.3s ease;
+        }
+        .calculation-card:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .progress-step {
+            position: relative;
+        }
+        .progress-step::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            width: 100%;
+            height: 2px;
+            background: #e5e7eb;
+            z-index: -1;
+        }
+        .progress-step:last-child::after {
+            display: none;
+        }
+        .progress-step.active::after {
+            background: #3b82f6;
+        }
+        /* เพิ่ม styles สำหรับ dropdown autocomplete */
+        #householdDropdown {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        #householdDropdown::-webkit-scrollbar {
+            width: 8px;
+        }
+        #householdDropdown::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        #householdDropdown::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 4px;
+        }
+        #householdDropdown::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0;
+        }
+    </style>
 </head>
 
-<body>
+<body class="bg-gray-50">
     <%- include('../partials/adminPartials/adminHeader.ejs') %>
     <%- include('../partials/adminPartials/adminSidebar.ejs') %>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <script>
-        // เช็คข้อความที่ส่งมาจาก URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const successMessage = urlParams.get('message');
-        const errorMessage = urlParams.get('error');
-    
-        if (successMessage) {
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: 'success',
-                title: successMessage,
-                showConfirmButton: false,
-                timer: 3000
-            });
-        }
-    
-        if (errorMessage) {
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: 'error',
-                title: errorMessage,
-                showConfirmButton: false,
-                timer: 3000
-            });
-        }
-    
     </script>
 
     <div class="content bg-gray-50 min-screen">
@@ -71,33 +97,32 @@
                         </h2>
                     </div>
                     
-                    <form action="/employee/funeral-assistance/submit" method="POST" class="p-6">
+                    <form action="/admin/funeral-assistance/submit" method="POST" class="p-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- ปีงบประมาณ -->
-                            <div>
-                                <label for="fiscalYear" class="block text-sm font-medium text-gray-700 mb-1">ปีงบประมาณ <span class="text-red-500">*</span></label>
-                                <select id="fiscalYear" name="fiscalYear" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <option value="" disabled selected>-- เลือกปีงบประมาณ --</option>
-                                    <option value="2566">2566</option>
-                                    <option value="2567">2567</option>
-                                    <option value="2568">2568</option>
-                                </select>
-                            </div>
-                            
-                            <!-- วันที่หักจ่าย -->
-                            <div>
-                                <label for="paymentDate" class="block text-sm font-medium text-gray-700 mb-1">วันที่หักจ่าย <span class="text-red-500">*</span></label>
-                                <input type="date" id="paymentDate" name="paymentDate" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+                            <div class="md:col-span-2">
+                                <p class="block text-sm font-bold text-xl text-gray-700 mb-1">เงื่อนไขรับเงินช่วยเหลือฌาปนกิจสงเคราะห์ <span class="text-red-500">*</span></p>
+                                <p class="block text-sm font-medium text-gray-700 mb-1">ต้องสมัครเข้าร่วมกองทุนขยะรีไซเคิลครบ 6 เดือน และมีการนำขยะมาขายให้ครบยอดเงินขั้นต่ำ 300 บาท</p>
                             </div>
                             
                             <!-- ค้นหาครัวเรือน -->
                             <div class="md:col-span-2">
                                 <label for="householdSearch" class="block text-sm font-medium text-gray-700 mb-1">ค้นหาครัวเรือน <span class="text-red-500">*</span></label>
                                 <div class="relative">
-                                    <input type="text" id="householdSearch" name="householdSearch" placeholder="ค้นหาด้วยรหัสครัวเรือนหรือชื่อหัวหน้าครัวเรือน" class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <!-- เพิ่ม autocomplete="off" เพื่อปิด browser autocomplete -->
+                                    <input type="text" id="householdSearch" name="householdSearch" placeholder="ค้นหาด้วยรหัสครัวเรือนหรือชื่อหัวหน้าครัวเรือน" class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" autocomplete="off">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                     </svg>
+                                    <!-- เพิ่ม dropdown สำหรับแสดงผลการค้นหา -->
+                                    <div id="householdDropdown" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto hidden">
+                                        <div id="householdList" class="py-1">
+                                            <!-- รายการครัวเรือนจะแสดงที่นี่ -->
+                                        </div>
+                                        <div id="noResults" class="px-4 py-3 text-sm text-gray-500 text-center hidden">
+                                            ไม่พบข้อมูลครัวเรือน
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             
@@ -106,11 +131,11 @@
                                 <h3 class="font-medium text-gray-800 mb-2">ข้อมูลครัวเรือน</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <p class="text-sm text-gray-500">รหัสครัวเรือน</p>
+                                        <p class="text-sm text-gray-500">เลขบัญชี</p>
                                         <p class="font-medium" id="householdId">-</p>
                                     </div>
                                     <div>
-                                        <p class="text-sm text-gray-500">ชื่อหัวหน้าครัวเรือน</p>
+                                        <p class="text-sm text-gray-500">ชื่อตัวแทนครัวเรือน</p>
                                         <p class="font-medium" id="householdHead">-</p>
                                     </div>
                                     <div>
@@ -120,6 +145,60 @@
                                     <div>
                                         <p class="text-sm text-gray-500">จำนวนสมาชิก</p>
                                         <p class="font-medium" id="memberCount">-</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- เพิ่มส่วนตรวจสอบคุณสมบัติ -->
+                            <div class="md:col-span-2 hidden" id="eligibilitySection">
+                                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border-2 border-blue-200 p-6">
+                                    <div class="flex items-center mb-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <h3 class="text-lg font-semibold text-gray-800">ตรวจสอบคุณสมบัติ</h3>
+                                    </div>
+                                    
+                                    <div class="space-y-3">
+                                        <!-- เงื่อนไข 1: สมัครครบ 6 เดือน -->
+                                        <div class="flex items-start bg-white rounded-lg p-4 shadow-sm">
+                                            <div class="flex-shrink-0 mr-3">
+                                                <div class="w-8 h-8 rounded-full flex items-center justify-center" id="condition1Icon">
+                                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                            <div class="flex-1">
+                                                <p class="font-medium text-gray-800">สมัครเข้าร่วมกองทุนครบ 6 เดือน</p>
+                                                <p class="text-sm text-gray-600 mt-1" id="condition1Detail">กำลังตรวจสอบ...</p>
+                                            </div>
+                                        </div>
+
+                                        <!-- เงื่อนไข 2: ขายขยะครบ 300 บาท -->
+                                        <div class="flex items-start bg-white rounded-lg p-4 shadow-sm">
+                                            <div class="flex-shrink-0 mr-3">
+                                                <div class="w-8 h-8 rounded-full flex items-center justify-center" id="condition2Icon">
+                                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                            <div class="flex-1">
+                                                <p class="font-medium text-gray-800">ขายขยะรีไซเคิลครบ 300 บาท</p>
+                                                <p class="text-sm text-gray-600 mt-1" id="condition2Detail">กำลังตรวจสอบ...</p>
+                                            </div>
+                                        </div>
+
+                                        <!-- สรุปผลการตรวจสอบ -->
+                                        <div class="mt-4 p-4 rounded-lg" id="eligibilityResult">
+                                            <div class="flex items-center">
+                                                <svg class="w-6 h-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" id="resultIcon">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <p class="font-semibold text-lg" id="resultText">กำลังตรวจสอบคุณสมบัติ...</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -150,16 +229,84 @@
                                 <input type="date" id="dateOfDeath" name="dateOfDeath" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                             </div>
                             
-                            <!-- สาเหตุการเสียชีวิต -->
-                            <div class="md:col-span-2">
-                                <label for="causeOfDeath" class="block text-sm font-medium text-gray-700 mb-1">สาเหตุการเสียชีวิต <span class="text-red-500">*</span></label>
-                                <textarea id="causeOfDeath" name="causeOfDeath" rows="2" required placeholder="ระบุสาเหตุการเสียชีวิต" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                            </div>
-                            
                             <!-- จำนวนเงินช่วยเหลือ -->
                             <div>
                                 <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">จำนวนเงินช่วยเหลือ (บาท) <span class="text-red-500">*</span></label>
                                 <input type="number" id="amount" name="amount" required placeholder="0.00" min="0" step="0.01" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <!-- เพิ่มส่วนคำนวณเงินฌาปนกิจ -->
+                            <div class="md:col-span-2 hidden" id="calculationSection">
+                                <div class="rounded-lg border-2 border-gray-200 p-6">
+                                    <div class="flex items-center mb-4">
+                                        <h3 class="text-lg font-semibold text-gray-800">การคำนวณเงินฌาปนกิจ</h3>
+                                    </div>
+
+                                    <!-- สรุปยอดเงิน -->
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                        <div class="bg-white rounded-lg p-4 shadow-sm">
+                                            <p class="text-sm text-gray-600 mb-1">จำนวนเงินที่ต้องจ่าย</p>
+                                            <p class="text-2xl font-bold text-emerald-600" id="totalAmount">0 บาท</p>
+                                        </div>
+                                        <div class="bg-white rounded-lg p-4 shadow-sm">
+                                            <p class="text-sm text-gray-600 mb-1">จำนวนบัญชีในระบบ</p>
+                                            <p class="text-2xl font-bold text-blue-600" id="totalAccounts">0 บัญชี</p>
+                                        </div>
+                                        <div class="bg-white rounded-lg p-4 shadow-sm">
+                                            <p class="text-sm text-gray-600 mb-1">หักจากบัญชีละ</p>
+                                            <p class="text-2xl font-bold text-orange-600" id="perAccountAmount">0 บาท</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- รายละเอียดการกระจายเงิน -->
+                                    <div class="bg-white rounded-lg p-4 shadow-sm">
+                                        <div class="flex items-center justify-between mb-3">
+                                            <h4 class="font-medium text-gray-800">รายละเอียดการกระจายภาระ</h4>
+                                            <button type="button" id="toggleDetails" class="text-sm text-blue-600 hover:text-blue-800 flex items-center">
+                                                <span>ดูรายละเอียด</span>
+                                                <svg class="w-4 h-4 ml-1 transform transition-transform" id="toggleIcon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        
+                                        <div class="hidden" id="detailsContent">
+                                            <div class="border-t border-gray-200 pt-3">
+                                                <p class="text-sm text-gray-600 mb-2">การคำนวณ:</p>
+                                                <div class="bg-gray-50 rounded p-3 font-mono text-sm">
+                                                    <p class="text-gray-700">เงินฌาปนกิจ = <span id="calc1">6,000</span> บาท</p>
+                                                    <p class="text-gray-700">จำนวนบัญชี = <span id="calc2">150</span> บัญชี</p>
+                                                    <p class="text-gray-700 border-t border-gray-300 mt-2 pt-2">หักจากบัญชีละ = <span id="calc3">6,000</span> ÷ <span id="calc4">150</span> = <span class="font-bold text-emerald-600" id="calc5">40.00</span> บาท</p>
+                                                </div>
+                                                
+                                                <div class="mt-4">
+                                                    <p class="text-sm text-gray-600 mb-2">ยอดเงินคงเหลือในกองทุน:</p>
+                                                    <div class="flex items-center justify-between bg-blue-50 rounded p-3">
+                                                        <div>
+                                                            <p class="text-sm text-gray-600">ก่อนหัก</p>
+                                                            <p class="text-lg font-bold text-gray-800" id="beforeBalance">45,000 บาท</p>
+                                                        </div>
+                                                        <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                                        </svg>
+                                                        <div>
+                                                            <p class="text-sm text-gray-600">หลังหัก</p>
+                                                            <p class="text-lg font-bold text-emerald-600" id="afterBalance">39,000 บาท</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- คำเตือน -->
+                                    <div class="mt-4 flex items-start bg-amber-50 border border-amber-200 rounded-lg p-3">
+                                        <svg class="w-5 h-5 text-amber-600 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                        <p class="text-sm text-amber-800">เงินจะถูกหักจากบัญชีของทุกครัวเรือนในระบบกองทุนขยะรีไซเคิลเท่ากัน</p>
+                                    </div>
+                                </div>
                             </div>
                             
                             <!-- ผู้รับเงินช่วยเหลือ -->
@@ -182,43 +329,10 @@
                                 </select>
                             </div>
                             
-                            <!-- เบอร์โทรศัพท์ผู้รับเงิน -->
-                            <div>
-                                <label for="beneficiaryPhone" class="block text-sm font-medium text-gray-700 mb-1">เบอร์โทรศัพท์ผู้รับเงิน</label>
-                                <input type="tel" id="beneficiaryPhone" name="beneficiaryPhone" placeholder="0xxxxxxxxx" pattern="[0-9]{10}" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            
                             <!-- หมายเหตุ -->
                             <div class="md:col-span-2">
                                 <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ</label>
                                 <textarea id="notes" name="notes" rows="2" placeholder="ระบุหมายเหตุเพิ่มเติม (ถ้ามี)" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                            </div>
-                            
-                            <!-- เอกสารแนบ -->
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">เอกสารแนบ</label>
-                                <div class="space-y-4">
-                                    <div class="flex items-center space-x-2">
-                                        <input type="checkbox" id="deathCertificate" name="documents[]" value="deathCertificate" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                        <label for="deathCertificate" class="text-sm text-gray-700">สำเนาใบมรณบัตร</label>
-                                    </div>
-                                    <div class="flex items-center space-x-2">
-                                        <input type="checkbox" id="idCard" name="documents[]" value="idCard" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                        <label for="idCard" class="text-sm text-gray-700">สำเนาบัตรประชาชนผู้เสียชีวิต</label>
-                                    </div>
-                                    <div class="flex items-center space-x-2">
-                                        <input type="checkbox" id="houseRegistration" name="documents[]" value="houseRegistration" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                        <label for="houseRegistration" class="text-sm text-gray-700">สำเนาทะเบียนบ้าน</label>
-                                    </div>
-                                    <div class="flex items-center space-x-2">
-                                        <input type="checkbox" id="beneficiaryIdCard" name="documents[]" value="beneficiaryIdCard" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                        <label for="beneficiaryIdCard" class="text-sm text-gray-700">สำเนาบัตรประชาชนผู้รับเงิน</label>
-                                    </div>
-                                    <div class="flex items-center space-x-2">
-                                        <input type="checkbox" id="otherDocuments" name="documents[]" value="otherDocuments" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                        <label for="otherDocuments" class="text-sm text-gray-700">เอกสารอื่นๆ</label>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                         
@@ -246,10 +360,10 @@
                             สรุปข้อมูล
                         </h2>
                     </div>
-                    <!-- <div class="p-6">
+                    <div class="p-6">
                         <div class="space-y-4">
                             <div class="bg-blue-50 rounded-lg p-4">
-                                <h3 class="font-medium text-gray-800 mb-2">ปีงบประมาณ 2567</h3>
+                                <h3 class="font-medium text-gray-800 mb-2">ปีงบประมาณ 2568</h3>
                                 <div class="grid grid-cols-2 gap-2">
                                     <div>
                                         <p class="text-sm text-gray-500">จำนวนผู้เสียชีวิต</p>
@@ -257,7 +371,7 @@
                                     </div>
                                     <div>
                                         <p class="text-sm text-gray-500">งบประมาณที่ใช้ไป</p>
-                                        <p class="text-xl font-bold text-blue-600">120,000 บาท</p>
+                                        <p class="text-xl font-bold text-blue-600">72,000 บาท</p>
                                     </div>
                                 </div>
                             </div>
@@ -290,175 +404,338 @@
                                         <span class="text-sm font-medium">3 ราย</span>
                                     </div>
                                 </div>
-                                <div class="mt-2 text-right">
-                                    <a href="#" class="text-sm text-blue-600 hover:text-blue-800">ดูทั้งหมด</a>
-                                </div>
                             </div>
                         </div>
-                    </div> -->
-                </div>
-                
-                <!-- คำแนะนำ -->
-                <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                    <div class="bg-blue-50 px-6 py-4 border-b border-gray-200">
-                        <h2 class="text-xl font-semibold text-gray-800 flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            คำแนะนำ
-                        </h2>
                     </div>
-                    <!-- <div class="p-6">
-                        <div class="space-y-4">
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <div class="ml-3">
-                                    <p class="text-sm text-gray-700">กรุณาตรวจสอบความถูกต้องของข้อมูลก่อนบันทึก</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <div class="ml-3">
-                                    <p class="text-sm text-gray-700">ต้องแนบเอกสารสำเนาใบมรณบัตรทุกครั้ง</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <div class="ml-3">
-                                    <p class="text-sm text-gray-700">ผู้รับเงินต้องเป็นทายาทโดยชอบธรรมหรือผู้ที่ได้รับมอบหมายเท่านั้น</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <div class="ml-3">
-                                    <p class="text-sm text-gray-700">การจ่ายเงินจะดำเนินการภายใน 7 วันทำการหลังจากได้รับอนุมัติ</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                            <div class="flex">
-                                <div class="flex-shrink-0">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                    </svg>
-                                </div>
-                                <div class="ml-3">
-                                    <h3 class="text-sm font-medium text-yellow-800">ข้อควรระวัง</h3>
-                                    <p class="mt-2 text-sm text-yellow-700">การให้ข้อมูลอันเป็นเท็จอาจมีความผิดตามกฎหมาย และอาจถูกเรียกเงินคืนพร้อมดอกเบี้ย</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div> -->
                 </div>
             </div>
         </div>
         
         <!-- Recent Records -->
-        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
-            <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <div class="bg-blue-50 px-6 py-4 border-b border-gray-200">
-                    <div class="flex justify-between items-center">
-                        <h2 class="text-xl font-semibold text-gray-800 flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                            </svg>
-                            รายการล่าสุด
-                        </h2>
-                        <a href="#" class="text-sm text-blue-600 hover:text-blue-800">ดูทั้งหมด</a>
-                    </div>
-                </div>
-                <div class="overflow-x-auto">
-                    <!-- <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">วันที่</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อผู้เสียชีวิต</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ครัวเรือน</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ผู้รับเงิน</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">จำนวนเงิน</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
-                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">จัดการ</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">15/04/2567</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">นายสมชาย ใจดี</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">บ้านเลขที่ 123 หมู่ 5</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">นางสมศรี ใจดี</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">10,000 บาท</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">จ่ายแล้ว</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <a href="#" class="text-blue-600 hover:text-blue-900">รายละเอียด</a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">10/04/2567</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">นางวิไล มีสุข</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">บ้านเลขที่ 45 หมู่ 2</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">นายวิชัย มีสุข</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">10,000 บาท</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">รออนุมัติ</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <a href="#" class="text-blue-600 hover:text-blue-900">รายละเอียด</a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">05/04/2567</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">นายประสิทธิ์ แสนดี</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">บ้านเลขที่ 78 หมู่ 3</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">นางสาวสุดา แสนดี</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">10,000 บาท</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">จ่ายแล้ว</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <a href="#" class="text-blue-600 hover:text-blue-900">รายละเอียด</a>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table> -->
-                </div>
-            </div>
-        </div>
     </div>
     
-    <%- include('../partials/employeePartials/empFooter.ejs') %>
+    <%- include('../partials/adminPartials/adminFooter.ejs') %>
     
     <script>
-        // สคริปต์สำหรับการค้นหาครัวเรือน
-        document.getElementById('householdSearch').addEventListener('keyup', function(e) {
-            // ในสถานการณ์จริง คุณจะต้องเรียก API เพื่อค้นหาข้อมูลครัวเรือน
-            // นี่เป็นเพียงตัวอย่างการแสดงข้อมูล
-            if (e.key === 'Enter' && this.value.trim() !== '') {
-                // แสดงข้อมูลครัวเรือนตัวอย่าง
-                document.getElementById('householdInfo').classList.remove('hidden');
-                document.getElementById('householdId').textContent = '12345';
-                document.getElementById('householdHead').textContent = 'นายสมชาย ใจดี';
-                document.getElementById('householdAddress').textContent = 'บ้านเลขที่ 123 หมู่ 5 ตำบลสุขสวัสดิ์';
-                document.getElementById('memberCount').textContent = '4 คน';
+        
+        const mockHouseholdsData = [
+            {
+                id: '680101',
+                head: 'นายสมชาย ใจดี',
+                address: 'บ้านเลขที่ 123 หมู่ 5',
+                memberCount: 4,
+                registrationDate: '2024-01-15',
+                totalSales: 450
+            },
+            {
+                id: '680102',
+                head: 'นางสมหญิง รักดี',
+                address: 'บ้านเลขที่ 45 หมู่ 3',
+                memberCount: 3,
+                registrationDate: '2023-11-20',
+                totalSales: 520
+            },
+            {
+                id: '680103',
+                head: 'นายสมศักดิ์ มั่นคง',
+                address: 'บ้านเลขที่ 78 หมู่ 2',
+                memberCount: 5,
+                registrationDate: '2023-08-10',
+                totalSales: 380
+            },
+            {
+                id: '680104',
+                head: 'นางสาวสมใจ ยิ้มแย้ม',
+                address: 'บ้านเลขที่ 156 หมู่ 4',
+                memberCount: 2,
+                registrationDate: '2024-02-05',
+                totalSales: 290
+            },
+            {
+                id: '680105',
+                head: 'นายสมบูรณ์ เจริญสุข',
+                address: 'บ้านเลขที่ 89 หมู่ 1',
+                memberCount: 6,
+                registrationDate: '2023-06-15',
+                totalSales: 610
+            },
+            {
+                id: '680106',
+                head: 'นางสมพร สุขสันต์',
+                address: 'บ้านเลขที่ 234 หมู่ 5',
+                memberCount: 4,
+                registrationDate: '2023-09-25',
+                totalSales: 470
             }
+        ];
+
+        const mockFundData = {
+            totalAccounts: 150,
+            totalBalance: 45000,
+            funeralAmount: 6000
+        };
+
+        let selectedHousehold = null;
+        let currentFocusIndex = -1;
+
+        const householdSearchInput = document.getElementById('householdSearch');
+        const householdDropdown = document.getElementById('householdDropdown');
+        const householdList = document.getElementById('householdList');
+        const noResults = document.getElementById('noResults');
+
+        householdSearchInput.addEventListener('input', function(e) {
+            const searchValue = e.target.value.trim().toLowerCase();
+            currentFocusIndex = -1;
+            
+            if (searchValue.length === 0) {
+                hideDropdown();
+                clearHouseholdInfo();
+                return;
+            }
+
+            // กรองข้อมูลครัวเรือนตามคำค้นหา
+            const filteredHouseholds = mockHouseholdsData.filter(household => {
+                return household.id.toLowerCase().includes(searchValue) ||
+                       household.head.toLowerCase().includes(searchValue);
+            });
+
+            if (filteredHouseholds.length > 0) {
+                displayDropdown(filteredHouseholds, searchValue);
+            } else {
+                showNoResults();
+            }
+        });
+
+        function displayDropdown(households, searchTerm) {
+            householdList.innerHTML = '';
+            noResults.classList.add('hidden');
+            
+            households.forEach(household => {
+                const item = document.createElement('div');
+                item.className = 'px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors';
+                
+                // Highlight คำที่ค้นหา
+                const idHighlighted = highlightText(household.id, searchTerm);
+                const nameHighlighted = highlightText(household.head, searchTerm);
+                
+                item.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="font-medium text-gray-900">${nameHighlighted}</div>
+                            <div class="text-sm text-gray-500 mt-1">
+                                <span class="inline-flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                                    </svg>
+                                    ${idHighlighted}
+                                </span>
+                                <span class="mx-2">•</span>
+                                <span>${household.address}</span>
+                            </div>
+                        </div>
+                        <div class="ml-3 text-right">
+                            <div class="text-xs text-gray-500">สมาชิก</div>
+                            <div class="text-sm font-medium text-blue-600">${household.memberCount} คน</div>
+                        </div>
+                    </div>
+                `;
+                
+                item.addEventListener('click', () => selectHousehold(household));
+                householdList.appendChild(item);
+            });
+            
+            householdDropdown.classList.remove('hidden');
+        }
+
+        function highlightText(text, searchTerm) {
+            if (!searchTerm) return text;
+            
+            const regex = new RegExp(`(${searchTerm})`, 'gi');
+            return text.replace(regex, '<span class="bg-yellow-200 font-semibold">$1</span>');
+        }
+
+        function showNoResults() {
+            householdList.innerHTML = '';
+            noResults.classList.remove('hidden');
+            householdDropdown.classList.remove('hidden');
+        }
+
+        function hideDropdown() {
+            householdDropdown.classList.add('hidden');
+            currentFocusIndex = -1;
+        }
+
+        function selectHousehold(household) {
+            selectedHousehold = household;
+            householdSearchInput.value = `${household.id} - ${household.head}`;
+            hideDropdown();
+            displayHouseholdInfo(household);
+            checkEligibility(household);
+        }
+
+        function clearHouseholdInfo() {
+            selectedHousehold = null;
+            document.getElementById('householdInfo').classList.add('hidden');
+            document.getElementById('eligibilitySection').classList.add('hidden');
+            document.getElementById('calculationSection').classList.add('hidden');
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!householdSearchInput.contains(e.target) && !householdDropdown.contains(e.target)) {
+                hideDropdown();
+            }
+        });
+
+        householdSearchInput.addEventListener('keydown', function(e) {
+            const items = householdList.querySelectorAll('div[class*="cursor-pointer"]');
+            
+            if (items.length === 0) return;
+            
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                currentFocusIndex = Math.min(currentFocusIndex + 1, items.length - 1);
+                updateFocus(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                currentFocusIndex = Math.max(currentFocusIndex - 1, 0);
+                updateFocus(items);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (currentFocusIndex >= 0 && items[currentFocusIndex]) {
+                    items[currentFocusIndex].click();
+                }
+            } else if (e.key === 'Escape') {
+                hideDropdown();
+            }
+        });
+
+        function updateFocus(items) {
+            items.forEach((item, index) => {
+                if (index === currentFocusIndex) {
+                    item.classList.add('bg-blue-50');
+                    item.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                } else {
+                    item.classList.remove('bg-blue-50');
+                }
+            });
+        }
+
+        // แสดงข้อมูลครัวเรือน
+        function displayHouseholdInfo(data) {
+            document.getElementById('householdInfo').classList.remove('hidden');
+            document.getElementById('householdId').textContent = data.id;
+            document.getElementById('householdHead').textContent = data.head;
+            document.getElementById('householdAddress').textContent = data.address;
+            document.getElementById('memberCount').textContent = data.memberCount + ' คน';
+        }
+
+        // ตรวจสอบคุณสมบัติ
+        function checkEligibility(data) {
+            const eligibilitySection = document.getElementById('eligibilitySection');
+            eligibilitySection.classList.remove('hidden');
+
+            // คำนวณระยะเวลาสมัคร
+            const registrationDate = new Date(data.registrationDate);
+            const today = new Date();
+            const monthsDiff = (today.getFullYear() - registrationDate.getFullYear()) * 12 + 
+                            (today.getMonth() - registrationDate.getMonth());
+
+            // เงื่อนไข 1: สมัครครบ 6 เดือน
+            const condition1Pass = monthsDiff >= 6;
+            updateConditionStatus('condition1', condition1Pass, 
+                condition1Pass ? `ผ่าน (สมัครมาแล้ว ${monthsDiff} เดือน)` : `ไม่ผ่าน (สมัครมาเพียง ${monthsDiff} เดือน)`
+            );
+
+            // เงื่อนไข 2: ขายขยะครบ 300 บาท
+            const condition2Pass = data.totalSales >= 300;
+            updateConditionStatus('condition2', condition2Pass,
+                condition2Pass ? `ผ่าน (ขายขยะรวม ${data.totalSales.toLocaleString()} บาท)` : `ไม่ผ่าน (ขายขยะเพียง ${data.totalSales.toLocaleString()} บาท)`
+            );
+
+            // สรุปผล
+            const eligible = condition1Pass && condition2Pass;
+            updateEligibilityResult(eligible);
+        }
+
+        // อัพเดทสถานะเงื่อนไข
+        function updateConditionStatus(conditionId, pass, detail) {
+            const icon = document.getElementById(conditionId + 'Icon');
+            const detailElement = document.getElementById(conditionId + 'Detail');
+
+            if (pass) {
+                icon.className = 'w-8 h-8 rounded-full flex items-center justify-center bg-green-100';
+                icon.querySelector('svg').className = 'w-5 h-5 text-green-600';
+            } else {
+                icon.className = 'w-8 h-8 rounded-full flex items-center justify-center bg-red-100';
+                icon.innerHTML = '<svg class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>';
+            }
+
+            detailElement.textContent = detail;
+        }
+
+        // อัพเดทผลการตรวจสอบ
+        function updateEligibilityResult(eligible) {
+            const resultDiv = document.getElementById('eligibilityResult');
+            const resultIcon = document.getElementById('resultIcon');
+            const resultText = document.getElementById('resultText');
+
+            if (eligible) {
+                resultDiv.className = 'mt-4 p-4 rounded-lg bg-green-100 border-2 border-green-300';
+                resultIcon.className = 'w-6 h-6 mr-2 text-green-600';
+                resultText.textContent = 'ครัวเรือนนี้มีสิทธิ์รับเงินช่วยเหลือฌาปนกิจ';
+                resultText.className = 'font-semibold text-lg text-green-800';
+            } else {
+                resultDiv.className = 'mt-4 p-4 rounded-lg bg-red-100 border-2 border-red-300';
+                resultIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />';
+                resultIcon.className = 'w-6 h-6 mr-2 text-red-600';
+                resultText.textContent = 'ครัวเรือนนี้ไม่มีสิทธิ์รับเงินช่วยเหลือฌาปนกิจ';
+                resultText.className = 'font-semibold text-lg text-red-800';
+            }
+        }
+
+        // คำนวณเงินฌาปนกิจ
+        document.getElementById('amount').addEventListener('input', function(e) {
+            const amount = parseFloat(e.target.value) || 0;
+            
+            if (amount > 0) {
+                calculateFuneralAmount(amount);
+            } else {
+                document.getElementById('calculationSection').classList.add('hidden');
+            }
+        });
+
+        function calculateFuneralAmount(amount) {
+            const calculationSection = document.getElementById('calculationSection');
+            calculationSection.classList.remove('hidden');
+
+            const totalAccounts = mockFundData.totalAccounts;
+            const perAccountAmount = amount / totalAccounts;
+            const beforeBalance = mockFundData.totalBalance;
+            const afterBalance = beforeBalance - amount;
+
+            // อัพเดทข้อมูล
+            document.getElementById('totalAmount').textContent = amount.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท';
+            document.getElementById('totalAccounts').textContent = totalAccounts.toLocaleString() + ' บัญชี';
+            document.getElementById('perAccountAmount').textContent = perAccountAmount.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท';
+
+            // อัพเดทการคำนวณ
+            document.getElementById('calc1').textContent = amount.toLocaleString('th-TH', {minimumFractionDigits: 2});
+            document.getElementById('calc2').textContent = totalAccounts.toLocaleString();
+            document.getElementById('calc3').textContent = amount.toLocaleString('th-TH', {minimumFractionDigits: 2});
+            document.getElementById('calc4').textContent = totalAccounts.toLocaleString();
+            document.getElementById('calc5').textContent = perAccountAmount.toLocaleString('th-TH', {minimumFractionDigits: 2});
+
+            document.getElementById('beforeBalance').textContent = beforeBalance.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท';
+            document.getElementById('afterBalance').textContent = afterBalance.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท';
+        }
+
+        // Toggle รายละเอียดการคำนวณ
+        document.getElementById('toggleDetails').addEventListener('click', function() {
+            const detailsContent = document.getElementById('detailsContent');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            detailsContent.classList.toggle('hidden');
+            toggleIcon.classList.toggle('rotate-180');
         });
     </script>
 </body>

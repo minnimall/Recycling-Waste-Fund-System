@@ -323,6 +323,7 @@ const user_wastePrices = async (req, res) => {
                 match: { isDeleted: false },
                 select: 'wasteTypeName colorTheme'
             })
+            .select('wasteName pricePerUnit img wasteType')
             .lean();
 
         const filtered = wasteItems.filter(item => item.wasteType);

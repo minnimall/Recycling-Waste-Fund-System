@@ -109,8 +109,21 @@ const dashboardIndex = async (req, res) => {
                     as: 'accountInfo'
                 }
             },
-            { $match: { 'accountInfo.0': { $exists: true } } },
-            { $unwind: '$accountInfo' },
+            {
+                $addFields: {
+                    accountInfo: {
+                        $ifNull: [
+                            { $arrayElemAt: ['$accountInfo', 0] },
+                            {
+                                _id: '$accountId',
+                                accountNumber: 'DELETED',
+                                familyID: null,
+                                isDeleted: true
+                            }
+                        ]
+                    }
+                }
+            },
             {
                 $lookup: {
                     from: 'families',
@@ -119,8 +132,21 @@ const dashboardIndex = async (req, res) => {
                     as: 'familyInfo'
                 }
             },
-            { $match: { 'familyInfo.0': { $exists: true } } },
-            { $unwind: '$familyInfo' },
+            {
+                $addFields: {
+                    familyInfo: {
+                        $ifNull: [
+                            { $arrayElemAt: ['$familyInfo', 0] },
+                            {
+                                _id: '$accountInfo.familyID',
+                                familyNumber: 'DELETED',
+                                village: null,
+                                isDeleted: true
+                            }
+                        ]
+                    }
+                }
+            },
             {
                 $lookup: {
                     from: 'wasteitems',
@@ -382,7 +408,7 @@ const dashboardIndex = async (req, res) => {
             const selectedVillage = allVillages.find(v => v._id.toString() === village);
             if (selectedVillage) {
                 filterInfo.villageName = selectedVillage.villageName || 
-                                          `หมู่บ้านที่ ${selectedVillage.villageNumber}`;
+                                        `หมู่บ้านที่ ${selectedVillage.villageNumber}`;
             }
         }
 
@@ -1424,11 +1450,20 @@ const wasteStockIndex = async (req, res) => {
                 }
             },
             {
-                $match: {
-                    'accountInfo': { $ne: [] } // มี account info
+                $addFields: {
+                    accountInfo: {
+                        $ifNull: [
+                            { $arrayElemAt: ['$accountInfo', 0] },
+                            {
+                                _id: '$accountId',
+                                accountNumber: 'DELETED',
+                                familyID: null,
+                                isDeleted: true
+                            }
+                        ]
+                    }
                 }
-            },
-            { $unwind: '$accountInfo' }
+            }
         );
 
         // Join Family
@@ -1442,11 +1477,20 @@ const wasteStockIndex = async (req, res) => {
                 }
             },
             {
-                $match: {
-                    'familyInfo': { $ne: [] } // มี family info
+                $addFields: {
+                    familyInfo: {
+                        $ifNull: [
+                            { $arrayElemAt: ['$familyInfo', 0] },
+                            {
+                                _id: '$accountInfo.familyID',
+                                familyNumber: 'DELETED',
+                                village: null,
+                                isDeleted: true
+                            }
+                        ]
+                    }
                 }
-            },
-            { $unwind: '$familyInfo' }
+            }
         );
 
         // ถ้าเลือกหมู่บ้าน
