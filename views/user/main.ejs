@@ -455,41 +455,6 @@
             }
         });
     </script>
-                <!-- ส่วนไอเดียการจัดการขยะ
-                <div class="row mt-3">
-                    <div class="col-12 mt-5">
-                        <div class="idea">
-                            <div class="mb-3 title-idea d-flex justify-content-between align-items-center">
-                                <p class="title">ไอเดียการจัดการขยะ</p>
-                                <button type="button" class="btn btn-success">เพิ่มไอเดีย</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-4">
-                        <div class="card border-0">
-                            <img class="d-block w-100 card-img-custom" src="/img/shoe_bin.png" alt="พื้นหลัง">
-                            <div class="card-body border">
-                                <p class="card-title">นำขยะมาทำเป็นรองเท้า</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-4">
-                        <div class="card border-0">
-                            <img class="d-block w-100 card-img-custom" src="/img/idea-recycle.png" alt="พื้นหลัง">
-                            <div class="card-body border">
-                                <p class="card-title">กล่องขยะ DIY</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-4">
-                        <div class="card border-0">
-                            <img class="d-block w-100 card-img-custom" src="/img/eco-bricks.png" alt="พื้นหลัง">
-                            <div class="card-body border">
-                                <p class="card-title">อิฐจากขยะพลาสติก</p>
-                            </div>
-                        </div>
-                    </div>
-                </div> -->
 
     <!-- Location Details Modal -->
     <section class="py-16 bg-gray-100">
@@ -598,7 +563,17 @@
                                                 </div>
                                                 
                                                 <!-- ปุ่มดูแผนที่ -->
-                                                <a href="/user?wastePoint=<%= round.wastePoint._id %>" 
+                                                <button onclick="focusOnWastePoint('<%= round.wastePoint._id %>'); return false;" 
+                                                    class="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 group">
+                                                    <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                    <span>ดูตำแหน่งบนแผนที่</span>
+                                                    <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                                    </svg>
+                                                </button>
+                                                <!-- <a href="/user?wastePoint=<%= round.wastePoint._id %>" 
                                                 class="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 group">
                                                     <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
                                                         <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
@@ -607,7 +582,7 @@
                                                     <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                                     </svg>
-                                                </a>
+                                                </a> -->
                                             </div>
                                             <% } %>
                                             
@@ -721,7 +696,7 @@
     </section>
 
     <!-- Search and Filter Section -->
-    <section class="py-6 bg-white shadow-sm">
+    <section class="py-6 bg-white shadow-sm" id="mapFocusZone">
         <div class="container mx-auto px-4">
             <div class="flex flex-col lg:flex-row gap-4 items-center">
                 <!-- Search Box -->
@@ -1427,6 +1402,64 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+function focusOnWastePoint(wastePointId) {
+    const markerData = markers.find(m => m.location._id === wastePointId);
+    
+    if (markerData) {
+        const mapSection = document.getElementById('mapFocusZone').closest('section');
+        
+        if (mapSection) {
+            const headerHeight = 80;
+            const targetPosition = mapSection.offsetTop - headerHeight;
+            window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth'
+            });
+        }
+        
+        setTimeout(() => {
+            map.flyTo([markerData.location.latitude, markerData.location.longitude], 17, {
+                animate: true,
+                duration: 1.5,
+                easeLinearity: 0.25
+            });
+            
+            setTimeout(() => {
+                markerData.marker.openPopup();
+            }, 1600);
+            
+            const locationItem = document.querySelector(`.location-item[data-id="${wastePointId}"]`);
+            if (locationItem) {
+                document.querySelectorAll('.location-item').forEach(i => {
+                    i.classList.remove('active', 'border-blue-500', 'bg-blue-50');
+                });
+                locationItem.classList.add('active', 'border-blue-500', 'bg-blue-50');
+                
+                const locationList = document.getElementById('location-list');
+                if (locationList) {
+                    setTimeout(() => {
+                        const listScrollTop = locationList.scrollTop;
+                        const itemOffsetTop = locationItem.offsetTop;
+                        const listHeight = locationList.clientHeight;
+                        const itemHeight = locationItem.clientHeight;
+                        
+                        const targetScroll = itemOffsetTop - (listHeight / 2) + (itemHeight / 2);
+                        
+                        locationList.scrollTo({
+                            top: targetScroll,
+                            behavior: 'smooth'
+                        });
+                    }, 500);
+                }
+            }
+        }, 600);
+        
+    } else {
+        console.warn('ไม่พบจุดรับซื้อขยะที่ระบุ');
+        alert('ไม่พบตำแหน่งจุดรับซื้อขยะบนแผนที่');
+    }
+}
 </script>
     <!-- <script src="/script/mapInteractive.js"></script> -->
 
@@ -1458,6 +1491,19 @@ document.addEventListener('DOMContentLoaded', function() {
     border-color: #3b82f6 !important;
     background-color: #eff6ff !important;
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+    transition: all 0.3s ease-in-out;
+}
+/* เพิ่มใน style ที่มีอยู่แล้ว */
+html {
+    scroll-behavior: smooth;
+}
+
+#location-list {
+    scroll-behavior: smooth;
+}
+
+.leaflet-container {
+    transition: all 0.3s ease-in-out;
 }
 </style>
 </body>
