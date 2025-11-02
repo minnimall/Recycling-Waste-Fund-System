@@ -200,17 +200,28 @@ const dashboardIndex = async (req, res) => {
             return pipeline;
         };
 
-        // Group Stage สำหรับสรุปข้อมูล
-        const getSummaryGroupStage = () => ({
-            $group: {
-                _id: null,
-                totalAmount: {
-                    $sum: { $multiply: ['$wasteItemDetails.quantity', '$wasteItemDetails.pricePerUnit'] }
-                },
-                totalQuantity: { $sum: '$wasteItemDetails.quantity' },
-                totalTransactions: { $sum: 1 }
+        // ✅ ใหม่ - นับถูก
+        const getSummaryGroupStage = () => [
+            // Stage 1: Group by transaction ID ก่อน
+            {
+                $group: {
+                    _id: '$_id',  // Group ตาม transaction ID
+                    totalAmount: {
+                        $sum: { $multiply: ['$wasteItemDetails.quantity', '$wasteItemDetails.pricePerUnit'] }
+                    },
+                    totalQuantity: { $sum: '$wasteItemDetails.quantity' }
+                }
+            },
+            // Stage 2: นับจำนวน transactions จริง
+            {
+                $group: {
+                    _id: null,
+                    totalAmount: { $sum: '$totalAmount' },
+                    totalQuantity: { $sum: '$totalQuantity' },
+                    totalTransactions: { $sum: 1 }  // ✅ นับ transactions จริง
+                }
             }
-        });
+        ];
 
         // ==================== คำนวณช่วงวันที่ ====================
         
@@ -248,25 +259,25 @@ const dashboardIndex = async (req, res) => {
             // 1. Total Data ตาม filter
             WastePurchase.aggregate([
                 ...buildPipeline(filterStartDate, filterEndDate, village),
-                getSummaryGroupStage()
+                ...getSummaryGroupStage()  // ✅ เพิ่ม ... (spread operator)
             ]),
             
             // 2. Today Data
             WastePurchase.aggregate([
                 ...buildPipeline(todayStart, todayEnd, null),
-                getSummaryGroupStage()
+                ...getSummaryGroupStage()  // ✅ เพิ่ม ...
             ]),
             
             // 3. Yesterday Data
             WastePurchase.aggregate([
                 ...buildPipeline(yesterdayStart, yesterdayEnd, null),
-                getSummaryGroupStage()
+                ...getSummaryGroupStage()  // ✅ เพิ่ม ...
             ]),
             
             // 4. Last Month Data
             WastePurchase.aggregate([
                 ...buildPipeline(lastMonthStart, lastMonthEnd, null),
-                getSummaryGroupStage()
+                ...getSummaryGroupStage()  // ✅ เพิ่ม ...
             ]),
             
             // 5. Highest Value Waste
@@ -1262,6 +1273,86 @@ const memberUpdate = async (req, res) => {
 
         console.error('Error updating member:', error);
         res.redirect('/employee/member?error=เกิดข้อผิดพลาดในการแก้ไขข้อมูล: ' + error.message);
+    }
+};
+
+// ฟังก์ชัน Soft Delete สมาชิกกองทุนขยะรีไซเคิล
+const memberDelete = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        const { familyId } = req.params;
+
+        // ตรวจสอบว่าครัวเรือนมีอยู่จริง
+        const family = await Family.findById(familyId).session(session);
+        if (!family) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(404).json({ 
+                success: false, 
+                message: 'ไม่พบข้อมูลครัวเรือน' 
+            });
+        }
+
+        // ตรวจสอบว่าถูกลบไปแล้วหรือไม่
+        if (family.isDeleted) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(400).json({ 
+                success: false, 
+                message: 'ข้อมูลครัวเรือนนี้ถูกลบไปแล้ว' 
+            });
+        }
+
+        // 1. Soft delete ครัวเรือน
+        await Family.findByIdAndUpdate(
+            familyId,
+            { 
+                isDeleted: true,
+                deletedAt: new Date()
+            },
+            { session }
+        );
+
+        // 2. Soft delete สมาชิกทั้งหมดในครัวเรือน
+        await Member.updateMany(
+            { familyID: familyId },
+            { 
+                isDeleted: true,
+                deletedAt: new Date()
+            },
+            { session }
+        );
+
+        // 3. Soft delete บัญชีธนาคารขยะ
+        await WasteBankAccount.findOneAndUpdate(
+            { familyID: familyId },
+            { 
+                isDeleted: true,
+                deletedAt: new Date()
+            },
+            { session }
+        );
+
+        // Transaction สำเร็จ
+        await session.commitTransaction();
+        session.endSession();
+
+        res.json({ 
+            success: true, 
+            message: 'ลบข้อมูลสมาชิกสำเร็จ' 
+        });
+
+    } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+
+        console.error('Error soft deleting member:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'เกิดข้อผิดพลาดในการลบข้อมูล: ' + error.message 
+        });
     }
 };
 
@@ -2529,7 +2620,7 @@ module.exports = {
     //หน้าสรุปการรับซื้อขยะ
     wastePurchaseTotalIndex,wastePurchaseDelete,
     //หน้าสมาชิกกองทุนขยะรีไซเคิล
-    memberIndex,memberRegister,getMemberForEdit,memberUpdate,
+    memberIndex,memberRegister,getMemberForEdit,memberUpdate,memberDelete,
     //หน้าคำร้องหรือหรือข้อร้องเรียน
     complaintIndex,updateComplaintStatus,complaintReply,complaintReplyMessage,updateMessageReply,deleteMessageReply,
     //หน้าตรวจสอบความประสงค์ขายขยะ

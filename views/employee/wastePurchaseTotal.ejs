@@ -466,10 +466,10 @@
             text: "คุณจะไม่สามารถกู้คืนข้อมูลนี้ได้!",
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "ยืนยัน",
-            cancelButtonText: "ยกเลิก"
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#6b7280",
+            cancelButtonText: "ยกเลิก",
+            confirmButtonText: "ยืนยัน"
         }).then((result) => {
             if (result.isConfirmed) {
                 fetch(`/employee/wastePurchaseDelete/${id}`, {

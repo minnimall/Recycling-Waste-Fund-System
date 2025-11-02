@@ -18,6 +18,7 @@ router.get('/member', employeeController.memberIndex);
 router.post('/memberRegister', employeeController.memberRegister);
 router.get('/member/:familyId/edit', employeeController.getMemberForEdit);
 router.post('/memberUpdate/:familyId', employeeController.memberUpdate);
+router.delete('/memberDelete/:familyId', employeeController.memberDelete);
 
 // คำร้องหรือหรือข้อร้องเรียน
 router.get('/complaint', employeeController.complaintIndex);
