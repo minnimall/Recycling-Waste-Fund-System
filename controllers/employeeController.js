@@ -28,6 +28,7 @@ const mongoose = require('mongoose');
 const myAdmin = require('../models/admin');
 const RouteAnalysis = require('../models/map');
 const Route = require('../models/route');
+const { Console } = require('console');
 
 router.use(express.static(path.join(__dirname, '../public')));
 
@@ -798,8 +799,8 @@ const wastePurchaseTotalIndex = async (req, res) => {
         ).size;
 
         // คำนวณยอดเงินรวม
-        const monthlyWastePurchases = await WastePurchase.find(monthlyQuery);
-        const totalAmount = monthlyWastePurchases.reduce((sum, purchase) => 
+        const totalWastePurchases = await WastePurchase.find(query);
+        const totalAmount = totalWastePurchases.reduce((sum, purchase) =>
             sum + (purchase.totalAmount || 0), 0
         );
 
@@ -1285,6 +1286,102 @@ const complaintIndex = async (req, res) => {
             error: 'ไม่สามารถโหลดข้อมูลได้'
         });
     }
+};
+const complaintReply = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const complaint = await Complaint
+            .findById(id)
+            .populate('family')
+            .populate('reply.employee');
+
+        res.render('employee/complaintReply', {
+            mytitle: 'พนักงาน | รายการคำร้องหรือหรือข้อร้องเรียน',
+            complaint,
+            currentPage: 'complaint',
+        });
+    } catch (error) {
+        console.error('Error fetching complaint requests:', error);
+        res.render('employee/complaint', {
+            mytitle: 'รายการคำร้องหรือหรือข้อร้องเรียน',
+            wasteSaleRequests: [],
+            error: 'ไม่สามารถโหลดข้อมูลได้'
+        });
+    }
+};
+
+const complaintReplyMessage = async (req, res) => {
+    const { id } = req.params;
+    const { replyMessage } = req.body;
+
+    try {
+        const complaint = await Complaint.findById(id);
+        if (!complaint) {
+            return res.status(404).send('ไม่พบข้อมูลคำร้องเรียน');
+        }
+        const employee = await myAdmin.findOne({ username: req.session.username });
+        if (!employee) {
+            return res.status(404).send('ไม่พบข้อมูลพนักงาน');
+        }
+        // 🔹 เพิ่มข้อมูลการตอบกลับ
+        complaint.reply.push({
+            employee: employee._id,
+            replyMessage: replyMessage,
+        });
+
+        if (complaint.status === 'pending') {
+            complaint.status = 'in-progress';
+        }
+
+
+        await complaint.save();
+
+        let complaintTH = '';
+        if (complaint.category === 'waste') {
+            complaintTH = 'การจัดการขยะ';
+        } else if (complaint.category === 'service') {
+            complaintTH = 'การบริการของเจ้าหน้าที่';
+        } else if (complaint.category === 'noise') {
+            complaintTH = 'เสียงรบกวน';
+        } else if (complaint.category === 'sale') {
+            complaintTH = 'การขายขยะ';
+        } else if (complaint.category === 'other') {
+            complaintTH = 'อื่นๆ';
+        }
+
+
+        const contentList = `
+            <div>
+                <p><strong>หมวดหมู่:</strong> ${complaintTH}</p>
+                <p><strong>ข้อความร้องเรียน:</strong> ${complaint.complaintMessage}</p>
+                <hr class="my-2">
+                <p><strong>คำตอบจากพนักงาน ${employee.firstname} ${employee.lastname}:</strong></p>
+                <p>${replyMessage}</p>
+            </div>
+        `;
+        const notification = new Notification({
+            userId: complaint.family._id, // เจ้าของคำร้อง
+            type: 'complaint-reply',
+            title: `ได้รับการตอบกลับจากพนักงานแล้ว`,
+            content: contentList,
+            isRead: false,
+        });
+
+        await notification.save();
+
+        res.redirect(`/employee/complaint/reply/${id}`);
+    } catch (error) {
+        console.error('Error replying to complaint:', error);
+        res.status(500).send('เกิดข้อผิดพลาดในการตอบกลับข้อร้องเรียน');
+    }
+};
+
+const updateMessageReply = async (req, res) => { 
+
+};
+
+const deleteMessageReply = async (req, res) => {
+
 };
 
 // เปลี่ยนสถานะของคำร้อง
@@ -2271,6 +2368,159 @@ const wastePointDelete = async (req, res) => {
     }
 };
 
+
+//หน้ารอบการรับซื้อขยะ 
+const roundIndex = (req, res) => {
+    const page = parseInt(req.query.page) || 1; // รับค่า page จาก query parameter หรือใช้ 1 เป็นค่าเริ่มต้น
+    const limit = 10; // จำนวน records ต่อหน้า
+    const skip = (page - 1) * limit; // คำนวณจำนวน records ที่จะข้ามไป
+    const filter = { isDeleted: false };
+
+    const formatDate = (date) => {
+        if (!date) return '';
+        const options = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Bangkok' };
+        return new Date(date).toLocaleDateString('th-TH', options); 
+    };
+
+    Promise.all([
+        Village.find(filter).sort({ createdAt: 1 }),
+        Round.find(filter).populate('village').sort({ date: -1 }).skip(skip).limit(limit), // Apply pagination
+        Round.countDocuments(filter) // Count total documents
+    ])
+    .then(([villageResult, roundResult, totalItems]) => {
+        const totalPages = Math.ceil(totalItems / limit);
+
+        // แปลงวันที่ก่อนส่งไปยัง EJS
+        roundResult = roundResult.map(round => ({
+            ...round.toObject(), 
+            formattedDateYYMMDD: new Date(round.date).toISOString().split('T')[0], // YY-MM-DD
+            formattedDateThai: formatDate(round.date) // วันที่ภาษาไทย
+        }));
+
+        res.render('employee/round', {
+            mytitle: 'พนักงาน | รอบการรับซื้อ',
+            village: villageResult,
+            rounds: roundResult,
+            currentPage: page,
+            totalPages: totalPages,
+            totalItems: totalItems,
+            currentPage: 'round',
+        });
+    })
+    .catch((err) => {
+        console.log(err);
+        res.status(500).send('Error retrieving village and round data');
+    });
+};
+// เพิ่มรอบรับซื้อขยะ 
+const roundPost = async (req, res) => {
+    try {
+        const { roundName, village, date, startTime, endTime } = req.body;
+
+        // ✅ บันทึกข้อมูลรอบรับซื้อขยะใหม่
+        const newRound = new Round({
+            roundName,
+            village, // ใช้ ID ของหมู่บ้านจากฟอร์ม (สำหรับแสดงในตาราง)
+            date,
+            startTime,
+            endTime
+        });
+        await newRound.save();
+
+        // ✅ ดึงข้อมูลหมู่บ้านจริง (เพื่อแสดงชื่อใน notification)
+        const villageData = await Village.findById(village);
+        const villageName = villageData ? villageData.villageName : "ทุกหมู่บ้าน";
+
+        // ✅ ดึง "ทุกครอบครัว" จากฐานข้อมูล (ไม่กรองตามหมู่บ้าน)
+        const allFamilies = await Family.find({ isDeleted: false });
+        if (allFamilies.length > 0) {
+            // ✅ สร้าง notifications สำหรับทุกครอบครัว
+            const notifications = allFamilies.map(family => ({
+                userId: family._id,
+                type: 'round',
+                title: `📢 แจ้งรอบรับซื้อขยะใหม่: ${roundName}`,
+                content: `
+                    <ul>
+                        <li><strong>หมู่บ้าน:</strong> ${villageName}</li>
+                        <li><strong>วันที่:</strong> ${new Date(date).toLocaleDateString('th-TH', { year:'numeric', month:'long', day:'numeric' })}</li>
+                        <li><strong>เวลา:</strong> ${startTime} - ${endTime}</li>
+                    </ul>
+                `
+            }));
+
+            await Notification.insertMany(notifications);
+            console.log(`✅ ส่งแจ้งเตือนให้ทุกครอบครัวทั้งหมด ${allFamilies.length} ครอบครัว`);
+        }
+
+        res.redirect('/employee/round?message=เพิ่มรอบการรับซื้อสำเร็จ');
+    } catch (error) {
+        console.error('Error creating round:', error);
+        res.status(500).send('เกิดข้อผิดพลาดในการบันทึกรอบรับซื้อขยะ');
+    }
+};
+
+// แก้ไขรอบรับซื้อขยะ
+const roundEdit = async (req, res) => {
+    try {
+        const { _id, roundName, village, date, startTime, endTime } = req.body;
+
+        if (!_id || !roundName || !village || !date || !startTime || !endTime) {
+            return res.redirect('/admin/round?error=กรอกข้อมูลให้ครบ');
+        }
+
+        // อัปเดตรอบ
+        await Round.findByIdAndUpdate(_id, {
+            roundName,
+            village,
+            date,
+            startTime,
+            endTime
+        });
+
+        // ดึงข้อมูลหมู่บ้านจริง
+        const villageData = await Village.findById(village);
+        if (!villageData) throw new Error("ไม่พบข้อมูลหมู่บ้าน");
+
+        // ดึงครอบครัวทั้งหมดในหมู่บ้านนั้น
+        const families = await Family.find({ village }).populate('village');
+
+        if (families.length > 0) {
+            const notifications = families.map(family => ({
+                userId: family._id,
+                type: 'round',
+                title: `🛠️ มีการแก้ไขรอบรับซื้อขยะ: ${roundName}`,
+                content: `
+                    <ul>
+                        <li><strong>หมู่บ้าน:</strong> ${villageData.villageName}</li>
+                        <li><strong>วันที่:</strong> ${new Date(date).toLocaleDateString('th-TH', { year:'numeric', month:'long', day:'numeric' })}</li>
+                        <li><strong>เวลาใหม่:</strong> ${startTime} - ${endTime}</li>
+                    </ul>
+                `
+            }));
+
+            await Notification.insertMany(notifications);
+            console.log(`✅ แจ้งเตือนครอบครัวในหมู่บ้าน ${villageData.villageName} จำนวน ${families.length} ครอบครัว`);
+        }
+
+        res.redirect('/employee/round?message=แก้ไขรอบการรับซื้อสำเร็จ');
+    } catch (error) {
+        console.error('Error updating round:', error);
+        res.redirect('/employee/round?error=เกิดข้อผิดพลาดในการแก้ไขรอบรับซื้อขยะ');
+    }
+};
+// ลบรอบรับซื้อขยะ (softDelete)
+const roundDelete = (req, res) => {
+    const { id } = req.params;
+
+    Round.findByIdAndUpdate(id , { isDeleted : true })
+        .then(() => res.redirect('/employee/round?message=ลบรอบการรับซื้อสำเร็จ'))
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send('Error deleting round data');
+        });
+};
+
+
 module.exports = {
     //หน้าแดชบอร์ด
     dashboardIndex,
@@ -2281,7 +2531,7 @@ module.exports = {
     //หน้าสมาชิกกองทุนขยะรีไซเคิล
     memberIndex,memberRegister,getMemberForEdit,memberUpdate,
     //หน้าคำร้องหรือหรือข้อร้องเรียน
-    complaintIndex,updateComplaintStatus,
+    complaintIndex,updateComplaintStatus,complaintReply,complaintReplyMessage,updateMessageReply,deleteMessageReply,
     //หน้าตรวจสอบความประสงค์ขายขยะ
     wasteSaleRequestIndex,updateWasteSaleRequestStatus,
     //หน้าสต๊อกขยะ
@@ -2293,5 +2543,7 @@ module.exports = {
     //หน้าแผนที่เข้ารับซื้อ
     mapIndex,saveRoute,getAllRoutes,getRouteDetail,deleteRoute,updateRoute,
     //หน้าจัดการจุดรับซื้อ
-    wastePointIndex,wastePointPost,wastePointCreate,wastePointToggle,wastePointEdit,wastePointUpdate,wastePointDelete
+    wastePointIndex,wastePointPost,wastePointCreate,wastePointToggle,wastePointEdit,wastePointUpdate,wastePointDelete,
+    //หน้าจัดการรอบการรับซื้อ
+    roundIndex,roundPost,roundEdit,roundDelete
 }

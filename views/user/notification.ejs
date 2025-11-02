@@ -242,13 +242,12 @@
     </div>
 
     <!-- Send Notification Form -->
-    <div class="max-w-lg mx-auto bg-white p-6 rounded-2xl shadow-md mt-10">
+    <!-- <div class="max-w-lg mx-auto bg-white p-6 rounded-2xl shadow-md mt-10">
         <h2 class="text-2xl font-bold mb-4 text-center text-gray-700">
             📢 ส่งการแจ้งเตือน
         </h2>
 
         <form id="notifyForm" class="space-y-4" action="/user/notificationPost" method="POST">
-            <!-- Notification Type -->
             <div>
                 <label class="block font-medium mb-1">ประเภทแจ้งเตือน</label>
                 <select id="type" name="type" class="w-full border rounded-lg p-2">
@@ -259,26 +258,22 @@
                 </select>
             </div>
 
-            <!-- Title -->
             <div>
                 <label class="block font-medium mb-1">หัวข้อ</label>
                 <input id="title" name="title" type="text" class="w-full border rounded-lg p-2" placeholder="เช่น ระบบจะปิดปรับปรุงคืนนี้">
             </div>
 
-            <!-- Content -->
             <div>
                 <label class="block font-medium mb-1">เนื้อหา</label>
                 <textarea id="content" name="content" class="w-full border rounded-lg p-2" rows="3"
                     placeholder="รายละเอียดเพิ่มเติม..."></textarea>
             </div>
 
-            <!-- Link -->
             <div>
                 <label class="block font-medium mb-1">ลิงก์ (ถ้ามี)</label>
                 <input id="link" name="link" type="text" class="w-full border rounded-lg p-2" placeholder="/post/123">
             </div>
 
-            <!-- Target Type -->
             <div>
                 <label class="block font-medium mb-1">ส่งถึง</label>
                 <div class="flex gap-4">
@@ -293,12 +288,11 @@
                 </div>
             </div>
 
-            <!-- Specific User -->
             <div id="specificUserDiv" class="hidden">
                 <label class="block font-medium mb-1 mt-2">รายชื่อผู้ใช้ (Username)</label>
-                <!-- <select name="userIds" id="userIds" class="w-full border rounded-lg p-2">
+                <select name="userIds" id="userIds" class="w-full border rounded-lg p-2">
                     <option value="family1234">Family1234</option>
-                </select> -->
+                </select>
                 <input id="userIds" name="userIds" type="text" class="w-full border rounded-lg p-2"
                     placeholder="ใส่หลายคนคั่นด้วยเครื่องหมายจุลภาค (,)">
             </div>
@@ -311,7 +305,7 @@
 
 
         <div id="result" class="text-center mt-4 text-sm text-gray-600"></div>
-    </div>
+    </div> -->
 
     <%- include('../partials/userPartials/footer.ejs') %>
 

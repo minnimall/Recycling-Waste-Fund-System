@@ -22,6 +22,10 @@ router.post('/memberUpdate/:familyId', employeeController.memberUpdate);
 // คำร้องหรือหรือข้อร้องเรียน
 router.get('/complaint', employeeController.complaintIndex);
 router.patch('/complaint/:id/status', employeeController.updateComplaintStatus);
+router.get('/complaint/reply/:id', employeeController.complaintReply);
+router.post('/complaint/replyMessage/:id', employeeController.complaintReplyMessage);
+router.post('/complaint/complaints/:complaintId/reply/:replyId/edit', employeeController.updateMessageReply);
+router.delete('/complaint/replyMessage/:id', employeeController.deleteMessageReply);
 
 // ตรวจสอบความประสงค์ขายขยะ
 router.get('/wasteSaleRequest', employeeController.wasteSaleRequestIndex);
@@ -57,6 +61,12 @@ router.put('/routeList/:routeId', employeeController.updateRoute);
 router.delete('/routeList/:routeId', employeeController.deleteRoute);
 
 
+
+router.get('/round', employeeController.roundIndex);
+router.post('/roundPost', employeeController.roundPost);
+router.post('/roundEdit', employeeController.roundEdit);
+router.delete('/roundDelete/:id', employeeController.roundDelete);
+
 // จัดการจุดรับซื้อ
 router.get('/wastePoint', employeeController.wastePointIndex);
 router.get('/wastePoint/create', employeeController.wastePointCreate);
@@ -65,5 +75,7 @@ router.post('/wastePointUpdate/:id', employeeController.wastePointUpdate);
 router.get('/wastePoint/toggle/:id', employeeController.wastePointToggle);
 router.post('/wastePointPost', employeeController.wastePointPost);
 router.get('/wastePoint/delete/:id', employeeController.wastePointDelete);
+
+
 
 module.exports = router

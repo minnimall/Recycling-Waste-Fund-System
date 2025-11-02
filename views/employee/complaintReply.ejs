@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <%- include('../partials/employeePartials/doctype.ejs') %>
+    <title><%= mytitle %></title>
+    <link rel="stylesheet" href="/style_employee/complaint-requests.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+
+<body>
+    <%- include('../partials/employeePartials/empHeader.ejs') %>
+    <%- include('../partials/employeePartials/empSidebar.ejs') %>
+    
+    <script>
+        // เช็คข้อความที่ส่งมาจาก URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const successMessage = urlParams.get('message');
+        const errorMessage = urlParams.get('error');
+
+        if (successMessage) {
+            Swal.fire({
+                icon: 'success',
+                title: 'สำเร็จ!',
+                text: successMessage,
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#28a745',
+                timer: 3000
+            });
+        }
+
+        if (errorMessage) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: errorMessage,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
+    </script>
+
+    <main class="content bg-gray-50 min-screen">
+                <div class="mx-4 mb-3 bg-white rounded-lg shadow p-4">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                        <div>
+                            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
+                                รายการคำร้องหรือข้อร้องเรียน
+                            </h1>
+                            <p class="text-gray-600 mt-2">ระบบจัดการคำร้องและข้อร้องเรียนจากประชาชน</p>
+                        </div>
+                        <a href="/employee/complaint" class="bg-red-700 text-white px-4 py-2 rounded-md hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-200 flex items-center">
+                            <i class="fa-solid fa-arrow-left mr-2"></i>ย้อนกลับ
+                        </a>
+                    </div>
+                </div>
+
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+            <main class="flex-1 overflow-y-auto">
+                <div id="complaintDetail" class="max-w-6xl mx-auto p-6">
+                    <div class="fade-in">
+                        <!-- Header -->
+                        <div class="bg-white rounded-lg  shadow p-6 mb-6 border border-grey-100">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-3 mb-2">
+                                        <h2 class="text-2xl font-bold text-gray-900">ข้อร้องเขียน <span class="text-lg font-normal text-gray-400">#<%= complaint._id %></span></h2>
+                                        <!-- ${complaint.priority === 'high' ? '<span class="text-red-500 text-2xl">⚠️</span>' : ''} -->
+                                    </div>
+                                    <div class="flex items-center space-x-4 text-sm text-gray-600">
+                                        <span>
+                                        📋
+                                        <% if (complaint.category === 'waste') { %>
+                                            การจัดการขยะ
+                                        <% } else if (complaint.category === 'service') { %>
+                                            การบริการของเจ้าหน้าที่
+                                        <% } else if (complaint.category === 'noise') { %>
+                                            เสียงรบกวน
+                                        <% } else if (complaint.category === 'sale') { %>
+                                            การขายขยะ
+                                        <% } else if (complaint.category === 'other') { %>
+                                            อื่นๆ
+                                        <% } %>
+                                        </span>
+                                        <span>📅 <%= complaint.createdAt.toLocaleString('th-TH', { dateStyle: 'medium', timeZone: 'Asia/Bangkok' }) %></span>
+                                        <span>🆔 <%= complaint._id %></span>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col items-end space-y-2">
+                                        <% if (complaint.status === 'pending') { %>
+                                            <span class="bg-yellow-100 py-1 px-3 text-yellow-700 rounded-full">
+                                                รอดำเนินการ
+                                            </span>
+                                        <% } else if (complaint.status === 'in-progress') { %>
+                                            <span class="bg-blue-100 py-1 px-3 text-blue-700 rounded-full">
+                                                กำลังดำเนินการ
+                                            </span>
+                                        <% } else if (complaint.status === 'resolved') { %>
+                                            <span class="bg-green-100 py-1 px-3 text-green-700 rounded-full">
+                                                เสร็จสิ้น
+                                            </span>
+                                        <% } %>
+                                    <span class="status-badge status-${complaint.status}">
+
+                                    </span>
+                                    <!-- <select onchange="updateStatus(${complaint.id}, this.value)" 
+                                            class="text-sm border border-gray-300 rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="pending" ${complaint.status === 'pending' ? 'selected' : ''}>รอดำเนินการ</option>
+                                        <option value="in-progress" ${complaint.status === 'in-progress' ? 'selected' : ''}>กำลังดำเนินการ</option>
+                                        <option value="resolved" ${complaint.status === 'resolved' ? 'selected' : ''}>เสร็จสิ้น</option>
+                                    </select> -->
+                                            <!-- ปุ่มเปลี่ยนสถานะสำหรับ complaint -->
+                                            <div class="relative">
+                                                <button id="statusBtn-<%= complaint._id %>"
+                                                        class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
+                                                        onclick="toggleStatusMenu('<%= complaint._id %>')">
+                                                        <!-- <i class="fas fa-edit mr-2"></i> -->
+                                                            เปลี่ยนสถานะ
+                                                        <i class="fas fa-chevron-down ml-2"></i>
+                                                    <!-- แสดง icon และข้อความตามสถานะปัจจุบัน -->
+                                                    <!-- <% if (complaint.status === 'pending') { %>
+                                                        <i class="fas fa-clock text-yellow-300 mr-2"></i>
+                                                        รอดำเนินการ
+                                                    <% } else if (complaint.status === 'in-progress') { %>
+                                                        <i class="fas fa-spinner text-blue-300 mr-2"></i>
+                                                        กำลังดำเนินการ
+                                                    <% } else if (complaint.status === 'resolved') { %>
+                                                        <i class="fas fa-check text-green-300 mr-2"></i>
+                                                        เสร็จสิ้น
+                                                    <% } %>
+                                                    <i class="fas fa-chevron-down ml-2"></i> -->
+                                                </button>
+                                                
+                                                <!-- Dropdown Menu -->
+                                                <div id="statusMenu-<%= complaint._id %>"
+                                                    class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50 hidden">
+                                                    <div class="py-1">
+                                                        <button onclick="updateStatus('<%= complaint._id %>', 'pending')"
+                                                                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 <%= complaint.status === 'pending' ? 'bg-blue-50 text-blue-700' : '' %>">
+                                                            <i class="fas fa-clock text-yellow-500 mr-2"></i>
+                                                            รอดำเนินการ
+                                                            <% if (complaint.status === 'pending') { %>
+                                                                <i class="fas fa-check text-blue-500 ml-auto float-right mt-0.5"></i>
+                                                            <% } %>
+                                                        </button>
+                                                        <button onclick="updateStatus('<%= complaint._id %>', 'in-progress')"
+                                                                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 <%= complaint.status === 'in-progress' ? 'bg-blue-50 text-blue-700' : '' %>">
+                                                            <i class="fas fa-spinner text-blue-500 mr-2"></i>
+                                                            กำลังดำเนินการ
+                                                            <% if (complaint.status === 'in-progress') { %>
+                                                                <i class="fas fa-check text-blue-500 ml-auto float-right mt-0.5"></i>
+                                                            <% } %>
+                                                        </button>
+                                                        <button onclick="updateStatus('<%= complaint._id %>', 'resolved')"
+                                                                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 <%= complaint.status === 'resolved' ? 'bg-blue-50 text-blue-700' : '' %>">
+                                                            <i class="fas fa-check text-green-500 mr-2"></i>
+                                                            เสร็จสิ้น
+                                                            <% if (complaint.status === 'resolved') { %>
+                                                                <i class="fas fa-check text-blue-500 ml-auto float-right mt-0.5"></i>
+                                                            <% } %>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                </div>
+                            </div>
+
+                            <!-- ข้อมูลลูกค้า -->
+                            <div class="bg-gray-50 rounded-lg p-4 border border-grey-100">
+                                <h3 class="font-semibold text-gray-900 mb-2">ข้อมูลลูกค้า</h3>
+                                <div class="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <span class="text-gray-600">ผู้ร้องเรียน:</span>
+                                        <span class="ml-2 font-medium"><%= complaint.family.familyName %></span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-600">ชื่อผู้ใช้:</span>
+                                        <span class="ml-2 font-medium"><%= complaint.family.username %></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ข้อความร้องเรียน -->
+                        <div class="bg-white rounded-lg shadow p-6 mb-6 border border-grey-100">
+                            <h3 class="font-semibold text-gray-900 mb-3 flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                                </svg>
+                                ข้อความร้องเรียน
+                            </h3>
+                            <p class="bg-yellow-50 rounded-lg p-4 border-l-4 border-yellow-500 relative mb-4 text-xl leading-relaxed"><%= complaint.complaintMessage %></p>
+                        </div>
+                        <% if (complaint.image && complaint.image !== '/img/no_image.jpg') { %> 
+                            <!-- รูป -->
+                            <div class="bg-white rounded-lg object-contain shadow p-6 mb-6 border border-gray-100">
+                                <h3 class="font-semibold text-gray-900 mb-3 flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z">
+                                        </path>
+                                    </svg>
+                                    รูปภาพเพิ่มเติม
+                                </h3>
+                                <img class="h-auto w-full rounded-lg border border-gray-200" 
+                                    src="<%= complaint.image %>" 
+                                    alt="รูปภาพคำร้อง">
+                            </div>
+                        <% } %>
+
+                        <!-- การตอบกลับก่อนหน้า -->
+                            <div class="bg-white rounded-lg shadow p-6 mb-6 border border-grey-100">
+                                <h3 class="font-semibold text-gray-900 mb-4 flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+                                    </svg>
+                                    ประวัติการตอบกลับ
+                                </h3>
+                                <div class="space-y-4">
+                                    <% if (complaint.reply && complaint.reply.length > 0) { %>
+                                        <% complaint.reply.forEach((r, i) => { %>
+                                            <div class="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500 relative mb-4">
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <span class="font-medium text-blue-900">
+                                                        พนักงาน: <%= r.employee ? r.employee.firstname + ' ' + r.employee.lastname : 'ไม่ระบุ' %>
+                                                    </span>
+                                                    <span class="text-sm text-gray-500"><%= new Date(r.createdAt).toLocaleString('th-TH', { dateStyle: 'medium',timeStyle: 'short', timeZone: 'Asia/Bangkok' }) %></span>
+                                                </div>
+
+                                                <p class="text-gray-700"><%= r.replyMessage %></p>
+                                            </div>
+                                        <% }) %>
+                                    <% } else { %>
+                                        <p class="text-gray-500">ยังไม่มีการตอบกลับ</p>
+                                    <% } %>
+
+                                    <!-- Modal สำหรับแก้ไขข้อความ -->
+                                    <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                                        <div class="bg-white rounded-lg p-6 w-96">
+                                            <h2 class="text-lg font-semibold mb-4">แก้ไขข้อความตอบกลับ</h2>
+                                            <form id="editReplyForm">
+                                                <textarea id="editReplyMessage" class="w-full border rounded p-2 mb-4" rows="4"></textarea>
+                                                <div class="flex justify-end gap-2">
+                                                    <button type="button" id="cancelEdit" class="px-2 py-1 bg-gray-300 rounded">ยกเลิก</button>
+                                                    <button type="submit" class="px-2 py-1 bg-blue-600 text-white rounded">บันทึก</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        <!-- ฟอร์มตอบกลับ -->
+                        <form action="/employee/complaint/replyMessage/<%= complaint._id %>" method="POST" class="bg-white rounded-lg shadow p-6 border border-grey-100">
+                            <h3 class="font-semibold text-gray-900 mb-4 flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                ตอบกลับข้อร้องเรียน
+                            </h3>
+                            
+                            <input type="text" value="<%= username._id %>">
+                            <!-- เทมเพลตคำตอบ -->
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">เทมเพลตคำตอบ (ไม่บังคับ)</label>
+                                <select onchange="useTemplate(this.value)" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-- เลือกเทมเพลต --</option>
+                                    <option value="template1">ขออภัยในความไม่สะดวก</option>
+                                    <option value="template2">กำลังดำเนินการตรวจสอบ</option>
+                                    <option value="template3">ดำเนินการเรียบร้อยแล้ว</option>
+                                </select>
+                            </div>
+
+                            <textarea id="replyMessage" name="replyMessage" rows="6" 
+                                    placeholder="พิมพ์ข้อความตอบกลับที่นี่..."
+                                    class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"></textarea>
+                            
+                            <div class="flex items-center justify-end">
+                                <div class="flex space-x-3">
+                                    <!-- <button onclick="saveAsDraft(${complaint.id})" 
+                                            class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors">
+                                        บันทึกแบบร่าง
+                                    </button> -->
+                                    <button onclick="sendReply(${complaint.id})" 
+                                            class="px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center">
+                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                        </svg>
+                                        ส่งคำตอบ
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+
+                    </div>
+                </div>
+            </main>
+        </div>
+    </main>  
+    
+    <%- include('../partials/employeePartials/empFooter.ejs') %>
+    
+    <script>
+        // Dropdown menu functions
+        function toggleStatusMenu(id) {
+            const menu = document.getElementById('statusMenu-' + id);
+            // ปิด dropdown อื่นๆ ที่เปิดอยู่
+            document.querySelectorAll('[id^="statusMenu-"]').forEach(m => {
+                if (m.id !== 'statusMenu-' + id) {
+                    m.classList.add('hidden');
+                }
+            });
+            // Toggle dropdown ที่คลิก
+            menu.classList.toggle('hidden');
+        }
+        // Update status function
+        async function updateStatus(id, status) {
+            try {
+                // ปิด dropdown หลังจากเลือก
+                const menu = document.getElementById('statusMenu-' + id);
+                if (menu) {
+                    menu.classList.add('hidden');
+                }
+
+                const response = await fetch(`/employee/complaint/${id}/status`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ status })
+                });
+
+                const result = await response.json();
+
+                // แสดงข้อความสำเร็จ
+                Swal.fire({
+                    icon: 'success',
+                    title: 'สำเร็จ!',
+                    text: result.message,
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                
+                location.reload();
+
+            } catch (error) {
+                console.error('Error updating status:', error);
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาดในการอัปเดตสถานะ',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+                
+                // Revert select to original value
+                location.reload();
+            }
+        }
+
+        // Update status from modal
+        function updateStatusFromModal(id, status) {
+            updateStatus(id, status);
+        }
+
+        function useTemplate(template) {
+            const textarea = document.getElementById('replyMessage');
+            const templates = {
+                template1: 'สวัสดีครับ/ค่ะ\n\nขออภัยในความไม่สะดวกที่เกิดขึ้น ทางเราจะดำเนินการแก้ไขให้เร็วที่สุดครับ/ค่ะ\n\nขอบคุณที่แจ้งให้ทราบครับ/ค่ะ',
+                template2: 'สวัสดีครับ/ค่ะ\n\nทางเราได้รับเรื่องของท่านแล้ว และกำลังดำเนินการตรวจสอบ จะแจ้งผลให้ทราบโดยเร็วที่สุดครับ/ค่ะ\n\nขอบคุณครับ/ค่ะ',
+                template3: 'สวัสดีครับ/ค่ะ\n\nทางเราได้ดำเนินการแก้ไขเรียบร้อยแล้ว หากมีข้อสงสัยเพิ่มเติม สามารถติดต่อกลับมาได้เสมอครับ/ค่ะ\n\nขอบคุณครับ/ค่ะ'
+            };
+
+            if (template && templates[template]) {
+                textarea.value = templates[template];
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const editModal = document.getElementById('editModal');
+            const editForm = document.getElementById('editReplyForm');
+            const editMessage = document.getElementById('editReplyMessage');
+            const cancelEdit = document.getElementById('cancelEdit');
+            let currentEditId = null;
+
+            // เมื่อคลิกปุ่ม "แก้ไข"
+            document.querySelectorAll('.edit-reply-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    currentEditId = btn.dataset.id;
+                    editMessage.value = btn.dataset.message;
+                    editModal.classList.remove('hidden');
+                });
+            });
+
+            // เมื่อคลิกปุ่ม "ยกเลิก"
+            cancelEdit.addEventListener('click', () => {
+                editModal.classList.add('hidden');
+                currentEditId = null;
+            });
+
+            // เมื่อ submit ฟอร์มแก้ไข
+            editForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const newMessage = editMessage.value.trim();
+                if (!newMessage) return alert('กรุณากรอกข้อความ');
+
+                const res = await fetch(`/employee/complaint/reply/${currentEditId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ replyMessage: newMessage })
+                });
+
+                if (res.ok) {
+                    location.reload();
+                } else {
+                    alert('เกิดข้อผิดพลาดในการแก้ไข');
+                }
+            });
+
+            // เมื่อคลิกปุ่ม "ลบ"
+            document.querySelectorAll('.delete-reply-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    if (!confirm('คุณต้องการลบข้อความตอบกลับนี้หรือไม่?')) return;
+
+                    const res = await fetch(`/employee/complaint/reply/${btn.dataset.id}`, { method: 'DELETE' });
+
+                    if (res.ok) {
+                        location.reload();
+                    } else {
+                        alert('เกิดข้อผิดพลาดในการลบ');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

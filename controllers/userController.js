@@ -615,7 +615,10 @@ const user_profile = async (req, res) => {
         const wasteSaleRequests = await wasteSaleRequest.find({ family: family._id }).populate('waste').sort({ createdAt: -1 });
 
         // ดึงข้อมูลข้อร้องเรียน (ไม่ต้อง filter เพราะเป็นข้อมูลทั่วไป)
-        const complaints = await Complaint.find({ family: family._id }).sort({ createdAt: -1 });
+        const complaints = await Complaint.find({ family: family._id })
+            .sort({ createdAt: -1 })
+            .populate('reply.employee')
+            ;
 
         // คำนวณรายได้รวม / จำนวนรายการขยะ (จากข้อมูลที่ filter แล้ว)
         const totalEarnings = wastePurchases.reduce((sum, purchase) => sum + purchase.totalAmount, 0);

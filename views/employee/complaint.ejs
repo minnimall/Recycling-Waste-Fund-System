@@ -162,58 +162,15 @@
                                         <div class="flex items-center space-x-2">
                                             <!-- ปุ่มเปลี่ยนสถานะสำหรับ complaint -->
                                             <div class="relative">
-                                                <button id="statusBtn-<%= com._id %>"
-                                                        class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
-                                                        onclick="toggleStatusMenu('<%= com._id %>')">
-                                                        <!-- <i class="fas fa-edit mr-2"></i> -->
-                                                            เปลี่ยนสถานะ
-                                                        <i class="fas fa-chevron-down ml-2"></i>
-                                                    <!-- แสดง icon และข้อความตามสถานะปัจจุบัน -->
-                                                    <!-- <% if (com.status === 'pending') { %>
-                                                        <i class="fas fa-clock text-yellow-300 mr-2"></i>
-                                                        รอดำเนินการ
-                                                    <% } else if (com.status === 'in-progress') { %>
-                                                        <i class="fas fa-spinner text-blue-300 mr-2"></i>
-                                                        กำลังดำเนินการ
-                                                    <% } else if (com.status === 'resolved') { %>
-                                                        <i class="fas fa-check text-green-300 mr-2"></i>
-                                                        เสร็จสิ้น
-                                                    <% } %>
-                                                    <i class="fas fa-chevron-down ml-2"></i> -->
-                                                </button>
-                                                
-                                                <!-- Dropdown Menu -->
-                                                <div id="statusMenu-<%= com._id %>"
-                                                    class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50 hidden">
-                                                    <div class="py-1">
-                                                        <button onclick="updateStatus('<%= com._id %>', 'pending')"
-                                                                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 <%= com.status === 'pending' ? 'bg-blue-50 text-blue-700' : '' %>">
-                                                            <i class="fas fa-clock text-yellow-500 mr-2"></i>
-                                                            รอดำเนินการ
-                                                            <% if (com.status === 'pending') { %>
-                                                                <i class="fas fa-check text-blue-500 ml-auto float-right mt-0.5"></i>
-                                                            <% } %>
-                                                        </button>
-                                                        <button onclick="updateStatus('<%= com._id %>', 'in-progress')"
-                                                                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 <%= com.status === 'in-progress' ? 'bg-blue-50 text-blue-700' : '' %>">
-                                                            <i class="fas fa-spinner text-blue-500 mr-2"></i>
-                                                            กำลังดำเนินการ
-                                                            <% if (com.status === 'in-progress') { %>
-                                                                <i class="fas fa-check text-blue-500 ml-auto float-right mt-0.5"></i>
-                                                            <% } %>
-                                                        </button>
-                                                        <button onclick="updateStatus('<%= com._id %>', 'resolved')"
-                                                                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 <%= com.status === 'resolved' ? 'bg-blue-50 text-blue-700' : '' %>">
-                                                            <i class="fas fa-check text-green-500 mr-2"></i>
-                                                            เสร็จสิ้น
-                                                            <% if (com.status === 'resolved') { %>
-                                                                <i class="fas fa-check text-blue-500 ml-auto float-right mt-0.5"></i>
-                                                            <% } %>
-                                                        </button>
-                                                    </div>
-                                                </div>
                                             </div>
-                                            <button onclick="openModal('<%= com._id %>')" class="px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-600 transition-colors flex items-center">
+                                            <button onclick="conplaintReply('<%= com._id %>')" class="px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-600 transition-colors flex items-center">
+                                                <!-- <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg> -->
+                                                ตอบกลับ
+                                            </button>
+                                            <button onclick="openModal('<%= com._id %>')" class="px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors flex items-center">
                                                 <!-- <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -643,6 +600,17 @@
                 items.forEach(item => container.appendChild(item));
             });
         });
+
+        function conplaintReply(id) {                    
+            window.location.href = `/employee/complaint/reply/${id}`;
+            // Swal.fire({
+            //     icon: 'info',
+            //     title: 'แก้ไขจุดรับซื้อ',
+            //     text: `กำลังไปยังหน้าแก้ไข ID: ${id}`,
+            //     timer: 1500,
+            //     showConfirmButton: false
+            // });
+        }
     </script>
 </body>
 </html>

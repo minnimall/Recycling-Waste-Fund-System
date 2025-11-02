@@ -27,7 +27,7 @@ const dbURI = 'mongodb+srv://dullapaht:18072546@cluster0.xyho3qt.mongodb.net/Rec
 mongoose.connect(dbURI)
     .then((result) => app.listen(3000, () => {console.log(`
 🧙‍♂️ ====================================
-✨  Notistz Portfolio Server Started!  ✨
+✨  Recycling Waste Fund System Server Started!  ✨
 🔮 Server running on port 3000
 🌟 Using MongoDB Database
 ⚡ API Base URL: http://localhost:3000

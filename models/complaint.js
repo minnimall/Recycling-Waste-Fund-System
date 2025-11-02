@@ -1,6 +1,30 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+const replySchema = new Schema(
+    {
+        employee: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Admin',
+            required: true
+        },
+        replyMessage: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        isDeleted: {
+            type: Boolean,
+            default: false
+        },
+        createdAt: {
+            type: Date,
+            default: Date.now
+        }
+    },
+    { _id: true }
+);
+
 const complaintSchema = new Schema(
     {
         family: {
@@ -21,6 +45,7 @@ const complaintSchema = new Schema(
             type: String,
             required: false
         },
+        reply: [replySchema],
         status: {
             type: String,
             enum: ['pending', 'in-progress', 'resolved'],
