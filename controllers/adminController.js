@@ -17,6 +17,7 @@ const WasteBankAccount = require('../models/wasteBankAccount');
 const Member = require('../models/member');
 const WastePurchase = require('../models/wastePurchase');
 const Notification = require('../models/notification');
+const WastePoint = require("../models/wastePoint");
 const Board = require('../models/board');
 const mongoose = require('mongoose');
 const path = require('path');
@@ -2453,6 +2454,197 @@ const roundDelete = (req, res) => {
         });
 };
 
+// จุดรับซื้อขยะ
+const wastePointIndex = async (req, res) => {
+    const wastePoints = await WastePoint.find({ isDeleted: false });
+
+    res.render('admin/wastePoint', {
+        mytitle: 'ผู้ดูแลระบบ | แผนที่จุดเข้ารับซื้อ',
+        currentPage: 'wastePoint',
+        wastePoints
+    });
+};
+
+const wastePointToggle = async (req, res) => {
+    const { id } = req.params;
+    const { isOpen } = req.query;
+    try {
+        await WastePoint.findByIdAndUpdate(id, { isOpen: isOpen === "true" });
+        res.redirect("/admin/wastePoint?message=อัปเดตสถานะสำเร็จ");
+    } catch (err) {
+        res.redirect("/admin/wastePoint?error=ไม่สามารถอัปเดตสถานะได้");
+    }
+};
+const wastePointEdit = async (req, res) => {
+    const { id } = req.params;
+    try {
+        // ดึงข้อมูลจุดรับซื้อขยะที่ต้องการแก้ไข
+        const wastePoint = await WastePoint.findById(id);
+        
+        if (!wastePoint) {
+            return res.redirect("/admin/wastePoint?error=ไม่พบข้อมูลจุดรับซื้อขยะ");
+        }
+
+        // ดึงข้อมูลประเภทขยะทั้งหมด
+        const wasteTypes = await myWasteType.find({isDeleted: false })
+
+        res.render("admin/wastePointEdit", {
+            mytitle: "แก้ไขจุดรับซื้อขยะ",
+            username: req.session.username || "Admin",
+            currentPage: 'wastePoint',
+            wastePoint: wastePoint,
+            wasteTypes
+        });
+    } catch (err) {
+        console.error("Error fetching waste point:", err);
+        res.redirect("/admin/wastePoint?error=เกิดข้อผิดพลาดในการโหลดข้อมูล");
+    }
+};
+
+const wastePointUpdate = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const {
+            wastePointName,
+            responsible,
+            location,
+            phone,
+            type,
+            wasteTypes,
+            openTime,
+            closeTime,
+            isOpen,
+            note,
+            latitude,
+            longitude,
+            updateBy
+        } = req.body;
+
+        // ตรวจสอบข้อมูลที่จำเป็น
+        if (!wastePointName || !responsible || !phone || !type || !latitude || !longitude || !location ) {
+            return res.redirect(`/admin/wastePoint/edit/${id}?error=กรุณากรอกข้อมูลให้ครบถ้วน`);
+        }
+
+        // ตรวจสอบว่ามีการเลือกประเภทขยะหรือไม่
+        if (!wasteTypes || (Array.isArray(wasteTypes) && wasteTypes.length === 0)) {
+            return res.redirect(`/admin/wastePoint/edit/${id}?error=กรุณาเลือกประเภทขยะอย่างน้อย 1 ประเภท`);
+        }
+
+        // แปลงค่า wasteTypes เป็น array ถ้าเป็น string
+        const wasteTypesArray = Array.isArray(wasteTypes) ? wasteTypes : [wasteTypes];
+
+        // ค้นหาและอัปเดตข้อมูล
+        const updatedWastePoint = await WastePoint.findByIdAndUpdate(
+            id,
+            {
+                wastePointName,
+                responsible,
+                phone,
+                type,
+                location,
+                wasteTypes: wasteTypesArray,
+                openTime: openTime || null,
+                closeTime: closeTime || null,
+                isOpen: isOpen === 'true',
+                note: note || '',
+                latitude: parseFloat(latitude),
+                longitude: parseFloat(longitude),
+                updateBy,
+                updateAt: new Date()
+            },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedWastePoint) {
+            return res.redirect("/admin/wastePoint?error=ไม่พบข้อมูลจุดรับซื้อขยะ");
+        }
+
+        res.redirect("/admin/wastePoint?message=อัปเดตข้อมูลสำเร็จ");
+    } catch (err) {
+        console.error("Error updating waste point:", err);
+        
+        // ตรวจสอบ error จาก validation
+        if (err.name === 'ValidationError') {
+            const messages = Object.values(err.errors).map(e => e.message).join(', ');
+            return res.redirect(`/admin/wastePointEdit/${id}?error=${encodeURIComponent(messages)}`);
+        }
+        
+        res.redirect(`/admin/wastePointEdit/${id}?error=ไม่สามารถอัปเดตข้อมูลได้`);
+    }
+};
+
+const wastePointCreate = async (req, res) => {
+    const wasteTypes = await myWasteType.find({isDeleted: false })
+    res.render('admin/wastePointCreate', {
+        mytitle: 'ผู้ดูแลระบบ | แผนที่จุดเข้ารับซื้อ',
+        currentPage: 'wastePoint',
+        wasteTypes
+    });
+};
+
+const wastePointPost = async (req, res) => {
+    try {
+        const {
+            addBy,
+            wastePointName,
+            responsible,
+            location,
+            phone,
+            type,
+            wasteTypes,
+            openTime,
+            closeTime,
+            note,
+            latitude,
+            longitude,
+            isOpen
+        } = req.body;
+
+        const newPoint = new WastePoint({
+            addBy,
+            wastePointName,
+            responsible,
+            location,
+            phone,
+            type,
+            wasteTypes: Array.isArray(wasteTypes) ? wasteTypes : [wasteTypes],
+            openTime,
+            closeTime,
+            note,
+            latitude: parseFloat(latitude) || null,
+            longitude: parseFloat(longitude) || null,
+            isOpen: isOpen === "true"
+        });
+
+        await newPoint.save();
+        res.redirect('/admin/wastePoint?message=เพิ่มจุดรับซื้อสำเร็จ');
+    } catch (err) {
+        console.error("❌ Error saving waste point:", err);
+        res.redirect('/admin/wastePoint?error=เกิดข้อผิดพลาดในการบันทึก');
+    }
+};
+
+const wastePointDelete = async (req, res) => {
+    const { id } = req.params;
+    try {
+        // ใช้ Soft Delete แทนการลบจริง
+        const wastePoint = await WastePoint.findById(id);
+        
+        if (!wastePoint || wastePoint.isDeleted) {
+            return res.redirect("/admin/wastePoint?error=ไม่พบข้อมูลจุดรับซื้อขยะ");
+        }
+
+        // ทำ Soft Delete
+        wastePoint.isDeleted = true;
+        await wastePoint.save();
+
+        res.redirect("/admin/wastePoint?message=ลบข้อมูลสำเร็จ");
+    } catch (err) {
+        console.error("Error deleting waste point:", err);
+        res.redirect("/admin/wastePoint?error=ไม่สามารถลบข้อมูลได้");
+    }
+};
+
 //หน้าฌาปนกิจสงเคราะห์
 const funeralAidIndex = (req, res)=> {
     res.render('admin/funeralAid',{mytitle: 'ฌาปนกิจสงเคราะห์',currentPage: 'funeralAid',})
@@ -2483,6 +2675,8 @@ module.exports = {
     villageIndex,villagePost,villageEdit,villageDelete,
     //รอบการรับซื้อขยะ
     roundIndex,roundPost,roundEdit,roundDelete,
+    //จุดรับซื้อขยะ
+    wastePointIndex,wastePointPost,wastePointCreate,wastePointToggle,wastePointEdit,wastePointUpdate,wastePointDelete,
     //ฌาปนกิจสงเคราะห์
     funeralAidIndex,
 }

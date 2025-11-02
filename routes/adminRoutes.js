@@ -70,6 +70,15 @@ router.post('/roundPost', adminController.roundPost);
 router.post('/roundEdit', adminController.roundEdit);
 router.delete('/roundDelete/:id', adminController.roundDelete);
 
+// จัดการจุดรับซื้อ
+router.get('/wastePoint', adminController.wastePointIndex);
+router.get('/wastePoint/create', adminController.wastePointCreate);
+router.get('/wastePoint/edit/:id', adminController.wastePointEdit);
+router.post('/wastePointUpdate/:id', adminController.wastePointUpdate);
+router.get('/wastePoint/toggle/:id', adminController.wastePointToggle);
+router.post('/wastePointPost', adminController.wastePointPost);
+router.get('/wastePoint/delete/:id', adminController.wastePointDelete);
+
 // ฌาปนกิจสงเคราะห์
 router.get('/funeralAid', adminController.funeralAidIndex);
 

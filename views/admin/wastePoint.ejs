@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <%- include('../partials/adminPartials/doctype.ejs') %>
+        <title>
+            <%= mytitle %>
+        </title>
+        <link rel="stylesheet" href="/style_admin/funeral-assistance.css">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+        <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+        <!-- Leaflet -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+        <!-- Leaflet Control Geocoder -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+        <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+        <style>
+        .leaflet-container {
+            height: 450px;
+            border-radius: 0.75rem;
+            z-index: 10;
+        }
+        
+        @media (min-width: 768px) {
+            .leaflet-container {
+                height: 550px;
+            }
+        }
+
+        .leaflet-popup-content-wrapper {
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .map-legend {
+            background: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .legend-marker {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .filter-badge {
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .filter-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .filter-badge.active {
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+        }
+        </style>
+</head>
+
+<body class="bg-gray-50">
+    <%- include('../partials/adminPartials/adminHeader.ejs') %>
+        <%- include('../partials/adminPartials/adminSidebar.ejs') %>
+
+            <script>
+                // แสดง popup message จาก query string
+                const urlParams = new URLSearchParams(window.location.search);
+                const successMessage = urlParams.get('message');
+                const errorMessage = urlParams.get('error');
+
+                if (successMessage) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'สำเร็จ!',
+                        text: successMessage,
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#28a745',
+                        timer: 3000
+                    });
+                }
+
+                if (errorMessage) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'error',
+                        title: errorMessage,
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                }
+            </script>
+
+            <div class="content bg-gray-50 min-screen">
+                <!-- Page Header -->
+                <div class="mx-4 mb-3 bg-white rounded-lg shadow p-4 border border-grey-100">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                        <div>
+                            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
+                                การจัดการจุดรับซื้อขยะ
+                            </h1>
+                            <p class="text-gray-600 mt-2">ระบบจัดการจุดรับซื้อขยะสำหรับครัวเรือนในชุมชน</p>
+                        </div>
+                        <a href="/admin/wastePoint/create" onclick="" class="bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-200 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            เพิ่มจุดรับซื้อ
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Content Area -->
+                <div class="flex-1 overflow-auto p-4">
+                    <div class="mx-auto space-y-6">
+                        
+                        <!-- Statistics Cards -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-blue-50 rounded-lg p-6 shadow-sm border border-blue-100">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-blue-600 text-sm font-medium">จุดรับซื้อทั้งหมด</p>
+                                        <p id="total-all" class="text-3xl font-bold mt-2 text-blue-900">0</p>
+                                    </div>
+                                    <i class="fas fa-map-marker-alt text-4xl text-blue-900"></i>
+                                </div>
+                            </div>
+
+                            <div class="bg-green-50 rounded-lg p-6 shadow-sm border border-green-100">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-green-600 text-sm font-medium">เปิดบริการ</p>
+                                        <p id="total-open" class="text-3xl font-bold mt-2 text-green-900">0</p>
+                                    </div>
+                                    <i class="fas fa-check-circle text-4xl text-green-900"></i>
+                                </div>
+                            </div>
+
+                            <div class="bg-red-50 rounded-lg p-6 shadow-sm border border-red-100">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-red-600 text-sm font-medium ">ปิดบริการ</p>
+                                        <p id="total-closed" class="text-3xl font-bold mt-2  text-red-900">0</p>
+                                    </div>
+                                    <i class="fas fa-times-circle text-4xl text-red-900"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Map Section -->
+                        <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-grey-100">
+                            <!-- Map Header -->
+                            <div class="p-6">
+                                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                                    <div class="text-gray-800">
+                                        <h3 class="text-xl font-bold flex items-center gap-2">
+                                            <i class="fas fa-map"></i>
+                                            แผนที่จุดรับซื้อขยะ
+                                        </h3>
+                                        <p class="text-gray-600 text-sm mt-1">แสดงตำแหน่งจุดรับซื้อขยะทั้งหมดในพื้นที่</p>
+                                    </div>
+                                    
+                                    <!-- View Toggle -->
+                                    <div class="flex gap-2">
+                                        <button onclick="centerMap()" 
+                                                class="bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-800 transition duration-200 flex items-center gap-2 shadow-md">
+                                            <i class="fas fa-crosshairs"></i>
+                                            จัดกลาง
+                                        </button>
+                                        <button onclick="refreshMap()" 
+                                                class="bg-white text-green-700 border border-green-700 px-4 py-2 rounded-lg hover:bg-green-700 hover:text-white transition duration-200 flex items-center gap-2 shadow-md">
+                                            <i class="fas fa-sync-alt"></i>
+                                            รีเฟรช
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Filters -->
+                            <div class="p-6 border-b bg-gray-50">
+                                <div class="flex flex-wrap gap-3">
+                                    <button onclick="filterByType('all')" 
+                                            class="filter-badge active px-4 py-2 rounded-full bg-green-700 text-white text-sm font-medium">
+                                        <i class="fas fa-globe"></i> ทั้งหมด
+                                    </button>
+                                    <button onclick="filterByType('bank')" 
+                                            class="filter-badge px-4 py-2 rounded-full bg-blue-100 text-blue-700 text-sm font-medium hover:bg-blue-200">
+                                        <i class="fas fa-university"></i> ธนาคารขยะ
+                                    </button>
+                                    <button onclick="filterByType('center')" 
+                                            class="filter-badge px-4 py-2 rounded-full bg-green-100 text-green-700 text-sm font-medium hover:bg-green-200">
+                                        <i class="fas fa-recycle"></i> ศูนย์รับซื้อขยะ
+                                    </button>
+                                    <button onclick="filterByType('community')" 
+                                            class="filter-badge px-4 py-2 rounded-full bg-purple-100 text-purple-700 text-sm font-medium hover:bg-purple-200">
+                                        <i class="fas fa-users"></i> จุดชุมชน
+                                    </button>
+                                    <button onclick="filterByType('mobile')" 
+                                            class="filter-badge px-4 py-2 rounded-full bg-orange-100 text-orange-700 text-sm font-medium hover:bg-orange-200">
+                                        <i class="fas fa-truck"></i> รถเคลื่อนที่
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Map Container -->
+                            <div class="p-6">
+                                <div class="relative">
+                                    <div id="map" class="leaflet-container"></div>
+                                    
+                                    <!-- Map Legend -->
+                                    <div class="absolute bottom-4 right-4 map-legend z-[1000] hidden md:block">
+                                        <h4 class="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                            <i class="fas fa-info-circle text-green-600"></i>
+                                            สัญลักษณ์
+                                        </h4>
+                                        <div class="legend-item">
+                                            <div class="legend-marker bg-blue-500">
+                                                <i class="fas fa-university text-xs"></i>
+                                            </div>
+                                            <span class="text-sm text-gray-700">ธนาคารขยะ</span>
+                                        </div>
+                                        <div class="legend-item">
+                                            <div class="legend-marker bg-green-500">
+                                                <i class="fas fa-recycle text-xs"></i>
+                                            </div>
+                                            <span class="text-sm text-gray-700">ศูนย์รับซื้อขยะ</span>
+                                        </div>
+                                        <div class="legend-item">
+                                            <div class="legend-marker bg-purple-500">
+                                                <i class="fas fa-users text-xs"></i>
+                                            </div>
+                                            <span class="text-sm text-gray-700">จุดชุมชน</span>
+                                        </div>
+                                        <div class="legend-item">
+                                            <div class="legend-marker bg-orange-500">
+                                                <i class="fas fa-truck text-xs"></i>
+                                            </div>
+                                            <span class="text-sm text-gray-700">รถเคลื่อนที่</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Map Footer Info -->
+                            <div class="bg-gray-50 px-6 py-4 border-t">
+                                <div class="flex flex-col md:flex-row justify-between items-center gap-3 text-sm text-gray-600">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fas fa-lightbulb text-yellow-500"></i>
+                                        <span>คลิกที่ตำแหน่งบนแผนที่เพื่อดูรายละเอียด</span>
+                                    </div>
+                                    <div id="map-info" class="flex items-center gap-2">
+                                        <i class="fas fa-map-pin text-green-600"></i>
+                                        <span>แสดง <span id="visible-markers" class="font-semibold">0</span> จุด</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Points List Table -->
+                        <div class="bg-white rounded-lg shadow-md p-6 border border-grey-100">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2 sm:mb-0">รายการจุดรับซื้อขยะ</h3>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-sm text-gray-600">ทั้งหมด:</span>
+                                    <span id="total-points"
+                                        class="bg-primary-100 text-primary-800 px-2 py-1 rounded-full text-sm font-medium">0</span>
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                ชื่อจุดรับซื้อ</th>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
+                                                ผู้รับผิดชอบ</th>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                ประเภท</th>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                เวลาทำการ</th>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                สถานะ</th>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                จัดการ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="points-table-body" class="bg-white divide-y divide-gray-200">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+</body>
+
+    <script>
+        let map;
+        let markers = [];
+        let currentFilter = 'all';
+        
+        // Sample data - replace with actual data from server
+        const wastePoints = <%- JSON.stringify(wastePoints) %>; 
+
+        function initMap() {
+            map = L.map("map").setView([13.7563, 100.5018], 12);
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                attribution: "© OpenStreetMap contributors",
+                maxZoom: 19
+            }).addTo(map);
+            
+            updateStatistics();
+        }
+
+        function getMarkerIcon(type, isOpen) {
+            const colors = {
+                'bank': '#3B82F6',
+                'center': '#10B981',
+                'community': '#8B5CF6',
+                'mobile': '#F97316'
+            };
+            
+            const icons = {
+                'bank': 'university',
+                'center': 'recycle',
+                'community': 'users',
+                'mobile': 'truck'
+            };
+
+            const color = colors[type] || '#6B7280';
+            const icon = icons[type] || 'map-marker-alt';
+            const opacity = isOpen ? '1' : '0.5';
+
+            return L.divIcon({
+                html: `
+                    <div style="background-color: ${color}; opacity: ${opacity};" 
+                         class="w-10 h-10 rounded-full flex items-center justify-center shadow-lg border-4 border-white">
+                        <i class="fas fa-${icon} text-white text-sm"></i>
+                    </div>
+                `,
+                className: 'custom-marker',
+                iconSize: [40, 40],
+                iconAnchor: [20, 20]
+            });
+        }
+
+        function getTypeLabel(type) {
+            const labels = {
+                'bank': 'ธนาคารขยะ',
+                'center': 'ศูนย์รับซื้อขยะ',
+                'community': 'จุดรับซื้อชุมชน',
+                'mobile': 'รถรับซื้อเคลื่อนที่'
+            };
+            return labels[type] || 'ไม่ระบุ';
+        }
+
+        function updateMap() {
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+
+            const filteredPoints = currentFilter === 'all' 
+                ? wastePoints 
+                : wastePoints.filter(p => p.type === currentFilter);
+
+            filteredPoints.forEach((point) => {
+                if (!point.latitude || !point.longitude) return;
+                
+                const marker = L.marker([point.latitude, point.longitude], {
+                    icon: getMarkerIcon(point.type, point.isOpen)
+                })
+                .addTo(map)
+                .bindPopup(`
+                    <div class="p-3 min-w-[250px]">
+                        <h3 class="font-bold text-lg text-gray-800 mb-2 flex items-center gap-2">
+                            <i class="fas fa-map-marker-alt text-green-600"></i>
+                            ${point.wastePointName}
+                        </h3>
+                        <div class="space-y-2 text-sm">
+                            <p class="flex items-center gap-2 text-gray-600">
+                                <i class="fas fa-tag text-gray-400 w-4"></i>
+                                <span class="font-medium">${getTypeLabel(point.type)}</span>
+                            </p>
+                            <p class="flex items-center gap-2 text-gray-600">
+                                <i class="fas fa-user text-gray-400 w-4"></i>
+                                ${point.responsible || "-"}
+                            </p>
+                            <p class="flex items-center gap-2 text-gray-600">
+                                <i class="fas fa-phone text-gray-400 w-4"></i>
+                                ${point.phone || "-"}
+                            </p>
+                            <p class="flex items-center gap-2 text-gray-600">
+                                <i class="fas fa-clock text-gray-400 w-4"></i>
+                                ${point.openTime || "-"} - ${point.closeTime || "-"} น.
+                            </p>
+                            <div class="pt-2 border-t">
+                                <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full ${
+                                    point.isOpen ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                                }">
+                                    <i class="fas fa-${point.isOpen ? 'check' : 'times'}-circle"></i>
+                                    ${point.isOpen ? "เปิดบริการ" : "ปิดชั่วคราว"}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `);
+                markers.push(marker);
+            });
+
+            if (markers.length > 0) {
+                const group = new L.featureGroup(markers);
+                map.fitBounds(group.getBounds().pad(0.1));
+            }
+
+            document.getElementById('visible-markers').textContent = markers.length;
+        }
+
+        function updatePointsList() {
+            const tbody = document.getElementById("points-table-body");
+            const totalPoints = document.getElementById("total-points");
+            tbody.innerHTML = "";
+            totalPoints.textContent = wastePoints.length;
+
+            wastePoints.forEach((point) => {
+                const row = document.createElement("tr");
+                row.className = "hover:bg-gray-50 transition duration-150";
+                row.innerHTML = `
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center ${
+                                point.type === 'bank' ? 'bg-blue-100' :
+                                point.type === 'center' ? 'bg-green-100' :
+                                point.type === 'community' ? 'bg-purple-100' : 'bg-orange-100'
+                            }">
+                                <i class="fas fa-${
+                                    point.type === 'bank' ? 'university' :
+                                    point.type === 'center' ? 'recycle' :
+                                    point.type === 'community' ? 'users' : 'truck'
+                                } ${
+                                    point.type === 'bank' ? 'text-blue-600' :
+                                    point.type === 'center' ? 'text-green-600' :
+                                    point.type === 'community' ? 'text-purple-600' : 'text-orange-600'
+                                }"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-semibold text-gray-900">${point.wastePointName}</div>
+                                <div class="text-xs text-gray-500 md:hidden">${getTypeLabel(point.type)}</div>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="px-6 py-4 hidden md:table-cell">
+                        <div class="text-sm text-gray-900">${point.responsible}</div>
+                        <div class="text-xs text-gray-500"><i class="fas fa-phone mr-1"></i>${point.phone}</div>
+                    </td>
+                    
+                    <td class="px-6 py-4">
+                        <span class="px-3 py-1 text-xs font-medium rounded-full ${
+                            point.type === 'bank' ? 'bg-blue-100 text-blue-700' :
+                            point.type === 'center' ? 'bg-green-100 text-green-700' :
+                            point.type === 'community' ? 'bg-purple-100 text-purple-700' : 'bg-orange-100 text-orange-700'
+                        }">
+                            ${getTypeLabel(point.type)}
+                        </span>
+                    </td>
+
+                    <td class="px-6 py-4 hidden lg:table-cell">
+                        <div class="text-sm text-gray-900">
+                            <i class="fas fa-clock text-gray-400 mr-1"></i>
+                            ${point.openTime} - ${point.closeTime} น.
+                        </div>
+                    </td>
+
+                    <td class="px-6 py-4">
+                        <span class="px-3 py-1 inline-flex items-center gap-1 text-xs font-semibold rounded-full ${
+                            point.isOpen ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                        }">
+                            <i class="fas fa-${point.isOpen ? 'check' : 'times'}-circle"></i>
+                            ${point.isOpen ? "เปิดบริการ" : "ปิดชั่วคราว"}
+                        </span>
+                    </td>
+
+                    <td class="px-6 py-4">
+                        <div class="flex gap-2">
+                            <button onclick="toggleStatus('${point._id}', ${!point.isOpen})" 
+                                    class="min-w-[70px] px-3 py-1.5 rounded-lg text-xs font-medium text-white transition duration-200 ${
+                                        point.isOpen ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'
+                                    }">
+                                <i class="fas fa-${point.isOpen ? 'times' : 'check'}-circle mr-1"></i>
+                                ${point.isOpen ? 'ปิด' : 'เปิด'}
+                            </button>
+                            <button onclick="editPoint('${point._id}')" 
+                                    class="px-3 py-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium transition duration-200">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deletePoint('${point._id}')" 
+                                    class="px-3 py-1.5 rounded-lg bg-red-500 hover:bg-red-600 text-white text-xs font-medium transition duration-200">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateStatistics() {
+            const totalAll = wastePoints.length;
+            const totalOpen = wastePoints.filter(p => p.isOpen).length;
+            const totalClosed = wastePoints.filter(p => !p.isOpen).length;
+
+            document.getElementById('total-all').textContent = totalAll;
+            document.getElementById('total-open').textContent = totalOpen;
+            document.getElementById('total-closed').textContent = totalClosed;
+        }
+
+        function filterByType(type) {
+            currentFilter = type;
+            
+            // Update active button
+            document.querySelectorAll('.filter-badge').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            updateMap();
+        }
+
+        function centerMap() {
+            if (markers.length > 0) {
+                const group = new L.featureGroup(markers);
+                map.fitBounds(group.getBounds().pad(0.1));
+            }
+        }
+
+        function refreshMap() {
+            updateMap();
+            Swal.fire({
+                icon: 'success',
+                title: 'รีเฟรชแล้ว',
+                text: 'อัพเดทข้อมูลบนแผนที่เรียบร้อย',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }
+
+        async function toggleStatus(id, newStatus) {
+            const result = await Swal.fire({
+                title: "ยืนยันการเปลี่ยนสถานะ?",
+                text: newStatus ? "เปิดให้บริการอีกครั้ง" : "ปิดให้บริการชั่วคราว",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-check mr-2"></i>ยืนยัน',
+                cancelButtonText: '<i class="fas fa-times mr-2"></i>ยกเลิก',
+                confirmButtonColor: '#16A34A',
+                cancelButtonColor: '#6B7280'
+            });
+
+            if (result.isConfirmed) {
+                // Simulate API call
+                Swal.fire({
+                    title: 'กำลังประมวลผล...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                setTimeout(() => {
+                    window.location.href = `/admin/wastePoint/toggle/${id}?isOpen=${newStatus}`;
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'สำเร็จ!',
+                        text: 'เปลี่ยนสถานะเรียบร้อยแล้ว',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }, 1000);
+            }
+        }
+
+        function editPoint(id) {
+            window.location.href = `/admin/wastePoint/edit/${id}`;
+            Swal.fire({
+                icon: 'info',
+                title: 'แก้ไขจุดรับซื้อ',
+                text: `กำลังไปยังหน้าแก้ไข ID: ${id}`,
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }
+
+        async function deletePoint(id) {
+            const result = await Swal.fire({
+                title: "ยืนยันการลบ?",
+                text: "คุณต้องการลบจุดรับซื้อขยะนี้หรือไม่ การดำเนินการนี้ไม่สามารถย้อนกลับได้",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DC2626",
+                cancelButtonColor: "#6B7280",
+                confirmButtonText: '<i class="fas fa-trash mr-2"></i>ลบ',
+                cancelButtonText: '<i class="fas fa-times mr-2"></i>ยกเลิก',
+            });
+
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'กำลังลบ...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                setTimeout(() => {
+                    window.location.href = `/admin/wastePoint/delete/${id}`;
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'ลบสำเร็จ!',
+                        text: 'ลบจุดรับซื้อขยะเรียบร้อยแล้ว',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }, 1000);
+            }
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            initMap();
+            updatePointsList();
+            updateMap();
+
+            // Check for messages in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const successMessage = urlParams.get('message');
+            const errorMessage = urlParams.get('error');
+
+            if (successMessage) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'สำเร็จ!',
+                    text: successMessage,
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#16A34A',
+                    timer: 3000
+                });
+            }
+
+            if (errorMessage) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'error',
+                    title: errorMessage,
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            }
+        });
+    </script>
+
+</html>

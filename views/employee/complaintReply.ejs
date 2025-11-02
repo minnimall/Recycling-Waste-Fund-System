@@ -68,12 +68,12 @@
                             <div class="flex items-start justify-between mb-4">
                                 <div class="flex-1">
                                     <div class="flex items-center space-x-3 mb-2">
-                                        <h2 class="text-2xl font-bold text-gray-900">ข้อร้องเขียน <span class="text-lg font-normal text-gray-400">#<%= complaint._id %></span></h2>
+                                        <h2 class="text-2xl font-bold text-gray-900">ข้อร้องเขียน </h2><!--<span class="text-lg font-normal text-gray-400">#<%= complaint._id %></span> -->
                                         <!-- ${complaint.priority === 'high' ? '<span class="text-red-500 text-2xl">⚠️</span>' : ''} -->
                                     </div>
                                     <div class="flex items-center space-x-4 text-sm text-gray-600">
                                         <span>
-                                        📋
+                                        หัวข้อร้องเรียนเรื่อง
                                         <% if (complaint.category === 'waste') { %>
                                             การจัดการขยะ
                                         <% } else if (complaint.category === 'service') { %>
@@ -86,9 +86,9 @@
                                             อื่นๆ
                                         <% } %>
                                         </span>
-                                        <span>📅 <%= complaint.createdAt.toLocaleString('th-TH', { dateStyle: 'medium', timeZone: 'Asia/Bangkok' }) %></span>
-                                        <span>🆔 <%= complaint._id %></span>
+                                        <!-- <span>🆔 <%= complaint._id %></span> -->
                                     </div>
+                                    <span class="text-sm text-gray-600">วันที่แจ้งเข้ามา วันที่ <%= complaint.createdAt.toLocaleString('th-TH', { dateStyle: 'medium', timeZone: 'Asia/Bangkok' }) %></span>
                                 </div>
                                 <div class="flex flex-col items-end space-y-2">
                                         <% if (complaint.status === 'pending') { %>
