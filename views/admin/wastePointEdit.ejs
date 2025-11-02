@@ -69,7 +69,7 @@
                     <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
                         แก้ไขจุดรับซื้อขยะ
                     </h1>
-                    <p class="text-gray-600 mt-2">แก้ไขข้อมูลจุดรับซื้อขยะสำหรับครัวเรือนในชุมชน</p>
+                    <p class="text-gray-600 mt-2">แก้ไขข้อมูลจุดรับซื้อขยะในชุมชน</p>
                 </div>
                 <a href="/admin/wastePoint" class="bg-red-700 text-white px-4 py-2 rounded-md hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-200 flex items-center">
                     <i class="fa-solid fa-arrow-left mr-2"></i>ย้อนกลับ
@@ -79,11 +79,11 @@
 
         <!-- Map Section -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-6 mx-4">
-            <h2 class="text-xl font-bold text-gray-800 mb-4">เลือกตำแหน่งจุดรับซื้อขยะ</h2>
+            <h2 class="text-xl font-bold text-gray-800 mb-4">📍 เลือกตำแหน่งจุดรับซื้อขยะ</h2>
             
             <!-- Search and Current Location -->
-            <div class="flex gap-2 mb-4">
-                <div class="flex-1">
+            <div class="flex gap-2 mb-4 flex-wrap">
+                <div class="flex-1 min-w-[200px]">
                     <input 
                         type="text" 
                         id="searchInput" 
@@ -93,12 +93,12 @@
                 </div>
                 <button 
                     id="searchBtn" 
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition">
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition whitespace-nowrap">
                     <i class="fa-solid fa-magnifying-glass mr-1"></i> ค้นหา
                 </button>
                 <button 
                     id="currentLocationBtn" 
-                    class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-semibold transition">
+                    class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-semibold transition whitespace-nowrap">
                     <i class="fa-solid fa-map-pin mr-1"></i> ตำแหน่งปัจจุบัน
                 </button>
             </div>
@@ -107,31 +107,39 @@
             <div id="map" class="rounded-lg border-2 border-gray-200 mb-4"></div>
 
             <!-- Coordinates Display -->
-            <div class="bg-gray-50 rounded-lg p-4">
-                <div class="grid grid-cols-2 gap-4">
+            <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-4 border border-green-200">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="text-sm font-semibold text-gray-600">ละติจูด (Latitude)</label>
-                        <p id="latDisplay" class="text-lg font-mono text-gray-800">-</p>
+                        <label class="text-sm font-semibold text-gray-600 flex items-center gap-1">
+                            <i class="fas fa-map-marker-alt text-green-600"></i>
+                            ละติจูด (Latitude)
+                        </label>
+                        <p id="latDisplay" class="text-lg font-mono text-gray-800 mt-1">-</p>
                     </div>
                     <div>
-                        <label class="text-sm font-semibold text-gray-600">ลองจิจูด (Longitude)</label>
-                        <p id="lngDisplay" class="text-lg font-mono text-gray-800">-</p>
+                        <label class="text-sm font-semibold text-gray-600 flex items-center gap-1">
+                            <i class="fas fa-map-marker-alt text-blue-600"></i>
+                            ลองจิจูด (Longitude)
+                        </label>
+                        <p id="lngDisplay" class="text-lg font-mono text-gray-800 mt-1">-</p>
                     </div>
                 </div>
-                <div class="mt-3">
-                    <label class="text-sm font-semibold text-gray-600">ชื่อสถานที่</label>
-                    <p id="locationName" class="text-lg text-gray-800">กรุณาคลิกบนแผนที่เพื่อเลือกตำแหน่ง</p>
+                <div class="mt-3 pt-3 border-t border-gray-300">
+                    <label class="text-sm font-semibold text-gray-600 flex items-center gap-1">
+                        <i class="fas fa-location-dot text-red-600"></i>
+                        ชื่อสถานที่
+                    </label>
+                    <p id="locationName" class="text-base text-gray-800 mt-1">กรุณาคลิกบนแผนที่เพื่อเลือกตำแหน่ง</p>
                 </div>
             </div>
         </div>
 
         <!-- Form Section -->
         <form id="wasteForm" action="/admin/wastePointUpdate/<%= wastePoint._id %>" method="POST" class="bg-white rounded-lg shadow-md p-6 mx-4">
-            <h2 class="text-xl font-bold text-gray-800 mb-6">ข้อมูลจุดรับซื้อขยะ</h2>
+            <h2 class="text-xl font-bold text-gray-800 mb-6">📝 ข้อมูลจุดรับซื้อขยะ</h2>
 
             <!-- ผู้แก้ไขข้อมูล -->
             <input type="hidden" id="updateBy" name="updateBy" value="<%= username %>">
-            
             <input type="hidden" id="location" name="location" value="<%= wastePoint.location %>">
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -151,36 +159,23 @@
                     />
                 </div>
 
-                <!-- ผู้รับผิดชอบ -->
+                <!-- หมู่บ้าน -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
-                        ผู้รับผิดชอบ <span class="text-red-500">*</span>
+                        หมู่บ้าน <span class="text-red-500">*</span>
                     </label>
-                    <input 
-                        type="text" 
-                        id="responsible" 
-                        name="responsible"
-                        value="<%= wastePoint.responsible %>"
-                        required
-                        placeholder="ชื่อผู้รับผิดชอบ"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    />
-                </div>
-
-                <!-- เบอร์โทรศัพท์ -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">
-                        เบอร์โทรศัพท์ <span class="text-red-500">*</span>
-                    </label>
-                    <input 
-                        type="tel" 
-                        id="phone" 
-                        name="phone"
-                        value="<%= wastePoint.phone %>"
-                        required
-                        placeholder="0XX-XXX-XXXX"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    />
+                    <select 
+                        id="village" 
+                        name="village"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        <option value="">ไม่ระบุหมู่บ้าน</option>
+                        <% villages.forEach(village => { %>
+                            <option value="<%= village._id %>" 
+                                <%= wastePoint.village && wastePoint.village._id.toString() === village._id.toString() ? 'selected' : '' %>>
+                                <%= village.villageName %>
+                            </option>
+                        <% }) %>
+                    </select>
                 </div>
 
                 <!-- ประเภทจุดรับซื้อ -->
@@ -198,64 +193,41 @@
                     </select>
                 </div>
 
-                <!-- ประเภทขยะที่รับซื้อ -->
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">
-                        ประเภทขยะที่รับซื้อ <span class="text-red-500">*</span>
-                    </label>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        <% if (wasteTypes.length> 0) { %>
-                            <% wasteTypes.forEach((wasteType, index)=> { %>
-                                <label class="flex items-center space-x-2 cursor-pointer">
-                                    <input type="checkbox" name="wasteTypes" value="<%= wasteType.wasteTypeName %>" class="w-4 h-4 text-green-600 rounded focus:ring-green-500">
-                                    <span class="text-gray-700"><%= wasteType.wasteTypeName %></span>
-                                </label>
-                            <% }); %>
-                            <% } else { %>
-                                <span colspan="8" class="text-center py-4 text-gray-500">
-                                    -ไม่พบข้อมูลประเภทขยะ -
-                                </span>
-                        <% } %>
-                    </div>
-                </div>
-
-                <!-- วันเวลาทำการ -->
-                <div class="mb-6 md:col-span-2">
-                    <label class="block text-gray-700 font-semibold mb-2">
-                        เวลาทำการ
-                    </label>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label for="openTime" class="block text-sm text-gray-600 mb-1">เวลาเปิด</label>
-                            <input 
-                                type="time" 
-                                id="openTime" 
-                                name="openTime"
-                                value="<%= wastePoint.openTime || '' %>"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
-                        </div>
-                        <div>
-                            <label for="closeTime" class="block text-sm text-gray-600 mb-1">เวลาปิด</label>
-                            <input 
-                                type="time" 
-                                id="closeTime" 
-                                name="closeTime"
-                                value="<%= wastePoint.closeTime || '' %>"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- สถานะเปิด-ปิด -->
                 <div class="md:col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
                         สถานะการเปิดบริการ
                     </label>
-                    <select id="isOpen" name="isOpen"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                        <option value="true" <%= wastePoint.isOpen === true ? 'selected' : '' %>>เปิดบริการ</option>
-                        <option value="false" <%= wastePoint.isOpen === false ? 'selected' : '' %>>ปิดชั่วคราว</option>
-                    </select>
+                    <div class="flex gap-4">
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input 
+                                type="radio" 
+                                name="isOpen" 
+                                value="true" 
+                                <%= wastePoint.isOpen === true ? 'checked' : '' %>
+                                class="w-4 h-4 text-green-600 focus:ring-green-500"
+                            />
+                            <span class="text-gray-700 flex items-center gap-2">
+                                <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                                    <i class="fas fa-check-circle"></i> เปิดบริการ
+                                </span>
+                            </span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input 
+                                type="radio" 
+                                name="isOpen" 
+                                value="false"
+                                <%= wastePoint.isOpen === false ? 'checked' : '' %>
+                                class="w-4 h-4 text-red-600 focus:ring-red-500"
+                            />
+                            <span class="text-gray-700 flex items-center gap-2">
+                                <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium">
+                                    <i class="fas fa-times-circle"></i> ปิดชั่วคราว
+                                </span>
+                            </span>
+                        </label>
+                    </div>
                 </div>
 
                 <!-- หมายเหตุ -->
@@ -267,7 +239,7 @@
                         id="note" 
                         name="note"
                         rows="3"
-                        placeholder="ข้อมูลเพิ่มเติม..."
+                        placeholder="เช่น เปิดทุกวันจันทร์-ศุกร์, รับเฉพาะขยะพลาสติก"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     ><%= wastePoint.note || '' %></textarea>
                 </div>
@@ -281,12 +253,12 @@
             <div class="mt-8 flex gap-4">
                 <button 
                     type="submit" 
-                    class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition shadow-md">
+                    class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition shadow-md hover:shadow-lg">
                     <i class="fa-solid fa-save mr-2"></i>บันทึกการแก้ไข
                 </button>
                 <a 
                     href="/admin/wastePoint"
-                    class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-6 rounded-lg transition text-center">
+                    class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-6 rounded-lg transition text-center hover:shadow-lg">
                     <i class="fa-solid fa-times mr-2"></i>ยกเลิก
                 </a>
             </div>
@@ -322,6 +294,7 @@
             .then(data => {
                 const locationName = data.display_name || 'ไม่พบชื่อสถานที่';
                 document.getElementById('locationName').textContent = locationName;
+                document.getElementById('searchInput').value = locationName;
                 marker.bindPopup(`<b>${locationName}</b><br>Lat: ${existingLat.toFixed(6)}<br>Lng: ${existingLng.toFixed(6)}`);
             });
     }
@@ -367,7 +340,7 @@
 
     document.getElementById('currentLocationBtn').addEventListener('click', function() {
         if (navigator.geolocation) {
-            this.innerHTML = '<i class="fa-solid fa-magnifying-glass mr-1"></i> กำลังค้นหา...';
+            this.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> กำลังค้นหา...';
             this.disabled = true;
             
             navigator.geolocation.getCurrentPosition(
@@ -380,17 +353,22 @@
                     this.disabled = false;
                 },
                 (error) => {
-                    alert('ไม่สามารถเข้าถึงตำแหน่งปัจจุบันได้: ' + error.message);
+                    Swal.fire({
+                        title: 'เกิดข้อผิดพลาด',
+                        text: 'ไม่สามารถเข้าถึงตำแหน่งปัจจุบันได้: ' + error.message,
+                        icon: 'error',
+                        confirmButtonColor: '#DC2626'
+                    });
                     this.innerHTML = '<i class="fa-solid fa-map-pin mr-1"></i> ตำแหน่งปัจจุบัน';
                     this.disabled = false;
                 }
             );
         } else {
             Swal.fire({
-                title: `เบราว์เซอร์ของคุณไม่รองรับการระบุตำแหน่ง`,
+                title: 'ไม่รองรับ',
+                text: 'เบราว์เซอร์ของคุณไม่รองรับการระบุตำแหน่ง',
                 icon: "warning",
-                confirmButtonColor: "#3085d6",
-                confirmButtonText: "ยืนยัน"
+                confirmButtonColor: "#3085d6"
             });
         }
     });
@@ -399,15 +377,15 @@
         const query = document.getElementById('searchInput').value.trim();
         if (!query) {
             Swal.fire({
-                title: `กรุณาพิมพ์ชื่อสถานที่ที่ต้องการค้นหา`,
+                title: 'กรุณากรอกข้อมูล',
+                text: 'กรุณาพิมพ์ชื่อสถานที่ที่ต้องการค้นหา',
                 icon: "warning",
-                confirmButtonColor: "#3085d6",
-                confirmButtonText: "ยืนยัน"
+                confirmButtonColor: "#3085d6"
             });
             return;
         }
 
-        this.innerHTML = '<i class="fa-solid fa-hourglass-start mr-1"></i> กำลังค้นหา...';
+        this.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> กำลังค้นหา...';
         this.disabled = true;
 
         fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1&accept-language=th`)
@@ -420,10 +398,10 @@
                     updateMarker(lat, lng);
                 } else {
                     Swal.fire({
-                        title: `ไม่พบสถานที่ที่ค้นหา กรุณาลองใหม่อีกครั้ง`,
+                        title: 'ไม่พบข้อมูล',
+                        text: 'ไม่พบสถานที่ที่ค้นหา กรุณาลองใหม่อีกครั้ง',
                         icon: "warning",
-                        confirmButtonColor: "#3085d6",
-                        confirmButtonText: "ยืนยัน"
+                        confirmButtonColor: "#3085d6"
                     });
                 }
                 this.innerHTML = '<i class="fa-solid fa-magnifying-glass mr-1"></i> ค้นหา';
@@ -432,10 +410,10 @@
             .catch(error => {
                 console.error('Error:', error);
                 Swal.fire({
-                    title: `เกิดข้อผิดพลาดในการค้นหา`,
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'เกิดข้อผิดพลาดในการค้นหา',
                     icon: "error",
-                    confirmButtonColor: "#3085d6",
-                    confirmButtonText: "ยืนยัน"
+                    confirmButtonColor: "#DC2626"
                 });
                 this.innerHTML = '<i class="fa-solid fa-magnifying-glass mr-1"></i> ค้นหา';
                 this.disabled = false;
@@ -446,6 +424,22 @@
         if (e.key === 'Enter') {
             e.preventDefault();
             document.getElementById('searchBtn').click();
+        }
+    });
+
+    // Form validation before submit
+    document.getElementById('wasteForm').addEventListener('submit', function(e) {
+        const lat = document.getElementById('latitude').value;
+        const lng = document.getElementById('longitude').value;
+        
+        if (!lat || !lng) {
+            e.preventDefault();
+            Swal.fire({
+                title: 'กรุณาเลือกตำแหน่ง',
+                text: 'กรุณาคลิกบนแผนที่เพื่อเลือกตำแหน่งจุดรับซื้อขยะ',
+                icon: 'warning',
+                confirmButtonColor: '#F59E0B'
+            });
         }
     });
 </script>

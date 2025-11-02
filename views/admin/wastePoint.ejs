@@ -290,23 +290,15 @@
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">
                                         <tr>
-                                            <th
-                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 ชื่อจุดรับซื้อ</th>
-                                            <th
-                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
-                                                ผู้รับผิดชอบ</th>
-                                            <th
-                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
+                                                หมู่บ้าน</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 ประเภท</th>
-                                            <th
-                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                เวลาทำการ</th>
-                                            <th
-                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 สถานะ</th>
-                                            <th
-                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 จัดการ</th>
                                         </tr>
                                     </thead>
@@ -331,7 +323,7 @@
         const wastePoints = <%- JSON.stringify(wastePoints) %>; 
 
         function initMap() {
-            map = L.map("map").setView([13.7563, 100.5018], 12);
+            map = L.map("map").setView([13.7563, 100.5018], 15);
             L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
                 attribution: "© OpenStreetMap contributors",
                 maxZoom: 19
@@ -362,7 +354,7 @@
             return L.divIcon({
                 html: `
                     <div style="background-color: ${color}; opacity: ${opacity};" 
-                         class="w-10 h-10 rounded-full flex items-center justify-center shadow-lg border-4 border-white">
+                        class="w-10 h-10 rounded-full flex items-center justify-center shadow-lg border-4 border-white">
                         <i class="fas fa-${icon} text-white text-sm"></i>
                     </div>
                 `,
@@ -382,6 +374,7 @@
             return labels[type] || 'ไม่ระบุ';
         }
 
+        // ใน <script> ส่วน updateMap()
         function updateMap() {
             markers.forEach(m => map.removeLayer(m));
             markers = [];
@@ -408,18 +401,20 @@
                                 <i class="fas fa-tag text-gray-400 w-4"></i>
                                 <span class="font-medium">${getTypeLabel(point.type)}</span>
                             </p>
+                            ${point.village ? `
                             <p class="flex items-center gap-2 text-gray-600">
-                                <i class="fas fa-user text-gray-400 w-4"></i>
-                                ${point.responsible || "-"}
-                            </p>
+                                <i class="fas fa-home text-gray-400 w-4"></i>
+                                ${point.village.villageName}
+                            </p>` : ''}
                             <p class="flex items-center gap-2 text-gray-600">
-                                <i class="fas fa-phone text-gray-400 w-4"></i>
-                                ${point.phone || "-"}
+                                <i class="fas fa-map-pin text-gray-400 w-4"></i>
+                                ${point.location}
                             </p>
-                            <p class="flex items-center gap-2 text-gray-600">
-                                <i class="fas fa-clock text-gray-400 w-4"></i>
-                                ${point.openTime || "-"} - ${point.closeTime || "-"} น.
-                            </p>
+                            ${point.note ? `
+                            <p class="flex items-center gap-2 text-gray-600 pt-2 border-t">
+                                <i class="fas fa-info-circle text-blue-400 w-4"></i>
+                                ${point.note}
+                            </p>` : ''}
                             <div class="pt-2 border-t">
                                 <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full ${
                                     point.isOpen ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
@@ -471,14 +466,15 @@
                             </div>
                             <div>
                                 <div class="text-sm font-semibold text-gray-900">${point.wastePointName}</div>
-                                <div class="text-xs text-gray-500 md:hidden">${getTypeLabel(point.type)}</div>
+                                <div class="text-xs text-gray-500">${point.location}</div>
                             </div>
                         </div>
                     </td>
 
                     <td class="px-6 py-4 hidden md:table-cell">
-                        <div class="text-sm text-gray-900">${point.responsible}</div>
-                        <div class="text-xs text-gray-500"><i class="fas fa-phone mr-1"></i>${point.phone}</div>
+                        ${point.village ? `
+                            <div class="text-sm text-gray-900">${point.village.villageName}</div>
+                        ` : '<span class="text-xs text-gray-400">ไม่ระบุ</span>'}
                     </td>
                     
                     <td class="px-6 py-4">
@@ -489,13 +485,6 @@
                         }">
                             ${getTypeLabel(point.type)}
                         </span>
-                    </td>
-
-                    <td class="px-6 py-4 hidden lg:table-cell">
-                        <div class="text-sm text-gray-900">
-                            <i class="fas fa-clock text-gray-400 mr-1"></i>
-                            ${point.openTime} - ${point.closeTime} น.
-                        </div>
                     </td>
 
                     <td class="px-6 py-4">

@@ -35,13 +35,17 @@ const user_index = async (req, res) => {
             wasteResult,
             villageResult,
             roundResult,
-            newsResult
+            newsResult,
+            wastePointsResult
         ] = await Promise.all([
             myActivity.find(filter).sort({ createdAt: -1 }),
             myWaste.find(filter).populate('wasteType').sort({ createdAt: 1 }),
             Village.find(filter).sort({ villageNumber: 1 }),
-            Round.find(filter).populate('village').sort({ date: 1 }),
-            myNews.find(filter).sort({ createdAt: -1 })
+            Round.find(filter).populate('village').populate('wastePoint').sort({ date: 1 }),
+            myNews.find(filter).sort({ createdAt: -1 }),
+            WastePoint.find(filter)
+                .populate('village')
+                .sort({ createdAt: -1 })
         ]);
 
         // ดึงประวัติราคาล่าสุดของขยะแต่ละตัว
@@ -53,7 +57,6 @@ const user_index = async (req, res) => {
                 const latestPrice = lastHistory ? lastHistory.pricePerUnit : waste.pricePerUnit;
                 const latestPriceDate = lastHistory ? lastHistory.createdAt : null;
 
-                // เก็บ priceChange เป็น number ไม่ใช่ string
                 const priceChange = lastHistory
                     ? (waste.pricePerUnit - lastHistory.pricePerUnit)
                     : null;
@@ -69,14 +72,12 @@ const user_index = async (req, res) => {
             })
         );
 
-        // เรียงจากวันล่าสุดมากไปหาน้อย
         const wasteWithChange = wasteWithChangeRaw.sort((a, b) => {
             const dateA = new Date(a.latestPriceDate || 0);
             const dateB = new Date(b.latestPriceDate || 0);
             return dateB - dateA;
         });
 
-        // หาเวลาที่อัปเดตราคาล่าสุด
         const latestPriceUpdateDate = wasteWithChange.reduce((latest, item) => {
             if (item.latestPriceDate && (!latest || new Date(item.latestPriceDate) > new Date(latest))) {
                 return item.latestPriceDate;
@@ -103,13 +104,11 @@ const user_index = async (req, res) => {
                 formattedDateThai: formatDate(round.date),
                 startTime,
                 endTime,
-                isActive
+                isActive,
+                wastePoint: round.wastePoint || null
             };
             return acc;
         }, {});
-
-        
-        const wastePoints = await WastePoint.find({ isDeleted: false });
 
         res.render('user/main', {
             mytitle: 'Admindashboard | Activity',
@@ -120,7 +119,7 @@ const user_index = async (req, res) => {
             moment: moment,
             news: newsResult,
             latestPriceUpdateDate,
-            wastePoints
+            wastePoints: wastePointsResult
         });
 
     } catch (err) {
@@ -128,10 +127,6 @@ const user_index = async (req, res) => {
         res.status(500).send("เกิดข้อผิดพลาดในการโหลดข้อมูล");
     }
 };
-
-
-
-
 
 // หน้าประเภทขยะ
 const user_wastetype = (req, res) => {

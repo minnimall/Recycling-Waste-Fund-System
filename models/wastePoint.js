@@ -6,35 +6,20 @@ const wastePointSchema = new mongoose.Schema({
       required: [true, "กรุณากรอกชื่อจุดรับซื้อขยะ"],
       trim: true,
     },
+    village: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Village',
+      required: false
+    },
     location: {
       type: String,
       required: true,
     },
-    responsible: {
-      type: String,
-      required: [true, "กรุณากรอกชื่อผู้รับผิดชอบ"],
-      trim: true,
-    },
-    phone: {
-      type: String,
-      required: [true, "กรุณากรอกเบอร์โทรศัพท์"],
-      match: [/^0\d{1,2}-?\d{3}-?\d{4}$/, "รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง"],
-    },
     type: {
       type: String,
       required: [true, "กรุณาเลือกประเภทจุดรับซื้อ"],
-    },
-    wasteTypes: {
-      type: [String],
-      required: [true, "กรุณาเลือกประเภทขยะที่รับซื้ออย่างน้อย 1 ประเภท"],
-    },
-    openTime: {
-      type: String, // เช่น "08:00"
-      default: null,
-    },
-    closeTime: {
-      type: String, // เช่น "17:00"
-      default: null,
+      enum: ['bank', 'center', 'community', 'mobile'],
+      default: 'center'
     },
     note: {
       type: String,
@@ -43,11 +28,11 @@ const wastePointSchema = new mongoose.Schema({
     },
     latitude: {
       type: Number,
-      default: null,
+      required: [true, "กรุณาระบุตำแหน่งบนแผนที่"],
     },
     longitude: {
       type: Number,
-      default: null,
+      required: [true, "กรุณาระบุตำแหน่งบนแผนที่"],
     },
     isOpen: {
       type: Boolean,
@@ -55,7 +40,7 @@ const wastePointSchema = new mongoose.Schema({
     },
     addBy: {
       type: String,
-      required: [true, "กรุณาเลือกประเภทจุดรับซื้อ"],
+      required: true,
     },
     isDeleted: {
       type: Boolean,

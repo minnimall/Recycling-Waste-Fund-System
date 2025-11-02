@@ -10,6 +10,11 @@ const RoundSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Village', required: true 
     },
+    wastePoint: {
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'WastePoint',
+        required: false
+    },
     date: { 
         type: Date, 
         required: true 

@@ -99,6 +99,7 @@
                 <th class="px-4 py-3 text-sm text-left">ชื่อรอบ</th>
                 <th class="px-4 py-3 text-sm text-left">หมู่ที่</th>
                 <th class="px-4 py-3 text-sm text-left">หมู่บ้าน</th>
+                <th class="px-4 py-3 text-sm text-left">จุดรับซื้อ</th>
                 <th class="px-4 py-3 text-sm text-left">รอบวันที่</th>
                 <th class="px-4 py-3 text-sm text-left">เวลาเริ่มต้น</th>
                 <th class="px-4 py-3 text-sm text-left">เวลาสิ้นสุด</th>
@@ -137,13 +138,24 @@
                         <!-- หมู่บ้าน -->
                         <div>
                             <label for="village" class="block text-sm font-medium text-gray-700 mb-1">หมู่บ้าน</label>
-                            <select name="village" required
-                                class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500">
+                            <select name="village" id="add_village" required 
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500" onchange="filterWastePointsByVillage('add')">
                                 <option value="">เลือกหมู่บ้าน</option>
                                 <% village.forEach(v => { %>
                                     <option value="<%= v._id %>"><%= v.villageName %></option>
                                 <% }) %>
                             </select>
+                        </div>
+
+                        <div>
+                            <label for="wastePoint" class="block text-sm font-medium text-gray-700 mb-1">
+                                จุดรับซื้อขยะ <span class="text-xs text-gray-500">(ไม่บังคับ)</span>
+                            </label>
+                            <select name="wastePoint" id="add_wastePoint"
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500">
+                                <option value="">ไม่ระบุจุดรับซื้อ</option>
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">กรุณาเลือกหมู่บ้านก่อนเพื่อกรองจุดรับซื้อ</p>
                         </div>
 
                         <!-- วันที่ -->
@@ -208,11 +220,22 @@
                         <div>
                             <label for="village" class="block text-sm font-medium text-gray-700 mb-1">หมู่บ้าน</label>
                             <select id="village" name="village" required
-                                class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-500">
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-500" onchange="filterWastePointsByVillage('edit')">
                                 <option value="">เลือกหมู่บ้าน</option>
                                 <% village.forEach(v => { %>
                                     <option value="<%= v._id %>"><%= v.villageName %></option>
                                 <% }) %>
+                            </select>
+                        </div>
+
+                        <!-- หลังจาก select หมู่บ้าน เพิ่ม -->
+                        <div>
+                            <label for="wastePoint" class="block text-sm font-medium text-gray-700 mb-1">
+                                จุดรับซื้อขยะ <span class="text-xs text-gray-500">(ไม่บังคับ)</span>
+                            </label>
+                            <select name="wastePoint" id="edit_wastePoint"
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-500">
+                                <option value="">ไม่ระบุจุดรับซื้อ</option>
                             </select>
                         </div>
 
@@ -286,8 +309,49 @@
     //     });
     // });
 
+    // เพิ่มตรงนี้
+    const wastePointsData = <%- JSON.stringify(wastePoints) %>;
+
+    function filterWastePointsByVillage(formType) {
+        const villageSelect = document.getElementById(formType === 'add' ? 'add_village' : 'village');
+        const wastePointSelect = document.getElementById(formType === 'add' ? 'add_wastePoint' : 'edit_wastePoint');
+        const selectedVillageId = villageSelect.value;
+
+        wastePointSelect.innerHTML = '<option value="">ไม่ระบุจุดรับซื้อ</option>';
+
+        if (!selectedVillageId) return;
+
+        const filteredPoints = wastePointsData.filter(wp => {
+            return wp.village && wp.village._id === selectedVillageId;
+        });
+
+        filteredPoints.forEach(wp => {
+            const option = document.createElement('option');
+            option.value = wp._id;
+            
+            const typeIcon = {
+                'bank': '',
+                'center': '', 
+                'community': '',
+                'mobile': ''
+            }[wp.type] || '';
+            
+            const statusText = wp.isOpen ? '' : '';
+            option.textContent = `${typeIcon} ${wp.wastePointName} ${statusText}`;
+            wastePointSelect.appendChild(option);
+        });
+
+        if (filteredPoints.length === 0) {
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'ไม่มีจุดรับซื้อในหมู่บ้านนี้';
+            option.disabled = true;
+            wastePointSelect.appendChild(option);
+        }
+    }
+
     let lastClickedRow = null;
-    function setRoundForm(Index, Id, Name, Village, Date, Start, End) {
+    function setRoundForm(Index, Id, Name, Village, WastePoint, Date, Start, End) {
         const editForm = document.getElementById('edit_Form');
         const addForm = document.getElementById('add_Form');
 
@@ -299,6 +363,13 @@
 
         const InputVillage = document.getElementById('village');
         InputVillage.value = Village;
+
+        // เพิ่มส่วนนี้
+        filterWastePointsByVillage('edit');
+        setTimeout(() => {
+            const InputWastePoint = document.getElementById('edit_wastePoint');
+            InputWastePoint.value = WastePoint || '';
+        }, 100);
 
         const InputDate = document.getElementById('date');
         InputDate.value = Date;
@@ -380,118 +451,147 @@
         }
     }
 
-  const roundsData = <%- JSON.stringify(rounds) %>;
-  const tableBody = document.getElementById('tableBody');
-  const searchInput = document.getElementById('searchInput');
-  const totalItemsEl = document.getElementById('totalItems');
-  const totalResultsEl = document.getElementById('totalResults');
-  const paginationEl = document.getElementById('pagination');
-  const itemsPerPageSelect = document.getElementById('itemsPerPageSelect');
-  const monthFilter = document.getElementById('monthFilter');
+    const roundsData = <%- JSON.stringify(rounds) %>;
+    const tableBody = document.getElementById('tableBody');
+    const searchInput = document.getElementById('searchInput');
+    const totalItemsEl = document.getElementById('totalItems');
+    const totalResultsEl = document.getElementById('totalResults');
+    const paginationEl = document.getElementById('pagination');
+    const itemsPerPageSelect = document.getElementById('itemsPerPageSelect');
+    const monthFilter = document.getElementById('monthFilter');
 
   let filteredData = [...roundsData];
   let currentPage = 1;
-  let itemsPerPage = parseInt(itemsPerPageSelect.value);
+    let itemsPerPage = parseInt(itemsPerPageSelect.value);
 
-  // สร้างตัวเลือกเดือนย้อนหลัง 12 เดือน
-const now = new Date();
-for (let i = 0; i < 12; i++) {
-  const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-  const monthValue = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`; // YYYY-MM
-  const monthName = date.toLocaleString('th-TH', { month: 'long', year: 'numeric' });
-  monthFilter.innerHTML += `<option value="${monthValue}">${monthName}</option>`;
-}
+    // สร้างตัวเลือกเดือนย้อนหลัง 12 เดือน
+    const now = new Date();
+        for (let i = 0; i < 12; i++) {
+        const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const monthValue = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`; // YYYY-MM
+        const monthName = date.toLocaleString('th-TH', { month: 'long', year: 'numeric' });
+        monthFilter.innerHTML += `<option value="${monthValue}">${monthName}</option>`;
+    }
+    function getWastePointDisplay(round) {
+        if (!round.wastePoint) {
+            return '<span class="text-gray-400 text-xs">ไม่ระบุ</span>';
+        }
+        
+        const typeIcon = {
+            'bank': '',
+            'center': '',
+            'community': '',
+            'mobile': ''
+        }[round.wastePoint.type] || '';
+        
+        const statusBadge = round.wastePoint.isOpen 
+            ? '<span class="ml-1 text-xs text-green-600">●</span>' 
+            : '<span class="ml-1 text-xs text-red-600">●</span>';
+        
+        return `
+            <div class="flex items-center gap-2">
+                <div class="flex-1 min-w-0">
+                    <div class="text-sm font-medium text-gray-900 truncate">${round.wastePoint.wastePointName}</div>
+                </div>
+            </div>
+        `;
+    }
 
-  function createRow(round, index){
+    function createRow(round, index){
+        const wastePointId = round.wastePoint ? round.wastePoint._id : '';
+        const wastePointDisplay = getWastePointDisplay(round);
+    
     return `
-      <tr class="hover:bg-gray-50 transition-colors">
-        <td class="px-4 py-3 text-sm text-center">${(currentPage-1)*itemsPerPage + index + 1}</td>
-        <td class="px-4 py-3 text-sm">${round.roundName}</td>
-        <td class="px-4 py-3 text-sm">${round.village.villageNumber}</td>
-        <td class="px-4 py-3 text-sm">${round.village.villageName}</td>
-        <td class="px-4 py-3 text-sm">${round.formattedDateThai}</td>
-        <td class="px-4 py-3 text-sm">${round.startTime} น.</td>
-        <td class="px-4 py-3 text-sm">${round.endTime} น.</td>
-        <td class="px-4 py-3 text-sm text-left">
-          <button type="button" class="was-row-${(currentPage-1)*itemsPerPage + index + 1} row-active edit-btn" 
-              onclick="setRoundForm('${(currentPage-1)*itemsPerPage + index + 1}', '${round._id}', '${round.roundName}', '${round.village._id}', '${round.formattedDateThai}', '${round.startTime}', '${round.endTime}')"> 
-              <i class="fa fa-edit"></i>
-          </button>
-          <button type="button" class="delete-btn" 
-              onclick="deleteRound(['${(currentPage-1)*itemsPerPage + index + 1}', '${round._id}', '${round.roundName}', '${round.village._id}', '${round.formattedDateThai}', '${round.startTime}', '${round.endTime}'])">
-              <i class="fa fa-trash"></i>
-          </button>
-        </td>
-      </tr>
-    `;
-  }
-
-function applyFilter() {
-  const searchTerm = searchInput.value.toLowerCase();
-  const monthValue = monthFilter.value;
-
-  filteredData = roundsData.filter(round => {
-    const matchesSearch = round.roundName.toLowerCase().includes(searchTerm) ||
-                          round.village.villageName.toLowerCase().includes(searchTerm);
-
-    let matchesMonth = true;
-    if (monthValue) {
-      const d = new Date(round.date); 
-      const roundMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; // YYYY-MM
-      matchesMonth = roundMonth === monthValue;
+        <tr class="hover:bg-gray-50 transition-colors">
+            <td class="px-4 py-3 text-sm text-center">${(currentPage-1)*itemsPerPage + index + 1}</td>
+            <td class="px-4 py-3 text-sm">${round.roundName}</td>
+            <td class="px-4 py-3 text-sm">${round.village.villageNumber}</td>
+            <td class="px-4 py-3 text-sm">${round.village.villageName}</td>
+            <td class="px-4 py-3 text-sm">${wastePointDisplay}</td>
+            <td class="px-4 py-3 text-sm">${round.formattedDateThai}</td>
+            <td class="px-4 py-3 text-sm">${round.startTime} น.</td>
+            <td class="px-4 py-3 text-sm">${round.endTime} น.</td>
+            <td class="px-4 py-3 text-sm text-left">
+            <button type="button" class="was-row-${(currentPage-1)*itemsPerPage + index + 1} row-active edit-btn" 
+                onclick="setRoundForm('${(currentPage-1)*itemsPerPage + index + 1}', '${round._id}', '${round.roundName}', '${round.village._id}', '${wastePointId}', '${round.formattedDateYYMMDD}', '${round.startTime}', '${round.endTime}')"> 
+                <i class="fa fa-edit"></i>
+            </button>
+            <button type="button" class="delete-btn" 
+                onclick="deleteRound(['${(currentPage-1)*itemsPerPage + index + 1}', '${round._id}', '${round.roundName}', '${round.village._id}', '${round.formattedDateYYMMDD}', '${round.startTime}', '${round.endTime}'])">
+                <i class="fa fa-trash"></i>
+            </button>
+            </td>
+        </tr>
+        `;
     }
 
-    return matchesSearch && matchesMonth;
-  });
+    function applyFilter() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const monthValue = monthFilter.value;
 
-  currentPage = 1;
-  displayData();
-}
+        filteredData = roundsData.filter(round => {
+            const wastePointName = round.wastePoint ? round.wastePoint.wastePointName.toLowerCase() : '';
+            const matchesSearch = round.roundName.toLowerCase().includes(searchTerm) ||
+                                round.village.villageName.toLowerCase().includes(searchTerm) ||
+                                wastePointName.includes(searchTerm);
 
-  function displayData(){
-    const start = (currentPage-1)*itemsPerPage;
-    const end = start + itemsPerPage;
-    const dataToShow = filteredData.slice(start, end);
+            let matchesMonth = true;
+            if (monthValue) {
+                const d = new Date(round.date); 
+                const roundMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                matchesMonth = roundMonth === monthValue;
+            }
 
-    // totalItemsEl.textContent = roundsData.length;
-    totalResultsEl.textContent = `${filteredData.length} รายการ`;
+            return matchesSearch && matchesMonth;
+        });
 
-    if(dataToShow.length === 0){
-      tableBody.innerHTML = '<tr><td colspan="8" class="text-center py-4">- ไม่พบข้อมูล -</td></tr>';
-      paginationEl.innerHTML = '';
-      return;
+        currentPage = 1;
+        displayData();
     }
 
-    tableBody.innerHTML = dataToShow.map(createRow).join('');
-    renderPagination();
-  }
+    function displayData(){
+        const start = (currentPage-1)*itemsPerPage;
+        const end = start + itemsPerPage;
+        const dataToShow = filteredData.slice(start, end);
 
-  function renderPagination(){
-    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-    if(totalPages <= 1) { paginationEl.innerHTML = ''; return; }
+        // totalItemsEl.textContent = roundsData.length;
+        totalResultsEl.textContent = `${filteredData.length} รายการ`;
 
-    let html = '';
-    for(let i=1; i<=totalPages; i++){
-      html += `<button onclick="goToPage(${i})" class="px-3 py-1 border rounded ${i===currentPage?'bg-green-600 text-white':'bg-white text-gray-700'}">${i}</button>`;
+        if(dataToShow.length === 0){
+        tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-4">- ไม่พบข้อมูล -</td></tr>';
+        paginationEl.innerHTML = '';
+        return;
+        }
+
+        tableBody.innerHTML = dataToShow.map(createRow).join('');
+        renderPagination();
     }
-    paginationEl.innerHTML = html;
-  }
 
-  function goToPage(page){
-    currentPage = page;
+    function renderPagination(){
+        const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+        if(totalPages <= 1) { paginationEl.innerHTML = ''; return; }
+
+        let html = '';
+        for(let i=1; i<=totalPages; i++){
+        html += `<button onclick="goToPage(${i})" class="px-3 py-1 border rounded ${i===currentPage?'bg-green-600 text-white':'bg-white text-gray-700'}">${i}</button>`;
+        }
+        paginationEl.innerHTML = html;
+    }
+
+    function goToPage(page){
+        currentPage = page;
+        displayData();
+    }
+
+    searchInput.addEventListener('input', applyFilter);
+    monthFilter.addEventListener('change', applyFilter);
+    itemsPerPageSelect.addEventListener('change', () => {
+        itemsPerPage = parseInt(itemsPerPageSelect.value);
+        currentPage = 1;
+        displayData();
+    });
+
     displayData();
-  }
-
-  searchInput.addEventListener('input', applyFilter);
-  monthFilter.addEventListener('change', applyFilter);
-  itemsPerPageSelect.addEventListener('change', () => {
-    itemsPerPage = parseInt(itemsPerPageSelect.value);
-    currentPage = 1;
-    displayData();
-  });
-
-  displayData();
 </script>
-<%- include('../partials/adminPartials/adminFooter.ejs') %>
 
 </html>

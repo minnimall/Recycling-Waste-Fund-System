@@ -2305,9 +2305,9 @@ const villageDelete = async (req, res) => {
 
 //หน้ารอบการรับซื้อขยะ 
 const roundIndex = (req, res) => {
-    const page = parseInt(req.query.page) || 1; // รับค่า page จาก query parameter หรือใช้ 1 เป็นค่าเริ่มต้น
-    const limit = 10; // จำนวน records ต่อหน้า
-    const skip = (page - 1) * limit; // คำนวณจำนวน records ที่จะข้ามไป
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
     const filter = { isDeleted: false };
 
     const formatDate = (date) => {
@@ -2318,22 +2318,28 @@ const roundIndex = (req, res) => {
 
     Promise.all([
         Village.find(filter).sort({ createdAt: 1 }),
-        Round.find(filter).populate('village').sort({ date: -1 }).skip(skip).limit(limit), // Apply pagination
-        Round.countDocuments(filter) // Count total documents
+        WastePoint.find(filter).populate('village'),  // เพิ่มการดึงข้อมูลจุดรับซื้อ
+        Round.find(filter)
+            .populate('village')
+            .populate('wastePoint')  // populate จุดรับซื้อขยะ
+            .sort({ date: -1 })
+            .skip(skip)
+            .limit(limit),
+        Round.countDocuments(filter)
     ])
-    .then(([villageResult, roundResult, totalItems]) => {
+    .then(([villageResult, wastePointResult, roundResult, totalItems]) => {
         const totalPages = Math.ceil(totalItems / limit);
 
-        // แปลงวันที่ก่อนส่งไปยัง EJS
         roundResult = roundResult.map(round => ({
             ...round.toObject(), 
-            formattedDateYYMMDD: new Date(round.date).toISOString().split('T')[0], // YY-MM-DD
-            formattedDateThai: formatDate(round.date) // วันที่ภาษาไทย
+            formattedDateYYMMDD: new Date(round.date).toISOString().split('T')[0],
+            formattedDateThai: formatDate(round.date)
         }));
 
         res.render('admin/round', {
             mytitle: 'Admindashboard | Round',
             village: villageResult,
+            wastePoints: wastePointResult,  // ส่งข้อมูลจุดรับซื้อไปด้วย
             rounds: roundResult,
             currentPage: page,
             totalPages: totalPages,
@@ -2349,26 +2355,32 @@ const roundIndex = (req, res) => {
 // เพิ่มรอบรับซื้อขยะ 
 const roundPost = async (req, res) => {
     try {
-        const { roundName, village, date, startTime, endTime } = req.body;
+        const { roundName, village, wastePoint, date, startTime, endTime } = req.body;
 
-        // ✅ บันทึกข้อมูลรอบรับซื้อขยะใหม่
         const newRound = new Round({
             roundName,
-            village, // ใช้ ID ของหมู่บ้านจากฟอร์ม (สำหรับแสดงในตาราง)
+            village,
+            wastePoint: wastePoint || null,  // เพิ่มฟิลด์นี้
             date,
             startTime,
             endTime
         });
         await newRound.save();
 
-        // ✅ ดึงข้อมูลหมู่บ้านจริง (เพื่อแสดงชื่อใน notification)
         const villageData = await Village.findById(village);
         const villageName = villageData ? villageData.villageName : "ทุกหมู่บ้าน";
 
-        // ✅ ดึง "ทุกครอบครัว" จากฐานข้อมูล (ไม่กรองตามหมู่บ้าน)
+        // ดึงข้อมูลจุดรับซื้อ (ถ้ามี)
+        let wastePointInfo = "";
+        if (wastePoint) {
+            const wastePointData = await WastePoint.findById(wastePoint);
+            if (wastePointData) {
+                wastePointInfo = `<li><strong>จุดรับซื้อ:</strong> ${wastePointData.wastePointName}</li>`;
+            }
+        }
+
         const allFamilies = await Family.find({ isDeleted: false });
         if (allFamilies.length > 0) {
-            // ✅ สร้าง notifications สำหรับทุกครอบครัว
             const notifications = allFamilies.map(family => ({
                 userId: family._id,
                 type: 'round',
@@ -2376,6 +2388,7 @@ const roundPost = async (req, res) => {
                 content: `
                     <ul>
                         <li><strong>หมู่บ้าน:</strong> ${villageName}</li>
+                        ${wastePointInfo}
                         <li><strong>วันที่:</strong> ${new Date(date).toLocaleDateString('th-TH', { year:'numeric', month:'long', day:'numeric' })}</li>
                         <li><strong>เวลา:</strong> ${startTime} - ${endTime}</li>
                     </ul>
@@ -2396,26 +2409,32 @@ const roundPost = async (req, res) => {
 // แก้ไขรอบรับซื้อขยะ
 const roundEdit = async (req, res) => {
     try {
-        const { _id, roundName, village, date, startTime, endTime } = req.body;
+        const { _id, roundName, village, wastePoint, date, startTime, endTime } = req.body;
 
         if (!_id || !roundName || !village || !date || !startTime || !endTime) {
             return res.redirect('/admin/round?error=กรอกข้อมูลให้ครบ');
         }
 
-        // อัปเดตรอบ
         await Round.findByIdAndUpdate(_id, {
             roundName,
             village,
+            wastePoint: wastePoint || null,  // เพิ่มฟิลด์นี้
             date,
             startTime,
             endTime
         });
 
-        // ดึงข้อมูลหมู่บ้านจริง
         const villageData = await Village.findById(village);
         if (!villageData) throw new Error("ไม่พบข้อมูลหมู่บ้าน");
 
-        // ดึงครอบครัวทั้งหมดในหมู่บ้านนั้น
+        let wastePointInfo = "";
+        if (wastePoint) {
+            const wastePointData = await WastePoint.findById(wastePoint);
+            if (wastePointData) {
+                wastePointInfo = `<li><strong>จุดรับซื้อ:</strong> ${wastePointData.wastePointName}</li>`;
+            }
+        }
+
         const families = await Family.find({ village }).populate('village');
 
         if (families.length > 0) {
@@ -2426,6 +2445,7 @@ const roundEdit = async (req, res) => {
                 content: `
                     <ul>
                         <li><strong>หมู่บ้าน:</strong> ${villageData.villageName}</li>
+                        ${wastePointInfo}
                         <li><strong>วันที่:</strong> ${new Date(date).toLocaleDateString('th-TH', { year:'numeric', month:'long', day:'numeric' })}</li>
                         <li><strong>เวลาใหม่:</strong> ${startTime} - ${endTime}</li>
                     </ul>
@@ -2454,15 +2474,22 @@ const roundDelete = (req, res) => {
         });
 };
 
-// จุดรับซื้อขยะ
+// จุดรับซื้อขยะ - แบบเรียบง่าย
 const wastePointIndex = async (req, res) => {
-    const wastePoints = await WastePoint.find({ isDeleted: false });
+    try {
+        const wastePoints = await WastePoint.find({ isDeleted: false })
+            .populate('village', 'villageName')
+            .sort({ createdAt: -1 });
 
-    res.render('admin/wastePoint', {
-        mytitle: 'ผู้ดูแลระบบ | แผนที่จุดเข้ารับซื้อ',
-        currentPage: 'wastePoint',
-        wastePoints
-    });
+        res.render('admin/wastePoint', {
+            mytitle: 'ผู้ดูแลระบบ | แผนที่จุดรับซื้อขยะ',
+            currentPage: 'wastePoint',
+            wastePoints
+        });
+    } catch (err) {
+        console.error('Error loading waste points:', err);
+        res.redirect('/admin?error=เกิดข้อผิดพลาดในการโหลดข้อมูล');
+    }
 };
 
 const wastePointToggle = async (req, res) => {
@@ -2472,28 +2499,84 @@ const wastePointToggle = async (req, res) => {
         await WastePoint.findByIdAndUpdate(id, { isOpen: isOpen === "true" });
         res.redirect("/admin/wastePoint?message=อัปเดตสถานะสำเร็จ");
     } catch (err) {
+        console.error('Error toggling status:', err);
         res.redirect("/admin/wastePoint?error=ไม่สามารถอัปเดตสถานะได้");
     }
 };
+
+const wastePointCreate = async (req, res) => {
+    try {
+        const villages = await Village.find({ isDeleted: false }).sort({ villageName: 1 });
+        
+        res.render('admin/wastePointCreate', {
+            mytitle: 'เพิ่มจุดรับซื้อขยะ',
+            username: req.session.username || "Admin",
+            currentPage: 'wastePoint',
+            villages
+        });
+    } catch (err) {
+        console.error('Error loading create page:', err);
+        res.redirect('/admin/wastePoint?error=เกิดข้อผิดพลาดในการโหลดหน้า');
+    }
+};
+
+const wastePointPost = async (req, res) => {
+    try {
+        const {
+            addBy,
+            wastePointName,
+            village,
+            location,
+            type,
+            note,
+            latitude,
+            longitude,
+            isOpen
+        } = req.body;
+
+        // ตรวจสอบข้อมูลที่จำเป็น
+        if (!wastePointName || !location || !type || !latitude || !longitude) {
+            return res.redirect('/admin/wastePoint/create?error=กรุณากรอกข้อมูลให้ครบถ้วน');
+        }
+
+        const newPoint = new WastePoint({
+            addBy,
+            wastePointName,
+            village: village || null, // optional
+            location,
+            type,
+            note: note || '',
+            latitude: parseFloat(latitude),
+            longitude: parseFloat(longitude),
+            isOpen: isOpen === "true"
+        });
+
+        await newPoint.save();
+        
+        res.redirect('/admin/wastePoint?message=เพิ่มจุดรับซื้อสำเร็จ');
+    } catch (err) {
+        console.error("Error saving waste point:", err);
+        res.redirect('/admin/wastePoint/create?error=เกิดข้อผิดพลาดในการบันทึก');
+    }
+};
+
 const wastePointEdit = async (req, res) => {
     const { id } = req.params;
     try {
-        // ดึงข้อมูลจุดรับซื้อขยะที่ต้องการแก้ไข
-        const wastePoint = await WastePoint.findById(id);
+        const wastePoint = await WastePoint.findById(id).populate('village');
         
         if (!wastePoint) {
             return res.redirect("/admin/wastePoint?error=ไม่พบข้อมูลจุดรับซื้อขยะ");
         }
 
-        // ดึงข้อมูลประเภทขยะทั้งหมด
-        const wasteTypes = await myWasteType.find({isDeleted: false })
+        const villages = await Village.find({ isDeleted: false }).sort({ villageName: 1 });
 
         res.render("admin/wastePointEdit", {
             mytitle: "แก้ไขจุดรับซื้อขยะ",
             username: req.session.username || "Admin",
             currentPage: 'wastePoint',
-            wastePoint: wastePoint,
-            wasteTypes
+            wastePoint,
+            villages
         });
     } catch (err) {
         console.error("Error fetching waste point:", err);
@@ -2506,49 +2589,32 @@ const wastePointUpdate = async (req, res) => {
     try {
         const {
             wastePointName,
-            responsible,
+            village,
             location,
-            phone,
             type,
-            wasteTypes,
-            openTime,
-            closeTime,
-            isOpen,
             note,
             latitude,
             longitude,
+            isOpen,
             updateBy
         } = req.body;
 
         // ตรวจสอบข้อมูลที่จำเป็น
-        if (!wastePointName || !responsible || !phone || !type || !latitude || !longitude || !location ) {
+        if (!wastePointName || !location || !type || !latitude || !longitude) {
             return res.redirect(`/admin/wastePoint/edit/${id}?error=กรุณากรอกข้อมูลให้ครบถ้วน`);
         }
 
-        // ตรวจสอบว่ามีการเลือกประเภทขยะหรือไม่
-        if (!wasteTypes || (Array.isArray(wasteTypes) && wasteTypes.length === 0)) {
-            return res.redirect(`/admin/wastePoint/edit/${id}?error=กรุณาเลือกประเภทขยะอย่างน้อย 1 ประเภท`);
-        }
-
-        // แปลงค่า wasteTypes เป็น array ถ้าเป็น string
-        const wasteTypesArray = Array.isArray(wasteTypes) ? wasteTypes : [wasteTypes];
-
-        // ค้นหาและอัปเดตข้อมูล
         const updatedWastePoint = await WastePoint.findByIdAndUpdate(
             id,
             {
                 wastePointName,
-                responsible,
-                phone,
-                type,
+                village: village || null,
                 location,
-                wasteTypes: wasteTypesArray,
-                openTime: openTime || null,
-                closeTime: closeTime || null,
-                isOpen: isOpen === 'true',
+                type,
                 note: note || '',
                 latitude: parseFloat(latitude),
                 longitude: parseFloat(longitude),
+                isOpen: isOpen === 'true',
                 updateBy,
                 updateAt: new Date()
             },
@@ -2562,79 +2628,20 @@ const wastePointUpdate = async (req, res) => {
         res.redirect("/admin/wastePoint?message=อัปเดตข้อมูลสำเร็จ");
     } catch (err) {
         console.error("Error updating waste point:", err);
-        
-        // ตรวจสอบ error จาก validation
-        if (err.name === 'ValidationError') {
-            const messages = Object.values(err.errors).map(e => e.message).join(', ');
-            return res.redirect(`/admin/wastePointEdit/${id}?error=${encodeURIComponent(messages)}`);
-        }
-        
-        res.redirect(`/admin/wastePointEdit/${id}?error=ไม่สามารถอัปเดตข้อมูลได้`);
-    }
-};
-
-const wastePointCreate = async (req, res) => {
-    const wasteTypes = await myWasteType.find({isDeleted: false })
-    res.render('admin/wastePointCreate', {
-        mytitle: 'ผู้ดูแลระบบ | แผนที่จุดเข้ารับซื้อ',
-        currentPage: 'wastePoint',
-        wasteTypes
-    });
-};
-
-const wastePointPost = async (req, res) => {
-    try {
-        const {
-            addBy,
-            wastePointName,
-            responsible,
-            location,
-            phone,
-            type,
-            wasteTypes,
-            openTime,
-            closeTime,
-            note,
-            latitude,
-            longitude,
-            isOpen
-        } = req.body;
-
-        const newPoint = new WastePoint({
-            addBy,
-            wastePointName,
-            responsible,
-            location,
-            phone,
-            type,
-            wasteTypes: Array.isArray(wasteTypes) ? wasteTypes : [wasteTypes],
-            openTime,
-            closeTime,
-            note,
-            latitude: parseFloat(latitude) || null,
-            longitude: parseFloat(longitude) || null,
-            isOpen: isOpen === "true"
-        });
-
-        await newPoint.save();
-        res.redirect('/admin/wastePoint?message=เพิ่มจุดรับซื้อสำเร็จ');
-    } catch (err) {
-        console.error("❌ Error saving waste point:", err);
-        res.redirect('/admin/wastePoint?error=เกิดข้อผิดพลาดในการบันทึก');
+        res.redirect(`/admin/wastePoint/edit/${id}?error=ไม่สามารถอัปเดตข้อมูลได้`);
     }
 };
 
 const wastePointDelete = async (req, res) => {
     const { id } = req.params;
     try {
-        // ใช้ Soft Delete แทนการลบจริง
         const wastePoint = await WastePoint.findById(id);
         
         if (!wastePoint || wastePoint.isDeleted) {
             return res.redirect("/admin/wastePoint?error=ไม่พบข้อมูลจุดรับซื้อขยะ");
         }
 
-        // ทำ Soft Delete
+        // Soft Delete
         wastePoint.isDeleted = true;
         await wastePoint.save();
 

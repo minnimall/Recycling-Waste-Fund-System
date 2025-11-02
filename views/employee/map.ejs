@@ -674,7 +674,7 @@
             return matrix;
         }
         
-        // Solve TSP using nearest neighbor with 2-opt improvement เริ่มต้นจากทุกจุด → สร้างเส้นทางแบบ Nearest Neighbor
+        // Solve TSP using nearest neighbor with 2-opt improvement เริ่มต้นจากทุกจุด → สร้างเส้นทางแบบ Nearest Neighbor และปรับปรุงด้วย 2-opt
         async function calculateOptimalRoute(points) {
             if (points.length < 2) return points;
 
@@ -692,7 +692,7 @@
             const visited = new Set([startIdx]);
             let currentIdx = startIdx;
 
-            // หาจุดที่ใกล้ที่สุดจากจุดปัจจุบัน (Nearest Neighbor)
+            // หาจุดที่ใกล้ที่สุดจากจุดปัจจุบัน (Nearest Neighbor Algorithm) เลือกจุดที่ใกล้ที่สุดที่ยังไม่ได้เยี่ยมชม ทำซ้ำจนครบทุกจุด
             while (route.length < n) {
                 let nearestIdx = -1;
                 let nearestDistance = Infinity;
@@ -845,7 +845,7 @@
             }
         }
         
-        // Display optimized route on map - Enhanced version แสดงเส้นทางที่เหมาะสมที่สุดบนแผนที่
+        // Display optimized route on map แสดงเส้นทางที่เหมาะสมที่สุดบนแผนที่
         async function displayOptimizedRoute(route) {
             try {
                 clearRoute();
@@ -866,7 +866,7 @@
                 
                 // Create routing control for the entire route
                 const waypoints = route.map(point => L.latLng(point.lat, point.lng));
-                // เพิ่มจุดเริ่มต้นเข้าไปในตอนท้ายเพื่อสร้าง round trip
+                // เพิ่มจุดเริ่มต้นเข้าไปในตอนท้ายเพื่อสร้าง round trip ที่จะวนกลับไปที่จุดเริ่มต้น
                 waypoints.push(L.latLng(route[0].lat, route[0].lng));
                 
                 const routingControl = L.Routing.control({ 
@@ -881,7 +881,7 @@
                         }]
                     },
                     createMarker: function() { return null; }, 
-                    router: L.Routing.osrmv1({   // ใช้ไลบรารี L.Routing เพื่อสร้างเส้นทาง
+                    router: L.Routing.osrmv1({   // ใช้ไลบรารี OSRM เป็น routing engine Library สำหรับวาดเส้นทางบนแผนที่
                         serviceUrl: 'https://router.project-osrm.org/route/v1',
                         profile: 'driving'
                     })
@@ -1128,7 +1128,7 @@
             resultsContainer.classList.remove('hidden');
         }
         
-        // Clear route from map
+        // เคลียร์ลบเส้นทางออกจากแผนที่
         function clearRoute() {
             // ลบ routing control layer
             if (routeLayer) {
@@ -1161,7 +1161,7 @@
             routeAnalysisData = null;
         }
         
-        // Clear all points
+        // ล้างจุดทั้งหมดที่ม
         function clearAllPoints() {
             Swal.fire({
                 title: 'ต้องการล้างจุดทั้งหมดหรือไม่?',
