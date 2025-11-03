@@ -12,7 +12,7 @@ const routeSchema = new mongoose.Schema({
         lat: Number,
         lng: Number,
         address: String,
-        requestId: { // เพิ่มฟิลด์นี้เพื่อเชื่อมโยงกับ wasteSaleRequest
+        requestId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'wasteSaleRequest',
             required: false
@@ -40,7 +40,6 @@ const routeSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
-    // เพิ่มฟิลด์สำหรับเก็บ wasteSaleRequest ที่เกี่ยวข้อง
     wasteSaleRequests: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'wasteSaleRequest'

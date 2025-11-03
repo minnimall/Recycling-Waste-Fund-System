@@ -14,7 +14,7 @@ const transactionSchema = new Schema({
     },
     transactionType: {
         type: String,
-        enum: ['withdraw', 'deposit'], // เผื่อในอนาคตจะเพิ่มฝากเงิน
+        enum: ['withdraw', 'deposit'],
         required: true
     },
     amount: {

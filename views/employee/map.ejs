@@ -195,7 +195,6 @@
     </main>
     
     <script>
-        // Global variables
         let map;
         let selectedPoints = [];
         let markers = [];
@@ -213,19 +212,17 @@
             const initialLat = 15.948741697876695;
             const initialLng = 102.85523133360921;
             
-            map = L.map('map').setView([initialLat, initialLng], 15); // ตัวเลขมันคือระยะการซูม
+            map = L.map('map').setView([initialLat, initialLng], 15);
             
             // Add OpenStreetMap tiles
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap contributors'
             }).addTo(map);
             
-            // Add click event to map  กดคลิ๊กบนแผนที่
             map.on('click', function(e) { 
                 const lat = e.latlng.lat;  // เก็บละติจูด
                 const lng = e.latlng.lng;  // เก็บลองติจูด
                 
-                // Show loading for reverse geocoding
                 const loadingPopup = L.popup()
                     .setLatLng(e.latlng)
                     .setContent('<div class="text-center"><ion-icon name="refresh-outline" class="animate-spin"></ion-icon> กำลังหาที่อยู่...</div>')
@@ -346,7 +343,6 @@
             } catch (error) {
                 console.error('Search error:', error);
                 
-                // Reset button state
                 searchIcon.style.display = 'inline-block';
                 loadingIcon.style.display = 'none';
                 loadingIcon.classList.remove('active');
@@ -504,7 +500,7 @@
             });
         }
         
-        // Add point to selected points t  ไว้เพิ่มจุดตอนผู้ใช้คลิ๊กบนแผนที่
+        // เพิ่มจุดตอนผู้ใช้คลิ๊กบนแผนที่
         function addPoint(lat, lng, address) {
             const pointNumber = selectedPoints.length + 1; // จะได้ลำดับที่ของจุด เช่น จุดแรก = 1, จุดถัดไป = 2, …
             const point = {
@@ -516,18 +512,16 @@
             
             selectedPoints.push(point); // เก็บจุดที่ผู้ใช้เลือกลงใน selectedPoints
             
-            // Add marker to map เพิ่ม Marker ลงแผนที่ Leaflet
+            // Marker ลงแผนที่ Leaflet
             const marker = L.marker([lat, lng])
                 .addTo(map)
                 .bindPopup(`<b>จุดที่ ${pointNumber}</b><br>${address}`);
             
             markers.push(marker); // เก็บ marker ไว้ใน Array markers
             
-            // Update UI
             updatePointsList(); // แสดงรายชื่อจุดที่เลือกในหน้าเว็บ
             updateButtons(); //// อัปเดตปุ่มกด (เช่น ปุ่มลบจุด/คำนวณเส้นทาง)
             
-            // Show success message
             Swal.fire({
                 toast: true,
                 position: 'top-end',
@@ -675,7 +669,7 @@
         }
         
         // Solve TSP using nearest neighbor with 2-opt improvement เริ่มต้นจากทุกจุด → สร้างเส้นทางแบบ Nearest Neighbor และปรับปรุงด้วย 2-opt
-        async function calculateOptimalRoute(points) {
+        async function calculateOptimalRoute(points) { // ส่วน fucntion คำนวณ route หาเส้นทางที่สั้นที่สุดจากชุดจุดที่กำหนด
             if (points.length < 2) return points;
 
             const n = points.length;
@@ -686,7 +680,6 @@
                 return points;
             }
 
-            // เริ่มต้นจากจุดแรกเสมอ (index 0)
             const startIdx = 0;
             const route = [startIdx];
             const visited = new Set([startIdx]);
@@ -753,7 +746,6 @@
             return route;
         }
         
-        // Analyze route - Enhanced version
         async function analyzeRoute() {
             if (selectedPoints.length < 2) return;
             

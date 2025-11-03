@@ -167,18 +167,22 @@
 
                         <!-- เวลาเริ่มต้น -->
                         <div>
-                            <label for="startTime" class="block text-sm font-medium text-gray-700 mb-1">เวลาเริ่มต้น</label>
-                            <input type="text" name="startTime" class="startTime" required
+                            <label for="startTime" class="block text-sm font-medium text-gray-700 mb-1">
+                                เวลาเริ่มต้น
+                            </label>
+                            <input type="text" name="startTime" id="add_startTime" class="startTime w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500"
                                 placeholder="เช่น 08:00"
-                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500">
+                                required>
                         </div>
 
                         <!-- เวลาสิ้นสุด -->
                         <div>
-                            <label for="endTime" class="block text-sm font-medium text-gray-700 mb-1">เวลาสิ้นสุด</label>
-                            <input type="text" name="endTime" class="endTime" required
+                            <label for="endTime" class="block text-sm font-medium text-gray-700 mb-1">
+                                เวลาสิ้นสุด
+                            </label>
+                            <input type="text" name="endTime" id="add_endTime" class="endTime w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500"
                                 placeholder="เช่น 11:30"
-                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500">
+                                required>
                         </div>
 
                         <!-- ปุ่ม -->
@@ -248,16 +252,22 @@
 
                         <!-- เวลาเริ่มต้น -->
                         <div>
-                            <label for="startTime" class="block text-sm font-medium text-gray-700 mb-1">เวลาเริ่มต้น</label>
-                            <input type="text" id="startTime" name="startTime" placeholder="เช่น 08:00" required
-                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-500">
+                            <label for="startTime" class="block text-sm font-medium text-gray-700 mb-1">
+                                เวลาเริ่มต้น
+                            </label>
+                            <input type="text" id="startTime" name="startTime" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-500"
+                                placeholder="เช่น 08:00" 
+                                required>
                         </div>
 
                         <!-- เวลาสิ้นสุด -->
                         <div>
-                            <label for="endTime" class="block text-sm font-medium text-gray-700 mb-1">เวลาสิ้นสุด</label>
-                            <input type="text" id="endTime" name="endTime" placeholder="เช่น 11:30" required
-                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-500">
+                            <label for="endTime" class="block text-sm font-medium text-gray-700 mb-1">
+                                เวลาสิ้นสุด
+                            </label>
+                            <input type="text" id="endTime" name="endTime" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-500"
+                                placeholder="เช่น 11:30" 
+                                required>
                         </div>
 
                         <!-- ปุ่ม -->
@@ -276,23 +286,97 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            flatpickr(".startTime", {
-                enableTime: true,
-                noCalendar: true,
-                dateFormat: "H:i",
-                time_24hr: true,
-                minuteIncrement: 30
+            // กำหนด flatpickr พร้อม validation
+            const startTimeInputs = document.querySelectorAll(".startTime");
+            const endTimeInputs = document.querySelectorAll(".endTime");
+
+            startTimeInputs.forEach(input => {
+                flatpickr(input, {
+                    enableTime: true,
+                    noCalendar: true,
+                    dateFormat: "H:i",
+                    time_24hr: true,
+                    minuteIncrement: 30,
+                    allowInput: true,
+                    onClose: function(selectedDates, dateStr, instance) {
+                        // ตรวจสอบว่ามีค่าหรือไม่
+                        if (!dateStr || dateStr.trim() === '') {
+                            instance.input.setCustomValidity('กรุณาเลือกเวลาเริ่มต้น');
+                        } else {
+                            instance.input.setCustomValidity('');
+                        }
+                        instance.input.reportValidity();
+                    }
+                });
             });
 
-            flatpickr(".endTime", {
-                enableTime: true,
-                noCalendar: true,
-                dateFormat: "H:i",
-                time_24hr: true,
-                minuteIncrement: 30
+            endTimeInputs.forEach(input => {
+                flatpickr(input, {
+                    enableTime: true,
+                    noCalendar: true,
+                    dateFormat: "H:i",
+                    time_24hr: true,
+                    minuteIncrement: 30,
+                    allowInput: true,
+                    onClose: function(selectedDates, dateStr, instance) {
+                        if (!dateStr || dateStr.trim() === '') {
+                            instance.input.setCustomValidity('กรุณาเลือกเวลาสิ้นสุด');
+                        } else {
+                            instance.input.setCustomValidity('');
+                        }
+                        instance.input.reportValidity();
+                    }
+                });
+            });
+
+            // Validation เมื่อ submit form
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    const startTimeInput = this.querySelector('[name="startTime"]');
+                    const endTimeInput = this.querySelector('[name="endTime"]');
+                    
+                    let isValid = true;
+
+                    if (!startTimeInput.value || startTimeInput.value.trim() === '') {
+                        startTimeInput.setCustomValidity('กรุณาเลือกเวลาเริ่มต้น');
+                        startTimeInput.reportValidity();
+                        isValid = false;
+                    } else {
+                        startTimeInput.setCustomValidity('');
+                    }
+
+                    if (!endTimeInput.value || endTimeInput.value.trim() === '') {
+                        endTimeInput.setCustomValidity('กรุณาเลือกเวลาสิ้นสุด');
+                        endTimeInput.reportValidity();
+                        isValid = false;
+                    } else {
+                        endTimeInput.setCustomValidity('');
+                    }
+
+                    // เช็คว่าเวลาสิ้นสุดมากกว่าเวลาเริ่มต้นหรือไม่
+                    if (isValid && startTimeInput.value && endTimeInput.value) {
+                        const [startHour, startMin] = startTimeInput.value.split(':').map(Number);
+                        const [endHour, endMin] = endTimeInput.value.split(':').map(Number);
+                        
+                        const startMinutes = startHour * 60 + startMin;
+                        const endMinutes = endHour * 60 + endMin;
+
+                        if (endMinutes <= startMinutes) {
+                            endTimeInput.setCustomValidity('เวลาสิ้นสุดต้องมากกว่าเวลาเริ่มต้น');
+                            endTimeInput.reportValidity();
+                            isValid = false;
+                        } else {
+                            endTimeInput.setCustomValidity('');
+                        }
+                    }
+
+                    if (!isValid) {
+                        e.preventDefault();
+                    }
+                });
             });
         });
-    </script>
+        </script>
 <script>
     // function showLoading() {
     // document.getElementById('loadingIndicator').classList.remove('hidden');

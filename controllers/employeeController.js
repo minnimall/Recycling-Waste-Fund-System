@@ -200,7 +200,7 @@ const dashboardIndex = async (req, res) => {
             return pipeline;
         };
 
-        // ✅ ใหม่ - นับถูก
+        // ใหม่ - นับถูก
         const getSummaryGroupStage = () => [
             // Stage 1: Group by transaction ID ก่อน
             {
