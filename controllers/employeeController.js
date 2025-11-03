@@ -218,7 +218,7 @@ const dashboardIndex = async (req, res) => {
                     _id: null,
                     totalAmount: { $sum: '$totalAmount' },
                     totalQuantity: { $sum: '$totalQuantity' },
-                    totalTransactions: { $sum: 1 }  // ✅ นับ transactions จริง
+                    totalTransactions: { $sum: 1 }
                 }
             }
         ];
@@ -259,25 +259,25 @@ const dashboardIndex = async (req, res) => {
             // 1. Total Data ตาม filter
             WastePurchase.aggregate([
                 ...buildPipeline(filterStartDate, filterEndDate, village),
-                ...getSummaryGroupStage()  // ✅ เพิ่ม ... (spread operator)
+                ...getSummaryGroupStage()
             ]),
             
             // 2. Today Data
             WastePurchase.aggregate([
                 ...buildPipeline(todayStart, todayEnd, null),
-                ...getSummaryGroupStage()  // ✅ เพิ่ม ...
+                ...getSummaryGroupStage()
             ]),
             
             // 3. Yesterday Data
             WastePurchase.aggregate([
                 ...buildPipeline(yesterdayStart, yesterdayEnd, null),
-                ...getSummaryGroupStage()  // ✅ เพิ่ม ...
+                ...getSummaryGroupStage()
             ]),
             
             // 4. Last Month Data
             WastePurchase.aggregate([
                 ...buildPipeline(lastMonthStart, lastMonthEnd, null),
-                ...getSummaryGroupStage()  // ✅ เพิ่ม ...
+                ...getSummaryGroupStage()
             ]),
             
             // 5. Highest Value Waste
@@ -2475,8 +2475,8 @@ const roundIndex = (req, res) => {
 
     Promise.all([
         Village.find(filter).sort({ createdAt: 1 }),
-        Round.find(filter).populate('village').sort({ date: -1 }).skip(skip).limit(limit), // Apply pagination
-        Round.countDocuments(filter) // Count total documents
+        Round.find(filter).populate('village').sort({ date: -1 }).skip(skip).limit(limit),
+        Round.countDocuments(filter)
     ])
     .then(([villageResult, roundResult, totalItems]) => {
         const totalPages = Math.ceil(totalItems / limit);
@@ -2508,24 +2508,23 @@ const roundPost = async (req, res) => {
     try {
         const { roundName, village, date, startTime, endTime } = req.body;
 
-        // ✅ บันทึกข้อมูลรอบรับซื้อขยะใหม่
         const newRound = new Round({
             roundName,
-            village, // ใช้ ID ของหมู่บ้านจากฟอร์ม (สำหรับแสดงในตาราง)
+            village,
             date,
             startTime,
             endTime
         });
         await newRound.save();
 
-        // ✅ ดึงข้อมูลหมู่บ้านจริง (เพื่อแสดงชื่อใน notification)
+        // ดึงข้อมูลหมู่บ้านจริง (เพื่อแสดงชื่อใน notification)
         const villageData = await Village.findById(village);
         const villageName = villageData ? villageData.villageName : "ทุกหมู่บ้าน";
 
-        // ✅ ดึง "ทุกครอบครัว" จากฐานข้อมูล (ไม่กรองตามหมู่บ้าน)
+        // ดึง "ทุกครอบครัว" จากฐานข้อมูล (ไม่กรองตามหมู่บ้าน)
         const allFamilies = await Family.find({ isDeleted: false });
         if (allFamilies.length > 0) {
-            // ✅ สร้าง notifications สำหรับทุกครอบครัว
+            // สร้าง notifications สำหรับทุกครอบครัว
             const notifications = allFamilies.map(family => ({
                 userId: family._id,
                 type: 'round',

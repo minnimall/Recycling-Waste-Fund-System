@@ -412,9 +412,9 @@ const Storage = multer.diskStorage({
 });
 
 const Upload3 = multer({
-    storage: Storage,   // ✅ ใช้ Storage ตัวใหญ่
+    storage: Storage,   // ใช้ Storage ตัวใหญ่
     limits: { fileSize: 10 * 1024 * 1024 } // จำกัด 10MB
-}).single('image');     // ✅ ต้องตรงกับ name="image" ใน form
+}).single('image');     // ต้องตรงกับ name="image" ใน form
 
 
 // หน้าคำร้องเรียน
@@ -439,7 +439,7 @@ const complaintPost = (req, res) => {
                 return res.redirect('/user/complaint?error=ไม่พบข้อมูลครัวเรือน');
             }
 
-            // ✅ ต้องใช้ filename ไม่ใช่ name
+            // ต้องใช้ filename ไม่ใช่ name
             const imagePath = req.file 
                 ? `/upload/complaint/${req.file.filename}` 
                 : '/img/no_image.jpg';
@@ -478,7 +478,7 @@ const detailNews = (req, res) => {
         }
         const formattedNews = {
             ...news._doc,
-            formattedDate: moment(news.createdAt).format('YYYY-MM-DD') // Correctly using moment
+            formattedDate: moment(news.createdAt).format('YYYY-MM-DD')
         };
         res.render('user/detailNews', { news: formattedNews });
     })
@@ -827,13 +827,13 @@ const delete_ideas = async (req, res) => {
     }
 };
 const storage4 = multer.diskStorage({
-    destination: './public/ideasImg', // โฟลเดอร์เก็บรูป
+    destination: './public/ideasImg',
         filename: (req, file, cb) => {
         cb(null, Date.now() + '-' + file.originalname);
     }
 });
 
-const upload4 = multer({ storage: storage4 }).single('image');  // แก้จาก storage2 -> storage4
+const upload4 = multer({ storage: storage4 }).single('image');
 
 const edit_idea = (req, res) => {
     upload4(req, res, async (err) => {
@@ -873,64 +873,64 @@ const edit_idea = (req, res) => {
 };
 
 const notification = async (req, res) => {
-  try {
-    // หา ObjectId ของผู้ใช้จาก session
-    const user = await Family.findOne({ username: req.session.username });
-    if (!user) return res.status(404).redirect('/login');
+    try {
+        // หา ObjectId ของผู้ใช้จาก session
+        const user = await Family.findOne({ username: req.session.username });
+        if (!user) return res.status(404).redirect('/login');
 
-    const userId = user._id;
+        const userId = user._id;
 
-    // ดึงการแจ้งเตือนทั้งหมดของ user
-    const notifications = await Notification.find({ userId }).sort({ createdAt: -1 });
-    const notificationUnRead = await Notification.find({ userId, read: false }).sort({ createdAt: -1});
-    const notificationUnReadCount = notificationUnRead.length;
-    // render หน้า พร้อมส่งข้อมูลไปยัง view
-    res.render('user/notification', { notifications, notificationUnReadCount });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('เกิดข้อผิดพลาดในการโหลดการแจ้งเตือน');
-  }
+        // ดึงการแจ้งเตือนทั้งหมดของ user
+        const notifications = await Notification.find({ userId }).sort({ createdAt: -1 });
+        const notificationUnRead = await Notification.find({ userId, read: false }).sort({ createdAt: -1});
+        const notificationUnReadCount = notificationUnRead.length;
+        // render หน้า พร้อมส่งข้อมูลไปยัง view
+        res.render('user/notification', { notifications, notificationUnReadCount });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('เกิดข้อผิดพลาดในการโหลดการแจ้งเตือน');
+    }
 };
 const notificationPost = async (req, res) => {
-  try {
-    const { type, title, content, link, targetType, userIds } = req.body;
+    try {
+        const { type, title, content, link, targetType, userIds } = req.body;
 
-    if (!title || !content) {
-      return res.status(400).json({ message: 'กรุณากรอก title และ content' });
+        if (!title || !content) {
+        return res.status(400).json({ message: 'กรุณากรอก title และ content' });
+        }
+
+        let targetUsers = [];
+
+        if (targetType === 'all') {
+        const users = await Family.find({}, '_id');
+        targetUsers = users.map(u => u._id.toString());
+        } else if (userIds) {
+        const users = await Family.find({ username: { $in: userIds.split(',').map(u => u.trim()) } }, '_id');
+        targetUsers = users.map(u => u._id.toString());
+        }
+
+        if (targetUsers.length === 0) {
+        return res.status(400).json({ message: 'ไม่พบผู้ใช้เป้าหมาย' });
+        }
+
+        const notifications = targetUsers.map(userId => ({
+        userId,
+        type: type,
+        title,
+        content,
+        link: link || null,
+        read: false,
+        createdAt: new Date()
+        }));
+
+        await Notification.insertMany(notifications);
+
+        // res.json({ message: ` ส่งแจ้งเตือนสำเร็จ ${notifications.length} คน` });
+        res.redirect(`/user/notification`)
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "❌ เกิดข้อผิดพลาดในการส่งแจ้งเตือน", error: err.message });
     }
-
-    let targetUsers = [];
-
-    if (targetType === 'all') {
-      const users = await Family.find({}, '_id');
-      targetUsers = users.map(u => u._id.toString());
-    } else if (userIds) {
-      const users = await Family.find({ username: { $in: userIds.split(',').map(u => u.trim()) } }, '_id');
-      targetUsers = users.map(u => u._id.toString());
-    }
-
-    if (targetUsers.length === 0) {
-      return res.status(400).json({ message: 'ไม่พบผู้ใช้เป้าหมาย' });
-    }
-
-    const notifications = targetUsers.map(userId => ({
-      userId,
-      type: type,
-      title,
-      content,
-      link: link || null,
-      read: false,
-      createdAt: new Date()
-    }));
-
-    await Notification.insertMany(notifications);
-
-    // res.json({ message: `✅ ส่งแจ้งเตือนสำเร็จ ${notifications.length} คน` });
-    res.redirect(`/user/notification`)
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "❌ เกิดข้อผิดพลาดในการส่งแจ้งเตือน", error: err.message });
-  }
 };
 
 // ดึงข้อมูลแจ้งเตือนตาม id

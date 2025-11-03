@@ -409,7 +409,7 @@ const dashboardIndex = async (req, res) => {
             const selectedVillage = allVillages.find(v => v._id.toString() === village);
             if (selectedVillage) {
                 filterInfo.villageName = selectedVillage.villageName || 
-                                          `หมู่บ้านที่ ${selectedVillage.villageNumber}`;
+                                        `หมู่บ้านที่ ${selectedVillage.villageNumber}`;
             }
         }
 
@@ -991,7 +991,7 @@ const wasteEdit = async (req, res) => {
 
             await waste.save();
 
-            // 🧠 คำนวณเปอร์เซ็นต์การเปลี่ยนแปลงของราคา
+            // คำนวณเปอร์เซ็นต์การเปลี่ยนแปลงของราคา
             let percentChange = null;
             let changeDirection = 'none';
 
@@ -1008,7 +1008,7 @@ const wasteEdit = async (req, res) => {
                 changeText = 'ราคาไม่เปลี่ยนแปลง';
             }
 
-            // 📝 บันทึกประวัติราคาใหม่
+            // บันทึกประวัติราคาใหม่
             const priceLog = new WastePriceHistory({
                 wasteId: waste._id,
                 pricePerUnit: newPrice,
@@ -1019,7 +1019,7 @@ const wasteEdit = async (req, res) => {
 
             await priceLog.save();
 
-                        // 🔔 สร้าง Notification แจ้งเตือนทุกครอบครัวที่เป็นสมาชิก
+                        // สร้าง Notification แจ้งเตือนทุกครอบครัวที่เป็นสมาชิก
             const allFamilies = await WasteBankAccount.find({}, 'familyID'); // ดึงทุก familyID
             const notifications = allFamilies.map(family => ({
                 userId: family.familyID,
@@ -2318,10 +2318,10 @@ const roundIndex = (req, res) => {
 
     Promise.all([
         Village.find(filter).sort({ createdAt: 1 }),
-        WastePoint.find(filter).populate('village'),  // เพิ่มการดึงข้อมูลจุดรับซื้อ
+        WastePoint.find(filter).populate('village'),
         Round.find(filter)
             .populate('village')
-            .populate('wastePoint')  // populate จุดรับซื้อขยะ
+            .populate('wastePoint')
             .sort({ date: -1 })
             .skip(skip)
             .limit(limit),
@@ -2339,7 +2339,7 @@ const roundIndex = (req, res) => {
         res.render('admin/round', {
             mytitle: 'Admindashboard | Round',
             village: villageResult,
-            wastePoints: wastePointResult,  // ส่งข้อมูลจุดรับซื้อไปด้วย
+            wastePoints: wastePointResult,
             rounds: roundResult,
             currentPage: page,
             totalPages: totalPages,
@@ -2360,7 +2360,7 @@ const roundPost = async (req, res) => {
         const newRound = new Round({
             roundName,
             village,
-            wastePoint: wastePoint || null,  // เพิ่มฟิลด์นี้
+            wastePoint: wastePoint || null,
             date,
             startTime,
             endTime
@@ -2418,7 +2418,7 @@ const roundEdit = async (req, res) => {
         await Round.findByIdAndUpdate(_id, {
             roundName,
             village,
-            wastePoint: wastePoint || null,  // เพิ่มฟิลด์นี้
+            wastePoint: wastePoint || null,
             date,
             startTime,
             endTime
@@ -2542,7 +2542,7 @@ const wastePointPost = async (req, res) => {
         const newPoint = new WastePoint({
             addBy,
             wastePointName,
-            village: village || null, // optional
+            village: village || null,
             location,
             type,
             note: note || '',
