@@ -14,7 +14,7 @@
                 </div>
                 <div class="text-center md:text-left">
                     <h1 class="text-3xl font-bold"><%= familyName %></h1>
-                    <p class="text-xl font-medium text-gray-300">@<%= username %></p>
+                    <!-- <p class="text-xl font-medium text-gray-300">@<%= username %></p> -->
                     <p class="text-xl opacity-90">เข้าร่วมสมาชิกกองทุนขยะวันที่ <%= createdAt.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) %></p>
                     <!-- <div class="flex flex-wrap justify-center md:justify-start gap-4 mt-3">
                         <span class="bg-white/20 px-3 py-1 rounded-full text-sm">สมาชิกทอง</span>
@@ -163,28 +163,60 @@
             <div class="max-w-6xl mx-auto">
                 <!-- Tab Navigation -->
                 <div class="bg-white rounded-lg shadow-lg mb-6">
+                    <!-- <div class="border-b border-gray-200 overflow-x-auto">
+                        <nav class="flex flex-nowrap min-w-max">
+                            <button class="tab-btn active px-4 md:px-6 py-3 md:py-4 text-sm md:text-base text-primary border-b-2 border-primary font-semibold whitespace-nowrap" data-tab="personal">
+                                <i class="fas fa-user mr-1 md:mr-2"></i>ข้อมูลส่วนตัว
+                            </button>
+                            <button class="tab-btn px-4 md:px-6 py-3 md:py-4 text-sm md:text-base text-gray-500 hover:text-primary transition-colors whitespace-nowrap" data-tab="family">
+                                <i class="fas fa-users mr-1 md:mr-2"></i>สมาชิกครอบครัว
+                            </button>
+                            <button class="tab-btn px-4 md:px-6 py-3 md:py-4 text-sm md:text-base text-gray-500 hover:text-primary transition-colors whitespace-nowrap" data-tab="requests">
+                                <i class="fas fa-clipboard-list mr-1 md:mr-2"></i>ประวัติแจ้งความประสงค์
+                            </button>
+                            <button class="tab-btn px-4 md:px-6 py-3 md:py-4 text-sm md:text-base text-gray-500 hover:text-primary transition-colors whitespace-nowrap" data-tab="complaints">
+                                <i class="fas fa-exclamation-triangle mr-1 md:mr-2"></i>ประวัติคำร้องเรียน
+                            </button>
+                            <button class="tab-btn px-4 md:px-6 py-3 md:py-4 text-sm md:text-base text-gray-500 hover:text-primary transition-colors whitespace-nowrap" data-tab="ideas">
+                                <i class="fas fa-lightbulb mr-1 md:mr-2"></i>ไอเดียของฉัน
+                            </button>
+                            <button class="tab-btn px-4 md:px-6 py-3 md:py-4 text-sm md:text-base text-gray-500 hover:text-primary transition-colors whitespace-nowrap" data-tab="sales">
+                                <i class="fas fa-shopping-cart mr-1 md:mr-2"></i>ประวัติการขาย
+                            </button>
+                            <button class="tab-btn px-4 md:px-6 py-3 md:py-4 text-sm md:text-base text-gray-500 hover:text-primary transition-colors whitespace-nowrap" data-tab="account">
+                                <i class="fas fa-book mr-1 md:mr-2"></i>สมุดบัญชี
+                            </button>
+                        </nav>
+                    </div> -->
                     <div class="border-b border-gray-200">
-                        <nav class="flex flex-wrap">
-                            <button class="tab-btn active px-6 py-4 text-primary border-b-2 border-primary font-semibold" data-tab="personal">
-                                <i class="fas fa-user mr-2"></i>ข้อมูลส่วนตัว
+                        <nav class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
+                            <button class="tab-btn active px-3 md:px-4 py-3 md:py-4 text-xs md:text-sm text-primary border-b-2 border-primary font-semibold text-left flex items-center" data-tab="personal">
+                                <i class="fas fa-user mr-1 md:mr-2"></i>
+                                <span>ข้อมูลส่วนตัว</span>
                             </button>
-                            <button class="tab-btn px-6 py-4 text-gray-500 hover:text-primary transition-colors" data-tab="family">
-                                <i class="fas fa-users mr-2"></i>สมาชิกครอบครัว
+                            <button class="tab-btn px-3 md:px-4 py-3 md:py-4 text-xs md:text-sm text-gray-500 hover:text-primary border-b-2 border-transparent hover:border-primary transition-colors text-left flex items-center" data-tab="family">
+                                <i class="fas fa-users mr-1 md:mr-2"></i>
+                                <span>สมาชิกครอบครัว</span>
                             </button>
-                            <button class="tab-btn px-6 py-4 text-gray-500 hover:text-primary transition-colors" data-tab="requests">
-                                <i class="fas fa-clipboard-list mr-2"></i>ประวัติแจ้งความประสงค์
+                            <button class="tab-btn px-3 md:px-4 py-3 md:py-4 text-xs md:text-sm text-gray-500 hover:text-primary border-b-2 border-transparent hover:border-primary transition-colors text-left flex items-center" data-tab="requests">
+                                <i class="fas fa-clipboard-list mr-1 md:mr-2"></i>
+                                <span>ประวัติแจ้งความประสงค์</span>
                             </button>
-                            <button class="tab-btn px-6 py-4 text-gray-500 hover:text-primary transition-colors" data-tab="complaints">
-                                <i class="fas fa-exclamation-triangle mr-2"></i>ประวัติคำร้องเรียน
+                            <button class="tab-btn px-3 md:px-4 py-3 md:py-4 text-xs md:text-sm text-gray-500 hover:text-primary border-b-2 border-transparent hover:border-primary transition-colors text-left flex items-center" data-tab="complaints">
+                                <i class="fas fa-exclamation-triangle mr-1 md:mr-2"></i>
+                                <span>ประวัติคำร้องเรียน</span>
                             </button>
-                            <button class="tab-btn px-6 py-4 text-gray-500 hover:text-primary transition-colors" data-tab="ideas">
-                                <i class="fas fa-lightbulb mr-2"></i>ไอเดียของฉัน
+                            <button class="tab-btn px-3 md:px-4 py-3 md:py-4 text-xs md:text-sm text-gray-500 hover:text-primary border-b-2 border-transparent hover:border-primary transition-colors text-left flex items-center" data-tab="ideas">
+                                <i class="fas fa-lightbulb mr-1 md:mr-2"></i>
+                                <span>ไอเดียของฉัน</span>
                             </button>
-                            <button class="tab-btn px-6 py-4 text-gray-500 hover:text-primary transition-colors" data-tab="sales">
-                                <i class="fas fa-shopping-cart mr-2"></i>ประวัติการขาย
+                            <button class="tab-btn px-3 md:px-4 py-3 md:py-4 text-xs md:text-sm text-gray-500 hover:text-primary border-b-2 border-transparent hover:border-primary transition-colors text-left flex items-center" data-tab="sales">
+                                <i class="fas fa-shopping-cart mr-1 md:mr-2"></i>
+                                <span>ประวัติการขาย</span>
                             </button>
-                            <button class="tab-btn px-6 py-4 text-gray-500 hover:text-primary transition-colors" data-tab="account">
-                                <i class="fas fa-book mr-2"></i>สมุดบัญชี
+                            <button class="tab-btn px-3 md:px-4 py-3 md:py-4 text-xs md:text-sm text-gray-500 hover:text-primary border-b-2 border-transparent hover:border-primary transition-colors text-left flex items-center" data-tab="account">
+                                <i class="fas fa-book mr-1 md:mr-2"></i>
+                                <span>สมุดบัญชี</span>
                             </button>
                         </nav>
                     </div>
