@@ -495,7 +495,7 @@ const user_profile = async (req, res) => {
         // ตรวจสอบ session
         if (!req.session || !req.session.username) {
             console.log('No session username');
-            return res.redirect('/user/complaint?error=กรุณาเข้าสู่ระบบก่อนทำรายการ');
+            return res.redirect('/user?error=กรุณาเข้าสู่ระบบก่อนทำรายการ');
         }
 
         // ค้นหาครอบครัวจาก session
@@ -503,7 +503,7 @@ const user_profile = async (req, res) => {
 
         if (!family) {
             console.log('Family not found');
-            return res.redirect('/user/complaint?error=ไม่พบข้อมูลครัวเรือน');
+            return res.redirect('/user?error=ไม่พบข้อมูลครัวเรือน');
         }
 
         // รับค่า filter เดือน/ปี จาก query parameter
@@ -532,7 +532,7 @@ const user_profile = async (req, res) => {
 
         if (!wasteBankAccount) {
             console.log('No waste bank account');
-            return res.redirect('/user/complaint?error=ไม่พบบัญชีธนาคารขยะ');
+            return res.redirect('/user?error=ไม่พบบัญชีธนาคารขยะ');
         }
 
         // สร้าง query สำหรับการขายขยะ
