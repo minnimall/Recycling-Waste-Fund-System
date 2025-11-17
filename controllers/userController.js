@@ -45,7 +45,7 @@ const user_index = async (req, res) => {
             myNews.find(filter).sort({ createdAt: -1 }),
             WastePoint.find(filter)
                 .populate('village')
-                .sort({ createdAt: -1 })
+                .sort({ createdAt: 1 })
         ]);
 
         // ดึงประวัติราคาล่าสุดของขยะแต่ละตัว
