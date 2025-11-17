@@ -14,7 +14,7 @@ const mediaSchema = new Schema({
     },
     isDeleted: {
         type: Boolean,
-        default: false // ✅ ค่าเริ่มต้นเป็น false (ยังไม่ถูกลบ)
+        default: false
     }
 }, { timestamps: true })
 

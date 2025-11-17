@@ -26,7 +26,6 @@ const bcrypt = require('bcryptjs');
 const moment = require('moment');
 const mongoose = require('mongoose');
 const myAdmin = require('../models/admin');
-const RouteAnalysis = require('../models/map');
 const Route = require('../models/route');
 const { Console } = require('console');
 

@@ -200,17 +200,28 @@ const dashboardIndex = async (req, res) => {
             return pipeline;
         };
 
-        // Group Stage สำหรับสรุปข้อมูล
-        const getSummaryGroupStage = () => ({
-            $group: {
-                _id: null,
-                totalAmount: {
-                    $sum: { $multiply: ['$wasteItemDetails.quantity', '$wasteItemDetails.pricePerUnit'] }
-                },
-                totalQuantity: { $sum: '$wasteItemDetails.quantity' },
-                totalTransactions: { $sum: 1 }
+        // ใหม่ - นับถูก
+        const getSummaryGroupStage = () => [
+            // Stage 1: Group by transaction ID ก่อน
+            {
+                $group: {
+                    _id: '$_id',  // Group ตาม transaction ID
+                    totalAmount: {
+                        $sum: { $multiply: ['$wasteItemDetails.quantity', '$wasteItemDetails.pricePerUnit'] }
+                    },
+                    totalQuantity: { $sum: '$wasteItemDetails.quantity' }
+                }
+            },
+            // Stage 2: นับจำนวน transactions จริง
+            {
+                $group: {
+                    _id: null,
+                    totalAmount: { $sum: '$totalAmount' },
+                    totalQuantity: { $sum: '$totalQuantity' },
+                    totalTransactions: { $sum: 1 }
+                }
             }
-        });
+        ];
 
         // ==================== คำนวณช่วงวันที่ ====================
         
@@ -248,25 +259,25 @@ const dashboardIndex = async (req, res) => {
             // 1. Total Data ตาม filter
             WastePurchase.aggregate([
                 ...buildPipeline(filterStartDate, filterEndDate, village),
-                getSummaryGroupStage()
+                ...getSummaryGroupStage()
             ]),
             
             // 2. Today Data
             WastePurchase.aggregate([
                 ...buildPipeline(todayStart, todayEnd, null),
-                getSummaryGroupStage()
+                ...getSummaryGroupStage()
             ]),
             
             // 3. Yesterday Data
             WastePurchase.aggregate([
                 ...buildPipeline(yesterdayStart, yesterdayEnd, null),
-                getSummaryGroupStage()
+                ...getSummaryGroupStage()
             ]),
             
             // 4. Last Month Data
             WastePurchase.aggregate([
                 ...buildPipeline(lastMonthStart, lastMonthEnd, null),
-                getSummaryGroupStage()
+                ...getSummaryGroupStage()
             ]),
             
             // 5. Highest Value Waste
@@ -416,7 +427,7 @@ const dashboardIndex = async (req, res) => {
         // ==================== Render ====================
         
         res.render('admin/dashboard', {
-            mytitle: 'พนักงาน | แดชบอร์ด',
+            mytitle: 'ผู้ดูแลระบบ | แดชบอร์ด',
             
             // สถิติหลัก
             totalQuantity: totalData.totalQuantity,
@@ -1489,7 +1500,7 @@ const wasteStockIndex = async (req, res) => {
 
         console.log('Rendering page with data...');
         res.render('admin/wasteStock', {
-            mytitle: 'พนักงาน | สต๊อกขยะ',
+            mytitle: 'ผู้ดูและระบบ | สต๊อกขยะ',
             stockData: stockData || [],
             selectedVillageId: villageId,
             villages: allVillages,
