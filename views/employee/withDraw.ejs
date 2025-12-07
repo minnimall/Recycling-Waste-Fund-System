@@ -31,7 +31,6 @@
                     confirmButtonColor: '#28a745',
                     timer: 3000
                 }).then(() => {
-                    // ล้าง query string หลังแสดง popup
                     window.history.replaceState({}, document.title, window.location.pathname);
                 });
             }
@@ -44,7 +43,6 @@
                     confirmButtonText: 'ตกลง',
                     confirmButtonColor: '#dc3545',
                 }).then(() => {
-                    // ล้าง query string หลังแสดง popup
                     window.history.replaceState({}, document.title, window.location.pathname);
                 });
             }
@@ -61,6 +59,21 @@
                     </h1>
                     <p class="text-gray-600 mt-2">ระบบจัดการเบิกถอนเงินการขายขยะสำหรับครัวเรือนในชุมชน</p>
                 </div>
+                <!-- ปุ่มตั้งค่ายอดขั้นต่ำ -->
+                <button onclick="openSettingsModal()" 
+                    class="mt-4 md:mt-0 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition flex items-center">
+                    <ion-icon name="settings-outline" class="mr-2"></ion-icon>
+                    ตั้งค่ายอดขั้นต่ำ
+                </button>
+            </div>
+            <!-- แสดงยอดขั้นต่ำปัจจุบัน -->
+            <div class="mt-4 bg-blue-50 border border-blue-200 rounded-md p-3">
+                <p class="text-sm text-blue-800">
+                    <ion-icon name="information-circle-outline" class="align-middle"></ion-icon>
+                    <strong>ยอดเงินขั้นต่ำในบัญชีปัจจุบัน:</strong> 
+                    <span id="currentMinimumDisplay" class="font-bold text-blue-900"><%= minimumWithdrawAmount || 300 %> บาท</span>
+                    (บัญชีต้องมีเงินคงเหลือไม่ต่ำกว่านี้หลังการถอน)
+                </p>
             </div>
         </div>
 
@@ -123,6 +136,10 @@
                                     <p class="text-sm text-gray-500">ยอดเงินในบัญชี (บาท)</p>
                                     <p class="text-2xl font-bold text-green-600">฿ <span id="accountBalance">0.00</span></p>
                                 </div>
+                                <div class="md:col-span-2">
+                                    <p class="text-sm text-gray-500">ยอดเงินขั้นต่ำที่ต้องคงเหลือหลังถอน</p>
+                                    <p class="text-lg font-semibold text-orange-600">฿ <span id="minimumAmount">300.00</span></p>
+                                </div>
                             </div>
                         </div>
 
@@ -141,6 +158,7 @@
                                         placeholder="0.00" step="0.01" min="0.01" disabled oninput="validateAmount()">
                                 </div>
                                 <p id="amountError" class="mt-1 text-sm text-red-600"></p>
+                                <p id="amountInfo" class="mt-1 text-sm text-gray-500"></p>
                             </div>
 
                             <div class="pt-4">
@@ -223,7 +241,114 @@
         </div>
     </div>
 
+    <!-- Modal ตั้งค่ายอดขั้นต่ำ -->
+    <div id="settingsModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">ตั้งค่ายอดเงินขั้นต่ำ</h3>
+                    <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-gray-600">
+                        <ion-icon name="close-outline" class="text-2xl"></ion-icon>
+                    </button>
+                </div>
+                <p class="text-sm text-gray-600 mb-4">กำหนดยอดเงินขั้นต่ำที่ต้องคงเหลือในบัญชีหลังการถอนเงิน</p>
+                
+                <div class="mb-4">
+                    <label for="newMinimumAmount" class="block text-sm font-medium text-gray-700 mb-2">
+                        ยอดเงินขั้นต่ำ (บาท)
+                    </label>
+                    <input type="number" id="newMinimumAmount" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="300" min="0" step="0.01" value="<%= minimumWithdrawAmount || 300 %>">
+                </div>
+
+                <div class="flex gap-3">
+                    <button onclick="closeSettingsModal()" 
+                        class="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition">
+                        ยกเลิก
+                    </button>
+                    <button onclick="saveMinimumAmount()" 
+                        class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
+                        บันทึก
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        let currentMinimumWithdraw = <%= minimumWithdrawAmount || 300 %>;
+
+        function openSettingsModal() {
+            document.getElementById('settingsModal').classList.remove('hidden');
+            document.getElementById('newMinimumAmount').value = currentMinimumWithdraw;
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.add('hidden');
+        }
+
+        async function saveMinimumAmount() {
+            const newAmount = parseFloat(document.getElementById('newMinimumAmount').value);
+
+            if (isNaN(newAmount) || newAmount < 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ข้อมูลไม่ถูกต้อง',
+                    text: 'กรุณากรอกจำนวนเงินที่ถูกต้อง',
+                    confirmButtonColor: '#dc3545'
+                });
+                return;
+            }
+
+            try {
+                const response = await fetch('/employee/withDraw/settings/minimum', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ minimumAmount: newAmount })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    currentMinimumWithdraw = data.minimumWithdrawAmount;
+                    document.getElementById('currentMinimumDisplay').textContent = 
+                        currentMinimumWithdraw.toLocaleString(undefined, {minimumFractionDigits: 2}) + ' บาท';
+                    
+                    // อัพเดทในส่วนรายละเอียดบัญชีถ้ามี
+                    const minimumAmountEl = document.getElementById('minimumAmount');
+                    if (minimumAmountEl) {
+                        minimumAmountEl.textContent = currentMinimumWithdraw.toLocaleString(undefined, {minimumFractionDigits: 2});
+                    }
+
+                    closeSettingsModal();
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'บันทึกสำเร็จ',
+                        text: 'อัพเดทยอดเงินขั้นต่ำเรียบร้อยแล้ว',
+                        confirmButtonColor: '#28a745',
+                        timer: 2000
+                    });
+
+                    // ตรวจสอบจำนวนเงินถอนใหม่
+                    validateAmount();
+                } else {
+                    throw new Error(data.error || 'เกิดข้อผิดพลาด');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: error.message || 'ไม่สามารถบันทึกข้อมูลได้',
+                    confirmButtonColor: '#dc3545'
+                });
+            }
+        }
+
         async function searchAccount() {
             const accountId = document.getElementById('accountId').value.trim();
             
@@ -237,7 +362,6 @@
                 return;
             }
 
-            // แสดง loading
             document.getElementById('loadingState').classList.remove('hidden');
             document.getElementById('accountDetails').classList.add('hidden');
 
@@ -272,21 +396,23 @@
                     minimumFractionDigits: 2, 
                     maximumFractionDigits: 2 
                 });
+                document.getElementById('minimumAmount').textContent = Number(data.minimumWithdrawAmount || currentMinimumWithdraw).toLocaleString(undefined, { 
+                    minimumFractionDigits: 2, 
+                    maximumFractionDigits: 2 
+                });
 
-                // ซ่อน loading และแสดงรายละเอียด
+                // อัพเดทค่า minimum ปัจจุบัน
+                currentMinimumWithdraw = data.minimumWithdrawAmount || currentMinimumWithdraw;
+
                 document.getElementById('loadingState').classList.add('hidden');
                 document.getElementById('accountDetails').classList.remove('hidden');
 
-                // กำหนดค่า hidden input สำหรับส่ง accountId ไปในฟอร์มถอนเงิน
                 document.getElementById('hiddenAccountNumber').value = data.accountNumber;
-
-                // เปิด input ถอนเงิน
                 document.getElementById('withdrawAmount').disabled = false;
                 document.getElementById('withdrawButton').disabled = true;
-
-                // ล้างช่องกรอกจำนวนเงินและ error
                 document.getElementById('withdrawAmount').value = '';
                 document.getElementById('amountError').textContent = '';
+                document.getElementById('amountInfo').textContent = '';
 
             } catch (error) {
                 console.error('เกิดข้อผิดพลาด:', error);
@@ -311,27 +437,42 @@
             const balance = parseFloat(balanceText);
 
             const errorElement = document.getElementById('amountError');
+            const infoElement = document.getElementById('amountInfo');
             const withdrawButton = document.getElementById('withdrawButton');
 
             if (!amountInput.value || amountInput.value.trim() === '') {
                 errorElement.textContent = '';
+                infoElement.textContent = '';
                 withdrawButton.disabled = true;
                 return;
             }
 
             if (isNaN(amount) || amount <= 0) {
                 errorElement.textContent = 'กรุณากรอกจำนวนเงินที่ถูกต้อง';
+                infoElement.textContent = '';
                 withdrawButton.disabled = true;
                 return;
             }
 
             if (amount > balance) {
                 errorElement.textContent = 'จำนวนเงินที่ถอนมากกว่ายอดเงินในบัญชี';
+                infoElement.textContent = '';
+                withdrawButton.disabled = true;
+                return;
+            }
+
+            const balanceAfterWithdraw = balance - amount;
+            
+            if (balanceAfterWithdraw < currentMinimumWithdraw) {
+                errorElement.textContent = `ไม่สามารถถอนได้ เนื่องจากยอดคงเหลือหลังถอนจะต่ำกว่ายอดขั้นต่ำ ${currentMinimumWithdraw.toLocaleString(undefined, {minimumFractionDigits: 2})} บาท`;
+                infoElement.textContent = `ยอดคงเหลือหลังถอน: ${balanceAfterWithdraw.toLocaleString(undefined, {minimumFractionDigits: 2})} บาท`;
                 withdrawButton.disabled = true;
                 return;
             }
 
             errorElement.textContent = '';
+            infoElement.textContent = `✓ ยอดคงเหลือหลังถอน: ${balanceAfterWithdraw.toLocaleString(undefined, {minimumFractionDigits: 2})} บาท`;
+            infoElement.classList.add('text-green-600');
             withdrawButton.disabled = false;
         }
 
@@ -367,6 +508,13 @@
                     this.submit();
                 }
             });
+        });
+
+        // ปิด modal เมื่อคลิกนอก modal
+        document.getElementById('settingsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSettingsModal();
+            }
         });
     </script>
 </body>

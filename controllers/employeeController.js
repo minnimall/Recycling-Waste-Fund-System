@@ -27,6 +27,7 @@ const moment = require('moment');
 const mongoose = require('mongoose');
 const myAdmin = require('../models/admin');
 const Route = require('../models/route');
+const SystemSettings = require('../models/withDrawSetting');
 const { Console } = require('console');
 
 router.use(express.static(path.join(__dirname, '../public')));
@@ -36,66 +37,43 @@ router.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
 const dashboardIndex = async (req, res) => {
     try {
-        const { village, startDate, endDate, dateRange = 'all', selectedDate } = req.query;
+        const { village, searchDate, searchMonth, searchYear } = req.query;
 
         // ==================== Helper Functions ====================
         
-        // คำนวณช่วงวันที่
-        const getDateRange = (dateRange, startDate, endDate, selectedDate) => {
+        // คำนวณช่วงวันที่ (ปรับใหม่)
+        const getDateRange = (searchDate, searchMonth, searchYear) => {
             const now = new Date();
             
-            if (selectedDate) {
-                const start = new Date(selectedDate);
+            // 1. ถ้าเลือกวันที่เฉพาะ
+            if (searchDate) {
+                const start = new Date(searchDate);
                 start.setHours(0, 0, 0, 0);
-                const end = new Date(selectedDate);
+                const end = new Date(searchDate);
                 end.setHours(23, 59, 59, 999);
                 return { start, end };
             }
             
-            if (startDate && endDate) {
-                const start = new Date(startDate);
-                start.setHours(0, 0, 0, 0);
-                const end = new Date(endDate);
-                end.setHours(23, 59, 59, 999);
-                return { start, end };
+            // 2. ถ้าเลือกเดือนและ/หรือปี
+            if (searchMonth || searchYear) {
+                const year = searchYear ? parseInt(searchYear) : now.getFullYear();
+                
+                if (searchMonth) {
+                    // เลือกทั้งเดือนและปี
+                    const month = parseInt(searchMonth) - 1;
+                    const start = new Date(year, month, 1);
+                    const end = new Date(year, month + 1, 0, 23, 59, 59, 999);
+                    return { start, end };
+                } else {
+                    // เลือกเฉพาะปี
+                    const start = new Date(year, 0, 1);
+                    const end = new Date(year, 11, 31, 23, 59, 59, 999);
+                    return { start, end };
+                }
             }
             
-            const ranges = {
-                today: () => {
-                    const start = new Date(now);
-                    start.setHours(0, 0, 0, 0);
-                    const end = new Date(now);
-                    end.setHours(23, 59, 59, 999);
-                    return { start, end };
-                },
-                yesterday: () => {
-                    const start = new Date(now);
-                    start.setDate(start.getDate() - 1);
-                    start.setHours(0, 0, 0, 0);
-                    const end = new Date(now);
-                    end.setDate(end.getDate() - 1);
-                    end.setHours(23, 59, 59, 999);
-                    return { start, end };
-                },
-                thisMonth: () => ({
-                    start: new Date(now.getFullYear(), now.getMonth(), 1),
-                    end: new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999)
-                }),
-                lastMonth: () => ({
-                    start: new Date(now.getFullYear(), now.getMonth() - 1, 1),
-                    end: new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999)
-                })
-            };
-            
-            if (dateRange?.startsWith('month-')) {
-                const monthsBack = parseInt(dateRange.replace('month-', ''));
-                return {
-                    start: new Date(now.getFullYear(), now.getMonth() - monthsBack, 1),
-                    end: new Date(now.getFullYear(), now.getMonth() - monthsBack + 1, 0, 23, 59, 59, 999)
-                };
-            }
-            
-            return ranges[dateRange]?.() || { start: null, end: null };
+            // 3. ไม่เลือกอะไร = แสดงทั้งหมด
+            return { start: null, end: null };
         };
 
         // สร้าง Base Pipeline
@@ -201,17 +179,15 @@ const dashboardIndex = async (req, res) => {
 
         // ใหม่ - นับถูก
         const getSummaryGroupStage = () => [
-            // Stage 1: Group by transaction ID ก่อน
             {
                 $group: {
-                    _id: '$_id',  // Group ตาม transaction ID
+                    _id: '$_id',
                     totalAmount: {
                         $sum: { $multiply: ['$wasteItemDetails.quantity', '$wasteItemDetails.pricePerUnit'] }
                     },
                     totalQuantity: { $sum: '$wasteItemDetails.quantity' }
                 }
             },
-            // Stage 2: นับจำนวน transactions จริง
             {
                 $group: {
                     _id: null,
@@ -225,7 +201,7 @@ const dashboardIndex = async (req, res) => {
         // ==================== คำนวณช่วงวันที่ ====================
         
         const { start: filterStartDate, end: filterEndDate } = getDateRange(
-            dateRange, startDate, endDate, selectedDate
+            searchDate, searchMonth, searchYear
         );
 
         const now = new Date();
@@ -405,12 +381,11 @@ const dashboardIndex = async (req, res) => {
             yesterdayData.totalTransactions
         );
 
-        // สร้าง Filter Info
+        // สร้าง Filter Info (ปรับใหม่)
         const filterInfo = {
-            dateRange,
-            startDate: filterStartDate ? filterStartDate.toISOString().split('T')[0] : '',
-            endDate: filterEndDate ? filterEndDate.toISOString().split('T')[0] : '',
-            selectedDate: selectedDate || '',
+            searchDate: searchDate || '',
+            searchMonth: searchMonth || '',
+            searchYear: searchYear || '',
             village: village || '',
             villageName: ''
         };
@@ -449,7 +424,13 @@ const dashboardIndex = async (req, res) => {
             priceTrends: priceTrendsResult || [],
             allVillages: allVillages || [],
             filterInfo,
-            currentFilters: req.query,
+            
+            // Filter values
+            searchDate: searchDate || '',
+            searchMonth: searchMonth || '',
+            searchYear: searchYear || '',
+            villageId: village || '',
+            
             currentPage: 'dashboard'
         });
 
@@ -476,20 +457,16 @@ const dashboardIndex = async (req, res) => {
             priceTrends: [],
             allVillages: [],
             filterInfo: {
-                dateRange: 'all',
-                startDate: '',
-                endDate: '',
-                selectedDate: '',
+                searchDate: '',
+                searchMonth: '',
+                searchYear: '',
                 village: '',
                 villageName: ''
             },
-            currentFilters: {
-                village: '',
-                startDate: '',
-                endDate: '',
-                selectedDate: '',
-                dateRange: 'all'
-            },
+            searchDate: '',
+            searchMonth: '',
+            searchYear: '',
+            villageId: '',
             currentPage: 'dashboard',
             errorMessage: 'เกิดข้อผิดพลาดในการโหลดข้อมูล กรุณาลองใหม่อีกครั้ง'
         };
@@ -653,6 +630,7 @@ const wastePurchaseTotalIndex = async (req, res) => {
     try {
         const searchDate = req.query.searchDate;
         const searchMonth = req.query.searchMonth;
+        const searchYear = req.query.searchYear; // เพิ่ม
         const villageId = req.query.villageId;
         const accountIdParam = req.query.accountId;
         const page = parseInt(req.query.page) || 1;
@@ -663,7 +641,7 @@ const wastePurchaseTotalIndex = async (req, res) => {
         let query = { isDeleted: false };
         let monthlyQuery = { isDeleted: false };
 
-        // Filter ตามวันที่
+        // Filter ตามวันที่เฉพาะ (ลำดับความสำคัญสูงสุด)
         if (searchDate) {
             const startDate = new Date(searchDate);
             startDate.setHours(0, 0, 0, 0);
@@ -683,33 +661,48 @@ const wastePurchaseTotalIndex = async (req, res) => {
                 $lte: lastDayOfMonth
             };
         }
-
-        // Filter ตามเดือน (ใหม่)
-        if (searchMonth && !searchDate) {
-            const [year, month] = searchMonth.split('-');
-            const firstDayOfMonth = new Date(year, month - 1, 1);
-            const lastDayOfMonth = new Date(year, month, 0, 23, 59, 59, 999);
+        // Filter ตามเดือนและปี (ถ้าไม่เลือกวันที่)
+        else if (searchMonth || searchYear) {
+            const year = searchYear ? parseInt(searchYear) : new Date().getFullYear();
             
-            query.purchaseDate = {
-                $gte: firstDayOfMonth,
-                $lte: lastDayOfMonth
-            };
-            monthlyQuery.purchaseDate = {
-                $gte: firstDayOfMonth,
-                $lte: lastDayOfMonth
-            };
+            if (searchMonth) {
+                // เลือกทั้งเดือนและปี
+                const month = parseInt(searchMonth) - 1;
+                const firstDayOfMonth = new Date(year, month, 1);
+                const lastDayOfMonth = new Date(year, month + 1, 0, 23, 59, 59, 999);
+                
+                query.purchaseDate = {
+                    $gte: firstDayOfMonth,
+                    $lte: lastDayOfMonth
+                };
+                monthlyQuery.purchaseDate = {
+                    $gte: firstDayOfMonth,
+                    $lte: lastDayOfMonth
+                };
+            } else {
+                // เลือกเฉพาะปี
+                const firstDayOfYear = new Date(year, 0, 1);
+                const lastDayOfYear = new Date(year, 11, 31, 23, 59, 59, 999);
+                
+                query.purchaseDate = {
+                    $gte: firstDayOfYear,
+                    $lte: lastDayOfYear
+                };
+                monthlyQuery.purchaseDate = {
+                    $gte: firstDayOfYear,
+                    $lte: lastDayOfYear
+                };
+            }
         }
 
-        // Filter ตามหมู่บ้าน (ใหม่)
+        // Filter ตามหมู่บ้าน
         let accountIdsFromVillage = [];
         if (villageId) {
-            // หา Family ที่อยู่ในหมู่บ้านนั้น
             const families = await Family.find({ 
                 village: villageId, 
                 isDeleted: false 
             }).select('_id');
             
-            // หา Account ที่เชื่อมกับ Family เหล่านั้น
             const accounts = await WasteBankAccount.find({
                 familyID: { $in: families.map(f => f._id) },
                 isDeleted: false
@@ -784,7 +777,6 @@ const wastePurchaseTotalIndex = async (req, res) => {
                     Status: 'living'
                 }).select('name');
                 
-                // เพิ่ม members เป็น property ชั่วคราว
                 purchase.accountId[0].familyID.members = members;
             }
         }
@@ -827,6 +819,7 @@ const wastePurchaseTotalIndex = async (req, res) => {
             totalAmount,
             searchDate: searchDate || '',
             searchMonth: searchMonth || '',
+            searchYear: searchYear || '', // เพิ่ม
             villageId: villageId || '',
             accountId: accountIdParam || '',
             currentPage: page,
@@ -889,7 +882,7 @@ const memberIndex = async (req, res) => {
         if (Type) searchQuery.Type = Type;
         if (village) searchQuery.village = village;
 
-        const villages = await Village.find(); 
+        const villages = await Village.find({ isDeleted: false }).lean(); 
         const allFamilies = await Family.find(searchQuery).populate('village').lean();
 
         const accounts = await WasteBankAccount.find({ isDeleted: false }).lean();
@@ -911,7 +904,7 @@ const memberIndex = async (req, res) => {
             return {
                 ...family,
                 AccountNumber: account ? account.AccountNumber : '-',
-                AccountName: family.username || '-',
+                AccountName: account ? account.AccountName : '-',
                 Balance: account ? account.Balance : 0,
                 typeThai: typeMap[family.Type] || family.Type
             };
@@ -1976,6 +1969,23 @@ const withDrawIndex = async (req, res) => {
             return res.redirect('/employee/withDraw?error=' + encodeURIComponent('จำนวนเงินไม่ถูกต้อง'));
         }
 
+        // ดึงการตั้งค่ายอดเงินขั้นต่ำจาก database
+        const settings = await SystemSettings.getSettings();
+        const minimumAmount = settings.minimumWithdrawAmount;
+
+        // ตรวจสอบว่ายอดเงินคงเหลือหลังถอนต้องไม่ต่ำกว่ายอดขั้นต่ำ
+        const balanceAfterWithdraw = account.Balance - amount;
+        if (balanceAfterWithdraw < minimumAmount) {
+            console.error('ยอดเงินคงเหลือไม่เพียงพอ:', { 
+                balance: account.Balance, 
+                withdraw: amount, 
+                afterWithdraw: balanceAfterWithdraw,
+                minimum: minimumAmount 
+            });
+            return res.redirect('/employee/withDraw?error=' + 
+                encodeURIComponent(`ไม่สามารถถอนได้ เนื่องจากยอดเงินคงเหลือหลังถอนจะต่ำกว่ายอดขั้นต่ำ ${minimumAmount} บาท`));
+        }
+
         if (account.Balance < amount) {
             console.error('ยอดเงินไม่พอ:', { balance: account.Balance, withdraw: amount });
             return res.redirect('/employee/withDraw?error=' + encodeURIComponent('ยอดเงินในบัญชีไม่เพียงพอ'));
@@ -2027,6 +2037,9 @@ const withDrawIndex = async (req, res) => {
 // แสดงหน้าถอนเงิน พร้อมประวัติการถอน
 const showWithdrawPage = async (req, res) => {
     try {
+        // ดึงข้อมูลการตั้งค่า
+        const settings = await SystemSettings.getSettings();
+        
         const transactions = await Transaction.find({ 
             transactionType: 'withdraw', 
             isDeleted: false 
@@ -2035,11 +2048,12 @@ const showWithdrawPage = async (req, res) => {
         .limit(10)
         .populate('account')
         .populate('family')
-        .lean(); // เพิ่ม .lean() เพื่อประสิทธิภาพ
+        .lean();
 
         res.render('employee/withDraw', {
             mytitle: 'พนักงาน | เบิกถอนเงิน',
             transactions: transactions || [],
+            minimumWithdrawAmount: settings.minimumWithdrawAmount, // ส่งไปที่หน้า view
             message: req.query.message || null,
             error: req.query.error || null,
             currentPage: 'withDraw',
@@ -2049,6 +2063,7 @@ const showWithdrawPage = async (req, res) => {
         res.render('employee/withDraw', {
             mytitle: 'เบิกถอนเงิน',
             transactions: [],
+            minimumWithdrawAmount: 300, // ค่า default
             error: 'เกิดข้อผิดพลาดในการโหลดข้อมูล',
             message: null,
             currentPage: 'withDraw'
@@ -2083,6 +2098,9 @@ const getAccountByNumber = async (req, res) => {
             });
         }
 
+        // ดึงยอดเงินขั้นต่ำ
+        const settings = await SystemSettings.getSettings();
+
         console.log('พบบัญชี:', account.AccountNumber);
 
         res.json({
@@ -2090,6 +2108,7 @@ const getAccountByNumber = async (req, res) => {
             accountName: account.AccountName,
             accountNumber: account.AccountNumber,
             balance: account.Balance,
+            minimumWithdrawAmount: settings.minimumWithdrawAmount, // ส่งค่านี้ไปด้วย
             familyName: account.familyID ? account.familyID.familyName : '-'
         });
     } catch (err) {
@@ -2097,6 +2116,51 @@ const getAccountByNumber = async (req, res) => {
         res.status(500).json({ 
             success: false,
             error: 'เกิดข้อผิดพลาดในเซิร์ฟเวอร์: ' + err.message 
+        });
+    }
+};
+
+// ฟังก์ชันสำหรับอัพเดทยอดเงินขั้นต่ำ (เพิ่มใหม่)
+const updateMinimumWithdraw = async (req, res) => {
+    try {
+        const { minimumAmount } = req.body;
+
+        if (!minimumAmount || isNaN(minimumAmount) || minimumAmount < 0) {
+            return res.status(400).json({
+                success: false,
+                error: 'กรุณาระบุจำนวนเงินที่ถูกต้อง'
+            });
+        }
+
+        const settings = await SystemSettings.updateMinimumWithdraw(parseFloat(minimumAmount));
+
+        res.json({
+            success: true,
+            message: 'อัพเดทยอดเงินขั้นต่ำสำเร็จ',
+            minimumWithdrawAmount: settings.minimumWithdrawAmount
+        });
+    } catch (err) {
+        console.error('เกิดข้อผิดพลาดในการอัพเดท:', err);
+        res.status(500).json({
+            success: false,
+            error: 'เกิดข้อผิดพลาดในการอัพเดท: ' + err.message
+        });
+    }
+};
+
+// ฟังก์ชันดึงการตั้งค่าปัจจุบัน (เพิ่มใหม่)
+const getCurrentSettings = async (req, res) => {
+    try {
+        const settings = await SystemSettings.getSettings();
+        res.json({
+            success: true,
+            minimumWithdrawAmount: settings.minimumWithdrawAmount
+        });
+    } catch (err) {
+        console.error('เกิดข้อผิดพลาดในการดึงการตั้งค่า:', err);
+        res.status(500).json({
+            success: false,
+            error: 'เกิดข้อผิดพลาดในการดึงข้อมูล: ' + err.message
         });
     }
 };
@@ -2626,7 +2690,7 @@ module.exports = {
     //หน้าสต๊อกขยะ
     wasteStockIndex,
     //หน้าเบิกถอน
-    withDrawIndex,getAccountByNumber,showWithdrawPage,
+    withDrawIndex,getAccountByNumber,showWithdrawPage,updateMinimumWithdraw,getCurrentSettings,
     //หน้าฌาปนกิจสงเคราะห์
     funeralAidIndex,
     //หน้าแผนที่เข้ารับซื้อ

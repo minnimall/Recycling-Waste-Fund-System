@@ -37,66 +37,43 @@ router.post('/upload-image', (req, res) => {
 
 const dashboardIndex = async (req, res) => {
     try {
-        const { village, startDate, endDate, dateRange = 'all', selectedDate } = req.query;
+        const { village, searchDate, searchMonth, searchYear } = req.query;
 
         // ==================== Helper Functions ====================
         
-        // คำนวณช่วงวันที่
-        const getDateRange = (dateRange, startDate, endDate, selectedDate) => {
+        // คำนวณช่วงวันที่ (ปรับใหม่)
+        const getDateRange = (searchDate, searchMonth, searchYear) => {
             const now = new Date();
             
-            if (selectedDate) {
-                const start = new Date(selectedDate);
+            // 1. ถ้าเลือกวันที่เฉพาะ
+            if (searchDate) {
+                const start = new Date(searchDate);
                 start.setHours(0, 0, 0, 0);
-                const end = new Date(selectedDate);
+                const end = new Date(searchDate);
                 end.setHours(23, 59, 59, 999);
                 return { start, end };
             }
             
-            if (startDate && endDate) {
-                const start = new Date(startDate);
-                start.setHours(0, 0, 0, 0);
-                const end = new Date(endDate);
-                end.setHours(23, 59, 59, 999);
-                return { start, end };
+            // 2. ถ้าเลือกเดือนและ/หรือปี
+            if (searchMonth || searchYear) {
+                const year = searchYear ? parseInt(searchYear) : now.getFullYear();
+                
+                if (searchMonth) {
+                    // เลือกทั้งเดือนและปี
+                    const month = parseInt(searchMonth) - 1;
+                    const start = new Date(year, month, 1);
+                    const end = new Date(year, month + 1, 0, 23, 59, 59, 999);
+                    return { start, end };
+                } else {
+                    // เลือกเฉพาะปี
+                    const start = new Date(year, 0, 1);
+                    const end = new Date(year, 11, 31, 23, 59, 59, 999);
+                    return { start, end };
+                }
             }
             
-            const ranges = {
-                today: () => {
-                    const start = new Date(now);
-                    start.setHours(0, 0, 0, 0);
-                    const end = new Date(now);
-                    end.setHours(23, 59, 59, 999);
-                    return { start, end };
-                },
-                yesterday: () => {
-                    const start = new Date(now);
-                    start.setDate(start.getDate() - 1);
-                    start.setHours(0, 0, 0, 0);
-                    const end = new Date(now);
-                    end.setDate(end.getDate() - 1);
-                    end.setHours(23, 59, 59, 999);
-                    return { start, end };
-                },
-                thisMonth: () => ({
-                    start: new Date(now.getFullYear(), now.getMonth(), 1),
-                    end: new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999)
-                }),
-                lastMonth: () => ({
-                    start: new Date(now.getFullYear(), now.getMonth() - 1, 1),
-                    end: new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999)
-                })
-            };
-            
-            if (dateRange?.startsWith('month-')) {
-                const monthsBack = parseInt(dateRange.replace('month-', ''));
-                return {
-                    start: new Date(now.getFullYear(), now.getMonth() - monthsBack, 1),
-                    end: new Date(now.getFullYear(), now.getMonth() - monthsBack + 1, 0, 23, 59, 59, 999)
-                };
-            }
-            
-            return ranges[dateRange]?.() || { start: null, end: null };
+            // 3. ไม่เลือกอะไร = แสดงทั้งหมด
+            return { start: null, end: null };
         };
 
         // สร้าง Base Pipeline
@@ -202,17 +179,15 @@ const dashboardIndex = async (req, res) => {
 
         // ใหม่ - นับถูก
         const getSummaryGroupStage = () => [
-            // Stage 1: Group by transaction ID ก่อน
             {
                 $group: {
-                    _id: '$_id',  // Group ตาม transaction ID
+                    _id: '$_id',
                     totalAmount: {
                         $sum: { $multiply: ['$wasteItemDetails.quantity', '$wasteItemDetails.pricePerUnit'] }
                     },
                     totalQuantity: { $sum: '$wasteItemDetails.quantity' }
                 }
             },
-            // Stage 2: นับจำนวน transactions จริง
             {
                 $group: {
                     _id: null,
@@ -226,7 +201,7 @@ const dashboardIndex = async (req, res) => {
         // ==================== คำนวณช่วงวันที่ ====================
         
         const { start: filterStartDate, end: filterEndDate } = getDateRange(
-            dateRange, startDate, endDate, selectedDate
+            searchDate, searchMonth, searchYear
         );
 
         const now = new Date();
@@ -406,12 +381,11 @@ const dashboardIndex = async (req, res) => {
             yesterdayData.totalTransactions
         );
 
-        // สร้าง Filter Info
+        // สร้าง Filter Info (ปรับใหม่)
         const filterInfo = {
-            dateRange,
-            startDate: filterStartDate ? filterStartDate.toISOString().split('T')[0] : '',
-            endDate: filterEndDate ? filterEndDate.toISOString().split('T')[0] : '',
-            selectedDate: selectedDate || '',
+            searchDate: searchDate || '',
+            searchMonth: searchMonth || '',
+            searchYear: searchYear || '',
             village: village || '',
             villageName: ''
         };
@@ -450,7 +424,13 @@ const dashboardIndex = async (req, res) => {
             priceTrends: priceTrendsResult || [],
             allVillages: allVillages || [],
             filterInfo,
-            currentFilters: req.query,
+            
+            // Filter values
+            searchDate: searchDate || '',
+            searchMonth: searchMonth || '',
+            searchYear: searchYear || '',
+            villageId: village || '',
+            
             currentPage: 'dashboard'
         });
 
@@ -477,20 +457,16 @@ const dashboardIndex = async (req, res) => {
             priceTrends: [],
             allVillages: [],
             filterInfo: {
-                dateRange: 'all',
-                startDate: '',
-                endDate: '',
-                selectedDate: '',
+                searchDate: '',
+                searchMonth: '',
+                searchYear: '',
                 village: '',
                 villageName: ''
             },
-            currentFilters: {
-                village: '',
-                startDate: '',
-                endDate: '',
-                selectedDate: '',
-                dateRange: 'all'
-            },
+            searchDate: '',
+            searchMonth: '',
+            searchYear: '',
+            villageId: '',
             currentPage: 'dashboard',
             errorMessage: 'เกิดข้อผิดพลาดในการโหลดข้อมูล กรุณาลองใหม่อีกครั้ง'
         };

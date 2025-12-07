@@ -42,6 +42,10 @@ router.get('/withDraw', employeeController.showWithdrawPage);
 router.post('/withDraw', employeeController.withDrawIndex);
 // AJAX ดึงข้อมูลบัญชี
 router.get('/withDraw/account/:accountNumber', employeeController.getAccountByNumber);
+// อัพเดทยอดเงินขั้นต่ำ (เพิ่มใหม่)
+router.post('/withDraw/settings/minimum', employeeController.updateMinimumWithdraw);
+// ดึงการตั้งค่าปัจจุบัน (เพิ่มใหม่)
+router.get('/withDraw/settings', employeeController.getCurrentSettings);
 
 
 // ฌาปนกิจสงเคราะห์

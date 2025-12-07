@@ -446,32 +446,55 @@
         }
     }
 
+    // function deleteWaste(index) {
+    //     Swal.fire({
+    //         title: 'คุณแน่ใจหรือไม่?',
+    //         text: "คุณต้องการลบรายการนี้ออกจากรายการรับซื้อ?",
+    //         icon: 'warning',
+    //         showCancelButton: true,
+    //         confirmButtonColor: '#d33',
+    //         cancelButtonColor: '#3085d6',
+    //         confirmButtonText: 'ยืนยัน',
+    //         cancelButtonText: 'ยกเลิก'
+    //     }).then((result) => {
+    //         if (result.isConfirmed) {
+    //             const deletedItem = selectedWaste[index];
+    //             selectedWaste.splice(index, 1);
+    //             updateSelectedWasteList();
+            
+    //             const weightInputs = document.querySelectorAll('.weight-input');
+    //             weightInputs.forEach(input => {
+    //                 if (input.dataset.name === deletedItem.name) {
+    //                     input.value = '';
+    //                 }
+    //             });
+                
+    //             Swal.fire('ลบแล้ว!', 'รายการถูกลบออกแล้ว', 'success');
+    //         }
+    //     });
+    // }
+
     function deleteWaste(index) {
-        Swal.fire({
-            title: 'คุณแน่ใจหรือไม่?',
-            text: "คุณต้องการลบรายการนี้ออกจากรายการรับซื้อ?",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'ยืนยัน',
-            cancelButtonText: 'ยกเลิก'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                const deletedItem = selectedWaste[index];
-                selectedWaste.splice(index, 1);
-                updateSelectedWasteList();
-                
-                // เคลียร์ช่องกรอกน้ำหนักของสินค้าที่ถูกลบใน layout ทั้งหมด
-                const weightInputs = document.querySelectorAll('.weight-input');
-                weightInputs.forEach(input => {
-                    if (input.dataset.name === deletedItem.name) {
-                        input.value = '';
-                    }
-                });
-                
-                Swal.fire('ลบแล้ว!', 'รายการถูกลบออกแล้ว', 'success');
+        const deletedItem = selectedWaste[index];
+        selectedWaste.splice(index, 1);
+        updateSelectedWasteList();
+        
+        // เคลียร์ช่องกรอกน้ำหนักของสินค้าที่ถูกลบใน layout ทั้งหมด
+        const weightInputs = document.querySelectorAll('.weight-input');
+        weightInputs.forEach(input => {
+            if (input.dataset.name === deletedItem.name) {
+                input.value = '';
             }
+        });
+        
+        // แสดง toast แจ้งเตือนแบบสั้นๆ (ถ้าต้องการ)
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: `ลบ ${deletedItem.name} แล้ว`,
+            showConfirmButton: false,
+            timer: 1000
         });
     }
 

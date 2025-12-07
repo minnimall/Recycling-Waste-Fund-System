@@ -65,53 +65,63 @@
 
             <!-- Filter Form -->
             <form method="GET" action="/admin" class="bg-gray-50 p-4 rounded-lg">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-
-                    <!-- Single Date Selection -->
-                    <div>
-                        <label for="selectedDate" class="block text-sm font-medium text-gray-700 mb-1">เลือกวันที่เฉพาะ</label>
-                        <input type="date" name="selectedDate" id="selectedDate" 
-                            value="<%= currentFilters.selectedDate %>" 
-                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="flex flex-wrap items-end gap-3">
+                    <!-- Filter วันที่ -->
+                    <div class="flex-1 min-w-[150px]">
+                        <label for="searchDate" class="block text-sm font-medium text-gray-700 mb-1">วันที่</label>
+                        <input type="date" name="searchDate" id="searchDate" value="<%= searchDate %>" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
                     </div>
 
-                    <!-- Date Range Selection -->
-                    <div>
-                        <label for="dateRange" class="block text-sm font-medium text-gray-700 mb-1">ช่วงเวลา</label>
-                        <select name="dateRange" id="dateRange" 
-                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="all" <%= currentFilters.dateRange === 'all' ? 'selected' : '' %>>ทั้งหมด</option>
-                            <option value="today" <%= currentFilters.dateRange === 'today' ? 'selected' : '' %>>วันนี้</option>
-                            <option value="yesterday" <%= currentFilters.dateRange === 'yesterday' ? 'selected' : '' %>>เมื่อวาน</option>
-                            <option value="thisMonth" <%= currentFilters.dateRange === 'thisMonth' ? 'selected' : '' %>>เดือนนี้</option>
-                            <option value="lastMonth" <%= currentFilters.dateRange === 'lastMonth' ? 'selected' : '' %>>เดือนที่แล้ว</option>
+                    <!-- Filter เดือน -->
+                    <div class="flex-1 min-w-[150px]">
+                        <label for="searchMonth" class="block text-sm font-medium text-gray-700 mb-1">เดือน</label>
+                        <select name="searchMonth" id="searchMonth" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="">ทั้งหมด</option>
+                            <option value="01" <%= searchMonth === '01' ? 'selected' : '' %>>มกราคม</option>
+                            <option value="02" <%= searchMonth === '02' ? 'selected' : '' %>>กุมภาพันธ์</option>
+                            <option value="03" <%= searchMonth === '03' ? 'selected' : '' %>>มีนาคม</option>
+                            <option value="04" <%= searchMonth === '04' ? 'selected' : '' %>>เมษายน</option>
+                            <option value="05" <%= searchMonth === '05' ? 'selected' : '' %>>พฤษภาคม</option>
+                            <option value="06" <%= searchMonth === '06' ? 'selected' : '' %>>มิถุนายน</option>
+                            <option value="07" <%= searchMonth === '07' ? 'selected' : '' %>>กรกฎาคม</option>
+                            <option value="08" <%= searchMonth === '08' ? 'selected' : '' %>>สิงหาคม</option>
+                            <option value="09" <%= searchMonth === '09' ? 'selected' : '' %>>กันยายน</option>
+                            <option value="10" <%= searchMonth === '10' ? 'selected' : '' %>>ตุลาคม</option>
+                            <option value="11" <%= searchMonth === '11' ? 'selected' : '' %>>พฤศจิกายน</option>
+                            <option value="12" <%= searchMonth === '12' ? 'selected' : '' %>>ธันวาคม</option>
+                        </select>
+                    </div>
+
+                    <!-- Filter ปี -->
+                    <div class="flex-1 min-w-[120px]">
+                        <label for="searchYear" class="block text-sm font-medium text-gray-700 mb-1">ปี</label>
+                        <select name="searchYear" id="searchYear" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="">ทั้งหมด</option>
                             <% 
-                                // สร้างตัวเลือกเดือน 12 เดือนย้อนหลัง
-                                const now = new Date();
-                                for (let i = 2; i <= 12; i++) {
-                                    const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                                    const monthValue = `month-${i}`;
-                                    const monthNames = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
-                                                        'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
-                                    const monthName = monthNames[monthDate.getMonth()];
-                                    const year = monthDate.getFullYear() + 543; // แปลงเป็น พ.ศ.
+                                const currentYear = new Date().getFullYear();
+                                for (let i = 0; i <= 5; i++) {
+                                    const year = currentYear - i;
+                                    const buddhistYear = year + 543;
                             %>
-                                <option value="<%= monthValue %>" <%= currentFilters.dateRange === monthValue ? 'selected' : '' %>>
-                                    <%= monthName %> <%= year %>
+                                <option value="<%= year %>" <%= searchYear == year.toString() ? 'selected' : '' %>>
+                                    <%= buddhistYear %>
                                 </option>
                             <% } %>
                         </select>
                     </div>
 
                     <!-- Village Filter -->
-                    <div>
+                    <div class="flex-1 min-w-[180px]">
                         <label for="village" class="block text-sm font-medium text-gray-700 mb-1">หมู่บ้าน</label>
                         <select name="village" id="village" 
-                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
                             <option value="">ทุกหมู่บ้าน</option>
                             <% if (allVillages && allVillages.length > 0) { %>
                                 <% allVillages.forEach(village => { %>
-                                    <option value="<%= village._id %>" <%= currentFilters.village === village._id.toString() ? 'selected' : '' %>>
+                                    <option value="<%= village._id %>" <%= villageId === village._id.toString() ? 'selected' : '' %>>
                                         <%= village.villageName || `หมู่บ้านที่ ${village.villageNumber}` %>
                                     </option>
                                 <% }) %>
@@ -121,49 +131,61 @@
 
                     <!-- Submit Button -->
                     <div>
-                        <button type="submit" class="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+                        <button type="submit" class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 whitespace-nowrap">
                             <i class="fas fa-search mr-2"></i>ค้นหา
                         </button>
                     </div>
                 </div>
 
                 <!-- Current Filter Display -->
-                <% if (filterInfo && (filterInfo.selectedDate || filterInfo.dateRange !== 'all' || filterInfo.village)) { %>
+                <% if (filterInfo && (filterInfo.searchDate || filterInfo.searchMonth || filterInfo.searchYear || filterInfo.village)) { %>
                     <div class="mt-3 flex flex-wrap items-center gap-2">
                         <span class="text-sm text-gray-600">ตัวกรองปัจจุบัน:</span>
                         
-                        <% if (filterInfo.selectedDate) { %>
+                        <!-- แสดงวันที่ที่เลือก -->
+                        <% if (filterInfo.searchDate) { %>
                             <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                <i class="fas fa-calendar-day mr-1"></i>วันที่ <%= filterInfo.selectedDate %>
+                                <i class="fas fa-calendar-day mr-1"></i>วันที่ 
+                                <% 
+                                    const dateObj = new Date(filterInfo.searchDate);
+                                    const thaiDate = dateObj.toLocaleDateString('th-TH', { 
+                                        year: 'numeric', 
+                                        month: 'long', 
+                                        day: 'numeric' 
+                                    });
+                                %>
+                                <%= thaiDate %>
                             </span>
-                        <% } else if (filterInfo.dateRange !== 'all') { %>
+                        <% } %>
+
+                        <!-- แสดงเดือนที่เลือก -->
+                        <% if (filterInfo.searchMonth) { %>
                             <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                 <i class="fas fa-calendar mr-1"></i>
-                                <% if (filterInfo.dateRange === 'today') { %>วันนี้
-                                <% } else if (filterInfo.dateRange === 'yesterday') { %>เมื่อวาน
-                                <% } else if (filterInfo.dateRange === 'thisMonth') { %>เดือนนี้
-                                <% } else if (filterInfo.dateRange === 'lastMonth') { %>เดือนที่แล้ว
-                                <% } else if (filterInfo.dateRange && filterInfo.dateRange.startsWith('month-')) { %>
-                                    <% 
-                                        const monthIndex = parseInt(filterInfo.dateRange.replace('month-', ''));
-                                        const monthDate = new Date();
-                                        monthDate.setMonth(monthDate.getMonth() - monthIndex);
-                                        const monthNames = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
-                                                            'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
-                                        const monthName = monthNames[monthDate.getMonth()];
-                                        const year = monthDate.getFullYear() + 543;
-                                    %>
-                                    <%= monthName %> <%= year %>
-                                <% } %>
+                                <% 
+                                    const monthNames = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+                                                        'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+                                    const monthName = monthNames[parseInt(filterInfo.searchMonth) - 1];
+                                %>
+                                <%= monthName %>
+                            </span>
+                        <% } %>
+
+                        <!-- แสดงปีที่เลือก -->
+                        <% if (filterInfo.searchYear) { %>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                <i class="fas fa-calendar-alt mr-1"></i>ปี <%= parseInt(filterInfo.searchYear) + 543 %>
                             </span>
                         <% } %>
                         
+                        <!-- แสดงหมู่บ้านที่เลือก -->
                         <% if (filterInfo.village && filterInfo.villageName) { %>
                             <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                 <i class="fas fa-map-marker-alt mr-1"></i><%= filterInfo.villageName %>
                             </span>
                         <% } %>
 
+                        <!-- ปุ่มล้างตัวกรอง -->
                         <a href="/admin" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors">
                             <i class="fas fa-times mr-1"></i>ล้างตัวกรอง
                         </a>
