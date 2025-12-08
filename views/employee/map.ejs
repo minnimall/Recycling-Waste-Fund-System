@@ -309,16 +309,7 @@
                 searchBtn.disabled = false;
                 
                 if (results.length > 0) {
-                    if (results.length === 1) {
-                        // Single result - add directly
-                        const result = results[0];
-                        map.setView([result.lat, result.lng], 15);
-                        addPoint(result.lat, result.lng, result.display_name);
-                        document.getElementById('searchInput').value = '';
-                    } else {
-                        // Multiple results - show selection
-                        showSearchResults(results);
-                    }
+                    showSearchResults(results);
                 } else {
                     if (showPopup) {
                         Swal.fire({
