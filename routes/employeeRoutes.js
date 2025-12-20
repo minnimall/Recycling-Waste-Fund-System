@@ -31,7 +31,8 @@ router.delete('/complaint/replyMessage/:id', employeeController.deleteMessageRep
 // ตรวจสอบความประสงค์ขายขยะ
 router.get('/wasteSaleRequest', employeeController.wasteSaleRequestIndex);
 router.put('/wasteSaleRequest/:id/status',  employeeController.updateWasteSaleRequestStatus);
-router.get('/wasteSaleRequest/:id', employeeController.wasteSaleRequestComfirm);
+router.get('/wasteSaleRequest/:id', employeeController.wasteSaleRequestReplyIndex);
+router.get('/wasteSaleRequestReject/:id', employeeController.wasteSaleRequestReject);
 
 // สต๊อกขยะ
 router.get('/wasteStock', employeeController.wasteStockIndex);

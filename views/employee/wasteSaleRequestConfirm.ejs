@@ -193,45 +193,55 @@
 
     <div class="content bg-gray-50 min-screen">
         <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center w-full">
                 <div>
                     <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
                         คำขอขายขยะ
                     </h1>
                     <p class="text-gray-600 mt-2">ตรวจสอบและตอบกลับคำขอจากผู้ใช้</p>
                 </div>
+                <a href="/employee/wasteSaleRequest" class="bg-red-700 text-white px-4 py-2 rounded-md hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-200 flex items-center">
+                    <i class="fa-solid fa-arrow-left mr-2"></i>ย้อนกลับ
+                </a>
             </div>
         </div>
 
             <!-- Request Details Card -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <!-- Left Column - Request Info -->
-            <div class="lg:col-span-2 space-y-6">
+            <div class="lg:col-span-3 space-y-6">
                 <!-- Status and Date -->
                 <div class="w-full bg-white rounded-lg shadow p-4 mx-4 mb-6 text-black">
                     <div class="flex items-center justify-between mb-6 ">
                         <div>
                             <h3 class="text-lg font-semibold mb-2">รายละเอียดคำขอ</h3>
                             <p class="text-sm text-gray-500">ID: <%= request._id  %></p>
-                        </div> 
-                        <span class="status-badge status-pending" id="statusBadge">รอดำเนินการ</span>
+                        </div>
+                        <% if (request.status === 'resolved') { %><span class="status-badge status-approved" id="statusBadge">เสร็จสิ้น</span>
+                        <% } else if (request.status === 'pending') { %><span class="status-badge status-pending" id="statusBadge">รอดำเนินการ</span>
+                        <% } else if (request.status === 'reject') { %><span class="status-badge status-rejected" id="statusBadge">ปฏิเสธคำขอ</span>
+                        <% } else { %>ไม่ทราบ<% } %>
                     </div>
 
                     <div class="space-y-0">
                         <div class="info-row">
-                            <span class="info-label">วันที่แจ้ง:</span>
+                            <span class="info-label"><i class="fas fa-user-circle text-gray-600 mr-2"></i> ข้อขาย:</span>
+                            <span class="info-value" id="requestDate"><%= request.family.familyName %></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label"><i class="far fa-calendar-alt text-green-600 mr-2"></i> วันที่แจ้ง:</span>
                             <span class="info-value" id="requestDate"><%= request.createdAt.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) %></span>
                         </div>
                         <div class="info-row">
-                            <span class="info-label">น้ำหนัก:</span>
+                            <span class="info-label"><i class="fas fa-weight text-blue-500 mr-2"></i> น้ำหนัก:</span>
                             <span class="info-value" id="weight"><%= request.weight %></span>
                         </div>
-                        <div class="info-row">
+                        <!-- <div class="info-row">
                             <span class="info-label">ประเภทขยะ:</span>
                             <span class="info-value" id="wasteTypes">กำลังโหลด...</span>
-                        </div>
+                        </div> -->
                         <div class="info-row">
-                            <span class="info-label">สถานที่:</span>
+                            <span class="info-label"><i class="fas fa-map-marker-alt text-red-500 mr-2"></i> สถานที่:</span>
                             <span class="info-value" id="location"><%= request.location  %></span>
                         </div>
                         <div class="info-row">
@@ -239,9 +249,9 @@
                             <span class="info-value" id="locationDetail">-</span>
                         </div>
                         <div class="info-row">
-                            <span class="info-label">พิกัด:</span>
+                            <span class="info-label"><i class="fas fa-map-pin text-red-500 mr-2"></i> พิกัด:</span>
                             <span class="info-value">
-                                <a href="#" id="mapLink" class="text-[#22c55e] hover:underline" target="_blank">
+                                <a href="https://www.google.com/maps?q=<%= request.latitude %>,<%= request.longitude %>" id="mapLink" class="text-[#22c55e] hover:underline" target="_blank">
                                     <%= request.latitude  %>, <%= request.longitude  %>
                                 </a>
                             </span>
@@ -270,11 +280,10 @@
 
             <!-- Right Column - Response Form -->
             <div class="lg:col-span-1">
-                <div class="sticky top-8 w-80 bg-white rounded-lg shadow p-4 mx-4 mb-6 text-black">
+                <div class="sticky top-8 bg-white rounded-lg shadow p-4 mx-4 mb-6 text-black">
                     <h3 class="text-lg font-semibold mb-4">ตอบกลับคำขอ</h3>
                     
                     <form id="responseForm" class="space-y-4">
-                        <!-- Weight Input -->
                         <div>
                             <label class="block text-sm font-medium mb-2">น้ำหนักที่ประเมิน (กก.)</label>
                             <input 
@@ -287,8 +296,7 @@
                             />
                         </div>
 
-                        <!-- Price Input -->
-                        <div>
+                        <!-- <div>
                             <label class="block text-sm font-medium mb-2">ราคาที่เสนอ (บาท)</label>
                             <input 
                                 type="number" 
@@ -298,7 +306,7 @@
                                 step="0.01"
                                 min="0"
                             />
-                        </div>
+                        </div> -->
 
                         <!-- Response Message -->
                         <div>
@@ -310,7 +318,6 @@
                             ></textarea>
                         </div>
 
-                        <!-- Pickup Date -->
                         <div>
                             <label class="block text-sm font-medium mb-2">วันที่นัดรับ</label>
                             <input 
@@ -325,7 +332,7 @@
                             <button type="button" onclick="approveRequest()" class="btn btn-primary w-full">
                                 อนุมัติคำขอ
                             </button>
-                            <button type="button" onclick="rejectRequest()" class="btn btn-danger w-full">
+                            <button type="button" onclick="rejectRequest('<%= request._id  %>')" class="btn btn-danger w-full">
                                 ปฏิเสธคำขอ
                             </button>
                             <button type="button" onclick="saveAsDraft()" class="btn btn-secondary w-full">
@@ -343,5 +350,19 @@
 </body>
 
 <script>
+    function rejectRequest(id) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'ยืนยันการปฏิเสธ',
+            text: 'คุณต้องการปฏิเสธคำขอนี้ใช่หรือไม่?',
+            showCancelButton: true,
+            confirmButtonText: 'ยืนยัน',
+            cancelButtonText: 'ยกเลิก'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = `/employee/wasteSaleRequestReject/${id}`;
+            }
+        });
+    }
 </script>
 </html>

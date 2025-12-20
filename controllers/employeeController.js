@@ -1524,7 +1524,7 @@ const wasteSaleRequestIndex = async (req, res) => {
         });
     }
 };
-const wasteSaleRequestComfirm = async (req, res) => {
+const wasteSaleRequestReplyIndex = async (req, res) => {
     const { id } = req.params;
 
     if (!id || id === 'undefined') {
@@ -1533,7 +1533,10 @@ const wasteSaleRequestComfirm = async (req, res) => {
     }
 
     try {
-        const request = await wasteSaleRequest.findById(id);
+        const request = await wasteSaleRequest.findById(id, { isDeleted: false })
+            .populate('waste') // ดึงข้อมูลขยะจาก ObjectId
+            .populate('family') // ดึงข้อมูลครอบครัว
+            .sort({ createdAt: -1 }); // เรียงตามวันที่สร้างล่าสุด
 
         if (!request) {
             return res.redirect('/employee/complaint?error=' + encodeURIComponent('ไม่พบคำขอ'));
@@ -1550,6 +1553,31 @@ const wasteSaleRequestComfirm = async (req, res) => {
         res.redirect('/employee/complaint?error=' + encodeURIComponent('เกิดข้อผิดพลาด'));
     }
 };
+
+const wasteSaleRequestReject = async (req, res) => {
+    const { id } = req.params;
+
+    if (!id || id === 'undefined') {
+        console.log('Something wrong')
+        return res.redirect('/employee/wasteSaleRequest?error=' + encodeURIComponent('ID ไม่ถูกต้อง'));
+    }
+    try {
+        const wastesaleRequest = await wasteSaleRequest
+            .findByIdAndUpdate(
+                id,
+                { status: 'reject' },
+                { new: true }
+            )
+            .populate('waste')
+            .populate('family');
+        if (!wastesaleRequest) {
+            return res.redirect('/employee/wasteSaleRequest?error=' + encodeURIComponent('ไม่พบคำขอ'));
+        }
+        res.redirect('/employee/wasteSaleRequest?success=' + encodeURIComponent('ปธิเสธคำข้อเรียบร้อย'));
+    } catch {
+
+    }
+}
 
 // Controller สำหรับอัปเดตสถานะ
 const updateWasteSaleRequestStatus = async (req, res) => {
@@ -2712,7 +2740,7 @@ module.exports = {
     //หน้าคำร้องหรือหรือข้อร้องเรียน
     complaintIndex,updateComplaintStatus,complaintReply,complaintReplyMessage,updateMessageReply,deleteMessageReply,
     //หน้าตรวจสอบความประสงค์ขายขยะ
-    wasteSaleRequestIndex,updateWasteSaleRequestStatus,wasteSaleRequestComfirm,
+    wasteSaleRequestIndex,updateWasteSaleRequestStatus,wasteSaleRequestReplyIndex,wasteSaleRequestReject,
     //หน้าสต๊อกขยะ
     wasteStockIndex,
     //หน้าเบิกถอน
