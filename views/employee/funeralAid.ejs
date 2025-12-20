@@ -211,7 +211,7 @@
                             
                             <!-- ความสัมพันธ์กับหัวหน้าครัวเรือน -->
                             <div>
-                                <label for="relationship" class="block text-sm font-medium text-gray-700 mb-1">ความสัมพันธ์กับหัวหน้าครัวเรือน <span class="text-red-500">*</span></label>
+                                <label for="relationship" class="block text-sm font-medium text-gray-700 mb-1">ความสัมพันธ์กับตัวแทนครัวเรือน <span class="text-red-500">*</span></label>
                                 <select id="relationship" name="relationship" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                                     <option value="" disabled selected>-- เลือกความสัมพันธ์ --</option>
                                     <option value="หัวหน้าครัวเรือน">หัวหน้าครัวเรือน</option>
@@ -331,7 +331,7 @@
                             
                             <!-- หมายเหตุ -->
                             <div class="md:col-span-2">
-                                <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ</label>
+                                <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ <span class="text-red-500">*</span></label>
                                 <textarea id="notes" name="notes" rows="2" placeholder="ระบุหมายเหตุเพิ่มเติม (ถ้ามี)" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
                             </div>
                         </div>
@@ -418,74 +418,25 @@
     
     <script>
         
-        const mockHouseholdsData = [
-            {
-                id: '680101',
-                head: 'นายสมชาย ใจดี',
-                address: 'บ้านเลขที่ 123 หมู่ 5',
-                memberCount: 4,
-                registrationDate: '2024-01-15',
-                totalSales: 450
-            },
-            {
-                id: '680102',
-                head: 'นางสมหญิง รักดี',
-                address: 'บ้านเลขที่ 45 หมู่ 3',
-                memberCount: 3,
-                registrationDate: '2023-11-20',
-                totalSales: 520
-            },
-            {
-                id: '680103',
-                head: 'นายสมศักดิ์ มั่นคง',
-                address: 'บ้านเลขที่ 78 หมู่ 2',
-                memberCount: 5,
-                registrationDate: '2023-08-10',
-                totalSales: 380
-            },
-            {
-                id: '680104',
-                head: 'นางสาวสมใจ ยิ้มแย้ม',
-                address: 'บ้านเลขที่ 156 หมู่ 4',
-                memberCount: 2,
-                registrationDate: '2024-02-05',
-                totalSales: 290
-            },
-            {
-                id: '680105',
-                head: 'นายสมบูรณ์ เจริญสุข',
-                address: 'บ้านเลขที่ 89 หมู่ 1',
-                memberCount: 6,
-                registrationDate: '2023-06-15',
-                totalSales: 610
-            },
-            {
-                id: '680106',
-                head: 'นางสมพร สุขสันต์',
-                address: 'บ้านเลขที่ 234 หมู่ 5',
-                memberCount: 4,
-                registrationDate: '2023-09-25',
-                totalSales: 470
-            }
-        ];
-
-        const mockFundData = {
-            totalAccounts: 150,
-            totalBalance: 45000,
-            funeralAmount: 6000
-        };
-
+        // ==================== Global Variables ====================
         let selectedHousehold = null;
         let currentFocusIndex = -1;
+        let isEligible = false;
 
         const householdSearchInput = document.getElementById('householdSearch');
         const householdDropdown = document.getElementById('householdDropdown');
         const householdList = document.getElementById('householdList');
         const noResults = document.getElementById('noResults');
 
+        // ==================== Event Listeners ====================
+
+        // ค้นหาครัวเรือน (Debounced)
+        let searchTimeout;
         householdSearchInput.addEventListener('input', function(e) {
-            const searchValue = e.target.value.trim().toLowerCase();
+            const searchValue = e.target.value.trim();
             currentFocusIndex = -1;
+            
+            clearTimeout(searchTimeout);
             
             if (searchValue.length === 0) {
                 hideDropdown();
@@ -493,18 +444,311 @@
                 return;
             }
 
-            // กรองข้อมูลครัวเรือนตามคำค้นหา
-            const filteredHouseholds = mockHouseholdsData.filter(household => {
-                return household.id.toLowerCase().includes(searchValue) ||
-                       household.head.toLowerCase().includes(searchValue);
-            });
+            // Debounce search
+            searchTimeout = setTimeout(() => {
+                searchHouseholds(searchValue);
+            }, 300);
+        });
 
-            if (filteredHouseholds.length > 0) {
-                displayDropdown(filteredHouseholds, searchValue);
-            } else {
-                showNoResults();
+        // Keyboard navigation
+        householdSearchInput.addEventListener('keydown', function(e) {
+            const items = householdList.querySelectorAll('div[class*="cursor-pointer"]');
+            
+            if (items.length === 0) return;
+            
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                currentFocusIndex = Math.min(currentFocusIndex + 1, items.length - 1);
+                updateFocus(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                currentFocusIndex = Math.max(currentFocusIndex - 1, 0);
+                updateFocus(items);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (currentFocusIndex >= 0 && items[currentFocusIndex]) {
+                    items[currentFocusIndex].click();
+                }
+            } else if (e.key === 'Escape') {
+                hideDropdown();
             }
         });
+
+        // คำนวณเงินฌาปนกิจเมื่อกรอกจำนวนเงิน
+        document.getElementById('amount').addEventListener('input', function(e) {
+            const amount = parseFloat(e.target.value) || 0;
+            
+            if (amount > 0) {
+                calculateFuneralAmount(amount);
+            } else {
+                document.getElementById('calculationSection').classList.add('hidden');
+            }
+        });
+
+        // Toggle รายละเอียดการคำนวณ
+        document.getElementById('toggleDetails').addEventListener('click', function() {
+            const detailsContent = document.getElementById('detailsContent');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            detailsContent.classList.toggle('hidden');
+            toggleIcon.classList.toggle('rotate-180');
+        });
+
+        // Click outside to close dropdown
+        document.addEventListener('click', function(e) {
+            if (!householdSearchInput.contains(e.target) && !householdDropdown.contains(e.target)) {
+                hideDropdown();
+            }
+        });
+
+        // Submit form
+        document.querySelector('form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!selectedHousehold) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'กรุณาเลือกครัวเรือน',
+                    text: 'โปรดค้นหาและเลือกครัวเรือนก่อนบันทึกข้อมูล'
+                });
+                return;
+            }
+
+            if (!isEligible) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่มีสิทธิ์',
+                    text: 'ครัวเรือนนี้ไม่มีสิทธิ์รับเงินช่วยเหลือฌาปนกิจ'
+                });
+                return;
+            }
+
+            // รวบรวมข้อมูลจากฟอร์ม
+            const formData = {
+                familyID: selectedHousehold.familyID,
+                deceasedName: document.getElementById('deceasedName').value,
+                relationship: document.getElementById('relationship').value,
+                dateOfDeath: document.getElementById('dateOfDeath').value,
+                amount: parseFloat(document.getElementById('amount').value),
+                beneficiary: document.getElementById('beneficiary').value,
+                beneficiaryRelationship: document.getElementById('beneficiaryRelationship').value,
+                notes: document.getElementById('notes').value
+            };
+
+            // แสดงรายการบัญชีที่จะหัก
+            await showDeductionPreview(formData);
+        });
+
+        // ==================== API Functions ====================
+
+        // ค้นหาครัวเรือน
+        async function searchHouseholds(query) {
+            try {
+                const response = await fetch(`/employee/funeral-assistance/search?query=${encodeURIComponent(query)}`);
+                const result = await response.json();
+
+                if (result.success && result.data.length > 0) {
+                    displayDropdown(result.data, query);
+                } else {
+                    showNoResults();
+                }
+            } catch (error) {
+                console.error('Error searching households:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถค้นหาครัวเรือนได้'
+                });
+            }
+        }
+
+        // ตรวจสอบคุณสมบัติ
+        async function checkEligibility(familyID) {
+            try {
+                const response = await fetch(`/employee/funeral-assistance/eligibility/${familyID}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    displayEligibilityCheck(result.data);
+                }
+            } catch (error) {
+                console.error('Error checking eligibility:', error);
+            }
+        }
+
+        // คำนวณเงินฌาปนกิจ
+        async function calculateFuneralAmount(amount) {
+            try {
+                const response = await fetch('/employee/funeral-assistance/calculate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ amount })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    displayCalculation(result.data);
+                }
+            } catch (error) {
+                console.error('Error calculating funeral amount:', error);
+            }
+        }
+
+        // แสดง Preview รายการหัก
+        async function showDeductionPreview(formData) {
+            try {
+                // แสดง loading
+                Swal.fire({
+                    title: 'กำลังคำนวณ...',
+                    text: 'โปรดรอสักครู่',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                const response = await fetch('/employee/funeral-assistance/preview', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // แสดง confirmation dialog พร้อมรายละเอียด
+                    await showConfirmationDialog(result.data, formData);
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: result.message
+                    });
+                }
+            } catch (error) {
+                console.error('Error getting deduction preview:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถดึงข้อมูลรายการหักได้'
+                });
+            }
+        }
+
+        // แสดง Confirmation Dialog
+        async function showConfirmationDialog(previewData, formData) {
+            const { summary, accountsToDeduct, disqualifiedAccounts } = previewData;
+
+            const html = `
+                <div class="text-left">
+                    <div class="mb-4 p-4 bg-blue-50 rounded-lg">
+                        <h3 class="font-semibold text-lg mb-2">สรุปการหักเงิน</h3>
+                        <div class="space-y-1 text-sm">
+                            <p><span class="font-medium">จำนวนเงินรวม:</span> ${summary.totalAmount.toLocaleString()} บาท</p>
+                            <p><span class="font-medium">จำนวนบัญชีทั้งหมด:</span> ${summary.totalAccounts} บัญชี</p>
+                            <p><span class="font-medium">หักจากบัญชีละ:</span> ${summary.perAccountAmount.toFixed(2)} บาท</p>
+                            <p class="text-green-600"><span class="font-medium">บัญชีที่หักได้:</span> ${summary.accountsToDeduct} บัญชี</p>
+                            <p class="text-red-600"><span class="font-medium">บัญชีที่ถูกตัดสิทธิ์:</span> ${summary.disqualifiedAccounts} บัญชี</p>
+                        </div>
+                    </div>
+
+                    ${disqualifiedAccounts.length > 0 ? `
+                        <div class="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                            <h4 class="font-semibold text-sm text-amber-800 mb-2">
+                                ⚠️ บัญชีที่ถูกตัดสิทธิ์ (${disqualifiedAccounts.length} บัญชี)
+                            </h4>
+                            <div class="max-h-32 overflow-y-auto text-xs space-y-1">
+                                ${disqualifiedAccounts.slice(0, 5).map(acc => `
+                                    <p class="text-gray-700">• ${acc.accountName} (${acc.accountNumber}) - มียอดเพียง ${acc.balanceAtCheck.toFixed(2)} บาท</p>
+                                `).join('')}
+                                ${disqualifiedAccounts.length > 5 ? `<p class="text-gray-500 italic">และอีก ${disqualifiedAccounts.length - 5} บัญชี...</p>` : ''}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <p class="text-sm text-gray-600 mt-4">คุณต้องการดำเนินการหักเงินฌาปนกิจหรือไม่?</p>
+                </div>
+            `;
+
+            const result = await Swal.fire({
+                title: 'ยืนยันการบันทึก',
+                html: html,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'ยืนยัน',
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#3b82f6',
+                cancelButtonColor: '#6b7280',
+                width: '600px'
+            });
+
+            if (result.isConfirmed) {
+                await submitFuneralAssistance(formData);
+            }
+        }
+
+        // บันทึกข้อมูลฌาปนกิจ
+        async function submitFuneralAssistance(formData) {
+            try {
+                // แสดง loading
+                Swal.fire({
+                    title: 'กำลังบันทึกข้อมูล...',
+                    text: 'โปรดรอสักครู่',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                const response = await fetch('/employee/funeral-assistance/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'บันทึกสำเร็จ',
+                        html: `
+                            <p>บันทึกข้อมูลฌาปนกิจสงเคราะห์เรียบร้อยแล้ว</p>
+                            <div class="mt-3 text-sm text-gray-600">
+                                <p>หักเงินจำนวน: ${result.data.totalDeducted.toFixed(2)} บาท</p>
+                                <p>จากบัญชี: ${result.data.accountsDeducted} บัญชี</p>
+                            </div>
+                        `,
+                        confirmButtonText: 'ตรวจสอบรายละเอียด'
+                    });
+
+                    // Redirect หรือ reload
+                    window.location.href = `/employee/funeral-assistance/detail/${result.data.funeralID}`;
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: result.message
+                    });
+                }
+            } catch (error) {
+                console.error('Error submitting funeral assistance:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถบันทึกข้อมูลได้'
+                });
+            }
+        }
+
+        // ==================== UI Functions ====================
 
         function displayDropdown(households, searchTerm) {
             householdList.innerHTML = '';
@@ -514,7 +758,6 @@
                 const item = document.createElement('div');
                 item.className = 'px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors';
                 
-                // Highlight คำที่ค้นหา
                 const idHighlighted = highlightText(household.id, searchTerm);
                 const nameHighlighted = highlightText(household.head, searchTerm);
                 
@@ -549,7 +792,6 @@
 
         function highlightText(text, searchTerm) {
             if (!searchTerm) return text;
-            
             const regex = new RegExp(`(${searchTerm})`, 'gi');
             return text.replace(regex, '<span class="bg-yellow-200 font-semibold">$1</span>');
         }
@@ -570,44 +812,16 @@
             householdSearchInput.value = `${household.id} - ${household.head}`;
             hideDropdown();
             displayHouseholdInfo(household);
-            checkEligibility(household);
+            checkEligibility(household.familyID);
         }
 
         function clearHouseholdInfo() {
             selectedHousehold = null;
+            isEligible = false;
             document.getElementById('householdInfo').classList.add('hidden');
             document.getElementById('eligibilitySection').classList.add('hidden');
             document.getElementById('calculationSection').classList.add('hidden');
         }
-
-        document.addEventListener('click', function(e) {
-            if (!householdSearchInput.contains(e.target) && !householdDropdown.contains(e.target)) {
-                hideDropdown();
-            }
-        });
-
-        householdSearchInput.addEventListener('keydown', function(e) {
-            const items = householdList.querySelectorAll('div[class*="cursor-pointer"]');
-            
-            if (items.length === 0) return;
-            
-            if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                currentFocusIndex = Math.min(currentFocusIndex + 1, items.length - 1);
-                updateFocus(items);
-            } else if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                currentFocusIndex = Math.max(currentFocusIndex - 1, 0);
-                updateFocus(items);
-            } else if (e.key === 'Enter') {
-                e.preventDefault();
-                if (currentFocusIndex >= 0 && items[currentFocusIndex]) {
-                    items[currentFocusIndex].click();
-                }
-            } else if (e.key === 'Escape') {
-                hideDropdown();
-            }
-        });
 
         function updateFocus(items) {
             items.forEach((item, index) => {
@@ -620,7 +834,6 @@
             });
         }
 
-        // แสดงข้อมูลครัวเรือน
         function displayHouseholdInfo(data) {
             document.getElementById('householdInfo').classList.remove('hidden');
             document.getElementById('householdId').textContent = data.id;
@@ -629,42 +842,36 @@
             document.getElementById('memberCount').textContent = data.memberCount + ' คน';
         }
 
-        // ตรวจสอบคุณสมบัติ
-        function checkEligibility(data) {
+        function displayEligibilityCheck(data) {
             const eligibilitySection = document.getElementById('eligibilitySection');
             eligibilitySection.classList.remove('hidden');
 
-            // คำนวณระยะเวลาสมัคร
-            const registrationDate = new Date(data.registrationDate);
-            const today = new Date();
-            const monthsDiff = (today.getFullYear() - registrationDate.getFullYear()) * 12 + 
-                            (today.getMonth() - registrationDate.getMonth());
-
             // เงื่อนไข 1: สมัครครบ 6 เดือน
-            const condition1Pass = monthsDiff >= 6;
-            updateConditionStatus('condition1', condition1Pass, 
-                condition1Pass ? `ผ่าน (สมัครมาแล้ว ${monthsDiff} เดือน)` : `ไม่ผ่าน (สมัครมาเพียง ${monthsDiff} เดือน)`
+            updateConditionStatus('condition1', data.passedMembershipPeriod, 
+                data.passedMembershipPeriod 
+                    ? `ผ่าน (สมัครมาแล้ว ${data.membershipMonths} เดือน)` 
+                    : `ไม่ผ่าน (สมัครมาเพียง ${data.membershipMonths} เดือน)`
             );
 
             // เงื่อนไข 2: ขายขยะครบ 300 บาท
-            const condition2Pass = data.totalSales >= 300;
-            updateConditionStatus('condition2', condition2Pass,
-                condition2Pass ? `ผ่าน (ขายขยะรวม ${data.totalSales.toLocaleString()} บาท)` : `ไม่ผ่าน (ขายขยะเพียง ${data.totalSales.toLocaleString()} บาท)`
+            updateConditionStatus('condition2', data.passedSalesRequirement,
+                data.passedSalesRequirement 
+                    ? `ผ่าน (ขายขยะรวม ${data.totalSales.toLocaleString()} บาท)` 
+                    : `ไม่ผ่าน (ขายขยะเพียง ${data.totalSales.toLocaleString()} บาท)`
             );
 
             // สรุปผล
-            const eligible = condition1Pass && condition2Pass;
-            updateEligibilityResult(eligible);
+            isEligible = data.isEligible;
+            updateEligibilityResult(data.isEligible);
         }
 
-        // อัพเดทสถานะเงื่อนไข
         function updateConditionStatus(conditionId, pass, detail) {
             const icon = document.getElementById(conditionId + 'Icon');
             const detailElement = document.getElementById(conditionId + 'Detail');
 
             if (pass) {
                 icon.className = 'w-8 h-8 rounded-full flex items-center justify-center bg-green-100';
-                icon.querySelector('svg').className = 'w-5 h-5 text-green-600';
+                icon.innerHTML = '<svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>';
             } else {
                 icon.className = 'w-8 h-8 rounded-full flex items-center justify-center bg-red-100';
                 icon.innerHTML = '<svg class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>';
@@ -673,7 +880,6 @@
             detailElement.textContent = detail;
         }
 
-        // อัพเดทผลการตรวจสอบ
         function updateEligibilityResult(eligible) {
             const resultDiv = document.getElementById('eligibilityResult');
             const resultIcon = document.getElementById('resultIcon');
@@ -682,61 +888,38 @@
             if (eligible) {
                 resultDiv.className = 'mt-4 p-4 rounded-lg bg-green-100 border-2 border-green-300';
                 resultIcon.className = 'w-6 h-6 mr-2 text-green-600';
+                resultIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />';
                 resultText.textContent = 'ครัวเรือนนี้มีสิทธิ์รับเงินช่วยเหลือฌาปนกิจ';
                 resultText.className = 'font-semibold text-lg text-green-800';
             } else {
                 resultDiv.className = 'mt-4 p-4 rounded-lg bg-red-100 border-2 border-red-300';
-                resultIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />';
                 resultIcon.className = 'w-6 h-6 mr-2 text-red-600';
+                resultIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />';
                 resultText.textContent = 'ครัวเรือนนี้ไม่มีสิทธิ์รับเงินช่วยเหลือฌาปนกิจ';
                 resultText.className = 'font-semibold text-lg text-red-800';
             }
         }
 
-        // คำนวณเงินฌาปนกิจ
-        document.getElementById('amount').addEventListener('input', function(e) {
-            const amount = parseFloat(e.target.value) || 0;
-            
-            if (amount > 0) {
-                calculateFuneralAmount(amount);
-            } else {
-                document.getElementById('calculationSection').classList.add('hidden');
-            }
-        });
-
-        function calculateFuneralAmount(amount) {
+        function displayCalculation(data) {
             const calculationSection = document.getElementById('calculationSection');
             calculationSection.classList.remove('hidden');
 
-            const totalAccounts = mockFundData.totalAccounts;
-            const perAccountAmount = amount / totalAccounts;
-            const beforeBalance = mockFundData.totalBalance;
-            const afterBalance = beforeBalance - amount;
-
             // อัพเดทข้อมูล
-            document.getElementById('totalAmount').textContent = amount.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท';
-            document.getElementById('totalAccounts').textContent = totalAccounts.toLocaleString() + ' บัญชี';
-            document.getElementById('perAccountAmount').textContent = perAccountAmount.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท';
+            document.getElementById('totalAmount').textContent = data.totalAmount.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท';
+            document.getElementById('totalAccounts').textContent = data.totalAccounts.toLocaleString() + ' บัญชี';
+            document.getElementById('perAccountAmount').textContent = data.perAccountAmount.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท';
 
             // อัพเดทการคำนวณ
-            document.getElementById('calc1').textContent = amount.toLocaleString('th-TH', {minimumFractionDigits: 2});
-            document.getElementById('calc2').textContent = totalAccounts.toLocaleString();
-            document.getElementById('calc3').textContent = amount.toLocaleString('th-TH', {minimumFractionDigits: 2});
-            document.getElementById('calc4').textContent = totalAccounts.toLocaleString();
-            document.getElementById('calc5').textContent = perAccountAmount.toLocaleString('th-TH', {minimumFractionDigits: 2});
+            document.getElementById('calc1').textContent = data.totalAmount.toLocaleString('th-TH', {minimumFractionDigits: 2});
+            document.getElementById('calc2').textContent = data.totalAccounts.toLocaleString();
+            document.getElementById('calc3').textContent = data.totalAmount.toLocaleString('th-TH', {minimumFractionDigits: 2});
+            document.getElementById('calc4').textContent = data.totalAccounts.toLocaleString();
+            document.getElementById('calc5').textContent = data.perAccountAmount.toLocaleString('th-TH', {minimumFractionDigits: 2});
 
-            document.getElementById('beforeBalance').textContent = beforeBalance.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท';
-            document.getElementById('afterBalance').textContent = afterBalance.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท';
+            document.getElementById('beforeBalance').textContent = data.totalBalance.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท';
+            document.getElementById('afterBalance').textContent = data.afterBalance.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท';
         }
-
-        // Toggle รายละเอียดการคำนวณ
-        document.getElementById('toggleDetails').addEventListener('click', function() {
-            const detailsContent = document.getElementById('detailsContent');
-            const toggleIcon = document.getElementById('toggleIcon');
-            
-            detailsContent.classList.toggle('hidden');
-            toggleIcon.classList.toggle('rotate-180');
-        });
     </script>
+    
 </body>
 </html>

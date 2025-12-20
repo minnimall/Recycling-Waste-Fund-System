@@ -28,6 +28,7 @@ const mongoose = require('mongoose');
 const myAdmin = require('../models/admin');
 const Route = require('../models/route');
 const SystemSettings = require('../models/withDrawSetting');
+const FuneralAssistance = require('../models/funeral');
 const { Console } = require('console');
 
 router.use(express.static(path.join(__dirname, '../public')));
@@ -2220,10 +2221,611 @@ const getCurrentSettings = async (req, res) => {
 };
 
 
-//หน้าฌาปนกิจสงเคราะห์
-const funeralAidIndex = (req, res)=> {
-    res.render('employee/funeralAid',{mytitle: 'พนักงาน | ฌาปนกิจสงเคราะห์',currentPage: 'funeralAid',})
-}
+// หน้าฌาปนกิจสงเคราะห์
+const funeralAidIndex = (req, res) => {
+    res.render('employee/funeralAid', {
+        mytitle: 'พนักงาน | ฌาปนกิจสงเคราะห์',
+        currentPage: 'funeralAid',
+    });
+};
+
+// API: ค้นหาครัวเรือน
+const searchHouseholds = async (req, res) => {
+    try {
+        const { query } = req.query;
+
+        if (!query || query.trim().length === 0) {
+            return res.json({ success: true, data: [] });
+        }
+
+        // ค้นหาครัวเรือนที่ไม่ถูกลบ
+        const families = await Family.find({
+            isDeleted: false,
+            $or: [
+                { familyName: { $regex: query, $options: 'i' } },
+                { username: { $regex: query, $options: 'i' } }
+            ]
+        })
+        .populate('village')
+        .limit(20)
+        .lean();
+
+        // ดึงข้อมูล Member และ Account ของแต่ละครัวเรือน
+        const householdsData = await Promise.all(families.map(async (family) => {
+            // หา Member ตัวแทนครัวเรือน
+            const representative = await Member.findOne({
+                familyID: family._id,
+                isDeleted: false
+            }).lean();
+
+            // หา WasteBankAccount
+            const account = await WasteBankAccount.findOne({
+                familyID: family._id,
+                isDeleted: false
+            }).lean();
+
+            // นับจำนวนสมาชิก
+            const memberCount = await Member.countDocuments({
+                familyID: family._id,
+                isDeleted: false,
+                Status: 'living'
+            });
+
+            return {
+                id: account ? account.AccountNumber : family.username,
+                familyID: family._id,
+                head: representative ? representative.name : family.familyName,
+                address: family.address ? 
+                    `${family.address.houseNumber || ''} หมู่ ${family.address.moo || ''} ${family.address.subdistrict || ''} ${family.address.district || ''} ${family.address.province || ''}`.trim() 
+                    : 'ไม่ระบุ',
+                memberCount: memberCount,
+                registrationDate: account ? account.OpenDate : family.createdAt,
+                totalSales: account ? account.Balance : 0,
+                accountID: account ? account._id : null
+            };
+        }));
+
+        res.json({ 
+            success: true, 
+            data: householdsData 
+        });
+
+    } catch (error) {
+        console.error('Error searching households:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'เกิดข้อผิดพลาดในการค้นหาครัวเรือน',
+            error: error.message 
+        });
+    }
+};
+
+// API: ตรวจสอบคุณสมบัติ
+const checkEligibility = async (req, res) => {
+    try {
+        const { familyID } = req.params;
+
+        // ตรวจสอบว่ามี familyID หรือไม่
+        if (!familyID) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'ไม่พบข้อมูลครัวเรือน' 
+            });
+        }
+
+        // หา WasteBankAccount
+        const account = await WasteBankAccount.findOne({
+            familyID: familyID,
+            isDeleted: false
+        }).lean();
+
+        if (!account) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'ไม่พบบัญชีธนาคารขยะของครัวเรือนนี้' 
+            });
+        }
+
+        // คำนวณระยะเวลาสมัคร
+        const registrationDate = new Date(account.OpenDate);
+        const today = new Date();
+        const monthsDiff = (today.getFullYear() - registrationDate.getFullYear()) * 12 + 
+                          (today.getMonth() - registrationDate.getMonth());
+
+        // เงื่อนไข 1: สมัครครบ 6 เดือน
+        const passedMembershipPeriod = monthsDiff >= 6;
+
+        // เงื่อนไข 2: ขายขยะครบ 300 บาท (ดูจาก Balance)
+        const totalSales = account.Balance || 0;
+        const passedSalesRequirement = totalSales >= 300;
+
+        // สรุปผล
+        const isEligible = passedMembershipPeriod && passedSalesRequirement;
+
+        res.json({
+            success: true,
+            data: {
+                membershipMonths: monthsDiff,
+                totalSales: totalSales,
+                passedMembershipPeriod: passedMembershipPeriod,
+                passedSalesRequirement: passedSalesRequirement,
+                isEligible: isEligible,
+                accountBalance: account.Balance,
+                registrationDate: account.OpenDate
+            }
+        });
+
+    } catch (error) {
+        console.error('Error checking eligibility:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'เกิดข้อผิดพลาดในการตรวจสอบคุณสมบัติ',
+            error: error.message 
+        });
+    }
+};
+
+// API: คำนวณเงินฌาปนกิจ
+const calculateFuneralAmount = async (req, res) => {
+    try {
+        const { amount } = req.body;
+
+        if (!amount || amount <= 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'กรุณาระบุจำนวนเงินที่ถูกต้อง' 
+            });
+        }
+
+        // นับจำนวนบัญชีทั้งหมดในระบบ (ที่ไม่ถูกลบ)
+        const totalAccounts = await WasteBankAccount.countDocuments({
+            isDeleted: false
+        });
+
+        if (totalAccounts === 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'ไม่มีบัญชีในระบบ' 
+            });
+        }
+
+        // คำนวณเงินที่หักต่อบัญชี
+        const perAccountAmount = amount / totalAccounts;
+
+        // คำนวณยอดเงินรวมในกองทุน
+        const accounts = await WasteBankAccount.find({
+            isDeleted: false
+        }).select('Balance').lean();
+
+        const totalBalance = accounts.reduce((sum, acc) => sum + (acc.Balance || 0), 0);
+
+        // คำนวณบัญชีที่มีเงินพอหัก
+        const accountsWithSufficientBalance = accounts.filter(acc => 
+            (acc.Balance || 0) >= perAccountAmount
+        ).length;
+
+        res.json({
+            success: true,
+            data: {
+                totalAmount: amount,
+                totalAccounts: totalAccounts,
+                perAccountAmount: perAccountAmount,
+                totalBalance: totalBalance,
+                afterBalance: totalBalance - amount,
+                accountsWithSufficientBalance: accountsWithSufficientBalance,
+                accountsWithInsufficientBalance: totalAccounts - accountsWithSufficientBalance
+            }
+        });
+
+    } catch (error) {
+        console.error('Error calculating funeral amount:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'เกิดข้อผิดพลาดในการคำนวณเงินฌาปนกิจ',
+            error: error.message 
+        });
+    }
+};
+
+// API: บันทึกข้อมูลฌาปนกิจ (ขั้นตอนที่ 1 - ดึงรายการบัญชีที่จะหัก)
+const getDeductionPreview = async (req, res) => {
+    try {
+        const { 
+            familyID, 
+            deceasedName,
+            relationship,
+            dateOfDeath,
+            amount,
+            beneficiary,
+            beneficiaryRelationship,
+            notes
+        } = req.body;
+
+        // Validate
+        if (!familyID || !deceasedName || !relationship || !dateOfDeath || !amount || !beneficiary || !beneficiaryRelationship) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'กรุณากรอกข้อมูลให้ครบถ้วน' 
+            });
+        }
+
+        // นับจำนวนบัญชีทั้งหมด
+        const totalAccounts = await WasteBankAccount.countDocuments({
+            isDeleted: false
+        });
+
+        // คำนวณเงินที่หักต่อบัญชี
+        const perAccountAmount = parseFloat(amount) / totalAccounts;
+
+        // ดึงบัญชีทั้งหมด
+        const allAccounts = await WasteBankAccount.find({
+            isDeleted: false
+        })
+        .populate('familyID', 'familyName username')
+        .lean();
+
+        // แยกบัญชีที่มีเงินพอหัก vs ไม่พอหัก
+        const accountsToDeduct = [];
+        const disqualifiedAccounts = [];
+
+        for (const account of allAccounts) {
+            if (account.Balance >= perAccountAmount) {
+                accountsToDeduct.push({
+                    accountID: account._id,
+                    familyID: account.familyID._id,
+                    accountNumber: account.AccountNumber,
+                    accountName: account.AccountName,
+                    familyName: account.familyID.familyName,
+                    deductedAmount: perAccountAmount,
+                    balanceBefore: account.Balance,
+                    balanceAfter: account.Balance - perAccountAmount
+                });
+            } else {
+                disqualifiedAccounts.push({
+                    accountID: account._id,
+                    familyID: account.familyID._id,
+                    accountNumber: account.AccountNumber,
+                    accountName: account.AccountName,
+                    familyName: account.familyID.familyName,
+                    reason: 'insufficient_balance',
+                    balanceAtCheck: account.Balance,
+                    requiredAmount: perAccountAmount
+                });
+            }
+        }
+
+        res.json({
+            success: true,
+            data: {
+                summary: {
+                    totalAmount: parseFloat(amount),
+                    totalAccounts: totalAccounts,
+                    perAccountAmount: perAccountAmount,
+                    accountsToDeduct: accountsToDeduct.length,
+                    disqualifiedAccounts: disqualifiedAccounts.length,
+                    totalDeductedAmount: accountsToDeduct.length * perAccountAmount
+                },
+                accountsToDeduct: accountsToDeduct,
+                disqualifiedAccounts: disqualifiedAccounts
+            }
+        });
+
+    } catch (error) {
+        console.error('Error getting deduction preview:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'เกิดข้อผิดพลาดในการดึงข้อมูลรายการหัก',
+            error: error.message 
+        });
+    }
+};
+
+// API: บันทึกและดำเนินการหักเงินฌาปนกิจ (แก้ไข: หักทุกบัญชี)
+const submitFuneralAssistance = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        const { 
+            familyID, 
+            deceasedName,
+            relationship,
+            dateOfDeath,
+            amount,
+            beneficiary,
+            beneficiaryRelationship,
+            notes,
+            memberID
+        } = req.body;
+
+        // Validate
+        if (!familyID || !deceasedName || !relationship || !dateOfDeath || !amount || !beneficiary || !beneficiaryRelationship) {
+            await session.abortTransaction();
+            return res.status(400).json({ 
+                success: false, 
+                message: 'กรุณากรอกข้อมูลให้ครบถ้วน' 
+            });
+        }
+
+        // ตรวจสอบคุณสมบัติก่อน
+        const account = await WasteBankAccount.findOne({
+            familyID: familyID,
+            isDeleted: false
+        }).session(session);
+
+        if (!account) {
+            await session.abortTransaction();
+            return res.status(404).json({ 
+                success: false, 
+                message: 'ไม่พบบัญชีธนาคารขยะของครัวเรือนนี้' 
+            });
+        }
+
+        // ตรวจสอบคุณสมบัติ
+        const registrationDate = new Date(account.OpenDate);
+        const today = new Date();
+        const monthsDiff = (today.getFullYear() - registrationDate.getFullYear()) * 12 + 
+                          (today.getMonth() - registrationDate.getMonth());
+
+        const passedMembershipPeriod = monthsDiff >= 6;
+        const totalSales = account.Balance || 0;
+        const passedSalesRequirement = totalSales >= 300;
+        const isEligible = passedMembershipPeriod && passedSalesRequirement;
+
+        if (!isEligible) {
+            await session.abortTransaction();
+            return res.status(400).json({ 
+                success: false, 
+                message: 'ครัวเรือนนี้ไม่มีสิทธิ์รับเงินช่วยเหลือฌาปนกิจ' 
+            });
+        }
+
+        // นับจำนวนบัญชีทั้งหมด
+        const totalAccounts = await WasteBankAccount.countDocuments({
+            isDeleted: false
+        }).session(session);
+
+        const perAccountAmount = parseFloat(amount) / totalAccounts;
+
+        // ดึงบัญชีทั้งหมด
+        const allAccounts = await WasteBankAccount.find({
+            isDeleted: false
+        })
+        .populate('familyID', 'familyName username')
+        .session(session);
+
+        const accountsToDeduct = [];
+        const disqualifiedAccounts = [];
+        let totalDeductedAmount = 0;
+
+        // ประมวลผลแต่ละบัญชี - หักทุกบัญชี
+        for (const acc of allAccounts) {
+            const balanceBefore = acc.Balance;
+            
+            // หักเงินทุกบัญชี (แม้ว่าจะติดลบก็ได้)
+            acc.Balance -= perAccountAmount;
+            await acc.save({ session });
+
+            // ตรวจสอบว่าเงินพอหรือไม่ (เพื่อบันทึกข้อมูล)
+            if (balanceBefore >= perAccountAmount) {
+                // บัญชีที่มีเงินพอ
+                accountsToDeduct.push({
+                    accountID: acc._id,
+                    familyID: acc.familyID._id,
+                    accountNumber: acc.AccountNumber,
+                    accountName: acc.AccountName,
+                    deductedAmount: perAccountAmount,
+                    balanceBefore: balanceBefore,
+                    balanceAfter: acc.Balance,
+                    deductedAt: new Date(),
+                    status: 'sufficient'
+                });
+            } else {
+                // บัญชีที่เงินไม่พอ (แต่ก็หักแล้ว)
+                accountsToDeduct.push({
+                    accountID: acc._id,
+                    familyID: acc.familyID._id,
+                    accountNumber: acc.AccountNumber,
+                    accountName: acc.AccountName,
+                    deductedAmount: perAccountAmount,
+                    balanceBefore: balanceBefore,
+                    balanceAfter: acc.Balance,
+                    deductedAt: new Date(),
+                    status: 'insufficient_but_deducted', // บัญชีติดลบ
+                    insufficientAmount: perAccountAmount - balanceBefore
+                });
+            }
+
+            totalDeductedAmount += perAccountAmount;
+        }
+
+        // สร้างบันทึกฌาปนกิจ
+        const funeralRecord = new FuneralAssistance({
+            familyID: familyID,
+            deceasedInfo: {
+                name: deceasedName,
+                relationship: relationship,
+                dateOfDeath: new Date(dateOfDeath),
+                memberID: memberID || null
+            },
+            beneficiaryInfo: {
+                name: beneficiary,
+                relationship: beneficiaryRelationship
+            },
+            financialInfo: {
+                totalAmount: parseFloat(amount),
+                totalAccounts: totalAccounts,
+                perAccountAmount: perAccountAmount,
+                totalDeductedAccounts: accountsToDeduct.length,
+                totalDeductedAmount: totalDeductedAmount
+            },
+            deductedAccounts: accountsToDeduct,
+            disqualifiedAccounts: disqualifiedAccounts,
+            notes: notes || '',
+            status: 'completed',
+            createdBy: req.user._id,
+            eligibilityCheck: {
+                membershipMonths: monthsDiff,
+                totalSales: totalSales,
+                passedMembershipPeriod: passedMembershipPeriod,
+                passedSalesRequirement: passedSalesRequirement,
+                isEligible: isEligible,
+                checkedAt: new Date()
+            }
+        });
+
+        await funeralRecord.save({ session });
+
+        // Commit transaction
+        await session.commitTransaction();
+
+        res.json({
+            success: true,
+            message: 'บันทึกข้อมูลฌาปนกิจสงเคราะห์เรียบร้อยแล้ว',
+            data: {
+                funeralID: funeralRecord._id,
+                totalDeducted: totalDeductedAmount,
+                accountsDeducted: accountsToDeduct.length,
+                accountsWithInsufficientBalance: accountsToDeduct.filter(a => a.status === 'insufficient_but_deducted').length
+            }
+        });
+
+    } catch (error) {
+        await session.abortTransaction();
+        console.error('Error submitting funeral assistance:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล',
+            error: error.message 
+        });
+    } finally {
+        session.endSession();
+    }
+};
+
+// API: ดึงประวัติฌาปนกิจทั้งหมด (แก้ไขแล้ว - รองรับ พ.ศ./ค.ศ.)
+const getFuneralHistory = async (req, res) => {
+    try {
+        const { page = 1, limit = 10, status, year, search } = req.query;
+
+        // สร้าง query object
+        const query = { isDeleted: false };
+
+        // Filter by status
+        if (status && status !== '') {
+            query.status = status;
+        }
+
+        // Filter by year (แปลง พ.ศ. เป็น ค.ศ.)
+        if (year && year !== '') {
+            let searchYear = parseInt(year);
+            
+            // ถ้าเป็น พ.ศ. (มากกว่า 2500) ให้แปลงเป็น ค.ศ.
+            if (searchYear > 2500) {
+                searchYear = searchYear - 543;
+            }
+            
+            const startDate = new Date(`${searchYear}-01-01T00:00:00.000Z`);
+            const endDate = new Date(`${searchYear}-12-31T23:59:59.999Z`);
+            
+            query['deceasedInfo.dateOfDeath'] = {
+                $gte: startDate,
+                $lte: endDate
+            };
+            
+            console.log(`Year filter: ${year} (${searchYear} CE) => ${startDate} to ${endDate}`);
+        }
+
+        // Filter by search (ค้นหาชื่อผู้เสียชีวิต หรือผู้รับเงิน)
+        if (search && search.trim() !== '') {
+            query.$or = [
+                { 'deceasedInfo.name': { $regex: search, $options: 'i' } },
+                { 'beneficiaryInfo.name': { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        console.log('Query:', JSON.stringify(query, null, 2));
+
+        // นับจำนวนทั้งหมด
+        const total = await FuneralAssistance.countDocuments(query);
+
+        // ดึงข้อมูล
+        const records = await FuneralAssistance.find(query)
+            .populate('familyID', 'familyName username address')
+            .populate('createdBy', 'name email')
+            .populate('deceasedInfo.memberID', 'name')
+            .sort({ createdAt: -1 })
+            .skip((page - 1) * limit)
+            .limit(parseInt(limit))
+            .lean();
+
+        console.log(`Found ${records.length} records out of ${total} total`);
+
+        res.json({
+            success: true,
+            data: {
+                records: records,
+                pagination: {
+                    total: total,
+                    page: parseInt(page),
+                    limit: parseInt(limit),
+                    pages: Math.ceil(total / limit)
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error('Error getting funeral history:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'เกิดข้อผิดพลาดในการดึงประวัติฌาปนกิจ',
+            error: error.message 
+        });
+    }
+};
+
+// API: ดึงรายละเอียดฌาปนกิจ
+const getFuneralDetail = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const record = await FuneralAssistance.findById(id)
+            .populate('familyID', 'familyName username address')
+            .populate('createdBy', 'name email')
+            .populate('approvedBy', 'name email')
+            .populate('deductedAccounts.familyID', 'familyName username')
+            .populate('disqualifiedAccounts.familyID', 'familyName username')
+            .lean();
+
+        if (!record) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'ไม่พบข้อมูลฌาปนกิจ' 
+            });
+        }
+
+        res.json({
+            success: true,
+            data: record
+        });
+
+    } catch (error) {
+        console.error('Error getting funeral detail:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'เกิดข้อผิดพลาดในการดึงรายละเอียดฌาปนกิจ',
+            error: error.message 
+        });
+    }
+};
+
+// หน้าประวัติฌาปนกิจ
+const getFuneralHistoryPage = (req, res) => {
+    res.render('employee/funeralAidHistory', {
+        mytitle: 'พนักงาน | ประวัติฌาปนกิจสงเคราะห์',
+        currentPage: 'funeralHistory',
+    });
+};
 
 //หน้าแผนที่
 const mapIndex = (req, res)=> {
@@ -2746,7 +3348,7 @@ module.exports = {
     //หน้าเบิกถอน
     withDrawIndex,getAccountByNumber,showWithdrawPage,updateMinimumWithdraw,getCurrentSettings,
     //หน้าฌาปนกิจสงเคราะห์
-    funeralAidIndex,
+    funeralAidIndex,searchHouseholds,checkEligibility,calculateFuneralAmount,getDeductionPreview,submitFuneralAssistance,getFuneralHistory,getFuneralDetail,getFuneralHistoryPage,
     //หน้าแผนที่เข้ารับซื้อ
     mapIndex,saveRoute,getAllRoutes,getRouteDetail,deleteRoute,updateRoute,
     //หน้าจัดการจุดรับซื้อ

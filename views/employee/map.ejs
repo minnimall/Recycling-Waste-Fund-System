@@ -212,13 +212,14 @@
             const initialLat = 15.948741697876695;
             const initialLng = 102.85523133360921;
             
-            map = L.map('map').setView([initialLat, initialLng], 15);
+            map = L.map('map').setView([initialLat, initialLng], 15); // ตัวเลขมันคือระยะการซูม
             
             // Add OpenStreetMap tiles
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap contributors'
             }).addTo(map);
             
+            // Add click event to map  กดคลิ๊กบนแผนที่
             map.on('click', function(e) { 
                 const lat = e.latlng.lat;  // เก็บละติจูด
                 const lng = e.latlng.lng;  // เก็บลองติจูด
@@ -334,6 +335,7 @@
             } catch (error) {
                 console.error('Search error:', error);
                 
+                // Reset button state
                 searchIcon.style.display = 'inline-block';
                 loadingIcon.style.display = 'none';
                 loadingIcon.classList.remove('active');
@@ -491,7 +493,7 @@
             });
         }
         
-        // เพิ่มจุดตอนผู้ใช้คลิ๊กบนแผนที่
+        // Add point to selected points t  ไว้เพิ่มจุดตอนผู้ใช้คลิ๊กบนแผนที่
         function addPoint(lat, lng, address) {
             const pointNumber = selectedPoints.length + 1; // จะได้ลำดับที่ของจุด เช่น จุดแรก = 1, จุดถัดไป = 2, …
             const point = {
@@ -503,16 +505,18 @@
             
             selectedPoints.push(point); // เก็บจุดที่ผู้ใช้เลือกลงใน selectedPoints
             
-            // Marker ลงแผนที่ Leaflet
+            // Add marker to map เพิ่ม Marker ลงแผนที่ Leaflet
             const marker = L.marker([lat, lng])
                 .addTo(map)
                 .bindPopup(`<b>จุดที่ ${pointNumber}</b><br>${address}`);
             
             markers.push(marker); // เก็บ marker ไว้ใน Array markers
             
+            // Update UI
             updatePointsList(); // แสดงรายชื่อจุดที่เลือกในหน้าเว็บ
             updateButtons(); //// อัปเดตปุ่มกด (เช่น ปุ่มลบจุด/คำนวณเส้นทาง)
             
+            // Show success message
             Swal.fire({
                 toast: true,
                 position: 'top-end',
@@ -659,8 +663,8 @@
             return matrix;
         }
         
-        // Solve TSP using nearest neighbor with 2-opt improvement เริ่มต้นจากทุกจุด → สร้างเส้นทางแบบ Nearest Neighbor และปรับปรุงด้วย 2-opt
-        async function calculateOptimalRoute(points) { // ส่วน fucntion คำนวณ route หาเส้นทางที่สั้นที่สุดจากชุดจุดที่กำหนด
+        // Solve TSP using nearest neighbor with 2-opt improvement เริ่มต้นจากทุกจุด → สร้างเส้นทางแบบ Nearest Neighbor
+        async function calculateOptimalRoute(points) {
             if (points.length < 2) return points;
 
             const n = points.length;
@@ -671,12 +675,13 @@
                 return points;
             }
 
+            // เริ่มต้นจากจุดแรกเสมอ (index 0)
             const startIdx = 0;
             const route = [startIdx];
             const visited = new Set([startIdx]);
             let currentIdx = startIdx;
 
-            // หาจุดที่ใกล้ที่สุดจากจุดปัจจุบัน (Nearest Neighbor Algorithm) เลือกจุดที่ใกล้ที่สุดที่ยังไม่ได้เยี่ยมชม ทำซ้ำจนครบทุกจุด
+            // หาจุดที่ใกล้ที่สุดจากจุดปัจจุบัน (Nearest Neighbor)
             while (route.length < n) {
                 let nearestIdx = -1;
                 let nearestDistance = Infinity;
@@ -737,6 +742,7 @@
             return route;
         }
         
+        // Analyze route - Enhanced version
         async function analyzeRoute() {
             if (selectedPoints.length < 2) return;
             
@@ -828,7 +834,7 @@
             }
         }
         
-        // Display optimized route on map แสดงเส้นทางที่เหมาะสมที่สุดบนแผนที่
+        // Display optimized route on map - Enhanced version แสดงเส้นทางที่เหมาะสมที่สุดบนแผนที่
         async function displayOptimizedRoute(route) {
             try {
                 clearRoute();
@@ -849,7 +855,7 @@
                 
                 // Create routing control for the entire route
                 const waypoints = route.map(point => L.latLng(point.lat, point.lng));
-                // เพิ่มจุดเริ่มต้นเข้าไปในตอนท้ายเพื่อสร้าง round trip ที่จะวนกลับไปที่จุดเริ่มต้น
+                // เพิ่มจุดเริ่มต้นเข้าไปในตอนท้ายเพื่อสร้าง round trip
                 waypoints.push(L.latLng(route[0].lat, route[0].lng));
                 
                 const routingControl = L.Routing.control({ 
@@ -864,7 +870,7 @@
                         }]
                     },
                     createMarker: function() { return null; }, 
-                    router: L.Routing.osrmv1({   // ใช้ไลบรารี OSRM เป็น routing engine Library สำหรับวาดเส้นทางบนแผนที่
+                    router: L.Routing.osrmv1({   // ใช้ไลบรารี L.Routing เพื่อสร้างเส้นทาง
                         serviceUrl: 'https://router.project-osrm.org/route/v1',
                         profile: 'driving'
                     })
@@ -1111,7 +1117,7 @@
             resultsContainer.classList.remove('hidden');
         }
         
-        // เคลียร์ลบเส้นทางออกจากแผนที่
+        // Clear route from map
         function clearRoute() {
             // ลบ routing control layer
             if (routeLayer) {
@@ -1144,7 +1150,7 @@
             routeAnalysisData = null;
         }
         
-        // ล้างจุดทั้งหมดที่ม
+        // Clear all points
         function clearAllPoints() {
             Swal.fire({
                 title: 'ต้องการล้างจุดทั้งหมดหรือไม่?',
