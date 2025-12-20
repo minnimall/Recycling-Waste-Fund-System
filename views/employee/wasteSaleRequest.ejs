@@ -93,11 +93,15 @@
                     รายการทั้งหมด <span class="text-blue-600 text-base font-normal"><%= wasteSaleRequests.length %> รายการ</span>
                 </h2>
             </div>
-            
+            <script>
+                function loadRequest(id) {
+                    window.location.href = `/employee/wasteSaleRequest/${id}`; 
+                }
+            </script>
             <div class="space-y-4">
                 <% if (wasteSaleRequests.length > 0) { %>
                     <% wasteSaleRequests.forEach(request => { %>
-                        <div class="border border-gray-200 rounded-lg hover:shadow-md transition-shadow duration-300 p-4 rounded-lg shadow-sm bg-white  relative" 
+                        <div onclick="loadRequest('<%= request._id %>')" class="border border-gray-200 rounded-lg hover:shadow-md transition-shadow duration-300 p-4 rounded-lg shadow-sm bg-white  relative" 
                             data-status="<%= request.status %>" 
                             data-search="<%= request.family.familyName %> <%= request.location %> <%= request.waste.map(w => w.wasteName).join(' ') %>">
                             <div class="flex flex-col md:flex-row md:items-center justify-between">

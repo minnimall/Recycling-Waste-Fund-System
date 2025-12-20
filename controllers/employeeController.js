@@ -1524,6 +1524,32 @@ const wasteSaleRequestIndex = async (req, res) => {
         });
     }
 };
+const wasteSaleRequestComfirm = async (req, res) => {
+    const { id } = req.params;
+
+    if (!id || id === 'undefined') {
+        console.log('Something wrong')
+        return res.redirect('/employee/complaint?error=' + encodeURIComponent('ID ไม่ถูกต้อง'));
+    }
+
+    try {
+        const request = await wasteSaleRequest.findById(id);
+
+        if (!request) {
+            return res.redirect('/employee/complaint?error=' + encodeURIComponent('ไม่พบคำขอ'));
+        }
+
+        res.render('employee/wasteSaleRequestConfirm', {
+            mytitle: 'พนักงาน | ความประสงค์ขายขยะ',
+            request,
+            currentPage: 'wasteSaleRequest',
+        });
+
+    } catch (err) {
+        console.log(err);
+        res.redirect('/employee/complaint?error=' + encodeURIComponent('เกิดข้อผิดพลาด'));
+    }
+};
 
 // Controller สำหรับอัปเดตสถานะ
 const updateWasteSaleRequestStatus = async (req, res) => {
@@ -2686,7 +2712,7 @@ module.exports = {
     //หน้าคำร้องหรือหรือข้อร้องเรียน
     complaintIndex,updateComplaintStatus,complaintReply,complaintReplyMessage,updateMessageReply,deleteMessageReply,
     //หน้าตรวจสอบความประสงค์ขายขยะ
-    wasteSaleRequestIndex,updateWasteSaleRequestStatus,
+    wasteSaleRequestIndex,updateWasteSaleRequestStatus,wasteSaleRequestComfirm,
     //หน้าสต๊อกขยะ
     wasteStockIndex,
     //หน้าเบิกถอน
