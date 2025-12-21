@@ -25,6 +25,27 @@ const wasteBankAccountSchema = new Schema({
         required: true,
         default: Date.now
     },
+    // ⭐ เพิ่มฟิลด์สำคัญ
+    TotalSalesAmount: { 
+        type: Number, 
+        default: 0,
+        comment: 'ยอดขายสะสมตั้งแต่เปิดบัญชี (ไม่รวมการหักฌาปนกิจ)'
+    },
+    MembershipDate: {
+        type: Date,
+        default: null,
+        comment: 'วันที่เป็นสมาชิก (เมื่อขายครบ 300 บาท)'
+    },
+    IsMember: {
+        type: Boolean,
+        default: false,
+        comment: 'สถานะสมาชิก (true = เป็นสมาชิกแล้ว)'
+    },
+    PendingDeductions: {
+        type: Number,
+        default: 0,
+        comment: 'ยอดเงินที่ค้างหัก (จากการหักฌาปนกิจแล้วเงินไม่พอ)'
+    },
     isDeleted: {
         type: Boolean,
         default: false

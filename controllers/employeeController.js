@@ -520,15 +520,18 @@ const wastePurchaseIndex = async (req, res) => {
     }
 };
 
-// ฟังก์ชันบันทึกรับซื้อขยะ
+// ฟังก์ชันบันทึกรับซื้อขยะ (อัพเดท: คืนสิทธิ์สมาชิกอัตโนมัติ)
 const wastePurchasePost = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
         const { accountId, wasteItems } = req.body;
         const parsedWasteItems = JSON.parse(wasteItems);
         let totalAmount = 0;
         const wasteItemIds = [];
 
-        // Check if wasteItems is valid
+        // ========== 1. ตรวจสอบและสร้างรายการขยะ ==========
         if (parsedWasteItems && Array.isArray(parsedWasteItems)) {
             for (const item of parsedWasteItems) {
                 if (item && item.name) {
@@ -537,91 +540,217 @@ const wastePurchasePost = async (req, res) => {
                         quantity: item.weight,
                         pricePerUnit: item.pricePerUnit,
                     });
-                    await newWasteItem.save();
+                    await newWasteItem.save({ session });
                     wasteItemIds.push(newWasteItem._id);
+                    
                     let price = parseFloat(item.totalPrice);
                     if (!isNaN(price)) {
                         totalAmount += price;
-                    } else {
-                        console.error("Invalid totalPrice:", item.totalPrice);
                     }
-                } else {
-                    console.error("Invalid waste item found:", item);
-                    console.log("Entire parsedWasteItems array: ", parsedWasteItems);
-                    continue;
                 }
             }
         } else {
-            console.error("Invalid wasteItems data:", parsedWasteItems);
-            res.redirect('/employee/wastePurchase?error=Invalid waste items data');
-            return;
+            await session.abortTransaction();
+            return res.redirect('/employee/wastePurchase?error=Invalid waste items data');
         }
 
-        // Create new waste purchase record
+        // ========== 2. ดึงข้อมูลบัญชี ==========
+        const wasteBankAccount = await WasteBankAccount.findById(accountId).session(session);
+        
+        if (!wasteBankAccount) {
+            await session.abortTransaction();
+            return res.redirect('/employee/wastePurchase?error=Bank account not found');
+        }
+
+        // เก็บสถานะเดิมไว้
+        const hadMembershipDate = !!wasteBankAccount.MembershipDate;
+        const wasActiveMember = wasteBankAccount.IsMember;
+        const oldTotalSales = wasteBankAccount.TotalSalesAmount || 0;
+        const oldBalance = wasteBankAccount.Balance;
+        const oldPendingDeductions = wasteBankAccount.PendingDeductions || 0;
+
+        // ========== 3. อัพเดทยอดขายสะสม ==========
+        wasteBankAccount.TotalSalesAmount = (wasteBankAccount.TotalSalesAmount || 0) + totalAmount;
+
+        // ========== 4. ตรวจสอบและตั้งค่าสมาชิกครั้งแรก ==========
+        let becameNewMember = false;
+        if (!hadMembershipDate && wasteBankAccount.TotalSalesAmount >= 300) {
+            wasteBankAccount.MembershipDate = new Date();
+            wasteBankAccount.IsMember = true;
+            becameNewMember = true;
+            console.log(`🎉 บัญชี ${wasteBankAccount.AccountNumber} เป็นสมาชิกใหม่! (ขายสะสม ${wasteBankAccount.TotalSalesAmount} บาท)`);
+        }
+
+        // ========== 5. จัดการเงินค้างหัก ==========
+        let amountToBalance = totalAmount;
+        let deductedPending = 0;
+
+        if (wasteBankAccount.PendingDeductions > 0) {
+            const pendingAmount = wasteBankAccount.PendingDeductions;
+            const deductionAmount = Math.min(pendingAmount, totalAmount);
+            
+            wasteBankAccount.PendingDeductions -= deductionAmount;
+            amountToBalance -= deductionAmount;
+            deductedPending = deductionAmount;
+            
+            console.log(`💳 หักเงินค้างฌาปนกิจ ${deductionAmount.toFixed(2)} บาท (เหลือค้าง ${wasteBankAccount.PendingDeductions.toFixed(2)} บาท)`);
+        }
+
+        // ========== 6. อัพเดทยอดคงเหลือ ==========
+        wasteBankAccount.Balance += amountToBalance;
+
+        // ⭐ ========== 7. ตรวจสอบและคืนสิทธิ์สมาชิก ==========
+        let membershipRestored = false;
+        if (hadMembershipDate && !wasActiveMember && wasteBankAccount.Balance >= 300) {
+            wasteBankAccount.IsMember = true;
+            membershipRestored = true;
+            console.log(`✅ คืนสิทธิ์สมาชิก! บัญชี ${wasteBankAccount.AccountNumber} (คงเหลือ ${wasteBankAccount.Balance.toFixed(2)} บาท)`);
+        }
+
+        await wasteBankAccount.save({ session });
+
+        // ========== 8. บันทึกประวัติการรับซื้อ ==========
         const newWastePurchase = new WastePurchase({
             accountId,
             totalAmount,
             wasteItems: wasteItemIds,
             addBy: req.body.addBy
         });
-        await newWastePurchase.save();
+        await newWastePurchase.save({ session });
 
-        // ดึง familyID จาก WasteBankAccount
-        const wasteBankAccount = await WasteBankAccount.findById(accountId);
-        if (!wasteBankAccount) {
-            console.error(`Bank account with ID ${accountId} not found`);
-            res.redirect('/employee/wastePurchase?error=Bank account not found');
-            return;
-        }
-
-        // ดึงข้อมูล WasteItem ทั้งหมดสำหรับ Notification
-        const items = await WasteItem.find({ _id: { $in: wasteItemIds } });
-
-        // คำนวณจำนวนรวม
+        // ========== 9. ดึงข้อมูล WasteItem ==========
+        const items = await WasteItem.find({ _id: { $in: wasteItemIds } }).session(session);
         const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
         const itemCount = items.length;
         const formattedAmount = totalAmount.toLocaleString('th-TH', { minimumFractionDigits: 2 });
 
-        // สร้าง content รายการขยะ
-        const contentList = `
+        // ========== 10. สร้างเนื้อหา Notification ==========
+        let notificationTitle = `คุณได้ขายขยะจำนวนรวม ${totalQuantity} กิโลกรัม`;
+        let contentList = `
             <div>
-                <p><strong>ยอดขายรวม:</strong> 💰${formattedAmount} บาท</p><br>
+                <p><strong>ยอดขายรวม:</strong> 💰${formattedAmount} บาท</p>
+        `;
+
+        // แสดงรายละเอียดการหักเงินค้าง
+        if (deductedPending > 0) {
+            const formattedDeducted = deductedPending.toLocaleString('th-TH', { minimumFractionDigits: 2 });
+            const formattedToBalance = amountToBalance.toLocaleString('th-TH', { minimumFractionDigits: 2 });
+            const formattedRemaining = wasteBankAccount.PendingDeductions.toLocaleString('th-TH', { minimumFractionDigits: 2 });
+            
+            contentList += `
+                <div style="background-color: #FEF3C7; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                    <p><strong>⚠️ การหักเงินค้างฌาปนกิจ:</strong></p>
+                    <ul style="margin-left: 20px; list-style-type: none;">
+                        <li>• หักชำระหนี้: ${formattedDeducted} บาท</li>
+                        <li>• เข้าบัญชี: ${formattedToBalance} บาท</li>
+                        ${wasteBankAccount.PendingDeductions > 0 ? 
+                            `<li>• เงินค้างคงเหลือ: ${formattedRemaining} บาท</li>` : 
+                            `<li>• ✅ ชำระหนี้ครบแล้ว</li>`
+                        }
+                    </ul>
+                </div>
+            `;
+        }
+
+        // ⭐ แจ้งเตือนถ้าคืนสิทธิ์สมาชิก
+        if (membershipRestored) {
+            notificationTitle = `🎊 ยินดีด้วย! สิทธิ์สมาชิกกลับมาแล้ว`;
+            contentList += `
+                <div style="background-color: #D1FAE5; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                    <p><strong>✅ สิทธิ์สมาชิกกองทุนฌาปนกิจกลับมาแล้ว!</strong></p>
+                    <p style="font-size: 0.9em; color: #065F46;">
+                        • ยอดคงเหลือปัจจุบัน: ${wasteBankAccount.Balance.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท (เกิน 300 บาท)<br>
+                        • อายุสมาชิก: ${Math.floor((new Date() - new Date(wasteBankAccount.MembershipDate)) / (1000 * 60 * 60 * 24))} วัน<br>
+                        • สามารถรับสิทธิ์ฌาปนกิจได้อีกครั้ง (ถ้าครบ 180 วัน)
+                    </p>
+                </div>
+            `;
+        }
+
+        // แจ้งเตือนถ้าเพิ่งเป็นสมาชิกใหม่
+        if (becameNewMember) {
+            notificationTitle = `🎉 ยินดีด้วย! คุณเป็นสมาชิกแล้ว`;
+            contentList += `
+                <div style="background-color: #D1FAE5; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                    <p><strong>✅ ยินดีด้วย! คุณได้รับสิทธิ์เป็นสมาชิกกองทุนฌาปนกิจแล้ว</strong></p>
+                    <p style="font-size: 0.9em; color: #065F46;">
+                        • ขายขยะสะสม: ${wasteBankAccount.TotalSalesAmount.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท (ครบ 300 บาท)<br>
+                        • เริ่มนับอายุสมาชิกตั้งแต่: ${new Date().toLocaleDateString('th-TH')}<br>
+                        • สิทธิ์รับฌาปนกิจ: หลังจากเป็นสมาชิกครบ 180 วัน<br>
+                        • หมายเหตุ: ต้องมียอดคงเหลือมากกว่า 300 บาทเสมอ
+                    </p>
+                </div>
+            `;
+        }
+
+        contentList += `
+                <br>
                 <h3><strong>รายการทั้งหมด</strong> ${itemCount} รายการ</h3>
                 <ul class="list-decimal ml-5">
                     ${items.map(item => `<li>${item.name} : ${item.quantity} กิโลกรัม</li>`).join('')}
                 </ul>
+                
+                <hr style="margin: 15px 0;">
+                
+                <div style="background-color: #F3F4F6; padding: 10px; border-radius: 5px;">
+                    <p><strong>📊 สรุปบัญชี:</strong></p>
+                    <ul style="margin-left: 20px; list-style-type: none;">
+                        <li>• ยอดคงเหลือ: ${wasteBankAccount.Balance.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท</li>
+                        <li>• ยอดขายสะสม: ${wasteBankAccount.TotalSalesAmount.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท</li>
+                        <li>• สถานะ: ${wasteBankAccount.IsMember ? '✅ เป็นสมาชิกที่มีสิทธิ์' : '⏳ รอยอดคงเหลือเกิน 300 บาท'}</li>
+                        ${wasteBankAccount.PendingDeductions > 0 ? 
+                            `<li>• เงินค้าง: ${wasteBankAccount.PendingDeductions.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท</li>` : 
+                            ''
+                        }
+                    </ul>
+                </div>
             </div>
         `;
-        // สร้าง Notification
+
+        // ========== 11. สร้าง Notification ==========
         const NotificationPurchase = new Notification({
-            userId: wasteBankAccount.familyID, // ใช้ familyID
+            userId: wasteBankAccount.familyID,
             type: "purchase",
-            title: `คุณได้ขายขยะจำนวนรวม ${totalQuantity} กิโลกรัม`,
+            title: notificationTitle,
             content: contentList
         });
-        await NotificationPurchase.save();
+        await NotificationPurchase.save({ session });
 
-        // Update the WasteBankAccount balance
-        if (accountId) {
-            // Get the WasteBankAccount
-            const wasteBankAccount = await WasteBankAccount.findById(accountId);
-            
-            if (wasteBankAccount) {
-                // Update the balance
-                wasteBankAccount.Balance += totalAmount;
-                await wasteBankAccount.save();
-                console.log(`Updated balance for account ${wasteBankAccount.AccountNumber} to ${wasteBankAccount.Balance}`);
-            } else {
-                console.error(`Bank account with ID ${accountId} not found`);
-            }
-        } else {
-            console.error("No accountId provided for balance update");
+        // ========== 12. Commit Transaction ==========
+        await session.commitTransaction();
+
+        console.log(`
+========================================
+✅ บันทึกการรับซื้อสำเร็จ
+========================================
+บัญชี: ${wasteBankAccount.AccountNumber}
+ยอดขาย: ${totalAmount.toFixed(2)} บาท
+ยอดขายสะสม: ${oldTotalSales.toFixed(2)} → ${wasteBankAccount.TotalSalesAmount.toFixed(2)} บาท
+ยอดคงเหลือ: ${oldBalance.toFixed(2)} → ${wasteBankAccount.Balance.toFixed(2)} บาท
+${deductedPending > 0 ? `หักเงินค้าง: ${deductedPending.toFixed(2)} บาท\nเงินค้างคงเหลือ: ${oldPendingDeductions.toFixed(2)} → ${wasteBankAccount.PendingDeductions.toFixed(2)} บาท` : ''}
+สถานะสมาชิก: ${becameNewMember ? '🎉 เพิ่งเป็นสมาชิกใหม่!' : (membershipRestored ? '🎊 คืนสิทธิ์สมาชิก!' : (wasteBankAccount.IsMember ? '✅ เป็นสมาชิกอยู่' : '⏳ รอยอดเกิน 300'))}
+========================================
+        `);
+
+        // สร้าง success message
+        let successMessage = 'บันทึกการรับซื้อสำเร็จ';
+        if (becameNewMember) {
+            successMessage += ' 🎉 ยินดีด้วย! เป็นสมาชิกใหม่';
+        } else if (membershipRestored) {
+            successMessage += ' 🎊 สิทธิ์สมาชิกกลับมาแล้ว!';
+        }
+        if (deductedPending > 0) {
+            successMessage += ` (หักเงินค้างฌาปนกิจ ${deductedPending.toFixed(2)} บาท)`;
         }
 
-        res.redirect('/employee/wastePurchase?message=บันทึกการรับซื้อสำเร็จ');
+        res.redirect(`/employee/wastePurchase?message=${encodeURIComponent(successMessage)}`);
+
     } catch (error) {
+        await session.abortTransaction();
         console.error("Error in wastePurchasePost:", error);
         res.redirect('/employee/wastePurchase?error=เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+    } finally {
+        session.endSession();
     }
 };
 
@@ -2300,20 +2429,11 @@ const searchHouseholds = async (req, res) => {
     }
 };
 
-// API: ตรวจสอบคุณสมบัติ
+// ตรวจสอบคุณสมบัติ (อัพเดท: ใช้ MembershipDate แทน IsMember)
 const checkEligibility = async (req, res) => {
     try {
         const { familyID } = req.params;
 
-        // ตรวจสอบว่ามี familyID หรือไม่
-        if (!familyID) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'ไม่พบข้อมูลครัวเรือน' 
-            });
-        }
-
-        // หา WasteBankAccount
         const account = await WasteBankAccount.findOne({
             familyID: familyID,
             isDeleted: false
@@ -2326,32 +2446,101 @@ const checkEligibility = async (req, res) => {
             });
         }
 
-        // คำนวณระยะเวลาสมัคร
-        const registrationDate = new Date(account.OpenDate);
-        const today = new Date();
-        const monthsDiff = (today.getFullYear() - registrationDate.getFullYear()) * 12 + 
-                          (today.getMonth() - registrationDate.getMonth());
+        // ตรวจสอบว่าเคยเป็นสมาชิกหรือไม่ (มี MembershipDate)
+        const hasEverBeenMember = !!account.MembershipDate;
+        const totalSalesAmount = account.TotalSalesAmount || 0;
+        const currentBalance = account.Balance || 0;
+        const isCurrentlyActive = account.IsMember; // สถานะปัจจุบัน
 
-        // เงื่อนไข 1: สมัครครบ 6 เดือน
-        const passedMembershipPeriod = monthsDiff >= 6;
+        // คำนวณอายุสมาชิก
+        let membershipDays = 0;
+        let membershipMonths = 0;
+        let passedMembershipPeriod = false;
+        
+        if (account.MembershipDate) {
+            const today = new Date();
+            const membershipDate = new Date(account.MembershipDate);
+            membershipDays = Math.floor((today - membershipDate) / (1000 * 60 * 60 * 24));
+            membershipMonths = Math.floor(membershipDays / 30);
+            passedMembershipPeriod = membershipDays >= 180;
+        }
 
-        // เงื่อนไข 2: ขายขยะครบ 300 บาท (ดูจาก Balance)
-        const totalSales = account.Balance || 0;
-        const passedSalesRequirement = totalSales >= 300;
+        // เงื่อนไขการขอรับฌาปนกิจ
+        const passedSalesRequirement = totalSalesAmount >= 300;
+        const hasActiveBalance = currentBalance >= 300;
+        const isCurrentlyActiveMember = isCurrentlyActive; // ต้อง IsMember = true
+        
+        // ⭐ สรุปผล: ต้องมี MembershipDate, ครบ 180 วัน, ยอดคงเหลือ >= 300, และ IsMember = true
+        const isEligible = hasEverBeenMember && passedMembershipPeriod && hasActiveBalance && isCurrentlyActiveMember;
 
-        // สรุปผล
-        const isEligible = passedMembershipPeriod && passedSalesRequirement;
+        // เหตุผลที่ไม่มีสิทธิ์
+        let ineligibleReasons = [];
+        if (!hasEverBeenMember) {
+            ineligibleReasons.push('ยังไม่เคยเป็นสมาชิก (ต้องขายขยะสะสมครบ 300 บาท)');
+        }
+        if (hasEverBeenMember && !passedMembershipPeriod) {
+            ineligibleReasons.push(`ยังไม่ครบ 180 วัน (เป็นสมาชิกมา ${membershipDays} วัน)`);
+        }
+        if (!hasActiveBalance) {
+            ineligibleReasons.push(`ยอดคงเหลือไม่ถึง 300 บาท (มี ${currentBalance.toFixed(2)} บาท)`);
+        }
+        if (!isCurrentlyActiveMember) {
+            ineligibleReasons.push('สถานะสมาชิกถูกพักชั่วคราว (IsMember = false)');
+        }
+
+        console.log(`
+========================================
+🔍 ตรวจสอบคุณสมบัติฌาปนกิจ
+========================================
+FamilyID: ${familyID}
+HasMembershipDate: ${hasEverBeenMember}
+TotalSalesAmount: ${totalSalesAmount} บาท
+CurrentBalance: ${currentBalance} บาท
+IsCurrentlyActive: ${isCurrentlyActive}
+MembershipDate: ${account.MembershipDate}
+MembershipDays: ${membershipDays} วัน (${membershipMonths} เดือน)
+PassedMembershipPeriod: ${passedMembershipPeriod} (>= 180 วัน)
+PassedSalesRequirement: ${passedSalesRequirement} (>= 300 บาท)
+HasActiveBalance: ${hasActiveBalance} (>= 300 บาท)
+IsCurrentlyActiveMember: ${isCurrentlyActiveMember} (IsMember = true)
+IsEligible: ${isEligible}
+${ineligibleReasons.length > 0 ? `Reasons: ${ineligibleReasons.join(', ')}` : ''}
+========================================
+        `);
 
         res.json({
             success: true,
             data: {
-                membershipMonths: monthsDiff,
-                totalSales: totalSales,
-                passedMembershipPeriod: passedMembershipPeriod,
+                // ข้อมูลสมาชิก
+                hasEverBeenMember: hasEverBeenMember,
+                isCurrentlyActive: isCurrentlyActive,
+                membershipDate: account.MembershipDate,
+                membershipDays: membershipDays,
+                membershipMonths: membershipMonths,
+                
+                // ข้อมูลการขาย
+                totalSalesAmount: totalSalesAmount,
                 passedSalesRequirement: passedSalesRequirement,
+                
+                // ข้อมูลยอดเงิน
+                currentBalance: currentBalance,
+                hasActiveBalance: hasActiveBalance,
+                isCurrentlyActiveMember: isCurrentlyActiveMember, // สถานะ IsMember
+                
+                // ข้อมูลระยะเวลา
+                passedMembershipPeriod: passedMembershipPeriod,
+                
+                // สรุปผล
                 isEligible: isEligible,
-                accountBalance: account.Balance,
-                registrationDate: account.OpenDate
+                ineligibleReasons: ineligibleReasons,
+                
+                // ข้อมูลเพิ่มเติม
+                pendingDeductions: account.PendingDeductions || 0,
+                registrationDate: account.OpenDate,
+                
+                // สถานะพิเศษ
+                needsBalanceTopUp: hasEverBeenMember && !hasActiveBalance, // เคยเป็นสมาชิกแต่เงินไม่พอ
+                canRegainMembership: hasEverBeenMember && !isCurrentlyActive && currentBalance < 300 // สามารถคืนสิทธิ์ได้
             }
         });
 
@@ -2377,24 +2566,26 @@ const calculateFuneralAmount = async (req, res) => {
             });
         }
 
-        // นับจำนวนบัญชีทั้งหมดในระบบ (ที่ไม่ถูกลบ)
+        // ⭐ นับเฉพาะบัญชีที่เป็นสมาชิกแล้ว
         const totalAccounts = await WasteBankAccount.countDocuments({
-            isDeleted: false
+            isDeleted: false,
+            IsMember: true // ⭐ เพิ่มเงื่อนไขนี้
         });
 
         if (totalAccounts === 0) {
             return res.status(400).json({ 
                 success: false, 
-                message: 'ไม่มีบัญชีในระบบ' 
+                message: 'ไม่มีบัญชีสมาชิกในระบบ' 
             });
         }
 
         // คำนวณเงินที่หักต่อบัญชี
         const perAccountAmount = amount / totalAccounts;
 
-        // คำนวณยอดเงินรวมในกองทุน
+        // ดึงเฉพาะบัญชีสมาชิก
         const accounts = await WasteBankAccount.find({
-            isDeleted: false
+            isDeleted: false,
+            IsMember: true // ⭐ เพิ่มเงื่อนไขนี้
         }).select('Balance').lean();
 
         const totalBalance = accounts.reduce((sum, acc) => sum + (acc.Balance || 0), 0);
@@ -2430,67 +2621,72 @@ const calculateFuneralAmount = async (req, res) => {
 // API: บันทึกข้อมูลฌาปนกิจ (ขั้นตอนที่ 1 - ดึงรายการบัญชีที่จะหัก)
 const getDeductionPreview = async (req, res) => {
     try {
-        const { 
-            familyID, 
-            deceasedName,
-            relationship,
-            dateOfDeath,
-            amount,
-            beneficiary,
-            beneficiaryRelationship,
-            notes
-        } = req.body;
+        const { familyID, amount } = req.body;
 
-        // Validate
-        if (!familyID || !deceasedName || !relationship || !dateOfDeath || !amount || !beneficiary || !beneficiaryRelationship) {
+        if (!familyID || !amount) {
             return res.status(400).json({ 
                 success: false, 
-                message: 'กรุณากรอกข้อมูลให้ครบถ้วน' 
+                message: 'กรุณาระบุข้อมูลครัวเรือนและจำนวนเงิน' 
             });
         }
 
-        // นับจำนวนบัญชีทั้งหมด
-        const totalAccounts = await WasteBankAccount.countDocuments({
+        // ตรวจสอบคุณสมบัติ
+        const account = await WasteBankAccount.findOne({
+            familyID: familyID,
             isDeleted: false
+        }).lean();
+
+        if (!account || !account.IsMember) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'ครัวเรือนนี้ยังไม่เป็นสมาชิก' 
+            });
+        }
+
+        // นับจำนวนบัญชีสมาชิก
+        const totalAccounts = await WasteBankAccount.countDocuments({
+            isDeleted: false,
+            IsMember: true
         });
 
-        // คำนวณเงินที่หักต่อบัญชี
         const perAccountAmount = parseFloat(amount) / totalAccounts;
 
-        // ดึงบัญชีทั้งหมด
+        // ดึงบัญชีสมาชิกทั้งหมด
         const allAccounts = await WasteBankAccount.find({
-            isDeleted: false
+            isDeleted: false,
+            IsMember: true
         })
         .populate('familyID', 'familyName username')
         .lean();
 
-        // แยกบัญชีที่มีเงินพอหัก vs ไม่พอหัก
+        // แยกบัญชีตามสถานะ
         const accountsToDeduct = [];
-        const disqualifiedAccounts = [];
+        const insufficientAccounts = [];
 
-        for (const account of allAccounts) {
-            if (account.Balance >= perAccountAmount) {
+        for (const acc of allAccounts) {
+            const deductionInfo = {
+                accountID: acc._id,
+                familyID: acc.familyID._id,
+                accountNumber: acc.AccountNumber,
+                accountName: acc.AccountName,
+                familyName: acc.familyID.familyName,
+                deductedAmount: perAccountAmount,
+                balanceBefore: acc.Balance,
+                balanceAfter: acc.Balance - perAccountAmount
+            };
+
+            if (acc.Balance >= perAccountAmount) {
                 accountsToDeduct.push({
-                    accountID: account._id,
-                    familyID: account.familyID._id,
-                    accountNumber: account.AccountNumber,
-                    accountName: account.AccountName,
-                    familyName: account.familyID.familyName,
-                    deductedAmount: perAccountAmount,
-                    balanceBefore: account.Balance,
-                    balanceAfter: account.Balance - perAccountAmount
+                    ...deductionInfo,
+                    status: 'sufficient'
                 });
             } else {
-                disqualifiedAccounts.push({
-                    accountID: account._id,
-                    familyID: account.familyID._id,
-                    accountNumber: account.AccountNumber,
-                    accountName: account.AccountName,
-                    familyName: account.familyID.familyName,
-                    reason: 'insufficient_balance',
-                    balanceAtCheck: account.Balance,
-                    requiredAmount: perAccountAmount
+                accountsToDeduct.push({
+                    ...deductionInfo,
+                    status: 'insufficient',
+                    pendingAmount: perAccountAmount - acc.Balance
                 });
+                insufficientAccounts.push(deductionInfo);
             }
         }
 
@@ -2501,12 +2697,12 @@ const getDeductionPreview = async (req, res) => {
                     totalAmount: parseFloat(amount),
                     totalAccounts: totalAccounts,
                     perAccountAmount: perAccountAmount,
-                    accountsToDeduct: accountsToDeduct.length,
-                    disqualifiedAccounts: disqualifiedAccounts.length,
-                    totalDeductedAmount: accountsToDeduct.length * perAccountAmount
+                    accountsWithSufficientBalance: accountsToDeduct.filter(a => a.status === 'sufficient').length,
+                    accountsWithInsufficientBalance: insufficientAccounts.length,
+                    totalDeductedAmount: perAccountAmount * totalAccounts
                 },
                 accountsToDeduct: accountsToDeduct,
-                disqualifiedAccounts: disqualifiedAccounts
+                insufficientAccounts: insufficientAccounts
             }
         });
 
@@ -2520,34 +2716,69 @@ const getDeductionPreview = async (req, res) => {
     }
 };
 
-// API: บันทึกและดำเนินการหักเงินฌาปนกิจ (แก้ไข: หักทุกบัญชี)
+// API: บันทึกและดำเนินการหักเงินฌาปนกิจ (อัพเดท: ตรวจสอบสถานะสมาชิก)
 const submitFuneralAssistance = async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
         const { 
-            familyID, 
-            deceasedName,
+            familyID,
+            responsiblePersonName,
             relationship,
+            deceasedName,
+            deceasedAge,
+            idCard,
+            deceasedAddress,
+            deceasedVillage,
+            subDistrict,
+            district,
+            province,
+            postalCode,
+            phone,
+            causeOfDeath,
             dateOfDeath,
-            amount,
-            beneficiary,
-            beneficiaryRelationship,
             notes,
+            amount,
             memberID
         } = req.body;
 
-        // Validate
-        if (!familyID || !deceasedName || !relationship || !dateOfDeath || !amount || !beneficiary || !beneficiaryRelationship) {
+        // ========== 1. Validate ข้อมูล ==========
+        const requiredFields = {
+            familyID: 'ครัวเรือน',
+            responsiblePersonName: 'ชื่อผู้รับผิดชอบในการจัดทำศพ',
+            relationship: 'ความเกี่ยวข้องกับผู้ตาย',
+            deceasedName: 'ชื่อผู้เสียชีวิต',
+            deceasedAge: 'อายุผู้เสียชีวิต',
+            idCard: 'หมายเลขบัตรประชาชน',
+            deceasedAddress: 'บ้านเลขที่',
+            deceasedVillage: 'หมู่ที่',
+            subDistrict: 'ตำบล',
+            district: 'อำเภอ',
+            province: 'จังหวัด',
+            postalCode: 'รหัสไปรษณีย์',
+            phone: 'โทรศัพท์',
+            causeOfDeath: 'สาเหตุการเสียชีวิต',
+            dateOfDeath: 'วันที่เสียชีวิต',
+            amount: 'จำนวนเงินช่วยเหลือ'
+        };
+
+        const missingFields = [];
+        for (const [field, label] of Object.entries(requiredFields)) {
+            if (!req.body[field] || req.body[field].toString().trim() === '') {
+                missingFields.push(label);
+            }
+        }
+
+        if (missingFields.length > 0) {
             await session.abortTransaction();
             return res.status(400).json({ 
                 success: false, 
-                message: 'กรุณากรอกข้อมูลให้ครบถ้วน' 
+                message: `กรุณากรอกข้อมูลให้ครบถ้วน: ${missingFields.join(', ')}`
             });
         }
 
-        // ตรวจสอบคุณสมบัติก่อน
+        // ========== 2. ตรวจสอบบัญชีและคุณสมบัติ ==========
         const account = await WasteBankAccount.findOne({
             familyID: familyID,
             isDeleted: false
@@ -2561,123 +2792,239 @@ const submitFuneralAssistance = async (req, res) => {
             });
         }
 
-        // ตรวจสอบคุณสมบัติ
-        const registrationDate = new Date(account.OpenDate);
-        const today = new Date();
-        const monthsDiff = (today.getFullYear() - registrationDate.getFullYear()) * 12 + 
-                          (today.getMonth() - registrationDate.getMonth());
-
-        const passedMembershipPeriod = monthsDiff >= 6;
-        const totalSales = account.Balance || 0;
-        const passedSalesRequirement = totalSales >= 300;
-        const isEligible = passedMembershipPeriod && passedSalesRequirement;
-
-        if (!isEligible) {
+        // ตรวจสอบว่าเคยเป็นสมาชิกหรือไม่ (มี MembershipDate)
+        if (!account.MembershipDate) {
             await session.abortTransaction();
             return res.status(400).json({ 
                 success: false, 
-                message: 'ครัวเรือนนี้ไม่มีสิทธิ์รับเงินช่วยเหลือฌาปนกิจ' 
+                message: 'ยังไม่เคยเป็นสมาชิก (ต้องขายขยะสะสมครบ 300 บาทก่อน)' 
             });
         }
 
-        // นับจำนวนบัญชีทั้งหมด
-        const totalAccounts = await WasteBankAccount.countDocuments({
-            isDeleted: false
+        // ตรวจสอบระยะเวลาสมาชิก (นับจาก MembershipDate)
+        const today = new Date();
+        const membershipDate = new Date(account.MembershipDate);
+        const daysDiff = Math.floor((today - membershipDate) / (1000 * 60 * 60 * 24));
+        const passedMembershipPeriod = daysDiff >= 180;
+
+        if (!passedMembershipPeriod) {
+            await session.abortTransaction();
+            return res.status(400).json({ 
+                success: false, 
+                message: `ยังไม่ครบ 180 วัน (เป็นสมาชิกมา ${daysDiff} วัน)` 
+            });
+        }
+
+        // ========== 3. นับจำนวนบัญชีสมาชิก (ที่มี MembershipDate) ==========
+        const totalMemberAccounts = await WasteBankAccount.countDocuments({
+            isDeleted: false,
+            MembershipDate: { $ne: null } // นับเฉพาะที่เคยเป็นสมาชิก
         }).session(session);
 
-        const perAccountAmount = parseFloat(amount) / totalAccounts;
+        if (totalMemberAccounts === 0) {
+            await session.abortTransaction();
+            return res.status(400).json({ 
+                success: false, 
+                message: 'ไม่มีบัญชีสมาชิกในระบบ' 
+            });
+        }
 
-        // ดึงบัญชีทั้งหมด
-        const allAccounts = await WasteBankAccount.find({
-            isDeleted: false
+        const perAccountAmount = parseFloat(amount) / totalMemberAccounts;
+
+        // ========== 4. ดึงบัญชีสมาชิกทั้งหมด ==========
+        const memberAccounts = await WasteBankAccount.find({
+            isDeleted: false,
+            MembershipDate: { $ne: null }
         })
         .populate('familyID', 'familyName username')
         .session(session);
 
         const accountsToDeduct = [];
-        const disqualifiedAccounts = [];
         let totalDeductedAmount = 0;
+        let accountsWithSufficientBalance = 0;
+        let accountsWithInsufficientBalance = 0;
+        let membershipStatusChanges = []; // เก็บรายการที่เปลี่ยนสถานะ
 
-        // ประมวลผลแต่ละบัญชี - หักทุกบัญชี
-        for (const acc of allAccounts) {
+        // ========== 5. หักเงินจากบัญชีสมาชิกทุกบัญชี ==========
+        for (const acc of memberAccounts) {
             const balanceBefore = acc.Balance;
+            const wasActiveMember = acc.IsMember; // เก็บสถานะเดิม
+            let status = 'sufficient';
+            let pendingAmount = 0;
             
-            // หักเงินทุกบัญชี (แม้ว่าจะติดลบก็ได้)
-            acc.Balance -= perAccountAmount;
+            if (balanceBefore >= perAccountAmount) {
+                // กรณีเงินพอ
+                acc.Balance -= perAccountAmount;
+                accountsWithSufficientBalance++;
+            } else {
+                // กรณีเงินไม่พอ -> หักจนหมด แล้วบันทึกเงินค้าง
+                const insufficientAmount = perAccountAmount - balanceBefore;
+                acc.Balance = 0;
+                acc.PendingDeductions = (acc.PendingDeductions || 0) + insufficientAmount;
+                pendingAmount = insufficientAmount;
+                status = 'insufficient_but_deducted';
+                accountsWithInsufficientBalance++;
+            }
+            
+            // ⭐ ตรวจสอบสถานะสมาชิกหลังหัก
+            if (acc.Balance < 300) {
+                // ยอดคงเหลือต่ำกว่า 300 -> สูญเสียสิทธิ์ชั่วคราว
+                if (acc.IsMember) {
+                    acc.IsMember = false;
+                    membershipStatusChanges.push({
+                        accountNumber: acc.AccountNumber,
+                        familyName: acc.familyID.familyName,
+                        status: 'lost',
+                        balanceAfter: acc.Balance
+                    });
+                    console.log(`⚠️ บัญชี ${acc.AccountNumber} สูญเสียสิทธิ์ชั่วคราว (คงเหลือ ${acc.Balance.toFixed(2)} บาท)`);
+                }
+            }
+            
             await acc.save({ session });
 
-            // ตรวจสอบว่าเงินพอหรือไม่ (เพื่อบันทึกข้อมูล)
-            if (balanceBefore >= perAccountAmount) {
-                // บัญชีที่มีเงินพอ
-                accountsToDeduct.push({
-                    accountID: acc._id,
-                    familyID: acc.familyID._id,
-                    accountNumber: acc.AccountNumber,
-                    accountName: acc.AccountName,
-                    deductedAmount: perAccountAmount,
-                    balanceBefore: balanceBefore,
-                    balanceAfter: acc.Balance,
-                    deductedAt: new Date(),
-                    status: 'sufficient'
-                });
-            } else {
-                // บัญชีที่เงินไม่พอ (แต่ก็หักแล้ว)
-                accountsToDeduct.push({
-                    accountID: acc._id,
-                    familyID: acc.familyID._id,
-                    accountNumber: acc.AccountNumber,
-                    accountName: acc.AccountName,
-                    deductedAmount: perAccountAmount,
-                    balanceBefore: balanceBefore,
-                    balanceAfter: acc.Balance,
-                    deductedAt: new Date(),
-                    status: 'insufficient_but_deducted', // บัญชีติดลบ
-                    insufficientAmount: perAccountAmount - balanceBefore
-                });
-            }
+            accountsToDeduct.push({
+                accountID: acc._id,
+                familyID: acc.familyID._id,
+                accountNumber: acc.AccountNumber,
+                accountName: acc.AccountName,
+                deductedAmount: perAccountAmount,
+                balanceBefore: balanceBefore,
+                balanceAfter: acc.Balance,
+                pendingAmount: pendingAmount,
+                status: status,
+                wasActiveMember: wasActiveMember,
+                isActiveMemberNow: acc.IsMember,
+                deductedAt: new Date()
+            });
 
             totalDeductedAmount += perAccountAmount;
         }
 
-        // สร้างบันทึกฌาปนกิจ
+        // ========== 6. สร้างบันทึกฌาปนกิจ ==========
         const funeralRecord = new FuneralAssistance({
             familyID: familyID,
+            responsiblePerson: {
+                name: responsiblePersonName,
+                relationshipToDeceased: relationship
+            },
             deceasedInfo: {
                 name: deceasedName,
-                relationship: relationship,
+                age: parseInt(deceasedAge),
+                idCardNumber: idCard,
+                address: {
+                    houseNumber: deceasedAddress,
+                    moo: deceasedVillage,
+                    subdistrict: subDistrict,
+                    district: district,
+                    province: province,
+                    postalCode: postalCode
+                },
+                phone: phone,
+                causeOfDeath: causeOfDeath,
                 dateOfDeath: new Date(dateOfDeath),
                 memberID: memberID || null
             },
-            beneficiaryInfo: {
-                name: beneficiary,
-                relationship: beneficiaryRelationship
-            },
             financialInfo: {
                 totalAmount: parseFloat(amount),
-                totalAccounts: totalAccounts,
+                totalMemberAccounts: totalMemberAccounts,
                 perAccountAmount: perAccountAmount,
                 totalDeductedAccounts: accountsToDeduct.length,
-                totalDeductedAmount: totalDeductedAmount
+                totalDeductedAmount: totalDeductedAmount,
+                accountsWithSufficientBalance: accountsWithSufficientBalance,
+                accountsWithInsufficientBalance: accountsWithInsufficientBalance
             },
             deductedAccounts: accountsToDeduct,
-            disqualifiedAccounts: disqualifiedAccounts,
             notes: notes || '',
             status: 'completed',
             createdBy: req.user._id,
             eligibilityCheck: {
-                membershipMonths: monthsDiff,
-                totalSales: totalSales,
+                isMember: true,
+                membershipDate: account.MembershipDate,
+                membershipDays: daysDiff,
+                totalSalesAmount: account.TotalSalesAmount,
                 passedMembershipPeriod: passedMembershipPeriod,
-                passedSalesRequirement: passedSalesRequirement,
-                isEligible: isEligible,
+                isEligible: true,
+                currentBalance: account.Balance,
+                pendingDeductions: account.PendingDeductions || 0,
                 checkedAt: new Date()
             }
         });
 
         await funeralRecord.save({ session });
 
-        // Commit transaction
+        // ========== 7. สร้าง Notification ==========
+        const notifications = [];
+        for (const deduction of accountsToDeduct) {
+            let notificationContent = `
+                <div>
+                    <p><strong>การหักเงินฌาปนกิจสงเคราะห์</strong></p>
+                    <p>ผู้เสียชีวิต: ${deceasedName}</p>
+                    <p>จำนวนเงินที่หัก: ${perAccountAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท</p>
+                    <p>ยอดคงเหลือ: ${deduction.balanceAfter.toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท</p>
+            `;
+
+            // ⭐ แจ้งเตือนถ้าสูญเสียสิทธิ์สมาชิก
+            if (deduction.wasActiveMember && !deduction.isActiveMemberNow) {
+                notificationContent += `
+                    <div style="background-color: #FEE2E2; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                        <p><strong>⚠️ แจ้งเตือน: สูญเสียสิทธิ์สมาชิกชั่วคราว</strong></p>
+                        <p>เนื่องจากยอดคงเหลือต่ำกว่า 300 บาท</p>
+                        <p>💡 <strong>วิธีแก้ไข:</strong> นำขยะมาขายให้ยอดคงเหลือกลับมาเกิน 300 บาท สิทธิ์จะกลับมาอัตโนมัติ</p>
+                        <p style="font-size: 0.9em; color: #991B1B;">
+                            หมายเหตุ: อายุสมาชิก (${daysDiff} วัน) ยังคงนับต่อไป
+                        </p>
+                    </div>
+                `;
+            }
+
+            if (deduction.status === 'insufficient_but_deducted') {
+                notificationContent += `
+                    <div style="background-color: #FEF3C7; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                        <p><strong>⚠️ เงินในบัญชีไม่พอหัก</strong></p>
+                        <p>เงินค้าง: ${deduction.pendingAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท</p>
+                        <p>กรุณานำขยะมาขายเพื่อชำระเงินค้าง</p>
+                    </div>
+                `;
+            }
+
+            notificationContent += `</div>`;
+
+            notifications.push({
+                userId: deduction.familyID,
+                type: 'funeral_deduction',
+                title: `หักเงินฌาปนกิจสงเคราะห์ ${perAccountAmount.toFixed(2)} บาท`,
+                content: notificationContent
+            });
+        }
+
+        if (notifications.length > 0) {
+            await Notification.insertMany(notifications, { session });
+        }
+
+        // ========== 8. Commit Transaction ==========
         await session.commitTransaction();
+
+        console.log(`
+========================================
+✅ บันทึกฌาปนกิจสงเคราะห์สำเร็จ
+========================================
+ผู้เสียชีวิต: ${deceasedName}
+เงินช่วยเหลือ: ${parseFloat(amount).toLocaleString()} บาท
+บัญชีสมาชิก: ${totalMemberAccounts} บัญชี
+หักบัญชีละ: ${perAccountAmount.toFixed(2)} บาท
+บัญชีเงินพอ: ${accountsWithSufficientBalance} บัญชี
+บัญชีเงินไม่พอ: ${accountsWithInsufficientBalance} บัญชี
+บัญชีที่สูญเสียสิทธิ์: ${membershipStatusChanges.length} บัญชี
+========================================
+        `);
+
+        if (membershipStatusChanges.length > 0) {
+            console.log('\n⚠️ รายการบัญชีที่สูญเสียสิทธิ์สมาชิกชั่วคราว:');
+            membershipStatusChanges.forEach(change => {
+                console.log(`  - ${change.accountNumber} (${change.familyName}) - คงเหลือ ${change.balanceAfter.toFixed(2)} บาท`);
+            });
+        }
 
         res.json({
             success: true,
@@ -2686,7 +3033,9 @@ const submitFuneralAssistance = async (req, res) => {
                 funeralID: funeralRecord._id,
                 totalDeducted: totalDeductedAmount,
                 accountsDeducted: accountsToDeduct.length,
-                accountsWithInsufficientBalance: accountsToDeduct.filter(a => a.status === 'insufficient_but_deducted').length
+                accountsWithSufficientBalance: accountsWithSufficientBalance,
+                accountsWithInsufficientBalance: accountsWithInsufficientBalance,
+                membershipStatusChanges: membershipStatusChanges
             }
         });
 
@@ -2740,7 +3089,9 @@ const getFuneralHistory = async (req, res) => {
         if (search && search.trim() !== '') {
             query.$or = [
                 { 'deceasedInfo.name': { $regex: search, $options: 'i' } },
-                { 'beneficiaryInfo.name': { $regex: search, $options: 'i' } }
+                { 'beneficiaryInfo.name': { $regex: search, $options: 'i' } },
+                { 'deceasedInfo.idCardNumber': { $regex: search } },
+                { 'deductedAccounts.accountNumber': { $regex: search, $options: 'i' } }
             ];
         }
 
@@ -2793,8 +3144,8 @@ const getFuneralDetail = async (req, res) => {
             .populate('familyID', 'familyName username address')
             .populate('createdBy', 'name email')
             .populate('approvedBy', 'name email')
-            .populate('deductedAccounts.familyID', 'familyName username')
-            .populate('disqualifiedAccounts.familyID', 'familyName username')
+            .populate('deductedAccounts.familyID', 'familyName username') // ✅ เพิ่มบรรทัดนี้
+            .populate('deceasedInfo.memberID', 'name') // ✅ เพิ่มบรรทัดนี้
             .lean();
 
         if (!record) {
@@ -2803,6 +3154,8 @@ const getFuneralDetail = async (req, res) => {
                 message: 'ไม่พบข้อมูลฌาปนกิจ' 
             });
         }
+
+        console.log('📦 Funeral Record Detail:', JSON.stringify(record, null, 2)); // Debug log
 
         res.json({
             success: true,

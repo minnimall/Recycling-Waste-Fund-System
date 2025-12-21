@@ -22,6 +22,7 @@ const Board = require('../models/board');
 const path = require('path');
 const moment = require('moment');
 const WastePoint = require('../models/wastePoint');
+const FuneralAssistance = require('../models/funeral');
 
 // หน้าหลัก
 const formatDate = (date) => moment(date).locale('th').format('ddddที่ D MMMM YYYY');
@@ -566,6 +567,34 @@ const user_profile = async (req, res) => {
         const transactions = await transactionMoney.find(transactionQuery)
             .sort({ transactionDate: -1 });
 
+        // ⭐ ดึงข้อมูลฌาปนกิจ - เฉพาะรายการที่บัญชีนี้ถูกหัก (ต้องเป็นสมาชิกก่อน)
+        let funeralAssistances = [];
+        
+        // ตรวจสอบว่าบัญชีนี้เป็นสมาชิกหรือไม่
+        if (wasteBankAccount.IsMember) {
+            let funeralQuery = {
+                'deductedAccounts.accountID': wasteBankAccount._id,
+                isDeleted: false,
+                status: { $ne: 'cancelled' }
+            };
+
+            // เพิ่ม date filter ถ้ามีการเลือกเดือน
+            if (selectedMonth) {
+                funeralQuery.createdAt = dateFilter;
+            }
+
+            funeralAssistances = await FuneralAssistance.find(funeralQuery)
+                .sort({ createdAt: -1 });
+
+            console.log('=== DEBUG FUNERAL ===');
+            console.log('Waste Bank Account ID:', wasteBankAccount._id);
+            console.log('Is Member:', wasteBankAccount.IsMember);
+            console.log('Found funeral assistances:', funeralAssistances.length);
+        } else {
+            console.log('=== DEBUG FUNERAL ===');
+            console.log('Account is not a member yet - no funeral deductions');
+        }
+
         // รวมรายการเป็น statement
         const statement = [];
 
@@ -603,17 +632,58 @@ const user_profile = async (req, res) => {
             });
         });
 
+        // ⭐ รายการหักเงินฌาปนกิจ - เฉพาะบัญชีสมาชิก
+        if (wasteBankAccount.IsMember && funeralAssistances.length > 0) {
+            funeralAssistances.forEach(funeral => {
+                // หาข้อมูลการหักของบัญชีนี้
+                const myDeduction = funeral.deductedAccounts.find(acc => {
+                    const accIdStr = acc.accountID.toString();
+                    const wasteAccIdStr = wasteBankAccount._id.toString();
+                    return accIdStr === wasteAccIdStr;
+                });
+
+                if (myDeduction) {
+                    console.log('Found deduction for funeral:', funeral._id);
+                    console.log('Deceased:', funeral.deceasedInfo.name);
+                    console.log('Deduction amount:', myDeduction.deductedAmount);
+                    console.log('Status:', myDeduction.status);
+                    
+                    statement.push({
+                        type: 'funeral_deduction',
+                        amount: myDeduction.deductedAmount,
+                        date: myDeduction.deductedAt || funeral.createdAt,
+                        source: 'หักเงินฌาปนกิจ',
+                        details: `ผู้เสียชีวิต: ${funeral.deceasedInfo.name}${myDeduction.status === 'insufficient_but_deducted' ? ' (เงินไม่พอ)' : ''}`,
+                        funeralId: funeral._id,
+                        deceasedName: funeral.deceasedInfo.name,
+                        status: myDeduction.status,
+                        balanceBefore: myDeduction.balanceBefore,
+                        balanceAfter: myDeduction.balanceAfter,
+                        pendingAmount: myDeduction.pendingAmount || 0
+                    });
+                } else {
+                    console.log('⚠️ Warning: Funeral record found but no matching deduction');
+                    console.log('Funeral ID:', funeral._id);
+                    console.log('Expected Account ID:', wasteBankAccount._id.toString());
+                }
+            });
+        }
+
+        console.log('Total statement items:', statement.length);
+        console.log('Funeral items in statement:', statement.filter(s => s.type === 'funeral_deduction').length);
+
         // เรียงตามวันที่ใหม่ -> เก่า
         statement.sort((a, b) => new Date(b.date) - new Date(a.date));
 
         // ดึงข้อมูลคำร้องขายขยะ (ไม่ต้อง filter เพราะเป็นข้อมูลทั่วไป)
-        const wasteSaleRequests = await wasteSaleRequest.find({ family: family._id }).populate('waste').sort({ createdAt: -1 });
+        const wasteSaleRequests = await wasteSaleRequest.find({ family: family._id })
+            .populate('waste')
+            .sort({ createdAt: -1 });
 
         // ดึงข้อมูลข้อร้องเรียน (ไม่ต้อง filter เพราะเป็นข้อมูลทั่วไป)
         const complaints = await Complaint.find({ family: family._id })
             .sort({ createdAt: -1 })
-            .populate('reply.employee')
-            ;
+            .populate('reply.employee');
 
         // คำนวณรายได้รวม / จำนวนรายการขยะ (จากข้อมูลที่ filter แล้ว)
         const totalEarnings = wastePurchases.reduce((sum, purchase) => sum + purchase.totalAmount, 0);
@@ -659,7 +729,7 @@ const user_profile = async (req, res) => {
             createdAt: family.createdAt,
             statement: statement,
             posts: ideas,
-            monthOptions: monthOptions, // ส่งรายการเดือนไปยัง view
+            monthOptions: monthOptions,
             selectedMonth: selectedMonth,
             selectedYear: selectedYear
         });

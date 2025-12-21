@@ -97,27 +97,24 @@
                         </h2>
                     </div>
                     
-                    <form action="/employee/funeral-assistance/submit" method="POST" class="p-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <form id="funeralForm" action="/employee/funeral-assistance/submit" method="POST" class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-                            <div class="md:col-span-2">
+                            <div class="md:col-span-3">
                                 <p class="block text-sm font-bold text-xl text-gray-700 mb-1">เงื่อนไขรับเงินช่วยเหลือฌาปนกิจสงเคราะห์ <span class="text-red-500">*</span></p>
                                 <p class="block text-sm font-medium text-gray-700 mb-1">ต้องสมัครเข้าร่วมกองทุนขยะรีไซเคิลครบ 6 เดือน และมีการนำขยะมาขายให้ครบยอดเงินขั้นต่ำ 300 บาท</p>
                             </div>
                             
                             <!-- ค้นหาครัวเรือน -->
-                            <div class="md:col-span-2">
+                            <div class="md:col-span-3">
                                 <label for="householdSearch" class="block text-sm font-medium text-gray-700 mb-1">ค้นหาครัวเรือน <span class="text-red-500">*</span></label>
                                 <div class="relative">
-                                    <!-- เพิ่ม autocomplete="off" เพื่อปิด browser autocomplete -->
                                     <input type="text" id="householdSearch" name="householdSearch" placeholder="ค้นหาด้วยรหัสครัวเรือนหรือชื่อหัวหน้าครัวเรือน" class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" autocomplete="off">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                     </svg>
-                                    <!-- เพิ่ม dropdown สำหรับแสดงผลการค้นหา -->
                                     <div id="householdDropdown" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto hidden">
                                         <div id="householdList" class="py-1">
-                                            <!-- รายการครัวเรือนจะแสดงที่นี่ -->
                                         </div>
                                         <div id="noResults" class="px-4 py-3 text-sm text-gray-500 text-center hidden">
                                             ไม่พบข้อมูลครัวเรือน
@@ -127,7 +124,7 @@
                             </div>
                             
                             <!-- ข้อมูลครัวเรือน (จะแสดงหลังจากค้นหา) -->
-                            <div class="md:col-span-2 p-4 bg-gray-50 rounded-lg border border-gray-200 hidden" id="householdInfo">
+                            <div class="md:col-span-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hidden" id="householdInfo">
                                 <h3 class="font-medium text-gray-800 mb-2">ข้อมูลครัวเรือน</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
@@ -150,11 +147,11 @@
                             </div>
 
                             <!-- เพิ่มส่วนตรวจสอบคุณสมบัติ -->
-                            <div class="md:col-span-2 hidden" id="eligibilitySection">
+                            <div class="md:col-span-3 hidden" id="eligibilitySection">
                                 <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border-2 border-blue-200 p-6">
                                     <div class="flex items-center mb-4">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                         </svg>
                                         <h3 class="text-lg font-semibold text-gray-800">ตรวจสอบคุณสมบัติ</h3>
                                     </div>
@@ -202,16 +199,16 @@
                                     </div>
                                 </div>
                             </div>
-                            
-                            <!-- ชื่อผู้เสียชีวิต -->
+
+                            <!-- ชื่อผู้รับผิดชอบในการจัดทำศพ -->
                             <div class="md:col-span-2">
-                                <label for="deceasedName" class="block text-sm font-medium text-gray-700 mb-1">ชื่อผู้เสียชีวิต <span class="text-red-500">*</span></label>
-                                <input type="text" id="deceasedName" name="deceasedName" required placeholder="ระบุชื่อ-นามสกุลผู้เสียชีวิต" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <label for="responsiblePersonName" class="block text-sm font-medium text-gray-700 mb-1">ชื่อผู้รับผิดชอบในการจัดทำศพ <span class="text-red-500">*</span></label>
+                                <input type="text" id="responsiblePersonName" name="responsiblePersonName" required placeholder="ระบุชื่อ-นามสกุล ชื่อผู้รับผิดชอบในการจัดทำศพ" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                             </div>
-                            
-                            <!-- ความสัมพันธ์กับหัวหน้าครัวเรือน -->
+
+                            <!-- เพิ่มฟิลด์มีความเกี่ยวข้องกับผู้ตายในฐานะ -->
                             <div>
-                                <label for="relationship" class="block text-sm font-medium text-gray-700 mb-1">ความสัมพันธ์กับตัวแทนครัวเรือน <span class="text-red-500">*</span></label>
+                                <label for="deceasedRelationshipDetail" class="block text-sm font-medium text-gray-700 mb-1">มีความเกี่ยวข้องกับผู้ตายในฐานะ <span class="text-red-500">*</span></label>
                                 <select id="relationship" name="relationship" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                                     <option value="" disabled selected>-- เลือกความสัมพันธ์ --</option>
                                     <option value="หัวหน้าครัวเรือน">หัวหน้าครัวเรือน</option>
@@ -222,21 +219,151 @@
                                     <option value="อื่นๆ">อื่นๆ</option>
                                 </select>
                             </div>
+
+                            <!-- ข้อมูลผู้เสียชีวิต -->
+                            <div class="md:col-span-3">
+                                <p class="block text-base font-medium text-gray-700 mb-1">ข้อมูลผู้เสียชีวิต</p>
+                            </div>
+                            
+                            <!-- ชื่อผู้เสียชีวิต -->
+                            <div class="md:col-span-2">
+                                <label for="deceasedName" class="block text-sm font-medium text-gray-700 mb-1">
+                                    ชื่อผู้เสียชีวิต <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" id="deceasedName" name="deceasedName" required 
+                                    placeholder="ระบุชื่อ-นามสกุล ผู้เสียชีวิต" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <!-- อายุผู้เสียชีวิต -->
+                            <div>
+                                <label for="deceasedAge" class="block text-sm font-medium text-gray-700 mb-1">
+                                    อายุ (ปี) <span class="text-red-500">*</span>
+                                </label>
+                                <input type="number" id="deceasedAge" name="deceasedAge" required 
+                                    placeholder="ระบุอายุ" min="0"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <!-- หมายเลขบัตรประชาชน -->
+                            <div>
+                                <label for="idCard" class="block text-sm font-medium text-gray-700 mb-1">
+                                    หมายเลขบัตรประชาชน <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" id="idCard" name="idCard" required 
+                                    placeholder="X-XXXX-XXXXX-XX-X" maxlength="17"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <!-- บ้านเลขที่ -->
+                            <div>
+                                <label for="deceasedAddress" class="block text-sm font-medium text-gray-700 mb-1">
+                                    อยู่บ้านเลขที่ <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" id="deceasedAddress" name="deceasedAddress" required 
+                                    placeholder="ระบุบ้านเลขที่" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <!-- หมู่ที่ -->
+                            <div>
+                                <label for="deceasedVillage" class="block text-sm font-medium text-gray-700 mb-1">
+                                    หมู่ที่ <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" id="deceasedVillage" name="deceasedVillage" required 
+                                    placeholder="ระบุหมู่ที่" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <!-- ✅ แก้ไข: ตำบล -->
+                            <div>
+                                <label for="subDistrict" class="block text-sm font-medium text-gray-700 mb-1">
+                                    ตำบล <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" id="subDistrict" name="subDistrict" required 
+                                    placeholder="ระบุตำบล" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <!-- ✅ แก้ไข: อำเภอ -->
+                            <div>
+                                <label for="district" class="block text-sm font-medium text-gray-700 mb-1">
+                                    อำเภอ <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" id="district" name="district" required 
+                                    placeholder="ระบุอำเภอ" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <!-- ✅ แก้ไข: จังหวัด -->
+                            <div>
+                                <label for="province" class="block text-sm font-medium text-gray-700 mb-1">
+                                    จังหวัด <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" id="province" name="province" required 
+                                    placeholder="ระบุจังหวัด" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <!-- ✅ แก้ไข: รหัสไปรษณีย์ -->
+                            <div>
+                                <label for="postalCode" class="block text-sm font-medium text-gray-700 mb-1">
+                                    รหัสไปรษณีย์ <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" id="postalCode" name="postalCode" required 
+                                    placeholder="XXXXX" maxlength="5"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <!-- ✅ แก้ไข: โทรศัพท์ -->
+                            <div>
+                                <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">
+                                    โทรศัพท์ <span class="text-red-500">*</span>
+                                </label>
+                                <input type="tel" id="phone" name="phone" required 
+                                    placeholder="0XX-XXX-XXXX" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <!-- ✅ แก้ไข: สาเหตุการเสียชีวิต -->
+                            <div>
+                                <label for="causeOfDeath" class="block text-sm font-medium text-gray-700 mb-1">
+                                    ถึงแก่กรรมด้วยสาเหตุ <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" id="causeOfDeath" name="causeOfDeath" required 
+                                    placeholder="ระบุสาเหตุการเสียชีวิต" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
                             
                             <!-- วันที่เสียชีวิต -->
                             <div>
-                                <label for="dateOfDeath" class="block text-sm font-medium text-gray-700 mb-1">วันที่เสียชีวิต <span class="text-red-500">*</span></label>
-                                <input type="date" id="dateOfDeath" name="dateOfDeath" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <label for="dateOfDeath" class="block text-sm font-medium text-gray-700 mb-1">
+                                    วันที่เสียชีวิต <span class="text-red-500">*</span>
+                                </label>
+                                <input type="date" id="dateOfDeath" name="dateOfDeath" required 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <!-- หมายเหตุ -->
+                            <div class="md:col-span-3">
+                                <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ</label>
+                                <textarea id="notes" name="notes" rows="2" 
+                                    placeholder="ระบุหมายเหตุเพิ่มเติม (ถ้ามี)" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
                             </div>
                             
                             <!-- จำนวนเงินช่วยเหลือ -->
-                            <div>
-                                <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">จำนวนเงินช่วยเหลือ (บาท) <span class="text-red-500">*</span></label>
-                                <input type="number" id="amount" name="amount" required placeholder="0.00" min="0" step="0.01" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <div class="md:col-span-3">
+                                <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">
+                                    จำนวนเงินช่วยเหลือ (บาท) <span class="text-red-500">*</span>
+                                </label>
+                                <input type="number" id="amount" name="amount" required 
+                                    placeholder="0.00" min="0" step="0.01" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                             </div>
 
                             <!-- เพิ่มส่วนคำนวณเงินฌาปนกิจ -->
-                            <div class="md:col-span-2 hidden" id="calculationSection">
+                            <div class="md:col-span-3 hidden" id="calculationSection">
                                 <div class="rounded-lg border-2 border-gray-200 p-6">
                                     <div class="flex items-center mb-4">
                                         <h3 class="text-lg font-semibold text-gray-800">การคำนวณเงินฌาปนกิจ</h3>
@@ -309,31 +436,6 @@
                                 </div>
                             </div>
                             
-                            <!-- ผู้รับเงินช่วยเหลือ -->
-                            <div>
-                                <label for="beneficiary" class="block text-sm font-medium text-gray-700 mb-1">ผู้รับเงินช่วยเหลือ <span class="text-red-500">*</span></label>
-                                <input type="text" id="beneficiary" name="beneficiary" required placeholder="ระบุชื่อ-นามสกุลผู้รับเงิน" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            
-                            <!-- ความสัมพันธ์กับผู้เสียชีวิต -->
-                            <div>
-                                <label for="beneficiaryRelationship" class="block text-sm font-medium text-gray-700 mb-1">ความสัมพันธ์กับผู้เสียชีวิต <span class="text-red-500">*</span></label>
-                                <select id="beneficiaryRelationship" name="beneficiaryRelationship" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <option value="" disabled selected>-- เลือกความสัมพันธ์ --</option>
-                                    <option value="คู่สมรส">คู่สมรส</option>
-                                    <option value="บุตร">บุตร</option>
-                                    <option value="บิดา/มารดา">บิดา/มารดา</option>
-                                    <option value="พี่/น้อง">พี่/น้อง</option>
-                                    <option value="ญาติ">ญาติ</option>
-                                    <option value="อื่นๆ">อื่นๆ</option>
-                                </select>
-                            </div>
-                            
-                            <!-- หมายเหตุ -->
-                            <div class="md:col-span-2">
-                                <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ <span class="text-red-500">*</span></label>
-                                <textarea id="notes" name="notes" rows="2" placeholder="ระบุหมายเหตุเพิ่มเติม (ถ้ามี)" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                            </div>
                         </div>
                         
                         <div class="mt-8 flex justify-end space-x-3">
@@ -501,9 +603,11 @@
             }
         });
 
-        // Submit form
-        document.querySelector('form').addEventListener('submit', async function(e) {
+        // ✅ แก้ไข JavaScript - รวบรวมข้อมูลครบถ้วน
+        document.getElementById('funeralForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            
+            console.log('🔍 Form submitted'); // Debug
             
             if (!selectedHousehold) {
                 Swal.fire({
@@ -523,20 +627,74 @@
                 return;
             }
 
-            // รวบรวมข้อมูลจากฟอร์ม
+            // ✅ รวบรวมข้อมูลให้ครบถ้วนตามที่ Backend ต้องการ
             const formData = {
+                // ข้อมูลครัวเรือน
                 familyID: selectedHousehold.familyID,
-                deceasedName: document.getElementById('deceasedName').value,
+                
+                // ข้อมูลผู้รับผิดชอบ
+                responsiblePersonName: document.getElementById('responsiblePersonName').value.trim(),
                 relationship: document.getElementById('relationship').value,
+                
+                // ข้อมูลผู้เสียชีวิต
+                deceasedName: document.getElementById('deceasedName').value.trim(),
+                deceasedAge: document.getElementById('deceasedAge').value,
+                idCard: document.getElementById('idCard').value.trim(),
+                deceasedAddress: document.getElementById('deceasedAddress').value.trim(),
+                deceasedVillage: document.getElementById('deceasedVillage').value.trim(),
+                subDistrict: document.getElementById('subDistrict').value.trim(),
+                district: document.getElementById('district').value.trim(),
+                province: document.getElementById('province').value.trim(),
+                postalCode: document.getElementById('postalCode').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                causeOfDeath: document.getElementById('causeOfDeath').value.trim(),
                 dateOfDeath: document.getElementById('dateOfDeath').value,
+                
+                // ข้อมูลอื่นๆ
+                notes: document.getElementById('notes').value.trim(),
                 amount: parseFloat(document.getElementById('amount').value),
-                beneficiary: document.getElementById('beneficiary').value,
-                beneficiaryRelationship: document.getElementById('beneficiaryRelationship').value,
-                notes: document.getElementById('notes').value
+                memberID: null // ถ้ามีการเลือก member ใน UI
             };
 
-            // แสดงรายการบัญชีที่จะหัก
-            await showDeductionPreview(formData);
+            console.log('📋 Form Data:', formData); // Debug
+            
+            // ตรวจสอบข้อมูลก่อนส่ง
+            const missingFields = [];
+            const requiredFields = {
+                responsiblePersonName: 'ชื่อผู้รับผิดชอบ',
+                relationship: 'ความสัมพันธ์',
+                deceasedName: 'ชื่อผู้เสียชีวิต',
+                deceasedAge: 'อายุ',
+                idCard: 'บัตรประชาชน',
+                deceasedAddress: 'บ้านเลขที่',
+                deceasedVillage: 'หมู่ที่',
+                subDistrict: 'ตำบล',
+                district: 'อำเภอ',
+                province: 'จังหวัด',
+                postalCode: 'รหัสไปรษณีย์',
+                phone: 'โทรศัพท์',
+                causeOfDeath: 'สาเหตุการเสียชีวิต',
+                dateOfDeath: 'วันที่เสียชีวิต',
+                amount: 'จำนวนเงิน'
+            };
+
+            for (const [field, label] of Object.entries(requiredFields)) {
+                if (!formData[field] || formData[field].toString().trim() === '') {
+                    missingFields.push(label);
+                }
+            }
+
+            if (missingFields.length > 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'กรุณากรอกข้อมูลให้ครบถ้วน',
+                    html: `<p>ข้อมูลที่ขาดหาย:</p><ul class="text-left">${missingFields.map(f => `<li>• ${f}</li>`).join('')}</ul>`
+                });
+                return;
+            }
+
+            // เรียกฟังก์ชันบันทึกข้อมูล
+            await submitFuneralAssistance(formData);
         });
 
         // ==================== API Functions ====================
@@ -692,10 +850,11 @@
             }
         }
 
-        // บันทึกข้อมูลฌาปนกิจ
+        // ฟังก์ชัน submitFuneralAssistance (แก้ไขให้ส่งข้อมูลตรงกับ Backend)
         async function submitFuneralAssistance(formData) {
             try {
-                // แสดง loading
+                console.log('📤 Sending data to server...', formData); // Debug
+                
                 Swal.fire({
                     title: 'กำลังบันทึกข้อมูล...',
                     text: 'โปรดรอสักครู่',
@@ -713,7 +872,10 @@
                     body: JSON.stringify(formData)
                 });
 
+                console.log('📥 Response status:', response.status); // Debug
+
                 const result = await response.json();
+                console.log('📥 Response data:', result); // Debug
 
                 if (result.success) {
                     await Swal.fire({
@@ -724,27 +886,43 @@
                             <div class="mt-3 text-sm text-gray-600">
                                 <p>หักเงินจำนวน: ${result.data.totalDeducted.toFixed(2)} บาท</p>
                                 <p>จากบัญชี: ${result.data.accountsDeducted} บัญชี</p>
+                                ${result.data.accountsWithInsufficientBalance > 0 ? 
+                                    `<p class="text-amber-600 mt-2">⚠️ มีบัญชีที่เงินไม่พอ: ${result.data.accountsWithInsufficientBalance} บัญชี</p>` 
+                                    : ''
+                                }
                             </div>
                         `,
-                        confirmButtonText: 'ตรวจสอบรายละเอียด'
+                        confirmButtonText: 'ดูรายละเอียด'
                     });
 
-                    // Redirect หรือ reload
-                    window.location.href = `/employee/funeral-assistance/detail/${result.data.funeralID}`;
+                    // Redirect ไปหน้ารายละเอียด
+                    // window.location.href = `/employee/funeral-assistance/detail/${result.data.funeralID}`;
+                    window.location.href = `/employee/funeralAidHistory`;
                 } else {
                     Swal.fire({
                         icon: 'error',
                         title: 'เกิดข้อผิดพลาด',
-                        text: result.message
+                        text: result.message || 'ไม่สามารถบันทึกข้อมูลได้'
                     });
                 }
             } catch (error) {
-                console.error('Error submitting funeral assistance:', error);
+                console.error('❌ Error submitting funeral assistance:', error);
                 Swal.fire({
                     icon: 'error',
                     title: 'เกิดข้อผิดพลาด',
-                    text: 'ไม่สามารถบันทึกข้อมูลได้'
+                    text: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง'
                 });
+            }
+        }
+
+        // ฟังก์ชันรีเซ็ตฟอร์ม
+        function resetForm() {
+            if (confirm('ต้องการยกเลิกและล้างข้อมูลทั้งหมดหรือไม่?')) {
+                document.getElementById('funeralForm').reset();
+                clearHouseholdInfo();
+                document.getElementById('householdSearch').value = '';
+                selectedHousehold = null;
+                isEligible = false;
             }
         }
 
@@ -842,27 +1020,119 @@
             document.getElementById('memberCount').textContent = data.memberCount + ' คน';
         }
 
+        // ฟังก์ชันแสดงผลการตรวจสอบคุณสมบัติ (อัพเดท: 3 เงื่อนไข)
         function displayEligibilityCheck(data) {
             const eligibilitySection = document.getElementById('eligibilitySection');
             eligibilitySection.classList.remove('hidden');
 
-            // เงื่อนไข 1: สมัครครบ 6 เดือน
-            updateConditionStatus('condition1', data.passedMembershipPeriod, 
-                data.passedMembershipPeriod 
-                    ? `ผ่าน (สมัครมาแล้ว ${data.membershipMonths} เดือน)` 
-                    : `ไม่ผ่าน (สมัครมาเพียง ${data.membershipMonths} เดือน)`
-            );
+            console.log('Eligibility Data:', data);
 
-            // เงื่อนไข 2: ขายขยะครบ 300 บาท
-            updateConditionStatus('condition2', data.passedSalesRequirement,
-                data.passedSalesRequirement 
-                    ? `ผ่าน (ขายขยะรวม ${data.totalSales.toLocaleString()} บาท)` 
-                    : `ไม่ผ่าน (ขายขยะเพียง ${data.totalSales.toLocaleString()} บาท)`
-            );
+            // สร้าง HTML สำหรับ 3 เงื่อนไข
+            const conditionsHTML = `
+                <div class="space-y-3">
+                    <!-- เงื่อนไข 1: สมัครครบ 180 วัน (6 เดือน) -->
+                    <div class="flex items-start bg-white rounded-lg p-4 shadow-sm">
+                        <div class="flex-shrink-0 mr-3">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center ${data.passedMembershipPeriod ? 'bg-green-100' : 'bg-red-100'}">
+                                <svg class="w-5 h-5 ${data.passedMembershipPeriod ? 'text-green-600' : 'text-red-600'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${data.passedMembershipPeriod ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'}" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-medium text-gray-800">เป็นสมาชิกครบ 180 วัน (6 เดือน)</p>
+                            <p class="text-sm ${data.passedMembershipPeriod ? 'text-green-600' : 'text-red-600'} mt-1">
+                                ${data.passedMembershipPeriod 
+                                    ? `✅ ผ่าน - เป็นสมาชิกมา ${data.membershipDays} วัน (${data.membershipMonths} เดือน)` 
+                                    : `❌ ไม่ผ่าน - เป็นสมาชิกเพียง ${data.membershipDays} วัน (ต้องครบ 180 วัน)`
+                                }
+                            </p>
+                        </div>
+                    </div>
 
-            // สรุปผล
+                    <!-- เงื่อนไข 2: ขายขยะครบ 300 บาท -->
+                    <div class="flex items-start bg-white rounded-lg p-4 shadow-sm">
+                        <div class="flex-shrink-0 mr-3">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center ${data.passedSalesRequirement ? 'bg-green-100' : 'bg-red-100'}">
+                                <svg class="w-5 h-5 ${data.passedSalesRequirement ? 'text-green-600' : 'text-red-600'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${data.passedSalesRequirement ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'}" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-medium text-gray-800">ขายขยะสะสมครบ 300 บาท</p>
+                            <p class="text-sm ${data.passedSalesRequirement ? 'text-green-600' : 'text-red-600'} mt-1">
+                                ${data.passedSalesRequirement 
+                                    ? `✅ ผ่าน - ขายสะสม ${data.totalSalesAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท` 
+                                    : `❌ ไม่ผ่าน - ขายเพียง ${data.totalSalesAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท (ต้องครบ 300 บาท)`
+                                }
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- เงื่อนไข 3: ยอดคงเหลือ >= 300 บาท -->
+                    <div class="flex items-start bg-white rounded-lg p-4 shadow-sm">
+                        <div class="flex-shrink-0 mr-3">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center ${data.hasActiveBalance ? 'bg-green-100' : 'bg-red-100'}">
+                                <svg class="w-5 h-5 ${data.hasActiveBalance ? 'text-green-600' : 'text-red-600'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${data.hasActiveBalance ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'}" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-medium text-gray-800">ยอดคงเหลือในบัญชีมากกว่า 300 บาท</p>
+                            <p class="text-sm ${data.hasActiveBalance ? 'text-green-600' : 'text-red-600'} mt-1">
+                                ${data.hasActiveBalance 
+                                    ? `✅ ผ่าน - คงเหลือ ${data.currentBalance.toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท` 
+                                    : `❌ ไม่ผ่าน - คงเหลือเพียง ${data.currentBalance.toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท (สมาชิกถูกพักชั่วคราว)`
+                                }
+                            </p>
+                            ${!data.hasActiveBalance && data.hasEverBeenMember ? 
+                                `<p class="text-xs text-orange-600 mt-1">
+                                    💡 <strong>วิธีแก้ไข:</strong> นำขยะมาขายให้ยอดคงเหลือเกิน 300 บาท สิทธิ์จะกลับมาทันที
+                                </p>` 
+                                : ''
+                            }
+                        </div>
+                    </div>
+
+                    <!-- สรุปผลการตรวจสอบ -->
+                    <div class="mt-4 p-4 rounded-lg ${data.isEligible ? 'bg-green-100 border-2 border-green-300' : 'bg-red-100 border-2 border-red-300'}">
+                        <div class="flex items-center">
+                            <svg class="w-6 h-6 mr-2 ${data.isEligible ? 'text-green-600' : 'text-red-600'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${data.isEligible ? 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' : 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z'}" />
+                            </svg>
+                            <p class="font-semibold text-lg ${data.isEligible ? 'text-green-800' : 'text-red-800'}">
+                                ${data.isEligible 
+                                    ? '✅ ครัวเรือนนี้มีสิทธิ์รับเงินช่วยเหลือฌาปนกิจ' 
+                                    : '❌ ครัวเรือนนี้ไม่มีสิทธิ์รับเงินช่วยเหลือฌาปนกิจ'
+                                }
+                            </p>
+                        </div>
+                        ${!data.isEligible && data.ineligibleReasons && data.ineligibleReasons.length > 0 ? 
+                            `<div class="mt-3 ml-8 text-sm text-red-700">
+                                <p class="font-medium mb-1">เหตุผล:</p>
+                                <ul class="list-disc list-inside space-y-1">
+                                    ${data.ineligibleReasons.map(reason => `<li>${reason}</li>`).join('')}
+                                </ul>
+                            </div>`
+                            : ''
+                        }
+                        ${data.isEligible && data.pendingDeductions > 0 ? 
+                            `<div class="mt-3 ml-8 text-sm text-amber-700 bg-amber-50 rounded p-2">
+                                <p class="font-medium">⚠️ หมายเหตุ: มีเงินค้างหัก ${data.pendingDeductions.toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท</p>
+                            </div>`
+                            : ''
+                        }
+                    </div>
+                </div>
+            `;
+
+            // แทนที่ HTML เดิมด้วย HTML ใหม่
+            document.getElementById('eligibilitySection').querySelector('.space-y-3').innerHTML = conditionsHTML;
+
+            // อัพเดท global variable
             isEligible = data.isEligible;
-            updateEligibilityResult(data.isEligible);
         }
 
         function updateConditionStatus(conditionId, pass, detail) {
