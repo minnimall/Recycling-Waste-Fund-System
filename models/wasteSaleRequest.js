@@ -1,6 +1,14 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+const replySchema = new mongoose.Schema({
+  responseMessage: { type: String, required: true },
+  pickupDate: {type: Date,},
+  createdAt: { type: Date, default: Date.now },
+  isDeleted: { type: Boolean, default: false
+  }
+});
+
 const wasteSaleRequestSchema = new Schema(
     {
         waste: [
@@ -52,7 +60,8 @@ const wasteSaleRequestSchema = new Schema(
         isDeleted: {
             type: Boolean,
             default: false
-        }
+        },
+        reply: [replySchema]
     },
     { timestamps: true }
 );

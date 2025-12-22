@@ -108,39 +108,13 @@
                                 <div class="mb-3 md:mb-0">
                                     <div class="flex items-center mb-2">
                                         <i class="fas fa-user-circle text-gray-600 mr-2 text-xl"></i>
-                                        <h2 class="text-xl font-semibold text-gray-700">
+                                        <h2 class="text-xl font-semibold text-gray-700 mr-2">
                                             <%= request.family.familyName %>
                                         </h2>
-                                        
-                                        <!-- Status Badge -->
-                                        <% 
-                                        let statusClass = '';
-                                        let statusText = '';
-                                        switch(request.status) {
-                                            case 'pending':
-                                                statusClass = 'bg-yellow-500';
-                                                statusText = 'รอดำเนินการ';
-                                                break;
-                                            case 'in-progress':
-                                                statusClass = 'bg-blue-500';
-                                                statusText = 'กำลังดำเนินการ';
-                                                break;
-                                            case 'resolved':
-                                                statusClass = 'bg-green-500';
-                                                statusText = 'เสร็จสิ้น';
-                                                break;
-                                            case 'reject':
-                                                statusClass = 'bg-red-500';
-                                                statusText = 'ปฏิเสธคำขอ';
-                                                break;
-                                            default:
-                                                statusClass = 'bg-gray-500';
-                                                statusText = 'ไม่ระบุ';
-                                        }
-                                        %>
-                                        <span class="ml-2 px-2 py-1 rounded-full text-xs text-white <%= statusClass %>">
-                                            <%= statusText %>
-                                        </span>
+                                        <% if (request.status === 'resolved') { %><span class="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full border border-green-200">เสร็จสิ้น</span>
+                                        <% } else if (request.status === 'pending') { %><span class="text-xs text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full border border-yellow-200">รอดำเนินการ</span>
+                                        <% } else if (request.status === 'reject') { %><span class="text-xs text-red-600 bg-red-100 px-2 py-1 rounded-full border border-red-200">ปฏิเสธคำขอ</span>
+                                        <% } else { %><span class="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-full border border-gray-200">ไม่ทราบ</span><% } %>
                                     </div>
                                     
                                     <div class="flex flex-wrap items-center text-sm text-gray-600">
@@ -166,12 +140,14 @@
                                 <div class="flex items-center space-x-2">
                                     <!-- ปุ่มเปลี่ยนสถานะสำหรับ request -->
                                     <div class="relative">
-                                        <button onclick="loadRequest('<%= request._id %>')" class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center">ตอบกลับคำขอ</button>
+                                        <button onclick="loadRequest('<%= request._id %>')" class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center">
+                                            <i class="fa-solid fa-reply mr-2"></i> ตอบกลับคำขอ
+                                        </button>
                                     </div>
                                     
                                     <button onclick="openModal('<%= request._id %>')" 
                                         class="px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-600 transition-colors flex items-center">
-                                        <!-- <i class="fas fa-eye mr-2"></i> -->
+                                        <i class="fa-solid fa-circle-info mr-2"></i>
                                         ดูรายละเอียด
                                     </button>
                                 </div>

@@ -1680,7 +1680,7 @@ const wasteSaleRequestReplyIndex = async (req, res) => {
 
     } catch (err) {
         console.log(err);
-        res.redirect('/employee/complaint?error=' + encodeURIComponent('เกิดข้อผิดพลาด'));
+        res.redirect('/employee/wasteSaleRequest?error=' + encodeURIComponent('เกิดข้อผิดพลาด'));
     }
 };
 
@@ -1705,9 +1705,57 @@ const wasteSaleRequestReject = async (req, res) => {
         }
         res.redirect('/employee/wasteSaleRequest?success=' + encodeURIComponent('ปธิเสธคำข้อเรียบร้อย'));
     } catch {
-
+        console.log(err);
+        res.redirect('/employee/wasteSaleRequest?error=' + encodeURIComponent('เกิดข้อผิดพลาด'));
     }
 }
+
+const wasteSaleRequestRejectPost = async (req, res) => {
+    const { id } = req.params;
+
+    if (!id || id === 'undefined') {
+        console.log('Something wrong');
+        return res.redirect('/employee/wasteSaleRequest?error=' + encodeURIComponent('ID ไม่ถูกต้อง'));
+    }
+
+    try {
+        const { responseMessage, pickupDate } = req.body;
+
+        const newReply = {
+            responseMessage: responseMessage || 'ไม่ระบุ',
+            pickupDate: pickupDate || 'ไม่ระบุ',
+            createdAt: new Date()
+        };
+
+        const wastesaleRequest = await wasteSaleRequest.findByIdAndUpdate(
+            id,
+            {
+                $set: { status: 'pending' },
+                $push: { reply: newReply }
+            },
+            { new: true }
+        );
+
+        if (!wastesaleRequest) {
+            return res.redirect(
+                '/employee/wasteSaleRequest?error=' +
+                encodeURIComponent('ไม่พบคำขอขายขยะ')
+            );
+        }
+
+        return res.redirect(
+            `/employee/wasteSaleRequest/${id}?success=` +
+            encodeURIComponent('บันทึกการตอบกลับเรียบร้อยแล้ว')
+        );
+
+    } catch (err) {
+        console.error(err);
+        return res.redirect(
+            '/employee/wasteSaleRequest?error=' +
+            encodeURIComponent('เกิดข้อผิดพลาด')
+        );
+    }
+};
 
 // Controller สำหรับอัปเดตสถานะ
 const updateWasteSaleRequestStatus = async (req, res) => {
@@ -3695,7 +3743,7 @@ module.exports = {
     //หน้าคำร้องหรือหรือข้อร้องเรียน
     complaintIndex,updateComplaintStatus,complaintReply,complaintReplyMessage,updateMessageReply,deleteMessageReply,
     //หน้าตรวจสอบความประสงค์ขายขยะ
-    wasteSaleRequestIndex,updateWasteSaleRequestStatus,wasteSaleRequestReplyIndex,wasteSaleRequestReject,
+    wasteSaleRequestIndex,updateWasteSaleRequestStatus,wasteSaleRequestReplyIndex,wasteSaleRequestReject,wasteSaleRequestRejectPost,
     //หน้าสต๊อกขยะ
     wasteStockIndex,
     //หน้าเบิกถอน
