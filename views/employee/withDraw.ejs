@@ -176,31 +176,37 @@
         <!-- ประวัติการถอนเงินล่าสุด -->
         <div class="mx-4 mt-6">
             <div class="bg-white rounded-lg shadow p-6">
-                <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                    <ion-icon name="time-outline" class="mr-2 text-gray-600"></ion-icon> ประวัติการถอนเงินล่าสุด
-                </h2>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                        <ion-icon name="time-outline" class="mr-2 text-gray-600"></ion-icon> ประวัติการถอนเงินล่าสุด
+                    </h2>
+                    <% if (pagination && pagination.totalItems > 0) { %>
+                    <span class="text-sm text-gray-600">
+                        ทั้งหมด <%= pagination.totalItems %> รายการ
+                    </span>
+                    <% } %>
+                </div>
+                
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    ลำดับ
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     วันที่
                                 </th>
-                                <th scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     รหัสบัญชี
                                 </th>
-                                <th scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     ชื่อเจ้าของบัญชี
                                 </th>
-                                <th scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     จำนวนเงิน (ถอน)
                                 </th>
-                                <th scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     สถานะ
                                 </th>
                             </tr>
@@ -208,13 +214,18 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             <% if (!transactions || transactions.length === 0) { %>
                             <tr>
-                                <td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
+                                <td colspan="6" class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
                                     ไม่มีข้อมูลการถอนเงิน
                                 </td>
                             </tr>
                             <% } else { %>
-                            <% transactions.forEach(transaction => { %>
-                            <tr>
+                            <% transactions.forEach((transaction, index) => { 
+                                const itemNumber = ((pagination.currentPage - 1) * pagination.itemsPerPage) + index + 1;
+                            %>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <%= itemNumber %>
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     <%= new Date(transaction.transactionDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) %>
                                     - <%= new Date(transaction.transactionDate).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) %> น.
@@ -229,7 +240,9 @@
                                     ฿ <%= Number(transaction.amount).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"><%= transaction.status %></span>
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        <%= transaction.status %>
+                                    </span>
                                 </td>
                             </tr>
                             <% }) %>
@@ -237,8 +250,94 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Pagination Controls -->
+                <% if (pagination) { %>
+                <div class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="text-sm text-gray-700">
+                        แสดง <%= ((pagination.currentPage - 1) * pagination.itemsPerPage) + 1 %> 
+                        ถึง <%= Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems) %> 
+                        จาก <%= pagination.totalItems %> รายการ
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <!-- ปุ่มหน้าแรก -->
+                        <% if (pagination.currentPage > 1) { %>
+                        <a href="?page=1" 
+                        class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            <ion-icon name="play-back-outline"></ion-icon>
+                        </a>
+                        <% } %>
+
+                        <!-- ปุ่มหน้าก่อนหน้า -->
+                        <% if (pagination.hasPrevPage) { %>
+                        <a href="?page=<%= pagination.currentPage - 1 %>" 
+                        class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            <ion-icon name="chevron-back-outline"></ion-icon>
+                        </a>
+                        <% } else { %>
+                        <button disabled 
+                                class="px-3 py-2 rounded-md bg-gray-100 border border-gray-300 text-sm text-gray-400 cursor-not-allowed">
+                            <ion-icon name="chevron-back-outline"></ion-icon>
+                        </button>
+                        <% } %>
+
+                        <!-- แสดงเลขหน้า -->
+                        <% 
+                        const maxPagesToShow = 5;
+                        let startPage = Math.max(1, pagination.currentPage - Math.floor(maxPagesToShow / 2));
+                        let endPage = Math.min(pagination.totalPages, startPage + maxPagesToShow - 1);
+                        
+                        if (endPage - startPage < maxPagesToShow - 1) {
+                            startPage = Math.max(1, endPage - maxPagesToShow + 1);
+                        }
+                        
+                        if (startPage > 1) { %>
+                            <span class="px-2 text-gray-500">...</span>
+                        <% } 
+                        
+                        for (let i = startPage; i <= endPage; i++) { %>
+                            <% if (i === pagination.currentPage) { %>
+                            <button class="px-4 py-2 rounded-md bg-green-600 text-white text-sm font-medium">
+                                <%= i %>
+                            </button>
+                            <% } else { %>
+                            <a href="?page=<%= i %>" 
+                            class="px-4 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
+                                <%= i %>
+                            </a>
+                            <% } %>
+                        <% } 
+                        
+                        if (endPage < pagination.totalPages) { %>
+                            <span class="px-2 text-gray-500">...</span>
+                        <% } %>
+
+                        <!-- ปุ่มหน้าถัดไป -->
+                        <% if (pagination.hasNextPage) { %>
+                        <a href="?page=<%= pagination.currentPage + 1 %>" 
+                        class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            <ion-icon name="chevron-forward-outline"></ion-icon>
+                        </a>
+                        <% } else { %>
+                        <button disabled 
+                                class="px-3 py-2 rounded-md bg-gray-100 border border-gray-300 text-sm text-gray-400 cursor-not-allowed">
+                            <ion-icon name="chevron-forward-outline"></ion-icon>
+                        </button>
+                        <% } %>
+
+                        <!-- ปุ่มหน้าสุดท้าย -->
+                        <% if (pagination.currentPage < pagination.totalPages) { %>
+                        <a href="?page=<%= pagination.totalPages %>" 
+                        class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            <ion-icon name="play-forward-outline"></ion-icon>
+                        </a>
+                        <% } %>
+                    </div>
+                </div>
+                <% } %>
             </div>
-        </div>
+</div>
     </div>
 
     <!-- Modal ตั้งค่ายอดขั้นต่ำ -->
