@@ -332,36 +332,46 @@ const user_wastePrices = async (req, res) => {
 };
 
 // หน้ากิจกรรมทั้งหมด
-const user_allActivity = (req, res) => {
+const user_allActivity = async (req, res) => {
     const searchQuery = req.query.search?.trim() || "";
-    
+    const page = parseInt(req.query.page) || 1;
+    const itemsPerPage = 10;
+    const skip = (page - 1) * itemsPerPage;
+
     let query = { isDeleted: false };
 
     if (searchQuery) {
-        query = {
-            ...query, // คงค่า isDeleted: false ไว้
-            title: { $regex: new RegExp(searchQuery, "i") }
-        };
+        query.title = { $regex: new RegExp(searchQuery, "i") };
     }
 
-    // ดึงข้อมูลกิจกรรมจากฐานข้อมูลตาม query ที่สร้าง
-    myActivity.find(query).sort({ createdAt: -1 })
-        .then((result) => {
-            // แปลงวันที่ในแต่ละกิจกรรม
-            const activities = result.map(activity => ({
-                ...activity._doc, // ดึงข้อมูลทั้งหมดในเอกสาร
-                formattedDate: moment(activity.createdAt).format('YYYY-MM-DD') // เพิ่มฟิลด์ formattedDate
-            }));
+    try {
+        const totalItems = await myActivity.countDocuments(query);
 
-            res.render('user/allActivity', { 
-                activity: activities,
-                search: searchQuery
-            });
-        })
-        .catch((err) => {
-            console.log(err);
-            res.status(500).send('เกิดข้อผิดพลาดในระบบ');
+        const result = await myActivity.find(query)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(itemsPerPage);
+
+        const activities = result.map(activity => ({
+            ...activity._doc,
+            formattedDate: moment(activity.createdAt).format('YYYY-MM-DD')
+        }));
+
+        res.render('user/allActivity', {
+            activity: activities,
+            search: searchQuery,
+            pagination: {
+                totalItems,
+                currentPage: page,
+                itemsPerPage,
+                totalPages: Math.ceil(totalItems / itemsPerPage)
+            }
         });
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send('เกิดข้อผิดพลาดในระบบ');
+    }
 };
 
 
