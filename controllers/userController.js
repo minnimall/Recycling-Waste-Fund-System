@@ -9,6 +9,7 @@ const myWasteType = require('../models/wastetype');
 const Village = require('../models/village');
 const Round = require('../models/round');
 const wasteSaleRequest = require('../models/wasteSaleRequest');
+const wasteSaleRequestLog = require('../models/wasteSaleRequestLog');
 const WastePurchase = require('../models/wastePurchase');
 const Family = require('../models/family');
 const Member = require('../models/member');
@@ -189,20 +190,69 @@ const user_saleHistory = (req, res)=> {
 }
 
 // หน้าแจ้งความประสงค์ขายขยะ
-const user_wasteSaleRequest = (req, res) => {
-    const filter = { isDeleted: false };
+const user_wasteSaleRequest = async (req, res) => {
+    try {
+        const filter = { isDeleted: false };
 
-    myWaste.find(filter).sort({ createdAt: 1 })
-        .then((result) => {
-            res.render('user/wasteSaleRequest', { 
-                wasteItems: result
-            });
-        })
-        .catch((err) => {
-            console.log(err);
-            res.status(500).send('เกิดข้อผิดพลาดในระบบ');
+        const wasteItems = await myWaste
+            .find(filter)
+            .sort({ createdAt: -1 });
+
+        let hasPendingRequest = false;
+        let haswaitingUserRequest = false;
+        let hasComfirmed = false;
+        let hasInprogress = false;
+        let latestRequest = null;
+
+        if (req.session?.user) {
+            latestRequest = await wasteSaleRequest
+                .findOne({
+                    family: req.session.user._id,
+                    isDeleted: false
+                })
+                .populate('waste')
+                .populate('family')
+                .sort({ createdAt: -1 });
+
+            if (latestRequest) {
+                if (latestRequest.status === 'pending') {
+                    hasPendingRequest = true;
+                } else if (latestRequest.status === 'waitingUser') {
+                    haswaitingUserRequest = true;
+                } else if (latestRequest.status === 'confirmed') {
+                    hasComfirmed = true;
+                } else if (latestRequest.status === 'in-progress') {
+                    hasInprogress = true;
+                }
+            }
+        }
+        
+        let pickupDate = null;
+
+        if (latestRequest?.reply?.length > 0) {
+            pickupDate = latestRequest.reply[0].pickupDate;
+        }
+
+
+        res.render('user/wasteSaleRequest', {
+            wasteItems,
+            session: req.session,
+            hasPendingRequest,
+            haswaitingUserRequest,
+            hasComfirmed,
+            hasInprogress,
+            latestRequest,
+            pickupDate
         });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('เกิดข้อผิดพลาดในระบบ');
+    }
 };
+
+
+
 
 const storage = multer.diskStorage({
     destination: './public/upload_imgWasteSaleRequest',
@@ -233,7 +283,7 @@ const wasteSaleRequestPost = (req, res) => {
                 res.redirect('/user/wasteSaleRequest?error=ไม่พบข้อมูลครัวเรือน');
             }
 
-            upload(req, res, (err) => {
+            upload(req, res, async (err) => {
                 if (err) {
                     res.redirect('/user/wasteSaleRequest?error=อัปโหลดรูปภาพล้มเหลว');
                 }
@@ -280,7 +330,133 @@ const wasteSaleRequestPost = (req, res) => {
         });
 };
 
-// หน้าข้อมูลติดต่อ
+const wasteSaleRequestUserSubmit = async (req, res) => {
+    if (!req.session?.user) {
+        return res.redirect(
+            '/user/wasteSaleRequest?error=' +
+            encodeURIComponent('กรุณาเข้าสู่ระบบก่อนทำรายการ')
+        );
+    }
+
+    const { id } = req.params;
+
+    if (!id) {
+        return res.redirect(
+            '/user/wasteSaleRequest?error=' +
+            encodeURIComponent('ID ไม่ถูกต้อง')
+        );
+    }
+
+    try {
+        const request = await wasteSaleRequest.findOne({
+            _id: id,
+            family: req.session.user._id,
+            isDeleted: false
+        });
+
+        if (!request) {
+            return res.redirect(
+                '/user/wasteSaleRequest?error=' +
+                encodeURIComponent('ไม่พบคำขอ')
+            );
+        }
+
+        // ✅ ต้องเป็น WAITING_USER เท่านั้น
+        if (request.status !== 'waitingUser') {
+            return res.redirect(
+                '/user/wasteSaleRequest?error=' +
+                encodeURIComponent('ไม่สามารถยืนยันคำขอนี้ได้')
+            );
+        }
+
+        // ✅ ใช้ confirmExpireAt
+        if (!request.userConfirmDeadline || new Date() > request.userConfirmDeadline) {
+
+            request.status = 'rejected';
+            request.rejectedReason = 'USER_NOT_CONFIRMED_IN_TIME';
+            await request.save();
+
+            await wasteSaleRequestLog.create({
+                wasteSaleRequest: request._id,
+                status: 'REJECTED',
+                stage: 'WAITING_USER',
+                reason: 'USER_NOT_CONFIRMED_IN_TIME',
+                actionBy: 'SYSTEM',
+                note: 'ผู้ใช้กดยืนยันหลังหมดเวลา 2 ชั่วโมง'
+            });
+
+            return res.redirect(
+                '/user/wasteSaleRequest?error=' +
+                encodeURIComponent('หมดเวลาการยืนยันแล้ว')
+            );
+        }
+
+        // ✅ ยืนยันสำเร็จ
+        request.status = 'confirmed';
+        request.confirmedAt = new Date();
+        await request.save();
+
+        await wasteSaleRequestLog.create({
+            wasteSaleRequest: request._id,
+            status: 'CONFIRMED',
+            actionBy: 'USER'
+        });
+
+        return res.redirect(
+            '/user/wasteSaleRequest?success=' +
+            encodeURIComponent('ยืนยันคำขอเรียบร้อยแล้ว')
+        );
+
+    } catch (err) {
+        console.error(err);
+        return res.redirect(
+            '/user/wasteSaleRequest?error=' +
+            encodeURIComponent('เกิดข้อผิดพลาดในระบบ')
+        );
+    }
+};
+
+
+
+const wasteSaleRequestUserReject = async (req, res) => {
+    try {
+        const { stage, id } = req.params;
+        const { reason } = req.body;
+
+        if (!id || !stage || !reason) {
+            return res.status(400).json({
+                success: false,
+                message: 'ข้อมูลไม่ครบถ้วน'
+            });
+        }
+
+        // update main request
+        await wasteSaleRequest.findByIdAndUpdate(id, {
+            status: 'CANCELLED_BY_USER'
+        });
+
+        // log
+        await wasteSaleRequestLog.create({
+            wasteSaleRequest: id,
+            status: 'CANCELLED_BY_USER',
+            stage,
+            reason,
+            actionBy: 'USER'
+        });
+
+        return res.json({
+            success: true,
+            message: 'ยกเลิกคำขอเรียบร้อยแล้ว'
+        });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            success: false,
+            message: 'เกิดข้อผิดพลาด'
+        });
+    }
+};
 // หน้าข้อมูลติดต่อ
 const user_contact = async(req, res) => {
     try {
@@ -1047,7 +1223,7 @@ module.exports = {
     user_wastetype,
     user_knowledge,
     user_saleHistory,
-    user_wasteSaleRequest, wasteSaleRequestPost,
+    user_wasteSaleRequest, wasteSaleRequestPost, wasteSaleRequestUserSubmit,wasteSaleRequestUserReject,
     user_contact,
     user_allActivity,user_detailActivity,
     user_complaint,complaintPost,

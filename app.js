@@ -1,3 +1,6 @@
+
+require('./jobs/autoRejectWaitingUser');
+require('./jobs/moveToInProgress');
 //ทำการนำเข้า module "express" เก็บไว้ในตัวแปร express
 const express = require('express')
 const morgan = require('morgan')
@@ -13,7 +16,6 @@ const Admin = require('./models/admin')
 const village = require('./models/village')
 const Family = require('./models/family');
 const methodOverride = require('method-override'); //สำหรับแก้ไขข้อมูล
-
 //ทำการเรียก module หรือ function "express" ขึ้นมาทำงานและสร้าง
 const app = express()
 

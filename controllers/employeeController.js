@@ -13,6 +13,7 @@ const myActivity = require('../models/activity');
 const Village = require('../models/village')
 const Round = require('../models/round');
 const wasteSaleRequest = require('../models/wasteSaleRequest');
+const wasteSaleRequestLog = require('../models/wasteSaleRequestLog');
 const Family = require('../models/family');
 const Member = require('../models/member');
 const WasteBankAccount = require('../models/wasteBankAccount');
@@ -1654,6 +1655,7 @@ const wasteSaleRequestIndex = async (req, res) => {
         });
     }
 };
+
 const wasteSaleRequestReplyIndex = async (req, res) => {
     const { id } = req.params;
 
@@ -1663,19 +1665,32 @@ const wasteSaleRequestReplyIndex = async (req, res) => {
     }
 
     try {
+        let logs = [];
+
         const request = await wasteSaleRequest.findById(id, { isDeleted: false })
             .populate('waste') // ดึงข้อมูลขยะจาก ObjectId
             .populate('family') // ดึงข้อมูลครอบครัว
             .sort({ createdAt: -1 }); // เรียงตามวันที่สร้างล่าสุด
 
+
+        logs = await wasteSaleRequestLog
+            .find({
+                wasteSaleRequest: id,
+                isDeleted: false
+            })
+            .sort({ createdAt: 1 });
         if (!request) {
             return res.redirect('/employee/complaint?error=' + encodeURIComponent('ไม่พบคำขอ'));
+        }
+        if (!logs) {
+            return res.redirect('/employee/complaint?error=' + encodeURIComponent('ไม่พบบันทึก'));
         }
 
         res.render('employee/wasteSaleRequestConfirm', {
             mytitle: 'พนักงาน | ความประสงค์ขายขยะ',
             request,
             currentPage: 'wasteSaleRequest',
+            logs,
         });
 
     } catch (err) {
@@ -1683,6 +1698,7 @@ const wasteSaleRequestReplyIndex = async (req, res) => {
         res.redirect('/employee/wasteSaleRequest?error=' + encodeURIComponent('เกิดข้อผิดพลาด'));
     }
 };
+
 
 const wasteSaleRequestReject = async (req, res) => {
     const { id } = req.params;
@@ -1695,7 +1711,7 @@ const wasteSaleRequestReject = async (req, res) => {
         const wastesaleRequest = await wasteSaleRequest
             .findByIdAndUpdate(
                 id,
-                { status: 'reject' },
+                { status: 'rejected' },
                 { new: true }
             )
             .populate('waste')
@@ -1703,6 +1719,14 @@ const wasteSaleRequestReject = async (req, res) => {
         if (!wastesaleRequest) {
             return res.redirect('/employee/wasteSaleRequest?error=' + encodeURIComponent('ไม่พบคำขอ'));
         }
+        const logs = new wasteSaleRequestLog({
+            wasteSaleRequest: wastesaleRequest._id,
+            status: 'CANCELLED_BY_EMPLOYEE',
+            stage: 'SUBMITTED',
+            actionBy: 'EMPLOYEE'
+        });
+        logs.save()
+
         res.redirect('/employee/wasteSaleRequest?success=' + encodeURIComponent('ปธิเสธคำข้อเรียบร้อย'));
     } catch {
         console.log(err);
@@ -1710,7 +1734,7 @@ const wasteSaleRequestReject = async (req, res) => {
     }
 }
 
-const wasteSaleRequestRejectPost = async (req, res) => {
+const wasteSaleRequestApprovePost = async (req, res) => {
     const { id } = req.params;
 
     if (!id || id === 'undefined') {
@@ -1727,14 +1751,28 @@ const wasteSaleRequestRejectPost = async (req, res) => {
             createdAt: new Date()
         };
 
+        const now = new Date();
+        const deadline = new Date(now.getTime() + (2 * 60 * 60 * 1000)); // +2 ชั่วโมง
+        // const deadline = new Date(now.getTime() + (10 * 1000)); // +2 ชั่วโมง
+
         const wastesaleRequest = await wasteSaleRequest.findByIdAndUpdate(
             id,
             {
-                $set: { status: 'pending' },
+                $set: {
+                    status: 'waitingUser',
+                    approvedAt: now,
+                    userConfirmDeadline: deadline
+                },
                 $push: { reply: newReply }
             },
             { new: true }
         );
+        await wasteSaleRequestLog.create({
+            wasteSaleRequest: wastesaleRequest._id,
+            status: 'APPROVED',
+            approveText: responseMessage,
+            actionBy: 'EMPLOYEE'
+        });
 
         if (!wastesaleRequest) {
             return res.redirect(
@@ -3743,7 +3781,7 @@ module.exports = {
     //หน้าคำร้องหรือหรือข้อร้องเรียน
     complaintIndex,updateComplaintStatus,complaintReply,complaintReplyMessage,updateMessageReply,deleteMessageReply,
     //หน้าตรวจสอบความประสงค์ขายขยะ
-    wasteSaleRequestIndex,updateWasteSaleRequestStatus,wasteSaleRequestReplyIndex,wasteSaleRequestReject,wasteSaleRequestRejectPost,
+    wasteSaleRequestIndex,updateWasteSaleRequestStatus,wasteSaleRequestReplyIndex,wasteSaleRequestReject,wasteSaleRequestApprovePost,
     //หน้าสต๊อกขยะ
     wasteStockIndex,
     //หน้าเบิกถอน

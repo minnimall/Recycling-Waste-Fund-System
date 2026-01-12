@@ -54,14 +54,27 @@ const wasteSaleRequestSchema = new Schema(
         },
         status: {
             type: String,
-            enum: ['pending', 'in-progress', 'resolved'],
+            // enum: ['pending', 'in-progress', 'resolved'],
             default: 'pending'
         },
         isDeleted: {
             type: Boolean,
             default: false
         },
-        reply: [replySchema]
+        reply: [replySchema],
+        confirmExpireAt: {
+            type: Date,
+            required: false
+        },
+        approvedAt: {
+            type: Date,
+            required: false
+        },
+        userConfirmDeadline: {
+            type: Date,
+            required: false
+        }
+
     },
     { timestamps: true }
 );

@@ -25,6 +25,8 @@ router.get('/saleHistory', userController.user_saleHistory)
 // หน้าแจ้งความประสงค์ขายขยะเบื้องต้น
 router.get('/wasteSaleRequest', userController.user_wasteSaleRequest)
 router.post('/wasteSaleRequestPost', userController.wasteSaleRequestPost)
+router.get('/wasteSaleRequestUserSubmit/:id', userController.wasteSaleRequestUserSubmit)
+router.post('/wasteSaleRequestUserReject/:stage/:id', userController.wasteSaleRequestUserReject)
 
 // หน้าข้อมูลติดต่อของอบต.
 router.get('/contact', userController.user_contact)

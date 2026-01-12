@@ -104,189 +104,772 @@
     <section class="py-16">
         <div class="container mx-auto px-4">
             <div class="max-w-4xl mx-auto">
-                <!-- Form Container with Enhanced Design -->
-                <div class="mt-5 mb-5 bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-                    <!-- Header Section -->
-                    <div class="bg-gradient-to-r from-primary-green to-secondary-green text-white p-6">
-                        <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-                            <h2 class="text-2xl font-bold">ฟอร์มกรอกข้อมูลเบื้องต้น</h2>
-                            <div class="flex items-center gap-2">
-                                <p id="time" class="block text-white text-sm mb-2">วันที่ <span id="date-time"></span></p>
+                <% if (session && session.user) { %>
+                    
+
+
+                    <% if (hasPendingRequest) { %>
+                    <!-- ================= มีคำขอรอการอนุมัติ ================= -->
+                    <div class="mt-5 mb-5 bg-yellow-50 rounded-2xl shadow-lg border border-yellow-300 overflow-hidden">
+                        <div class="p-10 flex flex-col items-center justify-center text-center gap-6">
+                            <div class="w-20 h-20 flex items-center justify-center rounded-full bg-yellow-100 text-yellow-600">
+                                <i class="fa-solid fa-hourglass-half text-4xl"></i>
+                            </div>
+
+                            <h2 class="text-2xl font-bold text-yellow-800">
+                                อยู่ระหว่างรอการอนุมัติ
+                            </h2>
+
+                            <p class="text-yellow-700 max-w-md">
+                                คุณได้ส่งคำขอแจ้งความประสงค์ขายขยะไปแล้ว<br>
+                                กรุณารอเจ้าหน้าที่ตรวจสอบและติดต่อกลับ
+                            </p>
+
+                            <div class="flex gap-4">
+                                <a href="/user/wasteSaleHistory"
+                                class="px-6 py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-semibold transition-colors">
+                                    ดูสถานะคำขอ
+                                </a>
+                                <button
+                                    id="cancelRequestBtn"
+                                    class="px-6 py-3 border border-red-600 text-red-700 hover:bg-red-300 rounded-lg font-semibold transition-colors">
+                                    ยกเลิกคำประสงค์
+                                </button>
                             </div>
                         </div>
                     </div>
+                    <script>
+                    document.getElementById("cancelRequestBtn").addEventListener("click", function () {
+                        Swal.fire({
+                            title: 'ยืนยันการยกเลิก',
+                            text: 'กรุณาเลือกเหตุผลในการยกเลิกคำขอ',
+                            icon: 'warning',
+                            input: 'select',
+                            inputOptions: {
+                                CHANGE_PLAN: 'เปลี่ยนแผนการขายขยะ',
+                                NOT_AVAILABLE_DATE: 'ยังไม่สะดวกในวันที่เลือก',
+                                WANT_RESCHEDULE: 'ต้องการเลื่อนวัน',
+                                WASTE_NOT_READY: 'ขยะยังไม่พร้อม',
+                                LESS_WASTE: 'ปริมาณขยะน้อย',
+                                WRONG_WASTE_TYPE: 'ขยะไม่ตรงประเภท',
+                                LOCATION_ISSUE: 'ปัญหาสถานที่',
+                                NO_ONE_AT_HOME: 'ไม่มีคนอยู่',
+                                PRICE_NOT_MATCH: 'ราคาไม่ตรง',
+                                WEATHER: 'สภาพอากาศ',
+                                EMERGENCY: 'เหตุฉุกเฉิน',
+                                OTHER: 'อื่น ๆ'
+                            },
+                            inputPlaceholder: 'เลือกเหตุผล',
+                            showCancelButton: true,
+                            confirmButtonText: 'ยืนยันยกเลิก',
+                            cancelButtonText: 'ปิด',
+                            confirmButtonColor: '#dc2626',
+                            cancelButtonColor: '#6b7280',
+                            inputValidator: (value) => {
+                                if (!value) return 'กรุณาเลือกเหตุผลก่อนยืนยัน';
+                            }
+                        }).then((swalResult) => {
 
-                    <!-- Form Section -->
-                    <div class="p-8">
-                        <form id="waste-sale-form" action="/user/wasteSaleRequestPost" method="POST" enctype="multipart/form-data" class="space-y-6">
-                            <input type="hidden" name="username" value="<%= session.username %>">
-                            <input type="hidden" name="latitude" id="latitude" value="">
-                            <input type="hidden" name="longitude" id="longitude" value="">
-                            
-                            <!-- Waste Type -->
-                            <div class="space-y-2">
-                                <label for="waste" class="block text-gray-700 font-semibold mb-2">
-                                    <span class="flex items-center gap-2">
-                                        <!-- <svg class="w-5 h-5 text-primary-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                        </svg> -->
-                                        ขยะที่ต้องการขาย ( สามารถเลือกได้มากกว่า 1 รายการ )
-                                    </span>
-                                </label>
-                                <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-primary-green transition-colors" id="waste" name="waste[]" multiple required>
-                                    <% wasteItems.forEach((waste) => { %>
-                                    <option value="<%= waste._id %>"><%= waste.wasteName %></option>
-                                    <% }); %>
-                                </select>
+                            if (!swalResult.isConfirmed) return;
+
+                            fetch(`/user/wasteSaleRequestUserReject/WAITING_APPROVAL/<%= latestRequest._id %>`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    reason: swalResult.value
+                                })
+                            })
+                            .then(res => res.json())
+                            .then(result => {
+                                if (result.success) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'ยกเลิกสำเร็จ',
+                                        text: result.message
+                                    }).then(() => {
+                                        window.location.href = '/user/wasteSaleRequest';
+                                    });
+                                } else {
+                                    Swal.fire('ผิดพลาด', result.message, 'error');
+                                }
+                            })
+                            .catch(() => {
+                                Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์', 'error');
+                            });
+
+                        });
+                    });
+                    </script>
+
+                    <%} else if (haswaitingUserRequest) { %>
+                    <!-- ================= รอยืนยัน ================= -->
+                    <div class="mt-5 mb-5 bg-yellow-50 rounded-2xl shadow-lg border border-yellow-300 overflow-hidden">
+                        <div class="p-10 flex flex-col items-center text-center gap-6">
+
+                            <!-- Icon -->
+                            <div class="w-20 h-20 flex items-center justify-center rounded-full bg-yellow-100 text-yellow-600">
+                                <i class="fa-solid fa-clock text-4xl"></i>
                             </div>
 
-                            <!-- Weight Input -->
-                            <!-- <div class="space-y-2">
-                                <label for="weight" class="block text-gray-700 font-semibold mb-2">
-                                    <span class="flex items-center gap-2">
-                                        น้ำหนัก (กิโลกรัม)
-                                    </span>
-                                </label>
-                                <input type="number" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-primary-green transition-colors" id="weight" name="weight" step="0.1" placeholder="ระบุน้ำหนักโดยประมาณ">
-                                <p class="text-sm text-red-500 flex items-center gap-1">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                                    </svg>
-                                    * สามารถระบุหรือไม่ระบุก็ได้
-                                </p>
-                            </div> -->
+                            <!-- Title -->
+                            <h2 class="text-2xl font-bold text-yellow-800">
+                                กรุณายืนยันคำขอภายใน 2 ชั่วโมง
+                            </h2>
 
-                            <!-- Date Input -->
-                            <div class="space-y-2">
-                                <label for="date" class="block text-gray-700 font-semibold mb-2">
-                                    <span class="flex items-center gap-2">
-                                        วันที่ให้เข้ามารับซื้อ
-                                    </span>
-                                </label>
-                                <input type="date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-primary-green transition-colors" id="date" name="date" required>
+                            <!-- Countdown -->
+                            <p class="text-lg text-yellow-700">
+                                เหลือเวลา:
+                                <span id="countdown" class="font-bold text-red-600"></span>
+                            </p>
+
+                            <!-- Description -->
+                            <p class="text-yellow-700 max-w-md">
+                                โปรดยืนยันคำขอขายขยะของคุณภายในเวลาที่กำหนด  
+                                หากไม่ยืนยันภายใน 2 ชั่วโมง คำขอจะถูกยกเลิกอัตโนมัติ
+                            </p>
+
+                            <!-- Actions -->
+                            <div class="flex flex-col sm:flex-row gap-4 mt-4 w-full sm:w-auto">
+                                <form action="/user/wasteSaleRequestUserSubmit/<%= latestRequest._id %>" method="GET">
+                                    <button id="confirmBtn"
+                                        class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-colors">
+                                        <i class="fa-solid fa-square-check"></i> ยืนยันคำขอ
+                                    </button>
+                                </form>
+
+                                <button
+                                    id="cancelRequestBtn2"
+                                    class="px-6 py-3 border border-red-600 text-red-700 hover:bg-red-300 rounded-lg font-semibold transition-colors">
+                                    ยกเลิกคำประสงค์
+                                </button>
                             </div>
 
-                            <!-- Map Selection -->
-                            <div class="space-y-2">
-                                <label class="block text-gray-700 font-semibold mb-2">
-                                    <span class="flex items-center gap-2">
-                                        เลือกตำแหน่งที่จะให้เข้ามารับซื้อ
-                                    </span>
-                                </label>
-                                <p class="text-sm text-gray-600 mb-2">คลิกบนแผนที่เพื่อเลือกตำแหน่ง</p>
-                                
-                                <!-- Search Box and Current Location -->
-                                <div class="mb-4 space-y-3">
-                                    <div class="flex gap-3">
-                                        <div class="relative flex-1">
-                                            <input type="text" id="search-input" placeholder="ค้นหาสถานที่..." class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-primary-green transition-colors">
-                                            <svg class="absolute left-3 top-3.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                            </svg>
-                                        </div>
-                                        <button type="button" id="current-location-btn" class="px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors flex items-center gap-2 min-w-fit">
-                                            <svg id="location-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                            </svg>
-                                            <span id="location-text" class="hidden sm:inline">ตำแหน่งปัจจุบัน</span>
-                                        </button>
+                            <!-- Deadline -->
+                            <p class="text-sm text-gray-500">
+                                หมดเขต: <span id="deadline"></span>
+                            </p>
+                        </div>
+                    </div>
+                    <script>
+                        const requestCreatedAt = new Date("<%= latestRequest?.createdAt %>");
+                        const deadline = new Date("<%= latestRequest?.userConfirmDeadline %>");
+
+                        /* ================= ยืนยันภายใน 2 ชม. ================= */
+                        const countdownEl = document.getElementById("countdown");
+                        const deadlineEl = document.getElementById("deadline");
+                        const confirmBtn = document.getElementById("confirmBtn");
+
+                        if (deadlineEl) {
+                            deadlineEl.innerText = deadline.toLocaleString("th-TH");
+                        }
+
+                        function updateCountdown() {
+                            const now = new Date();
+                            const diff = deadline - now;
+
+                            if (diff <= 0) {
+                                countdownEl.innerText = "หมดเวลา";
+                                if (confirmBtn) {
+                                    confirmBtn.disabled = true;
+                                    confirmBtn.classList.add("opacity-50", "cursor-not-allowed");
+                                }
+                                return;
+                            }
+
+                            const h = Math.floor(diff / (1000 * 60 * 60));
+                            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                            const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+                            countdownEl.innerText = `${h} ชม. ${m} นาที ${s} วินาที`;
+                        }
+
+                        if (countdownEl) {
+                            updateCountdown();
+                            setInterval(updateCountdown, 1000);
+                        }
+                        document.getElementById("cancelRequestBtn2").addEventListener("click", function () {
+                            Swal.fire({
+                                title: 'ยืนยันการยกเลิก',
+                                text: 'กรุณาเลือกเหตุผลในการยกเลิกคำขอ',
+                                icon: 'warning',
+                                input: 'select',
+                                inputOptions: {
+                                    CHANGE_PLAN: 'เปลี่ยนแผนการขายขยะ',
+                                    NOT_AVAILABLE_DATE: 'ยังไม่สะดวกในวันที่เลือก',
+                                    WANT_RESCHEDULE: 'ต้องการเลื่อนวัน',
+                                    WASTE_NOT_READY: 'ขยะยังไม่พร้อม',
+                                    LESS_WASTE: 'ปริมาณขยะน้อย',
+                                    WRONG_WASTE_TYPE: 'ขยะไม่ตรงประเภท',
+                                    LOCATION_ISSUE: 'ปัญหาสถานที่',
+                                    NO_ONE_AT_HOME: 'ไม่มีคนอยู่',
+                                    PRICE_NOT_MATCH: 'ราคาไม่ตรง',
+                                    WEATHER: 'สภาพอากาศ',
+                                    EMERGENCY: 'เหตุฉุกเฉิน',
+                                    OTHER: 'อื่น ๆ'
+                                },
+                                inputPlaceholder: 'เลือกเหตุผล',
+                                showCancelButton: true,
+                                confirmButtonText: 'ยืนยันยกเลิก',
+                                cancelButtonText: 'ปิด',
+                                confirmButtonColor: '#dc2626',
+                                cancelButtonColor: '#6b7280',
+                                inputValidator: (value) => {
+                                    if (!value) return 'กรุณาเลือกเหตุผลก่อนยืนยัน';
+                                }
+                            }).then((swalResult) => {
+
+                                if (!swalResult.isConfirmed) return;
+
+                                fetch(`/user/wasteSaleRequestUserReject/WAITING_APPROVAL/<%= latestRequest._id %>`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        reason: swalResult.value
+                                    })
+                                })
+                                .then(res => res.json())
+                                .then(result => {
+                                    if (result.success) {
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'ยกเลิกสำเร็จ',
+                                            text: result.message
+                                        }).then(() => {
+                                            window.location.href = '/user/wasteSaleRequest';
+                                        });
+                                    } else {
+                                        Swal.fire('ผิดพลาด', result.message, 'error');
+                                    }
+                                })
+                                .catch(() => {
+                                    Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์', 'error');
+                                });
+
+                            });
+                        });
+                    </script>
+                    <%} else if (hasComfirmed) { %>
+                    <!-- ================= ยืนยันแล้วรอดำเนินการ ================= -->
+                    <div class="mt-5 mb-5 bg-blue-50 rounded-2xl shadow-lg border border-blue-300 overflow-hidden">
+                        <div class="p-10 flex flex-col items-center text-center gap-6">
+
+                            <!-- Icon -->
+                            <div class="w-20 h-20 flex items-center justify-center rounded-full bg-blue-100 text-blue-600 animate-pulse">
+                                <i class="fa-solid fa-spinner text-4xl"></i>
+                            </div>
+
+                            <!-- Title -->
+                            <h2 class="text-2xl font-bold text-blue-800">
+                                รอการดำเนินการ
+                            </h2>
+
+                            <p class="text-blue-700">
+                                ระบบกำลังจัดคิวและเตรียมการเข้ารับซื้อขยะของคุณ
+                            </p>
+
+                            <!-- Countdown -->
+                            <p class="text-lg text-yellow-700">
+                                <span id="progressCountdown" class="font-bold text-red-600"></span>
+                            </p>
+
+                            <!-- Info Card -->
+                            <div class="w-full max-w-md bg-white rounded-xl border border-blue-200 shadow-sm p-6 text-left space-y-4">
+
+                                <!-- Queue -->
+                                <div class="flex items-start gap-3">
+                                    <i class="fa-solid fa-list-ol text-blue-500 mt-1"></i>
+                                    <div>
+                                        <p class="text-sm text-gray-500">คิวของคุณ</p>
+                                        <p class="text-3xl font-bold text-blue-700">
+                                            10
+                                        </p>
                                     </div>
-                                    <div id="search-results" class="hidden absolute z-50 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto"></div>
                                 </div>
-                                
-                                <div id="map" class="z-0"></div>
-                                
-                                <!-- Coordinates Display -->
-                                <div id="coordinates-display" class="coordinates-display" style="display: none;">
 
-                                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-                                        <div>
-                                            <strong>พิกัดที่เลือก:</strong>
-                                        </div>
-                                        <div class="text-sm">
-                                            <span class="bg-white bg-opacity-20 px-2 py-1 rounded">
-                                                ละติจูด: <span id="display-lat">-</span>
-                                            </span>
-                                            <span class="bg-white bg-opacity-20 px-2 py-1 rounded ml-2">
-                                                ลองติจูด: <span id="display-lng">-</span>
-                                            </span>
-                                        </div>
+                                <!-- Username -->
+                                <div class="flex items-start gap-3">
+                                    <i class="fa-solid fa-calendar-days text-blue-500 mt-1"></i>
+                                    <div>
+                                        <p class="text-sm text-gray-500">ชื่อผู้ขาย</p>
+                                        <p class="font-semibold text-gray-800">
+                                            <%= latestRequest.family.familyName %> <span class="font-normal text-md text-gray-500">#<%= latestRequest.family.username %></span>
+                                        </p>
                                     </div>
-                                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mt-3">
-                                        <div>
-                                            <strong>รายละเอียดสถานที่:</strong>
+                                </div>
+
+                                <!-- Date -->
+                                <div class="flex items-start gap-3">
+                                    <i class="fa-solid fa-calendar-days text-blue-500 mt-1"></i>
+                                    <div>
+                                        <p class="text-sm text-gray-500">วันที่เข้ารับซื้อ</p>
+                                        <p class="font-semibold text-gray-800">
+                                            <%= new Date(latestRequest.reply[0].pickupDate).toLocaleDateString('th-TH',{  year: "numeric", month: "long", day: "numeric"}) %>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Location -->
+                                <div class="flex items-start gap-3">
+                                    <i class="fa-solid fa-location-dot text-blue-500 mt-1"></i>
+                                    <div>
+                                        <p class="text-sm text-gray-500">รายละเอียดสถานที่</p>
+                                        <p class="font-semibold text-gray-800 break-words">
+                                            <%= latestRequest.locationMoreDetail %>, <%= latestRequest.location %>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <i class="fa-solid fa-location-dot text-blue-500 mt-1"></i>
+                                    <div>
+                                        <p class="text-sm text-gray-500">ดูพิกัดจุดใน Google Maps</p>
+                                        <p class="font-semibold text-gray-800 break-words">
+                                            <a href="https://www.google.com/maps?q=<%= latestRequest.latitude %>,<%= latestRequest.longitude %>" 
+                                            target="_blank" 
+                                            class="text-blue-600 hover:text-blue-800 flex items-center">
+                                            <i class="fas fa-external-link-alt mr-2"></i>
+                                            เปิดแผนที่
+                                        </a>
+                                        </p>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- Hint -->
+                            <p class="text-sm text-gray-500">
+                                เมื่อถึงคิว เจ้าหน้าที่จะติดต่อคุณล่วงหน้า
+                            </p>
+
+                            <!-- Actions -->
+                            <div class="flex flex-col sm:flex-row gap-4 mt-4">
+                                <a href="/user/wasteSaleHistory"
+                                    class="px-6 py-3 border border-blue-600 text-blue-700 hover:bg-blue-100 rounded-lg font-semibold transition-colors">
+                                    ดูประวัติคำขอ
+                                </a>
+                                <button
+                                    id="cancelRequestBtn3"
+                                    class="px-6 py-3 border border-red-600 text-red-700 hover:bg-red-300 rounded-lg font-semibold transition-colors">
+                                    ยกเลิกคำประสงค์
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                    <script>
+                        /* ================= รอการดำเนินการ ================= */
+                        const pickupDate = new Date("<%= pickupDate %>");
+                        const countdownE2 = document.getElementById("progressCountdown");
+
+                        function updateProgressCountdown() {
+                            const now = new Date();
+                            const diff = pickupDate - now;
+
+                            if (diff <= 0) {
+                                countdownE2.innerText = "ถึงวันเข้ารับซื้อแล้ว";
+                                return;
+                            }
+
+                            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                            countdownE2.innerText =
+                                `อีก ${days} วัน ${hours} ชม. ${minutes} นาที ${seconds} วินาที`;
+                        }
+
+                        if (countdownE2) {
+                            updateProgressCountdown();
+                            setInterval(updateProgressCountdown, 1000);
+                        }
+                    document.getElementById("cancelRequestBtn3").addEventListener("click", function () {
+                        Swal.fire({
+                            title: 'ยืนยันการยกเลิก',
+                            text: 'กรุณาเลือกเหตุผลในการยกเลิกคำขอ',
+                            icon: 'warning',
+                            input: 'select',
+                            inputOptions: {
+                                CHANGE_PLAN: 'เปลี่ยนแผนการขายขยะ',
+                                NOT_AVAILABLE_DATE: 'ยังไม่สะดวกในวันที่เลือก',
+                                WANT_RESCHEDULE: 'ต้องการเลื่อนวัน',
+                                WASTE_NOT_READY: 'ขยะยังไม่พร้อม',
+                                LESS_WASTE: 'ปริมาณขยะน้อย',
+                                WRONG_WASTE_TYPE: 'ขยะไม่ตรงประเภท',
+                                LOCATION_ISSUE: 'ปัญหาสถานที่',
+                                NO_ONE_AT_HOME: 'ไม่มีคนอยู่',
+                                PRICE_NOT_MATCH: 'ราคาไม่ตรง',
+                                WEATHER: 'สภาพอากาศ',
+                                EMERGENCY: 'เหตุฉุกเฉิน',
+                                OTHER: 'อื่น ๆ'
+                            },
+                            inputPlaceholder: 'เลือกเหตุผล',
+                            showCancelButton: true,
+                            confirmButtonText: 'ยืนยันยกเลิก',
+                            cancelButtonText: 'ปิด',
+                            confirmButtonColor: '#dc2626',
+                            cancelButtonColor: '#6b7280',
+                            inputValidator: (value) => {
+                                if (!value) return 'กรุณาเลือกเหตุผลก่อนยืนยัน';
+                            }
+                        }).then((swalResult) => {
+
+                            if (!swalResult.isConfirmed) return;
+
+                            fetch(`/user/wasteSaleRequestUserReject/WAITING_APPROVAL/<%= latestRequest._id %>`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    reason: swalResult.value
+                                })
+                            })
+                            .then(res => res.json())
+                            .then(result => {
+                                if (result.success) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'ยกเลิกสำเร็จ',
+                                        text: result.message
+                                    }).then(() => {
+                                        window.location.href = '/user/wasteSaleRequest';
+                                    });
+                                } else {
+                                    Swal.fire('ผิดพลาด', result.message, 'error');
+                                }
+                            })
+                            .catch(() => {
+                                Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์', 'error');
+                            });
+
+                        });
+                    });
+                    </script>
+                    <%} else if (hasInprogress) { %>
+                    <!-- ================= กำลังดำเนินการ ================= -->
+                    <div class="mt-5 mb-5 bg-green-50 rounded-2xl shadow-lg border border-green-300 overflow-hidden">
+                        <div class="p-10 flex flex-col items-center text-center gap-6">
+
+                            <!-- Icon -->
+                            <div class="w-20 h-20 flex items-center justify-center rounded-full bg-green-100 text-green-600 animate-pulse">
+                                <i class="fa-solid fa-truck-fast text-4xl"></i>
+                            </div>
+
+                            <!-- Title -->
+                            <h2 class="text-2xl font-bold text-green-800">
+                                กำลังดำเนินการ
+                            </h2>
+
+                            <p class="text-green-700">
+                                เจ้าหน้าที่กำลังเข้ารับซื้อขยะของคุณ
+                            </p>
+
+                            <!-- Info Card -->
+                            <div class="w-full max-w-md bg-white rounded-xl border border-green-200 shadow-sm p-6 text-left space-y-4">
+
+                                <!-- Queue -->
+                                <div class="flex items-start gap-3">
+                                    <i class="fa-solid fa-list-ol text-green-500 mt-1"></i>
+                                    <div>
+                                        <p class="text-sm text-gray-500">ลำดับคิว</p>
+                                        <p class="text-3xl font-bold text-green-700">
+                                            <%= latestRequest.queue || '-' %>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Seller -->
+                                <div class="flex items-start gap-3">
+                                    <i class="fa-solid fa-user text-green-500 mt-1"></i>
+                                    <div>
+                                        <p class="text-sm text-gray-500">ผู้ขาย</p>
+                                        <p class="font-semibold text-gray-800">
+                                            <%= latestRequest.family.familyName %>
+                                            <span class="font-normal text-gray-500">
+                                                #<%= latestRequest.family.username %>
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Pickup Date -->
+                                <div class="flex items-start gap-3">
+                                    <i class="fa-solid fa-calendar-check text-green-500 mt-1"></i>
+                                    <div>
+                                        <p class="text-sm text-gray-500">วันที่เข้ารับซื้อ</p>
+                                        <p class="font-semibold text-gray-800">
+                                            <%= new Date(pickupDate).toLocaleDateString('th-TH',{year:'numeric', month:'long', day:'numeric'}) %>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Location -->
+                                <div class="flex items-start gap-3">
+                                    <i class="fa-solid fa-location-dot text-green-500 mt-1"></i>
+                                    <div>
+                                        <p class="text-sm text-gray-500">สถานที่</p>
+                                        <p class="font-semibold text-gray-800 break-words">
+                                            <%= latestRequest.locationMoreDetail %>, <%= latestRequest.location %>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Map -->
+                                <div class="flex items-start gap-3">
+                                    <i class="fa-solid fa-map-location-dot text-green-500 mt-1"></i>
+                                    <div>
+                                        <p class="text-sm text-gray-500">พิกัดแผนที่</p>
+                                        <a href="https://www.google.com/maps?q=<%= latestRequest.latitude %>,<%= latestRequest.longitude %>"
+                                        target="_blank"
+                                        class="text-green-600 hover:text-green-800 font-semibold flex items-center gap-2">
+                                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                            เปิด Google Maps
+                                        </a>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- Notice -->
+                            <p class="text-sm text-gray-500">
+                                กรุณาเตรียมขยะให้พร้อม เจ้าหน้าที่อาจติดต่อคุณก่อนถึงสถานที่
+                            </p>
+
+                            <!-- Actions -->
+                            <div class="flex gap-4 mt-4">
+                                <a href="/user/wasteSaleHistory"
+                                class="px-6 py-3 border border-green-600 text-green-700 hover:bg-green-100 rounded-lg font-semibold transition">
+                                    ดูประวัติคำขอ
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+                    <% } else { %>
+                        <!-- Form Container with Enhanced Design -->
+                        <div class="mt-5 mb-5 bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+                            <!-- Header Section -->
+                            <div class="bg-gradient-to-r from-primary-green to-secondary-green text-white p-6">
+                                <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                                    <h2 class="text-2xl font-bold">ฟอร์มกรอกข้อมูลเบื้องต้น</h2>
+                                    <div class="flex items-center gap-2">
+                                        <p id="time" class="block text-white text-sm mb-2">วันที่ <span id="date-time"></span></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Form Section -->
+                            <div class="p-8">
+                                <form id="waste-sale-form" action="/user/wasteSaleRequestPost" method="POST" enctype="multipart/form-data" class="space-y-6">
+                                    <input type="hidden" name="username" value="<%= session.username %>">
+                                    <input type="hidden" name="latitude" id="latitude" value="">
+                                    <input type="hidden" name="longitude" id="longitude" value="">
+                                    
+                                    <!-- Waste Type -->
+                                    <div class="space-y-2">
+                                        <label for="waste" class="block text-gray-700 font-semibold mb-2">
+                                            <span class="flex items-center gap-2">
+                                                <!-- <svg class="w-5 h-5 text-primary-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg> -->
+                                                ขยะที่ต้องการขาย ( สามารถเลือกได้มากกว่า 1 รายการ )
+                                            </span>
+                                        </label>
+                                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-primary-green transition-colors" id="waste" name="waste[]" multiple required>
+                                            <% wasteItems.forEach((waste) => { %>
+                                            <option value="<%= waste._id %>"><%= waste.wasteName %></option>
+                                            <% }); %>
+                                        </select>
+                                    </div>
+
+                                    <!-- Weight Input -->
+                                    <!-- <div class="space-y-2">
+                                        <label for="weight" class="block text-gray-700 font-semibold mb-2">
+                                            <span class="flex items-center gap-2">
+                                                น้ำหนัก (กิโลกรัม)
+                                            </span>
+                                        </label>
+                                        <input type="number" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-primary-green transition-colors" id="weight" name="weight" step="0.1" placeholder="ระบุน้ำหนักโดยประมาณ">
+                                        <p class="text-sm text-red-500 flex items-center gap-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                            </svg>
+                                            * สามารถระบุหรือไม่ระบุก็ได้
+                                        </p>
+                                    </div> -->
+
+                                    <!-- Date Input -->
+                                    <div class="space-y-2">
+                                        <label for="date" class="block text-gray-700 font-semibold mb-2">
+                                            <span class="flex items-center gap-2">
+                                                วันที่ให้เข้ามารับซื้อ
+                                            </span>
+                                        </label>
+                                        <input type="date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-primary-green transition-colors" id="date" name="date" required>
+                                    </div>
+
+                                    <!-- Map Selection -->
+                                    <div class="space-y-2">
+                                        <label class="block text-gray-700 font-semibold mb-2">
+                                            <span class="flex items-center gap-2">
+                                                เลือกตำแหน่งที่จะให้เข้ามารับซื้อ
+                                            </span>
+                                        </label>
+                                        <p class="text-sm text-gray-600 mb-2">คลิกบนแผนที่เพื่อเลือกตำแหน่ง</p>
+                                        
+                                        <!-- Search Box and Current Location -->
+                                        <div class="mb-4 space-y-3">
+                                            <div class="flex gap-3">
+                                                <div class="relative flex-1">
+                                                    <input type="text" id="search-input" placeholder="ค้นหาสถานที่..." class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-primary-green transition-colors">
+                                                    <svg class="absolute left-3 top-3.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                                    </svg>
+                                                </div>
+                                                <button type="button" id="current-location-btn" class="px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors flex items-center gap-2 min-w-fit">
+                                                    <svg id="location-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                    </svg>
+                                                    <span id="location-text" class="hidden sm:inline">ตำแหน่งปัจจุบัน</span>
+                                                </button>
+                                            </div>
+                                            <div id="search-results" class="hidden absolute z-50 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto"></div>
                                         </div>
-                                        <div class="text-sm">
-                                            <div class="bg-white bg-opacity-20 px-2 py-1 rounded">
-                                                <span id="display-location">-</span>
+                                        
+                                        <div id="map" class="z-0"></div>
+                                        
+                                        <!-- Coordinates Display -->
+                                        <div id="coordinates-display" class="coordinates-display" style="display: none;">
+
+                                            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+                                                <div>
+                                                    <strong>พิกัดที่เลือก:</strong>
+                                                </div>
+                                                <div class="text-sm">
+                                                    <span class="bg-white bg-opacity-20 px-2 py-1 rounded">
+                                                        ละติจูด: <span id="display-lat">-</span>
+                                                    </span>
+                                                    <span class="bg-white bg-opacity-20 px-2 py-1 rounded ml-2">
+                                                        ลองติจูด: <span id="display-lng">-</span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mt-3">
+                                                <div>
+                                                    <strong>รายละเอียดสถานที่:</strong>
+                                                </div>
+                                                <div class="text-sm">
+                                                    <div class="bg-white bg-opacity-20 px-2 py-1 rounded">
+                                                        <span id="display-location">-</span>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
 
-                            <!-- Additional Details Input -->
-                            <input class="hidden" id="location" name="location">
-                            <div class="space-y-2">
-                                <label for="locationMoreDetail" class="block text-gray-700 font-semibold mb-2">
-                                    <span class="flex items-center gap-2">
-                                        รายละเอียดเพิ่มเติม
-                                    </span>
-                                </label>
-                                <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-primary-green transition-colors" id="locationMoreDetail" name="locationMoreDetail" rows="3" placeholder="ระบุรายละเอียดเพิ่มเติม เช่น จุดสังเกต, ชื่อหมู่บ้าน, ซอย ถนน หรือข้อมูลที่จำเป็นสำหรับการเข้ามารับซื้อ"></textarea>
-                                <p class="text-sm text-red-500 flex items-center gap-1">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                                    </svg>
-                                    * สามารถระบุหรือไม่ระบุก็ได้
-                                </p>
-                            </div>
+                                    <!-- Additional Details Input -->
+                                    <input class="hidden" id="location" name="location">
+                                    <div class="space-y-2">
+                                        <label for="locationMoreDetail" class="block text-gray-700 font-semibold mb-2">
+                                            <span class="flex items-center gap-2">
+                                                รายละเอียดเพิ่มเติม
+                                            </span>
+                                        </label>
+                                        <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-primary-green transition-colors" id="locationMoreDetail" name="locationMoreDetail" rows="3" placeholder="ระบุรายละเอียดเพิ่มเติม เช่น จุดสังเกต, ชื่อหมู่บ้าน, ซอย ถนน หรือข้อมูลที่จำเป็นสำหรับการเข้ามารับซื้อ"></textarea>
+                                        <p class="text-sm text-red-500 flex items-center gap-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                            </svg>
+                                            * สามารถระบุหรือไม่ระบุก็ได้
+                                        </p>
+                                    </div>
 
-                            <!-- Image Upload -->
-                            <div class="space-y-2">
-                                <label for="image" class="block text-gray-700 font-semibold mb-2">
-                                    <span class="flex items-center gap-2">
-                                        อัปโหลดรูปภาพขยะ
-                                    </span>
-                                </label>
-                                <div class="relative">
-                                    <input type="file" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-primary-green transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-green file:text-white hover:file:bg-green-600 cursor-pointer" id="image" name="image" accept="image/*">
-                                </div>
-                            </div>
+                                    <!-- Image Upload -->
+                                    <div class="space-y-2">
+                                        <label for="image" class="block text-gray-700 font-semibold mb-2">
+                                            <span class="flex items-center gap-2">
+                                                อัปโหลดรูปภาพขยะ
+                                            </span>
+                                        </label>
+                                        <div class="relative">
+                                            <input type="file" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-green focus:border-primary-green transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-green file:text-white hover:file:bg-green-600 cursor-pointer" id="image" name="image" accept="image/*">
+                                        </div>
+                                    </div>
 
-                            <!-- Submit Button -->
-                            <div class="flex flex-col sm:flex-row gap-4">
-                                <button type="submit" id="submit-btn" class="flex-1 bg-gray-400 text-white py-3 px-6 rounded-lg font-semibold cursor-not-allowed transition-colors" disabled>
-                                    ส่งความประสงค์
-                                </button>
+                                    <!-- Submit Button -->
+                                    <div class="flex flex-col sm:flex-row gap-4">
+                                        <button type="submit" id="submit-btn" class="flex-1 bg-gray-400 text-white py-3 px-6 rounded-lg font-semibold cursor-not-allowed transition-colors" disabled>
+                                            ส่งความประสงค์
+                                        </button>
+                                    </div>
+                                    
+                                    <p class="text-sm text-red-500 text-center">
+                                        * กรุณาเลือกตำแหน่งบนแผนที่ก่อนส่งฟอร์ม
+                                    </p>
+                                </form>
                             </div>
+                        </div>
+                    <% } %>
+
+                <!-- CLOSE ELSE -->
+                <% } else { %>
+                    <div class="mt-5 mb-5 bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+                        <div class="p-10 flex flex-col items-center justify-center text-center gap-6">
                             
-                            <p class="text-sm text-red-500 text-center">
-                                * กรุณาเลือกตำแหน่งบนแผนที่ก่อนส่งฟอร์ม
+                            <!-- Icon -->
+                            <div class="w-20 h-20 flex items-center justify-center rounded-full bg-red-100 text-red-500">
+                                <i class="fa-solid fa-circle-exclamation text-4xl"></i>
+                            </div>
+
+                            <!-- Title -->
+                            <h2 class="text-2xl font-bold text-gray-800">
+                                กรุณาเข้าสู่ระบบก่อนใช้งาน
+                            </h2>
+
+                            <!-- Description -->
+                            <p class="text-gray-600 max-w-md">
+                                คุณต้องเข้าสู่ระบบก่อนจึงจะสามารถกรอกแบบฟอร์ม
+                                และส่งคำขอแจ้งประสงค์ขายขยะได้ เพื่อความปลอดภัยและการติดตามสถานะ
                             </p>
-                        </form>
+
+                            <!-- Action Buttons -->
+                            <div class="flex flex-col sm:flex-row gap-4 mt-4 w-full sm:w-auto">
+                                <a href="/login"
+                                class="px-6 py-3 bg-green-800 hover:bg-green-600 text-white rounded-lg font-semibold transition-colors">
+                                    เข้าสู่ระบบ
+                                </a>
+
+                                <!-- <a href="/register"
+                                class="px-6 py-3 border border-primary-green text-primary-green hover:bg-green-50 rounded-lg font-semibold transition-colors">
+                                    สมัครสมาชิก
+                                </a> -->
+                            </div>
+
+                            <!-- Extra hint -->
+                            <p class="text-sm text-gray-400 mt-2">
+                                หากยังไม่มีบัญชี สามารถสมัครสมาชิกได้ฟรี
+                            </p>
+                        </div>
                     </div>
-                </div>
+                <% } %>
+
+                
             </div>
         </div>
     </section>
-
     <%- include('../partials/userPartials/footer.ejs') %>
 
     <script>
         // แสดงวัน
         function updateTime() {
             const currentDate = new Date();
-            const options = { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric',
-                hour12: true 
-            };
-            const timeString = currentDate.toLocaleString('th-TH', options);
+            const timeString = currentDate.toLocaleString('th-TH', {year: 'numeric', month: 'long', day: 'numeric'});
             document.getElementById('date-time').textContent = timeString;
         }
-        setInterval(updateTime, 1000);
         updateTime();
 
         // Initialize Select2
