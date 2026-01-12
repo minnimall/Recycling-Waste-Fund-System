@@ -1661,7 +1661,7 @@ const wasteSaleRequestReplyIndex = async (req, res) => {
 
     if (!id || id === 'undefined') {
         console.log('Something wrong')
-        return res.redirect('/employee/complaint?error=' + encodeURIComponent('ID ไม่ถูกต้อง'));
+        return res.redirect('/employee/wasteSaleRequest?error=' + encodeURIComponent('ID ไม่ถูกต้อง'));
     }
 
     try {
@@ -1680,10 +1680,10 @@ const wasteSaleRequestReplyIndex = async (req, res) => {
             })
             .sort({ createdAt: 1 });
         if (!request) {
-            return res.redirect('/employee/complaint?error=' + encodeURIComponent('ไม่พบคำขอ'));
+            return res.redirect('/employee/wasteSaleRequest?error=' + encodeURIComponent('ไม่พบคำขอ'));
         }
         if (!logs) {
-            return res.redirect('/employee/complaint?error=' + encodeURIComponent('ไม่พบบันทึก'));
+            return res.redirect('/employee/wasteSaleRequest?error=' + encodeURIComponent('ไม่พบบันทึก'));
         }
 
         res.render('employee/wasteSaleRequestConfirm', {

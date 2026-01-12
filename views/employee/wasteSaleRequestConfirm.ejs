@@ -267,7 +267,6 @@
                     </div>
                 </div>
 
-                <% if (logs && logs.length > 0) { %>
                 <div class="w-full bg-white rounded-lg shadow p-6 mx-4 mb-6 text-black">
                     <h3 class="text-lg font-semibold mb-4">
                         <i class="fa-solid fa-clock-rotate-left mr-2"></i>
@@ -286,7 +285,7 @@
                                                 แจ้งความประสงค์ขายขยะ
                                             </p>
                                             <p class="text-sm text-gray-600">
-                                                ดำเนินการโดย: <%= request.family.familyName %>
+                                                <span class="font-bold">ดำเนินการโดย:</span> <%= request.family.familyName %>
                                             </p>
 
                                         </div>
@@ -297,6 +296,8 @@
                                     </div>
                                 </div>
                             </div>
+                            
+                <% if (logs && logs.length > 0) { %>
                         <% logs.forEach(log => { %>
                             <% if (log.status === 'CANCELLED_BY_USER') { %>
                                 <div class="relative pl-6">
@@ -309,7 +310,7 @@
                                                 </p>
 
                                                 <p class="text-sm text-gray-600">
-                                                    ดำเนินการโดย: <%= log.actionBy %>
+                                                    <span class="font-bold">ดำเนินการโดย:</span> <%= log.actionBy %>
                                                 </p>
 
                                                 <% if (log.reason) { %>
@@ -336,7 +337,7 @@
                                                 </p>
 
                                                 <p class="text-sm text-gray-600">
-                                                    ดำเนินการโดย: <%= log.actionBy %>
+                                                    <span class="font-bold">ดำเนินการโดย:</span> <%= log.actionBy %>
                                                 </p>
 
                                                 <% if (log.reason) { %>
@@ -363,7 +364,7 @@
                                                 </p>
 
                                                 <p class="text-sm text-gray-600">
-                                                    ดำเนินการโดย: <%= log.actionBy %>
+                                                    <span class="font-bold">ดำเนินการโดย:</span> <%= log.actionBy %>
                                                 </p>
 
                                                 <p class="text-sm text-gray-600">
@@ -403,7 +404,7 @@
                                                 </p>    
                                                 <% } %>
                                                 <p class="text-sm text-gray-600">
-                                                    ดำเนินการโดย: <%= log.actionBy %>
+                                                    <span class="font-bold">ดำเนินการโดย:</span> <%= log.actionBy %>
                                                 </p>
 
                                                 <% if (log.reason) { %>
@@ -483,9 +484,9 @@
                             <% } else { %>
                             <% } %>
                         <% }) %>
+                    <% } %>
                     </div>
                 </div>
-                <% } %>
 
                 <% if (request.img !== '/img/no_image.jpg') { %> 
 

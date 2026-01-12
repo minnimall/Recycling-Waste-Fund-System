@@ -4,7 +4,7 @@ const wasteSaleRequestLog = require('../models/wasteSaleRequestLog');
 
 cron.schedule('*/30 * * * * *', async () => {
     try {
-        console.log('🚚 cron: move confirmed → in-progress');
+        console.log('[CRON] checking move confirmed → in-progress');
 
         const now = new Date();
 
@@ -21,10 +21,13 @@ cron.schedule('*/30 * * * * *', async () => {
                 wasteSaleRequest: req._id,
                 status: 'IN_PROGRESS',
                 actionBy: 'SYSTEM',
-                note: 'ถึงเวลานัดรับอัตโนมัติ'
+                note: 'ถึงเวลาวันนัดรับ'
             });
         }
 
+        if (requests.length > 0) {
+            console.log(`[AUTO-REJECT] ${requests.length} requests`);
+        }
     } catch (err) {
         console.error('cron in-progress error:', err);
     }
