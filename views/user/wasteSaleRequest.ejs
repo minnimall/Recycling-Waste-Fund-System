@@ -126,10 +126,10 @@
                             </p>
 
                             <div class="flex gap-4">
-                                <a href="/user/wasteSaleHistory"
+                                <!-- <a href="/user/wasteSaleHistory"
                                 class="px-6 py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-semibold transition-colors">
                                     ดูสถานะคำขอ
-                                </a>
+                                </a> -->
                                 <button
                                     id="cancelRequestBtn"
                                     class="px-6 py-3 border border-red-600 text-red-700 hover:bg-red-300 rounded-lg font-semibold transition-colors">
@@ -213,10 +213,18 @@
                                 <i class="fa-solid fa-clock text-4xl"></i>
                             </div>
 
+                            
                             <!-- Title -->
+                            <h2 class="text-2xl font-bold text-yellow-800">
+                                คิวของคุณ: <span class="text-green-600"><%= latestRequest.reply[0].pickupDate.toLocaleDateString('th-TH',{  year: "numeric", month: "long", day: "numeric"}) %></span>
+                            </h2>
+                            <p class="text-lg text-yellow-700">
+                                <%= latestRequest.reply[0].responseMessage %>
+                            </p>
                             <h2 class="text-2xl font-bold text-yellow-800">
                                 กรุณายืนยันคำขอภายใน 2 ชั่วโมง
                             </h2>
+
 
                             <!-- Countdown -->
                             <p class="text-lg text-yellow-700">
@@ -262,7 +270,7 @@
                         const confirmBtn = document.getElementById("confirmBtn");
 
                         if (deadlineEl) {
-                            deadlineEl.innerText = deadline.toLocaleString("th-TH");
+                            deadlineEl.innerText = deadline.toLocaleDateString('th-TH',{  year: "numeric", month: "long", day: "numeric"});
                         }
 
                         function updateCountdown() {
@@ -446,10 +454,10 @@
 
                             <!-- Actions -->
                             <div class="flex flex-col sm:flex-row gap-4 mt-4">
-                                <a href="/user/wasteSaleHistory"
+                                <!-- <a href="/user/wasteSaleHistory"
                                     class="px-6 py-3 border border-blue-600 text-blue-700 hover:bg-blue-100 rounded-lg font-semibold transition-colors">
                                     ดูประวัติคำขอ
-                                </a>
+                                </a> -->
                                 <button
                                     id="cancelRequestBtn3"
                                     class="px-6 py-3 border border-red-600 text-red-700 hover:bg-red-300 rounded-lg font-semibold transition-colors">
