@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser')
-const cloudinary = require('cloudinary').v2;
-// const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('../config/cloudinary');
 const multer = require('multer');
 const streamifier = require('streamifier');
 const myMedia = require('../models/media');
@@ -32,12 +31,6 @@ router.use(express.static(path.join(__dirname, '../public')));
 
 router.use(bodyParser.json({ limit: '10mb' }));  // เพิ่มขนาด payload สูงสุด 10MB
 router.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
-
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET
-});
 
 router.post('/upload-image', (req, res) => {
     // โค้ดสำหรับจัดการการอัพโหลด
