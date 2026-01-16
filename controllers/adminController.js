@@ -976,6 +976,7 @@ const wasteDelete = async (req, res) => {
         res.status(500).redirect('/admin/waste?error=เกิดข้อผิดพลาดในการลบข้อมูลผู้ใช้');
     }
 };
+// แก้ไขขยะ
 const wasteEdit = async (req, res) => {
     upload2(req, res, async (err) => {
         if (err) {
@@ -996,9 +997,32 @@ const wasteEdit = async (req, res) => {
                 return res.status(404).send('ไม่พบข้อมูลขยะที่ต้องการแก้ไข');
             }
 
-            const updatedImagePath = req.file
-                ? `/upload_imgwaste/${req.file.filename}`
-                : waste.img;
+            // อัปโหลดรูปใหม่ (ถ้ามี)
+            let imageUrl = waste.img;
+
+            if (req.file) {
+                const uploadFromBuffer = () => {
+                    return new Promise((resolve, reject) => {
+                        const stream = cloudinary.uploader.upload_stream(
+                            {
+                                folder: 'waste_images',
+                                resource_type: 'image'
+                            },
+                            (error, result) => {
+                                if (result) resolve(result);
+                                else reject(error);
+                            }
+                        );
+
+                        streamifier
+                            .createReadStream(req.file.buffer)
+                            .pipe(stream);
+                    });
+                };
+
+                const result = await uploadFromBuffer();
+                imageUrl = result.secure_url;
+            }
 
             const newPrice = parseFloat(pricePerUnit);
             const oldPrice = waste.pricePerUnit;
@@ -1007,13 +1031,14 @@ const wasteEdit = async (req, res) => {
             waste.wasteName = wasteName;
             waste.pricePerUnit = newPrice;
             waste.wasteType = wasteType;
-            waste.img = updatedImagePath;
+            waste.img = imageUrl;
 
             await waste.save();
 
-            // คำนวณเปอร์เซ็นต์การเปลี่ยนแปลงของราคา
+            // คำนวณการเปลี่ยนแปลงราคา
             let percentChange = null;
             let changeDirection = 'none';
+            let changeText = 'ราคาไม่เปลี่ยนแปลง';
 
             if (oldPrice !== 0 && oldPrice !== newPrice) {
                 percentChange = ((newPrice - oldPrice) / oldPrice) * 100;
@@ -1024,11 +1049,9 @@ const wasteEdit = async (req, res) => {
                     changeDirection === 'up'
                         ? `📈 <span class="text-green-600">ราคาเพิ่มขึ้น ${absPercent}%</span>`
                         : `📉 <span class="text-red-600">ราคาลดลง ${absPercent}%</span>`;
-            } else {
-                changeText = 'ราคาไม่เปลี่ยนแปลง';
             }
 
-            // บันทึกประวัติราคาใหม่
+            // บันทึกประวัติราคา
             const priceLog = new WastePriceHistory({
                 wasteId: waste._id,
                 pricePerUnit: newPrice,
@@ -1039,8 +1062,9 @@ const wasteEdit = async (req, res) => {
 
             await priceLog.save();
 
-                        // สร้าง Notification แจ้งเตือนทุกครอบครัวที่เป็นสมาชิก
-            const allFamilies = await WasteBankAccount.find({}, 'familyID'); // ดึงทุก familyID
+            // แจ้งเตือนสมาชิกทุกครอบครัว
+            const allFamilies = await WasteBankAccount.find({}, 'familyID');
+
             const notifications = allFamilies.map(family => ({
                 userId: family.familyID,
                 type: 'price_update',
@@ -1062,6 +1086,7 @@ const wasteEdit = async (req, res) => {
 
             console.log('Waste updated successfully');
             res.redirect('/admin/waste?message=แก้ไขข้อมูลขยะสำเร็จ');
+
         } catch (error) {
             console.error('Error updating waste:', error);
             res.redirect('/admin/waste?error=เกิดข้อผิดพลาดในระบบ');
