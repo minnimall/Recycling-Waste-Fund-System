@@ -3294,8 +3294,8 @@ const getFuneralDetail = async (req, res) => {
 
         const record = await FuneralAssistance.findById(id)
             .populate('familyID', 'familyName username address')
-            .populate('createdBy', 'name email')
-            .populate('approvedBy', 'name email')
+            .populate('createdBy', 'name email firstname lastname')
+            .populate('approvedBy', 'name email firstname lastname')
             .populate('deductedAccounts.familyID', 'familyName username') // ✅ เพิ่มบรรทัดนี้
             .populate('deceasedInfo.memberID', 'name') // ✅ เพิ่มบรรทัดนี้
             .lean();

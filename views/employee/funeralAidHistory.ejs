@@ -886,7 +886,7 @@
                         ${record.approvedBy ? `
                         <div>
                             <span class="font-medium">ผู้อนุมัติ:</span> 
-                            ${record.approvedBy.name || record.approvedBy.email || 'ไม่ระบุ'}
+                            ${record.approvedBy.firstname || ''} ${record.approvedBy.lastname || ''}
                         </div>
                         ` : ''}
                     </div>
