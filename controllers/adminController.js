@@ -732,15 +732,20 @@ const deleteNews = async (req, res) => {
 
 
 // สำหรับเก็บรูปภาพที่อัปโหลดจาก activity
-const storage = multer.diskStorage({
-    destination: './public/uploads/activity/',
-    filename: function (req, file, cb) {
-        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
-    }
-});
+// const storage = multer.diskStorage({
+//     destination: './public/uploads/activity/',
+//     filename: function (req, file, cb) {
+//         cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+//     }
+// });
+
+// const upload = multer({
+//     storage,
+//     limits: { fileSize: 50 * 1024 * 1024 }
+// }).single('img');
 
 const upload = multer({
-    storage,
+    storage: multer.memoryStorage(),
     limits: { fileSize: 50 * 1024 * 1024 }
 }).single('img');
 
@@ -778,14 +783,36 @@ const activityPost = (req, res) => {
             if (existingActivity) {
                 return res.status(400).redirect('/admin/activity?error=มีกิจกรรมนี้อยู่แล้ว');
             }
-            // ถ้าไม่มีซ้ำ ให้บันทึก
-            const imagePath = req.file
-                ? `/uploads/activity/${req.file.filename}`
-                : '/img/no_image.jpg';
+
+            let imageUrl = null;
+
+            // ถ้ามีการอัปโหลดรูป
+            if (req.file) {
+                const uploadFromBuffer = () => {
+                return new Promise((resolve, reject) => {
+                    const stream = cloudinary.uploader.upload_stream(
+                    {
+                        folder: 'activity_images',
+                        resource_type: 'image'
+                    },
+                    (error, result) => {
+                        if (result) resolve(result);
+                        else reject(error);
+                    }
+                    );
+
+                    streamifier.createReadStream(req.file.buffer).pipe(stream);
+                });
+                };
+
+                const result = await uploadFromBuffer();
+                imageUrl = result.secure_url; // URL รูปจาก Cloudinary
+            }
+
             const activity = new myActivity({
                 title,
                 content,
-                img: imagePath
+                img: imageUrl
             });
             await activity.save();
             console.log('Activity saved successfully:', activity);
@@ -816,32 +843,63 @@ const deleteActivity = async (req, res) => {
     }
 };
 // แก้ไขกิจกรรม
-const activityEdit = (req, res) => {
-    upload(req, res, (err) => {
+const activityEdit = async (req, res) => {
+    upload(req, res, async (err) => {
         if (err) {
             console.error('Error uploading file:', err);
-            return res.status(400).send({ error: 'File upload failed', details: err });
+            return res.status(400).send('เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ');
         }
 
-        const imagePath = req.file
-            ? `/uploads/activity/${req.file.filename}` // ใช้ไฟล์ใหม่หากอัปโหลด
-            : req.body.img; // ใช้รูปเดิมหากไม่ได้อัปโหลดใหม่
+        try {
+            const { title, content } = req.body;
+            const activityId = req.params.id;
 
-        const updatedActivity = {
-            title: req.body.title || 'Untitled',
-            content: req.body.content || '',
-            img: imagePath
-        };
+            const activity = await myActivity.findById(activityId);
+            if (!activity) {
+                return res.status(404).redirect('/admin/activity?error=ไม่พบกิจกรรม');
+            }
 
-        myActivity.findByIdAndUpdate(req.params.id, updatedActivity, { new: true })
-            .then((result) => {
-                console.log('Activity updated successfully:', result);
-                res.redirect('/admin/activity?message=แก้ไขกิจกรรมสำเร็จ');
-            })
-            .catch((err) => {
-                console.error('Error updating activity:', err);
-                res.status(500).redirect('/admin/activity?error=แก้ไขกิจกรรมไม่สำเร็จ');
-            });
+            let imageUrl = activity.img; // ค่าเริ่มต้น = รูปเดิม
+
+            // ถ้ามีการอัปโหลดรูปใหม่
+            if (req.file) {
+                const uploadFromBuffer = () => {
+                    return new Promise((resolve, reject) => {
+                        const stream = cloudinary.uploader.upload_stream(
+                            {
+                                folder: 'activity_images',
+                                resource_type: 'image'
+                            },
+                            (error, result) => {
+                                if (result) resolve(result);
+                                else reject(error);
+                            }
+                        );
+
+                        streamifier
+                            .createReadStream(req.file.buffer)
+                            .pipe(stream);
+                    });
+                };
+
+                const result = await uploadFromBuffer();
+                imageUrl = result.secure_url;
+            }
+
+            // อัปเดตข้อมูล
+            activity.title = title || activity.title;
+            activity.content = content || activity.content;
+            activity.img = imageUrl;
+
+            await activity.save();
+
+            console.log('Activity updated successfully');
+            res.redirect('/admin/activity?message=แก้ไขกิจกรรมสำเร็จ');
+
+        } catch (error) {
+            console.error('Error updating activity:', error);
+            res.status(500).redirect('/admin/activity?error=แก้ไขกิจกรรมไม่สำเร็จ');
+        }
     });
 };
 
