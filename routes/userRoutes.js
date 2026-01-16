@@ -45,6 +45,16 @@ router.get('/detailNews/:id', userController.detailNews)
 // หน้าโปรไฟล์
 router.get('/profile', userController.user_profile)
 
+// หน้าฟอร์ม
+router.get('/funeral/my-eligibility', userController.checkMyEligibility);
+router.post('/funeral/request/submit', userController.submitFuneralRequest);
+router.get('/funeral', userController.funeralRequest);
+// หน้าประวัติ
+router.get('/funeral/my-requests', userController.myFuneralRequestsPage);
+router.get('/api/funeral/my-requests', userController.getMyFuneralRequests);
+router.get('/api/funeral/my-requests/:id', userController.getMyFuneralRequestDetail);
+router.post('/api/funeral/my-requests/:id/cancel', userController.cancelMyFuneralRequest);
+
 router.get('/wastePrices', userController.user_wastePrices)
 
 router.get('/ideas', userController.user_ideas)

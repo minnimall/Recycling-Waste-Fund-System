@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ประวัติคำขอฌาปนกิจของฉัน</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.375rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        .status-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .status-approved {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .status-rejected {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        .status-completed {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .status-cancelled {
+            background-color: #f3f4f6;
+            color: #4b5563;
+        }
+        
+        /* ⭐ เพิ่ม CSS สำหรับปุ่ม Filter */
+        .filter-btn {
+            transition: all 0.3s ease;
+        }
+        .filter-btn.active {
+            background-color: #16a34a;
+            color: white;
+        }
+        .filter-btn:not(.active) {
+            color: #6b7280;
+            background-color: transparent;
+        }
+        .filter-btn:not(.active):hover {
+            background-color: #f3f4f6;
+        }
+    </style>
+    <%- include('../partials/userPartials/head.ejs') %>
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // เช็คข้อความที่ส่งมาจาก URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const successMessage = urlParams.get('message');
+        const errorMessage = urlParams.get('error');
+
+        if (successMessage) {
+            Swal.fire({
+                icon: 'success',
+                title: 'สำเร็จ!',
+                text: successMessage,
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#28a745',
+                timer: 3000
+            });
+        }
+
+        if (errorMessage) {
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด!',
+                text: errorMessage,
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#d33',
+                timer: 3000
+            });
+        }
+
+    </script>
+    <%- include('../partials/userPartials/header.ejs') %>
+
+    <!-- Page Header -->
+    <section class="bg-gradient-to-r from-primary-green to-secondary-green text-white py-16">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl md:text-5xl font-bold mb-4">ประวัติคำขอฌาปนกิจของฉัน</h2>
+            <p class="text-xl opacity-90">ตรวจสอบสถานะและรายละเอียดคำขอทั้งหมด</p>
+        </div>
+    </section>
+
+    <!-- Header Section -->
+    <!-- <section class="bg-gradient-to-r from-green-600 to-green-700 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-bold mb-2">ประวัติคำขอฌาปนกิจของฉัน</h1>
+                    <p class="text-green-100">ตรวจสอบสถานะและรายละเอียดคำขอทั้งหมด</p>
+                </div>
+                <a href="/user/funeral" class="hidden md:flex items-center px-6 py-3 bg-white text-green-700 rounded-lg font-semibold hover:bg-green-50 transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    ยื่นเรื่องใหม่
+                </a>
+            </div>
+        </div>
+    </section> -->
+
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        
+        <!-- Filter Tabs -->
+        <div class="mb-6 bg-white rounded-lg shadow-sm p-2 flex flex-wrap gap-2">
+            <button onclick="filterRequests('all')" class="filter-btn active px-4 py-2 rounded-lg font-medium">
+                ทั้งหมด
+            </button>
+            <button onclick="filterRequests('pending')" class="filter-btn px-4 py-2 rounded-lg font-medium">
+                รอตรวจสอบ
+            </button>
+            <!-- <button onclick="filterRequests('approved')" class="filter-btn px-4 py-2 rounded-lg font-medium">
+                อนุมัติแล้ว
+            </button> -->
+            <button onclick="filterRequests('rejected')" class="filter-btn px-4 py-2 rounded-lg font-medium">
+                ไม่อนุมัติ
+            </button>
+            <button onclick="filterRequests('completed')" class="filter-btn px-4 py-2 rounded-lg font-medium">
+                เสร็จสิ้น
+            </button>
+            <button onclick="filterRequests('cancelled')" class="filter-btn px-4 py-2 rounded-lg font-medium">
+                ยกเลิก
+            </button>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="text-center py-16">
+            <svg class="animate-spin h-12 w-12 mx-auto text-green-600" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="mt-4 text-gray-600">กำลังโหลดข้อมูล...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden text-center py-16 bg-white rounded-2xl shadow-sm">
+            <svg class="w-24 h-24 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">ยังไม่มีคำขอ</h3>
+            <p class="text-gray-600 mb-6">คุณยังไม่เคยยื่นคำขอฌาปนกิจสงเคราะห์</p>
+            <a href="/funeral" class="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                ยื่นเรื่องใหม่
+            </a>
+        </div>
+
+        <!-- Requests List -->
+        <div id="requestsList" class="space-y-4">
+            <!-- จะถูก inject ด้วย JavaScript -->
+        </div>
+
+        <!-- Mobile: ปุ่มยื่นเรื่องใหม่ -->
+        <div class="md:hidden fixed bottom-6 right-6 z-50">
+            <a href="/funeral" class="flex items-center justify-center w-14 h-14 bg-green-600 text-white rounded-full shadow-lg hover:bg-green-700 transition-all hover:scale-110">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+            </a>
+        </div>
+    </div>
+
+    <!-- Modal: รายละเอียดคำขอ -->
+    <div id="detailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
+        <div class="min-h-screen px-4 py-8 flex items-center justify-center">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full mx-auto">
+                <div class="bg-gradient-to-r from-green-600 to-green-700 text-white p-6 rounded-t-2xl">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-2xl font-bold">รายละเอียดคำขอ</h3>
+                        <button onclick="closeDetailModal()" class="text-white hover:text-green-100 transition-colors">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="modalContent" class="p-6 max-h-[70vh] overflow-y-auto">
+                    <!-- จะถูก inject ด้วย JavaScript -->
+                </div>
+
+                <div class="p-6 border-t flex justify-end gap-3">
+                    <button onclick="closeDetailModal()" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                        ปิด
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allRequests = [];
+        let currentFilter = 'all';
+
+        // โหลดข้อมูลเมื่อหน้าโหลด
+        document.addEventListener('DOMContentLoaded', function() {
+            loadRequests();
+        });
+
+        async function loadRequests() {
+            try {
+                const response = await fetch('/user/api/funeral/my-requests');
+                const result = await response.json();
+
+                document.getElementById('loadingState').classList.add('hidden');
+
+                if (result.success && result.data.length > 0) {
+                    allRequests = result.data;
+                    displayRequests(allRequests);
+                } else {
+                    document.getElementById('emptyState').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error loading requests:', error);
+                document.getElementById('loadingState').classList.add('hidden');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถโหลดข้อมูลได้'
+                });
+            }
+        }
+
+        function displayRequests(requests) {
+            const container = document.getElementById('requestsList');
+            
+            if (requests.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 bg-white rounded-lg">
+                        <p class="text-gray-500">ไม่พบคำขอในหมวดนี้</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = requests.map(req => createRequestCard(req)).join('');
+        }
+
+        function createRequestCard(request) {
+            const statusInfo = getStatusInfo(request.status);
+            const date = new Date(request.createdAt).toLocaleDateString('th-TH', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            const canCancel = request.status === 'pending';
+
+            return `
+                <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-6 border border-gray-100">
+                    <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                        <div class="flex-1">
+                            <div class="flex items-start gap-3 mb-3">
+                                <div class="w-12 h-12 rounded-full ${statusInfo.bgColor} flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-6 h-6 ${statusInfo.iconColor}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${statusInfo.icon}" />
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-bold text-gray-800 mb-1">
+                                        ${request.deceasedInfo.name}
+                                    </h3>
+                                    <p class="text-sm text-gray-600">ยื่นเรื่องเมื่อ: ${date}</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                                <div class="text-sm">
+                                    <span class="text-gray-600">ผู้รับผิดชอบ:</span>
+                                    <span class="font-medium ml-1">${request.responsiblePerson.name}</span>
+                                </div>
+                                <div class="text-sm">
+                                    <span class="text-gray-600">ความสัมพันธ์:</span>
+                                    <span class="font-medium ml-1">${request.responsiblePerson.relationshipToDeceased}</span>
+                                </div>
+                                <div class="text-sm">
+                                    <span class="text-gray-600">วันที่เสียชีวิต:</span>
+                                    <span class="font-medium ml-1">${new Date(request.deceasedInfo.dateOfDeath).toLocaleDateString('th-TH')}</span>
+                                </div>
+                                <div class="text-sm">
+                                    <span class="text-gray-600">จำนวนเงิน:</span>
+                                    <span class="font-medium ml-1 text-green-600">${request.financialInfo.totalAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <span class="status-badge status-${request.status}">
+                                    ${statusInfo.text}
+                                </span>
+                                ${request.status === 'rejected' && request.rejectionReason ? `
+                                    <span class="text-xs text-red-600 bg-red-50 px-2 py-1 rounded">
+                                        ${request.rejectionReason}
+                                    </span>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <div class="flex md:flex-col gap-2">
+                            <button onclick="viewDetail('${request._id}')" class="flex-1 md:flex-none px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors text-sm">
+                                ดูรายละเอียด
+                            </button>
+                            ${canCancel ? `
+                                <button onclick="cancelRequest('${request._id}')" class="flex-1 md:flex-none px-4 py-2 border border-red-300 text-red-600 rounded-lg font-medium hover:bg-red-50 transition-colors text-sm">
+                                    ยกเลิก
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getStatusInfo(status) {
+            const statusMap = {
+                pending: {
+                    text: 'รอตรวจสอบ',
+                    bgColor: 'bg-amber-100',
+                    iconColor: 'text-amber-600',
+                    icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'
+                },
+                approved: {
+                    text: 'อนุมัติแล้ว',
+                    bgColor: 'bg-green-100',
+                    iconColor: 'text-green-600',
+                    icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'
+                },
+                rejected: {
+                    text: 'ไม่อนุมัติ',
+                    bgColor: 'bg-red-100',
+                    iconColor: 'text-red-600',
+                    icon: 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z'
+                },
+                completed: {
+                    text: 'เสร็จสิ้น',
+                    bgColor: 'bg-green-100',
+                    iconColor: 'text-green-600',
+                    icon: 'M5 13l4 4L19 7'
+                },
+                cancelled: {
+                    text: 'ยกเลิก',
+                    bgColor: 'bg-gray-100',
+                    iconColor: 'text-gray-600',
+                    icon: 'M6 18L18 6M6 6l12 12'
+                }
+            };
+            return statusMap[status] || statusMap.pending;
+        }
+
+        function filterRequests(status) {
+            currentFilter = status;
+                
+            // ⭐ Update active button - แก้ไขให้ถูกต้อง
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+                
+            // หา button ที่ถูกคลิกและเพิ่ม active class
+            event.target.classList.add('active');
+
+            const filtered = status === 'all' 
+                ? allRequests 
+                : allRequests.filter(req => req.status === status);
+                
+            displayRequests(filtered);
+        }
+
+        async function viewDetail(requestId) {
+            try {
+                const response = await fetch(`/user/api/funeral/my-requests/${requestId}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    displayDetailModal(result.data);
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: error.message || 'ไม่สามารถโหลดรายละเอียดได้'
+                });
+            }
+        }
+
+        function displayDetailModal(request) {
+            const statusInfo = getStatusInfo(request.status);
+            const modalContent = document.getElementById('modalContent');
+
+            modalContent.innerHTML = `
+                <div class="space-y-6">
+                    <!-- Header Section with Status -->
+                    <div class="flex items-start gap-4 pb-4 border-b-2 border-gray-200">
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold text-gray-800 mb-1">ผู้เสียชีวิต: ${request.deceasedInfo.name}</h3>
+                            <p class="text-sm text-gray-500">
+                                ยื่นเรื่องเมื่อ: ${new Date(request.createdAt).toLocaleDateString('th-TH', {year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'})}
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="status-badge status-${request.status}">${statusInfo.text}</span>
+                        </div>
+                    </div>
+
+                    <!-- Main Information Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- ผู้รับผิดชอบ -->
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <h4 class="font-bold text-gray-800 mb-4 flex items-center text-base">
+                                ข้อมูลผู้รับผิดชอบ
+                            </h4>
+                            <div class="space-y-3 text-sm">
+                                <div class="flex items-start">
+                                    <span class="text-gray-600 min-w-[120px]">ชื่อ-นามสกุล:</span>
+                                    <p class="font-semibold text-gray-800">${request.responsiblePerson.name}</p>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="text-gray-600 min-w-[120px]">ความสัมพันธ์:</span>
+                                    <p class="font-semibold text-gray-800">${request.responsiblePerson.relationshipToDeceased}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ผู้เสียชีวิต -->
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <h4 class="font-bold text-gray-800 mb-4 flex items-center text-base">
+                                ข้อมูลผู้เสียชีวิต
+                            </h4>
+                            <div class="space-y-3 text-sm">
+                                <div class="flex items-start">
+                                    <span class="text-gray-600 min-w-[100px]">อายุ:</span>
+                                    <p class="font-semibold text-gray-800">${request.deceasedInfo.age} ปี</p>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="text-gray-600 min-w-[100px]">บัตรประชาชน:</span>
+                                    <p class="font-semibold text-gray-800">${formatIdCard(request.deceasedInfo.idCardNumber)}</p>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="text-gray-600 min-w-[100px]">วันที่เสียชีวิต:</span>
+                                    <p class="font-semibold text-gray-800">${new Date(request.deceasedInfo.dateOfDeath).toLocaleDateString('th-TH', {year: 'numeric', month: 'long', day: 'numeric'})}</p>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="text-gray-600 min-w-[100px]">สาเหตุ:</span>
+                                    <p class="font-semibold text-gray-800">${request.deceasedInfo.causeOfDeath}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ที่อยู่ -->
+                        <div class="bg-gray-50 rounded-lg p-6 md:col-span-2">
+                            <h4 class="font-bold text-gray-800 mb-4 flex items-center text-base">
+                                ที่อยู่
+                            </h4>
+                            <div class="space-y-2">
+                                <p class="text-sm font-medium text-gray-800">
+                                    ${request.deceasedInfo.address.houseNumber} หมู่ ${request.deceasedInfo.address.moo} 
+                                    ต.${request.deceasedInfo.address.subdistrict} อ.${request.deceasedInfo.address.district} 
+                                    จ.${request.deceasedInfo.address.province} ${request.deceasedInfo.address.postalCode}
+                                </p>
+                                <div class="flex items-center text-sm pt-2 border-t border-gray-200">
+                                    <span class="text-gray-600">โทรศัพท์:</span>
+                                    <span class="font-semibold text-gray-800 ml-2">${request.deceasedInfo.phone}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ข้อมูลการเงิน -->
+                        <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-6 text-white mb-6 md:col-span-2">
+                            <h4 class="text-xl font-semibold mb-4">
+                                ข้อมูลการเงิน
+                            </h4>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                                    <p  class="text-sm opacity-90">จำนวนเงินทั้งหมด</p>
+                                    <p class="text-xl font-bold">${request.financialInfo.totalAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})} </p>
+                                    <p class="text-xs opacity-75">บาท</p>
+                                </div>
+                                ${request.status === 'approved' || request.status === 'completed' ? `
+                                    <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                                        <p class="text-sm opacity-90">หักต่อบัญชี</p>
+                                        <p class="text-xl font-bold">${request.financialInfo.perAccountAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})} </p>
+                                        <p class="text-xs opacity-75">บาท</p>
+                                    </div>
+                                    <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                                        <p class="text-sm opacity-90">จำนวนบัญชีทั้งหมด</p>
+                                        <p class="text-xl font-bold">${request.financialInfo.totalMemberAccounts} </p>
+                                        <p class="text-xs opacity-75">บัญชี</p>
+                                    </div>
+                                    <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                                        <p class="text-sm opacity-90">บัญชีที่หักแล้ว</p>
+                                        <p class="text-xl font-bold">${request.financialInfo.totalDeductedAccounts} </p>
+                                        <p class="text-xs opacity-75">บัญชี</p>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <!-- ข้อมูลการอนุมัติ -->
+                        ${request.status === 'approved' && request.approvedBy ? `
+                            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-5 border-2 border-blue-300 shadow-sm md:col-span-2">
+                                <h4 class="font-bold text-gray-800 mb-3 flex items-center text-base">
+                                    <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mr-2">
+                                        <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    ข้อมูลการอนุมัติ
+                                </h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                    <div class="flex items-center bg-white rounded-lg p-3 shadow-sm">
+                                        <svg class="w-5 h-5 text-blue-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                        <div>
+                                            <p class="text-xs text-gray-500">อนุมัติโดย</p>
+                                            <p class="font-semibold text-gray-800">${request.approvedBy.name || request.approvedBy.email} </p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center bg-white rounded-lg p-3 shadow-sm">
+                                        <svg class="w-5 h-5 text-blue-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                        <div>
+                                            <p class="text-xs text-gray-500">วันที่อนุมัติ</p>
+                                            <p class="font-semibold text-gray-800">${new Date(request.approvedAt).toLocaleDateString('th-TH', {year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'})}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        <!-- ข้อมูลการปฏิเสธ -->
+                        ${request.status === 'rejected' ? `
+                            <div class="bg-gradient-to-br from-red-50 to-rose-50 rounded-xl p-5 shadow-sm md:col-span-2">
+                                <h4 class="font-bold text-gray-800 mb-3 flex items-center text-base">
+                                    เหตุผลที่ไม่อนุมัติ
+                                </h4>
+                                ${request.rejectionReason ? `
+                                    <div class="bg-white rounded-lg p-4 shadow-sm mb-3">
+                                        <p class="text-sm text-700 font-medium whitespace-pre-line">${request.rejectionReason}</p>
+                                    </div>
+                                ` : ''}
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                    ${request.rejectedBy ? `
+                                        <div class="flex items-center bg-white rounded-lg p-3 shadow-sm">
+                                            <div>
+                                                <p class="text-xs text-gray-500">ปฏิเสธโดย</p>
+                                                <p class="font-semibold text-gray-800">${request.rejectedBy.name || request.rejectedBy.firstname}</p>
+                                            </div>
+                                        </div>
+                                    ` : ''}
+                                    ${request.rejectedAt ? `
+                                        <div class="flex items-center bg-white rounded-lg p-3 shadow-sm">
+                                            <div>
+                                                <p class="text-xs text-gray-500">วันที่ปฏิเสธ</p>
+                                                <p class="font-semibold text-gray-800">${new Date(request.rejectedAt).toLocaleDateString('th-TH', {year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'})}</p>
+                                            </div>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        <!-- หมายเหตุ -->
+                        ${request.notes ? `
+                            <div class="p-4 mb-6">
+                                <h4 class="text-sm font-semibold text-gray-900 mb-2 flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                    หมายเหตุ
+                                </h4>
+                                <p class="text-sm text-gray-700">${request.notes}</p>
+                            </div>
+                            ` : ''}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('detailModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        async function cancelRequest(requestId) {
+            const confirmed = await Swal.fire({
+                title: 'ยืนยันการยกเลิก?',
+                text: 'คุณต้องการยกเลิกคำขอนี้หรือไม่?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'ใช่, ยกเลิก',
+                cancelButtonText: 'ไม่',
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280'
+            });
+
+            if (!confirmed.isConfirmed) return;
+
+            try {
+                const response = await fetch(`/user/api/funeral/my-requests/${requestId}/cancel`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'ยกเลิกสำเร็จ',
+                        text: result.message,
+                        confirmButtonColor: '#10b981'
+                    });
+                    loadRequests();
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: error.message || 'ไม่สามารถยกเลิกคำขอได้'
+                });
+            }
+        }
+
+        function formatIdCard(idCard) {
+            if (!idCard) return '-';
+            const cleaned = idCard.replace(/\D/g, '');
+            return cleaned.replace(/(\d{1})(\d{4})(\d{5})(\d{2})(\d{1})/, '$1-$2-$3-$4-$5');
+        }
+
+        // ปิด modal เมื่อคลิกนอก content
+        document.getElementById('detailModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDetailModal();
+            }
+        });
+    </script>
+    <%- include('../partials/userPartials/footer.ejs') %>
+</body>
+</html>

@@ -9,7 +9,7 @@ const NotificationSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['system', 'message', 'request', 'announcements','purchase','price_update','round','complaint-reply','funeral_deduction'],
+    enum: ['system', 'message', 'request', 'announcements','purchase','price_update','round','complaint-reply','funeral_deduction','funeral_approved','funeral_deduction','funeral_rejected'],
     default: 'system',
   },
   title: {

@@ -185,31 +185,74 @@ const funeralAssistanceSchema = new Schema({
         comment: 'หมายเหตุเพิ่มเติม'
     },
 
-    // สถานะ
+    // สถานะ - เพิ่มเติมสำหรับรองรับ User Request
     status: {
         type: String,
-        enum: ['pending', 'approved', 'completed', 'cancelled'],
-        default: 'completed',
-        comment: 'สถานะการดำเนินการ'
+        enum: ['pending', 'approved', 'rejected', 'completed', 'cancelled'],
+        default: 'pending',
+        comment: 'pending = รอพนักงานอนุมัติ, approved = อนุมัติแล้ว, rejected = ปฏิเสธ, completed = ดำเนินการเสร็จสิ้น'
     },
 
-    // ผู้บันทึก/อนุมัติ
+    // ผู้ยื่นคำขอ - แก้ไขให้ไม่เป็น required
+    submittedBy: {
+        userType: {
+            type: String,
+            enum: ['employee', 'user'],
+            required: false, // เปลี่ยนเป็น false
+            default: 'employee',
+            comment: 'employee = พนักงานบันทึกเอง, user = ครัวเรือนยื่นคำขอ'
+        },
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            refPath: 'submittedBy.userModel',
+            required: false // เปลี่ยนเป็น false
+        },
+        userModel: {
+            type: String,
+            enum: ['Admin', 'Family'],
+            required: false, // เปลี่ยนเป็น false
+            default: 'Admin'
+        },
+        submittedAt: {
+            type: Date,
+            default: Date.now
+        }
+    },
+
+    // ผู้อนุมัติ/ผู้บันทึก
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Admin',
-        required: true,
-        comment: 'ผู้บันทึกข้อมูล'
+        comment: 'ผู้บันทึกข้อมูล (กรณี employee บันทึกเอง)'
     },
     approvedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Admin',
         default: null,
-        comment: 'ผู้อนุมัติ'
+        comment: 'ผู้อนุมัติ (กรณี user ยื่นคำขอ)'
     },
     approvedAt: {
         type: Date,
         default: null,
         comment: 'วันที่อนุมัติ'
+    },
+
+    // ข้อมูลการปฏิเสธ - เพิ่มใหม่
+    rejectedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Admin',
+        default: null,
+        comment: 'ผู้ปฏิเสธคำขอ'
+    },
+    rejectedAt: {
+        type: Date,
+        default: null,
+        comment: 'วันที่ปฏิเสธ'
+    },
+    rejectionReason: {
+        type: String,
+        default: null,
+        comment: 'เหตุผลในการปฏิเสธ'
     },
 
     // ข้อมูลการตรวจสอบคุณสมบัติ
@@ -268,6 +311,7 @@ funeralAssistanceSchema.index({ familyID: 1, createdAt: -1 });
 funeralAssistanceSchema.index({ status: 1 });
 funeralAssistanceSchema.index({ 'deceasedInfo.dateOfDeath': -1 });
 funeralAssistanceSchema.index({ 'deceasedInfo.idCardNumber': 1 });
+funeralAssistanceSchema.index({ 'submittedBy.userType': 1, status: 1 });
 
 const FuneralAssistance = mongoose.model('FuneralAssistance', funeralAssistanceSchema);
 module.exports = FuneralAssistance;

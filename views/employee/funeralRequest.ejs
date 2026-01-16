@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <%- include('../partials/employeePartials/doctype.ejs') %>
+    <title><%= mytitle %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .request-card {
+            transition: all 0.3s ease;
+        }
+        .request-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <%- include('../partials/employeePartials/empHeader.ejs') %>
+    <%- include('../partials/employeePartials/empSidebar.ejs') %>
+
+    <div class="content bg-gray-50 min-screen">
+        <!-- Page Header -->
+        <div class="mx-4 mb-6 bg-white rounded-xl shadow-sm p-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <!-- Left : Title -->
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800">
+                        รายการคำขอฌาปนกิจที่รอการอนุมัติ
+                    </h1>
+                    <p class="text-gray-500 mt-1 text-sm md:text-base">
+                        ตรวจสอบและอนุมัติคำขอฌาปนกิจจากครัวเรือน
+                    </p>
+                </div>
+                <!-- Right : Summary -->
+                <div class="flex items-center gap-4 bg-blue-50 border border-blue-100 rounded-lg px-5 py-4">
+                    <div class="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full">
+                        <i class="fas fa-file-alt text-blue-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600 " >คำขอทั้งหมด <span id="totalRequests">0</span> รายการ</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Search -->
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+            <div class="relative">
+                <input type="text" id="searchInput" placeholder="ค้นหาชื่อผู้เสียชีวิต, บัตรประชาชน, ผู้รับผิดชอบ..." class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </div>
+        </div>
+
+        <!-- Requests List -->
+        <div class="mx-4 mb-6">
+            <!-- Loading State -->
+            <div id="loadingState" class="bg-white rounded-lg shadow p-12 text-center">
+                <svg class="animate-spin h-10 w-10 mx-auto text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="mt-4 text-gray-600">กำลังโหลดข้อมูล...</p>
+            </div>
+
+            <!-- Requests Container -->
+            <div id="requestsContainer" class="hidden space-y-4">
+                <!-- จะถูก inject ด้วย JavaScript -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden bg-white rounded-lg shadow p-12 text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <p class="mt-4 text-gray-600 text-lg">ไม่มีคำขอที่รอการอนุมัติ</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="detailModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-10 mx-auto p-5 border w-11/12 max-w-6xl shadow-lg rounded-lg bg-white mb-20">
+            <div class="flex justify-between items-center pb-4 border-b">
+                <h3 class="text-2xl font-bold text-gray-800">รายละเอียดคำขอฌาปนกิจ</h3>
+                <button onclick="closeDetailModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div id="modalContent" class="mt-6">
+                <div id="modalLoading" class="flex justify-center items-center py-12">
+                    <svg class="animate-spin h-10 w-10 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+                <div id="modalDetailContent" class="hidden"></div>
+            </div>
+
+            <div class="flex justify-between pt-6 border-t mt-6" id="modalActions">
+                <button onclick="closeDetailModal()" class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
+                    ปิด
+                </button>
+                <div class="space-x-3" id="actionButtons">
+                    <!-- ปุ่มอนุมัติ/ปฏิเสธจะถูก inject ด้วย JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/employeePartials/empFooter.ejs') %>
+
+    <script>
+        let currentRequestId = null;
+        let currentDetail = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPendingRequests();
+
+            // Search with debounce
+            let searchTimeout;
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    loadPendingRequests(e.target.value);
+                }, 500);
+            });
+        });
+
+        async function loadPendingRequests(search = '') {
+            try {
+                document.getElementById('loadingState').classList.remove('hidden');
+                document.getElementById('requestsContainer').classList.add('hidden');
+                document.getElementById('emptyState').classList.add('hidden');
+
+                const params = new URLSearchParams({ page: 1, limit: 50 });
+                if (search) params.append('search', search);
+
+                const response = await fetch(`/employee/funeral-requests/pending/data?${params}`);
+                const result = await response.json();
+
+                document.getElementById('loadingState').classList.add('hidden');
+
+                if (result.success && result.data.requests.length > 0) {
+                    displayRequests(result.data.requests);
+                    document.getElementById('totalRequests').textContent = result.data.pagination.total;
+                } else {
+                    document.getElementById('emptyState').classList.remove('hidden');
+                    document.getElementById('totalRequests').textContent = '0';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loadingState').classList.add('hidden');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถโหลดข้อมูลได้'
+                });
+            }
+        }
+
+        function displayRequests(requests) {
+            const container = document.getElementById('requestsContainer');
+            container.classList.remove('hidden');
+
+            container.innerHTML = requests.map(req => {
+                const dateStr = new Date(req.deceasedInfo.dateOfDeath).toLocaleDateString('th-TH', {
+                    year: 'numeric', month: 'long', day: 'numeric'
+                });
+                const submittedStr = new Date(req.submittedBy.submittedAt).toLocaleDateString('th-TH', {
+                    year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+
+                return `
+                    <div class="request-card bg-white rounded-lg shadow p-6 cursor-pointer" onclick="viewDetail('${req._id}')">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold text-gray-800">${req.deceasedInfo.name}</h3>
+                                <p class="text-sm text-gray-600 mt-1">ครัวเรือน: ${req.familyID.familyName}</p>
+                                <p class="text-sm text-gray-500">ยื่นเรื่องเมื่อ: ${submittedStr}</p>
+                            </div>
+                            <span class="px-3 py-1 text-xs font-medium rounded-full bg-amber-100 text-amber-800">
+                                รอการอนุมัติ
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div>
+                                <p class="text-xs text-gray-500">อายุ</p>
+                                <p class="font-medium">${req.deceasedInfo.age} ปี</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">วันที่เสียชีวิต</p>
+                                <p class="font-medium">${dateStr}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">ผู้รับผิดชอบ</p>
+                                <p class="font-medium">${req.responsiblePerson.name}</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 flex justify-end space-x-2">
+                            <button onclick="event.stopPropagation(); viewDetail('${req._id}')" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+                                ดูรายละเอียด
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function viewDetail(id) {
+            currentRequestId = id;
+            document.getElementById('detailModal').classList.remove('hidden');
+            document.getElementById('modalLoading').classList.remove('hidden');
+            document.getElementById('modalDetailContent').classList.add('hidden');
+
+            try {
+                const response = await fetch(`/employee/funeral-requests/${id}/detail`);
+                const result = await response.json();
+
+                if (result.success) {
+                    currentDetail = result.data;
+                    displayDetail(result.data);
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถโหลดรายละเอียดได้'
+                });
+                closeDetailModal();
+            }
+        }
+
+        function displayDetail(data) {
+            const { request, calculation, accountsPreview } = data;
+            
+            document.getElementById('modalLoading').classList.add('hidden');
+            document.getElementById('modalDetailContent').classList.remove('hidden');
+
+            const dateOfDeath = new Date(request.deceasedInfo.dateOfDeath).toLocaleDateString('th-TH', {
+                year: 'numeric', month: 'long', day: 'numeric'
+            });
+
+            const html = `
+                <div class="space-y-6">
+                    <!-- ข้อมูลครัวเรือน -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-semibold text-gray-900 mb-3">ข้อมูลครัวเรือนที่ยื่นขอรับฌาปนกิจสงเคราะห์</h4>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="text-gray-600">ชื่อครัวเรือน:</span> 
+                                <span class="font-medium">${request.familyID.familyName}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-600">เลขที่บัญชี:</span> 
+                                <span class="font-medium">${request.accountNumber}</span>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-900 mb-3">ข้อมูลผู้รับผิดชอบ</h4>
+                            <div class="space-y-2 text-sm">
+                                <div><span class="text-gray-600">ชื่อ-นามสกุล:</span> <span class="font-medium">${request.responsiblePerson.name}</span></div>
+                                <div><span class="text-gray-600">ความสัมพันธ์:</span> <span class="font-medium">${request.responsiblePerson.relationshipToDeceased}</span></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-900 mb-3">ข้อมูลผู้เสียชีวิต</h4>
+                            <div class="space-y-2 text-sm">
+                                <div><span class="text-gray-600">ชื่อ-นามสกุล:</span> <span class="font-medium">${request.deceasedInfo.name}</span></div>
+                                <div><span class="text-gray-600">อายุ:</span> <span class="font-medium">${request.deceasedInfo.age} ปี</span></div>
+                                <div><span class="text-gray-600">วันที่เสียชีวิต:</span> <span class="font-medium">${dateOfDeath}</span></div>
+                                <div><span class="text-gray-600">สาเหตุ:</span> <span class="font-medium">${request.deceasedInfo.causeOfDeath}</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ⭐ เพิ่มส่วนปรับยอดเงิน -->
+                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-6 text-white mb-6">
+                        <h4 class="text-xl font-semibold mb-4">
+                            กำหนดจำนวนเงินฌาปนกิจ
+                        </h4>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-white mb-2">
+                                จำนวนเงิน (บาท) <span class="text-red-300">*</span>
+                            </label>
+                            <!-- เปลี่ยน input ให้มีพื้นหลังโปร่งแสงและข้อความสีขาว -->
+                            <input 
+                                type="number" 
+                                id="approvedAmount" 
+                                value="${calculation.totalAmount}"
+                                min="1000"
+                                step="100"
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 text-xl font-bold text-blue-900"
+                                onchange="recalculateFuneral()"
+                            >
+                            <!-- เปลี่ยนข้อความเป็นสีขาวโปร่งแสง -->
+                            <p class="text-xs text-white opacity-75 mt-1">
+                                ยอดเริ่มต้น: 2,000 บาท (สามารถปรับแก้ได้)
+                            </p>
+                        </div>
+
+                        <!-- การคำนวณเงินฌาปนกิจ (อัพเดทแบบ real-time) -->
+                        <div id="calculationDisplay">
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                                    <p class="text-sm opacity-90">จำนวนเงินทั้งหมด</p>
+                                    <p class="text-2xl font-bold" id="displayTotalAmount">${calculation.totalAmount.toLocaleString()}</p>
+                                    <p class="text-xs opacity-75">บาท</p>
+                                </div>
+                                <!-- เปลี่ยนกล่องที่ 2-4 ให้เป็น bg-white bg-opacity-20 และข้อความสีขาว -->
+                                <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                                    <p class="text-sm opacity-90">จำนวนบัญชี</p>
+                                    <p class="text-2xl font-bold" id="displayTotalAccounts">${calculation.totalMemberAccounts}</p>
+                                    <p class="text-xs opacity-75">บัญชี</p>
+                                </div>
+                                <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                                    <p class="text-sm opacity-90">หักบัญชีละ</p>
+                                    <p class="text-2xl font-bold" id="displayPerAccount">${calculation.perAccountAmount.toFixed(2)}</p>
+                                    <p class="text-xs opacity-75">บาท</p>
+                                </div>
+                                <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                                    <p class="text-sm opacity-90">บัญชีเงินพอ</p>
+                                    <p class="text-2xl font-bold" id="displaySufficient">${calculation.accountsWithSufficientBalance}</p>
+                                    <p class="text-xs opacity-75">บัญชี</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        `;
+
+        document.getElementById('modalDetailContent').innerHTML = html;
+
+        // แสดงปุ่มอนุมัติ/ปฏิเสธ
+        if (request.status === 'pending') {
+            document.getElementById('actionButtons').innerHTML = `
+                <button onclick="rejectRequest()" class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                    ปฏิเสธ
+                </button>
+                <button onclick="approveRequestWithAmount()" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                    อนุมัติและหักเงิน
+                </button>
+            `;
+        } else {
+            document.getElementById('actionButtons').innerHTML = '';
+        }
+        }
+
+        async function approveRequest() {
+            const result = await Swal.fire({
+                title: 'ยืนยันการอนุมัติ?',
+                html: `
+                    <div class="text-left">
+                        <p class="mb-2">คุณต้องการอนุมัติคำขอฌาปนกิจนี้หรือไม่?</p>
+                        <div class="bg-yellow-50 border border-yellow-200 rounded p-3 mt-3">
+                            <p class="text-sm text-yellow-800">
+                                <strong>⚠️ หมายเหตุ:</strong> เมื่อกดยืนยันแล้ว ระบบจะทำการหักเงินจากทุกบัญชีทันที
+                            </p>
+                        </div>
+                    </div>
+                `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#059669',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'ยืนยันการอนุมัติ',
+                cancelButtonText: 'ยกเลิก'
+            });
+
+            if (!result.isConfirmed) return;
+
+            try {
+                Swal.fire({
+                    title: 'กำลังดำเนินการ...',
+                    html: 'กำลังอนุมัติและหักเงิน',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
+
+                const response = await fetch(`/employee/funeral-requests/${currentRequestId}/approve`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'อนุมัติสำเร็จ!',
+                        html: `
+                            <div class="text-left">
+                                <p class="mb-2">${result.message}</p>
+                                <div class="bg-green-50 rounded p-3 mt-3 text-sm">
+                                    <p><strong>หักเงินจาก:</strong> ${result.data.accountsDeducted} บัญชี</p>
+                                    <p><strong>จำนวนเงินรวม:</strong> ${result.data.totalDeducted.toFixed(2)} บาท</p>
+                                    ${result.data.accountsWithInsufficientBalance > 0 ? 
+                                        `<p class="text-amber-700 mt-2">⚠️ มีบัญชีที่เงินไม่พอ: ${result.data.accountsWithInsufficientBalance} บัญชี</p>` 
+                                        : ''
+                                    }
+                                </div>
+                            </div>
+                        `
+                    });
+                    closeDetailModal();
+                    loadPendingRequests();
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: error.message
+                });
+            }
+        }
+
+        async function rejectRequest() {
+            const { value: reason } = await Swal.fire({
+                title: 'ปฏิเสธคำขอ',
+                html: '<p class="mb-3">กรุณาระบุเหตุผลในการปฏิเสธ</p>',
+                input: 'textarea',
+                inputPlaceholder: 'ระบุเหตุผล...',
+                inputAttributes: {
+                    'aria-label': 'เหตุผลการปฏิเสธ'
+                },
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'ยืนยันการปฏิเสธ',
+                cancelButtonText: 'ยกเลิก',
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'กรุณาระบุเหตุผล';
+                    }
+                }
+            });
+
+            if (!reason) return;
+
+            try {
+                Swal.fire({
+                    title: 'กำลังดำเนินการ...',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
+
+                const response = await fetch(`/employee/funeral-requests/${currentRequestId}/reject`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'ปฏิเสธคำขอแล้ว',
+                        text: result.message
+                    });
+                    closeDetailModal();
+                    loadPendingRequests();
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: error.message
+                });
+            }
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+            currentRequestId = null;
+            currentDetail = null;
+        }
+
+        // ปิด modal เมื่อคลิกนอก modal
+        document.getElementById('detailModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDetailModal();
+            }
+        });
+
+        // ⭐ ฟังก์ชันคำนวณใหม่เมื่อปรับยอดเงิน (เพิ่มใหม่)
+        function recalculateFuneral() {
+        const newAmount = parseFloat(document.getElementById('approvedAmount').value) || 2000;
+        const totalAccounts = parseInt(document.getElementById('displayTotalAccounts').textContent);
+        const perAccount = newAmount / totalAccounts;// อัพเดทการแสดงผล
+        document.getElementById('displayTotalAmount').textContent = newAmount.toLocaleString() + ' บาท';
+        document.getElementById('displayPerAccount').textContent = perAccount.toFixed(2) + ' บาท';
+
+        console.log(`📊 คำนวณใหม่: ${newAmount} บาท ÷ ${totalAccounts} บัญชี = ${perAccount.toFixed(2)} บาท/บัญชี`);
+        }
+        // ⭐ ฟังก์ชันอนุมัติพร้อมส่งยอดเงิน (แก้ไข)
+        async function approveRequestWithAmount() {
+        const approvedAmount = parseFloat(document.getElementById('approvedAmount').value);
+        if (!approvedAmount || approvedAmount <= 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'กรุณากำหนดยอดเงิน',
+                text: 'กรุณากรอกจำนวนเงินที่ต้องการอนุมัติ'
+            });
+            return;
+        }
+
+        const result = await Swal.fire({
+            title: 'ยืนยันการอนุมัติ?',
+            html: `
+                <div class="text-left">
+                    <p class="mb-2">คุณต้องการอนุมัติคำขอฌาปนกิจนี้หรือไม่?</p>
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 my-3">
+                        <p class="text-lg font-bold text-blue-800">จำนวนเงิน: ${approvedAmount.toLocaleString()} บาท</p>
+                        <p class="text-sm text-gray-600 mt-1">หักจากบัญชีสมาชิกทุกบัญชีเท่าๆ กัน</p>
+                    </div>
+                    <div class="bg-yellow-50 border border-yellow-200 rounded p-3 mt-3">
+                        <p class="text-sm text-yellow-800">
+                            <strong>⚠️ หมายเหตุ:</strong> เมื่อกดยืนยันแล้ว ระบบจะทำการหักเงินจากทุกบัญชีทันที
+                        </p>
+                    </div>
+                </div>
+            `,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#059669',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'ยืนยันการอนุมัติ',
+            cancelButtonText: 'ยกเลิก'
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
+            Swal.fire({
+                title: 'กำลังดำเนินการ...',
+                html: 'กำลังอนุมัติและหักเงิน',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            const response = await fetch(`/employee/funeral-requests/${currentRequestId}/approve`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ approvedAmount }) // ⭐ ส่งยอดเงินไปด้วย
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'อนุมัติสำเร็จ!',
+                    html: `
+                        <div class="text-left">
+                            <p class="mb-2">${result.message}</p>
+                            <div class="bg-green-50 rounded p-3 mt-3 text-sm">
+                                <p><strong>จำนวนเงินที่อนุมัติ:</strong> ${result.data.approvedAmount.toLocaleString()} บาท</p>
+                                <p><strong>หักเงินจาก:</strong> ${result.data.accountsDeducted} บัญชี</p>
+                                <p><strong>จำนวนเงินรวม:</strong> ${result.data.totalDeducted.toFixed(2)} บาท</p>
+                                ${result.data.accountsWithInsufficientBalance > 0 ? 
+                                    `<p class="text-amber-700 mt-2">⚠️ มีบัญชีที่เงินไม่พอ: ${result.data.accountsWithInsufficientBalance} บัญชี</p>` 
+                                    : ''
+                                }
+                            </div>
+                        </div>
+                    `
+                });
+                closeDetailModal();
+                loadPendingRequests();
+            } else {
+                throw new Error(result.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด',
+                text: error.message
+            });
+        }
+        }
+    </script>
+</body>
+</html>

@@ -140,35 +140,8 @@
                     </div>
                 </div>
 
-                <!-- Stats cards -->
-                <div class="mx-4 grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div
-                        class="bg-blue-50 rounded-lg p-6 shadow-sm border border-blue-100 transition-transform hover:scale-105">
-                        <p class="text-sm font-medium text-blue-600">จำนวนการรับซื้อ</p>
-                        <div class="text-3xl font-bold text-blue-900">
-                            <%= purchaseCount %>
-                        </div>
-                    </div>
-                    <div
-                        class="bg-green-50 rounded-lg p-6 shadow-sm border border-green-100 transition-transform hover:scale-105">
-                        <p class="text-sm font-medium text-green-600">จำนวนลูกค้า</p>
-                        <div class="text-3xl font-bold text-green-900 mb-2">
-                            <%= customerCount %>
-                        </div>
-                    </div>
-                    <div
-                        class="bg-purple-50 rounded-lg p-6 shadow-sm border border-purple-100 transition-transform hover:scale-105">
-                        <p class="text-sm font-medium text-purple-600">ยอดการรับซื้อ</p>
-                        <div class="text-3xl font-bold text-purple-900 mb-2">
-                            <%= totalAmount.toLocaleString('th-TH') %> บาท
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Search form and table -->
                 <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
-                    <div class="mb-6 border-b border-gray-200 pb-4">
-
+                    <div class="mb-6 ">
                         <!-- Filter Form -->
                         <form action="" method="GET">
                             <div class="flex flex-wrap items-end gap-3">
@@ -313,9 +286,46 @@
                             <% } %>
                         </form>
                     </div>
+                </div>
 
+                <!-- Stats cards -->
+                <div class="mx-4 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">จำนวนการรับซื้อ</p>
+                                <p class="text-2xl font-bold text-blue-900 mt-1">
+                                    <%= purchaseCount %>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">จำนวนลูกค้า</p>
+                                <p class="text-2xl font-bold text-green-900 mt-1">
+                                    <%= customerCount %>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">ยอดการรับซื้อ</p>
+                                <p class="text-2xl font-bold text-purple-900 mt-1">
+                                    <%= totalAmount.toLocaleString('th-TH') %> บาท
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search form and table -->
+                <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
                     <div class="overflow-x-auto">
-                        <h2 class="text-base font-semibold text-gray-800 mb-4">
+                        <h2 class="text-base font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-4">
                             ข้อมูลการรับซื้อ <span class="text-blue-600 text-base font-normal">
                                 <%= purchaseCount %> รายการ
                             </span>

@@ -62,6 +62,13 @@ router.get('/funeral-assistance/history', employeeController.getFuneralHistory);
 router.get('/funeral-assistance/detail/:id', employeeController.getFuneralDetail);
 router.get('/funeralAidHistory', employeeController.getFuneralHistoryPage);
 
+// การจัดการคำขอฌาปนกิจจาก User
+router.get('/funeralRequest', employeeController.pendingFuneralRequestsPage);
+router.get('/funeral-requests/pending/data', employeeController.getPendingFuneralRequests);
+router.get('/funeral-requests/:id/detail', employeeController.getRequestDetail);
+router.post('/funeral-requests/:id/approve', employeeController.approveRequest);
+router.post('/funeral-requests/:id/reject', employeeController.rejectRequest);
+
 
 // แผนที่
 router.get('/map', employeeController.mapIndex);

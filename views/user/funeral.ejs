@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <style>
+        .step-indicator {
+            transition: all 0.3s ease;
+        }
+        .step-indicator.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transform: scale(1.05);
+        }
+        .step-indicator.completed {
+            background: #15803d;
+        }
+        .form-section {
+            display: none;
+        }
+        .form-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .eligibility-badge {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    </style>
+    <%- include('../partials/userPartials/head.ejs') %>
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // เช็คข้อความที่ส่งมาจาก URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const successMessage = urlParams.get('message');
+        const errorMessage = urlParams.get('error');
+
+        if (successMessage) {
+            Swal.fire({
+                icon: 'success',
+                title: 'สำเร็จ!',
+                text: successMessage,
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#28a745',
+                timer: 3000
+            });
+        }
+
+        if (errorMessage) {
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด!',
+                text: errorMessage,
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#d33',
+                timer: 3000
+            });
+        }
+
+    </script>
+    <%- include('../partials/userPartials/header.ejs') %>
+
+    <!-- Page Header -->
+    <section class="bg-gradient-to-r from-primary-green to-secondary-green text-white py-16">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl md:text-5xl font-bold mb-4">ยื่นเรื่องขอรับฌาปนกิจสงเคราะห์</h2>
+            <p class="text-xl opacity-90">ยื่นเรื่องขอรับฌาปนกิจสงเคราะห์ สำหรับสมาชิกกองทุนขยะรีไซเคิล อบต.ขามป้อม เปือยน้อย ขอนแก่น</p>
+        </div>
+    </section>
+
+    <!-- Header -->
+    <!-- <div class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="/" class="text-gray-600 hover:text-gray-800 transition-colors">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                    </a>
+                    <h1 class="text-xl font-bold text-gray-800">ยื่นเรื่องขอรับฌาปนกิจสงเคราะห์</h1>
+                </div>
+                <a href="/funeral/my-requests" class="text-sm text-blue-600 hover:text-blue-800 flex items-center transition-colors">
+                    <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    ประวัติคำขอของฉัน
+                </a>
+            </div>
+        </div>
+    </div> -->
+
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        
+        <!-- Progress Steps -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between max-w-3xl mx-auto">
+                <div class="flex flex-col items-center flex-1">
+                    <div class="step-indicator active w-12 h-12 rounded-full flex items-center justify-center text-white font-bold mb-2" id="step1Icon">
+                        1
+                    </div>
+                    <span class="text-sm text-gray-600 text-center">ตรวจสอบสิทธิ์</span>
+                </div>
+                <div class="flex-1 h-1 bg-gray-300 mx-2" id="line1"></div>
+                <div class="flex flex-col items-center flex-1">
+                    <div class="step-indicator w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center text-white font-bold mb-2" id="step2Icon">
+                        2
+                    </div>
+                    <span class="text-sm text-gray-600 text-center">กรอกข้อมูล</span>
+                </div>
+                <div class="flex-1 h-1 bg-gray-300 mx-2" id="line2"></div>
+                <div class="flex flex-col items-center flex-1">
+                    <div class="step-indicator w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center text-white font-bold mb-2" id="step3Icon">
+                        3
+                    </div>
+                    <span class="text-sm text-gray-600 text-center">ยืนยันและส่ง</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 1: ตรวจสอบสิทธิ์ -->
+        <div class="form-section active" id="stepEligibility">
+            <div class="bg-white rounded-2xl shadow-xl p-8">
+                <div class="text-center mb-8">
+                    <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-10 h-10 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">ตรวจสอบคุณสมบัติ</h2>
+                    <p class="text-gray-600">กรุณาตรวจสอบว่าท่านมีคุณสมบัติในการขอรับฌาปนกิจหรือไม่</p>
+                </div>
+
+                <!-- Loading State -->
+                <div id="eligibilityLoading" class="text-center py-12">
+                    <svg class="animate-spin h-12 w-12 mx-auto text-blue-600" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p class="mt-4 text-gray-600">กำลังตรวจสอบคุณสมบัติ...</p>
+                </div>
+
+                <!-- Eligibility Result -->
+                <div id="eligibilityResult" class="hidden">
+                    <!-- จะถูก inject ด้วย JavaScript -->
+                </div>
+
+                <div class="mt-8 flex justify-center" id="eligibilityActions" style="display: none;">
+                    <button onclick="proceedToForm()" id="proceedBtn" class="px-8 py-3 bg-green-700 text-white rounded-lg font-semibold hover:shadow-lg transform hover:scale-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        ดำเนินการต่อ
+                        <svg class="inline w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: กรอกข้อมูล -->
+        <div class="form-section" id="stepForm">
+            <div class="bg-white rounded-2xl shadow-xl p-8">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">กรอกข้อมูลผู้เสียชีวิต</h2>
+                    <p class="text-gray-600">กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง</p>
+                </div>
+
+                <form id="funeralRequestForm">
+                    <div class="space-y-6">
+                        <!-- ข้อมูลผู้รับผิดชอบ -->
+                        <div class="border-b pb-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                ข้อมูลผู้รับผิดชอบในการจัดทำศพ
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อ-นามสกุล <span class="text-red-500">*</span></label>
+                                    <input type="text" name="responsiblePersonName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="ระบุชื่อ-นามสกุล">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">ความสัมพันธ์กับผู้เสียชีวิต <span class="text-red-500">*</span></label>
+                                    <select name="relationship" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                        <option value="">-- เลือกความสัมพันธ์ --</option>
+                                        <option value="หัวหน้าครัวเรือน">หัวหน้าครัวเรือน</option>
+                                        <option value="คู่สมรส">คู่สมรส</option>
+                                        <option value="บุตร">บุตร</option>
+                                        <option value="บิดา/มารดา">บิดา/มารดา</option>
+                                        <option value="ญาติ">ญาติ</option>
+                                        <option value="อื่นๆ">อื่นๆ</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ข้อมูลผู้เสียชีวิต -->
+                        <div class="border-b pb-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                ข้อมูลผู้เสียชีวิต
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อ-นามสกุล <span class="text-red-500">*</span></label>
+                                    <input type="text" name="deceasedName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="ระบุชื่อ-นามสกุลผู้เสียชีวิต">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">อายุ (ปี) <span class="text-red-500">*</span></label>
+                                    <input type="number" name="deceasedAge" required min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="ระบุอายุ">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">หมายเลขบัตรประชาชน <span class="text-red-500">*</span></label>
+                                    <input type="text" name="idCard" required maxlength="17" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="X-XXXX-XXXXX-XX-X">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">โทรศัพท์ <span class="text-red-500">*</span></label>
+                                    <input type="tel" name="phone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="0XX-XXX-XXXX">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">วันที่เสียชีวิต <span class="text-red-500">*</span></label>
+                                    <input type="date" name="dateOfDeath" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">สาเหตุการเสียชีวิต <span class="text-red-500">*</span></label>
+                                    <input type="text" name="causeOfDeath" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="ระบุสาเหตุ">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ที่อยู่ -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                ที่อยู่
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">บ้านเลขที่ <span class="text-red-500">*</span></label>
+                                    <input type="text" name="deceasedAddress" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="เลขที่">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">หมู่ที่ <span class="text-red-500">*</span></label>
+                                    <input type="text" name="deceasedVillage" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="หมู่">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">ตำบล <span class="text-red-500">*</span></label>
+                                    <input type="text" name="subDistrict" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="ตำบล">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">อำเภอ <span class="text-red-500">*</span></label>
+                                    <input type="text" name="district" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="อำเภอ">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">จังหวัด <span class="text-red-500">*</span></label>
+                                    <input type="text" name="province" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="จังหวัด">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">รหัสไปรษณีย์ <span class="text-red-500">*</span></label>
+                                    <input type="text" name="postalCode" required maxlength="5" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="XXXXX">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- หมายเหตุ -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">หมายเหตุเพิ่มเติม</label>
+                            <textarea name="notes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="ระบุข้อมูลเพิ่มเติม (ถ้ามี)"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 flex justify-between">
+                        <button type="button" onclick="goBackToEligibility()" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
+                            <svg class="inline w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                            ย้อนกลับ
+                        </button>
+                        <button type="button" onclick="proceedToConfirmation()" class="px-8 py-3 bg-green-700 text-white rounded-lg font-semibold hover:shadow-lg transform hover:scale-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                            ดำเนินการต่อ
+                            <svg class="inline w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Step 3: ยืนยันและส่ง -->
+        <div class="form-section" id="stepConfirmation">
+            <div class="bg-white rounded-2xl shadow-xl p-8">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">ตรวจสอบข้อมูลและยืนยัน</h2>
+                    <p class="text-gray-600">กรุณาตรวจสอบความถูกต้องของข้อมูลก่อนยืนยัน</p>
+                </div>
+
+                <div id="confirmationContent" class="space-y-6">
+                </div>
+
+                <!-- <div class="mt-8 bg-amber-50 border border-amber-200 rounded-lg p-4">
+                    <div class="flex items-start">
+                        <svg class="w-6 h-6 text-amber-600 mr-3 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <div>
+                            <p class="text-sm font-medium text-amber-800">ข้อมูลสำคัญ</p>
+                            <p class="text-sm text-amber-700 mt-1">เมื่อยืนยันการยื่นเรื่องแล้ว คำขอของท่านจะถูกส่งไปยังเจ้าหน้าที่เพื่อตรวจสอบและอนุมัติ ท่านสามารถติดตามสถานะได้ที่เมนู "ประวัติคำขอของฉัน"</p>
+                        </div>
+                    </div>
+                </div> -->
+
+                <div class="mt-8 flex justify-between">
+                    <button type="button" onclick="goBackToForm()" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
+                        <svg class="inline w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                        แก้ไขข้อมูล
+                    </button>
+                    <button type="button" onclick="submitRequest()" class="px-8 py-3 bg-green-700 text-white rounded-lg font-semibold hover:shadow-lg transform hover:scale-100 transition-all">
+                        ยืนยันและส่งคำขอ
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        let eligibilityData = null;
+        let formData = {};
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const successMessage = urlParams.get('message');
+            const errorMessage = urlParams.get('error');
+
+            if (successMessage) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'สำเร็จ!',
+                    text: successMessage,
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#28a745',
+                    timer: 3000
+                });
+            }
+
+            if (errorMessage) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด!',
+                    text: errorMessage,
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#d33',
+                    timer: 3000
+                });
+            }
+
+            checkEligibility();
+        });
+
+        async function checkEligibility() {
+            try {
+                const response = await fetch('/user/funeral/my-eligibility');
+                const result = await response.json();
+
+                document.getElementById('eligibilityLoading').style.display = 'none';
+                document.getElementById('eligibilityResult').classList.remove('hidden');
+                document.getElementById('eligibilityActions').style.display = 'flex';
+
+                if (result.success) {
+                    eligibilityData = result.data;
+                    displayEligibilityResult(result.data);
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: error.message || 'ไม่สามารถตรวจสอบคุณสมบัติได้'
+                });
+            }
+        }
+
+        function displayEligibilityResult(data) {
+            const container = document.getElementById('eligibilityResult');
+            const proceedBtn = document.getElementById('proceedBtn');
+            
+            const checkIcon = 'M5 13l4 4L19 7';
+            const xIcon = 'M6 18L18 6M6 6l12 12';
+            
+            const html = `
+                <div class="space-y-4">
+                    ${createConditionItem(data.passedMembershipPeriod, 
+                        'เป็นสมาชิกครบ 180 วัน (6 เดือน)', 
+                        data.passedMembershipPeriod 
+                            ? 'ผ่าน - เป็นสมาชิกมา ' + data.membershipDays + ' วัน (' + data.membershipMonths + ' เดือน)'
+                            : 'ไม่ผ่าน - เป็นสมาชิกเพียง ' + data.membershipDays + ' วัน (ต้องครบ 180 วัน)'
+                    )}
+                    
+                    ${createConditionItem(data.passedSalesRequirement,
+                        'ขายขยะสะสมครบ 300 บาท',
+                        data.passedSalesRequirement
+                            ? 'ผ่าน - ขายสะสม ' + data.totalSalesAmount.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท'
+                            : 'ไม่ผ่าน - ขายเพียง ' + data.totalSalesAmount.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท'
+                    )}
+                    
+                    ${createConditionItem(data.hasActiveBalance,
+                        'ยอดคงเหลือในบัญชีมากกว่า 300 บาท',
+                        data.hasActiveBalance
+                            ? 'ผ่าน - คงเหลือ ' + data.currentBalance.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท'
+                            : 'ไม่ผ่าน - คงเหลือเพียง ' + data.currentBalance.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท'
+                    )}
+
+                    ${createConditionItem(data.isCurrentlyActiveMember,
+                        'สถานะสมาชิกเป็นปัจจุบัน',
+                        data.isCurrentlyActiveMember
+                            ? 'ผ่าน - เป็นสมาชิกปัจจุบัน'
+                            : 'ไม่ผ่าน - สถานะสมาชิกถูกพักชั่วคราว'
+                    )}
+                    
+                    <div class="mt-6 p-6 rounded-xl ${data.isEligible ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300' : 'bg-gradient-to-r from-red-50 to-rose-50 border-2 border-red-300'}">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full ${data.isEligible ? 'bg-green-500' : 'bg-red-500'} flex items-center justify-center">
+                                <svg class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${data.isEligible ? checkIcon : xIcon}" />
+                                </svg>
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-xl font-bold ${data.isEligible ? 'text-green-800' : 'text-red-800'}">
+                                    ${data.isEligible ? 'ท่านมีสิทธิ์ยื่นเรื่องขอรับฌาปนกิจ' : 'ท่านยังไม่มีสิทธิ์ยื่นเรื่อง'}
+                                </p>
+                                ${!data.isEligible && data.ineligibleReasons && data.ineligibleReasons.length > 0 ? `
+                                    <div class="mt-2 text-sm text-red-700">
+                                        <p class="font-medium">เหตุผล:</p>
+                                        <ul class="list-disc list-inside mt-1 space-y-1">
+                                            ${data.ineligibleReasons.map(r => '<li>' + r + '</li>').join('')}
+                                        </ul>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+            proceedBtn.disabled = !data.isEligible;
+        }
+
+        function createConditionItem(passed, title, detail) {
+            const checkIcon = 'M5 13l4 4L19 7';
+            const xIcon = 'M6 18L18 6M6 6l12 12';
+            
+            return `
+                <div class="flex items-start p-4 rounded-lg border">
+                    <div class="flex-shrink-0 mr-3">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center ${passed ? 'bg-green-500' : 'bg-red-500'}">
+                            <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${passed ? checkIcon : xIcon}" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-medium text-gray-800">${title}</p>
+                        <p class="text-sm ${passed ? 'text-green-700' : 'text-red-700'} mt-1">${detail}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function proceedToForm() {
+            updateStepIndicator(2);
+            document.getElementById('stepEligibility').classList.remove('active');
+            document.getElementById('stepForm').classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function goBackToEligibility() {
+            updateStepIndicator(1);
+            document.getElementById('stepForm').classList.remove('active');
+            document.getElementById('stepEligibility').classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function proceedToConfirmation() {
+            const form = document.getElementById('funeralRequestForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            formData = {
+                responsiblePersonName: form.responsiblePersonName.value,
+                relationship: form.relationship.value,
+                deceasedName: form.deceasedName.value,
+                deceasedAge: form.deceasedAge.value,
+                idCard: form.idCard.value,
+                phone: form.phone.value,
+                dateOfDeath: form.dateOfDeath.value,
+                causeOfDeath: form.causeOfDeath.value,
+                deceasedAddress: form.deceasedAddress.value,
+                deceasedVillage: form.deceasedVillage.value,
+                subDistrict: form.subDistrict.value,
+                district: form.district.value,
+                province: form.province.value,
+                postalCode: form.postalCode.value,
+                notes: form.notes.value
+            };
+
+            displayConfirmation();
+            updateStepIndicator(3);
+            document.getElementById('stepForm').classList.remove('active');
+            document.getElementById('stepConfirmation').classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function goBackToForm() {
+            updateStepIndicator(2);
+            document.getElementById('stepConfirmation').classList.remove('active');
+            document.getElementById('stepForm').classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function displayConfirmation() {
+            const container = document.getElementById('confirmationContent');
+            const dateStr = new Date(formData.dateOfDeath).toLocaleDateString('th-TH', {
+                year: 'numeric', month: 'long', day: 'numeric'
+            });
+
+            container.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-semibold text-900 mb-3">ข้อมูลผู้รับผิดชอบ</h4>
+                        <div class="space-y-2 text-sm">
+                            <div><span class="text-gray-600">ชื่อ-นามสกุล:</span> <span class="font-medium">${formData.responsiblePersonName}</span></div>
+                            <div><span class="text-gray-600">ความสัมพันธ์:</span> <span class="font-medium">${formData.relationship}</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-semibold text-900 mb-3">ข้อมูลผู้เสียชีวิต</h4>
+                        <div class="space-y-2 text-sm">
+                            <div><span class="text-gray-600">ชื่อ-นามสกุล:</span> <span class="font-medium">${formData.deceasedName}</span></div>
+                            <div><span class="text-gray-600">อายุ:</span> <span class="font-medium">${formData.deceasedAge} ปี</span></div>
+                            <div><span class="text-gray-600">บัตรประชาชน:</span> <span class="font-medium">${formData.idCard}</span></div>
+                            <div><span class="text-gray-600">วันที่เสียชีวิต:</span> <span class="font-medium">${dateStr}</span></div>
+                            <div><span class="text-gray-600">สาเหตุ:</span> <span class="font-medium">${formData.causeOfDeath}</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-lg p-4 md:col-span-2">
+                        <h4 class="font-semibold text-900 mb-3">ที่อยู่</h4>
+                        <p class="text-sm">
+                            ${formData.deceasedAddress} หมู่ ${formData.deceasedVillage} 
+                            ต.${formData.subDistrict} อ.${formData.district} 
+                            จ.${formData.province} ${formData.postalCode}
+                        </p>
+                        <div class="mt-2"><span class="text-gray-600">โทรศัพท์:</span> <span class="font-medium">${formData.phone}</span></div>
+                    </div>
+                    
+                    ${formData.notes ? `
+                        <div class="bg-gray-50 rounded-lg p-4 md:col-span-2">
+                            <h4 class="font-semibold text-gray-900 mb-3">หมายเหตุ</h4>
+                            <p class="text-sm text-gray-700">${formData.notes}</p>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        async function submitRequest() {
+            try {
+                const confirmed = await Swal.fire({
+                    title: 'ยืนยันการยื่นเรื่อง?',
+                    text: 'คุณต้องการยื่นเรื่องขอรับฌาปนกิจหรือไม่?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'ยืนยัน',
+                    cancelButtonText: 'ยกเลิก',
+                    confirmButtonColor: '#10b981',
+                    cancelButtonColor: '#6b7280'
+                });
+
+                if (!confirmed.isConfirmed) return;
+
+                Swal.fire({
+                    title: 'กำลังส่งคำขอ...',
+                    allowOutsideClick: false,
+                    didOpen: function() { Swal.showLoading(); }
+                });
+
+                const response = await fetch('/user/funeral/request/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'ยื่นเรื่องสำเร็จ!',
+                        // html: `
+                        //     <p class="mb-4">${result.message}</p>
+                        //     <div class="bg-blue-50 p-4 rounded-lg">
+                        //         <p class="text-sm text-gray-700">หมายเลขคำขอ: <span class="font-mono font-bold">${result.data.requestID}</span></p>
+                        //         <p class="text-sm text-gray-600 mt-2">สถานะ: <span class="text-amber-600 font-semibold">รอการตรวจสอบ</span></p>
+                        //     </div>
+                        // `,
+                        confirmButtonText: 'ดูประวัติคำขอ',
+                        confirmButtonColor: '#3b82f6'
+                    });
+                    window.location.href = '/funeral/my-requests';
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: error.message
+                });
+            }
+        }
+
+        function updateStepIndicator(step) {
+            for (let i = 1; i <= 3; i++) {
+                const icon = document.getElementById('step' + i + 'Icon');
+                icon.className = 'step-indicator w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center text-white font-bold mb-2';
+            }
+            document.getElementById('line1').className = 'flex-1 h-1 bg-gray-300 mx-2';
+            document.getElementById('line2').className = 'flex-1 h-1 bg-gray-300 mx-2';
+
+            for (let i = 1; i <= step; i++) {
+                const icon = document.getElementById('step' + i + 'Icon');
+                if (i < step) {
+                    icon.className = 'step-indicator completed w-12 h-12 rounded-full flex items-center justify-center text-white font-bold mb-2';
+                    icon.innerHTML = '<svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>';
+                } else {
+                    icon.className = 'step-indicator active w-12 h-12 rounded-full flex items-center justify-center text-white font-bold mb-2';
+                    icon.innerHTML = i;
+                }
+            }
+
+            if (step >= 2) document.getElementById('line1').className = 'flex-1 h-1 bg-green-600 mx-2';
+            if (step >= 3) document.getElementById('line2').className = 'flex-1 h-1 bg-green-600 mx-2';
+        }
+    </script>
+
+    <%- include('../partials/userPartials/footer.ejs') %>
+</body>
+</html>

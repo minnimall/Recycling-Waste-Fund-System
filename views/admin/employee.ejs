@@ -58,18 +58,30 @@
         </div>
 
         <!-- Stats cards -->
-        <div class="mx-4 grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-blue-50 rounded-lg p-6 shadow-sm border border-blue-100 transition-transform hover:scale-105">
-                <div class="text-3xl font-bold text-blue-700 mb-2"><%= emp.length %></div>
-                <div class="text-gray-600">จำนวนผู้ใช้งานทั้งหมด</div>
+        <div class="mx-4 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">จำนวนผู้ใช้งานทั้งหมด</p>
+                        <p class="text-3xl font-bold text-green-600 mt-1"><%= emp.length %></p>
+                    </div>
+                </div>
             </div>
-            <div class="bg-green-50 rounded-lg p-6 shadow-sm border border-green-100 transition-transform hover:scale-105">
-                <div class="text-3xl font-bold text-green-700 mb-2"><%= emp.filter(employee => employee.role === 'employee').length %></div>
-                <div class="text-gray-600">จำนวนพนักงาน</div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">จำนวนพนักงาน</p>
+                        <p class="text-3xl font-bold text-blue-600 mt-1"><%= emp.filter(employee => employee.role === 'employee').length %></p>
+                    </div>
+                </div>
             </div>
-            <div class="bg-red-50 rounded-lg p-6 shadow-sm border border-red-100 transition-transform hover:scale-105">
-                <div class="text-3xl font-bold text-red-700 mb-2"><%= emp.filter(employee => employee.role === 'admin').length %></div>
-                <div class="text-gray-600">จำนวนผู้ดูแลระบบ</div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">จำนวนผู้ดูแลระบบ</p>
+                        <p class="text-3xl font-bold text-red-600 mt-1"><%= emp.filter(employee => employee.role === 'admin').length %></p>
+                    </div>
+                </div>
             </div>
         </div>
 

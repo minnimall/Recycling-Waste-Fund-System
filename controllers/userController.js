@@ -509,41 +509,51 @@ const user_wastePrices = async (req, res) => {
 
 // หน้ากิจกรรมทั้งหมด
 const user_allActivity = async (req, res) => {
-    const searchQuery = req.query.search?.trim() || "";
-    const page = parseInt(req.query.page) || 1;
-    const itemsPerPage = 10;
-    const skip = (page - 1) * itemsPerPage;
-
-    let query = { isDeleted: false };
-
-    if (searchQuery) {
-        query.title = { $regex: new RegExp(searchQuery, "i") };
-    }
-
     try {
-        const totalItems = await myActivity.countDocuments(query);
+        const searchQuery = req.query.search?.trim() || "";
+        const page = parseInt(req.query.page) || 1;
+        const limit = 12; // จำนวนรายการต่อหน้า
+        const skip = (page - 1) * limit;
+        
+        let query = { isDeleted: false };
 
+        if (searchQuery) {
+            query = {
+                ...query,
+                title: { $regex: new RegExp(searchQuery, "i") }
+            };
+        }
+
+        // นับจำนวนรายการทั้งหมด
+        const totalActivities = await myActivity.countDocuments(query);
+        
+        // คำนวณจำนวนหน้าทั้งหมด
+        const totalPages = Math.ceil(totalActivities / limit);
+
+        // ดึงข้อมูลกิจกรรมตาม pagination
         const result = await myActivity.find(query)
             .sort({ createdAt: -1 })
             .skip(skip)
-            .limit(itemsPerPage);
+            .limit(limit);
 
+        // แปลงวันที่ในแต่ละกิจกรรม
         const activities = result.map(activity => ({
             ...activity._doc,
             formattedDate: moment(activity.createdAt).format('YYYY-MM-DD')
         }));
 
-        res.render('user/allActivity', {
+        res.render('user/allActivity', { 
             activity: activities,
             search: searchQuery,
             pagination: {
-                totalItems,
                 currentPage: page,
-                itemsPerPage,
-                totalPages: Math.ceil(totalItems / itemsPerPage)
+                totalPages: totalPages,
+                totalItems: totalActivities,
+                itemsPerPage: limit,
+                hasNextPage: page < totalPages,
+                hasPrevPage: page > 1
             }
         });
-
     } catch (err) {
         console.log(err);
         res.status(500).send('เกิดข้อผิดพลาดในระบบ');
@@ -674,6 +684,525 @@ const detailNews = (req, res) => {
         res.status(500).send('Error fetching News details');
     });
 };
+
+
+// หน้าขอรับฌาปนกิจ
+const funeralRequest = async (req, res) => {
+    try {
+        if (!req.session || !req.session.username) {
+            return res.redirect('/login?error=' + encodeURIComponent('กรุณาเข้าสู่ระบบก่อนทำรายการ'));
+        }
+
+        const family = await Family.findOne({ 
+            username: req.session.username,
+            isDeleted: false 
+        });
+
+        if (!family) {
+            return res.redirect('/?error=' + encodeURIComponent('ไม่พบข้อมูลครัวเรือน'));
+        }
+
+        res.render('user/funeral', {
+            mytitle: 'ยื่นเรื่องขอรับฌาปนกิจสงเคราะห์',
+            media: []
+        });
+    } catch (error) {
+        console.error('funeralRequest error:', error);
+        res.status(500).send('Server Error');
+    }
+};
+
+// ตรวจสอบสิทธิ์การขอรับฌาปนกิจ
+const checkMyEligibility = async (req, res) => {
+    try {
+        if (!req.session || !req.session.username) {
+            return res.status(401).json({
+                success: false,
+                message: 'กรุณาเข้าสู่ระบบก่อนทำรายการ'
+            });
+        }
+
+        const family = await Family.findOne({ 
+            username: req.session.username,
+            isDeleted: false 
+        });
+
+        if (!family) {
+            return res.status(404).json({
+                success: false,
+                message: 'ไม่พบข้อมูลครัวเรือน'
+            });
+        }
+
+        const familyID = family._id;
+
+        const account = await WasteBankAccount.findOne({
+            familyID,
+            isDeleted: false
+        }).lean();
+
+        if (!account) {
+            return res.status(404).json({
+                success: false,
+                message: 'ไม่พบบัญชีธนาคารขยะของท่าน'
+            });
+        }
+
+        // คำนวณคุณสมบัติ
+        const hasEverBeenMember = !!account.MembershipDate;
+        const totalSalesAmount = account.TotalSalesAmount || 0;
+        const currentBalance = account.Balance || 0;
+        const isCurrentlyActiveMember = account.IsMember === true;
+
+        let membershipDays = 0;
+        let membershipMonths = 0;
+        let passedMembershipPeriod = false;
+
+        if (account.MembershipDate) {
+            const today = new Date();
+            const membershipDate = new Date(account.MembershipDate);
+            membershipDays = Math.floor((today - membershipDate) / (1000 * 60 * 60 * 24));
+            membershipMonths = Math.floor(membershipDays / 30);
+            passedMembershipPeriod = membershipDays >= 180;
+        }
+
+        const hasActiveBalance = currentBalance >= 300;
+        const passedSalesRequirement = totalSalesAmount >= 300;
+
+        // เงื่อนไขการมีสิทธิ์
+        const isEligible =
+            hasEverBeenMember &&
+            passedMembershipPeriod &&
+            hasActiveBalance &&
+            isCurrentlyActiveMember;
+
+        const ineligibleReasons = [];
+
+        if (!hasEverBeenMember) {
+            ineligibleReasons.push('ยังไม่เคยเป็นสมาชิก');
+        }
+        if (hasEverBeenMember && !passedMembershipPeriod) {
+            ineligibleReasons.push(`ยังไม่ครบ 180 วัน (เป็นสมาชิกมา ${membershipDays} วัน)`);
+        }
+        if (!hasActiveBalance) {
+            ineligibleReasons.push(`ยอดคงเหลือไม่ถึง 300 บาท (มี ${currentBalance.toFixed(2)} บาท)`);
+        }
+        if (!isCurrentlyActiveMember) {
+            ineligibleReasons.push('สถานะสมาชิกถูกพักชั่วคราว');
+        }
+
+        return res.json({
+            success: true,
+            data: {
+                hasEverBeenMember,
+                isCurrentlyActiveMember,
+                membershipDate: account.MembershipDate,
+                membershipDays,
+                membershipMonths,
+                totalSalesAmount,
+                passedSalesRequirement,
+                currentBalance,
+                hasActiveBalance,
+                passedMembershipPeriod,
+                isEligible,
+                ineligibleReasons,
+                pendingDeductions: account.PendingDeductions || 0,
+                registrationDate: account.OpenDate
+            }
+        });
+
+    } catch (error) {
+        console.error('checkMyEligibility error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'เกิดข้อผิดพลาดในการตรวจสอบคุณสมบัติ'
+        });
+    }
+};
+
+// ยื่นคำขอรับฌาปนกิจ
+const submitFuneralRequest = async (req, res) => {
+    try {
+        if (!req.session || !req.session.username) {
+            return res.status(401).json({
+                success: false,
+                message: 'กรุณาเข้าสู่ระบบก่อนทำรายการ'
+            });
+        }
+
+        const family = await Family.findOne({ 
+            username: req.session.username,
+            isDeleted: false 
+        });
+
+        if (!family) {
+            return res.status(404).json({
+                success: false,
+                message: 'ไม่พบข้อมูลครัวเรือน'
+            });
+        }
+
+        const familyID = family._id;
+
+        // ดึงข้อมูลจาก req.body
+        const {
+            responsiblePersonName,
+            relationship,
+            deceasedName,
+            deceasedAge,
+            idCard,
+            deceasedAddress,
+            deceasedVillage,
+            subDistrict,
+            district,
+            province,
+            postalCode,
+            phone,
+            causeOfDeath,
+            dateOfDeath,
+            notes,
+            memberID
+        } = req.body;
+
+        // ตรวจสอบ required fields
+        const requiredFields = {
+            responsiblePersonName,
+            relationship,
+            deceasedName,
+            deceasedAge,
+            idCard,
+            deceasedAddress,
+            deceasedVillage,
+            subDistrict,
+            district,
+            province,
+            postalCode,
+            phone,
+            causeOfDeath,
+            dateOfDeath
+        };
+
+        const missingFields = Object.entries(requiredFields)
+            .filter(([_, value]) => !value || value.toString().trim() === '')
+            .map(([key]) => key);
+
+        if (missingFields.length > 0) {
+            return res.status(400).json({
+                success: false,
+                message: `กรุณากรอกข้อมูลให้ครบถ้วน (${missingFields.join(', ')})`
+            });
+        }
+
+        // ตรวจสอบรูปแบบบัตรประชาชน
+        const idCardRegex = /^[0-9]{13}$/;
+        if (!idCardRegex.test(idCard.replace(/-/g, ''))) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'เลขบัตรประชาชนไม่ถูกต้อง (ต้องเป็นตัวเลข 13 หลัก)' 
+            });
+        }
+
+        // ตรวจสอบคุณสมบัติ
+        const account = await WasteBankAccount.findOne({
+            familyID,
+            isDeleted: false
+        });
+
+        if (!account || !account.MembershipDate) {
+            return res.status(400).json({
+                success: false,
+                message: 'ยังไม่มีสิทธิ์รับฌาปนกิจ (ยังไม่เป็นสมาชิก)'
+            });
+        }
+
+        const membershipDays = Math.floor(
+            (new Date() - new Date(account.MembershipDate)) / (1000 * 60 * 60 * 24)
+        );
+
+        if (membershipDays < 180) {
+            return res.status(400).json({
+                success: false,
+                message: `ยังไม่ครบ 180 วัน (เป็นสมาชิกมา ${membershipDays} วัน)`
+            });
+        }
+
+        if (account.Balance < 300) {
+            return res.status(400).json({
+                success: false,
+                message: `ยอดคงเหลือไม่พอ (มี ${account.Balance.toFixed(2)} บาท)`
+            });
+        }
+
+        if (!account.IsMember) {
+            return res.status(400).json({
+                success: false,
+                message: 'สถานะสมาชิกถูกพักชั่วคราว'
+            });
+        }
+
+        // ยอดเงินเริ่มต้น = 2,000 บาท (พนักงานจะปรับตอนอนุมัติ)
+        const defaultFuneralAmount = 2000;
+
+        // สร้างคำขอใหม่
+        const request = new FuneralAssistance({
+            familyID,
+            responsiblePerson: {
+                name: responsiblePersonName,
+                relationshipToDeceased: relationship
+            },
+            deceasedInfo: {
+                name: deceasedName,
+                age: Number(deceasedAge),
+                idCardNumber: idCard.replace(/-/g, ''),
+                address: {
+                    houseNumber: deceasedAddress,
+                    moo: deceasedVillage,
+                    subdistrict: subDistrict,
+                    district,
+                    province,
+                    postalCode
+                },
+                phone,
+                causeOfDeath,
+                dateOfDeath: new Date(dateOfDeath),
+                memberID: memberID || null
+            },
+            // ใส่ยอดเริ่มต้น 2,000 บาท
+            financialInfo: {
+                totalAmount: defaultFuneralAmount,
+                totalMemberAccounts: 0,
+                perAccountAmount: 0,
+                totalDeductedAccounts: 0,
+                totalDeductedAmount: 0,
+                accountsWithSufficientBalance: 0,
+                accountsWithInsufficientBalance: 0
+            },
+            notes: notes || '',
+            status: 'pending',
+            submittedBy: {
+                userType: 'user',
+                userId: familyID,
+                userModel: 'Family',
+                submittedAt: new Date()
+            },
+            eligibilityCheck: {
+                isMember: true,
+                membershipDate: account.MembershipDate,
+                membershipDays,
+                totalSalesAmount: account.TotalSalesAmount,
+                currentBalance: account.Balance,
+                pendingDeductions: account.PendingDeductions || 0,
+                passedMembershipPeriod: true,
+                isEligible: true,
+                checkedAt: new Date()
+            }
+        });
+
+        await request.save();
+
+        return res.json({
+            success: true,
+            message: 'ยื่นคำขอเรียบร้อย รอเจ้าหน้าที่ตรวจสอบและกำหนดยอดเงิน',
+            data: {
+                requestID: request._id,
+                status: request.status,
+                defaultAmount: defaultFuneralAmount
+            }
+        });
+
+    } catch (error) {
+        console.error('submitFuneralRequest error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'เกิดข้อผิดพลาดในการยื่นคำขอ'
+        });
+    }
+};
+
+module.exports = {
+    funeralRequest,
+    checkMyEligibility,
+    submitFuneralRequest
+};
+
+
+// หน้าประวัติคำขอของตนเอง
+const myFuneralRequestsPage = async (req, res) => {
+    try {
+        if (!req.session || !req.session.username) {
+            return res.redirect('/login?error=' + encodeURIComponent('กรุณาเข้าสู่ระบบก่อนทำรายการ'));
+        }
+
+        const family = await Family.findOne({ 
+            username: req.session.username,
+            isDeleted: false 
+        });
+
+        if (!family) {
+            return res.redirect('/?error=' + encodeURIComponent('ไม่พบข้อมูลครัวเรือน'));
+        }
+
+        res.render('user/funeralRequest', {
+            mytitle: 'ประวัติคำขอฌาปนกิจของฉัน',
+            media: []
+        });
+    } catch (error) {
+        console.error('myFuneralRequestsPage error:', error);
+        res.status(500).send('Server Error');
+    }
+};
+
+// API: ดึงรายการคำขอของตนเอง
+const getMyFuneralRequests = async (req, res) => {
+    try {
+        if (!req.session || !req.session.username) {
+            return res.status(401).json({
+                success: false,
+                message: 'กรุณาเข้าสู่ระบบก่อนทำรายการ'
+            });
+        }
+
+        const family = await Family.findOne({ 
+            username: req.session.username,
+            isDeleted: false 
+        });
+
+        if (!family) {
+            return res.status(404).json({
+                success: false,
+                message: 'ไม่พบข้อมูลครัวเรือน'
+            });
+        }
+
+        const requests = await FuneralAssistance.find({
+            familyID: family._id,
+            isDeleted: false
+        })
+        .populate('approvedBy', 'name email firstname lastname')
+        .populate('rejectedBy', 'name email firstname lastname')
+        .sort({ createdAt: -1 })
+        .lean();
+
+        res.json({ success: true, data: requests });
+
+    } catch (error) {
+        console.error('getMyFuneralRequests error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'เกิดข้อผิดพลาดในการดึงข้อมูล' 
+        });
+    }
+};
+
+//API: ดูรายละเอียดคำขอ
+const getMyFuneralRequestDetail = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        if (!req.session || !req.session.username) {
+            return res.status(401).json({
+                success: false,
+                message: 'กรุณาเข้าสู่ระบบก่อนทำรายการ'
+            });
+        }
+
+        const family = await Family.findOne({ 
+            username: req.session.username,
+            isDeleted: false 
+        });
+
+        if (!family) {
+            return res.status(404).json({
+                success: false,
+                message: 'ไม่พบข้อมูลครัวเรือน'
+            });
+        }
+
+        const request = await FuneralAssistance.findOne({
+            _id: id,
+            familyID: family._id,
+            isDeleted: false
+        })
+        .populate('approvedBy', 'name email')
+        .populate('rejectedBy', 'name email')
+        .populate('createdBy', 'name email')
+        .lean();
+
+        if (!request) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'ไม่พบคำขอนี้หรือคุณไม่มีสิทธิ์เข้าถึง' 
+            });
+        }
+
+        res.json({ success: true, data: request });
+
+    } catch (error) {
+        console.error('getMyFuneralRequestDetail error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'เกิดข้อผิดพลาดในการดึงข้อมูล' 
+        });
+    }
+};
+
+
+//ยกเลิกคำขอ (เฉพาะ pending)
+const cancelMyFuneralRequest = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        if (!req.session || !req.session.username) {
+            return res.status(401).json({
+                success: false,
+                message: 'กรุณาเข้าสู่ระบบก่อนทำรายการ'
+            });
+        }
+
+        const family = await Family.findOne({ 
+            username: req.session.username,
+            isDeleted: false 
+        });
+
+        if (!family) {
+            return res.status(404).json({
+                success: false,
+                message: 'ไม่พบข้อมูลครัวเรือน'
+            });
+        }
+
+        const request = await FuneralAssistance.findOne({
+            _id: id,
+            familyID: family._id,
+            status: 'pending',
+            isDeleted: false
+        });
+
+        if (!request) {
+            return res.status(404).json({
+                success: false,
+                message: 'ไม่พบคำขอนี้หรือไม่สามารถยกเลิกได้ (เฉพาะสถานะ "รอตรวจสอบ" เท่านั้น)'
+            });
+        }
+
+        request.status = 'cancelled';
+        request.notes = `${request.notes || ''}\n[ยกเลิกโดยผู้ใช้เมื่อ ${new Date().toLocaleString('th-TH')}]`;
+        await request.save();
+
+        res.json({ 
+            success: true, 
+            message: 'ยกเลิกคำขอเรียบร้อยแล้ว' 
+        });
+
+    } catch (error) {
+        console.error('cancelMyFuneralRequest error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'เกิดข้อผิดพลาดในการยกเลิกคำขอ' 
+        });
+    }
+};
+
 
 
 // หน้าโปรไฟล์
@@ -1238,5 +1767,6 @@ module.exports = {
     edit_idea,
     notification,
     notificationPost,
-    markNotificationAsRead
+    markNotificationAsRead,
+    funeralRequest,checkMyEligibility,submitFuneralRequest,myFuneralRequestsPage,getMyFuneralRequests,getMyFuneralRequestDetail,cancelMyFuneralRequest
 }

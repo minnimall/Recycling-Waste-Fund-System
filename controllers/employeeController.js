@@ -2304,18 +2304,34 @@ const withDrawIndex = async (req, res) => {
     }
 };
 
-// แสดงหน้าถอนเงิน พร้อมประวัติการถอน
+// แสดงหน้าถอนเงิน
 const showWithdrawPage = async (req, res) => {
     try {
+        // รับค่า page จาก query string (ถ้าไม่มีให้เป็น 1)
+        const page = parseInt(req.query.page) || 1;
+        const limit = 10; // จำนวนรายการต่อหน้า
+        const skip = (page - 1) * limit;
+
         // ดึงข้อมูลการตั้งค่า
         const settings = await SystemSettings.getSettings();
         
+        // นับจำนวนรายการทั้งหมด
+        const totalTransactions = await Transaction.countDocuments({ 
+            transactionType: 'withdraw', 
+            isDeleted: false 
+        });
+
+        // คำนวณจำนวนหน้าทั้งหมด
+        const totalPages = Math.ceil(totalTransactions / limit);
+
+        // ดึงข้อมูล transactions สำหรับหน้าปัจจุบัน
         const transactions = await Transaction.find({ 
             transactionType: 'withdraw', 
             isDeleted: false 
         })
         .sort({ transactionDate: -1 })
-        .limit(10)
+        .skip(skip)
+        .limit(limit)
         .populate('account')
         .populate('family')
         .lean();
@@ -2323,23 +2339,41 @@ const showWithdrawPage = async (req, res) => {
         res.render('employee/withDraw', {
             mytitle: 'พนักงาน | เบิกถอนเงิน',
             transactions: transactions || [],
-            minimumWithdrawAmount: settings.minimumWithdrawAmount, // ส่งไปที่หน้า view
+            minimumWithdrawAmount: settings.minimumWithdrawAmount,
             message: req.query.message || null,
             error: req.query.error || null,
             currentPage: 'withDraw',
+            // ข้อมูลสำหรับ pagination
+            pagination: {
+                currentPage: page,
+                totalPages: totalPages,
+                totalItems: totalTransactions,
+                itemsPerPage: limit,
+                hasNextPage: page < totalPages,
+                hasPrevPage: page > 1
+            }
         });
     } catch (err) {
         console.error('เกิดข้อผิดพลาดในการโหลดหน้าถอนเงิน:', err);
         res.render('employee/withDraw', {
             mytitle: 'เบิกถอนเงิน',
             transactions: [],
-            minimumWithdrawAmount: 300, // ค่า default
+            minimumWithdrawAmount: 300,
             error: 'เกิดข้อผิดพลาดในการโหลดข้อมูล',
             message: null,
-            currentPage: 'withDraw'
+            currentPage: 'withDraw',
+            pagination: {
+                currentPage: 1,
+                totalPages: 0,
+                totalItems: 0,
+                itemsPerPage: 20,
+                hasNextPage: false,
+                hasPrevPage: false
+            }
         });
     }
 };
+
 
 // ดึงข้อมูลบัญชีผ่าน AJAX
 const getAccountByNumber = async (req, res) => {
@@ -2453,56 +2487,85 @@ const searchHouseholds = async (req, res) => {
             return res.json({ success: true, data: [] });
         }
 
-        // ค้นหาครัวเรือนที่ไม่ถูกลบ
-        const families = await Family.find({
+        // 🔍 ค้นหาจาก WasteBankAccount ก่อน (เพื่อหา AccountNumber)
+        const accountMatches = await WasteBankAccount.find({
+            isDeleted: false,
+            AccountNumber: { $regex: query, $options: 'i' }
+        })
+        .limit(20)
+        .lean();
+
+        const accountFamilyIds = accountMatches.map(acc => acc.familyID);
+
+        // 🔍 ค้นหาจาก Family (ชื่อครัวเรือน)
+        const familyMatches = await Family.find({
             isDeleted: false,
             $or: [
                 { familyName: { $regex: query, $options: 'i' } },
                 { username: { $regex: query, $options: 'i' } }
             ]
         })
-        .populate('village')
         .limit(20)
         .lean();
 
-        // ดึงข้อมูล Member และ Account ของแต่ละครัวเรือน
-        const householdsData = await Promise.all(families.map(async (family) => {
-            // หา Member ตัวแทนครัวเรือน
-            const representative = await Member.findOne({
-                familyID: family._id,
-                isDeleted: false
-            }).lean();
+        // รวม familyID ที่พบจากทั้ง 2 แหล่ง
+        const allFamilyIds = [
+            ...accountFamilyIds,
+            ...familyMatches.map(f => f._id)
+        ];
 
-            // หา WasteBankAccount
-            const account = await WasteBankAccount.findOne({
-                familyID: family._id,
-                isDeleted: false
-            }).lean();
+        // ลบ familyID ที่ซ้ำ
+        const uniqueFamilyIds = [...new Set(allFamilyIds.map(id => id.toString()))];
 
-            // นับจำนวนสมาชิก
-            const memberCount = await Member.countDocuments({
-                familyID: family._id,
-                isDeleted: false,
-                Status: 'living'
-            });
+        // ดึงข้อมูลครบถ้วนของแต่ละครัวเรือน
+        const householdsData = await Promise.all(
+            uniqueFamilyIds.map(async (familyIdStr) => {
+                const familyId = new mongoose.Types.ObjectId(familyIdStr);
 
-            return {
-                id: account ? account.AccountNumber : family.username,
-                familyID: family._id,
-                head: representative ? representative.name : family.familyName,
-                address: family.address ? 
-                    `${family.address.houseNumber || ''} หมู่ ${family.address.moo || ''} ${family.address.subdistrict || ''} ${family.address.district || ''} ${family.address.province || ''}`.trim() 
-                    : 'ไม่ระบุ',
-                memberCount: memberCount,
-                registrationDate: account ? account.OpenDate : family.createdAt,
-                totalSales: account ? account.Balance : 0,
-                accountID: account ? account._id : null
-            };
-        }));
+                // ดึงข้อมูล Family
+                const family = await Family.findById(familyId).lean();
+                if (!family || family.isDeleted) return null;
+
+                // ดึงข้อมูล Account
+                const account = await WasteBankAccount.findOne({
+                    familyID: familyId,
+                    isDeleted: false
+                }).lean();
+
+                // ดึงข้อมูล Member ตัวแทน
+                const representative = await Member.findOne({
+                    familyID: familyId,
+                    isDeleted: false
+                }).lean();
+
+                // นับจำนวนสมาชิก
+                const memberCount = await Member.countDocuments({
+                    familyID: familyId,
+                    isDeleted: false,
+                    Status: 'living'
+                });
+
+                return {
+                    id: account ? account.AccountNumber : family.username,
+                    familyID: family._id,
+                    head: representative ? representative.name : family.familyName,
+                    address: family.address ? 
+                        `${family.address.houseNumber || ''} หมู่ ${family.address.moo || ''} ${family.address.subdistrict || ''} ${family.address.district || ''} ${family.address.province || ''}`.trim() 
+                        : 'ไม่ระบุ',
+                    memberCount: memberCount,
+                    registrationDate: account ? account.OpenDate : family.createdAt,
+                    totalSales: account ? account.Balance : 0,
+                    accountID: account ? account._id : null
+                };
+            })
+        );
+
+        // กรองข้อมูลที่เป็น null ออก
+        const validHouseholds = householdsData.filter(household => household !== null);
 
         res.json({ 
             success: true, 
-            data: householdsData 
+            data: validHouseholds 
         });
 
     } catch (error) {
@@ -2514,6 +2577,7 @@ const searchHouseholds = async (req, res) => {
         });
     }
 };
+
 
 // ตรวจสอบคุณสมบัติ (อัพเดท: ใช้ MembershipDate แทน IsMember)
 const checkEligibility = async (req, res) => {
@@ -2556,7 +2620,7 @@ const checkEligibility = async (req, res) => {
         const hasActiveBalance = currentBalance >= 300;
         const isCurrentlyActiveMember = isCurrentlyActive; // ต้อง IsMember = true
         
-        // ⭐ สรุปผล: ต้องมี MembershipDate, ครบ 180 วัน, ยอดคงเหลือ >= 300, และ IsMember = true
+        // สรุปผล: ต้องมี MembershipDate, ครบ 180 วัน, ยอดคงเหลือ >= 300, และ IsMember = true
         const isEligible = hasEverBeenMember && passedMembershipPeriod && hasActiveBalance && isCurrentlyActiveMember;
 
         // เหตุผลที่ไม่มีสิทธิ์
@@ -2639,6 +2703,7 @@ ${ineligibleReasons.length > 0 ? `Reasons: ${ineligibleReasons.join(', ')}` : ''
         });
     }
 };
+
 
 // API: คำนวณเงินฌาปนกิจ
 const calculateFuneralAmount = async (req, res) => {
@@ -3141,7 +3206,7 @@ const submitFuneralAssistance = async (req, res) => {
 // API: ดึงประวัติฌาปนกิจทั้งหมด (แก้ไขแล้ว - รองรับ พ.ศ./ค.ศ.)
 const getFuneralHistory = async (req, res) => {
     try {
-        const { page = 1, limit = 10, status, year, search } = req.query;
+        const { page = 1, limit = 25, status, year, search } = req.query;
 
         // สร้าง query object
         const query = { isDeleted: false };
@@ -3189,7 +3254,7 @@ const getFuneralHistory = async (req, res) => {
         // ดึงข้อมูล
         const records = await FuneralAssistance.find(query)
             .populate('familyID', 'familyName username address')
-            .populate('createdBy', 'name email')
+            .populate('createdBy', 'name email firstname lastname')
             .populate('deceasedInfo.memberID', 'name')
             .sort({ createdAt: -1 })
             .skip((page - 1) * limit)
@@ -3220,6 +3285,7 @@ const getFuneralHistory = async (req, res) => {
         });
     }
 };
+
 
 // API: ดึงรายละเอียดฌาปนกิจ
 const getFuneralDetail = async (req, res) => {
@@ -3262,18 +3328,480 @@ const getFuneralDetail = async (req, res) => {
 const getFuneralHistoryPage = (req, res) => {
     res.render('employee/funeralAidHistory', {
         mytitle: 'พนักงาน | ประวัติฌาปนกิจสงเคราะห์',
-        currentPage: 'funeralHistory',
+        currentPage: 'funeralAidHistory',
     });
 };
 
-//หน้าแผนที่
-const mapIndex = (req, res)=> {
-    res.render('employee/map',{mytitle: 'พนักงาน | แผนที่จุดเข้ารับซื้อ',currentPage: 'map',})
-}
+// หน้ารายการคำขอที่รอการอนุมัติ
+const pendingFuneralRequestsPage = (req, res) => {
+    res.render('employee/funeralRequest', {
+        mytitle: 'พนักงาน | รายการคำขอฌาปนกิจที่รอการอนุมัติ',
+        currentPage: 'funeralPendingRequests',
+    });
+};
+
+// API: ดึงรายการคำขอที่รอการอนุมัติ
+const getPendingFuneralRequests = async (req, res) => {
+    try {
+        const { page = 1, limit = 10, search } = req.query;
+
+        const query = { 
+            isDeleted: false,
+            status: 'pending',
+            'submittedBy.userType': 'user' // เฉพาะที่ user ยื่นคำขอ
+        };
+
+        // ค้นหา
+        if (search && search.trim() !== '') {
+            query.$or = [
+                { 'deceasedInfo.name': { $regex: search, $options: 'i' } },
+                { 'deceasedInfo.idCardNumber': { $regex: search } },
+                { 'responsiblePerson.name': { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        const total = await FuneralAssistance.countDocuments(query);
+
+        const requests = await FuneralAssistance.find(query)
+            .populate('familyID', 'familyName username address')
+            .populate('submittedBy.userId', 'familyName username')
+            .sort({ createdAt: -1 })
+            .skip((page - 1) * limit)
+            .limit(parseInt(limit))
+            .lean();
+
+        res.json({
+            success: true,
+            data: {
+                requests,
+                pagination: {
+                    total,
+                    page: parseInt(page),
+                    limit: parseInt(limit),
+                    pages: Math.ceil(total / limit)
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error('Error getting pending requests:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'เกิดข้อผิดพลาดในการดึงรายการคำขอ',
+            error: error.message 
+        });
+    }
+};
+
+// API: ดูรายละเอียดคำขอ + คำนวณเงินที่จะหัก
+const getRequestDetail = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const request = await FuneralAssistance.findById(id)
+            .populate('familyID', 'familyName username address')
+            .populate('submittedBy.userId', 'familyName username')
+            .lean();
+
+        if (!request) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'ไม่พบคำขอนี้' 
+            });
+        }
+
+        // เพิ่มส่วนนี้: ค้นหาข้อมูลบัญชีธนาคารขยะของครัวเรือนนี้
+        const familyAccount = await WasteBankAccount.findOne({
+            familyID: request.familyID._id,
+            isDeleted: false
+        }).select('AccountNumber').lean();
+
+        // นำเลขบัญชีไปใส่ไว้ใน object request เพื่อส่งไปหน้าบ้านง่ายๆ
+        request.accountNumber = familyAccount ? familyAccount.AccountNumber : 'ไม่พบเลขบัญชี';
+
+        // ใช้ยอดจาก request.financialInfo.totalAmount (default = 2000)
+        const amount = request.financialInfo?.totalAmount || 2000;
+
+        // คำนวณเงินที่จะหัก
+        const totalMemberAccounts = await WasteBankAccount.countDocuments({
+            isDeleted: false,
+            MembershipDate: { $ne: null }
+        });
+
+        const perAccountAmount = totalMemberAccounts > 0 ? amount / totalMemberAccounts : 0;
+
+        // ดึงบัญชีที่จะถูกหัก
+        const memberAccounts = await WasteBankAccount.find({
+            isDeleted: false,
+            MembershipDate: { $ne: null }
+        })
+        .populate('familyID', 'familyName username')
+        .lean();
+
+        const accountsPreview = memberAccounts.map(acc => ({
+            accountID: acc._id,
+            accountNumber: acc.AccountNumber,
+            accountName: acc.AccountName,
+            familyName: acc.familyID.familyName,
+            balanceBefore: acc.Balance,
+            deductedAmount: perAccountAmount,
+            balanceAfter: acc.Balance - perAccountAmount,
+            status: acc.Balance >= perAccountAmount ? 'sufficient' : 'insufficient',
+            pendingAmount: acc.Balance < perAccountAmount ? perAccountAmount - acc.Balance : 0
+        }));
+
+        const accountsWithSufficientBalance = accountsPreview.filter(a => a.status === 'sufficient').length;
+        const accountsWithInsufficientBalance = accountsPreview.filter(a => a.status === 'insufficient').length;
+
+        res.json({
+            success: true,
+            data: {
+                request,
+                calculation: {
+                    totalAmount: amount,
+                    totalMemberAccounts,
+                    perAccountAmount,
+                    accountsWithSufficientBalance,
+                    accountsWithInsufficientBalance
+                },
+                accountsPreview: accountsPreview.slice(0, 10)
+            }
+        });
+
+    } catch (error) {
+        console.error('Error getting request detail:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'เกิดข้อผิดพลาดในการดึงรายละเอียด',
+            error: error.message 
+        });
+    }
+};
+
+// API: อนุมัติคำขอ + หักเงิน
+const approveRequest = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        const { id } = req.params;
+        // รับยอดเงินที่พนักงานกำหนด (ถ้าไม่ส่งมาจะใช้ default จาก request)
+        const { approvedAmount } = req.body;
+
+        const request = await FuneralAssistance.findById(id).session(session);
+
+        if (!request) {
+            await session.abortTransaction();
+            return res.status(404).json({ 
+                success: false, 
+                message: 'ไม่พบคำขอนี้' 
+            });
+        }
+
+        if (request.status !== 'pending') {
+            await session.abortTransaction();
+            return res.status(400).json({ 
+                success: false, 
+                message: 'คำขอนี้ได้รับการดำเนินการแล้ว' 
+            });
+        }
+
+        // ใช้ยอดที่พนักงานส่งมา ถ้าไม่มีจะใช้ default จาก request
+        const amount = approvedAmount && approvedAmount > 0 
+            ? parseFloat(approvedAmount) 
+            : (request.financialInfo?.totalAmount || 2000);
+
+        console.log(`💰 ยอดเงินที่อนุมัติ: ${amount} บาท`);
+
+        // นับจำนวนบัญชีสมาชิก
+        const totalMemberAccounts = await WasteBankAccount.countDocuments({
+            isDeleted: false,
+            MembershipDate: { $ne: null }
+        }).session(session);
+
+        if (totalMemberAccounts === 0) {
+            await session.abortTransaction();
+            return res.status(400).json({ 
+                success: false, 
+                message: 'ไม่มีบัญชีสมาชิกในระบบ' 
+            });
+        }
+
+        const perAccountAmount = amount / totalMemberAccounts;
+
+        // ดึงบัญชีสมาชิกทั้งหมด
+        const memberAccounts = await WasteBankAccount.find({
+            isDeleted: false,
+            MembershipDate: { $ne: null }
+        })
+        .populate('familyID', 'familyName username')
+        .session(session);
+
+        const accountsToDeduct = [];
+        let totalDeductedAmount = 0;
+        let accountsWithSufficientBalance = 0;
+        let accountsWithInsufficientBalance = 0;
+        let membershipStatusChanges = [];
+
+        // หักเงินจากบัญชีทุกบัญชี
+        for (const acc of memberAccounts) {
+            const balanceBefore = acc.Balance;
+            const wasActiveMember = acc.IsMember;
+            let status = 'sufficient';
+            let pendingAmount = 0;
+            
+            if (balanceBefore >= perAccountAmount) {
+                acc.Balance -= perAccountAmount;
+                accountsWithSufficientBalance++;
+            } else {
+                const insufficientAmount = perAccountAmount - balanceBefore;
+                acc.Balance = 0;
+                acc.PendingDeductions = (acc.PendingDeductions || 0) + insufficientAmount;
+                pendingAmount = insufficientAmount;
+                status = 'insufficient_but_deducted';
+                accountsWithInsufficientBalance++;
+            }
+            
+            // ตรวจสอบสถานะสมาชิกหลังหัก
+            if (acc.Balance < 300 && acc.IsMember) {
+                acc.IsMember = false;
+                membershipStatusChanges.push({
+                    accountNumber: acc.AccountNumber,
+                    familyName: acc.familyID.familyName,
+                    balanceAfter: acc.Balance
+                });
+            }
+            
+            await acc.save({ session });
+
+            accountsToDeduct.push({
+                accountID: acc._id,
+                familyID: acc.familyID._id,
+                accountNumber: acc.AccountNumber,
+                accountName: acc.AccountName,
+                deductedAmount: perAccountAmount,
+                balanceBefore: balanceBefore,
+                balanceAfter: acc.Balance,
+                pendingAmount: pendingAmount,
+                status: status,
+                wasActiveMember: wasActiveMember,
+                isActiveMemberNow: acc.IsMember,
+                deductedAt: new Date()
+            });
+
+            totalDeductedAmount += perAccountAmount;
+        }
+
+        // อัปเดตคำขอ
+        request.status = 'completed';
+        request.approvedBy = req.user._id;
+        request.approvedAt = new Date();
+        // อัพเดทยอดเงินที่อนุมัติ
+        request.financialInfo.totalAmount = amount;
+        request.financialInfo.totalMemberAccounts = totalMemberAccounts;
+        request.financialInfo.perAccountAmount = perAccountAmount;
+        request.financialInfo.totalDeductedAccounts = accountsToDeduct.length;
+        request.financialInfo.totalDeductedAmount = totalDeductedAmount;
+        request.financialInfo.accountsWithSufficientBalance = accountsWithSufficientBalance;
+        request.financialInfo.accountsWithInsufficientBalance = accountsWithInsufficientBalance;
+        request.deductedAccounts = accountsToDeduct;
+
+        await request.save({ session });
+
+        // สร้าง Notification แจ้ง User ผู้ยื่นคำขอ
+        await Notification.create([{
+            userId: request.familyID,
+            type: 'funeral_approved',
+            title: 'คำขอฌาปนกิจได้รับการอนุมัติแล้ว',
+            content: `
+                <div>
+                    <p><strong>คำขอฌาปนกิจของท่านได้รับการอนุมัติแล้ว</strong></p>
+                    <p>ผู้เสียชีวิต: ${request.deceasedInfo.name}</p>
+                    <p>จำนวนเงินช่วยเหลือ: ${amount.toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท</p>
+                    <p>หักจากบัญชีสมาชิก ${totalMemberAccounts} บัญชี บัญชีละ ${perAccountAmount.toFixed(2)} บาท</p>
+                    <p class="mt-2 text-sm text-gray-600">เจ้าหน้าที่ได้ดำเนินการหักเงินจากทุกบัญชีเรียบร้อยแล้ว</p>
+                </div>
+            `
+        }], { session });
+
+        // สร้าง Notification แจ้งทุกบัญชีที่ถูกหัก
+        const notifications = accountsToDeduct.map(deduction => {
+            let content = `
+                <div>
+                    <p><strong>การหักเงินฌาปนกิจสงเคราะห์</strong></p>
+                    <p>ผู้เสียชีวิต: ${request.deceasedInfo.name}</p>
+                    <p>จำนวนเงินที่หัก: ${perAccountAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท</p>
+                    <p>ยอดคงเหลือ: ${deduction.balanceAfter.toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท</p>
+            `;
+
+            if (deduction.wasActiveMember && !deduction.isActiveMemberNow) {
+                content += `
+                    <div style="background-color: #FEE2E2; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                        <p><strong>⚠️ แจ้งเตือน: สูญเสียสิทธิ์สมาชิกชั่วคราว</strong></p>
+                        <p>เนื่องจากยอดคงเหลือต่ำกว่า 300 บาท</p>
+                        <p>💡 นำขยะมาขายให้ยอดคงเหลือกลับมาเกิน 300 บาท สิทธิ์จะกลับมาอัตโนมัติ</p>
+                    </div>
+                `;
+            }
+
+            if (deduction.status === 'insufficient_but_deducted') {
+                content += `
+                    <div style="background-color: #FEF3C7; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                        <p><strong>⚠️ เงินในบัญชีไม่พอหัก</strong></p>
+                        <p>เงินค้าง: ${deduction.pendingAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท</p>
+                        <p>กรุณานำขยะมาขายเพื่อชำระเงินค้าง</p>
+                    </div>
+                `;
+            }
+
+            content += `</div>`;
+
+            return {
+                userId: deduction.familyID,
+                type: 'funeral_deduction',
+                title: `หักเงินฌาปนกิจสงเคราะห์ ${perAccountAmount.toFixed(2)} บาท`,
+                content
+            };
+        });
+
+        await Notification.insertMany(notifications, { session });
+
+        await session.commitTransaction();
+
+        console.log(`✅ อนุมัติคำขอฌาปนกิจ ID: ${request._id} จำนวน ${amount} บาท สำเร็จ`);
+
+        res.json({
+            success: true,
+            message: 'อนุมัติคำขอฌาปนกิจและหักเงินเรียบร้อยแล้ว',
+            data: {
+                funeralID: request._id,
+                approvedAmount: amount,
+                totalDeducted: totalDeductedAmount,
+                accountsDeducted: accountsToDeduct.length,
+                accountsWithSufficientBalance,
+                accountsWithInsufficientBalance,
+                membershipStatusChanges
+            }
+        });
+
+    } catch (error) {
+        await session.abortTransaction();
+        console.error('Error approving request:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'เกิดข้อผิดพลาดในการอนุมัติคำขอ',
+            error: error.message 
+        });
+    } finally {
+        session.endSession();
+    }
+};
+
+// API: ปฏิเสธคำขอ
+const rejectRequest = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { reason } = req.body;
+
+        if (!reason || reason.trim() === '') {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'กรุณาระบุเหตุผลในการปฏิเสธ' 
+            });
+        }
+
+        const request = await FuneralAssistance.findById(id);
+
+        if (!request) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'ไม่พบคำขอนี้' 
+            });
+        }
+
+        if (request.status !== 'pending') {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'คำขอนี้ได้รับการดำเนินการแล้ว' 
+            });
+        }
+
+        request.status = 'rejected';
+        request.rejectedBy = req.user._id;
+        request.rejectedAt = new Date();
+        request.rejectionReason = reason;
+
+        await request.save();
+
+        // สร้าง Notification แจ้ง User
+        await Notification.create({
+            userId: request.familyID,
+            type: 'funeral_rejected',
+            title: 'คำขอฌาปนกิจถูกปฏิเสธ',
+            content: `
+                <div>
+                    <p><strong>คำขอฌาปนกิจของท่านถูกปฏิเสธ</strong></p>
+                    <p>ผู้เสียชีวิต: ${request.deceasedInfo.name}</p>
+                    <div style="background-color: #FEE2E2; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                        <p><strong>เหตุผล:</strong></p>
+                        <p>${reason}</p>
+                    </div>
+                    <p class="mt-2 text-sm text-gray-600">หากต้องการยื่นเรื่องใหม่ กรุณาติดต่อเจ้าหน้าที่</p>
+                </div>
+            `
+        });
+
+        console.log(`❌ ปฏิเสธคำขอฌาปนกิจ ID: ${request._id}`);
+
+        res.json({
+            success: true,
+            message: 'ปฏิเสธคำขอเรียบร้อยแล้ว',
+            data: {
+                funeralID: request._id
+            }
+        });
+
+    } catch (error) {
+        console.error('Error rejecting request:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'เกิดข้อผิดพลาดในการปฏิเสธคำขอ',
+            error: error.message 
+        });
+    }
+};
+
+// หน้าแผนที่ - ดึงข้อมูล wasteSaleRequest ที่ status = 'pending'
+const mapIndex = async (req, res) => {
+    try {
+        // ดึงข้อมูล wasteSaleRequest ที่ status = 'pending' และยังไม่ถูกลบ
+        const pendingRequests = await wasteSaleRequest.find({ 
+            status: 'pending',
+            isDeleted: false
+        })
+        .populate('waste') // ดึงข้อมูลขยะมาด้วย
+        .populate('family') // ดึงข้อมูลครอบครัวมาด้วย
+        .sort({ createdAt: -1 }); // เรียงจากใหม่สุดไปเก่าสุด
+
+        res.render('employee/map', {
+            mytitle: 'พนักงาน | แผนที่จุดเข้ารับซื้อ',
+            currentPage: 'map',
+            pendingRequests: pendingRequests // ส่งข้อมูลไปยัง view
+        });
+    } catch (error) {
+        console.error('Error loading map:', error);
+        res.render('employee/map', {
+            mytitle: 'พนักงาน | แผนที่จุดเข้ารับซื้อ',
+            currentPage: 'map',
+            pendingRequests: []
+        });
+    }
+};
+
 // บันทึกเส้นทาง
 const saveRoute = async (req, res) => {
     try {
-        const { routeName, points, totalDistance, totalDuration, note } = req.body;
+        const { routeName, points, totalDistance, totalDuration, note, requestIds } = req.body;
         
         // ตรวจสอบข้อมูลพื้นฐาน
         if (!routeName || !points || points.length < 2) {
@@ -3290,12 +3818,21 @@ const saveRoute = async (req, res) => {
             totalDistance: totalDistance,
             totalDuration: totalDuration,
             numberOfPoints: points.length,
-            createdBy: req.user._id, // หรือ req.user._id ตามระบบ auth ที่ใช้
-            note: note || ''
+            createdBy: req.user._id,
+            note: note || '',
+            wasteSaleRequests: requestIds || [] // เก็บ ID ของ wasteSaleRequest ที่เกี่ยวข้อง
         });
         
         // บันทึกลงฐานข้อมูล
         await newRoute.save();
+
+        // อัปเดตสถานะของ wasteSaleRequest ที่ถูกเลือกเป็น 'in-progress'
+        if (requestIds && requestIds.length > 0) {
+            await wasteSaleRequest.updateMany(
+                { _id: { $in: requestIds } },
+                { status: 'in-progress' }
+            );
+        }
         
         res.status(201).json({
             success: true,
@@ -3312,6 +3849,7 @@ const saveRoute = async (req, res) => {
     }
 };
 
+
 // ดูรายการเส้นทางที่บันทึกไว้ทั้งหมด
 const getAllRoutes = async (req, res) => {
     try {
@@ -3319,7 +3857,8 @@ const getAllRoutes = async (req, res) => {
             status: 'active'
         })
         .sort({ createdAt: -1 })
-        .populate('createdBy', 'name'); // ดึงชื่อพนักงานมาด้วย
+        .populate('createdBy', 'firstname lastname')
+        .populate('wasteSaleRequests'); // ดึงข้อมูล wasteSaleRequest มาด้วย
         
         res.render('employee/routeList', {
             mytitle: 'รายการเส้นทางที่บันทึก',
@@ -3339,7 +3878,14 @@ const getRouteDetail = async (req, res) => {
         const { routeId } = req.params;
         
         const route = await Route.findById(routeId)
-            .populate('createdBy', 'firstname lastname email');
+            .populate('createdBy', 'firstname lastname email')
+            .populate({
+                path: 'wasteSaleRequests',
+                populate: [
+                    { path: 'waste', select: 'name type' },
+                    { path: 'family', select: 'firstname lastname' }
+                ]
+            });
         
         if (!route) {
             return res.redirect('/employee/routeList?error=ไม่พบเส้นทางที่ต้องการ');
@@ -3357,7 +3903,7 @@ const getRouteDetail = async (req, res) => {
     }
 };
 
-// ลบเส้นทาง (ไม่ลบจริง แค่เปลี่ยนสถานะ)
+// ลบเส้นทาง
 const deleteRoute = async (req, res) => {
     try {
         const { routeId } = req.params;
@@ -3389,7 +3935,7 @@ const deleteRoute = async (req, res) => {
     }
 };
 
-// อัปเดตชื่อหรือหมายเหตุของเส้นทาง
+// อัปเดตเส้นทาง
 const updateRoute = async (req, res) => {
     try {
         const { routeId } = req.params;
@@ -3425,6 +3971,7 @@ const updateRoute = async (req, res) => {
         });
     }
 };
+
 
 // จุดรับซื้อขยะ
 const wastePointIndex = async (req, res) => {
@@ -3788,6 +4335,11 @@ module.exports = {
     withDrawIndex,getAccountByNumber,showWithdrawPage,updateMinimumWithdraw,getCurrentSettings,
     //หน้าฌาปนกิจสงเคราะห์
     funeralAidIndex,searchHouseholds,checkEligibility,calculateFuneralAmount,getDeductionPreview,submitFuneralAssistance,getFuneralHistory,getFuneralDetail,getFuneralHistoryPage,
+    pendingFuneralRequestsPage,
+    getPendingFuneralRequests,
+    getRequestDetail,
+    approveRequest,
+    rejectRequest,
     //หน้าแผนที่เข้ารับซื้อ
     mapIndex,saveRoute,getAllRoutes,getRouteDetail,deleteRoute,updateRoute,
     //หน้าจัดการจุดรับซื้อ
