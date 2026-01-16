@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const bodyParser = require('body-parser');
+const bodyParser = require('body-parser')
+const cloudinary = require('cloudinary').v2;
+// const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require('multer');
+const streamifier = require('streamifier');
 const myMedia = require('../models/media');
 const MyAdmin = require('../models/admin');
 const myWaste= require('../models/waste');
@@ -29,6 +32,12 @@ router.use(express.static(path.join(__dirname, '../public')));
 
 router.use(bodyParser.json({ limit: '10mb' }));  // เพิ่มขนาด payload สูงสุด 10MB
 router.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 router.post('/upload-image', (req, res) => {
     // โค้ดสำหรับจัดการการอัพโหลด
@@ -845,15 +854,25 @@ const activityEdit = (req, res) => {
 
 
 // สำหรับเก็บรูปภาพที่อัปโหลดจาก waste
-const storage2 = multer.diskStorage({
-    destination: './public/upload_imgwaste',
-    filename: function (req, file, cb) {
-        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
-    }
-});
+// const storage2 = multer.diskStorage({
+//     destination: './public/upload_imgwaste',
+//     filename: function (req, file, cb) {
+//         cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+//     }
+// });
+// const storage2 = new CloudinaryStorage({
+//     cloudinary: cloudinary,
+//     params: {
+//         folder: 'waste_images',   // ชื่อโฟลเดอร์ใน Cloudinary
+//         allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
+//         public_id: (req, file) => {
+//         return 'waste-' + Date.now();
+//         }
+//     }
+// });
 
 const upload2 = multer({
-    storage: storage2, // ใช้ storage2 แทน storage
+    storage: multer.memoryStorage(),
     limits: { fileSize: 50 * 1024 * 1024 }
 }).single('img');
 
@@ -881,49 +900,70 @@ const wasteIndex = (req, res) => {
 };
 // เพิ่มขยะ (ป้องกันเพิ่มขยะซ้ำ)
 const wastePost = async (req, res) => {
-    upload2(req, res, async (err) => { // ใช้ upload2 แทน upload
+    upload2(req, res, async (err) => {
         if (err) {
-            console.error('Error in file upload:', err);
-            return res.status(400).send('เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ');
+        console.error(err);
+        return res.status(400).send('เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ');
         }
-
-        // ตรวจสอบรูปภาพที่อัปโหลด
-        const imagePath = req.file
-            ? `/upload_imgwaste/${req.file.filename}` // ใช้ backticks สำหรับการแทรกค่า
-            : '/img/no_image.jpg';
 
         const { wasteName, pricePerUnit, wasteType } = req.body;
 
-        // ตรวจสอบข้อมูลที่จำเป็น
         if (!wasteName || !pricePerUnit || !wasteType) {
-            return res.status(400).send('กรุณากรอกข้อมูลให้ครบถ้วน');
+        return res.status(400).send('กรุณากรอกข้อมูลให้ครบถ้วน');
         }
 
         try {
-            // ตรวจสอบว่ามี wasteName นี้ในฐานข้อมูลแล้วหรือไม่
-            const existingWaste = await myWaste.findOne({ wasteName });
-            if (existingWaste) {
-                return res.redirect('/admin/waste?error=ขยะนี้มีอยู่แล้ว');
-            }
-            // ตรวจสอบประเภทขยะ
-            const wasteTypeDoc = await myWasteType.findById(wasteType);
-            if (!wasteTypeDoc) {
-                return res.status(400).send('ประเภทขยะไม่ถูกต้อง');
-            }
+        // ตรวจสอบขยะซ้ำ
+        const existingWaste = await myWaste.findOne({ wasteName });
+        if (existingWaste) {
+            return res.redirect('/admin/waste?error=ขยะนี้มีอยู่แล้ว');
+        }
 
-            const newWaste = new myWaste({
-                wasteName,
-                pricePerUnit: parseFloat(pricePerUnit), // ตรวจสอบว่าเป็นตัวเลข
-                wasteType,
-                img: imagePath
+        // ตรวจสอบประเภทขยะ
+        const wasteTypeDoc = await myWasteType.findById(wasteType);
+        if (!wasteTypeDoc) {
+            return res.status(400).send('ประเภทขยะไม่ถูกต้อง');
+        }
+
+        let imageUrl = null;
+
+        // ถ้ามีการอัปโหลดรูป
+        if (req.file) {
+            const uploadFromBuffer = () => {
+            return new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream(
+                {
+                    folder: 'waste_images',
+                    resource_type: 'image'
+                },
+                (error, result) => {
+                    if (result) resolve(result);
+                    else reject(error);
+                }
+                );
+
+                streamifier.createReadStream(req.file.buffer).pipe(stream);
             });
+            };
 
-            await newWaste.save();
-            console.log('Waste saved successfully');
-            res.redirect('/admin/waste?message=เพิ่มขยะสำเร็จ');
+            const result = await uploadFromBuffer();
+            imageUrl = result.secure_url; // URL รูปจาก Cloudinary
+        }
+
+        const newWaste = new myWaste({
+            wasteName,
+            pricePerUnit: parseFloat(pricePerUnit),
+            wasteType,
+            img: imageUrl
+        });
+
+        await newWaste.save();
+
+        res.redirect('/admin/waste?message=เพิ่มขยะสำเร็จ');
+
         } catch (error) {
-            console.error('Error saving waste:', error);
-            res.redirect('/admin/waste?error=เกิดข้อผิดพลาดในระบบ');
+        console.error(error);
+        res.redirect('/admin/waste?error=เกิดข้อผิดพลาดในระบบ');
         }
     });
 };
