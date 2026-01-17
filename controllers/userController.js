@@ -1694,7 +1694,7 @@ const delete_ideas = async (req, res) => {
 const upload4 = multer({ 
     storage: multer.memoryStorage(),
     limits: { fileSize: 50 * 1024 * 1024 }
-}).single('img');
+}).single('image');
 
 // แก้ไขไอเดีย
 const edit_idea = (req, res) => {
