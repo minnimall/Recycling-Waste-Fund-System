@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const cloudinary = require('../config/cloudinary');
 const multer = require('multer');
+const streamifier = require('streamifier');
 const myMedia = require('../models/media');
 const myActivity = require('../models/activity');
 const myNews = require('../models/news');
@@ -189,6 +191,18 @@ const user_saleHistory = (req, res)=> {
     res.render('user/saleHistory')
 }
 
+// const storage = multer.diskStorage({
+//     destination: './public/upload_imgWasteSaleRequest',
+//     filename: function (req, file, cb) {
+//         cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+//     }
+// });
+
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 50 * 1024 * 1024 }
+}).single('img');
+
 // หน้าแจ้งความประสงค์ขายขยะ
 const user_wasteSaleRequest = async (req, res) => {
     try {
@@ -251,81 +265,89 @@ const user_wasteSaleRequest = async (req, res) => {
     }
 };
 
-
-
-
-const storage = multer.diskStorage({
-    destination: './public/upload_imgWasteSaleRequest',
-    filename: function (req, file, cb) {
-        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
-    }
-});
-
-const upload = multer({
-    storage,
-    limits: { fileSize: 50 * 1024 * 1024 }
-}).single('image');
-
 //บันทึกข้อมูลแบบฟอร์มแจ้งความประสงค์ขายขยะ
 const wasteSaleRequestPost = (req, res) => {
-    // ตรวจสอบว่า session มีค่า userId หรือไม่
+
     if (!req.session || !req.session.username) {
-        res.redirect('/user/wasteSaleRequest?error=กรุณาเข้าสู่ระบบก่อนทำรายการ');
+        return res.redirect('/user/wasteSaleRequest?error=กรุณาเข้าสู่ระบบก่อนทำรายการ');
     }
 
-    // ใช้ username จาก session ค้นหา Family ในฐานข้อมูล
     const { username } = req.session;
 
-    // ค้นหาผู้ใช้จาก Family ตาม username
-    Family.findOne({ username: username })
+    Family.findOne({ username })
         .then((family) => {
             if (!family) {
-                res.redirect('/user/wasteSaleRequest?error=ไม่พบข้อมูลครัวเรือน');
+                return res.redirect('/user/wasteSaleRequest?error=ไม่พบข้อมูลครัวเรือน');
             }
 
             upload(req, res, async (err) => {
                 if (err) {
-                    res.redirect('/user/wasteSaleRequest?error=อัปโหลดรูปภาพล้มเหลว');
+                    console.error(err);
+                    return res.redirect('/user/wasteSaleRequest?error=อัปโหลดรูปภาพล้มเหลว');
                 }
 
-                const imagePath = req.file ? `/upload_imgWasteSaleRequest/${req.file.filename}` : '/img/no_image.jpg';
-                // เพิ่ม latitude และ longitude ในการรับค่าจาก req.body
-                const { waste, weight, date, location, latitude, longitude, locationMoreDetail } = req.body;
+                try {
+                    const {waste,weight,date,location,latitude,longitude,locationMoreDetail} = req.body;
 
-                if (!waste || waste.length === 0) {
-                    res.redirect('/user/wasteSaleRequest?error=กรุณาเลือกขยะที่ต้องการขาย');
-                }
+                    if (!waste || waste.length === 0) {
+                        return res.redirect('/user/wasteSaleRequest?error=กรุณาเลือกขยะที่ต้องการขาย');
+                    }
 
-                // ตรวจสอบว่ามีค่า latitude และ longitude หรือไม่
-                if (!latitude || !longitude) {
-                    res.redirect('/user/wasteSaleRequest?error=กรุณาเลือกตำแหน่งบนแผนที่');
-                }
+                    if (!latitude || !longitude) {
+                        return res.redirect('/user/wasteSaleRequest?error=กรุณาเลือกตำแหน่งบนแผนที่');
+                    }
 
-                // สร้างการแจ้งความประสงค์ขายขยะ
-                const newSaleRequest = new wasteSaleRequest({
-                    waste: Array.isArray(waste) ? waste : [waste], 
-                    weight: weight ? parseFloat(weight) : undefined, 
-                    date: new Date(date),
-                    location,
-                    locationMoreDetail: locationMoreDetail || '',
-                    latitude: parseFloat(latitude),  // เพิ่มค่า latitude
-                    longitude: parseFloat(longitude), // เพิ่มค่า longitude
-                    img: imagePath,
-                    family: family._id  // ใช้ _id ของ family ที่ค้นหามา
-                });
+                    let imageUrl = null;
 
-                newSaleRequest.save()
-                    .then((result) => {
-                        res.redirect('/user/wasteSaleRequest?message=ส่งแบบฟอร์มสำเร็จ');
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                        res.redirect('/user/wasteSaleRequest?error=เกิดข้อผิดพลาดในระบบ');
+                    // อัปโหลดรูปขึ้น Cloudinary
+                    if (req.file) {
+                        const uploadFromBuffer = () => {
+                            return new Promise((resolve, reject) => {
+                                const stream = cloudinary.uploader.upload_stream(
+                                    {
+                                        folder: 'waste_sale_requests',
+                                        resource_type: 'image'
+                                    },
+                                    (error, result) => {
+                                        if (result) resolve(result);
+                                        else reject(error);
+                                    }
+                                );
+
+                                streamifier
+                                    .createReadStream(req.file.buffer)
+                                    .pipe(stream);
+                            });
+                        };
+
+                        const result = await uploadFromBuffer();
+                        imageUrl = result.secure_url;
+                    }
+
+                    const newSaleRequest = new wasteSaleRequest({
+                        waste: Array.isArray(waste) ? waste : [waste],
+                        weight: weight ? parseFloat(weight) : undefined,
+                        date: new Date(date),
+                        location,
+                        locationMoreDetail: locationMoreDetail || '',
+                        latitude: parseFloat(latitude),
+                        longitude: parseFloat(longitude),
+                        img: imageUrl,
+                        family: family._id
                     });
+
+                    await newSaleRequest.save();
+
+                    return res.redirect('/user/wasteSaleRequest?message=ส่งแบบฟอร์มสำเร็จ');
+
+                } catch (error) {
+                    console.error(error);
+                    return res.redirect('/user/wasteSaleRequest?error=เกิดข้อผิดพลาดในระบบ');
+                }
             });
         })
         .catch((err) => {
-            console.log(err);
+            console.error(err);
             res.status(500).send('เกิดข้อผิดพลาดในการค้นหาผู้ใช้');
         });
 };
@@ -361,7 +383,7 @@ const wasteSaleRequestUserSubmit = async (req, res) => {
             );
         }
 
-        // ✅ ต้องเป็น WAITING_USER เท่านั้น
+        // ต้องเป็น WAITING_USER เท่านั้น
         if (request.status !== 'waitingUser') {
             return res.redirect(
                 '/user/wasteSaleRequest?error=' +
@@ -369,7 +391,7 @@ const wasteSaleRequestUserSubmit = async (req, res) => {
             );
         }
 
-        // ✅ ใช้ confirmExpireAt
+        // ใช้ confirmExpireAt
         if (!request.userConfirmDeadline || new Date() > request.userConfirmDeadline) {
 
             request.status = 'rejected';
@@ -391,7 +413,6 @@ const wasteSaleRequestUserSubmit = async (req, res) => {
             );
         }
 
-        // ✅ ยืนยันสำเร็จ
         request.status = 'confirmed';
         request.confirmedAt = new Date();
         await request.save();
@@ -415,8 +436,6 @@ const wasteSaleRequestUserSubmit = async (req, res) => {
         );
     }
 };
-
-
 
 const wasteSaleRequestUserReject = async (req, res) => {
     try {
@@ -457,6 +476,7 @@ const wasteSaleRequestUserReject = async (req, res) => {
         });
     }
 };
+
 // หน้าข้อมูลติดต่อ
 const user_contact = async(req, res) => {
     try {
@@ -601,26 +621,31 @@ const user_detailActivity = (req, res) => {
 };
 
 // เก็บรูปภาพที่อัปโหลดจาก complaint
-const Storage = multer.diskStorage({
-    destination: './public/upload/complaint/',
-    filename: function (req, file, cb) {
-        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
-    }
-});
+// const Storage = multer.diskStorage({
+//     destination: './public/upload/complaint/',
+//     filename: function (req, file, cb) {
+//         cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+//     }
+// });
 
-const Upload3 = multer({
-    storage: Storage,   // ใช้ Storage ตัวใหญ่
-    limits: { fileSize: 10 * 1024 * 1024 } // จำกัด 10MB
-}).single('image');     // ต้องตรงกับ name="image" ใน form
+// const Upload3 = multer({
+//     storage: Storage,   // ใช้ Storage ตัวใหญ่
+//     limits: { fileSize: 10 * 1024 * 1024 } // จำกัด 10MB
+// }).single('image');     // ต้องตรงกับ name="image" ใน form
 
+const upload3 = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 50 * 1024 * 1024 }
+}).single('img');
 
 // หน้าคำร้องเรียน
 const user_complaint = (req, res)=> {
     res.render('user/complaint', { session: req.session });
 }
 
+// เพิ่มคำร้องเรียน
 const complaintPost = (req, res) => {
-    Upload3(req, res, async (err) => {
+    upload3(req, res, async (err) => {
         if (err) {
             console.error("Multer upload error:", err);
             return res.redirect('/user/complaint?error=อัปโหลดไฟล์ไม่สำเร็จ');
@@ -636,22 +661,44 @@ const complaintPost = (req, res) => {
                 return res.redirect('/user/complaint?error=ไม่พบข้อมูลครัวเรือน');
             }
 
-            // ต้องใช้ filename ไม่ใช่ name
-            const imagePath = req.file 
-                ? `/upload/complaint/${req.file.filename}` 
-                : '/img/no_image.jpg';
-
             const { complaintMessage, category } = req.body;
 
             if (!complaintMessage || !category) {
                 return res.redirect('/user/complaint?error=กรุณากรอกข้อมูลให้ครบถ้วน');
             }
 
+            let imageUrl = null;
+
+            // อัปโหลดรูปขึ้น Cloudinary
+            if (req.file) {
+                const uploadFromBuffer = () => {
+                    return new Promise((resolve, reject) => {
+                        const stream = cloudinary.uploader.upload_stream(
+                            {
+                                folder: 'complaints',
+                                resource_type: 'image'
+                            },
+                            (error, result) => {
+                                if (result) resolve(result);
+                                else reject(error);
+                            }
+                        );
+
+                        streamifier
+                            .createReadStream(req.file.buffer)
+                            .pipe(stream);
+                    });
+                };
+
+                const result = await uploadFromBuffer();
+                imageUrl = result.secure_url;
+            }
+
             const newComplaint = new Complaint({
                 family: family._id,
                 complaintMessage: complaintMessage.trim(),
                 category,
-                image: imagePath
+                image: imageUrl || null
             });
 
             await newComplaint.save();
@@ -1456,16 +1503,17 @@ const user_profile = async (req, res) => {
 };
 
 // ตั้งค่าการอัปโหลดรูปภาพ
-const storage2 = multer.diskStorage({
-    destination: './public/ideasImg',
-    filename: function (req, file, cb) {
-        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
-    }
-});
+// const storage2 = multer.diskStorage({
+//     destination: './public/ideasImg',
+//     filename: function (req, file, cb) {
+//         cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+//     }
+// });
+
 const upload2 = multer({ 
-    storage: storage2, // ใช้ storage2 แทน storage
+    storage: multer.memoryStorage(),
     limits: { fileSize: 50 * 1024 * 1024 }
-}).single('image');
+}).single('img');
 
 const user_ideas = async (req, res) => {
     try {
@@ -1486,36 +1534,60 @@ const user_ideas = async (req, res) => {
     }
 };
 
+// เพิ่มไอเดีย
 const create_idea = [
-    upload2, async (req, res) => {
+    upload2,
+    async (req, res) => {
         try {
-            const username = req.session.username; // ดึง username จาก session
+            const username = req.session.username;
             if (!username) {
                 return res.status(401).send('Unauthorized');
             }
 
-            // ค้นหา user จาก username (สมมติ Family คือ collection user)
-            const user = await Family.findOne({ username: username });
+            const user = await Family.findOne({ username });
             if (!user) {
                 return res.status(404).render('404', { mytitle: 'User not found' });
             }
 
             const { title, category, content } = req.body;
-            // ตรวจสอบรูปภาพที่อัปโหลด
-            const imagePath = req.file
-                ? `/ideasImg/${req.file.filename}` // ใช้ backticks สำหรับการแทรกค่า
-                : 'no_image';
 
-            // สร้าง Idea โดยใช้ user._id เป็น authorId
+            let imageUrl = null;
+
+            // อัปโหลดรูปขึ้น Cloudinary
+            if (req.file) {
+                const uploadFromBuffer = () => {
+                    return new Promise((resolve, reject) => {
+                        const stream = cloudinary.uploader.upload_stream(
+                            {
+                                folder: 'ideas',
+                                resource_type: 'image'
+                            },
+                            (error, result) => {
+                                if (result) resolve(result);
+                                else reject(error);
+                            }
+                        );
+
+                        streamifier
+                            .createReadStream(req.file.buffer)
+                            .pipe(stream);
+                    });
+                };
+
+                const result = await uploadFromBuffer();
+                imageUrl = result.secure_url;
+            }
+
             await Idea.create({
                 authorId: user._id,
                 title,
                 category,
                 content,
-                imageUrl: imagePath
+                imageUrl: imageUrl || null
             });
 
             return res.redirect('/user/ideas');
+
         } catch (error) {
             console.error(error);
             res.status(500).send('Server error');
@@ -1611,20 +1683,28 @@ const delete_ideas = async (req, res) => {
     return res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดระหว่างลบ' });
     }
 };
-const storage4 = multer.diskStorage({
-    destination: './public/ideasImg',
-        filename: (req, file, cb) => {
-        cb(null, Date.now() + '-' + file.originalname);
-    }
-});
 
-const upload4 = multer({ storage: storage4 }).single('image');
+// const storage4 = multer.diskStorage({
+//     destination: './public/ideasImg',
+//         filename: (req, file, cb) => {
+//         cb(null, Date.now() + '-' + file.originalname);
+//     }
+// });
 
+const upload4 = multer({ 
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 50 * 1024 * 1024 }
+}).single('img');
+
+// แก้ไขไอเดีย
 const edit_idea = (req, res) => {
     upload4(req, res, async (err) => {
         if (err) {
-        console.error(err);
-        return res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดในการอัปโหลดไฟล์' });
+            console.error(err);
+            return res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการอัปโหลดไฟล์'
+            });
         }
 
         try {
@@ -1632,27 +1712,63 @@ const edit_idea = (req, res) => {
             const { title, content, category } = req.body;
 
             if (!title || !content || !category) {
-                return res.status(400).json({ success: false, message: 'กรุณากรอกข้อมูลให้ครบ' });
+                return res.status(400).json({
+                    success: false,
+                    message: 'กรุณากรอกข้อมูลให้ครบ'
+                });
             }
 
             const post = await Idea.findById(id);
             if (!post) {
-                return res.status(404).json({ success: false, message: 'ไม่พบโพสต์' });
+                return res.status(404).json({
+                    success: false,
+                    message: 'ไม่พบโพสต์'
+                });
             }
 
+            // อัปเดตข้อมูลข้อความ
             post.title = title;
             post.content = content;
             post.category = category;
 
+            // ถ้ามีการอัปโหลดรูปใหม่ → upload ไป Cloudinary
             if (req.file) {
-                post.imageUrl = `/ideasImg/${req.file.filename}`;
+                const uploadFromBuffer = () => {
+                    return new Promise((resolve, reject) => {
+                        const stream = cloudinary.uploader.upload_stream(
+                            {
+                                folder: 'ideas',
+                                resource_type: 'image'
+                            },
+                            (error, result) => {
+                                if (result) resolve(result);
+                                else reject(error);
+                            }
+                        );
+
+                        streamifier
+                            .createReadStream(req.file.buffer)
+                            .pipe(stream);
+                    });
+                };
+
+                const result = await uploadFromBuffer();
+                post.imageUrl = result.secure_url;
             }
 
             await post.save();
-            res.json({ success: true, message: 'แก้ไขโพสต์เรียบร้อยแล้ว' });
+
+            res.json({
+                success: true,
+                message: 'แก้ไขโพสต์เรียบร้อยแล้ว'
+            });
+
         } catch (err) {
             console.error(err);
-            res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์' });
+            res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์'
+            });
         }
     });
 };

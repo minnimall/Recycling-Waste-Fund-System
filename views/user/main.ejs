@@ -1157,9 +1157,13 @@
         const map = L.map('map').setView([initialLat, initialLng], 13);
 
         // Add tile layer (แผนที่)
-        let currentTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap contributors'
+        // let currentTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        //     maxZoom: 19,
+        //     attribution: '© OpenStreetMap contributors'
+        // }).addTo(map);
+        L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+            attribution: '© Google',
+            maxZoom: 20
         }).addTo(map);
 
         // กำหนด Custom icons ตามประเภทจุดรับซื้อ
