@@ -2172,15 +2172,15 @@ const memberUpdate = async (req, res) => {
 };
 
 // สำหรับเก็บรูปภาพที่อัปโหลดจาก board
-const storageBoard = multer.diskStorage({
-    destination: './public/upload_board',
-    filename: function (req, file, cb) {
-        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
-    }
-});
+// const storageBoard = multer.diskStorage({
+//     destination: './public/upload_board',
+//     filename: function (req, file, cb) {
+//         cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+//     }
+// });
 
 const uploadBoard = multer({
-    storage: storageBoard,
+    storage: multer.memoryStorage(),
     limits: { fileSize: 50 * 1024 * 1024 }
 }).single('img');
 
@@ -2200,7 +2200,7 @@ const boardIndex = async (req, res) => {
 };
 
 // เพิ่มคณะกรรมการ
-const boardPost = async (req, res) => {
+const boardPost = (req, res) => {
     uploadBoard(req, res, async (err) => {
         if (err) {
             console.error(err);
@@ -2210,9 +2210,31 @@ const boardPost = async (req, res) => {
         try {
             const { name, role, department, email, tel } = req.body;
 
-            // ตรวจสอบข้อมูลที่จำเป็น
             if (!name || !role || !department || !email || !tel) {
                 return res.redirect('/admin/board?error=กรุณากรอกข้อมูลให้ครบถ้วน');
+            }
+
+            let imageUrl = null;
+
+            if (req.file) {
+                const uploadFromBuffer = () =>
+                    new Promise((resolve, reject) => {
+                        const stream = cloudinary.uploader.upload_stream(
+                            {
+                                folder: 'board_images',
+                                resource_type: 'image'
+                            },
+                            (error, result) => {
+                                if (result) resolve(result);
+                                else reject(error);
+                            }
+                        );
+
+                        streamifier.createReadStream(req.file.buffer).pipe(stream);
+                    });
+
+                const result = await uploadFromBuffer();
+                imageUrl = result.secure_url;
             }
 
             const newBoard = new Board({
@@ -2221,24 +2243,20 @@ const boardPost = async (req, res) => {
                 department,
                 email,
                 tel,
-                img: req.file ? `/upload_board/${req.file.filename}` : null
+                img: imageUrl
             });
 
             await newBoard.save();
             res.redirect('/admin/board?message=เพิ่มคณะกรรมการสำเร็จ');
         } catch (error) {
             console.error(error);
-            // ลบไฟล์ที่อัปโหลดถ้าเกิดข้อผิดพลาด
-            if (req.file) {
-                fs.unlinkSync(req.file.path);
-            }
             res.redirect('/admin/board?error=เกิดข้อผิดพลาดในการเพิ่มข้อมูล');
         }
     });
 };
 
 // แก้ไขคณะกรรมการ
-const boardEdit = async (req, res) => {
+const boardEdit = (req, res) => {
     uploadBoard(req, res, async (err) => {
         if (err) {
             console.error(err);
@@ -2248,7 +2266,6 @@ const boardEdit = async (req, res) => {
         try {
             const { _id, name, role, department, email, tel } = req.body;
 
-            // ตรวจสอบข้อมูลที่จำเป็น
             if (!_id || !name || !role || !department || !email || !tel) {
                 return res.redirect('/admin/board?error=กรุณากรอกข้อมูลให้ครบถ้วน');
             }
@@ -2258,33 +2275,40 @@ const boardEdit = async (req, res) => {
                 return res.redirect('/admin/board?error=ไม่พบข้อมูลคณะกรรมการ');
             }
 
-            // อัปเดตข้อมูล
+            let imageUrl = board.img;
+
+            if (req.file) {
+                const uploadFromBuffer = () =>
+                    new Promise((resolve, reject) => {
+                        const stream = cloudinary.uploader.upload_stream(
+                            {
+                                folder: 'board_images',
+                                resource_type: 'image'
+                            },
+                            (error, result) => {
+                                if (result) resolve(result);
+                                else reject(error);
+                            }
+                        );
+
+                        streamifier.createReadStream(req.file.buffer).pipe(stream);
+                    });
+
+                const result = await uploadFromBuffer();
+                imageUrl = result.secure_url;
+            }
+
             board.name = name;
             board.role = role;
             board.department = department;
             board.email = email;
             board.tel = tel;
-
-            // ถ้ามีการอัปโหลดรูปใหม่
-            if (req.file) {
-                // ลบรูปเก่า
-                if (board.img) {
-                    const oldImgPath = path.join(__dirname, '../public', board.img);
-                    if (fs.existsSync(oldImgPath)) {
-                        fs.unlinkSync(oldImgPath);
-                    }
-                }
-                board.img = `/upload_board/${req.file.filename}`;
-            }
+            board.img = imageUrl;
 
             await board.save();
             res.redirect('/admin/board?message=แก้ไขข้อมูลสำเร็จ');
         } catch (error) {
             console.error(error);
-            // ลบไฟล์ที่อัปโหลดถ้าเกิดข้อผิดพลาด
-            if (req.file) {
-                fs.unlinkSync(req.file.path);
-            }
             res.redirect('/admin/board?error=เกิดข้อผิดพลาดในการแก้ไขข้อมูล');
         }
     });
