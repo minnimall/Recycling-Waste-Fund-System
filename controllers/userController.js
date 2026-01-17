@@ -636,7 +636,7 @@ const user_detailActivity = (req, res) => {
 const upload3 = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: 50 * 1024 * 1024 }
-}).single('img');
+}).single('image');
 
 // หน้าคำร้องเรียน
 const user_complaint = (req, res)=> {
@@ -1513,7 +1513,7 @@ const user_profile = async (req, res) => {
 const upload2 = multer({ 
     storage: multer.memoryStorage(),
     limits: { fileSize: 50 * 1024 * 1024 }
-}).single('img');
+}).single('image');
 
 const user_ideas = async (req, res) => {
     try {
