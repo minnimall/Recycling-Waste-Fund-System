@@ -201,7 +201,7 @@ const user_saleHistory = (req, res)=> {
 const upload = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: 50 * 1024 * 1024 }
-}).single('img');
+}).single('image');
 
 // หน้าแจ้งความประสงค์ขายขยะ
 const user_wasteSaleRequest = async (req, res) => {
