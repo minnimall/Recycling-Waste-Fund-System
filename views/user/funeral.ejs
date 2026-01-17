@@ -30,39 +30,33 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.7; }
         }
+        .address-option {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .address-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .address-option.selected {
+            border-color: #10b981;
+            background-color: #f0fdf4;
+        }
     </style>
     <%- include('../partials/userPartials/head.ejs') %>
 </head>
 <body>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // เช็คข้อความที่ส่งมาจาก URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const successMessage = urlParams.get('message');
-        const errorMessage = urlParams.get('error');
-
-        if (successMessage) {
-            Swal.fire({
-                icon: 'success',
-                title: 'สำเร็จ!',
-                text: successMessage,
-                confirmButtonText: 'ตกลง',
-                confirmButtonColor: '#28a745',
-                timer: 3000
-            });
-        }
-
-        if (errorMessage) {
-            Swal.fire({
-                icon: 'error',
-                title: 'เกิดข้อผิดพลาด!',
-                text: errorMessage,
-                confirmButtonText: 'ตกลง',
-                confirmButtonColor: '#d33',
-                timer: 3000
-            });
-        }
-
+        const familyAddress = {
+            houseNumber: '<%= family.address?.houseNumber || "" %>',
+            moo: '<%= family.village?.villageNumber || family.address?.moo || "" %>',
+            villageName: '<%= family.village?.villageName || "" %>',
+            subdistrict: '<%= family.address?.subdistrict || "" %>',
+            district: '<%= family.address?.district || "" %>',
+            province: '<%= family.address?.province || "" %>',
+            postalCode: '<%= family.address?.postalCode || "" %>'
+        };
     </script>
     <%- include('../partials/userPartials/header.ejs') %>
 
@@ -73,28 +67,6 @@
             <p class="text-xl opacity-90">ยื่นเรื่องขอรับฌาปนกิจสงเคราะห์ สำหรับสมาชิกกองทุนขยะรีไซเคิล อบต.ขามป้อม เปือยน้อย ขอนแก่น</p>
         </div>
     </section>
-
-    <!-- Header -->
-    <!-- <div class="bg-white shadow-md">
-        <div class="container mx-auto px-4 py-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <a href="/" class="text-gray-600 hover:text-gray-800 transition-colors">
-                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                        </svg>
-                    </a>
-                    <h1 class="text-xl font-bold text-gray-800">ยื่นเรื่องขอรับฌาปนกิจสงเคราะห์</h1>
-                </div>
-                <a href="/funeral/my-requests" class="text-sm text-blue-600 hover:text-blue-800 flex items-center transition-colors">
-                    <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    ประวัติคำขอของฉัน
-                </a>
-            </div>
-        </div>
-    </div> -->
 
     <div class="container mx-auto px-4 py-8 max-w-5xl">
         
@@ -230,12 +202,51 @@
                             </div>
                         </div>
 
-                        <!-- ที่อยู่ -->
+                        <!-- ที่อยู่ - มีตัวเลือก -->
                         <div>
                             <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                                 ที่อยู่
                             </h3>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                            <!-- ตัวเลือกใช้ที่อยู่เดิมหรือกรอกใหม่ -->
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium text-gray-700 mb-3">เลือกที่อยู่</label>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="address-option selected border-2 rounded-lg p-4" id="useExistingAddress" onclick="selectAddressOption('existing')">
+                                        <div class="flex items-start">
+                                            <input type="radio" name="addressOption" value="existing" checked class="mt-1 mr-3">
+                                            <div class="flex-1">
+                                                <p class="font-semibold text-gray-800 mb-1">ใช้ที่อยู่ที่บันทึกไว้</p>
+                                                <p class="text-sm text-gray-600">
+                                                    <% if (family.address?.houseNumber) { %>
+                                                        บ้านเลขที่: <%= family.address.houseNumber %> 
+                                                        หมู่: <%= family.village?.villageNumber || "" %>
+                                                        ตำบล: <%= family.address.subdistrict || '-' %> 
+                                                        อำเภอ: <%= family.address.district || '-' %><br>
+                                                        จังหวัด: <%= family.address.province || '-' %> 
+                                                        รหัสไปรษณีย์: <%= family.address.postalCode || '-' %>
+                                                    <% } else { %>
+                                                        ไม่มีที่อยู่ที่บันทึกไว้
+                                                    <% } %>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="address-option border-2 rounded-lg p-4" id="useNewAddress" onclick="selectAddressOption('new')">
+                                        <div class="flex items-start">
+                                            <input type="radio" name="addressOption" value="new" class="mt-1 mr-3">
+                                            <div class="flex-1">
+                                                <p class="font-semibold text-gray-800 mb-1">กรอกที่อยู่ใหม่</p>
+                                                <p class="text-sm text-gray-600">กรอกข้อมูลที่อยู่ด้วยตนเอง</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ฟอร์มกรอกที่อยู่ -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="addressFields">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">บ้านเลขที่ <span class="text-red-500">*</span></label>
                                     <input type="text" name="deceasedAddress" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="เลขที่">
@@ -299,18 +310,6 @@
                 <div id="confirmationContent" class="space-y-6">
                 </div>
 
-                <!-- <div class="mt-8 bg-amber-50 border border-amber-200 rounded-lg p-4">
-                    <div class="flex items-start">
-                        <svg class="w-6 h-6 text-amber-600 mr-3 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                        </svg>
-                        <div>
-                            <p class="text-sm font-medium text-amber-800">ข้อมูลสำคัญ</p>
-                            <p class="text-sm text-amber-700 mt-1">เมื่อยืนยันการยื่นเรื่องแล้ว คำขอของท่านจะถูกส่งไปยังเจ้าหน้าที่เพื่อตรวจสอบและอนุมัติ ท่านสามารถติดตามสถานะได้ที่เมนู "ประวัติคำขอของฉัน"</p>
-                        </div>
-                    </div>
-                </div> -->
-
                 <div class="mt-8 flex justify-between">
                     <button type="button" onclick="goBackToForm()" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
                         <svg class="inline w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -360,7 +359,52 @@
             }
 
             checkEligibility();
+            
+            // ตั้งค่าที่อยู่เดิมเมื่อโหลดหน้า
+            fillExistingAddress();
         });
+
+        function selectAddressOption(option) {
+            const existingOption = document.getElementById('useExistingAddress');
+            const newOption = document.getElementById('useNewAddress');
+            const existingRadio = document.querySelector('input[name="addressOption"][value="existing"]');
+            const newRadio = document.querySelector('input[name="addressOption"][value="new"]');
+
+            if (option === 'existing') {
+                existingOption.classList.add('selected');
+                newOption.classList.remove('selected');
+                existingRadio.checked = true;
+                fillExistingAddress();
+            } else {
+                newOption.classList.add('selected');
+                existingOption.classList.remove('selected');
+                newRadio.checked = true;
+                clearAddressFields();
+            }
+        }
+
+        function fillExistingAddress() {
+            const form = document.getElementById('funeralRequestForm');
+            if (familyAddress.houseNumber) {
+                form.deceasedAddress.value = familyAddress.houseNumber;
+                form.deceasedVillage.value = familyAddress.moo;
+                form.subDistrict.value = familyAddress.subdistrict;
+                form.district.value = familyAddress.district;
+                form.province.value = familyAddress.province;
+                form.postalCode.value = familyAddress.postalCode;
+            }
+        }
+
+        function clearAddressFields() {
+            const form = document.getElementById('funeralRequestForm');
+            form.deceasedAddress.value = '';
+            form.deceasedVillage.value = '';
+            form.subDistrict.value = '';
+            form.district.value = '';
+            form.province.value = '';
+            form.postalCode.value = '';
+            form.deceasedAddress.focus();
+        }
 
         async function checkEligibility() {
             try {
@@ -536,7 +580,7 @@
             container.innerHTML = `
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-gray-50 rounded-lg p-4">
-                        <h4 class="font-semibold text-900 mb-3">ข้อมูลผู้รับผิดชอบ</h4>
+                        <h4 class="font-semibold text-gray-900 mb-3">ข้อมูลผู้รับผิดชอบ</h4>
                         <div class="space-y-2 text-sm">
                             <div><span class="text-gray-600">ชื่อ-นามสกุล:</span> <span class="font-medium">${formData.responsiblePersonName}</span></div>
                             <div><span class="text-gray-600">ความสัมพันธ์:</span> <span class="font-medium">${formData.relationship}</span></div>
@@ -544,7 +588,7 @@
                     </div>
                     
                     <div class="bg-gray-50 rounded-lg p-4">
-                        <h4 class="font-semibold text-900 mb-3">ข้อมูลผู้เสียชีวิต</h4>
+                        <h4 class="font-semibold text-gray-900 mb-3">ข้อมูลผู้เสียชีวิต</h4>
                         <div class="space-y-2 text-sm">
                             <div><span class="text-gray-600">ชื่อ-นามสกุล:</span> <span class="font-medium">${formData.deceasedName}</span></div>
                             <div><span class="text-gray-600">อายุ:</span> <span class="font-medium">${formData.deceasedAge} ปี</span></div>
@@ -555,7 +599,7 @@
                     </div>
                     
                     <div class="bg-gray-50 rounded-lg p-4 md:col-span-2">
-                        <h4 class="font-semibold text-900 mb-3">ที่อยู่</h4>
+                        <h4 class="font-semibold text-gray-900 mb-3">ที่อยู่</h4>
                         <p class="text-sm">
                             ${formData.deceasedAddress} หมู่ ${formData.deceasedVillage} 
                             ต.${formData.subDistrict} อ.${formData.district} 
@@ -607,17 +651,11 @@
                     await Swal.fire({
                         icon: 'success',
                         title: 'ยื่นเรื่องสำเร็จ!',
-                        // html: `
-                        //     <p class="mb-4">${result.message}</p>
-                        //     <div class="bg-blue-50 p-4 rounded-lg">
-                        //         <p class="text-sm text-gray-700">หมายเลขคำขอ: <span class="font-mono font-bold">${result.data.requestID}</span></p>
-                        //         <p class="text-sm text-gray-600 mt-2">สถานะ: <span class="text-amber-600 font-semibold">รอการตรวจสอบ</span></p>
-                        //     </div>
-                        // `,
+                        text: result.message,
                         confirmButtonText: 'ดูประวัติคำขอ',
                         confirmButtonColor: '#3b82f6'
                     });
-                    window.location.href = '/funeral/my-requests';
+                    window.location.href = '/user/funeral/my-requests';
                 } else {
                     throw new Error(result.message);
                 }

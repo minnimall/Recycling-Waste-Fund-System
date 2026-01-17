@@ -743,15 +743,17 @@ const funeralRequest = async (req, res) => {
         const family = await Family.findOne({ 
             username: req.session.username,
             isDeleted: false 
-        });
+        }).populate('village');
 
         if (!family) {
             return res.redirect('/?error=' + encodeURIComponent('ไม่พบข้อมูลครัวเรือน'));
         }
 
+        // ส่งข้อมูล family ไปยังหน้า view
         res.render('user/funeral', {
             mytitle: 'ยื่นเรื่องขอรับฌาปนกิจสงเคราะห์',
-            media: []
+            media: [],
+            family: family // เพิ่มส่วนนี้
         });
     } catch (error) {
         console.error('funeralRequest error:', error);
