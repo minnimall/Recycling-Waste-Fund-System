@@ -1127,6 +1127,9 @@
                             ${isFromRequest ? '<div class="text-xs text-green-600 mt-1">📋 จากคำขอขายขยะ</div>' : ''}
                             ${segment ? `
                                 <div class="mt-2 p-2 bg-white rounded border-l-4 border-blue-400">
+                                    <div class="text-xs text-gray-700 font-medium mb-1">
+                                        → ไปยังจุดที่ ${index + 2}
+                                    </div>
                                     <div class="grid grid-cols-2 gap-2 text-xs">
                                         <div>
                                             <span class="text-gray-600">ระยะทาง:</span>
@@ -1160,6 +1163,9 @@
                         </div>
                         ${returnSegment ? `
                             <div class="mt-2 p-2 bg-white rounded border-l-4 border-green-400">
+                                <div class="text-xs text-gray-700 font-medium mb-1">
+                                    → กลับไปยังจุดเริ่มต้น (จุดที่ 1)
+                                </div>
                                 <div class="grid grid-cols-2 gap-2 text-xs">
                                     <div>
                                         <span class="text-gray-600">ระยะทาง:</span>

@@ -3203,40 +3203,38 @@ const submitFuneralAssistance = async (req, res) => {
     }
 };
 
-// API: ดึงประวัติฌาปนกิจทั้งหมด (แก้ไขแล้ว - รองรับ พ.ศ./ค.ศ.)
+// หน้าประวัติฌาปนกิจ
+const getFuneralHistoryPage = (req, res) => {
+    res.render('employee/funeralAidHistory', {
+        mytitle: 'พนักงาน | ประวัติฌาปนกิจสงเคราะห์',
+        currentPage: 'funeralAidHistory',
+    });
+};
+
+// API: ดึงประวัติฌาปนกิจทั้งหมด
 const getFuneralHistory = async (req, res) => {
     try {
         const { page = 1, limit = 25, status, year, search } = req.query;
 
-        // สร้าง query object
         const query = { isDeleted: false };
 
-        // Filter by status
         if (status && status !== '') {
             query.status = status;
         }
 
-        // Filter by year (แปลง พ.ศ. เป็น ค.ศ.)
         if (year && year !== '') {
             let searchYear = parseInt(year);
-            
-            // ถ้าเป็น พ.ศ. (มากกว่า 2500) ให้แปลงเป็น ค.ศ.
             if (searchYear > 2500) {
                 searchYear = searchYear - 543;
             }
-            
             const startDate = new Date(`${searchYear}-01-01T00:00:00.000Z`);
             const endDate = new Date(`${searchYear}-12-31T23:59:59.999Z`);
-            
             query['deceasedInfo.dateOfDeath'] = {
                 $gte: startDate,
                 $lte: endDate
             };
-            
-            console.log(`Year filter: ${year} (${searchYear} CE) => ${startDate} to ${endDate}`);
         }
 
-        // Filter by search (ค้นหาชื่อผู้เสียชีวิต หรือผู้รับเงิน)
         if (search && search.trim() !== '') {
             query.$or = [
                 { 'deceasedInfo.name': { $regex: search, $options: 'i' } },
@@ -3246,12 +3244,24 @@ const getFuneralHistory = async (req, res) => {
             ];
         }
 
-        console.log('Query:', JSON.stringify(query, null, 2));
+        // คำนวณ summary จากข้อมูลทั้งหมดก่อน
+        const allRecordsForSummary = await FuneralAssistance.find(query)
+            .select('financialInfo familyID')
+            .lean();
+
+        const summary = {
+            totalRecords: allRecordsForSummary.length,
+            totalAmount: allRecordsForSummary.reduce((sum, r) => sum + (r.financialInfo?.totalAmount || 0), 0),
+            uniqueFamilies: new Set(allRecordsForSummary.map(r => r.familyID?.toString()).filter(id => id)).size,
+            avgAmount: allRecordsForSummary.length > 0 
+                ? allRecordsForSummary.reduce((sum, r) => sum + (r.financialInfo?.totalAmount || 0), 0) / allRecordsForSummary.length 
+                : 0
+        };
 
         // นับจำนวนทั้งหมด
         const total = await FuneralAssistance.countDocuments(query);
 
-        // ดึงข้อมูล
+        // ดึงข้อมูลแบบ pagination
         const records = await FuneralAssistance.find(query)
             .populate('familyID', 'familyName username address')
             .populate('createdBy', 'name email firstname lastname')
@@ -3261,12 +3271,11 @@ const getFuneralHistory = async (req, res) => {
             .limit(parseInt(limit))
             .lean();
 
-        console.log(`Found ${records.length} records out of ${total} total`);
-
         res.json({
             success: true,
             data: {
                 records: records,
+                summary: summary,
                 pagination: {
                     total: total,
                     page: parseInt(page),
@@ -3285,7 +3294,6 @@ const getFuneralHistory = async (req, res) => {
         });
     }
 };
-
 
 // API: ดึงรายละเอียดฌาปนกิจ
 const getFuneralDetail = async (req, res) => {
@@ -3324,12 +3332,94 @@ const getFuneralDetail = async (req, res) => {
     }
 };
 
-// หน้าประวัติฌาปนกิจ
-const getFuneralHistoryPage = (req, res) => {
-    res.render('employee/funeralAidHistory', {
-        mytitle: 'พนักงาน | ประวัติฌาปนกิจสงเคราะห์',
-        currentPage: 'funeralAidHistory',
-    });
+// API: แก้ไขข้อมูลฌาปนกิจ
+const updateFuneralAssistance = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updateData = req.body;
+
+        console.log('Updating funeral assistance:', id);
+        console.log('Update data:', updateData);
+
+        // ตรวจสอบว่ามีข้อมูลอยู่หรือไม่
+        const existingRecord = await FuneralAssistance.findById(id);
+        if (!existingRecord) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'ไม่พบข้อมูลฌาปนกิจ' 
+            });
+        }
+
+        // ตรวจสอบสถานะ - อนุญาตให้แก้ไขเฉพาะบางสถานะ
+        if (['cancelled'].includes(existingRecord.status)) {
+            return res.status(400).json({
+                success: false,
+                message: 'ไม่สามารถแก้ไขข้อมูลที่ถูกยกเลิกได้'
+            });
+        }
+
+        // เตรียมข้อมูลที่จะอัพเดท
+        const updateFields = {};
+
+        // อัพเดทข้อมูลผู้เสียชีวิต
+        if (updateData.deceasedInfo) {
+            updateFields['deceasedInfo.name'] = updateData.deceasedInfo.name;
+            updateFields['deceasedInfo.age'] = updateData.deceasedInfo.age;
+            updateFields['deceasedInfo.idCardNumber'] = updateData.deceasedInfo.idCardNumber;
+            updateFields['deceasedInfo.phone'] = updateData.deceasedInfo.phone;
+            updateFields['deceasedInfo.causeOfDeath'] = updateData.deceasedInfo.causeOfDeath;
+            updateFields['deceasedInfo.dateOfDeath'] = updateData.deceasedInfo.dateOfDeath;
+            
+            // อัพเดทที่อยู่
+            if (updateData.deceasedInfo.address) {
+                updateFields['deceasedInfo.address.houseNumber'] = updateData.deceasedInfo.address.houseNumber;
+                updateFields['deceasedInfo.address.moo'] = updateData.deceasedInfo.address.moo;
+                updateFields['deceasedInfo.address.subdistrict'] = updateData.deceasedInfo.address.subdistrict;
+                updateFields['deceasedInfo.address.district'] = updateData.deceasedInfo.address.district;
+                updateFields['deceasedInfo.address.province'] = updateData.deceasedInfo.address.province;
+                updateFields['deceasedInfo.address.postalCode'] = updateData.deceasedInfo.address.postalCode;
+            }
+        }
+
+        // อัพเดทข้อมูลผู้รับผิดชอบ
+        if (updateData.responsiblePerson) {
+            updateFields['responsiblePerson.name'] = updateData.responsiblePerson.name;
+            updateFields['responsiblePerson.relationshipToDeceased'] = updateData.responsiblePerson.relationshipToDeceased;
+        }
+
+        // อัพเดทหมายเหตุ
+        if (updateData.notes !== undefined) {
+            updateFields['notes'] = updateData.notes;
+        }
+
+        // ทำการอัพเดท
+        const updatedRecord = await FuneralAssistance.findByIdAndUpdate(
+            id,
+            { $set: updateFields },
+            { new: true, runValidators: true }
+        )
+        .populate('familyID', 'familyName username address')
+        .populate('createdBy', 'name email firstname lastname')
+        .populate('approvedBy', 'name email firstname lastname')
+        .populate('deductedAccounts.familyID', 'familyName username')
+        .populate('deceasedInfo.memberID', 'name');
+
+        console.log('✅ Updated successfully');
+
+        res.json({
+            success: true,
+            message: 'แก้ไขข้อมูลฌาปนกิจสำเร็จ',
+            data: updatedRecord
+        });
+
+    } catch (error) {
+        console.error('Error updating funeral assistance:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'เกิดข้อผิดพลาดในการแก้ไขข้อมูล',
+            error: error.message 
+        });
+    }
 };
 
 // หน้ารายการคำขอที่รอการอนุมัติ
@@ -3882,8 +3972,8 @@ const getRouteDetail = async (req, res) => {
             .populate({
                 path: 'wasteSaleRequests',
                 populate: [
-                    { path: 'waste', select: 'name type' },
-                    { path: 'family', select: 'firstname lastname' }
+                    { path: 'waste', select: 'wasteName type' },
+                    { path: 'family', select: 'firstname lastname familyName' }
                 ]
             });
         
@@ -3968,6 +4058,67 @@ const updateRoute = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'เกิดข้อผิดพลาดในการแก้ไขเส้นทาง'
+        });
+    }
+};
+
+const updateRoutePoints = async (req, res) => {
+    try {
+        const { routeId } = req.params;
+        const { points, totalDistance, totalDuration, numberOfPoints } = req.body;
+        
+        if (!points || points.length < 2) {
+            return res.status(400).json({
+                success: false,
+                message: 'กรุณาระบุจุดอย่างน้อย 2 จุด'
+            });
+        }
+        
+        const route = await Route.findOneAndUpdate(
+            { 
+                _id: routeId, 
+                createdBy: req.user._id
+            },
+            { 
+                points: points,
+                totalDistance: totalDistance,
+                totalDuration: totalDuration,
+                numberOfPoints: numberOfPoints,
+                updatedAt: Date.now()
+            },
+            { 
+                new: true, 
+                runValidators: true 
+            }
+        ).populate('createdBy', 'firstname lastname');
+        
+        if (!route) {
+            return res.status(404).json({
+                success: false,
+                message: 'ไม่พบเส้นทางที่ต้องการแก้ไข หรือคุณไม่มีสิทธิ์แก้ไข'
+            });
+        }
+        
+        const requestIds = points
+            .filter(p => p.requestId)
+            .map(p => p.requestId);
+        
+        if (requestIds.length > 0) {
+            route.wasteSaleRequests = requestIds;
+            await route.save();
+        }
+        
+        res.json({
+            success: true,
+            message: 'อัปเดตเส้นทางเรียบร้อยแล้ว',
+            route: route
+        });
+        
+    } catch (error) {
+        console.error('Error updating route points:', error);
+        res.status(500).json({
+            success: false,
+            message: 'เกิดข้อผิดพลาดในการอัปเดตเส้นทาง: ' + error.message
         });
     }
 };
@@ -4334,14 +4485,13 @@ module.exports = {
     //หน้าเบิกถอน
     withDrawIndex,getAccountByNumber,showWithdrawPage,updateMinimumWithdraw,getCurrentSettings,
     //หน้าฌาปนกิจสงเคราะห์
-    funeralAidIndex,searchHouseholds,checkEligibility,calculateFuneralAmount,getDeductionPreview,submitFuneralAssistance,getFuneralHistory,getFuneralDetail,getFuneralHistoryPage,
-    pendingFuneralRequestsPage,
-    getPendingFuneralRequests,
-    getRequestDetail,
-    approveRequest,
-    rejectRequest,
+    funeralAidIndex,searchHouseholds,checkEligibility,calculateFuneralAmount,getDeductionPreview,submitFuneralAssistance,
+    //หน้าประวัติฌาปนกิจ
+    getFuneralHistory,getFuneralDetail,getFuneralHistoryPage,updateFuneralAssistance,
+    //หน้าคำขอฌาปนกิจ
+    pendingFuneralRequestsPage,getPendingFuneralRequests,getRequestDetail,approveRequest,rejectRequest,
     //หน้าแผนที่เข้ารับซื้อ
-    mapIndex,saveRoute,getAllRoutes,getRouteDetail,deleteRoute,updateRoute,
+    mapIndex,saveRoute,getAllRoutes,getRouteDetail,deleteRoute,updateRoute,updateRoutePoints,
     //หน้าจัดการจุดรับซื้อ
     wastePointIndex,wastePointPost,wastePointCreate,wastePointToggle,wastePointEdit,wastePointUpdate,wastePointDelete,
     //หน้าจัดการรอบการรับซื้อ

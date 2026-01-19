@@ -58,9 +58,12 @@ router.get('/funeral-assistance/eligibility/:familyID', employeeController.check
 router.post('/funeral-assistance/calculate', employeeController.calculateFuneralAmount);
 router.post('/funeral-assistance/preview', employeeController.getDeductionPreview);
 router.post('/funeral-assistance/submit', employeeController.submitFuneralAssistance);
+
+// ประวัติฌาปนกิจสงเคราะห์
+router.get('/funeralAidHistory', employeeController.getFuneralHistoryPage);
 router.get('/funeral-assistance/history', employeeController.getFuneralHistory);
 router.get('/funeral-assistance/detail/:id', employeeController.getFuneralDetail);
-router.get('/funeralAidHistory', employeeController.getFuneralHistoryPage);
+router.put('/funeral-assistance/update/:id', employeeController.updateFuneralAssistance);
 
 // การจัดการคำขอฌาปนกิจจาก User
 router.get('/funeralRequest', employeeController.pendingFuneralRequestsPage);
@@ -82,6 +85,7 @@ router.get('/routeList/:routeId', employeeController.getRouteDetail);
 router.put('/routeList/:routeId', employeeController.updateRoute);
 // ลบเส้นทาง
 router.delete('/routeList/:routeId', employeeController.deleteRoute);
+router.put('/routeList/:routeId/updateRoute', employeeController.updateRoutePoints);
 
 
 
