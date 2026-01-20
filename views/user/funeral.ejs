@@ -185,7 +185,8 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">หมายเลขบัตรประชาชน <span class="text-red-500">*</span></label>
-                                    <input type="text" name="idCard" required maxlength="17" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="X-XXXX-XXXXX-XX-X">
+                                    <input type="text" name="idCard" id="idCard" required maxlength="17" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="X-XXXX-XXXXX-XX-X">
+                                    <p id="idCardError" class="text-red-500 text-sm mt-1 hidden">เลขบัตรประชาชนไม่ถูกต้อง กรุณากรอกให้ครบ 13 หลัก</p>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">โทรศัพท์ <span class="text-red-500">*</span></label>
@@ -362,6 +363,9 @@
             
             // ตั้งค่าที่อยู่เดิมเมื่อโหลดหน้า
             fillExistingAddress();
+
+            // ตั้งค่าฟอร์แมตเลขบัตรประชาชน
+            setupIDCardFormatter();
         });
 
         function selectAddressOption(option) {
@@ -404,6 +408,38 @@
             form.province.value = '';
             form.postalCode.value = '';
             form.deceasedAddress.focus();
+        }
+
+        // ฟังก์ชันฟอร์แมตเลขบัตรประชาชนไทย
+        function formatThaiID(value) {
+            // เอาเฉพาะตัวเลข
+            let numbers = value.replace(/\D/g, '').slice(0, 13);
+
+            // ใส่ขีดตามตำแหน่ง 1-4-5-2-1
+            let formatted = '';
+            if(numbers.length > 0) formatted += numbers.substr(0,1);
+            if(numbers.length > 1) formatted += '-' + numbers.substr(1,4);
+            if(numbers.length > 5) formatted += '-' + numbers.substr(5,5);
+            if(numbers.length > 10) formatted += '-' + numbers.substr(10,2);
+            if(numbers.length > 12) formatted += '-' + numbers.substr(12,1);
+
+            return formatted;
+        }
+
+        // ตั้งค่าฟอร์แมตเลขบัตรประชาชน
+        function setupIDCardFormatter() {
+            const idInput = document.getElementById('idCard');
+            const idError = document.getElementById('idCardError');
+
+            // ฟอร์แมตแบบ real-time
+            idInput.addEventListener('input', (e) => {
+                e.target.value = formatThaiID(e.target.value);
+                // ซ่อน error message เมื่อกรอกใหม่
+                if (idError && !idError.classList.contains('hidden')) {
+                    idError.classList.add('hidden');
+                    idInput.classList.remove('border-red-500', 'focus:ring-red-300');
+                }
+            });
         }
 
         async function checkEligibility() {
@@ -534,6 +570,24 @@
 
         function proceedToConfirmation() {
             const form = document.getElementById('funeralRequestForm');
+            const idInput = document.getElementById('idCard');
+            const idError = document.getElementById('idCardError');
+            
+            // ตรวจสอบเลขบัตรประชาชน
+            const numbersOnly = idInput.value.replace(/\D/g, '');
+            if(numbersOnly.length !== 13) {
+                idError.classList.remove('hidden');
+                idInput.classList.add('border-red-500', 'focus:ring-red-300');
+                idInput.focus();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เลขบัตรประชาชนไม่ถูกต้อง',
+                    text: 'กรุณากรอกเลขบัตรประชาชนให้ครบ 13 หลัก',
+                    confirmButtonColor: '#ef4444'
+                });
+                return;
+            }
+
             if (!form.checkValidity()) {
                 form.reportValidity();
                 return;
@@ -544,7 +598,7 @@
                 relationship: form.relationship.value,
                 deceasedName: form.deceasedName.value,
                 deceasedAge: form.deceasedAge.value,
-                idCard: form.idCard.value,
+                idCard: numbersOnly,
                 phone: form.phone.value,
                 dateOfDeath: form.dateOfDeath.value,
                 causeOfDeath: form.causeOfDeath.value,

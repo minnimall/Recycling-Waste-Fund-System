@@ -81,5 +81,8 @@ router.get('/wastePoint/delete/:id', adminController.wastePointDelete);
 
 // ฌาปนกิจสงเคราะห์
 router.get('/funeralAid', adminController.funeralAidIndex);
+router.get('/funeral-assistance/history',adminController.getFuneralHistory);
+router.get('/funeral-assistance/detail/:id', adminController.getFuneralDetail);
+router.put('/funeral-assistance/update/:id', adminController.updateFuneralAssistance);
 
 module.exports = router

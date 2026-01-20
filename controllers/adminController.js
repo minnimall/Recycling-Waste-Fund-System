@@ -20,6 +20,7 @@ const Member = require('../models/member');
 const WastePurchase = require('../models/wastePurchase');
 const Notification = require('../models/notification');
 const WastePoint = require("../models/wastePoint");
+const FuneralAssistance = require('../models/funeral');
 const Board = require('../models/board');
 const mongoose = require('mongoose');
 const path = require('path');
@@ -2781,8 +2782,221 @@ const wastePointDelete = async (req, res) => {
 
 //หน้าฌาปนกิจสงเคราะห์
 const funeralAidIndex = (req, res)=> {
-    res.render('admin/funeralAid',{mytitle: 'ฌาปนกิจสงเคราะห์',currentPage: 'funeralAid',})
+    res.render('admin/funeralAid',{
+        mytitle: 'ฌาปนกิจสงเคราะห์',currentPage: 'funeralAid',
+    })
 }
+
+// API: ดึงประวัติฌาปนกิจทั้งหมด
+const getFuneralHistory = async (req, res) => {
+    try {
+        const { page = 1, limit = 25, status, year, search } = req.query;
+
+        const query = { isDeleted: false };
+
+        if (status && status !== '') {
+            query.status = status;
+        }
+
+        if (year && year !== '') {
+            let searchYear = parseInt(year);
+            if (searchYear > 2500) {
+                searchYear = searchYear - 543;
+            }
+            const startDate = new Date(`${searchYear}-01-01T00:00:00.000Z`);
+            const endDate = new Date(`${searchYear}-12-31T23:59:59.999Z`);
+            query['deceasedInfo.dateOfDeath'] = {
+                $gte: startDate,
+                $lte: endDate
+            };
+        }
+
+        if (search && search.trim() !== '') {
+            query.$or = [
+                { 'deceasedInfo.name': { $regex: search, $options: 'i' } },
+                { 'beneficiaryInfo.name': { $regex: search, $options: 'i' } },
+                { 'deceasedInfo.idCardNumber': { $regex: search } },
+                { 'deductedAccounts.accountNumber': { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        // คำนวณ summary จากข้อมูลทั้งหมดก่อน
+        const allRecordsForSummary = await FuneralAssistance.find(query)
+            .select('financialInfo familyID')
+            .lean();
+
+        const summary = {
+            totalRecords: allRecordsForSummary.length,
+            totalAmount: allRecordsForSummary.reduce((sum, r) => sum + (r.financialInfo?.totalAmount || 0), 0),
+            uniqueFamilies: new Set(allRecordsForSummary.map(r => r.familyID?.toString()).filter(id => id)).size,
+            avgAmount: allRecordsForSummary.length > 0 
+                ? allRecordsForSummary.reduce((sum, r) => sum + (r.financialInfo?.totalAmount || 0), 0) / allRecordsForSummary.length 
+                : 0
+        };
+
+        // นับจำนวนทั้งหมด
+        const total = await FuneralAssistance.countDocuments(query);
+
+        // ดึงข้อมูลแบบ pagination
+        const records = await FuneralAssistance.find(query)
+            .populate('familyID', 'familyName username address')
+            .populate('createdBy', 'name email firstname lastname')
+            .populate('deceasedInfo.memberID', 'name')
+            .sort({ createdAt: -1 })
+            .skip((page - 1) * limit)
+            .limit(parseInt(limit))
+            .lean();
+
+        res.json({
+            success: true,
+            data: {
+                records: records,
+                summary: summary,
+                pagination: {
+                    total: total,
+                    page: parseInt(page),
+                    limit: parseInt(limit),
+                    pages: Math.ceil(total / limit)
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error('Error getting funeral history:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'เกิดข้อผิดพลาดในการดึงประวัติฌาปนกิจ',
+            error: error.message 
+        });
+    }
+};
+
+// API: ดึงรายละเอียดฌาปนกิจ
+const getFuneralDetail = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const record = await FuneralAssistance.findById(id)
+            .populate('familyID', 'familyName username address')
+            .populate('createdBy', 'name email firstname lastname')
+            .populate('approvedBy', 'name email firstname lastname')
+            .populate('deductedAccounts.familyID', 'familyName username') // ✅ เพิ่มบรรทัดนี้
+            .populate('deceasedInfo.memberID', 'name') // ✅ เพิ่มบรรทัดนี้
+            .lean();
+
+        if (!record) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'ไม่พบข้อมูลฌาปนกิจ' 
+            });
+        }
+
+        console.log('📦 Funeral Record Detail:', JSON.stringify(record, null, 2)); // Debug log
+
+        res.json({
+            success: true,
+            data: record
+        });
+
+    } catch (error) {
+        console.error('Error getting funeral detail:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'เกิดข้อผิดพลาดในการดึงรายละเอียดฌาปนกิจ',
+            error: error.message 
+        });
+    }
+};
+
+// API: แก้ไขข้อมูลฌาปนกิจ
+const updateFuneralAssistance = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updateData = req.body;
+
+        console.log('Updating funeral assistance:', id);
+        console.log('Update data:', updateData);
+
+        // ตรวจสอบว่ามีข้อมูลอยู่หรือไม่
+        const existingRecord = await FuneralAssistance.findById(id);
+        if (!existingRecord) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'ไม่พบข้อมูลฌาปนกิจ' 
+            });
+        }
+
+        // ตรวจสอบสถานะ - อนุญาตให้แก้ไขเฉพาะบางสถานะ
+        if (['cancelled'].includes(existingRecord.status)) {
+            return res.status(400).json({
+                success: false,
+                message: 'ไม่สามารถแก้ไขข้อมูลที่ถูกยกเลิกได้'
+            });
+        }
+
+        // เตรียมข้อมูลที่จะอัพเดท
+        const updateFields = {};
+
+        // อัพเดทข้อมูลผู้เสียชีวิต
+        if (updateData.deceasedInfo) {
+            updateFields['deceasedInfo.name'] = updateData.deceasedInfo.name;
+            updateFields['deceasedInfo.age'] = updateData.deceasedInfo.age;
+            updateFields['deceasedInfo.idCardNumber'] = updateData.deceasedInfo.idCardNumber;
+            updateFields['deceasedInfo.phone'] = updateData.deceasedInfo.phone;
+            updateFields['deceasedInfo.causeOfDeath'] = updateData.deceasedInfo.causeOfDeath;
+            updateFields['deceasedInfo.dateOfDeath'] = updateData.deceasedInfo.dateOfDeath;
+            
+            // อัพเดทที่อยู่
+            if (updateData.deceasedInfo.address) {
+                updateFields['deceasedInfo.address.houseNumber'] = updateData.deceasedInfo.address.houseNumber;
+                updateFields['deceasedInfo.address.moo'] = updateData.deceasedInfo.address.moo;
+                updateFields['deceasedInfo.address.subdistrict'] = updateData.deceasedInfo.address.subdistrict;
+                updateFields['deceasedInfo.address.district'] = updateData.deceasedInfo.address.district;
+                updateFields['deceasedInfo.address.province'] = updateData.deceasedInfo.address.province;
+                updateFields['deceasedInfo.address.postalCode'] = updateData.deceasedInfo.address.postalCode;
+            }
+        }
+
+        // อัพเดทข้อมูลผู้รับผิดชอบ
+        if (updateData.responsiblePerson) {
+            updateFields['responsiblePerson.name'] = updateData.responsiblePerson.name;
+            updateFields['responsiblePerson.relationshipToDeceased'] = updateData.responsiblePerson.relationshipToDeceased;
+        }
+
+        // อัพเดทหมายเหตุ
+        if (updateData.notes !== undefined) {
+            updateFields['notes'] = updateData.notes;
+        }
+
+        // ทำการอัพเดท
+        const updatedRecord = await FuneralAssistance.findByIdAndUpdate(
+            id,
+            { $set: updateFields },
+            { new: true, runValidators: true }
+        )
+        .populate('familyID', 'familyName username address')
+        .populate('createdBy', 'name email firstname lastname')
+        .populate('approvedBy', 'name email firstname lastname')
+        .populate('deductedAccounts.familyID', 'familyName username')
+        .populate('deceasedInfo.memberID', 'name');
+
+        console.log('✅ Updated successfully');
+
+        res.json({
+            success: true,
+            message: 'แก้ไขข้อมูลฌาปนกิจสำเร็จ',
+            data: updatedRecord
+        });
+
+    } catch (error) {
+        console.error('Error updating funeral assistance:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'เกิดข้อผิดพลาดในการแก้ไขข้อมูล',
+            error: error.message 
+        });
+    }
+};
 
 module.exports = {
     //แดชบอร์ด
@@ -2812,5 +3026,5 @@ module.exports = {
     //จุดรับซื้อขยะ
     wastePointIndex,wastePointPost,wastePointCreate,wastePointToggle,wastePointEdit,wastePointUpdate,wastePointDelete,
     //ฌาปนกิจสงเคราะห์
-    funeralAidIndex,
+    funeralAidIndex,getFuneralHistory,getFuneralDetail,updateFuneralAssistance,
 }

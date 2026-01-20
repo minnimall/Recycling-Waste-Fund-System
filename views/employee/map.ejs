@@ -271,7 +271,6 @@
         let routeAnalysisData = null;
         let selectedRequestIds = []; // เก็บ ID ของ wasteSaleRequest ที่เลือก
         
-        // Initialize map
         function initMap() {
             const initialLat = 15.948741697876695;
             const initialLng = 102.85523133360921;
@@ -303,7 +302,7 @@
             });
         }
 
-        // Toggle request selection
+        // เลือกความประสงค์
         function toggleRequestSelection(element) {
             const checkbox = element.querySelector('.request-checkbox');
             checkbox.checked = !checkbox.checked;
@@ -315,7 +314,7 @@
             }
         }
 
-        // Select all requests
+        // เลือกความประสงค์ทั้งหมด
         function selectAllRequests() {
             document.querySelectorAll('.request-item').forEach(item => {
                 item.querySelector('.request-checkbox').checked = true;
@@ -323,7 +322,7 @@
             });
         }
 
-        // Deselect all requests
+        // ยกเลิกลบความประสงค์ที่เลือก
         function deselectAllRequests() {
             document.querySelectorAll('.request-item').forEach(item => {
                 item.querySelector('.request-checkbox').checked = false;
@@ -331,7 +330,7 @@
             });
         }
 
-        // Add selected requests to map
+        // เพิ่มความประสงค์ลงแผนที่
         function addSelectedRequestsToMap() {
             const selectedItems = document.querySelectorAll('.request-item .request-checkbox:checked');
     
@@ -390,7 +389,7 @@
             }
         }
         
-        // Reverse geocoding
+        // เอาตัวเลขพิกัด (Lat, Lng) ไปหา "ชื่อที่อยู่" หรือ "ชื่อสถานที่"
         async function reverseGeocode(lat, lng) {
             try {
                 const response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1&accept-language=th`);
@@ -407,7 +406,7 @@
             }
         }
         
-        // Enhanced search
+        // ควบคุมระบบการค้นหา
         async function performSearch(query, showPopup = true) {
             if (!query || query.trim().length < 2) {
                 if (showPopup) {
@@ -455,14 +454,7 @@
                 searchBtn.disabled = false;
                 
                 if (results.length > 0) {
-                    if (results.length === 1) {
-                        const result = results[0];
-                        map.setView([result.lat, result.lng], 15);
-                        addPoint(result.lat, result.lng, result.display_name, null);
-                        document.getElementById('searchInput').value = '';
-                    } else {
-                        showSearchResults(results);
-                    }
+                    showSearchResults(results);
                 } else {
                     if (showPopup) {
                         Swal.fire({
@@ -499,6 +491,7 @@
             }
         }
         
+        // ส่วนการค้นหาสถานที่ที่จะนำไปใช้กับ performSearch
         async function searchMultipleSources(query) {
             const results = [];
             
@@ -532,6 +525,7 @@
             }
         }
         
+        // แสดงรายการผลลัพธ์ใต้ช่องค้นหา
         function showSearchResults(results) {
             const suggestionsDiv = document.getElementById('searchSuggestions');
             let html = '';
@@ -573,6 +567,7 @@
             });
         }
         
+
         function setupEnhancedSearch() {
             const searchInput = document.getElementById('searchInput');
             const searchBtn = document.getElementById('searchBtn');
@@ -799,6 +794,7 @@
             return matrix;
         }
         
+        // แทนที่ฟังก์ชัน calculateOptimalRoute เดิมด้วยโค้ดนี้
         async function calculateOptimalRoute(points) {
             if (points.length < 2) return points;
 
@@ -809,7 +805,102 @@
                 return points;
             }
 
+            // จุดเริ่มต้นต้องเป็น index 0 เสมอ
             const startIdx = 0;
+            
+            // หา Round Trip ที่ดีที่สุดโดยคำนึงถึงการกลับด้วย
+            let bestRoute = null;
+            let bestTotalDistance = Infinity;
+
+            // วิธีที่ 1: Nearest Neighbor แบบปกติ + 2-Opt
+            const nnRoute = await nearestNeighborRoute(startIdx, distMatrix, n);
+            const nnImproved = await improve2OptRoundTrip(nnRoute, distMatrix);
+            const nnDistance = calculateTotalRoundTripDistance(nnImproved, distMatrix);
+            
+            if (nnDistance < bestTotalDistance) {
+                bestTotalDistance = nnDistance;
+                bestRoute = nnImproved;
+            }
+
+            // วิธีที่ 2: ลองหลายๆ รูปแบบการเริ่มต้น
+            if (n <= 10) {
+                for (let secondPoint = 1; secondPoint < n; secondPoint++) {
+                    const altRoute = await nearestNeighborFromSecond(startIdx, secondPoint, distMatrix, n);
+                    const altImproved = await improve2OptRoundTrip(altRoute, distMatrix);
+                    const altDistance = calculateTotalRoundTripDistance(altImproved, distMatrix);
+                    
+                    if (altDistance < bestTotalDistance) {
+                        bestTotalDistance = altDistance;
+                        bestRoute = altImproved;
+                    }
+                }
+            }
+
+            // วิธีที่ 3: ลอง reverse บางส่วนของ route
+            const reversedRoute = await tryReverseSegments(bestRoute, distMatrix);
+            const reversedDistance = calculateTotalRoundTripDistance(reversedRoute, distMatrix);
+            
+            if (reversedDistance < bestTotalDistance) {
+                bestRoute = reversedRoute;
+            }
+
+            // **วิธีที่ 4: ตรวจสอบว่าการกลับทางเดิมสั้นกว่าหรือไม่**
+            bestRoute = await optimizeReturnPath(bestRoute, distMatrix);
+
+            return bestRoute.map(idx => points[idx]);
+        }
+
+        // ฟังก์ชันใหม่: ตรวจสอบและปรับเส้นกลับให้ผ่านทางเดิมถ้าสั้นกว่า
+        async function optimizeReturnPath(route, distMatrix) {
+            const n = route.length;
+            if (n < 3) return route;
+
+            const lastIdx = route[n - 1];
+            const startIdx = route[0];
+            
+            // คำนวณระยะทางกลับแบบตรง (ปัจจุบัน)
+            const directReturnDist = distMatrix[lastIdx][startIdx];
+            
+            // ลองหาเส้นทางกลับผ่านจุดที่เคยผ่านมา
+            let bestReturnDist = directReturnDist;
+            let bestReturnPath = null;
+            
+            // ตรวจสอบการกลับผ่านจุดต่างๆ ที่เคยผ่านมา
+            for (let i = n - 2; i > 0; i--) {
+                const viaIdx = route[i];
+                const distToVia = distMatrix[lastIdx][viaIdx];
+                const distViaToStart = distMatrix[viaIdx][startIdx];
+                const totalViaDist = distToVia + distViaToStart;
+                
+                // ถ้าผ่านจุดนี้แล้วสั้นกว่า
+                if (totalViaDist < bestReturnDist * 0.95) { // ใช้ threshold 95% เพื่อให้แน่ใจว่าสั้นกว่าจริงๆ
+                    bestReturnDist = totalViaDist;
+                    bestReturnPath = i;
+                }
+            }
+            
+            // ถ้าพบว่ากลับทางเดิมสั้นกว่า ให้ลอง reverse ส่วนหลัง
+            if (bestReturnPath !== null) {
+                const newRoute = [...route];
+                // Reverse จากจุดที่พบถึงจุดสุดท้าย
+                for (let i = bestReturnPath + 1, j = n - 1; i < j; i++, j--) {
+                    [newRoute[i], newRoute[j]] = [newRoute[j], newRoute[i]];
+                }
+                
+                // ตรวจสอบว่า route ใหม่ดีกว่าหรือไม่
+                const newTotalDist = calculateTotalRoundTripDistance(newRoute, distMatrix);
+                const oldTotalDist = calculateTotalRoundTripDistance(route, distMatrix);
+                
+                if (newTotalDist < oldTotalDist) {
+                    return newRoute;
+                }
+            }
+            
+            return route;
+        }
+
+        // Nearest Neighbor แบบปกติ
+        async function nearestNeighborRoute(startIdx, distMatrix, n) {
             const route = [startIdx];
             const visited = new Set([startIdx]);
             let currentIdx = startIdx;
@@ -832,41 +923,133 @@
                 }
             }
 
-            const improvedRoute = await improve2OptWithFixedStart(route, distMatrix);
-
-            return improvedRoute.map(idx => points[idx]);
+            return route;
         }
 
-        async function improve2OptWithFixedStart(route, distMatrix) {
+        // Nearest Neighbor โดยบังคับจุดที่ 2 และคำนึงถึงระยะกลับ
+        async function nearestNeighborFromSecond(startIdx, secondIdx, distMatrix, n) {
+            const route = [startIdx, secondIdx];
+            const visited = new Set([startIdx, secondIdx]);
+            let currentIdx = secondIdx;
+
+            while (route.length < n) {
+                let nearestIdx = -1;
+                let nearestDistance = Infinity;
+                
+                // ถ้าเหลือจุดสุดท้าย ให้คำนึงถึงระยะกลับด้วย
+                if (route.length === n - 1) {
+                    for (let i = 0; i < n; i++) {
+                        if (!visited.has(i)) {
+                            const distToCurrent = distMatrix[currentIdx][i];
+                            const distToStart = distMatrix[i][startIdx];
+                            const totalDist = distToCurrent + distToStart;
+                            
+                            if (totalDist < nearestDistance) {
+                                nearestDistance = totalDist;
+                                nearestIdx = i;
+                            }
+                        }
+                    }
+                } else {
+                    // จุดอื่นๆ ใช้ nearest neighbor ปกติ
+                    for (let i = 0; i < n; i++) {
+                        if (!visited.has(i) && distMatrix[currentIdx][i] < nearestDistance) {
+                            nearestDistance = distMatrix[currentIdx][i];
+                            nearestIdx = i;
+                        }
+                    }
+                }
+
+                if (nearestIdx !== -1) {
+                    route.push(nearestIdx);
+                    visited.add(nearestIdx);
+                    currentIdx = nearestIdx;
+                }
+            }
+
+            return route;
+        }
+
+        // คำนวณระยะทางรวมแบบ Round Trip (รวมเส้นกลับ)
+        function calculateTotalRoundTripDistance(route, distMatrix) {
+            let total = 0;
+            const n = route.length;
+            
+            for (let i = 0; i < n; i++) {
+                const current = route[i];
+                const next = route[(i + 1) % n];
+                total += distMatrix[current][next];
+            }
+            
+            return total;
+        }
+
+        // 2-Opt สำหรับ Round Trip (รวมเส้นกลับด้วย)
+        async function improve2OptRoundTrip(route, distMatrix) {
             const n = route.length;
             let improved = true;
+            let currentRoute = [...route];
+            let iterations = 0;
+            const maxIterations = 1000;
 
-            while (improved) {
+            while (improved && iterations < maxIterations) {
                 improved = false;
+                iterations++;
 
                 for (let i = 1; i < n - 1; i++) {
                     for (let j = i + 1; j < n; j++) {
-                        const currentDistance = 
-                            distMatrix[route[i-1]][route[i]] + 
-                            distMatrix[route[j]][route[(j+1) % n]];
+                        // คำนวณระยะทางเดิม
+                        const edge1Start = currentRoute[i - 1];
+                        const edge1End = currentRoute[i];
+                        const edge2Start = currentRoute[j];
+                        const edge2End = currentRoute[(j + 1) % n];
+                        
+                        const oldDist = distMatrix[edge1Start][edge1End] + distMatrix[edge2Start][edge2End];
 
-                        const newDistance = 
-                            distMatrix[route[i-1]][route[j]] + 
-                            distMatrix[route[i]][route[(j+1) % n]];
+                        // คำนวณระยะทางใหม่ถ้าสลับ
+                        const newDist = distMatrix[edge1Start][edge2Start] + distMatrix[edge1End][edge2End];
 
-                        if (newDistance < currentDistance) {
-                            const newRoute = [...route];
+                        // ถ้าสั้นกว่า ให้ reverse ส่วนระหว่าง i ถึง j
+                        if (newDist < oldDist - 0.001) {
+                            const newRoute = [...currentRoute];
                             for (let k = i, l = j; k < l; k++, l--) {
                                 [newRoute[k], newRoute[l]] = [newRoute[l], newRoute[k]];
                             }
-                            route = newRoute;
+                            currentRoute = newRoute;
                             improved = true;
                         }
                     }
                 }
             }
 
-            return route;
+            return currentRoute;
+        }
+
+        // ลอง reverse segments ต่างๆ
+        async function tryReverseSegments(route, distMatrix) {
+            let bestRoute = [...route];
+            let bestDistance = calculateTotalRoundTripDistance(bestRoute, distMatrix);
+            
+            const n = route.length;
+            
+            for (let start = 1; start < n - 1; start++) {
+                for (let end = start + 1; end < n; end++) {
+                    const testRoute = [...route];
+                    
+                    for (let i = start, j = end; i < j; i++, j--) {
+                        [testRoute[i], testRoute[j]] = [testRoute[j], testRoute[i]];
+                    }
+                    
+                    const testDistance = calculateTotalRoundTripDistance(testRoute, distMatrix);
+                    
+                    if (testDistance < bestDistance) {
+                        bestDistance = testDistance;
+                        bestRoute = [...testRoute];
+                    }
+                }
+            }
+            
+            return bestRoute;
         }
         
         async function analyzeRoute() {
@@ -946,13 +1129,12 @@
             }
         }
         
+        // ตัววาดเส้นบนแผนที่
         async function displayOptimizedRoute(route) {
             try {
                 clearRoute();
                 
-                if (route.length < 2) {
-                    return;
-                }
+                if (route.length < 2) return;
 
                 optimizedRoutePoints = [...route];
                 
@@ -960,84 +1142,123 @@
                 let totalDuration = 0;
                 const routeSegments = [];
                 
-                const waypoints = route.map(point => L.latLng(point.lat, point.lng));
-                waypoints.push(L.latLng(route[0].lat, route[0].lng));
-                
-                const routingControl = L.Routing.control({
-                    waypoints: waypoints,
-                    routeWhileDragging: false,
-                    addWaypoints: false,
-                    lineOptions: {
-                        styles: [{
-                            color: '#3B82F6',
-                            weight: 4,
-                            opacity: 0.8
-                        }]
-                    },
-                    createMarker: function() { return null; },
-                    router: L.Routing.osrmv1({
-                        serviceUrl: 'https://router.project-osrm.org/route/v1',
-                        profile: 'driving'
-                    })
-                });
-                
-                routingControl.addTo(map);
-                routeLayer = routingControl;
-                
-                setTimeout(() => {
-                    try {
-                        const routingContainer = routingControl.getContainer();
-                        if (routingContainer && routingContainer.style) {
-                            routingContainer.style.display = 'none';
-                        }
-                    } catch (e) {
-                        console.warn('Could not hide routing container:', e.message);
-                    }
-                }, 1000);
-                
+                // คำนวณและวาดเส้นทางทั้งหมด (รวมเส้นกลับ)
                 for (let i = 0; i < route.length; i++) {
-                    try {
-                        const nextPoint = (i === route.length - 1) ? route[0] : route[i + 1];
-                        const result = await calculateRoadDistance(route[i], nextPoint);
-                        totalDistance += result.distance;
-                        totalDuration += result.duration;
-                        routeSegments.push(result);
-                    } catch (error) {
-                        console.warn(`Error calculating segment ${i+1}:`, error.message);
-                        const nextPoint = (i === route.length - 1) ? route[0] : route[i + 1];
-                        const fallbackDist = calculateStraightLineDistance(route[i], nextPoint);
-                        const fallbackResult = { distance: fallbackDist, duration: (fallbackDist / 40) * 60 };
-                        totalDistance += fallbackResult.distance;
-                        totalDuration += fallbackResult.duration;
-                        routeSegments.push(fallbackResult);
+                    const currentPoint = route[i];
+                    const nextPoint = (i === route.length - 1) ? route[0] : route[i + 1];
+                    const isReturnTrip = (i === route.length - 1);
+                    
+                    // **แก้ไขตรงนี้: คำนวณระยะทางจริงสำหรับเส้นกลับ ไม่บังคับให้หลีกเลี่ยงจุดเดิม**
+                    const result = await calculateRoadDistance(currentPoint, nextPoint);
+                    totalDistance += result.distance;
+                    totalDuration += result.duration;
+                    routeSegments.push(result);
+                    
+                    let segmentColor, segmentWeight, segmentDashArray, labelText;
+                    
+                    if (isReturnTrip) {
+                        segmentColor = '#EF4444';
+                        segmentWeight = 5;
+                        segmentDashArray = '10, 10';
+                        labelText = 'กลับจุดเริ่มต้น';
+                    } else if (i === 0) {
+                        segmentColor = '#10B981';
+                        segmentWeight = 5;
+                        segmentDashArray = null;
+                        labelText = 'เริ่มต้น';
+                    } else {
+                        segmentColor = '#3B82F6';
+                        segmentWeight = 5;
+                        segmentDashArray = null;
+                        labelText = `ช่วงที่ ${i + 1}`;
                     }
+                    
+                    // สร้าง routing control - ใช้ OSRM หาเส้นทางที่สั้นที่สุด (อนุญาตให้ผ่านจุดเดิมได้)
+                    const segmentControl = L.Routing.control({
+                        waypoints: [
+                            L.latLng(currentPoint.lat, currentPoint.lng),
+                            L.latLng(nextPoint.lat, nextPoint.lng)
+                        ],
+                        routeWhileDragging: false,
+                        addWaypoints: false,
+                        lineOptions: {
+                            styles: [{
+                                color: segmentColor,
+                                weight: segmentWeight,
+                                opacity: 0.8,
+                                dashArray: segmentDashArray
+                            }]
+                        },
+                        createMarker: function() { return null; },
+                        router: L.Routing.osrmv1({
+                            serviceUrl: 'https://router.project-osrm.org/route/v1',
+                            profile: 'driving'
+                        }),
+                        show: false
+                    });
+                    
+                    segmentControl.addTo(map);
+                    
+                    setTimeout(() => {
+                        const container = segmentControl.getContainer();
+                        if (container) container.style.display = 'none';
+                    }, 100);
+                    
+                    if (!routeLayer) routeLayer = [];
+                    routeLayer.push(segmentControl);
+                    
+                    // เพิ่ม Label
+                    const midLat = (currentPoint.lat + nextPoint.lat) / 2;
+                    const midLng = (currentPoint.lng + nextPoint.lng) / 2;
+                    
+                    const labelIcon = L.divIcon({
+                        html: `
+                            <div style="
+                                background: ${segmentColor}; 
+                                color: white; 
+                                padding: 4px 8px; 
+                                border-radius: 4px; 
+                                font-size: 11px; 
+                                font-weight: bold;
+                                box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                                white-space: nowrap;
+                            ">
+                                ${labelText}<br>
+                                <span style="font-size: 10px;">${result.distance.toFixed(1)} km, ${Math.round(result.duration)} นาที</span>
+                            </div>
+                        `,
+                        className: 'route-label',
+                        iconSize: [100, 40]
+                    });
+                    
+                    const labelMarker = L.marker([midLat, midLng], { icon: labelIcon }).addTo(map);
+                    routeMarkers.push(labelMarker);
                 }
                 
+                // วาด markers สำหรับแต่ละจุด
                 route.forEach((point, index) => {
-                    try {
-                        const isFromRequest = point.requestId ? true : false;
-                        const routeMarker = L.divIcon({
-                            html: `<div class="${isFromRequest ? 'bg-green-600' : 'bg-blue-600'} text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm shadow-lg border-2 border-white">${index + 1}</div>`,
-                            className: 'custom-route-marker',
-                            iconSize: [32, 32],
-                            iconAnchor: [16, 16]
-                        });
+                    const isFromRequest = point.requestId ? true : false;
+                    const isStart = index === 0;
+                    
+                    const routeMarker = L.divIcon({
+                        html: `<div class="${isFromRequest ? 'bg-green-600' : (isStart ? 'bg-green-600' : 'bg-blue-600')} text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm shadow-lg border-2 border-white">${index + 1}</div>`,
+                        className: 'custom-route-marker',
+                        iconSize: [32, 32],
+                        iconAnchor: [16, 16]
+                    });
+                    
+                    const marker = L.marker([point.lat, point.lng], { icon: routeMarker })
+                        .bindPopup(`
+                            <div class="text-center">
+                                <b>จุดที่ ${index + 1}</b><br>
+                                <div class="text-sm mt-1">${point.address}</div>
+                                ${isStart ? '<div class="text-green-600 text-xs mt-1">🏁 จุดเริ่มต้น/สิ้นสุด</div>' : ''}
+                                ${isFromRequest ? '<div class="text-green-600 text-xs mt-1">📋 จากคำขอขายขยะ</div>' : ''}
+                            </div>
+                        `)
+                        .addTo(map);
                         
-                        const marker = L.marker([point.lat, point.lng], { icon: routeMarker })
-                            .bindPopup(`
-                                <div class="text-center">
-                                    <b>จุดที่ ${index + 1}</b><br>
-                                    <div class="text-sm mt-1">${point.address}</div>
-                                    ${index === 0 ? '<div class="text-green-600 text-xs mt-1">จุดเริ่มต้น/สิ้นสุด</div>' : ''}
-                                    ${isFromRequest ? '<div class="text-green-600 text-xs mt-1">📋 จากคำขอขายขยะ</div>' : ''}
-                                </div>
-                            `)
-                            .addTo(map);
-                            
-                        routeMarkers.push(marker);
-                    } catch (error) {
-                        console.warn(`Error creating marker for point ${index + 1}:`, error.message);
-                    }
+                    routeMarkers.push(marker);
                 });
                 
                 displayDetailedRouteResults(route, routeSegments, totalDistance, totalDuration);
@@ -1048,18 +1269,7 @@
                     totalDistance: totalDistance,
                     totalDuration: totalDuration
                 };
-                
-                setTimeout(() => {
-                    try {
-                        if (routeMarkers.length > 0) {
-                            const group = L.featureGroup([...routeMarkers]);
-                            map.fitBounds(group.getBounds().pad(0.1));
-                        }
-                    } catch (error) {
-                        console.warn('Error fitting map bounds:', error.message);
-                    }
-                }, 1500);
-                
+
                 setTimeout(() => {
                     Swal.fire({
                         icon: 'success',
@@ -1083,6 +1293,7 @@
             }
         }
         
+        // ตัวแสดงผลลัพธ์ลำดับการเดินทาง
         function displayDetailedRouteResults(route, segments, totalDistance, totalDuration) {
             const resultsContainer = document.getElementById('routeResults');
             const routeInfo = document.getElementById('routeInfo');
@@ -1110,13 +1321,51 @@
                     <div class="space-y-2">
             `;
             
-            route.forEach((point, index) => {
+            const startPoint = route[0];
+            const isFromRequest = startPoint.requestId ? true : false;
+            const firstSegment = segments[0];
+            
+            html += `
+                <div class="flex items-start space-x-3 p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg border-2 border-green-400 shadow-md">
+                    <div class="flex-shrink-0">
+                        <div class="bg-green-600 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg border-2 border-white text-lg font-bold">
+                            1
+                        </div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="font-bold text-green-800 text-base">จุดเริ่มต้น</span>
+                            ${isFromRequest ? '<span class="text-xs bg-green-600 text-white px-2 py-0.5 rounded">คำขอขายขยะ</span>' : ''}
+                        </div>
+                        <div class="font-medium text-gray-800 text-sm">${startPoint.address}</div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            ${startPoint.lat.toFixed(4)}, ${startPoint.lng.toFixed(4)}
+                        </div>
+                        
+                        ${firstSegment ? `
+                            <div class="mt-2 p-2 bg-white rounded border-l-4 border-blue-400">
+                                <div class="text-xs text-gray-700 font-medium mb-1">
+                                    → ไปยังจุดที่ 2
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 text-xs">
+                                    <div><span class="text-gray-600">ระยะทาง:</span> <span class="font-semibold text-blue-600">${firstSegment.distance.toFixed(2)} กม.</span></div>
+                                    <div><span class="text-gray-600">เวลา:</span> <span class="font-semibold text-green-600">${Math.round(firstSegment.duration)} นาที</span></div>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            
+            // แสดงจุดที่ 2 เป็นต้นไป (ข้ามจุดแรกเพราะแสดงไปแล้ว)
+            for (let index = 1; index < route.length; index++) {
+                const point = route[index];
                 const segment = segments[index];
-                const isFirst = index === 0;
+                const isLast = index === route.length - 1;
                 const isFromRequest = point.requestId ? true : false;
                 
                 html += `
-                    <div class="flex items-start space-x-3 p-3 ${index % 2 === 0 ? 'bg-blue-50' : 'bg-white'} rounded-lg border ${isFirst ? 'border-green-300' : 'border-gray-200'}">
+                    <div class="flex items-start space-x-3 p-3 bg-white rounded-lg border border-gray-200">
                         <div class="flex-shrink-0">
                             <div class="${isFromRequest ? 'bg-green-600' : 'bg-blue-600'} text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold shadow-md">
                                 ${index + 1}
@@ -1124,73 +1373,56 @@
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="font-medium text-gray-800 text-sm">${point.address}</div>
+
+                            <div class="text-xs text-gray-500 mt-1">
+                                ${point.lat.toFixed(4)}, ${point.lng.toFixed(4)}
+                            </div>
+
                             ${isFromRequest ? '<div class="text-xs text-green-600 mt-1">📋 จากคำขอขายขยะ</div>' : ''}
-                            ${segment ? `
+                            
+                            ${!isLast && segment ? `
                                 <div class="mt-2 p-2 bg-white rounded border-l-4 border-blue-400">
                                     <div class="text-xs text-gray-700 font-medium mb-1">
                                         → ไปยังจุดที่ ${index + 2}
                                     </div>
                                     <div class="grid grid-cols-2 gap-2 text-xs">
-                                        <div>
-                                            <span class="text-gray-600">ระยะทาง:</span>
-                                            <span class="font-semibold text-blue-600">${segment.distance.toFixed(2)} กม.</span>
-                                        </div>
-                                        <div>
-                                            <span class="text-gray-600">เวลา:</span>
-                                            <span class="font-semibold text-green-600">${Math.round(segment.duration)} นาที</span>
-                                        </div>
+                                        <div><span class="text-gray-600">ระยะทาง:</span> <span class="font-semibold text-blue-600">${segment.distance.toFixed(2)} กม.</span></div>
+                                        <div><span class="text-gray-600">เวลา:</span> <span class="font-semibold text-green-600">${Math.round(segment.duration)} นาที</span></div>
+                                    </div>
+                                </div>
+                            ` : ''}
+
+                            ${isLast && segments[index] ? `
+                                <div class="mt-2 p-2 bg-red-50 rounded border-l-4 border-red-400">
+                                    <div class="text-xs text-red-700 font-medium mb-1 flex items-center gap-1">
+                                        <ion-icon name="return-down-back" class="text-base"></ion-icon>
+                                        <span>กลับจุดเริ่มต้น</span>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-2 text-xs">
+                                        <div><span class="text-gray-600">ระยะทาง:</span> <span class="font-semibold text-red-600">${segments[index].distance.toFixed(2)} กม.</span></div>
+                                        <div><span class="text-gray-600">เวลา:</span> <span class="font-semibold text-red-600">${Math.round(segments[index].duration)} นาที</span></div>
                                     </div>
                                 </div>
                             ` : ''}
                         </div>
                     </div>
                 `;
-            });
+            }
             
-            const returnSegment = segments[segments.length - 1];
+            // ส่วนท้าย: แสดงจุดปิดท้าย (Endpoint)
             html += `
-                <div class="flex items-start space-x-3 p-3 bg-green-50 rounded-lg border border-green-300">
-                    <div class="flex-shrink-0">
-                        <div class="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold shadow-md">
-                            ${route.length + 1}
-                        </div>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="font-medium text-gray-800 text-sm leading-tight">${route[0].address}</div>
-                        <div class="text-xs text-green-600 mt-1 font-medium">🏁 กลับจุดเริ่มต้น</div>
-                        <div class="text-xs text-gray-500 mt-1">
-                            ${route[0].lat.toFixed(4)}, ${route[0].lng.toFixed(4)}
-                        </div>
-                        ${returnSegment ? `
-                            <div class="mt-2 p-2 bg-white rounded border-l-4 border-green-400">
-                                <div class="text-xs text-gray-700 font-medium mb-1">
-                                    → กลับไปยังจุดเริ่มต้น (จุดที่ 1)
-                                </div>
-                                <div class="grid grid-cols-2 gap-2 text-xs">
-                                    <div>
-                                        <span class="text-gray-600">ระยะทาง:</span>
-                                        <span class="font-semibold text-blue-600">${returnSegment.distance.toFixed(2)} กม.</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-600">เวลา:</span>
-                                        <span class="font-semibold text-green-600">${Math.round(returnSegment.duration)} นาที</span>
-                                    </div>
+                        <div class="flex items-start space-x-3 p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg border-2 border-green-400 shadow-md">
+                            <div class="flex-shrink-0">
+                                <div class="bg-green-600 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg border-2 border-white">
+                                    <ion-icon name="checkmark-circle" class="text-xl"></ion-icon>
                                 </div>
                             </div>
-                        ` : ''}
-                    </div>
-                    <div class="flex-shrink-0">
-                        <ion-icon name="checkmark-circle" class="text-green-600 text-lg"></ion-icon>
-                    </div>
-                </div>
-            `;
-            
-            html += `
-                    </div>
-                    <div class="mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                        <div class="flex items-center text-yellow-800 text-sm">
-                            <ion-icon name="information-circle" class="mr-2 flex-shrink-0"></ion-icon>
-                            <span>เส้นทางแบบ Round Trip ที่คำนวณจากระยะทางจริงบนถนนและใช้อัลกอริธึม TSP</span>
+                            <div class="flex-1 min-w-0">
+                                <div class="font-bold text-green-800 text-base mb-1">
+                                    กลับถึงจุดเริ่มต้น
+                                </div>
+                                <div class="font-medium text-gray-800 text-sm">${route[0].address}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1202,10 +1434,22 @@
         
         function clearRoute() {
             if (routeLayer) {
-                try {
-                    map.removeControl(routeLayer);
-                } catch (e) {
-                    console.warn('Error removing route layer:', e);
+                if (Array.isArray(routeLayer)) {
+                    // ถ้าเป็น array ให้ลบทีละตัว
+                    routeLayer.forEach(control => {
+                        try {
+                            map.removeControl(control);
+                        } catch (e) {
+                            console.warn('Error removing route control:', e);
+                        }
+                    });
+                } else {
+                    // ถ้าเป็น control เดียว
+                    try {
+                        map.removeControl(routeLayer);
+                    } catch (e) {
+                        console.warn('Error removing route layer:', e);
+                    }
                 }
                 routeLayer = null;
             }

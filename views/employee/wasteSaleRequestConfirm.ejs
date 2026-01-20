@@ -219,7 +219,7 @@
                     <div class="flex items-center justify-between mb-6 ">
                         <div>
                             <h3 class="text-lg font-semibold mb-2">รายละเอียดคำขอ</h3>
-                            <p class="text-sm text-gray-500">ID: <%= request._id  %></p>
+                            <!-- <p class="text-sm text-gray-500">ID: <%= request._id  %></p> -->
                         </div>
                         <% if (request.status === 'resolved') { %><span class="text-sm text-green-600 bg-green-100 px-2 py-1 rounded-full border border-green-200">เสร็จสิ้น</span>
                         <% } else if (request.status === 'pending') { %><span class="text-sm text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full border border-yellow-200">รอการอนุมัติ</span>
@@ -237,7 +237,7 @@
                             <span class="info-value" id="requestDate"><%= request.family.familyName %></span>
                         </div>
                         <div class="info-row">
-                            <span class="info-label"><i class="far fa-calendar-alt text-green-600 mr-2"></i> วันที่แจ้ง:</span>
+                            <span class="info-label"><i class="far fa-calendar-alt text-green-600 mr-2"></i> วันที่ให้เข้ารับซื้อ:</span>
                             <span class="info-value" id="requestDate"><%= request.date.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) %></span>
                         </div>
                         <div class="info-row">

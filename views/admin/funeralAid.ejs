@@ -10,55 +10,32 @@
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     <style>
-        /* เพิ่ม custom styles สำหรับ UI ใหม่ */
         .status-badge {
             transition: all 0.3s ease;
         }
         .status-badge:hover {
             transform: scale(1.05);
         }
-        .calculation-card {
+        .record-card {
             transition: all 0.3s ease;
         }
-        .calculation-card:hover {
+        .record-card:hover {
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
         }
-        .progress-step {
-            position: relative;
-        }
-        .progress-step::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 100%;
-            width: 100%;
-            height: 2px;
-            background: #e5e7eb;
-            z-index: -1;
-        }
-        .progress-step:last-child::after {
-            display: none;
-        }
-        .progress-step.active::after {
-            background: #3b82f6;
-        }
-        /* เพิ่ม styles สำหรับ dropdown autocomplete */
-        #householdDropdown {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        #householdDropdown::-webkit-scrollbar {
+        .overflow-y-auto::-webkit-scrollbar {
             width: 8px;
         }
-        #householdDropdown::-webkit-scrollbar-track {
+        .overflow-y-auto::-webkit-scrollbar-track {
             background: #f1f1f1;
             border-radius: 4px;
         }
-        #householdDropdown::-webkit-scrollbar-thumb {
-            background: #cbd5e0;
+        .overflow-y-auto::-webkit-scrollbar-thumb {
+            background: #888;
             border-radius: 4px;
         }
-        #householdDropdown::-webkit-scrollbar-thumb:hover {
-            background: #a0aec0;
+        .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+            background: #555;
         }
     </style>
 </head>
@@ -66,677 +43,930 @@
 <body class="bg-gray-50">
     <%- include('../partials/adminPartials/adminHeader.ejs') %>
     <%- include('../partials/adminPartials/adminSidebar.ejs') %>
-    
-    <script>
-    </script>
 
     <div class="content bg-gray-50 min-screen">
         <!-- Page Header -->
-        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
-                <div>
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-6">
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                <div class="flex-1">
                     <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
-                        ฌาปนกิจสงเคราะห์
+                        ประวัติฌาปนกิจสงเคราะห์
                     </h1>
-                    <p class="text-gray-600 mt-2">ระบบจัดการเงินช่วยเหลือฌาปนกิจสงเคราะห์สำหรับครัวเรือนในชุมชน</p>
+                    <p class="text-gray-600 mt-2">รายการประวัติการจ่ายเงินช่วยเหลือฌาปนกิจสงเคราะห์</p>
                 </div>
             </div>
         </div>
 
-        <!-- Main Content -->
-        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Form Section -->
-            <div class="lg:col-span-2">
-                <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                    <div class="bg-blue-50 px-6 py-4 border-b border-gray-200">
-                        <h2 class="text-xl font-semibold text-gray-800 flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            แบบฟอร์มขอรับเงินช่วยเหลือฌาปนกิจสงเคราะห์
-                        </h2>
+        <!-- Filters Section -->
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ค้นหา</label>
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="ค้นหาชื่อผู้เสียชีวิต, ครัวเรือน, ผู้รับเงิน..." class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
                     </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ปีงบประมาณ</label>
+                    <select id="yearFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">ทั้งหมด</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mt-1 flex justify-end">
+                <button id="resetFilters" class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors">
+                    รีเซ็ตตัวกรอง
+                </button>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="mx-4 mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">รายการทั้งหมด</p>
+                        <p class="text-3xl font-bold text-blue-600 mt-1" id="totalRecords">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">เงินจ่ายทั้งหมด</p>
+                        <p class="text-3xl font-bold text-green-600 mt-1" id="totalAmount">0</p>
+                        <p class="text-xs text-gray-500 mt-1">บาท</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">ครัวเรือนที่ได้รับ</p>
+                        <p class="text-3xl font-bold text-purple-600 mt-1" id="totalFamilies">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">ค่าเฉลี่ยต่อครั้ง</p>
+                        <p class="text-3xl font-bold text-orange-600 mt-1" id="avgAmount">0</p>
+                        <p class="text-xs text-gray-500 mt-1">บาท</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Records List -->
+        <div class="mx-4 mb-6">
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-lg font-semibold text-gray-800">รายการประวัติ</h2>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-600">แสดง</span>
+                            <select id="limitFilter" class="px-3 py-1 border border-gray-300 rounded-md text-sm">
+                                <option value="10" selected>10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                            <span class="text-sm text-gray-600">รายการ</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="loadingState" class="p-12 text-center">
+                    <svg class="animate-spin h-10 w-10 mx-auto text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p class="mt-4 text-gray-600">กำลังโหลดข้อมูล...</p>
+                </div>
+
+                <div id="recordsContainer" class="hidden">
+                    <div id="recordsList" class="divide-y divide-gray-200"></div>
+                    <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                        <div class="flex flex-col md:flex-row justify-between items-center">
+                            <div class="text-sm text-gray-600 mb-4 md:mb-0">
+                                แสดง <span id="showingFrom">1</span> ถึง <span id="showingTo">10</span> จากทั้งหมด <span id="totalItems">0</span> รายการ
+                            </div>
+                            <div id="paginationContainer" class="flex space-x-2"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="emptyState" class="hidden p-12 text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <p class="mt-4 text-gray-600 text-lg">ไม่พบข้อมูลประวัติฌาปนกิจ</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Funeral Detail Modal -->
+    <div id="funeralDetailModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-10 mx-auto p-5 border w-11/12 max-w-6xl shadow-lg rounded-lg bg-white mb-20">
+            <div class="flex justify-between items-center pb-4 border-b">
+                <h3 class="text-2xl font-bold text-gray-800">รายละเอียดฌาปนกิจสงเคราะห์</h3>
+                <button onclick="closeDetailModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div id="modalContent" class="mt-6">
+                <div id="modalLoading" class="flex justify-center items-center py-12">
+                    <svg class="animate-spin h-10 w-10 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+                <div id="modalDetailContent" class="hidden space-y-6"></div>
+            </div>
+
+            <div class="flex justify-end pt-4 border-t mt-6">
+                <button onclick="closeDetailModal()" class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                    ปิด
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal แก้ไขฌาปนกิจ -->
+    <div id="funeralEditModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-10 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-lg bg-white mb-20">
+            <div class="flex justify-between items-center pb-4 border-b">
+                <h3 class="text-2xl font-bold text-gray-800">แก้ไขข้อมูลฌาปนกิจสงเคราะห์</h3>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <form id="editFuneralForm" class="mt-6">
+                <input type="hidden" id="edit_funeralId">
+                
+                <!-- ข้อมูลผู้เสียชีวิต -->
+                <div class="mb-6">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center border-b pb-2">
+                        <!-- <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg> -->
+                        ข้อมูลผู้เสียชีวิต
+                    </h4>
                     
-                    <form action="/admin/funeral-assistance/submit" method="POST" class="p-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                            <div class="md:col-span-2">
-                                <p class="block text-sm font-bold text-xl text-gray-700 mb-1">เงื่อนไขรับเงินช่วยเหลือฌาปนกิจสงเคราะห์ <span class="text-red-500">*</span></p>
-                                <p class="block text-sm font-medium text-gray-700 mb-1">ต้องสมัครเข้าร่วมกองทุนขยะรีไซเคิลครบ 6 เดือน และมีการนำขยะมาขายให้ครบยอดเงินขั้นต่ำ 300 บาท</p>
-                            </div>
-                            
-                            <!-- ค้นหาครัวเรือน -->
-                            <div class="md:col-span-2">
-                                <label for="householdSearch" class="block text-sm font-medium text-gray-700 mb-1">ค้นหาครัวเรือน <span class="text-red-500">*</span></label>
-                                <div class="relative">
-                                    <!-- เพิ่ม autocomplete="off" เพื่อปิด browser autocomplete -->
-                                    <input type="text" id="householdSearch" name="householdSearch" placeholder="ค้นหาด้วยรหัสครัวเรือนหรือชื่อหัวหน้าครัวเรือน" class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" autocomplete="off">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                    </svg>
-                                    <!-- เพิ่ม dropdown สำหรับแสดงผลการค้นหา -->
-                                    <div id="householdDropdown" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto hidden">
-                                        <div id="householdList" class="py-1">
-                                            <!-- รายการครัวเรือนจะแสดงที่นี่ -->
-                                        </div>
-                                        <div id="noResults" class="px-4 py-3 text-sm text-gray-500 text-center hidden">
-                                            ไม่พบข้อมูลครัวเรือน
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- ข้อมูลครัวเรือน (จะแสดงหลังจากค้นหา) -->
-                            <div class="md:col-span-2 p-4 bg-gray-50 rounded-lg border border-gray-200 hidden" id="householdInfo">
-                                <h3 class="font-medium text-gray-800 mb-2">ข้อมูลครัวเรือน</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <p class="text-sm text-gray-500">เลขบัญชี</p>
-                                        <p class="font-medium" id="householdId">-</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm text-gray-500">ชื่อตัวแทนครัวเรือน</p>
-                                        <p class="font-medium" id="householdHead">-</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm text-gray-500">ที่อยู่</p>
-                                        <p class="font-medium" id="householdAddress">-</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm text-gray-500">จำนวนสมาชิก</p>
-                                        <p class="font-medium" id="memberCount">-</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- เพิ่มส่วนตรวจสอบคุณสมบัติ -->
-                            <div class="md:col-span-2 hidden" id="eligibilitySection">
-                                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border-2 border-blue-200 p-6">
-                                    <div class="flex items-center mb-4">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        <h3 class="text-lg font-semibold text-gray-800">ตรวจสอบคุณสมบัติ</h3>
-                                    </div>
-                                    
-                                    <div class="space-y-3">
-                                        <!-- เงื่อนไข 1: สมัครครบ 6 เดือน -->
-                                        <div class="flex items-start bg-white rounded-lg p-4 shadow-sm">
-                                            <div class="flex-shrink-0 mr-3">
-                                                <div class="w-8 h-8 rounded-full flex items-center justify-center" id="condition1Icon">
-                                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                                    </svg>
-                                                </div>
-                                            </div>
-                                            <div class="flex-1">
-                                                <p class="font-medium text-gray-800">สมัครเข้าร่วมกองทุนครบ 6 เดือน</p>
-                                                <p class="text-sm text-gray-600 mt-1" id="condition1Detail">กำลังตรวจสอบ...</p>
-                                            </div>
-                                        </div>
-
-                                        <!-- เงื่อนไข 2: ขายขยะครบ 300 บาท -->
-                                        <div class="flex items-start bg-white rounded-lg p-4 shadow-sm">
-                                            <div class="flex-shrink-0 mr-3">
-                                                <div class="w-8 h-8 rounded-full flex items-center justify-center" id="condition2Icon">
-                                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                                    </svg>
-                                                </div>
-                                            </div>
-                                            <div class="flex-1">
-                                                <p class="font-medium text-gray-800">ขายขยะรีไซเคิลครบ 300 บาท</p>
-                                                <p class="text-sm text-gray-600 mt-1" id="condition2Detail">กำลังตรวจสอบ...</p>
-                                            </div>
-                                        </div>
-
-                                        <!-- สรุปผลการตรวจสอบ -->
-                                        <div class="mt-4 p-4 rounded-lg" id="eligibilityResult">
-                                            <div class="flex items-center">
-                                                <svg class="w-6 h-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" id="resultIcon">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                                <p class="font-semibold text-lg" id="resultText">กำลังตรวจสอบคุณสมบัติ...</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- ชื่อผู้เสียชีวิต -->
-                            <div class="md:col-span-2">
-                                <label for="deceasedName" class="block text-sm font-medium text-gray-700 mb-1">ชื่อผู้เสียชีวิต <span class="text-red-500">*</span></label>
-                                <input type="text" id="deceasedName" name="deceasedName" required placeholder="ระบุชื่อ-นามสกุลผู้เสียชีวิต" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            
-                            <!-- ความสัมพันธ์กับหัวหน้าครัวเรือน -->
-                            <div>
-                                <label for="relationship" class="block text-sm font-medium text-gray-700 mb-1">ความสัมพันธ์กับหัวหน้าครัวเรือน <span class="text-red-500">*</span></label>
-                                <select id="relationship" name="relationship" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <option value="" disabled selected>-- เลือกความสัมพันธ์ --</option>
-                                    <option value="หัวหน้าครัวเรือน">หัวหน้าครัวเรือน</option>
-                                    <option value="คู่สมรส">คู่สมรส</option>
-                                    <option value="บุตร">บุตร</option>
-                                    <option value="บิดา/มารดา">บิดา/มารดา</option>
-                                    <option value="ญาติ">ญาติ</option>
-                                    <option value="อื่นๆ">อื่นๆ</option>
-                                </select>
-                            </div>
-                            
-                            <!-- วันที่เสียชีวิต -->
-                            <div>
-                                <label for="dateOfDeath" class="block text-sm font-medium text-gray-700 mb-1">วันที่เสียชีวิต <span class="text-red-500">*</span></label>
-                                <input type="date" id="dateOfDeath" name="dateOfDeath" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            
-                            <!-- จำนวนเงินช่วยเหลือ -->
-                            <div>
-                                <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">จำนวนเงินช่วยเหลือ (บาท) <span class="text-red-500">*</span></label>
-                                <input type="number" id="amount" name="amount" required placeholder="0.00" min="0" step="0.01" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-
-                            <!-- เพิ่มส่วนคำนวณเงินฌาปนกิจ -->
-                            <div class="md:col-span-2 hidden" id="calculationSection">
-                                <div class="rounded-lg border-2 border-gray-200 p-6">
-                                    <div class="flex items-center mb-4">
-                                        <h3 class="text-lg font-semibold text-gray-800">การคำนวณเงินฌาปนกิจ</h3>
-                                    </div>
-
-                                    <!-- สรุปยอดเงิน -->
-                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                        <div class="bg-white rounded-lg p-4 shadow-sm">
-                                            <p class="text-sm text-gray-600 mb-1">จำนวนเงินที่ต้องจ่าย</p>
-                                            <p class="text-2xl font-bold text-emerald-600" id="totalAmount">0 บาท</p>
-                                        </div>
-                                        <div class="bg-white rounded-lg p-4 shadow-sm">
-                                            <p class="text-sm text-gray-600 mb-1">จำนวนบัญชีในระบบ</p>
-                                            <p class="text-2xl font-bold text-blue-600" id="totalAccounts">0 บัญชี</p>
-                                        </div>
-                                        <div class="bg-white rounded-lg p-4 shadow-sm">
-                                            <p class="text-sm text-gray-600 mb-1">หักจากบัญชีละ</p>
-                                            <p class="text-2xl font-bold text-orange-600" id="perAccountAmount">0 บาท</p>
-                                        </div>
-                                    </div>
-
-                                    <!-- รายละเอียดการกระจายเงิน -->
-                                    <div class="bg-white rounded-lg p-4 shadow-sm">
-                                        <div class="flex items-center justify-between mb-3">
-                                            <h4 class="font-medium text-gray-800">รายละเอียดการกระจายภาระ</h4>
-                                            <button type="button" id="toggleDetails" class="text-sm text-blue-600 hover:text-blue-800 flex items-center">
-                                                <span>ดูรายละเอียด</span>
-                                                <svg class="w-4 h-4 ml-1 transform transition-transform" id="toggleIcon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                        
-                                        <div class="hidden" id="detailsContent">
-                                            <div class="border-t border-gray-200 pt-3">
-                                                <p class="text-sm text-gray-600 mb-2">การคำนวณ:</p>
-                                                <div class="bg-gray-50 rounded p-3 font-mono text-sm">
-                                                    <p class="text-gray-700">เงินฌาปนกิจ = <span id="calc1">6,000</span> บาท</p>
-                                                    <p class="text-gray-700">จำนวนบัญชี = <span id="calc2">150</span> บัญชี</p>
-                                                    <p class="text-gray-700 border-t border-gray-300 mt-2 pt-2">หักจากบัญชีละ = <span id="calc3">6,000</span> ÷ <span id="calc4">150</span> = <span class="font-bold text-emerald-600" id="calc5">40.00</span> บาท</p>
-                                                </div>
-                                                
-                                                <div class="mt-4">
-                                                    <p class="text-sm text-gray-600 mb-2">ยอดเงินคงเหลือในกองทุน:</p>
-                                                    <div class="flex items-center justify-between bg-blue-50 rounded p-3">
-                                                        <div>
-                                                            <p class="text-sm text-gray-600">ก่อนหัก</p>
-                                                            <p class="text-lg font-bold text-gray-800" id="beforeBalance">45,000 บาท</p>
-                                                        </div>
-                                                        <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                                        </svg>
-                                                        <div>
-                                                            <p class="text-sm text-gray-600">หลังหัก</p>
-                                                            <p class="text-lg font-bold text-emerald-600" id="afterBalance">39,000 บาท</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- คำเตือน -->
-                                    <div class="mt-4 flex items-start bg-amber-50 border border-amber-200 rounded-lg p-3">
-                                        <svg class="w-5 h-5 text-amber-600 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                        </svg>
-                                        <p class="text-sm text-amber-800">เงินจะถูกหักจากบัญชีของทุกครัวเรือนในระบบกองทุนขยะรีไซเคิลเท่ากัน</p>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- ผู้รับเงินช่วยเหลือ -->
-                            <div>
-                                <label for="beneficiary" class="block text-sm font-medium text-gray-700 mb-1">ผู้รับเงินช่วยเหลือ <span class="text-red-500">*</span></label>
-                                <input type="text" id="beneficiary" name="beneficiary" required placeholder="ระบุชื่อ-นามสกุลผู้รับเงิน" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            
-                            <!-- ความสัมพันธ์กับผู้เสียชีวิต -->
-                            <div>
-                                <label for="beneficiaryRelationship" class="block text-sm font-medium text-gray-700 mb-1">ความสัมพันธ์กับผู้เสียชีวิต <span class="text-red-500">*</span></label>
-                                <select id="beneficiaryRelationship" name="beneficiaryRelationship" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <option value="" disabled selected>-- เลือกความสัมพันธ์ --</option>
-                                    <option value="คู่สมรส">คู่สมรส</option>
-                                    <option value="บุตร">บุตร</option>
-                                    <option value="บิดา/มารดา">บิดา/มารดา</option>
-                                    <option value="พี่/น้อง">พี่/น้อง</option>
-                                    <option value="ญาติ">ญาติ</option>
-                                    <option value="อื่นๆ">อื่นๆ</option>
-                                </select>
-                            </div>
-                            
-                            <!-- หมายเหตุ -->
-                            <div class="md:col-span-2">
-                                <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ</label>
-                                <textarea id="notes" name="notes" rows="2" placeholder="ระบุหมายเหตุเพิ่มเติม (ถ้ามี)" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                            </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                ชื่อ-นามสกุล <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="edit_deceased_name" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                         
-                        <div class="mt-8 flex justify-end space-x-3">
-                            <button type="button" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                ยกเลิก
-                            </button>
-                            <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                บันทึกข้อมูล
-                            </button>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                อายุ (ปี) <span class="text-red-500">*</span>
+                            </label>
+                            <input type="number" id="edit_deceased_age" required min="0"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
-                    </form>
-                </div>
-            </div>
-            
-            <!-- Sidebar -->
-            <div>
-                <!-- ข้อมูลสรุป -->
-                <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
-                    <div class="bg-blue-50 px-6 py-4 border-b border-gray-200">
-                        <h2 class="text-xl font-semibold text-gray-800 flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                            </svg>
-                            สรุปข้อมูล
-                        </h2>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                เลขบัตรประชาชน <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="edit_deceased_idCard" required maxlength="13" pattern="[0-9]{13}"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                เบอร์โทรศัพท์ <span class="text-red-500">*</span>
+                            </label>
+                            <input type="tel" id="edit_deceased_phone" required maxlength="10" pattern="[0-9]{10}"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                วันที่เสียชีวิต <span class="text-red-500">*</span>
+                            </label>
+                            <input type="date" id="edit_deceased_dateOfDeath" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                สาเหตุการเสียชีวิต <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="edit_deceased_causeOfDeath" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
                     </div>
-                    <div class="p-6">
-                        <div class="space-y-4">
-                            <div class="bg-blue-50 rounded-lg p-4">
-                                <h3 class="font-medium text-gray-800 mb-2">ปีงบประมาณ 2568</h3>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div>
-                                        <p class="text-sm text-gray-500">จำนวนผู้เสียชีวิต</p>
-                                        <p class="text-xl font-bold text-blue-600">12 ราย</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm text-gray-500">งบประมาณที่ใช้ไป</p>
-                                        <p class="text-xl font-bold text-blue-600">72,000 บาท</p>
-                                    </div>
-                                </div>
-                            </div>
-                            
+
+                    <!-- ที่อยู่ -->
+                    <div class="mt-4">
+                        <h5 class="text-sm font-semibold text-gray-700 mb-3">ที่อยู่</h5>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <h3 class="font-medium text-gray-800 mb-2">สถิติรายเดือน</h3>
-                                <div class="space-y-2">
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-sm text-gray-600">มกราคม</span>
-                                        <span class="text-sm font-medium">2 ราย</span>
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-sm text-gray-600">กุมภาพันธ์</span>
-                                        <span class="text-sm font-medium">1 ราย</span>
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-sm text-gray-600">มีนาคม</span>
-                                        <span class="text-sm font-medium">3 ราย</span>
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-sm text-gray-600">เมษายน</span>
-                                        <span class="text-sm font-medium">2 ราย</span>
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-sm text-gray-600">พฤษภาคม</span>
-                                        <span class="text-sm font-medium">1 ราย</span>
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-sm text-gray-600">มิถุนายน</span>
-                                        <span class="text-sm font-medium">3 ราย</span>
-                                    </div>
-                                </div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">บ้านเลขที่ <span class="text-red-500">*</span></label>
+                                <input type="text" id="edit_deceased_houseNumber" required
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">หมู่ที่ <span class="text-red-500">*</span></label>
+                                <input type="text" id="edit_deceased_moo" required
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">ตำบล <span class="text-red-500">*</span></label>
+                                <input type="text" id="edit_deceased_subdistrict" required
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">อำเภอ <span class="text-red-500">*</span></label>
+                                <input type="text" id="edit_deceased_district" required
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">จังหวัด <span class="text-red-500">*</span></label>
+                                <input type="text" id="edit_deceased_province" required
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">รหัสไปรษณีย์ <span class="text-red-500">*</span></label>
+                                <input type="text" id="edit_deceased_postalCode" required maxlength="5" pattern="[0-9]{5}"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- ข้อมูลผู้รับผิดชอบ -->
+                <div class="mb-6">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center border-b pb-2">
+                        <!-- <svg class="w-5 h-5 mr-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg> -->
+                        ข้อมูลผู้รับผิดชอบในการจัดทำศพ
+                    </h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                ชื่อผู้รับผิดชอบ <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="edit_responsible_name" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                ความสัมพันธ์กับผู้เสียชีวิต <span class="text-red-500">*</span>
+                            </label>
+                            <select id="edit_responsible_relationship" required
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">-- เลือกความสัมพันธ์ --</option>
+                                <option value="หัวหน้าครัวเรือน">หัวหน้าครัวเรือน</option>
+                                <option value="คู่สมรส">คู่สมรส</option>
+                                <option value="บุตร">บุตร</option>
+                                <option value="บิดา/มารดา">บิดา/มารดา</option>
+                                <option value="ญาติ">ญาติ</option>
+                                <option value="อื่นๆ">อื่นๆ</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- หมายเหตุ -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">หมายเหตุ</label>
+                    <textarea id="edit_notes" rows="3"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="หมายเหตุเพิ่มเติม (ถ้ามี)"></textarea>
+                </div>
+            </form>
+
+            <div class="flex justify-end gap-3 pt-4 border-t mt-6">
+                <button type="button" onclick="closeEditModal()" 
+                        class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                    ยกเลิก
+                </button>
+                <button type="button" onclick="submitEditForm()" 
+                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    บันทึกการแก้ไข
+                </button>
             </div>
-        </div>
-        
-        <!-- Recent Records -->
-    </div>
-    
-    <%- include('../partials/adminPartials/adminFooter.ejs') %>
-    
+            <%- include('../partials/adminPartials/adminFooter.ejs') %>
+
     <script>
-        
-        const mockHouseholdsData = [
-            {
-                id: '680101',
-                head: 'นายสมชาย ใจดี',
-                address: 'บ้านเลขที่ 123 หมู่ 5',
-                memberCount: 4,
-                registrationDate: '2024-01-15',
-                totalSales: 450
-            },
-            {
-                id: '680102',
-                head: 'นางสมหญิง รักดี',
-                address: 'บ้านเลขที่ 45 หมู่ 3',
-                memberCount: 3,
-                registrationDate: '2023-11-20',
-                totalSales: 520
-            },
-            {
-                id: '680103',
-                head: 'นายสมศักดิ์ มั่นคง',
-                address: 'บ้านเลขที่ 78 หมู่ 2',
-                memberCount: 5,
-                registrationDate: '2023-08-10',
-                totalSales: 380
-            },
-            {
-                id: '680104',
-                head: 'นางสาวสมใจ ยิ้มแย้ม',
-                address: 'บ้านเลขที่ 156 หมู่ 4',
-                memberCount: 2,
-                registrationDate: '2024-02-05',
-                totalSales: 290
-            },
-            {
-                id: '680105',
-                head: 'นายสมบูรณ์ เจริญสุข',
-                address: 'บ้านเลขที่ 89 หมู่ 1',
-                memberCount: 6,
-                registrationDate: '2023-06-15',
-                totalSales: 610
-            },
-            {
-                id: '680106',
-                head: 'นางสมพร สุขสันต์',
-                address: 'บ้านเลขที่ 234 หมู่ 5',
-                memberCount: 4,
-                registrationDate: '2023-09-25',
-                totalSales: 470
-            }
-        ];
-
-        const mockFundData = {
-            totalAccounts: 150,
-            totalBalance: 45000,
-            funeralAmount: 6000
+        let currentPage = 1;
+        let currentLimit = 10;
+        let currentFilters = {
+            search: '',
+            year: '',
+            status: 'completed'
         };
+        let allRecords = [];
 
-        let selectedHousehold = null;
-        let currentFocusIndex = -1;
+        function generateYearOptions() {
+            const currentYear = new Date().getFullYear() + 543;
+            const yearFilter = document.getElementById('yearFilter');
+            yearFilter.innerHTML = '<option value="">ทั้งหมด</option>';
+            for (let i = 0; i < 5; i++) {
+                const year = currentYear - i;
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearFilter.appendChild(option);
+            }
+            yearFilter.value = "";
+            currentFilters.year = "";
+        }
 
-        const householdSearchInput = document.getElementById('householdSearch');
-        const householdDropdown = document.getElementById('householdDropdown');
-        const householdList = document.getElementById('householdList');
-        const noResults = document.getElementById('noResults');
+        document.addEventListener('DOMContentLoaded', function() {
+            generateYearOptions();
+            loadFuneralRecords();
 
-        householdSearchInput.addEventListener('input', function(e) {
-            const searchValue = e.target.value.trim().toLowerCase();
-            currentFocusIndex = -1;
-            
-            if (searchValue.length === 0) {
-                hideDropdown();
-                clearHouseholdInfo();
+            let searchTimeout;
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    currentFilters.search = e.target.value;
+                    currentPage = 1;
+                    loadFuneralRecords();
+                }, 500);
+            });
+
+            document.getElementById('yearFilter').addEventListener('change', function(e) {
+                currentFilters.year = e.target.value;
+                currentPage = 1;
+                loadFuneralRecords();
+            });
+
+            document.getElementById('limitFilter').addEventListener('change', function(e) {
+                currentLimit = parseInt(e.target.value);
+                currentPage = 1;
+                loadFuneralRecords();
+            });
+
+            document.getElementById('resetFilters').addEventListener('click', function() {
+                document.getElementById('searchInput').value = '';
+                document.getElementById('yearFilter').value = '';
+                currentFilters = { search: '', year: '', status: 'completed' };
+                currentPage = 1;
+                loadFuneralRecords();
+            });
+        });
+
+        async function loadFuneralRecords() {
+            try {
+                showLoadingState();
+                const params = new URLSearchParams({
+                    page: currentPage,
+                    limit: currentLimit
+                });
+
+                if (currentFilters.year && currentFilters.year !== '') {
+                    params.append('year', currentFilters.year);
+                }
+                if (currentFilters.status && currentFilters.status !== '') {
+                    params.append('status', currentFilters.status);
+                }
+                if (currentFilters.search && currentFilters.search.trim() !== '') {
+                    params.append('search', currentFilters.search);
+                }
+
+                const url = `/admin/funeral-assistance/history?${params}`;
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    allRecords = result.data.records;
+                    displayRecords(result.data);
+                    updateSummaryCards(result.data);
+                } else {
+                    showError(result.message || 'ไม่สามารถโหลดข้อมูลได้');
+                }
+            } catch (error) {
+                console.error('Error loading funeral records:', error);
+                showError('เกิดข้อผิดพลาดในการโหลดข้อมูล: ' + error.message);
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('emptyState').classList.remove('hidden');
+                document.getElementById('recordsContainer').classList.add('hidden');
+            }
+        }
+
+        function showLoadingState() {
+            document.getElementById('loadingState').classList.remove('hidden');
+            document.getElementById('recordsContainer').classList.add('hidden');
+            document.getElementById('emptyState').classList.add('hidden');
+        }
+
+        function displayRecords(data) {
+            const { records, pagination } = data;
+            document.getElementById('loadingState').classList.add('hidden');
+
+            if (!records || records.length === 0) {
+                document.getElementById('emptyState').classList.remove('hidden');
+                document.getElementById('recordsContainer').classList.add('hidden');
                 return;
             }
 
-            // กรองข้อมูลครัวเรือนตามคำค้นหา
-            const filteredHouseholds = mockHouseholdsData.filter(household => {
-                return household.id.toLowerCase().includes(searchValue) ||
-                       household.head.toLowerCase().includes(searchValue);
-            });
+            document.getElementById('emptyState').classList.add('hidden');
+            document.getElementById('recordsContainer').classList.remove('hidden');
 
-            if (filteredHouseholds.length > 0) {
-                displayDropdown(filteredHouseholds, searchValue);
-            } else {
-                showNoResults();
-            }
-        });
+            document.getElementById('recordsList').innerHTML = records.map(record => createRecordCard(record)).join('');
+            updatePagination(pagination);
+        }
 
-        function displayDropdown(households, searchTerm) {
-            householdList.innerHTML = '';
-            noResults.classList.add('hidden');
+        function createRecordCard(record) {
+            const statusInfo = getStatusInfo(record.status);
+            const dateOfDeath = record.deceasedInfo?.dateOfDeath;
+            const dateStr = dateOfDeath ? new Date(dateOfDeath).toLocaleDateString('th-TH', {
+                year: 'numeric', month: 'long', day: 'numeric'
+            }) : 'ไม่ระบุ';
             
-            households.forEach(household => {
-                const item = document.createElement('div');
-                item.className = 'px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors';
-                
-                // Highlight คำที่ค้นหา
-                const idHighlighted = highlightText(household.id, searchTerm);
-                const nameHighlighted = highlightText(household.head, searchTerm);
-                
-                item.innerHTML = `
-                    <div class="flex items-center justify-between">
+            const createdAt = record.createdAt;
+            const createdStr = createdAt ? new Date(createdAt).toLocaleDateString('th-TH', {
+                year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+            }) : 'ไม่ระบุ';
+
+            const familyName = record.familyID?.familyName || 'ไม่ระบุ';
+            const deceasedName = record.deceasedInfo?.name || 'ไม่ระบุ';
+            const totalAmount = record.financialInfo?.totalAmount || 0;
+            const totalDeductedAccounts = record.financialInfo?.totalDeductedAccounts || 0;
+            const disqualifiedCount = record.disqualifiedAccounts?.length || 0;
+
+            return `
+                <div class="record-card p-6 hover:bg-gray-50 cursor-pointer transition-all" onclick="viewDetail('${record._id}')">
+                    <div class="flex flex-col md:flex-row justify-between">
                         <div class="flex-1">
-                            <div class="font-medium text-gray-900">${nameHighlighted}</div>
-                            <div class="text-sm text-gray-500 mt-1">
-                                <span class="inline-flex items-center">
-                                    <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
-                                    </svg>
-                                    ${idHighlighted}
+                            <div class="flex items-start justify-between mb-3">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-800 flex items-center flex-wrap gap-2">
+                                        ${deceasedName}
+                                    </h3>
+                                    <p class="text-sm text-gray-500 mt-1">
+                                        <span class="font-medium">ครัวเรือน:</span> ${familyName}
+                                    </p>
+                                </div>
+                                <span class="px-3 py-1 text-xs font-medium rounded-full ${statusInfo.class}">
+                                    ${statusInfo.text}
                                 </span>
-                                <span class="mx-2">•</span>
-                                <span>${household.address}</span>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">วันที่เสียชีวิต</p>
+                                    <p class="text-sm font-medium text-gray-800">${dateStr}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">จำนวนเงิน</p>
+                                    <p class="text-lg font-bold text-green-600">${totalAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท</p>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 pt-4 border-t border-gray-200">
+                                <div class="flex items-center justify-between text-xs text-gray-500 flex-wrap gap-2">
+                                    <div class="flex items-center space-x-4 flex-wrap gap-2">
+                                        <span class="flex items-center">
+                                            <svg class="inline w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                            </svg>
+                                            หักจาก ${totalDeductedAccounts} บัญชี
+                                        </span>
+                                        ${disqualifiedCount > 0 ? `
+                                        <span class="text-amber-600 flex items-center">
+                                            <svg class="inline w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                            </svg>
+                                            ตัดสิทธิ์ ${disqualifiedCount} บัญชี
+                                        </span>
+                                        ` : ''}
+                                    </div>
+                                    <span>บันทึกเมื่อ ${createdStr}</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="ml-3 text-right">
-                            <div class="text-xs text-gray-500">สมาชิก</div>
-                            <div class="text-sm font-medium text-blue-600">${household.memberCount} คน</div>
+
+                        <div class="mt-4 md:mt-0 md:ml-6 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
                         </div>
                     </div>
-                `;
+                </div>
+            `;
+        }
+
+        function getStatusInfo(status) {
+            const statusMap = {
+                'completed': { text: 'เสร็จสิ้น', class: 'bg-green-100 text-green-800' },
+                'pending': { text: 'รอดำเนินการ', class: 'bg-yellow-100 text-yellow-800' },
+                'approved': { text: 'อนุมัติแล้ว', class: 'bg-blue-100 text-blue-800' },
+                'cancelled': { text: 'ยกเลิก', class: 'bg-red-100 text-red-800' }
+            };
+            return statusMap[status] || { text: status, class: 'bg-gray-100 text-gray-800' };
+        }
+
+        function updateSummaryCards(data) {
+            const { summary } = data;
+            
+            document.getElementById('totalRecords').textContent = summary.totalRecords.toLocaleString('th-TH');
+            document.getElementById('totalAmount').textContent = summary.totalAmount.toLocaleString('th-TH', {minimumFractionDigits: 2});
+            document.getElementById('totalFamilies').textContent = summary.uniqueFamilies.toLocaleString('th-TH');
+            document.getElementById('avgAmount').textContent = summary.avgAmount.toLocaleString('th-TH', {minimumFractionDigits: 2});
+        }
+
+        function updatePagination(pagination) {
+            const { page, limit, total, pages } = pagination;
+            const showingFrom = total > 0 ? (page - 1) * limit + 1 : 0;
+            const showingTo = Math.min(page * limit, total);
+
+            document.getElementById('showingFrom').textContent = showingFrom.toLocaleString('th-TH');
+            document.getElementById('showingTo').textContent = showingTo.toLocaleString('th-TH');
+            document.getElementById('totalItems').textContent = total.toLocaleString('th-TH');
+
+            const container = document.getElementById('paginationContainer');
+            container.innerHTML = '';
+
+            if (pages <= 1) return;
+
+            const prevBtn = createPaginationButton('←', page > 1, () => changePage(page - 1));
+            container.appendChild(prevBtn);
+
+            const startPage = Math.max(1, page - 2);
+            const endPage = Math.min(pages, page + 2);
+
+            if (startPage > 1) {
+                container.appendChild(createPaginationButton('1', true, () => changePage(1)));
+                if (startPage > 2) {
+                    container.appendChild(createPaginationButton('...', false));
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                container.appendChild(createPaginationButton(i, true, () => changePage(i), i === page));
+            }
+
+            if (endPage < pages) {
+                if (endPage < pages - 1) {
+                    container.appendChild(createPaginationButton('...', false));
+                }
+                container.appendChild(createPaginationButton(pages, true, () => changePage(pages)));
+            }
+
+            const nextBtn = createPaginationButton('→', page < pages, () => changePage(page + 1));
+            container.appendChild(nextBtn);
+        }
+
+        function createPaginationButton(text, enabled, onClick, isActive = false) {
+            const btn = document.createElement('button');
+            btn.textContent = text;
+            btn.className = `px-3 py-1 rounded-md text-sm transition-colors ${
+                isActive 
+                    ? 'bg-blue-600 text-white' 
+                    : enabled 
+                        ? 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300' 
+                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            }`;
+            
+            if (enabled && onClick) {
+                btn.onclick = onClick;
+            } else {
+                btn.disabled = true;
+            }
+            
+            return btn;
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            loadFuneralRecords();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function viewDetail(id) {
+            document.getElementById('funeralDetailModal').classList.remove('hidden');
+            document.getElementById('modalLoading').classList.remove('hidden');
+            document.getElementById('modalDetailContent').classList.add('hidden');
+            
+            try {
+                const response = await fetch(`/admin/funeral-assistance/detail/${id}`);
+                const result = await response.json();
                 
-                item.addEventListener('click', () => selectHousehold(household));
-                householdList.appendChild(item);
-            });
-            
-            householdDropdown.classList.remove('hidden');
-        }
-
-        function highlightText(text, searchTerm) {
-            if (!searchTerm) return text;
-            
-            const regex = new RegExp(`(${searchTerm})`, 'gi');
-            return text.replace(regex, '<span class="bg-yellow-200 font-semibold">$1</span>');
-        }
-
-        function showNoResults() {
-            householdList.innerHTML = '';
-            noResults.classList.remove('hidden');
-            householdDropdown.classList.remove('hidden');
-        }
-
-        function hideDropdown() {
-            householdDropdown.classList.add('hidden');
-            currentFocusIndex = -1;
-        }
-
-        function selectHousehold(household) {
-            selectedHousehold = household;
-            householdSearchInput.value = `${household.id} - ${household.head}`;
-            hideDropdown();
-            displayHouseholdInfo(household);
-            checkEligibility(household);
-        }
-
-        function clearHouseholdInfo() {
-            selectedHousehold = null;
-            document.getElementById('householdInfo').classList.add('hidden');
-            document.getElementById('eligibilitySection').classList.add('hidden');
-            document.getElementById('calculationSection').classList.add('hidden');
-        }
-
-        document.addEventListener('click', function(e) {
-            if (!householdSearchInput.contains(e.target) && !householdDropdown.contains(e.target)) {
-                hideDropdown();
-            }
-        });
-
-        householdSearchInput.addEventListener('keydown', function(e) {
-            const items = householdList.querySelectorAll('div[class*="cursor-pointer"]');
-            
-            if (items.length === 0) return;
-            
-            if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                currentFocusIndex = Math.min(currentFocusIndex + 1, items.length - 1);
-                updateFocus(items);
-            } else if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                currentFocusIndex = Math.max(currentFocusIndex - 1, 0);
-                updateFocus(items);
-            } else if (e.key === 'Enter') {
-                e.preventDefault();
-                if (currentFocusIndex >= 0 && items[currentFocusIndex]) {
-                    items[currentFocusIndex].click();
-                }
-            } else if (e.key === 'Escape') {
-                hideDropdown();
-            }
-        });
-
-        function updateFocus(items) {
-            items.forEach((item, index) => {
-                if (index === currentFocusIndex) {
-                    item.classList.add('bg-blue-50');
-                    item.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                if (result.success) {
+                    displayDetailInModal(result.data);
                 } else {
-                    item.classList.remove('bg-blue-50');
+                    throw new Error(result.message || 'ไม่สามารถโหลดข้อมูลได้');
                 }
+            } catch (error) {
+                console.error('Error loading detail:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: error.message,
+                    confirmButtonColor: '#3b82f6'
+                });
+                closeDetailModal();
+            }
+        }
+
+        function displayDetailInModal(record) {
+            document.getElementById('modalLoading').classList.add('hidden');
+            document.getElementById('modalDetailContent').classList.remove('hidden');
+            
+            const statusInfo = getStatusInfo(record.status);
+            const dateOfDeath = record.deceasedInfo?.dateOfDeath 
+                ? new Date(record.deceasedInfo.dateOfDeath).toLocaleDateString('th-TH', {
+                    year: 'numeric', month: 'long', day: 'numeric'
+                })
+                : 'ไม่ระบุ';
+            
+            const createdAt = record.createdAt 
+                ? new Date(record.createdAt).toLocaleDateString('th-TH', {
+                    year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                })
+                : 'ไม่ระบุ';
+            
+            const content = `
+
+                <div class="flex justify-end items-center mb-6">
+                    ${record.status !== 'cancelled' ? `
+                    <button onclick="openEditModal('${record._id}')" 
+                            class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        แก้ไขข้อมูล
+                    </button>
+                    ` : ''}
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">ข้อมูลครัวเรือนที่ยื่นขอรับฌาปนกิจสงเคราะห์</h4>
+                        <div class="space-y-3">
+                            <div>
+                                <p class="text-sm text-gray-600">ชื่อครัวเรือน</p>
+                                <p class="text-base font-medium text-gray-900">${record.familyID?.familyName || 'ไม่ระบุ'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">เลขบัญชี</p>
+                                <p class="text-base font-medium text-gray-900">${record.deductedAccounts?.[0]?.accountNumber || '-'}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">ข้อมูลผู้เสียชีวิต</h4>
+                        <div class="space-y-3">
+                            <div>
+                                <p class="text-sm text-gray-600">ชื่อ-นามสกุล</p>
+                                <p class="text-base font-medium text-gray-900">${record.deceasedInfo?.name || 'ไม่ระบุ'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">อายุ</p>
+                                <p class="text-base font-medium text-gray-900">${record.deceasedInfo?.age || 'ไม่ระบุ'} ปี</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">วันที่เสียชีวิต</p>
+                                <p class="text-base font-medium text-gray-900">${dateOfDeath}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-4">ข้อมูลผู้รับผิดชอบในการจัดทำศพ</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">ชื่อผู้รับผิดชอบ</p>
+                            <p class="text-base font-medium text-gray-900">${record.responsiblePerson?.name || 'ไม่ระบุ'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">ความสัมพันธ์กับผู้เสียชีวิต</p>
+                            <p class="text-base font-medium text-gray-900">${record.responsiblePerson?.relationshipToDeceased || 'ไม่ระบุ'}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-6 text-white mb-6">
+                    <h4 class="text-xl font-semibold mb-4">สรุปการเงิน</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                            <p class="text-sm opacity-90">จำนวนเงินทั้งหมด</p>
+                            <p class="text-2xl font-bold">${(record.financialInfo?.totalAmount || 0).toLocaleString('th-TH', {minimumFractionDigits: 2})}</p>
+                            <p class="text-xs opacity-75">บาท</p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                            <p class="text-sm opacity-90">หักต่อบัญชี</p>
+                            <p class="text-2xl font-bold">${(record.financialInfo?.perAccountAmount || 0).toLocaleString('th-TH', {minimumFractionDigits: 2})}</p>
+                            <p class="text-xs opacity-75">บาท</p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                            <p class="text-sm opacity-90">จำนวนบัญชีสมาชิก</p>
+                            <p class="text-2xl font-bold">${record.financialInfo?.totalMemberAccounts || 0}</p>
+                            <p class="text-xs opacity-75">บัญชี</p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                            <p class="text-sm opacity-90">หักสำเร็จ</p>
+                            <p class="text-2xl font-bold">${record.financialInfo?.totalDeductedAccounts || 0}</p>
+                            <p class="text-xs opacity-75">บัญชี</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center mb-6">
+                    <span class="text-sm text-gray-500">บันทึกเมื่อวันที่: ${createdAt}</span>
+                </div>
+            `;
+            
+            document.getElementById('modalDetailContent').innerHTML = content;
+        }
+
+        function closeDetailModal() {
+            document.getElementById('funeralDetailModal').classList.add('hidden');
+            document.getElementById('modalDetailContent').innerHTML = '';
+        }
+
+        // ฟังก์ชัน Edit Modal
+        async function openEditModal(funeralId) {
+            try {
+                const response = await fetch(`/admin/funeral-assistance/detail/${funeralId}`);
+                const result = await response.json();
+                
+                if (!result.success) {
+                    throw new Error(result.message);
+                }
+                
+                const record = result.data;
+                document.getElementById('funeralEditModal').classList.remove('hidden');
+                
+                document.getElementById('edit_funeralId').value = record._id;
+                document.getElementById('edit_deceased_name').value = record.deceasedInfo?.name || '';
+                document.getElementById('edit_deceased_age').value = record.deceasedInfo?.age || '';
+                document.getElementById('edit_deceased_idCard').value = record.deceasedInfo?.idCardNumber || '';
+                document.getElementById('edit_deceased_phone').value = record.deceasedInfo?.phone || '';
+                document.getElementById('edit_deceased_causeOfDeath').value = record.deceasedInfo?.causeOfDeath || '';
+                
+                if (record.deceasedInfo?.dateOfDeath) {
+                    const date = new Date(record.deceasedInfo.dateOfDeath);
+                    document.getElementById('edit_deceased_dateOfDeath').value = date.toISOString().split('T')[0];
+                }
+                
+                document.getElementById('edit_deceased_houseNumber').value = record.deceasedInfo?.address?.houseNumber || '';
+                document.getElementById('edit_deceased_moo').value = record.deceasedInfo?.address?.moo || '';
+                document.getElementById('edit_deceased_subdistrict').value = record.deceasedInfo?.address?.subdistrict || '';
+                document.getElementById('edit_deceased_district').value = record.deceasedInfo?.address?.district || '';
+                document.getElementById('edit_deceased_province').value = record.deceasedInfo?.address?.province || '';
+                document.getElementById('edit_deceased_postalCode').value = record.deceasedInfo?.address?.postalCode || '';
+                
+                document.getElementById('edit_responsible_name').value = record.responsiblePerson?.name || '';
+                document.getElementById('edit_responsible_relationship').value = record.responsiblePerson?.relationshipToDeceased || '';
+                document.getElementById('edit_notes').value = record.notes || '';
+                
+                closeDetailModal();
+                
+            } catch (error) {
+                console.error('Error opening edit modal:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถโหลดข้อมูลสำหรับแก้ไขได้',
+                    confirmButtonColor: '#3b82f6'
+                });
+            }
+        }
+
+        function closeEditModal() {
+            document.getElementById('funeralEditModal').classList.add('hidden');
+            document.getElementById('editFuneralForm').reset();
+        }
+
+        async function submitEditForm() {
+            try {
+                const funeralId = document.getElementById('edit_funeralId').value;
+                const form = document.getElementById('editFuneralForm');
+                
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+                
+                const updateData = {
+                    deceasedInfo: {
+                        name: document.getElementById('edit_deceased_name').value,
+                        age: parseInt(document.getElementById('edit_deceased_age').value),
+                        idCardNumber: document.getElementById('edit_deceased_idCard').value,
+                        phone: document.getElementById('edit_deceased_phone').value,
+                        causeOfDeath: document.getElementById('edit_deceased_causeOfDeath').value,
+                        dateOfDeath: document.getElementById('edit_deceased_dateOfDeath').value,
+                        address: {
+                            houseNumber: document.getElementById('edit_deceased_houseNumber').value,
+                            moo: document.getElementById('edit_deceased_moo').value,
+                            subdistrict: document.getElementById('edit_deceased_subdistrict').value,
+                            district: document.getElementById('edit_deceased_district').value,
+                            province: document.getElementById('edit_deceased_province').value,
+                            postalCode: document.getElementById('edit_deceased_postalCode').value
+                        }
+                    },
+                    responsiblePerson: {
+                        name: document.getElementById('edit_responsible_name').value,
+                        relationshipToDeceased: document.getElementById('edit_responsible_relationship').value
+                    },
+                    notes: document.getElementById('edit_notes').value
+                };
+                
+                Swal.fire({
+                    title: 'กำลังบันทึก...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                const response = await fetch(`/admin/funeral-assistance/update/${funeralId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'สำเร็จ!',
+                        text: 'แก้ไขข้อมูลฌาปนกิจสำเร็จ',
+                        confirmButtonColor: '#3b82f6'
+                    });
+                    
+                    closeEditModal();
+                    loadFuneralRecords();
+                } else {
+                    throw new Error(result.message);
+                }
+                
+            } catch (error) {
+                console.error('Error updating funeral record:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: error.message || 'ไม่สามารถแก้ไขข้อมูลได้',
+                    confirmButtonColor: '#3b82f6'
+                });}
+        }
+
+        document.getElementById('funeralDetailModal')?.addEventListener('click', function(e) {
+            if (e.target === this) closeDetailModal();
+        });
+
+        document.getElementById('funeralEditModal')?.addEventListener('click', function(e) {
+            if (e.target === this) closeEditModal();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeDetailModal();
+                closeEditModal();
+            }
+        });
+
+        function showError(message) {
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด',
+                text: message,
+                confirmButtonColor: '#3b82f6'
             });
         }
-
-        // แสดงข้อมูลครัวเรือน
-        function displayHouseholdInfo(data) {
-            document.getElementById('householdInfo').classList.remove('hidden');
-            document.getElementById('householdId').textContent = data.id;
-            document.getElementById('householdHead').textContent = data.head;
-            document.getElementById('householdAddress').textContent = data.address;
-            document.getElementById('memberCount').textContent = data.memberCount + ' คน';
-        }
-
-        // ตรวจสอบคุณสมบัติ
-        function checkEligibility(data) {
-            const eligibilitySection = document.getElementById('eligibilitySection');
-            eligibilitySection.classList.remove('hidden');
-
-            // คำนวณระยะเวลาสมัคร
-            const registrationDate = new Date(data.registrationDate);
-            const today = new Date();
-            const monthsDiff = (today.getFullYear() - registrationDate.getFullYear()) * 12 + 
-                            (today.getMonth() - registrationDate.getMonth());
-
-            // เงื่อนไข 1: สมัครครบ 6 เดือน
-            const condition1Pass = monthsDiff >= 6;
-            updateConditionStatus('condition1', condition1Pass, 
-                condition1Pass ? `ผ่าน (สมัครมาแล้ว ${monthsDiff} เดือน)` : `ไม่ผ่าน (สมัครมาเพียง ${monthsDiff} เดือน)`
-            );
-
-            // เงื่อนไข 2: ขายขยะครบ 300 บาท
-            const condition2Pass = data.totalSales >= 300;
-            updateConditionStatus('condition2', condition2Pass,
-                condition2Pass ? `ผ่าน (ขายขยะรวม ${data.totalSales.toLocaleString()} บาท)` : `ไม่ผ่าน (ขายขยะเพียง ${data.totalSales.toLocaleString()} บาท)`
-            );
-
-            // สรุปผล
-            const eligible = condition1Pass && condition2Pass;
-            updateEligibilityResult(eligible);
-        }
-
-        // อัพเดทสถานะเงื่อนไข
-        function updateConditionStatus(conditionId, pass, detail) {
-            const icon = document.getElementById(conditionId + 'Icon');
-            const detailElement = document.getElementById(conditionId + 'Detail');
-
-            if (pass) {
-                icon.className = 'w-8 h-8 rounded-full flex items-center justify-center bg-green-100';
-                icon.querySelector('svg').className = 'w-5 h-5 text-green-600';
-            } else {
-                icon.className = 'w-8 h-8 rounded-full flex items-center justify-center bg-red-100';
-                icon.innerHTML = '<svg class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>';
-            }
-
-            detailElement.textContent = detail;
-        }
-
-        // อัพเดทผลการตรวจสอบ
-        function updateEligibilityResult(eligible) {
-            const resultDiv = document.getElementById('eligibilityResult');
-            const resultIcon = document.getElementById('resultIcon');
-            const resultText = document.getElementById('resultText');
-
-            if (eligible) {
-                resultDiv.className = 'mt-4 p-4 rounded-lg bg-green-100 border-2 border-green-300';
-                resultIcon.className = 'w-6 h-6 mr-2 text-green-600';
-                resultText.textContent = 'ครัวเรือนนี้มีสิทธิ์รับเงินช่วยเหลือฌาปนกิจ';
-                resultText.className = 'font-semibold text-lg text-green-800';
-            } else {
-                resultDiv.className = 'mt-4 p-4 rounded-lg bg-red-100 border-2 border-red-300';
-                resultIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />';
-                resultIcon.className = 'w-6 h-6 mr-2 text-red-600';
-                resultText.textContent = 'ครัวเรือนนี้ไม่มีสิทธิ์รับเงินช่วยเหลือฌาปนกิจ';
-                resultText.className = 'font-semibold text-lg text-red-800';
-            }
-        }
-
-        // คำนวณเงินฌาปนกิจ
-        document.getElementById('amount').addEventListener('input', function(e) {
-            const amount = parseFloat(e.target.value) || 0;
-            
-            if (amount > 0) {
-                calculateFuneralAmount(amount);
-            } else {
-                document.getElementById('calculationSection').classList.add('hidden');
-            }
-        });
-
-        function calculateFuneralAmount(amount) {
-            const calculationSection = document.getElementById('calculationSection');
-            calculationSection.classList.remove('hidden');
-
-            const totalAccounts = mockFundData.totalAccounts;
-            const perAccountAmount = amount / totalAccounts;
-            const beforeBalance = mockFundData.totalBalance;
-            const afterBalance = beforeBalance - amount;
-
-            // อัพเดทข้อมูล
-            document.getElementById('totalAmount').textContent = amount.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท';
-            document.getElementById('totalAccounts').textContent = totalAccounts.toLocaleString() + ' บัญชี';
-            document.getElementById('perAccountAmount').textContent = perAccountAmount.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท';
-
-            // อัพเดทการคำนวณ
-            document.getElementById('calc1').textContent = amount.toLocaleString('th-TH', {minimumFractionDigits: 2});
-            document.getElementById('calc2').textContent = totalAccounts.toLocaleString();
-            document.getElementById('calc3').textContent = amount.toLocaleString('th-TH', {minimumFractionDigits: 2});
-            document.getElementById('calc4').textContent = totalAccounts.toLocaleString();
-            document.getElementById('calc5').textContent = perAccountAmount.toLocaleString('th-TH', {minimumFractionDigits: 2});
-
-            document.getElementById('beforeBalance').textContent = beforeBalance.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท';
-            document.getElementById('afterBalance').textContent = afterBalance.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท';
-        }
-
-        // Toggle รายละเอียดการคำนวณ
-        document.getElementById('toggleDetails').addEventListener('click', function() {
-            const detailsContent = document.getElementById('detailsContent');
-            const toggleIcon = document.getElementById('toggleIcon');
-            
-            detailsContent.classList.toggle('hidden');
-            toggleIcon.classList.toggle('rotate-180');
-        });
     </script>
 </body>
 </html>
