@@ -1750,7 +1750,12 @@ const wasteSaleRequestApprovePost = async (req, res) => {
     }
 
     try {
-        const now = new Date();
+        const now = new Date(); // UTC now
+
+        // 🔥 แปลง pickupDate (TH) → UTC
+        const pickupDateUTC = new Date(
+            new Date(pickupDate).getTime() - (7 * 60 * 60 * 1000)
+        );
 
         // ================= ปฏิเสธ =================
         if (action === 'reject') {
@@ -1782,11 +1787,11 @@ const wasteSaleRequestApprovePost = async (req, res) => {
             await wasteSaleRequest.findByIdAndUpdate(id, {
                 $set: {
                     status: 'waitingUser',
-                    approvedAt: now,
-                    userConfirmDeadline: deadline,
+                    approvedAt: now,                // UTC
+                    userConfirmDeadline: deadline,  // UTC
                     responseMessage: responseMessage || 'ไม่ระบุ',
-                    approvePickupDate: pickupDate
-                },
+                    approvePickupDate: pickupDateUTC // ✅ UTC
+                }
             });
 
             await wasteSaleRequestLog.create({
@@ -1802,7 +1807,6 @@ const wasteSaleRequestApprovePost = async (req, res) => {
             );
         }
 
-        // ================= ไม่รู้ action =================
         return res.redirect(
             '/employee/wasteSaleRequest?error=' +
             encodeURIComponent('ไม่พบ action ที่ถูกต้อง')

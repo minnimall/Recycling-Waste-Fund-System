@@ -119,7 +119,68 @@
                             <h2 class="text-2xl font-bold text-yellow-800">
                                 อยู่ระหว่างรอการอนุมัติ
                             </h2>
+                                                        <!-- Info Card -->
+                            <div class="w-full max-w-md bg-yellow-100 rounded-xl border border-yellow-200 shadow-sm p-6 text-left space-y-4">
 
+                                <!-- Queue -->
+                                <!-- <div class="flex items-start gap-3">
+                                    <i class="fa-solid fa-list-ol text-blue-500 mt-1"></i>
+                                    <div>
+                                        <p class="text-sm text-gray-500">คิวของคุณ</p>
+                                        <p class="text-3xl font-bold text-blue-700">
+                                            10
+                                        </p>
+                                    </div>
+                                </div> -->
+
+                                <!-- Username -->
+                                <div class="flex items-start gap-3">
+                                    <i class="fa-solid fa-calendar-days text-yellow-500 mt-1"></i>
+                                    <div>
+                                        <p class="text-sm text-gray-500">ชื่อผู้ขาย</p>
+                                        <p class="font-semibold text-gray-800">
+                                            <%= latestRequest.family.familyName %> <span class="font-normal text-md text-gray-500">#<%= latestRequest.family.username %></span>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Date -->
+                                <div class="flex items-start gap-3">
+                                    <i class="fa-solid fa-calendar-days text-yellow-500 mt-1"></i>
+                                    <div>
+                                        <p class="text-sm text-gray-500">วันที่จะให้เข้ารับซื้อ</p>
+                                        <p class="font-semibold text-gray-800">
+                                            <%= new Date(latestRequest.date).toLocaleDateString('th-TH',{  year: "numeric", month: "long", day: "numeric"}) %>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Location -->
+                                <div class="flex items-start gap-3">
+                                    <i class="fa-solid fa-location-dot text-yellow-500 mt-1"></i>
+                                    <div>
+                                        <p class="text-sm text-gray-500">รายละเอียดสถานที่</p>
+                                        <p class="font-semibold text-gray-800 break-words">
+                                            <%= latestRequest.locationMoreDetail %> <%= latestRequest.location %>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <i class="fa-solid fa-location-dot text-yellow-500 mt-1"></i>
+                                    <div>
+                                        <p class="text-sm text-gray-500">ดูพิกัดจุดใน Google Maps</p>
+                                        <p class="font-semibold text-gray-800 break-words">
+                                            <a href="https://www.google.com/maps?q=<%= latestRequest.latitude %>,<%= latestRequest.longitude %>" 
+                                            target="_blank" 
+                                            class="text-yellow-600 hover:text-yellow-800 flex items-center">
+                                            <i class="fas fa-external-link-alt mr-2"></i>
+                                            เปิดแผนที่
+                                        </a>
+                                        </p>
+                                    </div>
+                                </div>
+
+                            </div>
                             <p class="text-yellow-700 max-w-md">
                                 คุณได้ส่งคำขอแจ้งความประสงค์ขายขยะไปแล้ว<br>
                                 กรุณารอเจ้าหน้าที่ตรวจสอบและติดต่อกลับ
@@ -215,27 +276,44 @@
 
                             
                             <!-- Title -->
-                            <h2 class="text-2xl font-bold text-yellow-800">
-                                คิวของคุณ: <span class="text-green-600"><%= latestRequest.approvePickupDate.toLocaleDateString('th-TH',{  year: "numeric", month: "long", day: "numeric"}) %></span>
+                            <h2 class="text-2xl md:text-3xl font-bold text-gray-800">
+                                คิวรับซื้อวันที่
                             </h2>
-                            <p class="text-lg text-yellow-700">
-                                <%= latestRequest.responseMessage %>
+
+                            <p class="text-xl font-semibold text-green-600">
+                                <%= latestRequest.approvePickupDate.toLocaleDateString('th-TH',{ year: "numeric", month: "long", day: "numeric"}) %>
                             </p>
+
+                            <!-- Message -->
+                            <% if (latestRequest.responseMessage && latestRequest.responseMessage !== 'ไม่ระบุ') { %>
+                                <div class="bg-yellow-100 border border-yellow-300 rounded-xl p-4 text-yellow-800 max-w-xl">
+                                    <i class="fa-solid fa-message mr-2"></i>
+                                    <%= latestRequest.responseMessage %>
+                                </div>
+                            <% } %>
                             <h2 class="text-2xl font-bold text-yellow-800">
-                                กรุณายืนยันคำขอภายใน 2 ชั่วโมง
+                                กรุณายืนยันคำขอภายใน 24 ชั่วโมง
                             </h2>
 
 
                             <!-- Countdown -->
-                            <p class="text-lg text-yellow-700">
-                                เหลือเวลา:
-                                <span id="countdown" class="font-bold text-red-600"></span>
-                            </p>
+                            <div class="w-full max-w-md rounded-2xl bg-white border border-red-200 shadow p-6">
+                                <p class="text-gray-600 mb-2">กรุณายืนยันภายใน</p>
+
+                                <p class="text-3xl font-bold text-red-600">
+                                    <span id="countdown"></span>
+                                </p>
+
+                                <p class="text-sm text-gray-500 mt-2">
+                                    หมดเขต:
+                                    <span id="deadline" class="font-medium"></span>
+                                </p>
+                            </div>
 
                             <!-- Description -->
                             <p class="text-yellow-700 max-w-md">
                                 โปรดยืนยันคำขอขายขยะของคุณภายในเวลาที่กำหนด  
-                                หากไม่ยืนยันภายใน 2 ชั่วโมง คำขอจะถูกยกเลิกอัตโนมัติ
+                                หากไม่ยืนยันภายใน 24 ชั่วโมง คำขอจะถูกยกเลิกอัตโนมัติ
                             </p>
 
                             <!-- Actions -->
@@ -253,11 +331,6 @@
                                     ยกเลิกคำประสงค์
                                 </button>
                             </div>
-
-                            <!-- Deadline -->
-                            <p class="text-sm text-gray-500">
-                                หมดเขต: <span id="deadline"></span>
-                            </p>
                         </div>
                     </div>
                     <script>
@@ -468,32 +541,47 @@
                         </div>
                     </div>
                     <script>
-                        /* ================= รอการดำเนินการ ================= */
-                        const pickupDate = new Date("<%= pickupDate %>");
-                        const countdownE2 = document.getElementById("progressCountdown");
+                    /* ================= รอการดำเนินการ ================= */
+                    const pickupDate = new Date("<%= pickupDate %>"); // เวลาจาก input (ไทย)
+                    const countdownE2 = document.getElementById("progressCountdown");
 
-                        function updateProgressCountdown() {
-                            const now = new Date();
-                            const diff = pickupDate - now;
+                    // เวลาไทยปัจจุบัน
+                    function toThaiDate(date) {
+                        return new Date(
+                            new Date(date).toLocaleString("en-US", {
+                                timeZone: "Asia/Bangkok"
+                            })
+                        );
+                    }
+                    console.log(toThaiDate(new Date()))
+                    
+                    const nowThailand = new Date(
+                        new Date().toLocaleString("en-US", { timeZone: "Asia/Bangkok" })
+                    );
+                    console.log(nowThailand.toISOString());
 
-                            if (diff <= 0) {
-                                countdownE2.innerText = "ถึงวันเข้ารับซื้อแล้ว";
-                                return;
-                            }
 
-                            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-                            countdownE2.innerText =
-                                `อีก ${days} วัน ${hours} ชม. ${minutes} นาที ${seconds} วินาที`;
+                    function updateProgressCountdown() {
+                        const nowTH = toThaiDate(new Date());   // เวลาไทยปัจจุบัน
+                        const diff = pickupDate - nowTH; // ไทย - ไทย ✅
+                        if (diff <= 0) {
+                            countdownE2.innerText = "ถึงวันเข้ารับซื้อแล้ว";
+                            return;
                         }
 
-                        if (countdownE2) {
-                            updateProgressCountdown();
-                            setInterval(updateProgressCountdown, 1000);
-                        }
+                        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                        countdownE2.innerText =
+                            `อีก ${days} วัน ${hours} ชม. ${minutes} นาที ${seconds} วินาที`;
+                    }
+
+                    if (countdownE2) {
+                        updateProgressCountdown();
+                        setInterval(updateProgressCountdown, 1000);
+                    }
                     document.getElementById("cancelRequestBtn3").addEventListener("click", function () {
                         Swal.fire({
                             title: 'ยืนยันการยกเลิก',
@@ -580,7 +668,7 @@
                             <div class="w-full max-w-md bg-white rounded-xl border border-green-200 shadow-sm p-6 text-left space-y-4">
 
                                 <!-- Queue -->
-                                <div class="flex items-start gap-3">
+                                <!-- <div class="flex items-start gap-3">
                                     <i class="fa-solid fa-list-ol text-green-500 mt-1"></i>
                                     <div>
                                         <p class="text-sm text-gray-500">ลำดับคิว</p>
@@ -588,7 +676,7 @@
                                             <%= latestRequest.queue || '-' %>
                                         </p>
                                     </div>
-                                </div>
+                                </div> -->
 
                                 <!-- Seller -->
                                 <div class="flex items-start gap-3">
