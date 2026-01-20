@@ -63,6 +63,13 @@
                     </div>
                 </div>
                 <div class="flex gap-2">
+                    <!-- ปุ่ม Google Maps -->
+                    <button onclick="openInGoogleMaps()" 
+                            class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition flex items-center gap-2">
+                        <ion-icon name="navigate-outline" class="text-xl"></ion-icon>
+                        <span class="hidden sm:inline">เปิดใน Google Maps</span>
+                        <span class="sm:hidden">Maps</span>
+                    </button>
                     <!-- View Mode Buttons -->
                     <div class="view-mode-controls">
                         <button onclick="toggleEditMode()" 
@@ -138,7 +145,11 @@
                 <div>
                     <p class="text-gray-600 text-sm">บันทึกโดย</p>
                     <p class="text-lg font-bold text-600 mt-2">
-                        <%= route.createdBy.firstname %> <%= route.createdBy.lastname %>
+                        <% if (route.createdBy) { %>
+                            <%= route.createdBy.firstname %> <%= route.createdBy.lastname %>
+                        <% } else { %>
+                            ระบบ
+                        <% } %>
                     </p>
                     </div>
                     <ion-icon name="person-circle" class="text-4xl text-orange-500 opacity-50"></ion-icon>
@@ -1249,6 +1260,68 @@
             initMap();
             setupSearch();
         });
+        function openInGoogleMaps() {
+    try {
+        // ตรวจสอบว่ามีข้อมูลเส้นทางหรือไม่
+        if (!routeData || !routeData.points || routeData.points.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'ไม่พบข้อมูลเส้นทาง',
+                text: 'ไม่สามารถเปิด Google Maps ได้',
+                timer: 2000
+            });
+            return;
+        }
+
+        // สร้าง URL สำหรับ Google Maps
+        let googleMapsUrl = '';
+
+        if (routeData.points.length === 1) {
+            // กรณีมีจุดเดียว - แสดงตำแหน่ง
+            const point = routeData.points[0];
+            googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${point.lat},${point.lng}`;
+        } else {
+            // กรณีมีหลายจุด - สร้างเส้นทาง
+            const origin = routeData.points[0];
+            const destination = routeData.points[0]; // กลับมาจุดเริ่มต้น (round trip)
+            
+            // สร้าง waypoints (จุดระหว่างทาง) - ข้ามจุดแรกและจุดสุดท้าย
+            const waypoints = routeData.points
+                .slice(1) // ข้ามจุดแรก
+                .map(point => `${point.lat},${point.lng}`)
+                .join('|');
+
+            // สร้าง URL แบบ Directions
+            googleMapsUrl = `https://www.google.com/maps/dir/?api=1` +
+                `&origin=${origin.lat},${origin.lng}` +
+                `&destination=${destination.lat},${destination.lng}` +
+                (waypoints ? `&waypoints=${waypoints}` : '') +
+                `&travelmode=driving`;
+        }
+
+        // เปิดในหน้าต่างใหม่
+        window.open(googleMapsUrl, '_blank');
+
+        // แสดงข้อความยืนยัน
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'กำลังเปิด Google Maps...',
+            showConfirmButton: false,
+            timer: 2000
+        });
+
+    } catch (error) {
+        console.error('Error opening Google Maps:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'เกิดข้อผิดพลาด',
+            text: 'ไม่สามารถเปิด Google Maps ได้',
+            timer: 2000
+        });
+    }
+}
     </script>
 </body>
 </html>

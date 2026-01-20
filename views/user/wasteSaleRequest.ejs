@@ -216,10 +216,10 @@
                             
                             <!-- Title -->
                             <h2 class="text-2xl font-bold text-yellow-800">
-                                คิวของคุณ: <span class="text-green-600"><%= latestRequest.reply[0].pickupDate.toLocaleDateString('th-TH',{  year: "numeric", month: "long", day: "numeric"}) %></span>
+                                คิวของคุณ: <span class="text-green-600"><%= latestRequest.approvePickupDate.toLocaleDateString('th-TH',{  year: "numeric", month: "long", day: "numeric"}) %></span>
                             </h2>
                             <p class="text-lg text-yellow-700">
-                                <%= latestRequest.reply[0].responseMessage %>
+                                <%= latestRequest.responseMessage %>
                             </p>
                             <h2 class="text-2xl font-bold text-yellow-800">
                                 กรุณายืนยันคำขอภายใน 2 ชั่วโมง
@@ -388,7 +388,7 @@
                             <div class="w-full max-w-md bg-white rounded-xl border border-blue-200 shadow-sm p-6 text-left space-y-4">
 
                                 <!-- Queue -->
-                                <div class="flex items-start gap-3">
+                                <!-- <div class="flex items-start gap-3">
                                     <i class="fa-solid fa-list-ol text-blue-500 mt-1"></i>
                                     <div>
                                         <p class="text-sm text-gray-500">คิวของคุณ</p>
@@ -396,7 +396,7 @@
                                             10
                                         </p>
                                     </div>
-                                </div>
+                                </div> -->
 
                                 <!-- Username -->
                                 <div class="flex items-start gap-3">
@@ -415,7 +415,7 @@
                                     <div>
                                         <p class="text-sm text-gray-500">วันที่เข้ารับซื้อ</p>
                                         <p class="font-semibold text-gray-800">
-                                            <%= new Date(latestRequest.reply[0].pickupDate).toLocaleDateString('th-TH',{  year: "numeric", month: "long", day: "numeric"}) %>
+                                            <%= new Date(latestRequest.approvePickupDate).toLocaleDateString('th-TH',{  year: "numeric", month: "long", day: "numeric"}) %>
                                         </p>
                                     </div>
                                 </div>

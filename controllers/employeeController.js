@@ -1734,56 +1734,73 @@ const wasteSaleRequestReject = async (req, res) => {
     }
 }
 
+const timeToConfirm = 24;
+
 const wasteSaleRequestApprovePost = async (req, res) => {
     const { id } = req.params;
+    const { action, responseMessage, pickupDate } = req.body;
 
     if (!id || id === 'undefined') {
-        console.log('Something wrong');
         return res.redirect('/employee/wasteSaleRequest?error=' + encodeURIComponent('ID ไม่ถูกต้อง'));
     }
 
     try {
-        const { responseMessage, pickupDate } = req.body;
-
-        const newReply = {
-            responseMessage: responseMessage || 'ไม่ระบุ',
-            pickupDate: pickupDate || 'ไม่ระบุ',
-            createdAt: new Date()
-        };
-
         const now = new Date();
-        const deadline = new Date(now.getTime() + (2 * 60 * 60 * 1000)); // +2 ชั่วโมง
-        // const deadline = new Date(now.getTime() + (10 * 1000)); // +2 ชั่วโมง
 
-        const wastesaleRequest = await wasteSaleRequest.findByIdAndUpdate(
-            id,
-            {
+        // ================= ปฏิเสธ =================
+        if (action === 'reject') {
+            await wasteSaleRequest.findByIdAndUpdate(id, {
                 $set: {
-                    status: 'waitingUser',
-                    approvedAt: now,
-                    userConfirmDeadline: deadline
-                },
-                $push: { reply: newReply }
-            },
-            { new: true }
-        );
-        await wasteSaleRequestLog.create({
-            wasteSaleRequest: wastesaleRequest._id,
-            status: 'APPROVED',
-            approveText: responseMessage,
-            actionBy: 'EMPLOYEE'
-        });
+                    status: 'rejected',
+                    responseMessage: responseMessage || 'ปฏิเสธคำขอ',
+                    rejectedAt: now
+                }
+            });
 
-        if (!wastesaleRequest) {
+            await wasteSaleRequestLog.create({
+                wasteSaleRequest: id,
+                status: 'REJECTED',
+                approveText: responseMessage,
+                actionBy: 'EMPLOYEE'
+            });
+
             return res.redirect(
-                '/employee/wasteSaleRequest?error=' +
-                encodeURIComponent('ไม่พบคำขอขายขยะ')
+                `/employee/wasteSaleRequest/${id}?success=` +
+                encodeURIComponent('ปฏิเสธคำขอเรียบร้อยแล้ว')
             );
         }
 
+        // ================= อนุมัติ =================
+        if (action === 'approve') {
+            const deadline = new Date(now.getTime() + (timeToConfirm * 60 * 60 * 1000));
+
+            await wasteSaleRequest.findByIdAndUpdate(id, {
+                $set: {
+                    status: 'waitingUser',
+                    approvedAt: now,
+                    userConfirmDeadline: deadline,
+                    responseMessage: responseMessage || 'ไม่ระบุ',
+                    approvePickupDate: pickupDate
+                },
+            });
+
+            await wasteSaleRequestLog.create({
+                wasteSaleRequest: id,
+                status: 'APPROVED',
+                approveText: responseMessage,
+                actionBy: 'EMPLOYEE'
+            });
+
+            return res.redirect(
+                `/employee/wasteSaleRequest/${id}?success=` +
+                encodeURIComponent('อนุมัติคำขอเรียบร้อยแล้ว')
+            );
+        }
+
+        // ================= ไม่รู้ action =================
         return res.redirect(
-            `/employee/wasteSaleRequest/${id}?success=` +
-            encodeURIComponent('บันทึกการตอบกลับเรียบร้อยแล้ว')
+            '/employee/wasteSaleRequest?error=' +
+            encodeURIComponent('ไม่พบ action ที่ถูกต้อง')
         );
 
     } catch (err) {

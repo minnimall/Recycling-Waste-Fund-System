@@ -241,11 +241,7 @@ const user_wasteSaleRequest = async (req, res) => {
             }
         }
         
-        let pickupDate = null;
-
-        if (latestRequest?.reply?.length > 0) {
-            pickupDate = latestRequest.reply[0].pickupDate;
-        }
+        const pickupDate = latestRequest?.approvePickupDate || null;
 
 
         res.render('user/wasteSaleRequest', {

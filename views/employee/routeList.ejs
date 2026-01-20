@@ -218,14 +218,12 @@
                                             </div>
 
                                             <!-- Note Section -->
-                                            <% if (route.note) { %>
                                                 <div class="bg-gray-50 border border-gray-200 p-3 mb-5 rounded">
                                                     <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">หมายเหตุ</p>
                                                     <p class="text-sm text-gray-700 leading-relaxed line-clamp-2">
-                                                        <%= route.note %>
+                                                        <%= route.note || 'ไม่ระบุ' %>
                                                     </p>
                                                 </div>
-                                            <% } %>
 
                                             <!-- Action Buttons -->
                                             <div class="flex gap-2 pt-2">

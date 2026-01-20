@@ -9,6 +9,10 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <style>
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { scrollbar-width: none; }
+    </style>
 </head>
 
 <body>
@@ -56,41 +60,89 @@
             </div>
         </div>
         
-        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
+        <!-- <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
                 <div>
-                    <h1 class="text-xl md:text-3xl font-bold text-gray-800 flex items-center">
-                        ความประสงค์ขายขยะที่ต้องการอนุมัติ
-                    </h1>
-                    <div class="flex">
-                        <div class="bg-blue-100 flex">
-                            <i class="fas fa-user-circle text-gray-600 mr-2 text-xl"></i>
-                            <h2 class="text-xl font-semibold text-gray-700 mr-2">
-                                Test
-                            </h2>
-                            <span class="text-xs text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full border border-yellow-200">รอการอนุมัติ</span>
+                        <div class="flex items-center justify-between">
+                            <h1 class="text-xl font-semibold flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                รอการอนุมัติ
+                                <span class="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-warning-muted text-warning" id="pending-badge">12</span>
+                            </h1>
+                            </div>
+                            <div class="relative mb-8 w-full">
+                                <button class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-5 z-10 w-10 h-10 rounded-full bg-surface-card border border-border text-content-primary flex items-center justify-center hover:bg-surface-card-hover transition-all" id="scroll-left">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                                    </svg>
+                                </button>
+                                <div class="flex gap-4 overflow-x-auto pb-2 scroll-smooth scrollbar-hide" id="pending-cards">
+
+                                            <div class="min-w-80 bg-yellow-50 border border-yellow-300 rounded-lg p-5 shrink-0 cursor-pointer transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-warning/15" onclick="openModal(${request.id})">
+                                                <div class="flex items-center justify-between mb-4">
+                                                    <div class="flex items-center gap-3">
+                                                        <i class="fas fa-user-circle text-gray-600 mr-1 text-3xl"></i>
+                                                        <div>
+                                                            <h4 class="text-base font-semibold">Test</h4>
+                                                            <p class="text-xs text-content-muted">@family1234</p>
+                                                        </div>
+                                                    </div>
+                                                    <span class="text-xs text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full border border-yellow-200 flex items-center justify-center">รอการอนุมัติ</span>
+                                                </div>
+                                                <div class="flex flex-col gap-3 text-gray-600">
+                                                    <div class="flex items-center gap-2 text-sm text-content-secondary">
+                                                    <i class="far fa-calendar-alt"></i> 
+                                                    วันให้เข้ารับซื้อ : 11 11 11
+                                                    </div>
+                                                    <div class="flex items-center gap-2 text-sm text-content-secondary">
+
+                                                    <i class="fas fa-map-marker-alt"></i>
+                                                    พิกัด : 111111, 1111111
+                                                    </div>
+                                                    <div class="flex flex-wrap gap-1.5 mt-1">
+                                                        รายการขยะ: ขยะ
+                                                    </div>
+                                                </div>
+                                                <div class="relative mt-4 text-sm">
+                                                    <button onclick="loadRequest('')" class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center">
+                                                        <i class="fa-solid fa-reply mr-2"></i> ตอบกลับคำขอ
+                                                    </button>
+                                                </div>
+                                            </div>
+                                </div>
+                                <button class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-5 z-10 w-10 h-10 rounded-full bg-surface-card border border-border text-content-primary flex items-center justify-center hover:bg-surface-card-hover transition-all" id="scroll-right">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    <!-- <p class="text-gray-600 mt-2">ระบบจัดการความประสงค์ขายขยะจากสมาชิก</p> -->
                 </div>
-            </div>
-        </div>
+            </div> -->
 
         <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
                 <div class="flex items-center">
                     <span class="text-gray-700 font-medium mr-3">สถานะ:</span>
                     <div class="flex space-x-2">
-                        <button id="filter-all" class="filter-btn px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-600 transition-colors active">
+                        <button id="filter-all" class="filter-btn px-4 py-2 bg-green-700 text-white border border-gray-300 rounded-md hover:bg-green-600 transition-colors active">
                             ทั้งหมด (<%= wasteSaleRequests.length %>)
                         </button>
-                        <button id="filter-pending" class="filter-btn px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
-                            รอดำเนินการ
+                        <button id="filter-pending" class="filter-btn px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md  hover:bg-green-600 transition-colors">
+                            รอการอนุมัติ
                         </button>
-                        <button id="filter-in-progress" class="filter-btn px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                        <button id="filter-waitingUser" class="filter-btn px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md  hover:bg-green-600 transition-colors">
+                            รอผู้ใช้ยืนยืน
+                        </button>
+                        <button id="filter-confirmed" class="filter-btn px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md  hover:bg-green-600 transition-colors">
+                            รอการดำเนินการ
+                        </button>
+                        <button id="filter-in-progress" class="filter-btn px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md  hover:bg-green-600 transition-colors">
                             กำลังดำเนินการ
                         </button>
-                        <button id="filter-resolved" class="filter-btn px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                        <button id="filter-complete" class="filter-btn px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md  hover:bg-green-600 transition-colors">
                             เสร็จสิ้น
                         </button>
                     </div>
@@ -136,6 +188,7 @@
                                         <% } else if (request.status === 'waitingUser') { %><span class="text-xs text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full border border-yellow-200">รอผู้ใช้ยืนยืน</span>
                                         <% } else if (request.status === 'in-progress') { %><span class="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full border border-blue-200">กำลังดำเนินการ</span>
                                         <% } else if (request.status === 'confirmed') { %><span class="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full border border-blue-200">รอการดำเนินการ</span>
+                                        <% } else if (request.status === 'complete') { %><span class="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full border border-green-200">เสร็จสิ้น</span>
                                         <% } else if (request.status === 'rejected') { %><span class="text-xs text-red-600 bg-red-100 px-2 py-1 rounded-full border border-red-200">ปฏิเสธคำขอ</span>
                                         <% } else if (request.status === 'CANCELLED_BY_USER') { %><span class="text-xs text-red-600 bg-red-100 px-2 py-1 rounded-full border border-red-200">ยกเลิกคำขอโดยผู้ใช้</span>
                                         <% } else { %><span class="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-full border border-gray-200">ไม่ทราบ</span><% } %>
@@ -567,12 +620,16 @@
         const filterAll = document.getElementById('filter-all');
         const filterPending = document.getElementById('filter-pending');
         const filterInProgress = document.getElementById('filter-in-progress');
-        const filterResolved = document.getElementById('filter-resolved');
+        const filterResolved = document.getElementById('filter-complete');
+        const filterWaitingUser = document.getElementById('filter-waitingUser');
+        const filterConfirmed = document.getElementById('filter-confirmed');
         
         if (filterAll) filterAll.addEventListener('click', () => filterRequests('all'));
         if (filterPending) filterPending.addEventListener('click', () => filterRequests('pending'));
+        if (filterConfirmed) filterConfirmed.addEventListener('click', () => filterRequests('confirmed'));
+        if (filterWaitingUser) filterWaitingUser.addEventListener('click', () => filterRequests('waitingUser'));
         if (filterInProgress) filterInProgress.addEventListener('click', () => filterRequests('in-progress'));
-        if (filterResolved) filterResolved.addEventListener('click', () => filterRequests('resolved'));
+        if (filterResolved) filterResolved.addEventListener('click', () => filterRequests('complete'));
         
         // Search input
         const searchInput = document.getElementById('search-input');

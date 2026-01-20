@@ -226,6 +226,7 @@
                         <% } else if (request.status === 'waitingUser') { %><span class="text-sm text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full border border-yellow-200">รอผู้ใช้ยืนยืน</span>
                         <% } else if (request.status === 'in-progress') { %><span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded-full border border-blue-200">กำลังดำเนินการ</span>
                         <% } else if (request.status === 'confirmed') { %><span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded-full border border-blue-200">รอการดำเนินการ</span>
+                        <% } else if (request.status === 'complete') { %><span class="text-sm text-green-600 bg-green-100 px-2 py-1 rounded-full border border-green-200">เสร็จสิ้น</span>
                         <% } else if (request.status === 'rejected') { %><span class="text-sm text-red-600 bg-red-100 px-2 py-1 rounded-full border border-red-200">ปฏิเสธคำขอ</span>
                         <% } else { %><span class="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded-full border border-gray-200">ไม่ทราบ</span><% } %>
                     </div>
@@ -237,7 +238,7 @@
                         </div>
                         <div class="info-row">
                             <span class="info-label"><i class="far fa-calendar-alt text-green-600 mr-2"></i> วันที่แจ้ง:</span>
-                            <span class="info-value" id="requestDate"><%= request.createdAt.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) %></span>
+                            <span class="info-value" id="requestDate"><%= request.date.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) %></span>
                         </div>
                         <div class="info-row">
                             <span class="info-label"><i class="fas fa-weight text-blue-500 mr-2"></i> น้ำหนัก:</span>
@@ -394,12 +395,12 @@
                                                 </p>
 
                                                 <p class="text-sm text-gray-600 my-2">
-                                                    <span class="font-bold">วันที่นัดรับที่กำหนด:</span> <%= request.reply[0].pickupDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) %> 
+                                                    <span class="font-bold">วันที่นัดรับที่กำหนด:</span> <%= request.approvePickupDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) %> 
                                                 </p>
 
-                                                <% if (request.reply[0].responseMessage) {%> 
+                                                <% if (request.responseMessage) {%> 
                                                 <p class="text-sm text-gray-600 my-2">
-                                                    <span class="font-bold">ข้อความตอบกลับ:</span> <%= request.reply[0].responseMessage %> 
+                                                    <span class="font-bold">ข้อความตอบกลับ:</span> <%= request.responseMessage %> 
                                                 </p>    
                                                 <% } %>
                                                 <p class="text-sm text-gray-600">
@@ -429,7 +430,7 @@
                                                     <%= statusMap[log.status] || log.status %>
                                                 </p>
                                                 <p class="text-sm text-gray-600 my-2">
-                                                    <span class="font-bold">กำหนดการรับซื้อ:</span> <%= request.reply[0].pickupDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) %> 
+                                                    <span class="font-bold">กำหนดการรับซื้อ:</span> <%= request.approvePickupDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) %> 
                                                 </p>
 
                                                 <p class="text-sm text-gray-600">
@@ -459,7 +460,7 @@
                                                     <%= statusMap[log.status] || log.status %>
                                                 </p>
                                                 <p class="text-sm text-gray-600 my-2">
-                                                    <span class="font-bold">กำหนดการรับซื้อ:</span> <%= request.reply[0].pickupDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) %> 
+                                                    <span class="font-bold">กำหนดการรับซื้อ:</span> <%= request.approvePickupDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) %> 
                                                 </p>
 
                                                 <p class="text-sm text-gray-600">
@@ -487,7 +488,7 @@
                     </div>
                 </div>
 
-                <% if (request.img !== '/img/no_image.jpg') { %> 
+                <% if (request.img !== '/img/no_image.jpg' && request.img !== null) { %> 
 
                     <!-- Image -->
                     <div class="w-full bg-white rounded-lg shadow p-4 mx-4 mb-6 text-black">
@@ -520,31 +521,54 @@
                         <div>
                             <label class="block text-sm font-medium mb-2">ข้อความตอบกลับ</label>
                             <textarea 
-                                id="responseMessage" 
-                                class="w-full bg-gray-50 border border-gray-200 px-3 py-2 rounded-md" 
+                                id="responseMessage"
+                                class="w-full bg-gray-50 border border-gray-200 px-3 py-2 rounded-md"
                                 placeholder="กรอกข้อความตอบกลับ..."
                                 name="responseMessage"
                                 required
-                            ></textarea>
+                            ><%= request.responseMessage || '' %></textarea>
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium mb-2">วันที่นัดรับ</label>
                             <input 
-                                type="date" 
-                                id="pickupDate" 
-                                class="w-full bg-gray-50 border border-gray-200 px-3 py-2 rounded-md"
+                                type="date"
+                                id="pickupDate"
                                 name="pickupDate"
+                                class="w-full bg-gray-50 border border-gray-200 px-3 py-2 rounded-md"
+                                value="<%= request.date ? new Date(request.date).toISOString().split('T')[0] : '' %>"
                                 required
                             />
+
+                            <% if (request.date) { 
+                                const d = new Date(request.date);
+                                const buddhistYear = d.getFullYear() + 543;
+                            %>
+                            <p class="text-sm text-gray-500 mt-2">
+                                (วันที่แจ้ง: <%= d.getDate() %>/<%= d.getMonth() + 1 %>/<%= buddhistYear %>)
+                            </p>
+                            <% } %>
                         </div>
 
                         <!-- Action Buttons -->
-                        <div class="space-y-2 pt-4">
+                        <!-- <div class="space-y-2 pt-4">
                             <button type="submit" class="btn btn-primary w-full">
                                 อนุมัติคำขอ
                             </button>
                             <button type="button" onclick="rejectRequest('<%= request._id  %>')" class="btn btn-danger w-full">
+                                ปฏิเสธคำขอ
+                            </button>
+                        </div> -->
+                        <div class="space-y-2 pt-4">
+                            <button type="button"
+                                    class="btn btn-primary w-full"
+                                    onclick="confirmAction('approve')">
+                                อนุมัติคำขอ
+                            </button>
+
+                            <button type="button"
+                                    class="btn btn-danger w-full"
+                                    onclick="confirmAction('reject')">
                                 ปฏิเสธคำขอ
                             </button>
                         </div>
@@ -560,19 +584,46 @@
 </body>
 
 <script>
-    function rejectRequest(id) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'ยืนยันการปฏิเสธ',
-            text: 'คุณต้องการปฏิเสธคำขอนี้ใช่หรือไม่?',
-            showCancelButton: true,
-            confirmButtonText: 'ยืนยัน',
-            cancelButtonText: 'ยกเลิก'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = `/employee/wasteSaleRequestReject/${id}`;
-            }
-        });
+function confirmAction(action) {
+    const form = document.getElementById('responseForm');
+
+    let title = '';
+    let text = '';
+    let icon = '';
+    let confirmButtonText = '';
+
+    if (action === 'approve') {
+        title = 'ยืนยันการอนุมัติคำขอ';
+        text = 'คุณต้องการอนุมัติคำขอนี้ใช่หรือไม่';
+        icon = 'question';
+        confirmButtonText = 'อนุมัติ';
+    } else if (action === 'reject') {
+        title = 'ยืนยันการปฏิเสธคำขอ';
+        text = 'คุณต้องการปฏิเสธคำขอนี้ใช่หรือไม่';
+        icon = 'warning';
+        confirmButtonText = 'ปฏิเสธ';
     }
+
+    Swal.fire({
+        title: title,
+        text: text,
+        icon: icon,
+        showCancelButton: true,
+        confirmButtonText: confirmButtonText,
+        cancelButtonText: 'ยกเลิก',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // ใส่ action ลงไปใน form แบบ hidden
+            let input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'action';
+            input.value = action;
+            form.appendChild(input);
+
+            form.submit();
+        }
+    });
+}
 </script>
 </html>

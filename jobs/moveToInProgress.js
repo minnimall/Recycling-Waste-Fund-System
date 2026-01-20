@@ -10,7 +10,7 @@ cron.schedule('*/30 * * * * *', async () => {
 
         const requests = await wasteSaleRequest.find({
             status: 'confirmed',
-            'reply.0.pickupDate': { $lte: now },
+            approvePickupDate: { $ne: null, $lte: now },
         });
 
         for (const req of requests) {

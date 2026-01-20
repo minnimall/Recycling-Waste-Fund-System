@@ -1,13 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const replySchema = new mongoose.Schema({
-  responseMessage: { type: String, required: true },
-  pickupDate: {type: Date,},
-  createdAt: { type: Date, default: Date.now },
-  isDeleted: { type: Boolean, default: false
-  }
-});
 
 const wasteSaleRequestSchema = new Schema(
     {
@@ -61,7 +54,6 @@ const wasteSaleRequestSchema = new Schema(
             type: Boolean,
             default: false
         },
-        reply: [replySchema],
         confirmExpireAt: {
             type: Date,
             required: false
@@ -73,6 +65,16 @@ const wasteSaleRequestSchema = new Schema(
         userConfirmDeadline: {
             type: Date,
             required: false
+        },
+        responseMessage: {
+            type: String,
+            required: false
+        },
+        approvePickupDate: {
+            type: Date
+        },
+        rejectedAt: {
+            type: Date
         }
 
     },

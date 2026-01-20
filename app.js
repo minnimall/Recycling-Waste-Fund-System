@@ -1,6 +1,7 @@
-
 require('./jobs/autoRejectWaitingUser');
 require('./jobs/moveToInProgress');
+require('./jobs/buildDailyRoutes.job.js');
+
 //ทำการนำเข้า module "express" เก็บไว้ในตัวแปร express
 const express = require('express')
 const morgan = require('morgan')
