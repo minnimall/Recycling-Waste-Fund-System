@@ -1686,11 +1686,16 @@ const wasteSaleRequestReplyIndex = async (req, res) => {
             return res.redirect('/employee/wasteSaleRequest?error=' + encodeURIComponent('ไม่พบบันทึก'));
         }
 
+        const route = await Route.findOne({
+            "points.requestId": id
+        });
+
         res.render('employee/wasteSaleRequestConfirm', {
             mytitle: 'พนักงาน | ความประสงค์ขายขยะ',
             request,
             currentPage: 'wasteSaleRequest',
             logs,
+            route
         });
 
     } catch (err) {
@@ -3883,7 +3888,7 @@ const mapIndex = async (req, res) => {
     try {
         // ดึงข้อมูล wasteSaleRequest ที่ status = 'pending' และยังไม่ถูกลบ
         const pendingRequests = await wasteSaleRequest.find({ 
-            status: 'pending',
+            status: 'in-progress',
             isDeleted: false
         })
         .populate('waste') // ดึงข้อมูลขยะมาด้วย
@@ -4138,6 +4143,104 @@ const updateRoutePoints = async (req, res) => {
             message: 'เกิดข้อผิดพลาดในการอัปเดตเส้นทาง: ' + error.message
         });
     }
+};
+
+const RoutePointsComplete = async (req, res) => {
+    try {
+        const { routeId, pointId } = req.params;
+        const { status } = req.body; // completed, skipped
+
+        // 1. update point และดึง route กลับมา
+        const updatedRoute = await Route.findOneAndUpdate(
+            { _id: routeId, "points._id": pointId },
+            { $set: { "points.$.status": status } },
+            { new: true }
+        );
+
+        if (!updatedRoute) {
+            return res.status(404).json({
+                success: false,
+                message: "Route หรือ Point ไม่พบ"
+            });
+        }
+
+        // 2. หา point ที่เพิ่งอัปเดต
+        const point = updatedRoute.points.id(pointId);
+
+        // 3. ถ้า point นี้เชื่อมกับ wasteSaleRequest
+        if (point?.requestId) {
+            await wasteSaleRequest.findByIdAndUpdate(
+                point.requestId,
+                { status: status },
+                { new: true }
+            );
+            await wasteSaleRequestLog.create({
+                wasteSaleRequest: point.requestId,
+                status: status.toUpperCase(), // COMPLETED / SKIPPED
+                approveText:
+                    status === 'complete'
+                        ? 'ดำเนินการรับขยะสำเร็จ'
+                        : 'ข้ามจุดรับขยะ',
+                actionBy: 'EMPLOYEE'
+            });
+        }
+
+        res.json({
+            success: true,
+            message: "อัปเดตจุดเรียบร้อย",
+            pointStatus: status
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+const RoutePointsCompleteAll = async (req, res) => {
+    try {
+            const { routeId } = req.params;
+
+            // 1. ค้นหา Route และดึง requestId ทั้งหมดออกมา
+            const route = await Route.findById(routeId);
+            if (!route) return res.status(404).json({ success: false, message: 'ไม่พบเส้นทาง' });
+
+            const requestIds = route.points
+                .filter(p => p.requestId) // เอาเฉพาะจุดที่มี requestId (ไม่ใช่จุด Depot)
+                .map(p => p.requestId);
+
+            // 2. อัปเดตทุก point ใน Route ให้เป็น complete
+            await Route.updateOne(
+                {  _id: routeId },
+                { 
+                    isAllComplete: true,
+                    $set: { "points.$[].status": "complete" } } // อัปเดตทุก element ใน array
+            );
+
+            // 3. อัปเดต wasteSaleRequest ที่เกี่ยวข้องทั้งหมดเป็น complete
+            if (requestIds.length > 0) {
+                await wasteSaleRequest.updateMany(
+                    { _id: { $in: requestIds } },
+                    { $set: { status: 'complete' } }
+                );
+
+                const logs = requestIds.map(id => ({
+                    wasteSaleRequest: id,
+                    status: 'COMPLETED',
+                    approveText: `เสร็จสิ้นการรับขยะ (เส้นทาง: ${route.routeName})`,
+                    actionBy: 'EMPLOYEE'
+                }));
+
+                await wasteSaleRequestLog.insertMany(logs);
+            }
+
+            res.json({ success: true, message: 'อัปเดตสำเร็จทุกจุด' });
+        } catch (err) {
+            res.status(500).json({ success: false, message: err.message });
+        }
 };
 
 
@@ -4508,7 +4611,7 @@ module.exports = {
     //หน้าคำขอฌาปนกิจ
     pendingFuneralRequestsPage,getPendingFuneralRequests,getRequestDetail,approveRequest,rejectRequest,
     //หน้าแผนที่เข้ารับซื้อ
-    mapIndex,saveRoute,getAllRoutes,getRouteDetail,deleteRoute,updateRoute,updateRoutePoints,
+    mapIndex,saveRoute,getAllRoutes,getRouteDetail,deleteRoute,updateRoute,updateRoutePoints,RoutePointsComplete,RoutePointsCompleteAll,
     //หน้าจัดการจุดรับซื้อ
     wastePointIndex,wastePointPost,wastePointCreate,wastePointToggle,wastePointEdit,wastePointUpdate,wastePointDelete,
     //หน้าจัดการรอบการรับซื้อ

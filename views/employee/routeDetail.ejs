@@ -230,41 +230,47 @@
                     </div>
 
                     <!-- Points List -->
-                    <div id="pointsList" class="space-y-3 mb-4">
-                        <% route.points.forEach((point, index) => { %>
-                            <div class="point-item <%= index === 0 ? 'bg-green-50 border-green-300' : 'bg-blue-50 border-blue-200' %> 
-                                        border rounded-lg p-4" 
-                                        data-point-id="<%= index %>"
-                                        data-lat="<%= point.lat %>"
-                                        data-lng="<%= point.lng %>"
-                                        data-address="<%= point.address %>">
-                                <div class="flex items-start gap-3">
-                                    <div class="<%= index === 0 ? 'bg-green-600' : 'bg-blue-600' %> 
-                                                text-white rounded-full w-10 h-10 flex items-center justify-center 
-                                                font-bold flex-shrink-0">
-                                        <%= point.pointNumber %>
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-medium text-gray-800 break-words">
-                                            <%= point.address %>
-                                        </p>
-                                        <p class="text-xs text-gray-500 mt-1">
-                                            <%= point.lat.toFixed(6) %>, <%= point.lng.toFixed(6) %>
-                                        </p>
-                                        <% if (index === 0) { %>
-                                            <span class="inline-block mt-2 text-xs bg-green-600 text-white px-2 py-1 rounded">
-                                                จุดเริ่มต้น
-                                            </span>
-                                        <% } %>
-                                    </div>
-                                    <button onclick="removePoint(<%= index %>)" 
-                                            class="edit-mode-controls text-red-500 hover:text-red-700">
-                                        <ion-icon name="close-circle-outline" class="text-2xl"></ion-icon>
-                                    </button>
-                                </div>
-                            </div>
-                        <% }); %>
+<div id="pointsList" class="space-y-3 mb-4">
+    <% route.points.forEach((point, index) => { %>
+        <div class="point-item <%= point.status === 'complete' ? 'bg-gray-100 opacity-75' : (index === 0 ? 'bg-green-50 border-green-300' : 'bg-blue-50 border-blue-200') %> 
+                    border rounded-lg p-4 transition-all" 
+                    id="point-card-<%= point._id %>">
+            <div class="flex items-start gap-3">
+                <div class="view-mode-controls flex items-center h-10">
+                    <input type="checkbox" 
+                           class="w-5 h-5 text-green-600 rounded cursor-pointer transition focus:ring-green-500"
+                           onchange="updatePointStatus('<%= route._id %>', '<%= point._id %>', this.checked)"
+                           <%= point.status === 'complete' ? 'checked' : '' %>>
+                </div>
+
+                <div class="<%= index === 0 ? 'bg-green-600' : (point.status === 'complete' ? 'bg-gray-500' : 'bg-blue-600') %> 
+                            text-white rounded-full w-10 h-10 flex items-center justify-center font-bold flex-shrink-0">
+                    <%= point.pointNumber %>
+                </div>
+
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-800 break-words <%= point.status === 'complete' ? 'line-through text-gray-500' : '' %>"
+                       id="address-text-<%= point._id %>">
+                        <%= point.address %>
+                    </p>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span id="status-badge-<%= point._id %>" 
+                              class="text-[10px] px-2 py-0.5 rounded-full <%= point.status === 'complete' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' %>">
+                            <%= point.status === 'complete' ? 'เสร็จสิ้นแล้ว' : 'รอดำเนินการ' %>
+                        </span>
+                        <p class="text-[10px] text-gray-400">
+                            <%= point.lat.toFixed(6) %>, <%= point.lng.toFixed(6) %>
+                        </p>
                     </div>
+                </div>
+                
+                <button onclick="removePoint(<%= index %>)" class="edit-mode-controls text-red-500">
+                    <ion-icon name="close-circle-outline" class="text-2xl"></ion-icon>
+                </button>
+            </div>
+        </div>
+    <% }); %>
+</div>
 
                     <!-- Edit Mode: Analyze Button -->
                     <div class="edit-mode-controls space-y-3">
@@ -1319,6 +1325,63 @@
             title: 'เกิดข้อผิดพลาด',
             text: 'ไม่สามารถเปิด Google Maps ได้',
             timer: 2000
+        });
+    }
+}
+async function updatePointStatus(routeId, pointId, isChecked) {
+    const newStatus = isChecked ? 'complete' : 'in-progress';
+    
+    try {
+        // แสดงสถานะกำลังโหลด
+        const badge = document.getElementById(`status-badge-${pointId}`);
+        const originalBadgeHTML = badge.innerHTML;
+        badge.innerHTML = '<ion-icon name="refresh-outline" class="animate-spin"></ion-icon> กำลังอัปเดต...';
+
+        // ส่ง Request ไปยัง Backend (คุณต้องสร้าง Route นี้รองรับใน Express)
+        const response = await fetch(`/employee/routeList/${routeId}/point/${pointId}/status`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: newStatus })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // อัปเดต UI หน้าเว็บทันที
+            const card = document.getElementById(`point-card-${pointId}`);
+            const addressText = document.getElementById(`address-text-${pointId}`);
+            
+            if (isChecked) {
+                card.classList.add('bg-gray-100', 'opacity-75');
+                addressText.classList.add('line-through', 'text-gray-500');
+                badge.innerText = 'เสร็จสิ้นแล้ว';
+                badge.className = 'text-[10px] px-2 py-0.5 rounded-full bg-green-100 text-green-700';
+            } else {
+                card.classList.remove('bg-gray-100', 'opacity-75');
+                addressText.classList.remove('line-through', 'text-gray-500');
+                badge.innerText = 'รอดำเนินการ';
+                badge.className = 'text-[10px] px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700';
+            }
+
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'อัปเดตสถานะเรียบร้อย',
+                showConfirmButton: false,
+                timer: 1500
+            });
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        console.error('Update error:', error);
+        // ติ๊ก Checkbox กลับคืนถ้าเกิดข้อผิดพลาด
+        event.target.checked = !isChecked;
+        Swal.fire({
+            icon: 'error',
+            title: 'ผิดพลาด',
+            text: 'ไม่สามารถอัปเดตสถานะได้'
         });
     }
 }

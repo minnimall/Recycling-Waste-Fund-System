@@ -164,13 +164,23 @@
                             <!-- Routes Grid -->
                             <div id="routesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                                 <% routes.forEach(route => { %>
-                                    <div class="rounded-lg border border-gray-200"
+                                    <div class="rounded-lg border  
+                                        <%= route.isAllComplete
+                                            ? 'border-green-400 bg-green-50'
+                                            : 'border-gray-200 bg-white'
+                                        %>"
+                                    
                                         data-name="<%= route.routeName.toLowerCase() %>"
                                         data-date="<%= new Date(route.createdAt).getTime() %>"
                                         data-distance="<%= route.totalDistance %>">
                                         
                                         <!-- Card Header -->
-                                        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                                        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50
+                                            <%= route.isAllComplete
+                                                ? 'border-green-400 bg-green-50'
+                                                : 'border-gray-200 bg-white'
+                                            %>"
+                                        ">
                                             <h3 class="font-semibold text-lg text-gray-900 truncate mb-1" title="<%= route.routeName %>">
                                                 <%= route.routeName %>
                                             </h3>
@@ -243,6 +253,13 @@
                                                     </svg>
                                                 </button>
                                             </div>
+                                            <div class="flex gap-2 pt-2">
+                                                <button 
+                                                    onclick="completeAllPoints('<%= route._id %>')"
+                                                    class="w-full bg-green-600 hover:bg-green-700 text-white border border-green-700 hover:border-green-800 py-2.5 px-4 rounded transition-colors duration-150">
+                                                    เสร็จสิ้น
+                                                </button> 
+                                            </div>
                                         </div>
                                     </div>
                                 <% }); %>
@@ -253,6 +270,49 @@
             </main>
 
             <script>
+
+                async function completeAllPoints(routeId) {
+                    // แสดงกล่องยืนยันก่อนทำรายการ
+                    const result = await Swal.fire({
+                        title: 'ยืนยันเสร็จสิ้นทั้งหมด?',
+                        text: "คุณต้องการเปลี่ยนสถานะทุกจุดให้เป็น 'เสร็จสิ้น' ใช่หรือไม่?",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#10b981',
+                        cancelButtonColor: '#ef4444',
+                        confirmButtonText: 'ใช่, เสร็จสิ้นทั้งหมด!',
+                        cancelButtonText: 'ยกเลิก'
+                    });
+
+                    if (result.isConfirmed) {
+                        try {
+                            Swal.showLoading();
+                            
+                            const response = await fetch(`/employee/routeList/${routeId}/complete-all`, {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' }
+                            });
+
+                            const data = await response.json();
+
+                            if (data.success) {
+                                await Swal.fire({
+                                    icon: 'success',
+                                    title: 'เรียบร้อย!',
+                                    text: 'อัปเดตสถานะทุกจุดในเส้นทางแล้ว',
+                                    timer: 1500
+                                });
+                                // รีโหลดหน้าเพื่อให้ UI อัปเดตทั้งหมด
+                                window.location.reload();
+                            } else {
+                                throw new Error(data.message);
+                            }
+                        } catch (error) {
+                            console.error('Error:', error);
+                            Swal.fire('ผิดพลาด', 'ไม่สามารถอัปเดตสถานะได้', 'error');
+                        }
+                    }
+                }
                 // Search functionality
                 document.getElementById('searchInput').addEventListener('input', function (e) {
                     const searchTerm = e.target.value.toLowerCase();

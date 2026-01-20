@@ -79,20 +79,25 @@ cron.schedule('0 1 * * *', async () => {
 
             for (const wp of sorted) {
                 if (wp.waypoint_index === 0) {
-                    // depot
+                    // กรณีเป็นจุดเริ่มต้น (Depot)
                     points.push({
                         pointNumber: pointNumber++,
                         lat: DEPOT.lat,
                         lng: DEPOT.lng,
-                        address: DEPOT.address
+                        address: DEPOT.address,
+                        status: 'active' // เพิ่ม status เริ่มต้น
                     });
                 } else {
+                    // ดึงข้อมูล Request ต้นฉบับโดยใช้ index (ต้อง -1 เพราะจุดแรกคือ Depot)
                     const req = dayRequests[wp.waypoint_index - 1];
+                    
                     points.push({
                         pointNumber: pointNumber++,
                         lat: req.latitude,
                         lng: req.longitude,
-                        address: req.location
+                        address: req.location,
+                        requestId: req._id, // <--- เพิ่มบรรทัดนี้เพื่อเก็บ ID ของคำขอ
+                        status: 'active'    // เพิ่ม status เพื่อใช้กับ Checkbox ที่คุณต้องการ
                     });
                 }
             }

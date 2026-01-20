@@ -86,6 +86,8 @@ router.put('/routeList/:routeId', employeeController.updateRoute);
 // ลบเส้นทาง
 router.delete('/routeList/:routeId', employeeController.deleteRoute);
 router.put('/routeList/:routeId/updateRoute', employeeController.updateRoutePoints);
+router.patch('/routeList/:routeId/point/:pointId/status', employeeController.RoutePointsComplete);
+router.patch('/routeList/:routeId/complete-all', employeeController.RoutePointsCompleteAll);
 
 
 

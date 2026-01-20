@@ -452,12 +452,45 @@
                                 </div>
                              <%} else if (log.status === 'IN_PROGRESS') { %>
                                 <div class="relative pl-6">
+                                    <span class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-blue-500"></span>
+                                    <div class="bg-blue-50 border border-blue-300 rounded-lg p-4">
+                                        <div class="flex justify-between">
+                                            <div>
+                                                <p class="font-semibold text-blue-800">
+                                                    <%= statusMap[log.status] || log.status %>
+                                                </p>
+                                                <p class="text-sm text-gray-600 my-2">
+                                                    <span class="font-bold">กำหนดการรับซื้อ:</span> <%= request.approvePickupDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) %> 
+                                                </p>
+
+                                                <p class="text-sm text-gray-600">
+                                                    ดำเนินการโดย: <%= log.actionBy %>
+                                                </p>
+
+                                                <% if (log.reason) { %>
+                                                    <p class="text-sm text-blue-600 mt-1">
+                                                        เหตุผล: <%= reasonMap[log.reason] || log.reason %>
+                                                    </p>
+                                                <% } %>
+                                            </div>
+
+                                            <div class="text-sm text-gray-500">
+                                                <%= new Date(log.createdAt).toLocaleString('th-TH') %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% } else if (log.status === 'COMPLETED') { %>
+                                <div class="relative pl-6">
                                     <span class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-green-500"></span>
                                     <div class="bg-green-50 border border-green-300 rounded-lg p-4">
                                         <div class="flex justify-between">
                                             <div>
                                                 <p class="font-semibold text-green-800">
                                                     <%= statusMap[log.status] || log.status %>
+                                                </p>
+                                                <p class="text-sm text-gray-600 my-2">
+                                                    <span class="font-bold">ข้อความ:</span> <a class="underline font-bold" href="/employee/routeList/<%= route._id %>"><%= log.approveText %></a>
                                                 </p>
                                                 <p class="text-sm text-gray-600 my-2">
                                                     <span class="font-bold">กำหนดการรับซื้อ:</span> <%= request.approvePickupDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) %> 
@@ -484,7 +517,7 @@
                             <% } else { %>
                             <% } %>
                         <% }) %>
-                    <% } %>
+                <% } %>
                     </div>
                 </div>
 

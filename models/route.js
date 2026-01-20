@@ -16,7 +16,8 @@ const routeSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'wasteSaleRequest',
             required: false
-        }
+        },
+        status: { type: String, default: 'in-progress' }
     }],
     // ข้อมูลสรุปเส้นทาง
     totalDistance: {
@@ -48,6 +49,10 @@ const routeSchema = new mongoose.Schema({
         type: String,
         enum: ['active', 'archived'],
         default: 'active'
+    },
+    isAllComplete: {
+        type: Boolean,
+        default: false
     }
     
 }, {
