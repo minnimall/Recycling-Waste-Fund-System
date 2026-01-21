@@ -476,6 +476,13 @@
             
             const html = `
                 <div class="space-y-4">
+                    ${createConditionItem(data.passedSalesRequirement,
+                        'ขายขยะสะสมครบ 300 บาท',
+                        data.passedSalesRequirement
+                            ? 'ผ่าน - ขายสะสม ' + data.totalSalesAmount.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท'
+                            : 'ไม่ผ่าน - ขายเพียง ' + data.totalSalesAmount.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท'
+                    )}
+
                     ${createConditionItem(data.passedMembershipPeriod, 
                         'เป็นสมาชิกครบ 180 วัน (6 เดือน)', 
                         data.passedMembershipPeriod 
@@ -483,15 +490,8 @@
                             : 'ไม่ผ่าน - เป็นสมาชิกเพียง ' + data.membershipDays + ' วัน (ต้องครบ 180 วัน)'
                     )}
                     
-                    ${createConditionItem(data.passedSalesRequirement,
-                        'ขายขยะสะสมครบ 300 บาท',
-                        data.passedSalesRequirement
-                            ? 'ผ่าน - ขายสะสม ' + data.totalSalesAmount.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท'
-                            : 'ไม่ผ่าน - ขายเพียง ' + data.totalSalesAmount.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท'
-                    )}
-                    
                     ${createConditionItem(data.hasActiveBalance,
-                        'ยอดคงเหลือในบัญชีมากกว่า 300 บาท',
+                        'ยอดเงินคงเหลือปัจจุบันในบัญชีไม่น้อยกว่า 300 บาท',
                         data.hasActiveBalance
                             ? 'ผ่าน - คงเหลือ ' + data.currentBalance.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท'
                             : 'ไม่ผ่าน - คงเหลือเพียง ' + data.currentBalance.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท'

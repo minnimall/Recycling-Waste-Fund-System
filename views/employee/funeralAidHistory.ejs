@@ -852,19 +852,19 @@
                     <h4 class="text-xl font-semibold mb-4">สรุปการเงิน</h4>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div class="bg-white bg-opacity-20 rounded-lg p-4">
-                            <p class="text-sm opacity-90">จำนวนเงินทั้งหมด</p>
+                            <p class="text-sm opacity-90">จำนวนเงินที่ให้ฌาปนกิจศพ</p>
                             <p class="text-2xl font-bold">${(record.financialInfo?.totalAmount || 0).toLocaleString('th-TH', {minimumFractionDigits: 2})}</p>
                             <p class="text-xs opacity-75">บาท</p>
                         </div>
                         <div class="bg-white bg-opacity-20 rounded-lg p-4">
-                            <p class="text-sm opacity-90">หักต่อบัญชี</p>
-                            <p class="text-2xl font-bold">${(record.financialInfo?.perAccountAmount || 0).toLocaleString('th-TH', {minimumFractionDigits: 2})}</p>
-                            <p class="text-xs opacity-75">บาท</p>
-                        </div>
-                        <div class="bg-white bg-opacity-20 rounded-lg p-4">
-                            <p class="text-sm opacity-90">จำนวนบัญชีสมาชิก</p>
+                            <p class="text-sm opacity-90">จำนวนบัญชีที่ถูกหักเงิน</p>
                             <p class="text-2xl font-bold">${record.financialInfo?.totalMemberAccounts || 0}</p>
                             <p class="text-xs opacity-75">บัญชี</p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                            <p class="text-sm opacity-90">ยอดเงินที่หักต่อบัญชี</p>
+                            <p class="text-2xl font-bold">${(record.financialInfo?.perAccountAmount || 0).toLocaleString('th-TH', {minimumFractionDigits: 2})}</p>
+                            <p class="text-xs opacity-75">บาท</p>
                         </div>
                         <div class="bg-white bg-opacity-20 rounded-lg p-4">
                             <p class="text-sm opacity-90">หักสำเร็จ</p>

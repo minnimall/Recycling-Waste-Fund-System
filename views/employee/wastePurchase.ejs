@@ -280,9 +280,25 @@
     let selectedWaste = [];
     let inputTimeout = {};
 
-    // ฟังก์ชันสำหรับจัดการการกรอกน้ำหนักแบบทันที
+    // แก้ไขฟังก์ชัน handleWeightInput
     function handleWeightInput(index, layout) {
         const inputId = `${layout}-weight-${index}`;
+        const weightInput = document.getElementById(inputId);
+        const weight = parseFloat(weightInput.value);
+        
+        // ตรวจสอบค่าติดลบ
+        if (weight < 0) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: 'ไม่สามารถกรอกค่าติดลบได้',
+                showConfirmButton: false,
+                timer: 2000
+            });
+            weightInput.value = ''; // เคลียร์ค่า
+            return;
+        }
         
         // ยกเลิก timeout เก่า
         if (inputTimeout[inputId]) {
@@ -292,10 +308,10 @@
         // ตั้ง timeout ใหม่ (รอ 1 วินาที)
         inputTimeout[inputId] = setTimeout(() => {
             addWasteFromInput(index, layout);
-        }, 1000);
+        }, 500);
     }
 
-    // ฟังก์ชันสำหรับจัดการเมื่อผู้ใช้เลิกโฟกัสจากช่องกรอก
+    // แก้ไขฟังก์ชัน handleWeightBlur
     function handleWeightBlur(index, layout) {
         const inputId = `${layout}-weight-${index}`;
         
@@ -308,11 +324,24 @@
         const weightInput = document.getElementById(inputId);
         const weight = parseFloat(weightInput.value);
         
+        // ตรวจสอบค่าติดลบ
+        if (weight <= 0) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: 'ไม่สามารถกรอกค่าติดลบได้',
+                showConfirmButton: false,
+                timer: 2000
+            });
+            weightInput.value = ''; // เคลียร์ค่า
+            return;
+        }
+        
         if (weight && weight > 0) {
             addWasteFromInput(index, layout);
         }
     }
-
     // ฟังก์ชันสำหรับเพิ่มขยะจาก input (ทั้ง table และ card)
     function addWasteFromInput(index, layout) {
         const inputId = `${layout}-weight-${index}`;
@@ -445,34 +474,6 @@
             updateSelectedWasteList();
         }
     }
-
-    // function deleteWaste(index) {
-    //     Swal.fire({
-    //         title: 'คุณแน่ใจหรือไม่?',
-    //         text: "คุณต้องการลบรายการนี้ออกจากรายการรับซื้อ?",
-    //         icon: 'warning',
-    //         showCancelButton: true,
-    //         confirmButtonColor: '#d33',
-    //         cancelButtonColor: '#3085d6',
-    //         confirmButtonText: 'ยืนยัน',
-    //         cancelButtonText: 'ยกเลิก'
-    //     }).then((result) => {
-    //         if (result.isConfirmed) {
-    //             const deletedItem = selectedWaste[index];
-    //             selectedWaste.splice(index, 1);
-    //             updateSelectedWasteList();
-            
-    //             const weightInputs = document.querySelectorAll('.weight-input');
-    //             weightInputs.forEach(input => {
-    //                 if (input.dataset.name === deletedItem.name) {
-    //                     input.value = '';
-    //                 }
-    //             });
-                
-    //             Swal.fire('ลบแล้ว!', 'รายการถูกลบออกแล้ว', 'success');
-    //         }
-    //     });
-    // }
 
     function deleteWaste(index) {
         const deletedItem = selectedWaste[index];
