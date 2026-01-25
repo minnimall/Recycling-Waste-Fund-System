@@ -108,149 +108,229 @@
                 <!-- Control Panel -->
                 <div class="lg:col-span-1">
                     <div class="bg-white rounded-lg shadow-lg p-6 sticky top-4 max-h-[calc(100vh-100px)] overflow-y-auto">
-                        <p class="text-lg font-semibold text-gray-800 mb-4">
-                            <!-- <ion-icon name="location-outline" class="inline-block mr-2"></ion-icon> -->
-                            จัดการจุดรับซื้อ
-                        </p>
+                        
+                        <!-- Header -->
+                        <div class="mb-6 pb-4 border-b border-gray-200">
+                            <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                                <!-- <ion-icon name="settings-outline" class="text-2xl mr-2 text-blue-600"></ion-icon> -->
+                                จัดการเส้นทาง
+                            </h2>
+                            <p class="text-sm text-gray-500 mt-1">เลือกจุดและวิเคราะห์เส้นทาง</p>
+                        </div>
 
-                        <!-- Waste Sale Requests Section -->
-                        <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                            <div class="flex justify-between items-center mb-3">
-                                <p class="text-base font-medium text-800">คำขอขายขยะ</p>
-
-                                <span class="bg-blue-600 text-white text-xs px-2 py-1 rounded-full ">
-                                    <%= pendingRequests.length %> รายการ
-                                </span>
+                        <!-- Step 1: Organization Start Point -->
+                        <div class="mb-6">
+                            <div class="flex items-center mb-3">
+                                <div class="bg-blue-600 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold mr-2">1</div>
+                                <h3 class="text-base font-semibold text-gray-800">กำหนดจุดเริ่มต้น</h3>
                             </div>
-                            
-                            <% if (pendingRequests.length > 0) { %>
-                                <div id="requestsList" class="space-y-2 max-h-80 overflow-y-auto">
-                                    <% pendingRequests.forEach((request, index) => { %>
-                                        <div class="request-item bg-white p-3 rounded-lg border border-gray-200 cursor-pointer hover:shadow-md"
-                                            data-request-id="<%= request._id %>"
-                                            data-lat="<%= request.latitude %>"
-                                            data-lng="<%= request.longitude %>"
-                                            data-location="<%= request.location %>"
-                                            data-family="<%= request.family ? (request.family.firstname + ' ' + request.family.lastname) : 'N/A' %>"
-                                            data-familyname="<%= request.family ? request.family.familyName : '' %>"
-                                            onclick="toggleRequestSelection(this)">
-                                            <div class="flex items-start">
-                                                <input type="checkbox" 
-                                                    class="request-checkbox mt-1 mr-2 h-4 w-4 text-blue-600 rounded"
-                                                    onclick="event.stopPropagation();">
-                                                <div class="flex-1">
-                                                    <div class="font-medium text-gray-800 text-sm">
-                                                        <%= request.family ? (request.family.familyName) : 'ไม่ระบุชื่อ' %>
-                                                    </div>
-                                                    <div class="text-xs text-gray-600 mt-1">
-                                                        <ion-icon name="location" class="text-red-500"></ion-icon>
-                                                        <%= request.location ? (request.location.substring(0, 40) + (request.location.length > 40 ? '...' : '')) : 'ไม่ระบุที่อยู่' %>
-                                                    </div>
-                                                    <p class="text-xs text-gray-800 mt-1">ขยะที่อยากขาย :</p>
-                                                    <% request.waste.forEach(w => { %>
-                                                        <div class="text-xs text-green-600 mt-1">
-                                                            <%= w.wasteName %>
+                            <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                <label class="flex items-start cursor-pointer">
+                                    <input type="checkbox" 
+                                        id="useOrgStartPoint" 
+                                        class="mt-0.5 mr-3 h-5 w-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                                        onchange="toggleOrganizationStartPoint()">
+                                    <div class="flex-1">
+                                        <div class="font-medium text-gray-800 text-sm">เริ่มจาก อบต.ขามป้อม</div>
+                                        <!-- <p class="text-xs text-gray-600 mt-1">15.9487, 102.8552</p> -->
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Select Points -->
+                        <div class="mb-6">
+                            <div class="flex items-center mb-3">
+                                <div class="bg-blue-600 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold mr-2">2</div>
+                                <h3 class="text-base font-semibold text-gray-800">เลือกจุดรับซื้อ</h3>
+                            </div>
+
+                            <!-- 2.1 Waste Sale Requests -->
+                            <div class="mb-4">
+                                <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                    <div class="flex justify-between items-center mb-3">
+                                        <p class="text-sm font-medium text-gray-700 flex items-center">
+                                            <ion-icon name="document-text-outline" class="mr-1"></ion-icon>
+                                            คำขอขายขยะ
+                                        </p>
+                                        <span class="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+                                            <%= pendingRequests.length %> รายการ
+                                        </span>
+                                    </div>
+                                    
+                                    <% if (pendingRequests.length > 0) { %>
+                                        <div id="requestsList" class="space-y-2 max-h-60 overflow-y-auto mb-3">
+                                            <% pendingRequests.forEach((request, index) => { %>
+                                                <div class="request-item bg-white p-3 rounded-lg border border-gray-200 cursor-pointer hover:shadow-md transition"
+                                                    data-request-id="<%= request._id %>"
+                                                    data-lat="<%= request.latitude %>"
+                                                    data-lng="<%= request.longitude %>"
+                                                    data-location="<%= request.location %>"
+                                                    data-family="<%= request.family ? (request.family.firstname + ' ' + request.family.lastname) : 'N/A' %>"
+                                                    data-familyname="<%= request.family ? request.family.familyName : '' %>"
+                                                    onclick="toggleRequestSelection(this)">
+                                                    <div class="flex items-start">
+                                                        <input type="checkbox" 
+                                                            class="request-checkbox mt-1 mr-2 h-4 w-4 text-blue-600 rounded"
+                                                            onclick="event.stopPropagation();">
+                                                        <div class="flex-1">
+                                                            <div class="font-medium text-gray-800 text-sm">
+                                                                <%= request.family ? (request.family.familyName) : 'ไม่ระบุชื่อ' %>
+                                                            </div>
+                                                            <div class="text-xs text-gray-600 mt-1 line-clamp-2">
+                                                                <ion-icon name="location" class="text-red-500"></ion-icon>
+                                                                <%= request.location ? (request.location.substring(0, 35) + (request.location.length > 35 ? '...' : '')) : 'ไม่ระบุที่อยู่' %>
+                                                            </div>
+                                                            <div class="text-xs text-gray-400 mt-1">
+                                                                วันเแจ้งเข้ารับซื้อ <%= new Date(request.date).toLocaleDateString('th-TH') %>
+                                                            </div>
                                                         </div>
-                                                    <% }) %>
-                                                    <div class="text-xs text-gray-400 mt-1">
-                                                        วันที่ให้เข้ามารับซื้อขยะ: <%= new Date(request.date).toLocaleDateString('th-TH') %>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            <% }); %>
                                         </div>
-                                    <% }); %>
+                                        
+                                        <div class="flex gap-2 mb-2">
+                                            <button onclick="selectAllRequests()" 
+                                                    class="flex-1 bg-blue-600 text-white text-xs py-2 px-2 rounded hover:bg-blue-700 transition">
+                                                ทั้งหมด
+                                            </button>
+                                            <button onclick="deselectAllRequests()" 
+                                                    class="flex-1 bg-gray-500 text-white text-xs py-2 px-2 rounded hover:bg-gray-600 transition">
+                                                ยกเลิก
+                                            </button>
+                                        </div>
+                                        
+                                        <button onclick="addSelectedRequestsToMap()" 
+                                                class="w-full bg-green-600 text-white text-sm py-2.5 px-4 rounded-lg hover:bg-green-700 transition font-medium">
+                                            <ion-icon name="add-circle-outline" class="align-middle"></ion-icon>
+                                            เพิ่มจุดที่เลือก
+                                        </button>
+                                    <% } else { %>
+                                        <div class="text-center text-gray-400 py-6 text-sm">
+                                            <ion-icon name="alert-circle-outline" class="text-3xl block mx-auto mb-2"></ion-icon>
+                                            <p>ไม่มีคำขอขายขยะ</p>
+                                        </div>
+                                    <% } %>
                                 </div>
-                                
-                                <div class="mt-3 flex gap-2">
-                                    <button onclick="selectAllRequests()" 
-                                            class="flex-1 bg-blue-600 text-white text-sm py-2 px-3 rounded-lg hover:bg-blue-700 transition">
-                                        เลือกทั้งหมด
+                            </div>
+
+                            <!-- 2.2 Manual Search -->
+                            <div class="">
+                                <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                                    <ion-icon name="search-outline" class="mr-1"></ion-icon>
+                                    หรือค้นหาที่อยู่
+                                </label>
+                                <div class="relative">
+                                    <input type="text" 
+                                        id="searchInput" 
+                                        class="w-full p-2.5 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" 
+                                        placeholder="ค้นหาสถานที่...">
+                                    <button id="searchBtn" 
+                                            class="absolute right-2 top-2 p-1.5 text-blue-600 hover:text-blue-800 transition-colors">
+                                        <ion-icon name="search-outline" class="search-icon text-lg"></ion-icon>
+                                        <ion-icon name="refresh-outline" class="search-loading text-lg"></ion-icon>
                                     </button>
-                                    <button onclick="deselectAllRequests()" 
-                                            class="flex-1 bg-gray-500 text-white text-sm py-2 px-3 rounded-lg hover:bg-gray-600 transition">
-                                        ยกเลิกทั้งหมด
-                                    </button>
                                 </div>
+                                <div id="searchSuggestions" class="mt-2 hidden">
+                                    <div class="bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Selected Points Summary -->
+                        <div class="mb-6">
+                            <div class="flex items-center mb-3">
+                                <div class="bg-blue-600 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold mr-2">3</div>
+                                <h3 class="text-base font-semibold text-gray-800">จุดที่เลือกแล้ว</h3>
+                            </div>
+                            <div class="">
+                                <div id="selectedPointsList" class="space-y-2 max-h-60 overflow-y-auto p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                    <div class="text-gray-400 text-center py-6 text-sm">
+                                        <ion-icon name="location-outline" class="text-3xl block mx-auto mb-2"></ion-icon>
+                                        <p>ยังไม่มีจุดที่เลือก</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Actions -->
+                        <div class="mb-6">
+                            <div class="flex items-center mb-3">
+                                <div class="bg-blue-600 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold mr-2">4</div>
+                                <h3 class="text-base font-semibold text-gray-800">ดำเนินการ</h3>
+                            </div>
+                            <div class="space-y-2">
+                                <button id="analyzeBtn" 
+                                        class="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed font-medium shadow-md hover:shadow-lg" 
+                                        disabled>
+                                    <ion-icon name="analytics-outline" class="align-middle text-lg"></ion-icon>
+                                    วิเคราะห์เส้นทาง
+                                </button>
                                 
-                                <button onclick="addSelectedRequestsToMap()" 
-                                        class="w-full mt-2 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition">
-                                    <ion-icon name="add-circle-outline" class="inline-block mr-1"></ion-icon>
-                                    เพิ่มจุดที่เลือกลงแผนที่
+                                <button id="saveRouteBtn" 
+                                        class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed font-medium shadow-md hover:shadow-lg" 
+                                        onclick="saveCurrentRoute()"
+                                        disabled>
+                                    <ion-icon name="save-outline" class="align-middle text-lg"></ion-icon>
+                                    บันทึกเส้นทาง
                                 </button>
-                            <% } else { %>
-                                <div class="text-center text-gray-500 py-4 text-sm">
-                                    <ion-icon name="alert-circle-outline" class="text-2xl"></ion-icon>
-                                    <p class="mt-2">ไม่มีคำขอขายขยะที่รอดำเนินการ</p>
-                                </div>
-                            <% } %>
-                        </div>
 
-                        <!-- Manual Search Section -->
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">ค้นหาที่อยู่เพิ่มเติม</label>
-                            <div class="relative">
-                                <input type="text" 
-                                    id="searchInput" 
-                                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12" 
-                                    placeholder="เช่น ขอนแก่น, มหาวิทยาลัยขอนแก่น...">
-                                <button id="searchBtn" 
-                                        class="absolute right-2 top-2 p-2 text-blue-600 hover:text-blue-800 transition-colors">
-                                    <ion-icon name="search-outline" class="search-icon"></ion-icon>
-                                    <ion-icon name="refresh-outline" class="search-loading"></ion-icon>
+                                <button id="clearBtn" 
+                                        class="w-full bg-red-600 text-white py-2.5 px-4 rounded-lg hover:bg-red-700 transition font-medium">
+                                    <ion-icon name="trash-outline" class="align-middle text-lg"></ion-icon>
+                                    ล้างทั้งหมด
                                 </button>
                             </div>
-                            <div id="searchSuggestions" class="mt-2 hidden">
-                                <div class="bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Selected Points List -->
-                        <div class="mb-4">
-                            <h3 class="text-lg font-medium text-gray-700 mb-2">จุดที่เลือก</h3>
-                            <div id="selectedPointsList" class="space-y-2 max-h-60 overflow-y-auto">
-                                <div class="text-gray-500 text-center py-4 text-sm">ยังไม่มีจุดที่เลือก</div>
-                            </div>
-                        </div>
-
-                        <!-- Control Buttons -->
-                        <div class="space-y-3">
-                            <button id="analyzeBtn" 
-                                    class="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed" 
-                                    disabled>
-                                วิเคราะห์เส้นทาง
-                            </button>
-                            
-                            <button id="clearBtn" 
-                                    class="w-full bg-red-600 text-white py-3 px-4 rounded-lg hover:bg-red-700 transition">
-                                ล้างจุดทั้งหมด
-                            </button>
-
-                            <button id="saveRouteBtn" 
-                                    class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed" 
-                                    onclick="saveCurrentRoute()"
-                                    disabled>
-                                บันทึกเส้นทาง
-                            </button>
                         </div>
 
                         <!-- Route Analysis Results -->
-                        <div id="routeResults" class="mt-6 hidden">
-                            <h3 class="text-lg font-medium text-gray-700 mb-3">ผลการวิเคราะห์</h3>
-                            <div id="routeInfo" class="bg-blue-50 p-4 rounded-lg text-sm">
+                        <div id="routeResults" class="hidden">
+                            <div class="flex items-center mb-3">
+                                <div class="bg-teal-600 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold mr-2">
+                                    <ion-icon name="checkmark" class="text-lg"></ion-icon>
+                                </div>
+                                <h3 class="text-base font-semibold text-gray-800">ผลการวิเคราะห์</h3>
+                            </div>
+                            <div class="ml-9">
+                                <div id="routeInfo" class="bg-blue-50 p-4 rounded-lg text-sm border border-blue-200">
+                                </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
 
                 <!-- Map Section -->
                 <div class="lg:col-span-3">
-                    <div class="bg-white rounded-lg shadow-lg p-4">
-                        <div class="mb-3 text-sm text-gray-600 bg-blue-50 p-3 rounded-lg border border-blue-200">
-                            <ion-icon name="information-circle" class="inline-block mr-2 text-blue-600"></ion-icon>
-                            เลือกคำขอขายขยะจากรายการด้านซ้าย หรือคลิกบนแผนที่เพื่อเลือกจุด
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                        <!-- Map Header -->
+                        <div class="bg-gradient-to-r from-green-600 to-green-700 p-4 text-white">
+                            <h2 class="text-xl font-bold flex items-center">
+                                <!-- <ion-icon name="map-outline" class="text-2xl mr-2"></ion-icon> -->
+                                แผนที่เส้นทาง
+                            </h2>
+                            <p class="text-sm text-gray-100 mt-1">คลิกบนแผนที่เพื่อเพิ่มจุดเพิ่มเติม</p>
                         </div>
-                        <div id="map" class="w-full h-96 lg:h-[600px] rounded-lg border border-gray-200"></div>
+
+                        <!-- Info Banner -->
+                        <div class="bg-blue-50 p-3 border-b border-blue-100">
+                            <div class="flex items-start text-sm text-blue-800">
+                                <ion-icon name="information-circle" class="text-xl mr-2 flex-shrink-0 mt-0.5"></ion-icon>
+                                <div>
+                                    <p class="font-medium mb-1">วิธีใช้งาน:</p>
+                                    <ul class="text-xs space-y-0.5 text-blue-700">
+                                        <li>• เลือกจุดเริ่มต้น (ถ้าต้องการ)</li>
+                                        <li>• เลือกคำขอขายขยะหรือค้นหาสถานที่</li>
+                                        <li>• กดวิเคราะห์เส้นทางเมื่อเลือกครบแล้ว</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Map -->
+                        <div id="map" class="w-full h-96 lg:h-[600px]"></div>
                     </div>
                 </div>
             </div>
@@ -270,6 +350,14 @@
         let optimizedRoutePoints = [];
         let routeAnalysisData = null;
         let selectedRequestIds = []; // เก็บ ID ของ wasteSaleRequest ที่เลือก
+        let organizationPoint = {
+            lat: 15.9487,
+            lng: 102.8552,
+            address: 'องค์การบริหารส่วนตำบลขามป้อม',
+            isOrganization: true
+        };
+        let useOrganizationStart = false;
+        let orgMarker = null;
         
         function initMap() {
             const initialLat = 15.948741697876695;
@@ -387,6 +475,115 @@
                     timer: 2000
                 });
             }
+        }
+
+        function toggleOrganizationStartPoint() {
+            const checkbox = document.getElementById('useOrgStartPoint');
+            useOrganizationStart = checkbox.checked;
+            
+            if (useOrganizationStart) {
+                // เพิ่มจุดองค์การเป็นจุดแรก
+                addOrganizationPoint();
+                
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'เพิ่มจุดเริ่มต้นจากองค์การบริหารส่วนตำบล',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            } else {
+                // ลบจุดองค์การออก
+                removeOrganizationPoint();
+                
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'info',
+                    title: 'ยกเลิกจุดเริ่มต้นจากองค์การบริหารส่วนตำบล',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            }
+        }
+
+        function addOrganizationPoint() {
+            // ตรวจสอบว่ามีจุดองค์การอยู่แล้วหรือไม่
+            const hasOrgPoint = selectedPoints.some(p => p.isOrganization);
+            if (hasOrgPoint) return;
+            
+            // เพิ่มจุดองค์การเป็นจุดแรก
+            selectedPoints.unshift({
+                id: 1,
+                lat: organizationPoint.lat,
+                lng: organizationPoint.lng,
+                address: organizationPoint.address,
+                isOrganization: true,
+                requestId: null
+            });
+            
+            // อัพเดท id ของจุดอื่นๆ
+            selectedPoints.forEach((point, index) => {
+                point.id = index + 1;
+            });
+            
+            // สร้าง marker พิเศษสำหรับองค์การ
+            const orgIcon = L.divIcon({
+                html: `<div class="bg-green-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold shadow-lg border-2 border-white">
+                        <ion-icon name="business" class="text-xl"></ion-icon>
+                    </div>`,
+                className: 'custom-org-marker',
+                iconSize: [40, 40],
+                iconAnchor: [20, 20]
+            });
+            
+            orgMarker = L.marker([organizationPoint.lat, organizationPoint.lng], { icon: orgIcon })
+                .addTo(map)
+                .bindPopup(`<b>จุดเริ่มต้น</b><br>${organizationPoint.address}<br><span class="text-green-600 text-xs">🏛️ องค์การบริหารส่วนตำบล</span>`);
+            
+            markers.unshift(orgMarker);
+            
+            // ย้ายแผนที่ไปยังจุดองค์การ
+            map.setView([organizationPoint.lat, organizationPoint.lng], 15);
+            
+            updatePointsList();
+            updateButtons();
+        }
+
+        function removeOrganizationPoint() {
+            // ลบจุดองค์การออกจาก selectedPoints
+            const orgIndex = selectedPoints.findIndex(p => p.isOrganization);
+            if (orgIndex !== -1) {
+                selectedPoints.splice(orgIndex, 1);
+            }
+            
+            // ลบ marker องค์การออกจากแผนที่
+            if (orgMarker) {
+                map.removeLayer(orgMarker);
+                const markerIndex = markers.indexOf(orgMarker);
+                if (markerIndex !== -1) {
+                    markers.splice(markerIndex, 1);
+                }
+                orgMarker = null;
+            }
+            
+            // อัพเดท id ของจุดที่เหลือ
+            selectedPoints.forEach((point, index) => {
+                point.id = index + 1;
+            });
+            
+            // อัพเดท popup ของ markers ที่เหลือ
+            markers.forEach((marker, index) => {
+                const point = selectedPoints[index];
+                if (point && marker) {
+                    marker.setPopupContent(`<b>จุดที่ ${point.id}</b><br>${point.address}${point.requestId ? '<br><span class="text-green-600 text-xs">จากคำขอขายขยะ</span>' : ''}`);
+                }
+            });
+            
+            updatePointsList();
+            updateButtons();
+            clearRoute();
         }
         
         // เอาตัวเลขพิกัด (Lat, Lng) ไปหา "ชื่อที่อยู่" หรือ "ชื่อสถานที่"
@@ -657,12 +854,17 @@
             
             let html = '';
             selectedPoints.forEach((point, index) => {
+                const isOrgPoint = point.isOrganization;
+                const bgColorClass = isOrgPoint ? 'border-green-300 bg-green-50' : (point.requestId ? 'border-green-300 bg-green-50' : '');
+                const textColorClass = isOrgPoint ? 'text-gray-600' : (point.requestId ? 'text-green-600' : 'text-blue-600');
+                
                 html += `
-                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 ${point.requestId ? 'border-green-300 bg-green-50' : ''}">
+                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 ${bgColorClass}">
                         <div class="flex justify-between items-start">
                             <div class="flex-1">
-                                <div class="font-medium ${point.requestId ? 'text-green-600' : 'text-blue-600'}">
+                                <div class="font-medium ${textColorClass}">
                                     จุดที่ ${point.id}
+                                    ${isOrgPoint ? '<span class="text-xs bg-green-600 text-white px-2 py-0.5 rounded ml-1">อบต.ขามป้อม</span>' : ''}
                                     ${point.requestId ? '<span class="text-xs bg-green-600 text-white px-2 py-0.5 rounded ml-1">คำขอ</span>' : ''}
                                 </div>
                                 ${point.familyName ? `<div class="text-sm font-semibold text-gray-800 mt-1">${point.familyName}</div>` : ''}
@@ -671,10 +873,12 @@
                                     ${point.lat.toFixed(4)}, ${point.lng.toFixed(4)}
                                 </div>
                             </div>
+                            ${!isOrgPoint ? `
                             <button onclick="removePoint(${index})" 
                                     class="text-red-500 hover:text-red-700 ml-2">
                                 <ion-icon name="close-circle-outline"></ion-icon>
                             </button>
+                            ` : '<div class="text-green-500 ml-2"><ion-icon name="lock-closed"></ion-icon></div>'}
                         </div>
                     </div>
                 `;
@@ -685,6 +889,17 @@
         
         function removePoint(index) {
             const point = selectedPoints[index];
+
+            // ป้องกันการลบจุดองค์การ
+            if (point.isOrganization) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ไม่สามารถลบได้',
+                    text: 'กรุณายกเลิกการเลือกจาก Checkbox ด้านบน',
+                    timer: 2000
+                });
+                return;
+            }
             
             // ลบ requestId ออกจาก array
             if (point.requestId) {
@@ -1481,6 +1696,9 @@
                 cancelButtonText: 'ยกเลิก'
             }).then((result) => {
                 if (result.isConfirmed) {
+                    // ยกเลิก checkbox องค์การ
+                    document.getElementById('useOrgStartPoint').checked = false;
+                    useOrganizationStart = false;
                     selectedPoints = [];
                     selectedRequestIds = [];
                     
