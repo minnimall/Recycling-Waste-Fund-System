@@ -185,6 +185,35 @@ const funeralAssistanceSchema = new Schema({
         comment: 'หมายเหตุเพิ่มเติม'
     },
 
+    // เพิ่มส่วนนี้หลัง notes
+    documents: {
+        deathCertificate: {
+            type: String,
+            default: null,
+            comment: 'สำเนาใบมรณะบัตรของผู้ตาย'
+        },
+        deceasedIdCard: {
+            type: String,
+            default: null,
+            comment: 'สำเนาบัตรประชาชนของผู้ตาย'
+        },
+        deceasedHouseRegistration: {
+            type: String,
+            default: null,
+            comment: 'สำเนาทะเบียนบ้านของผู้ตาย'
+        },
+        applicantIdCard: {
+            type: String,
+            default: null,
+            comment: 'สำเนาบัตรประชาชนของผู้ยื่นคำขอ'
+        },
+        applicantHouseRegistration: {
+            type: String,
+            default: null,
+            comment: 'สำเนาทะเบียนบ้านของผู้ยื่นคำขอ'
+        }
+    },
+
     // สถานะ - เพิ่มเติมสำหรับรองรับ User Request
     status: {
         type: String,

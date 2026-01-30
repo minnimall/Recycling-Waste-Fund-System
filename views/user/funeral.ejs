@@ -42,6 +42,57 @@
             border-color: #10b981;
             background-color: #f0fdf4;
         }
+        /* Custom File Upload Styles */
+        .file-upload-wrapper {
+            position: relative;
+        }
+
+        .file-upload-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            min-height: 140px;
+            padding: 1.5rem;
+            border: 2px dashed #d1d5db;
+            border-radius: 0.5rem;
+            background-color: #f9fafb;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-label:hover {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+
+        .file-upload-label.dragover {
+            border-color: #10b981;
+            background-color: #d1fae5;
+        }
+
+        .file-upload-text {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #4b5563;
+            margin-bottom: 0.25rem;
+        }
+
+        .file-upload-subtext {
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+
+        .file-input.has-file + .file-upload-label {
+            border-color: #10b981;
+            background-color: #ecfdf5;
+        }
+
+        .file-input.has-file + .file-upload-label .file-upload-text {
+            color: #059669;
+            font-weight: 600;
+        }
     </style>
     <%- include('../partials/userPartials/head.ejs') %>
 </head>
@@ -150,13 +201,32 @@
                                 ข้อมูลผู้รับผิดชอบในการจัดทำศพ
                             </h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อ-นามสกุล <span class="text-red-500">*</span></label>
-                                    <input type="text" name="responsiblePersonName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="ระบุชื่อ-นามสกุล">
+                                <!-- Dropdown เลือกผู้รับผิดชอบ -->
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        เลือกผู้รับผิดชอบ <span class="text-red-500">*</span>
+                                    </label>
+                                    <select id="responsiblePersonSelect" name="responsiblePersonSelect" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent">
+                                        <option value="">-- กำลังโหลดรายชื่อ... --</option>
+                                    </select>
                                 </div>
+
+                                <!-- ชื่อผู้รับผิดชอบ (auto-fill หรือกรอกเอง) -->
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">ความสัมพันธ์กับผู้เสียชีวิต <span class="text-red-500">*</span></label>
-                                    <select name="relationship" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        ชื่อ-นามสกุล <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" name="responsiblePersonName" id="responsiblePersonName" required 
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent" 
+                                        placeholder="ระบุชื่อ-นามสกุล">
+                                </div>
+
+                                <!-- ความสัมพันธ์ -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        ความสัมพันธ์กับผู้เสียชีวิต <span class="text-red-500">*</span>
+                                    </label>
+                                    <select name="relationship" id="relationship" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent">
                                         <option value="">-- เลือกความสัมพันธ์ --</option>
                                         <option value="หัวหน้าครัวเรือน">หัวหน้าครัวเรือน</option>
                                         <option value="คู่สมรส">คู่สมรส</option>
@@ -175,36 +245,51 @@
                                 ข้อมูลผู้เสียชีวิต
                             </h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- Dropdown เลือกชื่อ -->
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        เลือกสมาชิกที่เสียชีวิต <span class="text-red-500">*</span>
+                                    </label>
+                                    <select id="memberSelect" name="memberSelect" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent">
+                                        <option value="">-- กำลังโหลดรายชื่อ... --</option>
+                                    </select>
+                                </div>
+
+                                <!-- ชื่อ-นามสกุล (จะถูกเติมอัตโนมัติหรือกรอกเอง) -->
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อ-นามสกุล <span class="text-red-500">*</span></label>
-                                    <input type="text" name="deceasedName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="ระบุชื่อ-นามสกุลผู้เสียชีวิต">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        ชื่อ-นามสกุล <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" name="deceasedName" id="deceasedName" required 
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent" 
+                                        placeholder="ระบุชื่อ-นามสกุลผู้เสียชีวิต">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">อายุ (ปี) <span class="text-red-500">*</span></label>
-                                    <input type="number" name="deceasedAge" required min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="ระบุอายุ">
+                                    <input type="number" name="deceasedAge" required min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent" placeholder="ระบุอายุ">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">หมายเลขบัตรประชาชน <span class="text-red-500">*</span></label>
-                                    <input type="text" name="idCard" id="idCard" required maxlength="17" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="X-XXXX-XXXXX-XX-X">
+                                    <input type="text" name="idCard" id="idCard" required maxlength="17" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent" placeholder="X-XXXX-XXXXX-XX-X">
                                     <p id="idCardError" class="text-red-500 text-sm mt-1 hidden">เลขบัตรประชาชนไม่ถูกต้อง กรุณากรอกให้ครบ 13 หลัก</p>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">โทรศัพท์ <span class="text-red-500">*</span></label>
-                                    <input type="tel" name="phone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="0XX-XXX-XXXX">
+                                    <input type="tel" name="phone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent" placeholder="0XX-XXX-XXXX">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">วันที่เสียชีวิต <span class="text-red-500">*</span></label>
-                                    <input type="date" name="dateOfDeath" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                    <input type="date" name="dateOfDeath" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">สาเหตุการเสียชีวิต <span class="text-red-500">*</span></label>
-                                    <input type="text" name="causeOfDeath" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="ระบุสาเหตุ">
+                                    <input type="text" name="causeOfDeath" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent" placeholder="ระบุสาเหตุ">
                                 </div>
                             </div>
                         </div>
 
                         <!-- ที่อยู่ - มีตัวเลือก -->
-                        <div>
+                        <div class="border-b pb-6">
                             <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                                 ที่อยู่
                             </h3>
@@ -250,35 +335,148 @@
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="addressFields">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">บ้านเลขที่ <span class="text-red-500">*</span></label>
-                                    <input type="text" name="deceasedAddress" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="เลขที่">
+                                    <input type="text" name="deceasedAddress" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent" placeholder="เลขที่">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">หมู่ที่ <span class="text-red-500">*</span></label>
-                                    <input type="text" name="deceasedVillage" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="หมู่">
+                                    <input type="text" name="deceasedVillage" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent" placeholder="หมู่">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">ตำบล <span class="text-red-500">*</span></label>
-                                    <input type="text" name="subDistrict" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="ตำบล">
+                                    <input type="text" name="subDistrict" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent" placeholder="ตำบล">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">อำเภอ <span class="text-red-500">*</span></label>
-                                    <input type="text" name="district" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="อำเภอ">
+                                    <input type="text" name="district" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent" placeholder="อำเภอ">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">จังหวัด <span class="text-red-500">*</span></label>
-                                    <input type="text" name="province" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="จังหวัด">
+                                    <input type="text" name="province" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent" placeholder="จังหวัด">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">รหัสไปรษณีย์ <span class="text-red-500">*</span></label>
-                                    <input type="text" name="postalCode" required maxlength="5" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="XXXXX">
+                                    <input type="text" name="postalCode" required maxlength="5" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent" placeholder="XXXXX">
                                 </div>
                             </div>
                         </div>
 
+                        <!-- เอกสารประกอบการยื่นคำขอ -->
+                        <div class="border-b pb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <!-- <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg> -->
+                            เอกสารประกอบการยื่นคำขอ
+                        </h3>
+                        <p class="text-sm text-gray-600 mb-4">อัปโหลดไฟล์ภาพ (JPG, PNG) หรือ PDF ขนาดไม่เกิน 10MB ต่อไฟล์</p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- 1. สำเนาใบมรณะบัตร -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    สำเนาใบมรณะบัตรของผู้ตาย <span class="text-red-500">*</span>
+                                </label>
+                                <div class="file-upload-wrapper">
+                                    <input type="file" name="deathCertificate" id="deathCertificate" 
+                                        accept="image/jpeg,image/jpg,image/png,application/pdf" required
+                                        class="file-input hidden">
+                                    <label for="deathCertificate" class="file-upload-label">
+                                        <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        <span class="file-upload-text">คลิกเพื่อเลือกไฟล์</span>
+                                        <span class="file-upload-subtext">หรือลากไฟล์มาวางที่นี่</span>
+                                    </label>
+                                </div>
+                                <div id="deathCertificatePreview" class="mt-2"></div>
+                            </div>
+
+                            <!-- 2. สำเนาบัตรประชาชนของผู้ตาย -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    สำเนาบัตรประชาชนของผู้ตาย <span class="text-red-500">*</span>
+                                </label>
+                                <div class="file-upload-wrapper">
+                                    <input type="file" name="deceasedIdCard" id="deceasedIdCard" 
+                                        accept="image/jpeg,image/jpg,image/png,application/pdf" required
+                                        class="file-input hidden">
+                                    <label for="deceasedIdCard" class="file-upload-label">
+                                        <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        <span class="file-upload-text">คลิกเพื่อเลือกไฟล์</span>
+                                        <span class="file-upload-subtext">หรือลากไฟล์มาวางที่นี่</span>
+                                    </label>
+                                </div>
+                                <div id="deceasedIdCardPreview" class="mt-2"></div>
+                            </div>
+
+                            <!-- 3. สำเนาทะเบียนบ้านของผู้ตาย -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    สำเนาทะเบียนบ้านของผู้ตาย <span class="text-red-500">*</span>
+                                </label>
+                                <div class="file-upload-wrapper">
+                                    <input type="file" name="deceasedHouseRegistration" id="deceasedHouseRegistration" 
+                                        accept="image/jpeg,image/jpg,image/png,application/pdf" required
+                                        class="file-input hidden">
+                                    <label for="deceasedHouseRegistration" class="file-upload-label">
+                                        <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        <span class="file-upload-text">คลิกเพื่อเลือกไฟล์</span>
+                                        <span class="file-upload-subtext">หรือลากไฟล์มาวางที่นี่</span>
+                                    </label>
+                                </div>
+                                <div id="deceasedHouseRegistrationPreview" class="mt-2"></div>
+                            </div>
+
+                            <!-- 4. สำเนาบัตรประชาชนของผู้ยื่นคำขอ -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    สำเนาบัตรประชาชนของผู้ยื่นคำขอ <span class="text-red-500">*</span>
+                                </label>
+                                <div class="file-upload-wrapper">
+                                    <input type="file" name="applicantIdCard" id="applicantIdCard" 
+                                        accept="image/jpeg,image/jpg,image/png,application/pdf" required
+                                        class="file-input hidden">
+                                    <label for="applicantIdCard" class="file-upload-label">
+                                        <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        <span class="file-upload-text">คลิกเพื่อเลือกไฟล์</span>
+                                        <span class="file-upload-subtext">หรือลากไฟล์มาวางที่นี่</span>
+                                    </label>
+                                </div>
+                                <div id="applicantIdCardPreview" class="mt-2"></div>
+                            </div>
+
+                            <!-- 5. สำเนาทะเบียนบ้านของผู้ยื่นคำขอ -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    สำเนาทะเบียนบ้านของผู้ยื่นคำขอ <span class="text-red-500">*</span>
+                                </label>
+                                <div class="file-upload-wrapper">
+                                    <input type="file" name="applicantHouseRegistration" id="applicantHouseRegistration" 
+                                        accept="image/jpeg,image/jpg,image/png,application/pdf" required
+                                        class="file-input hidden">
+                                    <label for="applicantHouseRegistration" class="file-upload-label">
+                                        <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        <span class="file-upload-text">คลิกเพื่อเลือกไฟล์</span>
+                                        <span class="file-upload-subtext">หรือลากไฟล์มาวางที่นี่</span>
+                                    </label>
+                                </div>
+                                <div id="applicantHouseRegistrationPreview" class="mt-2"></div>
+                            </div>
+                        </div>
+                    </div>
+
                         <!-- หมายเหตุ -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">หมายเหตุเพิ่มเติม</label>
-                            <textarea name="notes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="ระบุข้อมูลเพิ่มเติม (ถ้ามี)"></textarea>
+                            <textarea name="notes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent" placeholder="ระบุข้อมูลเพิ่มเติม (ถ้ามี)"></textarea>
                         </div>
                     </div>
 
@@ -331,6 +529,8 @@
     <script>
         let eligibilityData = null;
         let formData = {};
+        // เพิ่มตัวแปรเก็บข้อมูลสมาชิก
+        let familyMembers = [];
 
         document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -366,7 +566,337 @@
 
             // ตั้งค่าฟอร์แมตเลขบัตรประชาชน
             setupIDCardFormatter();
+
+            // โหลดรายชื่อสมาชิก
+            loadFamilyMembers();
+            
+            // ตั้งค่าที่อยู่เดิมเมื่อโหลดหน้า
+            fillExistingAddress();
+
+            // ตั้งค่าฟอร์แมตเลขบัตรประชาชน
+            setupIDCardFormatter();
+
+            setupFilePreview(); // เพิ่มบรรทัดนี้
         });
+
+        // ฟังก์ชัน Setup Drag & Drop และ Preview
+        function setupFilePreview() {
+            const fileInputs = [
+                'deathCertificate',
+                'deceasedIdCard',
+                'deceasedHouseRegistration',
+                'applicantIdCard',
+                'applicantHouseRegistration'
+            ];
+
+            fileInputs.forEach(inputId => {
+                const input = document.getElementById(inputId);
+                const preview = document.getElementById(inputId + 'Preview');
+                const label = input.nextElementSibling;
+
+                // Drag & Drop Events
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    label.addEventListener(eventName, preventDefaults, false);
+                });
+
+                function preventDefaults(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    label.addEventListener(eventName, () => {
+                        label.classList.add('dragover');
+                    });
+                });
+
+                ['dragleave', 'drop'].forEach(eventName => {
+                    label.addEventListener(eventName, () => {
+                        label.classList.remove('dragover');
+                    });
+                });
+
+                // Handle Drop
+                label.addEventListener('drop', function(e) {
+                    const dt = e.dataTransfer;
+                    const files = dt.files;
+                    
+                    if (files.length > 0) {
+                        input.files = files;
+                        handleFileSelect(input, preview);
+                    }
+                });
+
+                // Handle File Select
+                input.addEventListener('change', function(e) {
+                    handleFileSelect(input, preview);
+                });
+            });
+        }
+
+        function handleFileSelect(input, preview) {
+            const file = input.files[0];
+            const label = input.nextElementSibling;
+            
+            if (file) {
+                const fileSize = (file.size / 1024 / 1024).toFixed(2); // MB
+                const fileType = file.type;
+
+                // ตรวจสอบขนาดไฟล์
+                if (file.size > 10 * 1024 * 1024) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ไฟล์ใหญ่เกินไป',
+                        text: 'ไฟล์มีขนาดใหญ่เกิน 10MB กรุณาเลือกไฟล์ใหม่',
+                        confirmButtonColor: '#ef4444'
+                    });
+                    input.value = '';
+                    preview.innerHTML = '';
+                    input.classList.remove('has-file');
+                    return;
+                }
+
+                // เพิ่ม class has-file
+                input.classList.add('has-file');
+
+                // อัปเดตข้อความใน label
+                const textSpan = label.querySelector('.file-upload-text');
+                const subtextSpan = label.querySelector('.file-upload-subtext');
+                textSpan.textContent = '✓ เลือกไฟล์แล้ว';
+                subtextSpan.textContent = file.name;
+
+                // แสดง Preview
+                if (fileType.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        preview.innerHTML = `
+                            <div class="flex items-center space-x-2 p-2 bg-green-50 border border-green-200 rounded-lg">
+                                <img src="${e.target.result}" class="w-16 h-16 object-cover rounded">
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-green-800">${file.name}</p>
+                                    <p class="text-xs text-green-600">${fileSize} MB</p>
+                                </div>
+                                <button type="button" onclick="removeFile('${input.id}')" class="text-red-600 hover:text-red-800">
+                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        `;
+                    };
+                    reader.readAsDataURL(file);
+                } else if (fileType === 'application/pdf') {
+                    preview.innerHTML = `
+                        <div class="flex items-center space-x-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+                            <svg class="w-12 h-12 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
+                            </svg>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-blue-800">${file.name}</p>
+                                <p class="text-xs text-blue-600">${fileSize} MB</p>
+                            </div>
+                            <button type="button" onclick="removeFile('${input.id}')" class="text-red-600 hover:text-red-800">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // ฟังก์ชันลบไฟล์
+        function removeFile(inputId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(inputId + 'Preview');
+            const label = input.nextElementSibling;
+            const textSpan = label.querySelector('.file-upload-text');
+            const subtextSpan = label.querySelector('.file-upload-subtext');
+
+            input.value = '';
+            input.classList.remove('has-file');
+            preview.innerHTML = '';
+            textSpan.textContent = 'คลิกเพื่อเลือกไฟล์';
+            subtextSpan.textContent = 'หรือลากไฟล์มาวางที่นี่';
+        }
+
+        // ฟังก์ชันโหลดรายชื่อสมาชิก
+        async function loadFamilyMembers() {
+            try {
+                const response = await fetch('/user/funeral/family-members');
+                const result = await response.json();
+
+                if (result.success) {
+                    familyMembers = result.data;
+                    populateMemberSelect();
+                } else {
+                    console.error('Error loading members:', result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // ฟังก์ชันเติมข้อมูลใน dropdown
+        function populateMemberSelect() {
+            const deceasedSelect = document.getElementById('memberSelect');
+            const responsibleSelect = document.getElementById('responsiblePersonSelect');
+            
+            // Clear existing options
+            deceasedSelect.innerHTML = '<option value="">-- เลือกสมาชิกที่เสียชีวิต --</option>';
+            responsibleSelect.innerHTML = '<option value="">-- เลือกผู้รับผิดชอบ --</option>';
+            
+            // เพิ่มตัวเลือกสมาชิก
+            familyMembers.forEach(member => {
+                // Dropdown ผู้เสียชีวิต
+                const deceasedOption = document.createElement('option');
+                deceasedOption.value = member._id;
+                deceasedOption.textContent = member.name;
+                deceasedOption.dataset.memberData = JSON.stringify(member);
+                deceasedSelect.appendChild(deceasedOption);
+
+                // Dropdown ผู้รับผิดชอบ
+                const responsibleOption = document.createElement('option');
+                responsibleOption.value = member._id;
+                responsibleOption.textContent = member.name;
+                responsibleOption.dataset.memberData = JSON.stringify(member);
+                responsibleSelect.appendChild(responsibleOption);
+            });
+
+            // เพิ่มตัวเลือก "อื่นๆ - กรอกเอง" สำหรับผู้เสียชีวิต
+            const deceasedOtherOption = document.createElement('option');
+            deceasedOtherOption.value = 'other';
+            deceasedOtherOption.textContent = '-- อื่นๆ (กรอกข้อมูลเอง) --';
+            deceasedSelect.appendChild(deceasedOtherOption);
+
+            // เพิ่มตัวเลือก "อื่นๆ - กรอกเอง" สำหรับผู้รับผิดชอบ
+            const responsibleOtherOption = document.createElement('option');
+            responsibleOtherOption.value = 'other';
+            responsibleOtherOption.textContent = '-- อื่นๆ (กรอกข้อมูลเอง) --';
+            responsibleSelect.appendChild(responsibleOtherOption);
+
+            // Event listener สำหรับเมื่อเลือกผู้เสียชีวิต
+            deceasedSelect.addEventListener('change', function() {
+                handleMemberSelection(this);
+            });
+
+            // Event listener สำหรับเมื่อเลือกผู้รับผิดชอบ
+            responsibleSelect.addEventListener('change', function() {
+                handleResponsibleSelection(this);
+            });
+        }
+
+        // ฟังก์ชันจัดการเมื่อเลือกผู้รับผิดชอบ
+        function handleResponsibleSelection(select) {
+            const selectedValue = select.value;
+            const nameInput = document.getElementById('responsiblePersonName');
+            const relationshipSelect = document.getElementById('relationship');
+
+            if (selectedValue === '' || selectedValue === 'other') {
+                // ล้างข้อมูลให้กรอกเอง
+                nameInput.value = '';
+                relationshipSelect.value = '';
+                nameInput.readOnly = false;
+                relationshipSelect.disabled = false;
+                nameInput.classList.remove('bg-gray-100');
+            } else {
+                // เติมข้อมูลอัตโนมัติ
+                const selectedOption = select.options[select.selectedIndex];
+                const memberData = JSON.parse(selectedOption.dataset.memberData);
+
+                nameInput.value = memberData.name || '';
+                
+                // ทำให้ชื่อเป็น readonly
+                nameInput.readOnly = true;
+                nameInput.classList.add('bg-gray-100');
+
+                // ถ้ามี relation ให้เลือกอัตโนมัติ (สำหรับ beneficiary)
+                if (memberData.type === 'beneficiary' && memberData.relation) {
+                    // พยายามหาค่าที่ตรงกันใน dropdown
+                    const relationOptions = Array.from(relationshipSelect.options);
+                    const matchingOption = relationOptions.find(opt => 
+                        opt.value.toLowerCase().includes(memberData.relation.toLowerCase()) ||
+                        memberData.relation.toLowerCase().includes(opt.value.toLowerCase())
+                    );
+                    
+                    if (matchingOption) {
+                        relationshipSelect.value = matchingOption.value;
+                        relationshipSelect.disabled = true;
+                    } else {
+                        relationshipSelect.value = '';
+                        relationshipSelect.disabled = false;
+                    }
+                } else {
+                    // สมาชิกหลัก - ให้เลือกความสัมพันธ์เอง
+                    relationshipSelect.value = '';
+                    relationshipSelect.disabled = false;
+                }
+            }
+        }
+
+        // ฟังก์ชันจัดการเมื่อเลือกสมาชิก
+        function handleMemberSelection(select) {
+            const selectedValue = select.value;
+            const nameInput = document.getElementById('deceasedName');
+            const ageInput = document.getElementById('deceasedAge');
+            const idCardInput = document.getElementById('idCard');
+            const phoneInput = document.getElementById('phone');
+
+            if (selectedValue === '' || selectedValue === 'other') {
+                // ล้างข้อมูลให้กรอกเอง
+                nameInput.value = '';
+                ageInput.value = '';
+                idCardInput.value = '';
+                phoneInput.value = '';
+                nameInput.readOnly = false;
+                ageInput.readOnly = false;
+                idCardInput.readOnly = false;
+                phoneInput.readOnly = false;
+                nameInput.classList.remove('bg-gray-100');
+                ageInput.classList.remove('bg-gray-100');
+                idCardInput.classList.remove('bg-gray-100');
+                phoneInput.classList.remove('bg-gray-100');
+            } else {
+                // เติมข้อมูลอัตโนมัติ
+                const selectedOption = select.options[select.selectedIndex];
+                const memberData = JSON.parse(selectedOption.dataset.memberData);
+
+                nameInput.value = memberData.name || '';
+                ageInput.value = memberData.age || '';
+                idCardInput.value = formatThaiID(memberData.idCardNumber || '');
+                phoneInput.value = memberData.phone || '';
+
+                // ทำให้ field ชื่อเป็น readonly (ป้องกันแก้ไข)
+                nameInput.readOnly = true;
+                nameInput.classList.add('bg-gray-100');
+                
+                // Field อื่นๆ ยังแก้ไขได้ (กรณีข้อมูลไม่ครบ)
+                if (memberData.age) {
+                    ageInput.readOnly = true;
+                    ageInput.classList.add('bg-gray-100');
+                } else {
+                    ageInput.readOnly = false;
+                    ageInput.classList.remove('bg-gray-100');
+                }
+
+                if (memberData.idCardNumber) {
+                    idCardInput.readOnly = true;
+                    idCardInput.classList.add('bg-gray-100');
+                } else {
+                    idCardInput.readOnly = false;
+                    idCardInput.classList.remove('bg-gray-100');
+                }
+
+                if (memberData.phone) {
+                    phoneInput.readOnly = true;
+                    phoneInput.classList.add('bg-gray-100');
+                } else {
+                    phoneInput.readOnly = false;
+                    phoneInput.classList.remove('bg-gray-100');
+                }
+            }
+        }
 
         function selectAddressOption(option) {
             const existingOption = document.getElementById('useExistingAddress');
@@ -467,6 +997,103 @@
             }
         }
 
+        // ฟังก์ชันสำหรับสร้างข้อความแสดงเหตุผลที่ไม่มีสิทธิ์แบบแยกตามกรณี
+        function generateIneligibleMessage(data) {
+            // ตรวจสอบว่าเป็นกรณีใด
+            const isNotMember = !data.passedMembershipPeriod && data.membershipDays === 0;
+            const isTemporarilySuspended = data.passedMembershipPeriod && !data.hasActiveBalance;
+            
+            if (isNotMember) {
+                // กรณีที่ยังไม่เคยเป็นสมาชิก
+                return `
+                    <div class="mt-3 p-4 bg-red-50 border-l-4 border-red-400 rounded">
+                        <div class="flex items-start">
+                            <svg class="w-6 h-6 text-red-600 mt-0.5 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <div class="flex-1">
+                                <h4 class="text-base font-semibold text-red-800 mb-2">ท่านยังไม่ได้เป็นสมาชิกกองทุน</h4>
+                                <p class="text-sm text-red-700 mb-3">
+                                    เพื่อมีสิทธิ์ยื่นเรื่องขอรับฌาปนกิจ ท่านจำเป็นต้อง:
+                                </p>
+                                <ul class="text-sm text-red-700 space-y-2 ml-4">
+                                    <li class="flex items-start">
+                                        <span class="mr-2">•</span>
+                                        <span>มียอดขายขยะสะสมครบ 300 บาท</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="mr-2">•</span>
+                                        <span>เป็นสมาชิกมาแล้วครบ 180 วัน (6 เดือน)</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="mr-2">•</span>
+                                        <span>มียอดเงินคงเหลือในบัญชีไม่น้อยกว่า 300 บาท</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (isTemporarilySuspended) {
+                // กรณีที่เคยเป็นสมาชิกแต่ถูกพักชั่วคราว (เงินไม่ถึง 300)
+                return `
+                    <div class="mt-3 p-4 bg-orange-50 border-l-4 border-orange-400 rounded">
+                        <div class="flex items-start">
+                            <svg class="w-6 h-6 text-orange-600 mt-0.5 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div class="flex-1">
+                                <h4 class="text-base font-semibold text-orange-800 mb-2">สถานะสมาชิกถูกพักชั่วคราว</h4>
+                                <p class="text-sm text-orange-700 mb-3">
+                                    ท่านเป็นสมาชิกกองทุนแล้ว แต่ยอดเงินคงเหลือในบัญชีต่ำกว่า 300 บาท
+                                </p>
+                                <div class="bg-white rounded-lg p-3 mb-3">
+                                    <div class="flex justify-between items-center text-sm mb-1">
+                                        <span class="text-gray-600">ยอดคงเหลือปัจจุบัน:</span>
+                                        <span class="text-lg font-bold text-orange-700">${data.currentBalance?.toLocaleString('th-TH', {minimumFractionDigits: 2}) || '0.00'} บาท</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-sm">
+                                        <span class="text-gray-600">ยอดที่ต้องเพิ่ม:</span>
+                                        <span class="text-lg font-bold text-red-600">${(300 - (data.currentBalance || 0)).toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-orange-700 mb-2">
+                                    เพื่อเปิดใช้งานสถานะสมาชิกอีกครั้ง ท่านต้อง:
+                                </p>
+                                <ul class="text-sm text-orange-700 space-y-2 ml-4">
+                                    <li class="flex items-start">
+                                        <span class="mr-2">•</span>
+                                        <span>นำขยะรีไซเคิลมาขายเพื่อเพิ่มยอดเงินในบัญชีให้ครบ 300 บาท</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="mr-2">•</span>
+                                        <span>เมื่อยอดครบ 300 บาท ท่านจะสามารถยื่นเรื่องขอรับฌาปนกิจได้</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // กรณีอื่นๆ ที่ไม่ผ่านเงื่อนไข (แสดงเหตุผลทั้งหมด)
+                return data.ineligibleReasons && data.ineligibleReasons.length > 0 ? `
+                    <div class="mt-3 p-4 bg-red-50 border-l-4 border-red-400 rounded">
+                        <div class="flex items-start">
+                            <svg class="w-6 h-6 text-red-600 mt-0.5 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <div class="flex-1">
+                                <p class="font-medium text-red-800 mb-2">เหตุผลที่ไม่มีสิทธิ์:</p>
+                                <ul class="list-disc list-inside space-y-1.5 text-sm text-red-700">
+                                    ${data.ineligibleReasons.map(r => '<li>' + r + '</li>').join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                ` : '';
+            }
+        }
+
         function displayEligibilityResult(data) {
             const container = document.getElementById('eligibilityResult');
             const proceedBtn = document.getElementById('proceedBtn');
@@ -496,13 +1123,6 @@
                             ? 'ผ่าน - คงเหลือ ' + data.currentBalance.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท'
                             : 'ไม่ผ่าน - คงเหลือเพียง ' + data.currentBalance.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท'
                     )}
-
-                    ${createConditionItem(data.isCurrentlyActiveMember,
-                        'สถานะสมาชิกเป็นปัจจุบัน',
-                        data.isCurrentlyActiveMember
-                            ? 'ผ่าน - เป็นสมาชิกปัจจุบัน'
-                            : 'ไม่ผ่าน - สถานะสมาชิกถูกพักชั่วคราว'
-                    )}
                     
                     <div class="mt-6 p-6 rounded-xl ${data.isEligible ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300' : 'bg-gradient-to-r from-red-50 to-rose-50 border-2 border-red-300'}">
                         <div class="flex items-center">
@@ -515,14 +1135,7 @@
                                 <p class="text-xl font-bold ${data.isEligible ? 'text-green-800' : 'text-red-800'}">
                                     ${data.isEligible ? 'ท่านมีสิทธิ์ยื่นเรื่องขอรับฌาปนกิจ' : 'ท่านยังไม่มีสิทธิ์ยื่นเรื่อง'}
                                 </p>
-                                ${!data.isEligible && data.ineligibleReasons && data.ineligibleReasons.length > 0 ? `
-                                    <div class="mt-2 text-sm text-red-700">
-                                        <p class="font-medium">เหตุผล:</p>
-                                        <ul class="list-disc list-inside mt-1 space-y-1">
-                                            ${data.ineligibleReasons.map(r => '<li>' + r + '</li>').join('')}
-                                        </ul>
-                                    </div>
-                                ` : ''}
+                                ${!data.isEligible ? generateIneligibleMessage(data) : ''}
                             </div>
                         </div>
                     </div>
@@ -588,8 +1201,44 @@
                 return;
             }
 
+            // ตรวจสอบว่ากรอกข้อมูลครบหรือไม่
             if (!form.checkValidity()) {
                 form.reportValidity();
+                return;
+            }
+
+            // ตรวจสอบว่ามีการอัปโหลดไฟล์ครบทุกไฟล์
+            const requiredFiles = [
+                'deathCertificate',
+                'deceasedIdCard',
+                'deceasedHouseRegistration',
+                'applicantIdCard',
+                'applicantHouseRegistration'
+            ];
+
+            const missingFiles = [];
+            requiredFiles.forEach(id => {
+                const input = document.getElementById(id);
+                if (!input.files || input.files.length === 0) {
+                    missingFiles.push(id);
+                }
+            });
+
+            if (missingFiles.length > 0) {
+                const fileLabels = {
+                    deathCertificate: 'สำเนาใบมรณะบัตร',
+                    deceasedIdCard: 'สำเนาบัตรประชาชนผู้ตาย',
+                    deceasedHouseRegistration: 'สำเนาทะเบียนบ้านผู้ตาย',
+                    applicantIdCard: 'สำเนาบัตรประชาชนผู้ยื่นคำขอ',
+                    applicantHouseRegistration: 'สำเนาทะเบียนบ้านผู้ยื่นคำขอ'
+                };
+                
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'กรุณาอัปโหลดเอกสารให้ครบ',
+                    html: `<p>ยังขาดเอกสาร:</p><ul class="text-left list-disc list-inside mt-2">${missingFiles.map(id => `<li>${fileLabels[id]}</li>`).join('')}</ul>`,
+                    confirmButtonColor: '#f59e0b'
+                });
                 return;
             }
 
@@ -608,8 +1257,21 @@
                 district: form.district.value,
                 province: form.province.value,
                 postalCode: form.postalCode.value,
-                notes: form.notes.value
+                notes: form.notes.value,
+                files: {}
             };
+
+            // เก็บข้อมูลไฟล์ (ชื่อและขนาด) สำหรับแสดงในหน้ายืนยัน
+            requiredFiles.forEach(fieldName => {
+                const input = document.getElementById(fieldName);
+                if (input.files[0]) {
+                    formData.files[fieldName] = {
+                        name: input.files[0].name,
+                        size: (input.files[0].size / 1024 / 1024).toFixed(2),
+                        type: input.files[0].type
+                    };
+                }
+            });
 
             displayConfirmation();
             updateStepIndicator(3);
@@ -631,6 +1293,43 @@
                 year: 'numeric', month: 'long', day: 'numeric'
             });
 
+            // แปลงชื่อ field เป็นภาษาไทย
+            const fileLabels = {
+                deathCertificate: 'สำเนาใบมรณะบัตร',
+                deceasedIdCard: 'สำเนาบัตรประชาชนผู้ตาย',
+                deceasedHouseRegistration: 'สำเนาทะเบียนบ้านผู้ตาย',
+                applicantIdCard: 'สำเนาบัตรประชาชนผู้ยื่นคำขอ',
+                applicantHouseRegistration: 'สำเนาทะเบียนบ้านผู้ยื่นคำขอ'
+            };
+
+            // สร้าง HTML สำหรับแสดงไฟล์
+            let filesHTML = '';
+            if (formData.files && Object.keys(formData.files).length > 0) {
+                filesHTML = '<div class="bg-gray-50 rounded-lg p-4 md:col-span-2"><h4 class="font-semibold text-gray-900 mb-3">เอกสารประกอบ</h4><div class="space-y-2">';
+                
+                Object.entries(formData.files).forEach(([fieldName, fileInfo]) => {
+                    const isPDF = fileInfo.type === 'application/pdf';
+                    const icon = isPDF 
+                        ? '<svg class="w-8 h-8 text-red-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" /></svg>'
+                        : '<svg class="w-8 h-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>';
+                    
+                    filesHTML += `
+                        <div class="flex items-center space-x-3 p-2 bg-white border border-gray-200 rounded">
+                            ${icon}
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-800">${fileLabels[fieldName]}</p>
+                                <p class="text-xs text-gray-600">${fileInfo.name} (${fileInfo.size} MB)</p>
+                            </div>
+                            <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                    `;
+                });
+                
+                filesHTML += '</div></div>';
+            }
+
             container.innerHTML = `
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-gray-50 rounded-lg p-4">
@@ -646,7 +1345,7 @@
                         <div class="space-y-2 text-sm">
                             <div><span class="text-gray-600">ชื่อ-นามสกุล:</span> <span class="font-medium">${formData.deceasedName}</span></div>
                             <div><span class="text-gray-600">อายุ:</span> <span class="font-medium">${formData.deceasedAge} ปี</span></div>
-                            <div><span class="text-gray-600">บัตรประชาชน:</span> <span class="font-medium">${formData.idCard}</span></div>
+                            <div><span class="text-gray-600">บัตรประชาชน:</span> <span class="font-medium">${formatThaiID(formData.idCard)}</span></div>
                             <div><span class="text-gray-600">วันที่เสียชีวิต:</span> <span class="font-medium">${dateStr}</span></div>
                             <div><span class="text-gray-600">สาเหตุ:</span> <span class="font-medium">${formData.causeOfDeath}</span></div>
                         </div>
@@ -661,6 +1360,8 @@
                         </p>
                         <div class="mt-2"><span class="text-gray-600">โทรศัพท์:</span> <span class="font-medium">${formData.phone}</span></div>
                     </div>
+                    
+                    ${filesHTML}
                     
                     ${formData.notes ? `
                         <div class="bg-gray-50 rounded-lg p-4 md:col-span-2">
@@ -687,16 +1388,74 @@
 
                 if (!confirmed.isConfirmed) return;
 
-                Swal.fire({
-                    title: 'กำลังส่งคำขอ...',
-                    allowOutsideClick: false,
-                    didOpen: function() { Swal.showLoading(); }
+                // ตรวจสอบไฟล์อีกครั้งก่อนส่ง
+                const requiredFiles = [
+                    'deathCertificate',
+                    'deceasedIdCard',
+                    'deceasedHouseRegistration',
+                    'applicantIdCard',
+                    'applicantHouseRegistration'
+                ];
+
+                const missingFiles = [];
+                requiredFiles.forEach(id => {
+                    const input = document.getElementById(id);
+                    if (!input.files || input.files.length === 0) {
+                        missingFiles.push(id);
+                    }
                 });
 
+                if (missingFiles.length > 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ไม่พบไฟล์เอกสาร',
+                        text: 'กรุณากลับไปอัปโหลดเอกสารให้ครบถ้วน',
+                        confirmButtonColor: '#ef4444'
+                    });
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'กำลังส่งคำขอ...',
+                    html: 'กรุณารอสักครู่ ระบบกำลังอัปโหลดเอกสาร',
+                    allowOutsideClick: false,
+                    didOpen: function() { 
+                        Swal.showLoading(); 
+                    }
+                });
+
+                // สร้าง FormData เพื่อส่งทั้งข้อมูลและไฟล์
+                const formDataToSend = new FormData();
+                
+                // เพิ่มข้อมูลทั่วไป
+                formDataToSend.append('responsiblePersonName', formData.responsiblePersonName);
+                formDataToSend.append('relationship', formData.relationship);
+                formDataToSend.append('deceasedName', formData.deceasedName);
+                formDataToSend.append('deceasedAge', formData.deceasedAge);
+                formDataToSend.append('idCard', formData.idCard);
+                formDataToSend.append('phone', formData.phone);
+                formDataToSend.append('dateOfDeath', formData.dateOfDeath);
+                formDataToSend.append('causeOfDeath', formData.causeOfDeath);
+                formDataToSend.append('deceasedAddress', formData.deceasedAddress);
+                formDataToSend.append('deceasedVillage', formData.deceasedVillage);
+                formDataToSend.append('subDistrict', formData.subDistrict);
+                formDataToSend.append('district', formData.district);
+                formDataToSend.append('province', formData.province);
+                formDataToSend.append('postalCode', formData.postalCode);
+                formDataToSend.append('notes', formData.notes || '');
+
+                // เพิ่มไฟล์ทั้งหมด
+                requiredFiles.forEach(fieldName => {
+                    const input = document.getElementById(fieldName);
+                    if (input.files[0]) {
+                        formDataToSend.append(fieldName, input.files[0]);
+                    }
+                });
+
+                // ส่งข้อมูล (ไม่ต้องใส่ Content-Type เพราะ FormData จะจัดการให้เอง)
                 const response = await fetch('/user/funeral/request/submit', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
+                    body: formDataToSend
                 });
 
                 const result = await response.json();
@@ -709,7 +1468,7 @@
                         confirmButtonText: 'ดูประวัติคำขอ',
                         confirmButtonColor: '#3b82f6'
                     });
-                    window.location.href = '/user/funeral/my-requests';
+                    window.location.href = '/user/profile';
                 } else {
                     throw new Error(result.message);
                 }
@@ -718,7 +1477,8 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'เกิดข้อผิดพลาด',
-                    text: error.message
+                    text: error.message || 'ไม่สามารถส่งคำขอได้',
+                    confirmButtonColor: '#ef4444'
                 });
             }
         }

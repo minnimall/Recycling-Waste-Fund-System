@@ -26,7 +26,12 @@ const memberSchema = new Schema({
                 enum: ['full', 'equal', 'other'],
                 default: 'equal'
             },
-        distributionDetail: String // ใช้กรณีเลือก 'other'
+        distributionDetail: String, // ใช้กรณีเลือก 'other'
+        status: {  // ← เพิ่มส่วนนี้
+        type: String,
+        enum: ['living', 'deceased'],
+        default: 'living'
+    }
     }],
     Status: { // สถานะสมาชิก เช่น 'living' หรือ 'deceased'
         type: String,

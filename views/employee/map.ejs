@@ -293,7 +293,7 @@
                                 </div>
                                 <h3 class="text-base font-semibold text-gray-800">ผลการวิเคราะห์</h3>
                             </div>
-                            <div class="ml-9">
+                            <div class="">
                                 <div id="routeInfo" class="bg-blue-50 p-4 rounded-lg text-sm border border-blue-200">
                                 </div>
                             </div>
@@ -330,7 +330,7 @@
                         </div>
 
                         <!-- Map -->
-                        <div id="map" class="w-full h-96 lg:h-[600px]"></div>
+                        <div id="map" class="w-full h-96 lg:h-[600px] z-0"></div>
                     </div>
                 </div>
             </div>
@@ -433,6 +433,7 @@
             }
 
             let addedCount = 0;
+            let skippedCount = 0;
             selectedItems.forEach(checkbox => {
                 const item = checkbox.closest('.request-item');
                 const requestId = item.dataset.requestId;
@@ -441,6 +442,12 @@
                 const location = item.dataset.location;
                 const family = item.dataset.family;
                 const familyName = item.dataset.familyname;
+
+                // เพิ่มการตรวจสอบระยะทาง
+                if (!isWithinMaxDistance(lat, lng, 20)) {
+                    skippedCount++;
+                    return; // ข้ามจุดนี้
+                }
                 
                 const alreadyAdded = selectedPoints.some(p => 
                     p.lat === lat && p.lng === lng && p.requestId === requestId
@@ -453,27 +460,41 @@
                 }
             });
 
+            // แก้ไขส่วนแสดงผลลัพธ์
             if (addedCount > 0) {
+                let message = `เพิ่ม ${addedCount} จุดลงแผนที่แล้ว`;
+                if (skippedCount > 0) {
+                    message += `<br><small class="text-orange-600">ข้าม ${skippedCount} จุดที่อยู่นอกพื้นที่</small>`;
+                }
+                
                 Swal.fire({
                     toast: true,
                     position: 'top-end',
                     icon: 'success',
-                    title: `เพิ่ม ${addedCount} จุดลงแผนที่แล้ว`,
+                    title: message,
                     showConfirmButton: false,
-                    timer: 2000
+                    timer: 3000
                 });
 
-                // ยกเลิกการเลือกหลังจากเพิ่มแล้ว
                 deselectAllRequests();
             } else {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'info',
-                    title: 'จุดเหล่านี้ถูกเพิ่มไว้แล้ว',
-                    showConfirmButton: false,
-                    timer: 2000
-                });
+                if (skippedCount > 0) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'ไม่สามารถเพิ่มจุดได้',
+                        text: `จุดทั้งหมดอยู่นอกพื้นที่ที่กำหนด (เกิน 20 กม.)`,
+                        confirmButtonText: 'ตกลง'
+                    });
+                } else {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'info',
+                        title: 'จุดเหล่านี้ถูกเพิ่มไว้แล้ว',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                }
             }
         }
 
@@ -808,6 +829,26 @@
         
         // Add point - รองรับ requestId
         function addPoint(lat, lng, address, requestId = null,familyName = null) {
+            if (!isWithinMaxDistance(lat, lng, 20)) {
+                const distance = calculateStraightLineDistance(
+                    { lat: organizationPoint.lat, lng: organizationPoint.lng },
+                    { lat: lat, lng: lng }
+                );
+                Swal.fire({
+                    icon: 'error',
+                    title: 'จุดอยู่นอกพื้นที่',
+                    html: `
+                        <div class="text-left">
+                            <p class="mb-2">จุดนี้อยู่ห่างจาก อบต.ขามป้อม <strong>${distance.toFixed(2)} กม.</strong></p>
+                            <p class="text-sm text-gray-600">สามารถปักหมุดได้เฉพาะจุดที่อยู่ในระยะไม่เกิน <strong>20 กม.</strong> เท่านั้น</p>
+                        </div>
+                    `,
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#EF4444'
+                });
+                return;
+            }
+
             const pointNumber = selectedPoints.length + 1;
             const point = {
                 id: pointNumber,
@@ -978,6 +1019,15 @@
                 return result;
             }
         }
+
+        //กำหรดขอบเขตระยะในการปักหมุด
+        function isWithinMaxDistance(lat, lng, maxDistanceKm = 20) {
+            const distance = calculateStraightLineDistance(
+                { lat: organizationPoint.lat, lng: organizationPoint.lng },
+                { lat: lat, lng: lng }
+            );
+            return distance <= maxDistanceKm;
+        }
         
         function calculateStraightLineDistance(point1, point2) {
             const R = 6371;
@@ -1016,56 +1066,197 @@
             const n = points.length;
             const distMatrix = await buildDistanceMatrix(points);
 
+            console.log('=== เริ่มวิเคราะห์เส้นทาง ===');
+            console.log(`จำนวนจุด: ${n} จุด`);
+
             if (n === 2) {
                 return points;
             }
 
-            // จุดเริ่มต้นต้องเป็น index 0 เสมอ
             const startIdx = 0;
             
-            // หา Round Trip ที่ดีที่สุดโดยคำนึงถึงการกลับด้วย
             let bestRoute = null;
             let bestTotalDistance = Infinity;
 
-            // วิธีที่ 1: Nearest Neighbor แบบปกติ + 2-Opt
-            const nnRoute = await nearestNeighborRoute(startIdx, distMatrix, n);
-            const nnImproved = await improve2OptRoundTrip(nnRoute, distMatrix);
-            const nnDistance = calculateTotalRoundTripDistance(nnImproved, distMatrix);
+            // **วิธีที่ 1: Nearest Neighbor แบบเริ่มจากจุดใกล้ที่สุด (บังคับ)**
+            console.log('\n--- วิธีที่ 1: เริ่มจากจุดใกล้ที่สุด ---');
+            const nearestFirst = await nearestNeighborStrict(startIdx, distMatrix, n);
+            const nearestImproved = await improve2OptRoundTrip(nearestFirst, distMatrix);
+            const nearestDistance = calculateTotalRoundTripDistance(nearestImproved, distMatrix);
             
-            if (nnDistance < bestTotalDistance) {
-                bestTotalDistance = nnDistance;
-                bestRoute = nnImproved;
+            console.log(`ระยะทางรวม: ${nearestDistance.toFixed(2)} km`);
+            
+            if (nearestDistance < bestTotalDistance) {
+                bestTotalDistance = nearestDistance;
+                bestRoute = nearestImproved;
             }
 
-            // วิธีที่ 2: ลองหลายๆ รูปแบบการเริ่มต้น
-            if (n <= 10) {
-                for (let secondPoint = 1; secondPoint < n; secondPoint++) {
-                    const altRoute = await nearestNeighborFromSecond(startIdx, secondPoint, distMatrix, n);
-                    const altImproved = await improve2OptRoundTrip(altRoute, distMatrix);
-                    const altDistance = calculateTotalRoundTripDistance(altImproved, distMatrix);
-                    
-                    if (altDistance < bestTotalDistance) {
-                        bestTotalDistance = altDistance;
-                        bestRoute = altImproved;
-                    }
+            // **วิธีที่ 2: ลองเริ่มจากทุกจุด (ยกเว้นจุดเริ่มต้น) แล้วเลือกที่ดีที่สุด**
+            console.log('\n--- วิธีที่ 2: ลองเริ่มจากทุกจุด ---');
+            for (let secondPoint = 1; secondPoint < n; secondPoint++) {
+                const altRoute = await nearestNeighborFromSecond(startIdx, secondPoint, distMatrix, n);
+                const altImproved = await improve2OptRoundTrip(altRoute, distMatrix);
+                const altDistance = calculateTotalRoundTripDistance(altImproved, distMatrix);
+                
+                console.log(`เริ่มจากจุด ${secondPoint + 1}: ${altDistance.toFixed(2)} km`);
+                
+                if (altDistance < bestTotalDistance) {
+                    bestTotalDistance = altDistance;
+                    bestRoute = altImproved;
                 }
             }
 
-            // วิธีที่ 3: ลอง reverse บางส่วนของ route
+            // **วิธีที่ 3: Cheapest Insertion (เพิ่มจุดที่ทำให้ระยะทางเพิ่มน้อยที่สุด)**
+            console.log('\n--- วิธีที่ 3: Cheapest Insertion ---');
+            const cheapestRoute = await cheapestInsertion(startIdx, distMatrix, n);
+            const cheapestImproved = await improve2OptRoundTrip(cheapestRoute, distMatrix);
+            const cheapestDistance = calculateTotalRoundTripDistance(cheapestImproved, distMatrix);
+            
+            console.log(`ระยะทางรวม: ${cheapestDistance.toFixed(2)} km`);
+            
+            if (cheapestDistance < bestTotalDistance) {
+                bestTotalDistance = cheapestDistance;
+                bestRoute = cheapestImproved;
+            }
+
+            // **วิธีที่ 4: ลอง reverse บางส่วน**
+            console.log('\n--- วิธีที่ 4: Reverse Segments ---');
             const reversedRoute = await tryReverseSegments(bestRoute, distMatrix);
             const reversedDistance = calculateTotalRoundTripDistance(reversedRoute, distMatrix);
             
             if (reversedDistance < bestTotalDistance) {
+                bestTotalDistance = reversedDistance;
                 bestRoute = reversedRoute;
+                console.log(`✓ ปรับปรุงได้: ${reversedDistance.toFixed(2)} km`);
             }
 
-            // **วิธีที่ 4: ตรวจสอบว่าการกลับทางเดิมสั้นกว่าหรือไม่**
-            bestRoute = await optimizeReturnPath(bestRoute, distMatrix);
+            // **วิธีที่ 5: Optimize เส้นกลับ**
+            console.log('\n--- วิธีที่ 5: Optimize เส้นกลับ ---');
+            const optimizedRoute = await optimizeReturnPath(bestRoute, distMatrix);
+            const optimizedDistance = calculateTotalRoundTripDistance(optimizedRoute, distMatrix);
+
+            if (optimizedDistance < bestTotalDistance) {
+                console.log('✓ Optimize เส้นกลับสำเร็จ!');
+                bestRoute = optimizedRoute;
+                bestTotalDistance = optimizedDistance;
+            } else {
+                console.log('เส้นทางเดิมดีกว่าแล้ว');
+            }
+
+            console.log(`\n=== สรุป: ระยะทางรวมที่ดีที่สุด = ${bestTotalDistance.toFixed(2)} km ===`);
 
             return bestRoute.map(idx => points[idx]);
         }
 
-        // ฟังก์ชันใหม่: ตรวจสอบและปรับเส้นกลับให้ผ่านทางเดิมถ้าสั้นกว่า
+        // เพิ่มก่อนฟังก์ชัน optimizeReturnPath เดิม
+        function generateLastNPermutations(route, n) {
+            const fixed = route.slice(0, route.length - n);
+            const toPermute = route.slice(route.length - n);
+            
+            const permutations = [];
+            
+            function permute(arr, current = []) {
+                if (arr.length === 0) {
+                    permutations.push([...fixed, ...current]);
+                    return;
+                }
+                
+                for (let i = 0; i < arr.length; i++) {
+                    const remaining = [...arr.slice(0, i), ...arr.slice(i + 1)];
+                    permute(remaining, [...current, arr[i]]);
+                }
+            }
+            
+            permute(toPermute);
+            return permutations;
+        }
+
+        async function nearestNeighborStrict(startIdx, distMatrix, n) {
+            const route = [startIdx];
+            const visited = new Set([startIdx]);
+            let currentIdx = startIdx;
+
+            console.log('  จุดเริ่มต้น: 1');
+
+            while (route.length < n) {
+                let nearestIdx = -1;
+                let nearestDistance = Infinity;
+
+                // หาจุดที่ใกล้ที่สุดจากจุดปัจจุบัน
+                for (let i = 0; i < n; i++) {
+                    if (!visited.has(i) && distMatrix[currentIdx][i] < nearestDistance) {
+                        nearestDistance = distMatrix[currentIdx][i];
+                        nearestIdx = i;
+                    }
+                }
+
+                if (nearestIdx !== -1) {
+                    route.push(nearestIdx);
+                    visited.add(nearestIdx);
+                    console.log(`  → จุด ${nearestIdx + 1} (ระยะ ${nearestDistance.toFixed(2)} km)`);
+                    currentIdx = nearestIdx;
+                }
+            }
+
+            return route;
+        }
+
+        async function cheapestInsertion(startIdx, distMatrix, n) {
+            // เริ่มต้นด้วยจุดเริ่มต้นและจุดที่ใกล้ที่สุด
+            let nearestIdx = -1;
+            let nearestDist = Infinity;
+            
+            for (let i = 1; i < n; i++) {
+                if (distMatrix[startIdx][i] < nearestDist) {
+                    nearestDist = distMatrix[startIdx][i];
+                    nearestIdx = i;
+                }
+            }
+            
+            const route = [startIdx, nearestIdx];
+            const visited = new Set([startIdx, nearestIdx]);
+            
+            console.log(`  เริ่มต้น: จุด 1 → จุด ${nearestIdx + 1}`);
+            
+            // เพิ่มจุดที่เหลือทีละจุด โดยเลือกตำแหน่งที่ทำให้ระยะทางเพิ่มน้อยที่สุด
+            while (route.length < n) {
+                let bestInsertPos = -1;
+                let bestInsertIdx = -1;
+                let minIncrease = Infinity;
+                
+                // ลองทุกจุดที่ยังไม่ได้เลือก
+                for (let i = 0; i < n; i++) {
+                    if (visited.has(i)) continue;
+                    
+                    // ลองแทรกจุดนี้ในทุกตำแหน่งของ route
+                    for (let pos = 1; pos <= route.length; pos++) {
+                        const prevIdx = route[pos - 1];
+                        const nextIdx = route[pos % route.length];
+                        
+                        // คำนวณระยะทางที่เพิ่มขึ้น
+                        const oldDist = distMatrix[prevIdx][nextIdx];
+                        const newDist = distMatrix[prevIdx][i] + distMatrix[i][nextIdx];
+                        const increase = newDist - oldDist;
+                        
+                        if (increase < minIncrease) {
+                            minIncrease = increase;
+                            bestInsertPos = pos;
+                            bestInsertIdx = i;
+                        }
+                    }
+                }
+                
+                if (bestInsertIdx !== -1) {
+                    route.splice(bestInsertPos, 0, bestInsertIdx);
+                    visited.add(bestInsertIdx);
+                    console.log(`  แทรกจุด ${bestInsertIdx + 1} ที่ตำแหน่ง ${bestInsertPos + 1} (เพิ่ม ${minIncrease.toFixed(2)} km)`);
+                }
+            }
+            
+            return route;
+        }
+
+        // แทนที่ฟังก์ชัน optimizeReturnPath เดิมทั้งหมดด้วยโค้ดนี้
         async function optimizeReturnPath(route, distMatrix) {
             const n = route.length;
             if (n < 3) return route;
@@ -1073,45 +1264,100 @@
             const lastIdx = route[n - 1];
             const startIdx = route[0];
             
-            // คำนวณระยะทางกลับแบบตรง (ปัจจุบัน)
+            // 1. คำนวณระยะทางกลับแบบตรง (ปัจจุบัน)
             const directReturnDist = distMatrix[lastIdx][startIdx];
             
-            // ลองหาเส้นทางกลับผ่านจุดที่เคยผ่านมา
-            let bestReturnDist = directReturnDist;
-            let bestReturnPath = null;
+            // 2. คำนวณระยะทางกลับผ่านทางเดิมทั้งหมด (แต่ไม่เพิ่มจุดซ้ำ)
+            let returnViaRouteDist = 0;
+            for (let i = n - 1; i > 0; i--) {
+                returnViaRouteDist += distMatrix[route[i]][route[i - 1]];
+            }
             
-            // ตรวจสอบการกลับผ่านจุดต่างๆ ที่เคยผ่านมา
-            for (let i = n - 2; i > 0; i--) {
-                const viaIdx = route[i];
-                const distToVia = distMatrix[lastIdx][viaIdx];
-                const distViaToStart = distMatrix[viaIdx][startIdx];
-                const totalViaDist = distToVia + distViaToStart;
+            console.log(`\n=== วิเคราะห์เส้นทางกลับ ===`);
+            console.log(`ระยะกลับตรง: ${directReturnDist.toFixed(2)} km`);
+            console.log(`ระยะกลับผ่านทางเดิม: ${returnViaRouteDist.toFixed(2)} km`);
+            
+            let bestRoute = [...route];
+            let bestTotalDist = calculateTotalRoundTripDistance(bestRoute, distMatrix);
+            
+            console.log(`เส้นทางเดิม (Round Trip): รวม = ${bestTotalDist.toFixed(2)} km`);
+            
+            // 3. ลองกลับผ่านบางจุดในทางเดิม (ไม่เพิ่มจุดซ้ำ แค่เปลี่ยนลำดับ)
+            for (let returnPoint = n - 2; returnPoint >= Math.max(1, n - 4); returnPoint--) {
+                const testRoute = [...route];
                 
-                // ถ้าผ่านจุดนี้แล้วสั้นกว่า
-                if (totalViaDist < bestReturnDist * 0.95) { // ใช้ threshold 95% เพื่อให้แน่ใจว่าสั้นกว่าจริงๆ
-                    bestReturnDist = totalViaDist;
-                    bestReturnPath = i;
+                // Reverse จาก returnPoint ถึงจุดสุดท้าย
+                for (let i = returnPoint, j = n - 1; i < j; i++, j--) {
+                    [testRoute[i], testRoute[j]] = [testRoute[j], testRoute[i]];
+                }
+                
+                const testTotalDist = calculateTotalRoundTripDistance(testRoute, distMatrix);
+                const testReturnDist = distMatrix[testRoute[n - 1]][startIdx];
+                
+                console.log(`  ลอง reverse จากจุด ${returnPoint + 1}: กลับ = ${testReturnDist.toFixed(2)} km, รวม = ${testTotalDist.toFixed(2)} km`);
+                
+                if (testTotalDist < bestTotalDist) {
+                    bestTotalDist = testTotalDist;
+                    bestRoute = [...testRoute];
+                    console.log(`  ✓ ดีกว่า! ใช้เส้นทางนี้`);
                 }
             }
             
-            // ถ้าพบว่ากลับทางเดิมสั้นกว่า ให้ลอง reverse ส่วนหลัง
-            if (bestReturnPath !== null) {
-                const newRoute = [...route];
-                // Reverse จากจุดที่พบถึงจุดสุดท้าย
-                for (let i = bestReturnPath + 1, j = n - 1; i < j; i++, j--) {
-                    [newRoute[i], newRoute[j]] = [newRoute[j], newRoute[i]];
-                }
-                
-                // ตรวจสอบว่า route ใหม่ดีกว่าหรือไม่
-                const newTotalDist = calculateTotalRoundTripDistance(newRoute, distMatrix);
-                const oldTotalDist = calculateTotalRoundTripDistance(route, distMatrix);
-                
-                if (newTotalDist < oldTotalDist) {
-                    return newRoute;
+            // 4. ลองย้ายจุดที่ใกล้จุดเริ่มต้นที่สุดมาเป็นจุดสุดท้าย
+            let closestToStart = -1;
+            let minDistToStart = Infinity;
+            
+            for (let i = 1; i < n; i++) {
+                const dist = distMatrix[route[i]][startIdx];
+                if (dist < minDistToStart) {
+                    minDistToStart = dist;
+                    closestToStart = i;
                 }
             }
             
-            return route;
+            if (closestToStart > 0 && closestToStart !== n - 1) {
+                const testRoute = [...route];
+                const closestPoint = testRoute.splice(closestToStart, 1)[0];
+                testRoute.push(closestPoint);
+                
+                const improvedRoute = await improve2OptRoundTrip(testRoute, distMatrix);
+                const testTotalDist = calculateTotalRoundTripDistance(improvedRoute, distMatrix);
+                const testReturnDist = distMatrix[improvedRoute[n - 1]][startIdx];
+                
+                console.log(`  ลองย้ายจุดใกล้ที่สุด (จุด ${closestToStart + 1}) มาท้าย: กลับ = ${testReturnDist.toFixed(2)} km, รวม = ${testTotalDist.toFixed(2)} km`);
+                
+                if (testTotalDist < bestTotalDist) {
+                    bestTotalDist = testTotalDist;
+                    bestRoute = [...improvedRoute];
+                    console.log(`  ✓ ดีกว่า! ใช้เส้นทางนี้`);
+                }
+            }
+            
+            // 5. ลอง permutation (ถ้าจุดไม่เยอะ)
+            if (n <= 8) {
+                const permutations = generateLastNPermutations(route, Math.min(4, n - 1));
+                
+                for (const testRoute of permutations) {
+                    const testTotalDist = calculateTotalRoundTripDistance(testRoute, distMatrix);
+                    
+                    if (testTotalDist < bestTotalDist - 0.01) { // threshold เพื่อหลีกเลี่ยง noise
+                        bestTotalDist = testTotalDist;
+                        bestRoute = [...testRoute];
+                        console.log(`  ✓ พบเส้นทางที่ดีกว่าจาก permutation: รวม = ${testTotalDist.toFixed(2)} km`);
+                    }
+                }
+            }
+            
+            const finalReturnDist = distMatrix[bestRoute[n - 1]][startIdx];
+            console.log(`\nเส้นทางสุดท้าย: ระยะกลับ = ${finalReturnDist.toFixed(2)} km, รวมทั้งหมด = ${bestTotalDist.toFixed(2)} km`);
+            
+            // ตรวจสอบว่า bestRoute ไม่มีจุดซ้ำ
+            if (bestRoute.length !== n) {
+                console.warn('⚠️ เตือน: พบจุดซ้ำในเส้นทาง กำลังแก้ไข...');
+                bestRoute = [...route]; // ใช้เส้นทางเดิม
+            }
+            
+            return bestRoute;
         }
 
         // Nearest Neighbor แบบปกติ

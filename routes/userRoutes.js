@@ -45,11 +45,13 @@ router.get('/detailNews/:id', userController.detailNews)
 // หน้าโปรไฟล์
 router.get('/profile', userController.user_profile)
 
-// หน้าฟอร์ม
+// หน้าฟอร์มฌาปนกิจ
+router.get('/funeral', userController.funeralRequest);
 router.get('/funeral/my-eligibility', userController.checkMyEligibility);
 router.post('/funeral/request/submit', userController.submitFuneralRequest);
-router.get('/funeral', userController.funeralRequest);
-// หน้าประวัติ
+router.get('/funeral/family-members', userController.getFamilyMembers);
+
+// หน้าประวัติฌาปนกิจ
 router.get('/funeral/my-requests', userController.myFuneralRequestsPage);
 router.get('/api/funeral/my-requests', userController.getMyFuneralRequests);
 router.get('/api/funeral/my-requests/:id', userController.getMyFuneralRequestDetail);
