@@ -962,19 +962,17 @@ const uploadToCloudinary = (fileBuffer, fileName) => {
             access_mode: 'public'
         };
 
-        // ✅ เพิ่ม flag สำหรับ PDF เท่านั้น
+        // เพิ่ม format สำหรับ PDF
         if (isPDF) {
-            uploadOptions.flags = 'attachment:inline'; // แสดงใน browser แทนดาวน์โหลด
+            uploadOptions.format = 'pdf';
         }
 
         const stream = cloudinary.uploader.upload_stream(
             uploadOptions,
             (error, result) => {
                 if (result) {
-                    console.log('✅ Uploaded:', result.secure_url);
                     resolve(result);
                 } else {
-                    console.error('❌ Error:', error);
                     reject(error);
                 }
             }
