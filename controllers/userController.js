@@ -952,22 +952,32 @@ const uploadfuneral = multer({
 
 // ฟังก์ชันอัปโหลดไฟล์ขึ้น Cloudinary (รองรับทั้งภาพและ PDF)
 const uploadToCloudinary = (fileBuffer, fileName) => {
+    const isPDF = fileName.toLowerCase().endsWith('.pdf');
+    
     return new Promise((resolve, reject) => {
-        // ตรวจสอบว่าเป็น PDF หรือภาพ
-        const isPDF = fileName.toLowerCase().endsWith('.pdf');
-        
+        const uploadOptions = {
+            folder: 'funeral-documents',
+            resource_type: isPDF ? 'raw' : 'image',
+            type: 'upload',
+            access_mode: 'public'
+        };
+
+        // เพิ่ม format สำหรับ PDF
+        if (isPDF) {
+            uploadOptions.format = 'pdf';
+        }
+
         const stream = cloudinary.uploader.upload_stream(
-            {
-                folder: 'funeral-documents',
-                resource_type: isPDF ? 'raw' : 'image', // PDF ใช้ 'raw', ภาพใช้ 'image'
-                format: isPDF ? 'pdf' : undefined
-            },
+            uploadOptions,
             (error, result) => {
-                if (result) resolve(result);
-                else reject(error);
+                if (result) {
+                    resolve(result);
+                } else {
+                    reject(error);
+                }
             }
         );
-
+        
         streamifier.createReadStream(fileBuffer).pipe(stream);
     });
 };
@@ -1342,7 +1352,6 @@ const getMyFuneralRequestDetail = async (req, res) => {
         });
     }
 };
-
 
 //ยกเลิกคำขอ (เฉพาะ pending)
 const cancelMyFuneralRequest = async (req, res) => {
