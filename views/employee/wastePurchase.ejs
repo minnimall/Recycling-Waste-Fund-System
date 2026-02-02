@@ -379,6 +379,9 @@
         // อัพเดทรายการ
         updateSelectedWasteList();
 
+        // ล้าง input หลังเพิ่มสำเร็จ (ป้องกันการกดซ้ำ)
+        weightInput.value = '';
+
         // แสดงข้อความสำเร็จ
         Swal.fire({
             toast: true,
