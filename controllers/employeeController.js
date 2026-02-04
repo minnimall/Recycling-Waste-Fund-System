@@ -231,7 +231,8 @@ const dashboardIndex = async (req, res) => {
             villageDataResult,
             wasteSummaryResult,
             priceTrendsResult,
-            allVillages
+            allVillages,
+            topFamiliesResult
         ] = await Promise.all([
             // 1. Total Data ตาม filter
             WastePurchase.aggregate([
@@ -358,7 +359,58 @@ const dashboardIndex = async (req, res) => {
             // 9. All Villages
             Village.find({ isDeleted: { $ne: true } })
                 .select('villageName villageNumber')
-                .sort({ villageNumber: 1 })
+                .sort({ villageNumber: 1 }),
+
+            // 10. Top 5 Families by Total Sales Amount
+            (async () => {
+                let pipeline = buildPipeline(filterStartDate, filterEndDate, village);
+                
+                return await WastePurchase.aggregate([
+                    ...pipeline,
+                    {
+                        $group: {
+                            _id: '$accountId',
+                            totalAmount: {
+                                $sum: { $multiply: ['$wasteItemDetails.quantity', '$wasteItemDetails.pricePerUnit'] }
+                            },
+                            totalQuantity: { $sum: '$wasteItemDetails.quantity' },
+                            transactionCount: { $sum: 1 }
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: 'wastebankaccounts',
+                            localField: '_id',
+                            foreignField: '_id',
+                            as: 'accountInfo'
+                        }
+                    },
+                    { $unwind: '$accountInfo' },
+                    {
+                        $lookup: {
+                            from: 'families',
+                            localField: 'accountInfo.familyID',
+                            foreignField: '_id',
+                            as: 'familyInfo'
+                        }
+                    },
+                    { $unwind: '$familyInfo' },
+                    {
+                        $project: {
+                            _id: 1,
+                            familyName: '$familyInfo.familyName',
+                            accountNumber: '$accountInfo.AccountNumber',
+                            totalAmount: 1,
+                            totalQuantity: 1,
+                            transactionCount: 1,
+                            familyType: '$familyInfo.Type',
+                            village: '$familyInfo.village'
+                        }
+                    },
+                    { $sort: { totalAmount: -1 } },
+                    { $limit: 5 }
+                ]);
+            })()
         ]);
 
         // ==================== ประมวลผลข้อมูล ====================
@@ -425,6 +477,7 @@ const dashboardIndex = async (req, res) => {
             wasteSummary: wasteSummaryResult || [],
             priceTrends: priceTrendsResult || [],
             allVillages: allVillages || [],
+            topFamilies: topFamiliesResult || [],
             filterInfo,
             
             // Filter values

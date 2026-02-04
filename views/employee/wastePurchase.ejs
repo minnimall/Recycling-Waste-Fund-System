@@ -58,7 +58,7 @@
     <div class="content bg-gray-50 min-screen">
         <div class="flex gap-6 p-6">
             <!-- ฝั่งซ้าย: รายการขยะ -->
-            <div class="border p-4 rounded-lg shadow-lg left-box bg-white border h-[680px] flex flex-col">
+            <div class="border p-4 rounded-lg shadow-lg left-box bg-white border h-[750px] flex flex-col">
                 <div class="flex justify-between items-center mb-5 flex-shrink-0">
                     <h2 class="text-lg font-bold mb-4">เลือกรายการขยะ</h2>
                     <div class="flex items-center gap-4">
@@ -458,23 +458,168 @@
 
     function editWaste(index) {
         const item = selectedWaste[index];
-        const newWeight = prompt(`แก้ไขน้ำหนัก ${item.name}:`, item.weight);
-        
-        if (newWeight !== null && parseFloat(newWeight) > 0) {
-            const weight = parseFloat(newWeight);
-            const totalPrice = (weight * item.pricePerUnit).toFixed(2);
-            selectedWaste[index].weight = weight;
-            selectedWaste[index].totalPrice = totalPrice;
-            
-            // หา index ของ item นี้จาก DOM เพื่อ sync input fields
-            const weightInputs = document.querySelectorAll('.weight-input');
-            weightInputs.forEach(input => {
-                if (input.dataset.name === item.name) {
-                    input.value = weight;
-                }
+        const newPrice = (parseFloat(item.weight) * item.pricePerUnit).toFixed(2);
+
+        // สร้าง HTML modal
+        const modalHTML = `
+            <div id="editWasteModal" class="fixed inset-0 z-50 bg-black bg-opacity-30 hidden">
+                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md px-4">
+                    <form id="editWasteForm" class="bg-white rounded-xl shadow-lg p-8 space-y-6">
+
+                        <!-- หัวฟอร์ม -->
+                        <div class="flex items-center space-x-3 border-b pb-4">
+                            <ion-icon name="create-outline" class="text-blue-500 text-2xl"></ion-icon>
+                            <span class="text-xl font-semibold text-gray-800">แก้ไขรายการขยะ</span>
+                        </div>
+
+                        <!-- ชื่อสินค้า (แสดงเท่านั้น) -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อสินค้า</label>
+                            <div class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3">
+                                <p class="text-gray-800 font-semibold">${item.name}</p>
+                            </div>
+                        </div>
+
+                        <!-- ราคาต่อหน่วย (แสดงเท่านั้น) -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">ราคาต่อหน่วย</label>
+                            <div class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3">
+                                <p class="text-gray-800 font-semibold">฿ ${parseFloat(item.pricePerUnit).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                            </div>
+                        </div>
+
+                        <!-- น้ำหนัก (สามารถแก้ไข) -->
+                        <div>
+                            <label for="editWeightInput" class="block text-sm font-medium text-gray-700 mb-2">น้ำหนัก (กิโลกรัม) *</label>
+                            <input type="number" 
+                                id="editWeightInput" 
+                                min="0.1" 
+                                step="0.1" 
+                                value="${item.weight}"
+                                placeholder="ระบุน้ำหนัก"
+                                required
+                                onkeyup="updatePricePreview('${item.pricePerUnit}')"
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
+                        </div>
+
+                        <!-- ยอดรวม (แสดง Preview) -->
+                        <div class="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg px-4 py-4">
+                            <p class="text-sm font-medium text-gray-600 mb-1">ยอดรวม</p>
+                            <p id="pricePreview" class="text-3xl font-bold text-blue-600">฿ ${newPrice}</p>
+                        </div>
+
+                        <!-- ปุ่ม -->
+                        <div class="flex justify-end space-x-3 pt-4">
+                            <button type="button" 
+                                onclick="closeEditWasteModal()"
+                                class="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition duration-200">
+                                ยกเลิก
+                            </button>
+                            <button type="button" 
+                                onclick="saveEditWaste(${index})"
+                                class="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition duration-200">
+                                บันทึก
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+
+        // เพิ่ม modal ลงในหน้า (ถ้ายังไม่มี)
+        if (!document.getElementById('editWasteModal')) {
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        } else {
+            document.getElementById('editWasteModal').remove();
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
+
+        // แสดง modal
+        const modal = document.getElementById('editWasteModal');
+        modal.classList.remove('hidden');
+
+        // ตั้งค่า focus
+        const input = document.getElementById('editWeightInput');
+        if (input) {
+            setTimeout(() => {
+                input.focus();
+                input.select();
+            }, 100);
+        }
+
+        // ปิด modal เมื่อคลิกนอก modal
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEditWasteModal();
+            }
+        });
+    }
+
+    // ฟังก์ชันปิด modal
+    function closeEditWasteModal() {
+        const modal = document.getElementById('editWasteModal');
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+    }
+
+    // ฟังก์ชันบันทึกการแก้ไข
+    function saveEditWaste(index) {
+        const weightInput = document.getElementById('editWeightInput');
+        const weight = parseFloat(weightInput.value);
+
+        // ตรวจสอบค่า
+        if (!weight || weight <= 0) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: 'กรุณากรอกน้ำหนักที่ถูกต้อง',
+                showConfirmButton: false,
+                timer: 2000
             });
-            
-            updateSelectedWasteList();
+            return;
+        }
+
+        // อัพเดท data
+        const item = selectedWaste[index];
+        const totalPrice = (weight * item.pricePerUnit).toFixed(2);
+        
+        selectedWaste[index].weight = weight;
+        selectedWaste[index].totalPrice = totalPrice;
+
+        // Sync ค่ากลับไปยัง input ต่างๆ
+        syncWeightInputs(index, weight, item.name);
+
+        // อัพเดทรายการ
+        updateSelectedWasteList();
+
+        // ปิด modal
+        closeEditWasteModal();
+
+        // แสดง toast สำเร็จ
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'แก้ไขน้ำหนักสำเร็จ',
+            showConfirmButton: false,
+            timer: 1500
+        });
+    }
+
+    // ฟังก์ชัน helper สำหรับ update ราคา preview แบบ real-time
+    function updatePricePreview(pricePerUnit) {
+        const weightInput = document.getElementById('editWeightInput');
+        const pricePreview = document.getElementById('pricePreview');
+        
+        if (weightInput && pricePreview) {
+            const weight = parseFloat(weightInput.value) || 0;
+            const totalPrice = (weight * parseFloat(pricePerUnit)).toFixed(2);
+            pricePreview.textContent = '฿ ' + parseFloat(totalPrice).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
         }
     }
 

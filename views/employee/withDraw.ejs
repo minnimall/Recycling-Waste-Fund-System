@@ -337,41 +337,54 @@
                 </div>
                 <% } %>
             </div>
-</div>
+        </div>
     </div>
 
     <!-- Modal ตั้งค่ายอดขั้นต่ำ -->
-    <div id="settingsModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div class="mt-3">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900">ตั้งค่ายอดเงินขั้นต่ำ</h3>
-                    <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-gray-600">
+    <div id="settingsModal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-30">
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md px-4">
+            <form class="bg-white rounded-xl shadow-lg p-8 space-y-6">
+
+                <div class="flex items-center justify-between border-b pb-4">
+                    <div class="flex items-center space-x-3">
+                        <ion-icon name="settings-outline" class="text-blue-500 text-2xl"></ion-icon>
+                        <span class="text-xl font-semibold text-gray-800">ตั้งค่ายอดเงินขั้นต่ำ</span>
+                    </div>
+                    <button type="button" onclick="closeSettingsModal()" class="text-gray-400 hover:text-gray-600 transition">
                         <ion-icon name="close-outline" class="text-2xl"></ion-icon>
                     </button>
                 </div>
-                <p class="text-sm text-gray-600 mb-4">กำหนดยอดเงินขั้นต่ำที่ต้องคงเหลือในบัญชีหลังการถอนเงิน</p>
-                
-                <div class="mb-4">
+
+                <p class="text-sm text-gray-600 leading-relaxed">
+                    กำหนดยอดเงินขั้นต่ำที่ต้องคงเหลือในบัญชีหลังการถอนเงิน
+                </p>
+
+                <div>
                     <label for="newMinimumAmount" class="block text-sm font-medium text-gray-700 mb-2">
                         ยอดเงินขั้นต่ำ (บาท)
                     </label>
-                    <input type="number" id="newMinimumAmount" 
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="300" min="0" step="0.01" value="<%= minimumWithdrawAmount || 300 %>">
+                    <div class="relative">
+                        <input type="number" id="newMinimumAmount" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition"
+                            placeholder="300" 
+                            min="0" 
+                            step="100" 
+                            value="<%= minimumWithdrawAmount || 300 %>">
+                        <!-- <span class="absolute right-4 top-3.5 text-gray-400 font-medium">฿</span> -->
+                    </div>
                 </div>
 
-                <div class="flex gap-3">
-                    <button onclick="closeSettingsModal()" 
-                        class="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition">
+                <div class="flex gap-3 pt-4">
+                    <button type="button" onclick="closeSettingsModal()" 
+                        class="flex-1 px-4 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition duration-200">
                         ยกเลิก
                     </button>
-                    <button onclick="saveMinimumAmount()" 
-                        class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
+                    <button type="button" onclick="saveMinimumAmount()" 
+                        class="flex-1 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition duration-200">
                         บันทึก
                     </button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 
