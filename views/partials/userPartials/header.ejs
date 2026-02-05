@@ -128,8 +128,8 @@
                         class="bg-white text-primary-green px-4 py-2 rounded-lg hover:bg-light-green transition-colors font-medium mt-2 text-center">โปรไฟล์</a>
                     <a href="/user/notification"
                         class="bg-white text-primary-green px-4 py-2 rounded-lg hover:bg-light-green transition-colors font-medium mt-2 text-center">กล่องข้อความ</a>
-                    <a href="/user/funeral"
-                        class="bg-white text-primary-green px-4 py-2 rounded-lg hover:bg-light-green transition-colors font-medium mt-2 text-center">ฌาปนกิจสงเคราะห์</a>
+                    <!-- <a href="/user/funeral"
+                        class="bg-white text-primary-green px-4 py-2 rounded-lg hover:bg-light-green transition-colors font-medium mt-2 text-center">ฌาปนกิจสงเคราะห์</a> -->
                     <a href="/logout"
                         class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-500 transition-colors font-medium mt-2 text-center">ออกจากระบบ</a>
                     <% } else { %>
@@ -203,100 +203,100 @@
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  // --- Mobile Navigation Toggle ---
-  const mobileMenuBtn = document.getElementById("mobile-menu-btn");
-  const mobileMenu = document.getElementById("mobile-menu");
+    document.addEventListener("DOMContentLoaded", () => {
+    // --- Mobile Navigation Toggle ---
+    const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+    const mobileMenu = document.getElementById("mobile-menu");
 
-  if (mobileMenuBtn && mobileMenu) {
-    mobileMenuBtn.addEventListener("click", () => {
-      const isHidden = mobileMenu.classList.contains("hidden");
-      if (isHidden) {
-        mobileMenu.classList.remove("hidden");
-        setTimeout(() => mobileMenu.classList.add("show"), 10); // ให้แอนิเมชันทำงานหลังเปิด
-      } else {
-        mobileMenu.classList.remove("show");
-        setTimeout(() => mobileMenu.classList.add("hidden"), 300);
-      }
-    });
-
-    // คลิกนอกเมนู -> ปิด
-    document.addEventListener("click", (e) => {
-      if (
-        !mobileMenu.contains(e.target) &&
-        !mobileMenuBtn.contains(e.target) &&
-        mobileMenu.classList.contains("show")
-      ) {
-        mobileMenu.classList.remove("show");
-        setTimeout(() => mobileMenu.classList.add("hidden"), 300);
-      }
-    });
-  }
-
-  // --- Dropdown + Logout (ของเดิมคงไว้) ---
-  const userButton = document.getElementById("user-menu-button");
-  const userDropdown = document.getElementById("user-dropdown");
-  const arrow = document.getElementById("dropdown-arrow");
-
-  if (userButton && userDropdown) {
-    userButton.addEventListener("click", () => {
-      const isOpen = !userDropdown.classList.contains("pointer-events-none");
-      if (isOpen) {
-        closeDropdown();
-      } else {
-        openDropdown();
-      }
-    });
-
-    const openDropdown = () => {
-      userDropdown.classList.remove(
-        "opacity-0",
-        "scale-95",
-        "translate-y-[-10px]",
-        "pointer-events-none"
-      );
-      userDropdown.classList.add("opacity-100", "scale-100", "translate-y-0");
-      arrow.classList.add("rotate-180");
-    };
-
-    const closeDropdown = () => {
-      userDropdown.classList.add(
-        "opacity-0",
-        "scale-95",
-        "translate-y-[-10px]",
-        "pointer-events-none"
-      );
-      userDropdown.classList.remove("opacity-100", "scale-100", "translate-y-0");
-      arrow.classList.remove("rotate-180");
-    };
-
-    document.addEventListener("click", (event) => {
-      if (!userButton.contains(event.target) && !userDropdown.contains(event.target)) {
-        closeDropdown();
-      }
-    });
-  }
-
-  // Logout confirmation (ของเดิม)
-  const logoutBtn = document.getElementById("logoutBtn");
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      Swal.fire({
-        title: "คุณต้องการออกจากระบบหรือไม่?",
-        text: "หากออกจากระบบ คุณต้องเข้าสู่ระบบใหม่",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
-        confirmButtonText: "ออกจากระบบ",
-        cancelButtonText: "ยกเลิก",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          window.location.href = "/logout";
+    if (mobileMenuBtn && mobileMenu) {
+        mobileMenuBtn.addEventListener("click", () => {
+        const isHidden = mobileMenu.classList.contains("hidden");
+        if (isHidden) {
+            mobileMenu.classList.remove("hidden");
+            setTimeout(() => mobileMenu.classList.add("show"), 10); // ให้แอนิเมชันทำงานหลังเปิด
+        } else {
+            mobileMenu.classList.remove("show");
+            setTimeout(() => mobileMenu.classList.add("hidden"), 300);
         }
-      });
+        });
+
+        // คลิกนอกเมนู -> ปิด
+        document.addEventListener("click", (e) => {
+        if (
+            !mobileMenu.contains(e.target) &&
+            !mobileMenuBtn.contains(e.target) &&
+            mobileMenu.classList.contains("show")
+        ) {
+            mobileMenu.classList.remove("show");
+            setTimeout(() => mobileMenu.classList.add("hidden"), 300);
+        }
+        });
+    }
+
+    // --- Dropdown + Logout (ของเดิมคงไว้) ---
+    const userButton = document.getElementById("user-menu-button");
+    const userDropdown = document.getElementById("user-dropdown");
+    const arrow = document.getElementById("dropdown-arrow");
+
+    if (userButton && userDropdown) {
+        userButton.addEventListener("click", () => {
+        const isOpen = !userDropdown.classList.contains("pointer-events-none");
+        if (isOpen) {
+            closeDropdown();
+        } else {
+            openDropdown();
+        }
+        });
+
+        const openDropdown = () => {
+        userDropdown.classList.remove(
+            "opacity-0",
+            "scale-95",
+            "translate-y-[-10px]",
+            "pointer-events-none"
+        );
+        userDropdown.classList.add("opacity-100", "scale-100", "translate-y-0");
+        arrow.classList.add("rotate-180");
+        };
+
+        const closeDropdown = () => {
+        userDropdown.classList.add(
+            "opacity-0",
+            "scale-95",
+            "translate-y-[-10px]",
+            "pointer-events-none"
+        );
+        userDropdown.classList.remove("opacity-100", "scale-100", "translate-y-0");
+        arrow.classList.remove("rotate-180");
+        };
+
+        document.addEventListener("click", (event) => {
+        if (!userButton.contains(event.target) && !userDropdown.contains(event.target)) {
+            closeDropdown();
+        }
+        });
+    }
+
+    // Logout confirmation (ของเดิม)
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        Swal.fire({
+            title: "คุณต้องการออกจากระบบหรือไม่?",
+            text: "หากออกจากระบบ คุณต้องเข้าสู่ระบบใหม่",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "ออกจากระบบ",
+            cancelButtonText: "ยกเลิก",
+        }).then((result) => {
+            if (result.isConfirmed) {
+            window.location.href = "/logout";
+            }
+        });
+        });
+    }
     });
-  }
-});
 </script>

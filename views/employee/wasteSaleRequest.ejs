@@ -217,13 +217,13 @@
                                 <div class="flex items-center space-x-2">
                                     <!-- ปุ่มเปลี่ยนสถานะสำหรับ request -->
                                     <div class="relative">
-                                        <button onclick="loadRequest('<%= request._id %>')" class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center">
-                                            <i class="fa-solid fa-reply mr-2"></i> ตอบกลับคำขอ
+                                        <button onclick="loadRequest('<%= request._id %>')" class="px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-600 transition-colors flex items-center">
+                                            <i class="fa-solid fa-reply mr-2"></i> ตอบกลับ
                                         </button>
                                     </div>
                                     
                                     <button onclick="openModal('<%= request._id %>')" 
-                                        class="px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-600 transition-colors flex items-center">
+                                        class="px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors flex items-center">
                                         <i class="fa-solid fa-circle-info mr-2"></i>
                                         ดูรายละเอียด
                                     </button>
@@ -231,114 +231,117 @@
                             </div>
                         </div>
                         
-                        <!-- Modal -->
-                        <div id="modal-<%= request._id %>" class="fixed inset-0 hidden z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
-                            <div class="bg-white rounded-lg shadow-lg w-11/12 md:w-2/3 lg:w-1/2 xl:w-2/5 modal-transition modal-content">
-                                <div class="flex justify-between items-center p-4 border-b border-gray-200">
-                                    <h3 class="text-lg leading-6 font-medium text-gray-900 flex items-center">
-                                        <i class="fas fa-info-circle text-green-600 mr-2"></i>
-                                        รายละเอียดความประสงค์ขายขยะ
-                                    </h3>
-                                    <button onclick="closeModal('<%= request._id %>')" class="text-gray-500 hover:text-gray-700 text-2xl focus:outline-none">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                                
-                                <div class="p-6">
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div>
-                                            <div class="mb-4">
-                                                <h4 class="text-base font-semibold text-gray-800 mb-1">ผู้ขาย</h4>
-                                                <p class="text-base text-gray-700 flex items-center">
-                                                    <i class="fas fa-user-circle text-gray-600 mr-2"></i>
-                                                    <%= request.family.familyName %>
-                                                </p>
+                        <!-- Modal รายละเอียดความประสงค์ขายขยะ -->
+                        <div id="modal-<%= request._id %>" class="hidden fixed inset-0 z-50 bg-black bg-opacity-30">
+                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl px-4 max-h-[90vh] overflow-y-auto">
+                                <div class="bg-white rounded-xl shadow-lg p-8 space-y-6">
+                                    
+                                    <div class="flex items-center justify-between border-b pb-4">
+                                        <div class="flex items-center space-x-3">
+                                            <!-- <ion-icon name="trash-outline" class="text-green-500 text-2xl"></ion-icon> -->
+                                            <ion-icon name="document-text-outline" class="text-blue-500 text-2xl"></ion-icon>
+                                            <span class="text-xl font-semibold text-gray-800">รายละเอียดความประสงค์ขายขยะ</span>
+                                        </div>
+                                        <button type="button" onclick="closeModal('<%= request._id %>')" class="text-gray-400 hover:text-gray-600 transition">
+                                            <ion-icon name="close-outline" class="text-2xl"></ion-icon>
+                                        </button>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                        <!-- Left Column -->
+                                        <div class="space-y-5">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">ผู้ขาย</label>
+                                                <div class="flex items-center space-x-2 px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
+                                                    <!-- <ion-icon name="person-circle-outline" class="text-gray-600 text-xl"></ion-icon> -->
+                                                    <span class="text-gray-800 font-medium"><%= request.family.familyName %></span>
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">วันที่ให้เข้ารับซื้อ</label>
+                                                <div class="flex items-center space-x-2 px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
+                                                    <!-- <ion-icon name="calendar-outline" class="text-green-500 text-xl"></ion-icon> -->
+                                                    <span class="text-gray-800"><%= request.date.toISOString().split('T')[0] %></span>
+                                                </div>
                                             </div>
                                             
-                                            <div class="mb-4">
-                                                <h4 class="text-base font-semibold text-gray-800 mb-1">วันที่ให้เข้ารับซื้อ</h4>
-                                                <p class="text-base text-gray-700 flex items-center">
-                                                    <i class="far fa-calendar-alt text-green-600 mr-2"></i>
-                                                    <%= request.date.toISOString().split('T')[0] %>
-                                                </p>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">ตำแหน่งให้เข้าไปรับซื้อ</label>
+                                                <div class="flex items-center space-x-2 px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
+                                                    <!-- <ion-icon name="location-outline" class="text-red-500 text-xl"></ion-icon> -->
+                                                    <span class="text-gray-800"><%= request.location %></span>
+                                                </div>
                                             </div>
-                                            
-                                            <div class="mb-4">
-                                                <h4 class="text-base font-semibold text-gray-800 mb-1">ตำแหน่งให้เข้าไปรับซื้อ</h4>
-                                                <p class="text-base text-gray-700 flex items-center">
-                                                    <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>
-                                                    <%= request.location %>
-                                                </p>
+
+                                            <!-- น้ำหนักรวม -->
+                                            <!-- <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">น้ำหนักรวม</label>
+                                                <div class="flex items-center space-x-2 px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
+                                                    <ion-icon name="barbell-outline" class="text-blue-500 text-xl"></ion-icon>
+                                                    <span class="text-gray-800"><%= request.weight %> กิโลกรัม</span>
+                                                </div>
+                                            </div> -->
+
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">พิกัดที่ตั้ง (Latitude, Longitude)</label>
+                                                <div class="flex items-center space-x-2 px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
+                                                    <!-- <ion-icon name="pin-outline" class="text-red-500 text-xl"></ion-icon> -->
+                                                    <span class="text-gray-800">ละติจูด <%= request.latitude %>, ลองจิจูด <%= request.longitude %></span>
+                                                </div>
                                             </div>
-                                            
-                                            <div class="mb-4">
-                                                <h4 class="text-base font-semibold text-gray-800 mb-1">น้ำหนักรวม</h4>
-                                                <p class="text-base text-gray-700 flex items-center">
-                                                    <i class="fas fa-weight text-blue-500 mr-2"></i>
-                                                    <%= request.weight %> กิโลกรัม
-                                                </p>
-                                            </div>
-                                            
-                                            <!-- พิกัดที่ตั้ง -->
-                                            <div class="mb-4">
-                                                <h4 class="text-base font-semibold text-gray-800 mb-1">พิกัดที่ตั้ง (Latitude, Longitude)</h4>
-                                                <p class="text-base text-gray-700 flex items-center">
-                                                    <i class="fas fa-map-pin text-red-500 mr-2"></i>
-                                                    <%= request.latitude %>, <%= request.longitude %>
-                                                </p>
-                                            </div>
-                                            
-                                            <!-- Google Maps Link -->
-                                            <div class="mb-4">
-                                                <h4 class="text-base font-semibold text-gray-800 mb-1">ดูพิกัดจุดใน Google Maps</h4>
+
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">ดูพิกัดจุดใน Google Maps</label>
                                                 <a href="https://www.google.com/maps?q=<%= request.latitude %>,<%= request.longitude %>" 
                                                     target="_blank" 
-                                                    class="text-blue-600 hover:text-blue-800 flex items-center">
-                                                    <i class="fas fa-external-link-alt mr-2"></i>
-                                                    เปิดแผนที่
+                                                    class="flex items-center space-x-2 px-4 py-3 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition duration-200">
+                                                    <ion-icon name="open-outline" class="text-blue-600 text-xl"></ion-icon>
+                                                    <span class="text-blue-600 font-medium">เปิดแผนที่</span>
                                                 </a>
                                             </div>
                                         </div>
-                                        
-                                        <div>
-                                            <h4 class="text-sm text-gray-500 mb-2">รูปภาพ</h4>
-                                            <% if (request.img) { %>
-                                                <div class="rounded-lg overflow-hidden border border-gray-200 shadow-sm">
-                                                    <img src="<%= request.img %>" alt="รูปภาพขยะ" class="w-full h-50 object-cover">
-                                                </div>
-                                            <% } else { %>
-                                                <div class="rounded-lg border border-gray-200 bg-gray-50 h-48 flex items-center justify-center">
-                                                    <p class="text-gray-400 italic">
-                                                        <i class="fas fa-image mr-2"></i>
-                                                        ไม่มีรูปภาพ
-                                                    </p>
-                                                </div>
-                                            <% } %>
+
+                                        <!-- Right Column -->
+                                        <div class="space-y-5">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">รูปภาพ</label>
+                                                <% if (request.img) { %>
+                                                    <div class="rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+                                                        <img src="<%= request.img %>" alt="รูปภาพขยะ" class="w-full h-64 object-cover">
+                                                    </div>
+                                                <% } else { %>
+                                                    <div class="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 h-64 flex flex-col items-center justify-center">
+                                                        <ion-icon name="image-outline" class="text-gray-400 text-5xl mb-2"></ion-icon>
+                                                        <p class="text-gray-400 italic">ไม่มีรูปภาพ</p>
+                                                    </div>
+                                                <% } %>
+                                            </div>
                                         </div>
                                     </div>
-                                    
-                                    <div class="mt-6">
-                                        <h4 class="text-base font-semibold text-gray-800 mb-1">
-                                            <i class="fas fa-recycle text-green-600 mr-2"></i>
-                                            รายการขยะ
-                                        </h4>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center space-x-2">
+                                            <ion-icon name="list-outline" class="text-green-500 text-xl"></ion-icon>
+                                            <span>รายการขยะ</span>
+                                        </label>
                                         
-                                        <div class="bg-gray-50 rounded-lg p-4">
+                                        <div class="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
                                             <table class="w-full">
-                                                <thead>
-                                                    <tr class="border-b border-gray-200">
-                                                        <th class="text-left py-2 text-gray-600">ขยะ</th>
-                                                        <th class="text-right py-2 text-gray-600">ราคา/หน่วย</th>
+                                                <thead class="bg-gray-100">
+                                                    <tr>
+                                                        <th class="text-left py-3 px-4 text-sm font-semibold text-gray-700">ชื่อขยะ</th>
+                                                        <th class="text-right py-3 px-4 text-sm font-semibold text-gray-700">ราคา/หน่วย</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody>
+                                                <tbody class="divide-y divide-gray-200">
                                                     <% request.waste.forEach(w => { %>
-                                                        <tr class="border-b border-gray-100">
-                                                            <td class="py-3">
-                                                                <span class="font-medium"><%= w.wasteName %></span>
+                                                        <tr class="hover:bg-gray-50 transition">
+                                                            <td class="py-3 px-4">
+                                                                <span class="text-gray-800 font-medium"><%= w.wasteName %></span>
                                                             </td>
-                                                            <td class="py-3 text-right font-medium text-green-700">
-                                                                <%= w.pricePerUnit %> บาท/กก.
+                                                            <td class="py-3 px-4 text-right">
+                                                                <span class="text-green-600 font-semibold"><%= w.pricePerUnit %> บาท/กก.</span>
                                                             </td>
                                                         </tr>
                                                     <% }) %>
@@ -346,12 +349,13 @@
                                             </table>
                                         </div>
                                     </div>
-                                </div>
-                                
-                                <div class="border-t border-gray-200 p-4 flex justify-end space-x-3">
-                                    <button onclick="closeModal('<%= request._id %>')" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
-                                        ปิด
-                                    </button>
+
+                                    <div class="flex justify-end pt-4">
+                                        <button type="button" onclick="closeModal('<%= request._id %>')" 
+                                            class="px-6 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition duration-200">
+                                            ปิด
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

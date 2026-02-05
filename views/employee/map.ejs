@@ -261,26 +261,27 @@
                                 <div class="bg-blue-600 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold mr-2">4</div>
                                 <h3 class="text-base font-semibold text-gray-800">ดำเนินการ</h3>
                             </div>
-                            <div class="space-y-2">
-                                <button id="analyzeBtn" 
-                                        class="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed font-medium shadow-md hover:shadow-lg" 
-                                        disabled>
-                                    <ion-icon name="analytics-outline" class="align-middle text-lg"></ion-icon>
-                                    วิเคราะห์เส้นทาง
-                                </button>
-                                
-                                <button id="saveRouteBtn" 
-                                        class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed font-medium shadow-md hover:shadow-lg" 
-                                        onclick="saveCurrentRoute()"
-                                        disabled>
-                                    <ion-icon name="save-outline" class="align-middle text-lg"></ion-icon>
-                                    บันทึกเส้นทาง
-                                </button>
+                            <div class="flex flex-col gap-3">
+                                <div class="grid grid-cols-2 gap-3">
+                                    <button id="analyzeBtn" 
+                                            class="flex flex-col items-center justify-center gap-1 bg-green-600 text-white py-4 px-2 rounded-2xl hover:bg-green-500 active:scale-95 transition-all disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed shadow-sm">
+                                        <ion-icon name="analytics-outline" class="text-2xl mb-1"></ion-icon>
+                                        <span class="text-sm font-bold">วิเคราะห์เส้นทาง</span>
+                                    </button>
+                                    
+                                    <button id="saveRouteBtn" 
+                                            onclick="saveCurrentRoute()"
+                                            class="flex flex-col items-center justify-center gap-1 bg-blue-600 text-white py-4 px-2 rounded-2xl hover:bg-blue-500 active:scale-95 transition-all disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed shadow-sm">
+                                        <!-- <ion-icon name="save-outline" class="text-2xl mb-1"></ion-icon> -->
+                                        <ion-icon name="bookmark-outline" class="text-2xl mb-1"></ion-icon>
+                                        <span class="text-sm font-bold">บันทึกเส้นทาง</span>
+                                    </button>
+                                </div>
 
                                 <button id="clearBtn" 
-                                        class="w-full bg-red-600 text-white py-2.5 px-4 rounded-lg hover:bg-red-700 transition font-medium">
-                                    <ion-icon name="trash-outline" class="align-middle text-lg"></ion-icon>
-                                    ล้างทั้งหมด
+                                        class="w-full flex items-center justify-center gap-2 bg-gray-100 text-gray-600 py-3 px-4 rounded-xl hover:bg-red-600 hover:text-white transition-all duration-300 ease-in-out font-medium text-sm">
+                                    <!-- <ion-icon name="trash-outline" class="text-lg"></ion-icon> -->
+                                    <span class="text-sm font-bold">ล้างข้อมูลทั้งหมด</span>
                                 </button>
                             </div>
                         </div>
@@ -984,14 +985,13 @@
 
         async function calculateRoadDistance(point1, point2) {
             const key = `${point1.id}-${point2.id}`;
-            const reverseKey = `${point2.id}-${point1.id}`;
+            // ลบ reverseKey ออก เพราะระยะทางไป-กลับ ไม่เท่ากันเสมอไป (เช่น ถนน One-way)
             
             if (distanceMatrix[key]) {
                 return distanceMatrix[key];
             }
-            if (distanceMatrix[reverseKey]) {
-                return distanceMatrix[reverseKey];
-            }
+            
+            // ลบ if (distanceMatrix[reverseKey]) ออก
             
             try {
                 const url = `https://router.project-osrm.org/route/v1/driving/${point1.lng},${point1.lat};${point2.lng},${point2.lat}?overview=false&steps=false`;
@@ -1003,7 +1003,7 @@
                     const duration = data.routes[0].duration / 60;
                     
                     const result = { distance, duration };
-                    distanceMatrix[key] = result;
+                    distanceMatrix[key] = result; // เก็บ Cache เฉพาะทิศทางนี้เท่านั้น
                     return result;
                 } else {
                     const distance = calculateStraightLineDistance(point1, point2);
@@ -1939,7 +1939,8 @@
                 confirmButtonColor: '#EF4444',
                 cancelButtonColor: '#6B7280',
                 confirmButtonText: 'ล้างทั้งหมด',
-                cancelButtonText: 'ยกเลิก'
+                cancelButtonText: 'ยกเลิก',
+                reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
                     // ยกเลิก checkbox องค์การ
@@ -1968,42 +1969,42 @@
         }
         
         async function saveCurrentRoute() {
-            if (!routeAnalysisData || optimizedRoutePoints.length < 2) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'ไม่สามารถบันทึกได้',
-                    text: 'กรุณาวิเคราะห์เส้นทางก่อนบันทึก',
-                    confirmButtonText: 'ตกลง'
-                });
-                return;
-            }
-            
-            const { value: formValues } = await Swal.fire({
-                title: 'บันทึกเส้นทาง',
-                html: `
-                    <div class="text-left space-y-6 p-1">
-                        <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-800">
+        if (!routeAnalysisData || optimizedRoutePoints.length < 2) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'ไม่สามารถบันทึกได้',
+                text: 'กรุณาวิเคราะห์เส้นทางก่อนบันทึก',
+                confirmButtonText: 'ตกลง'
+            });
+            return;
+        }
+        
+        const { value: formValues } = await Swal.fire({
+            title: '',
+            html: `
+                <div class="text-left">
+                    <div class="flex items-center space-x-3 mb-6 pb-4 border-b-2 border-gray-200">
+                        <ion-icon name="bookmark-outline" class="text-blue-500 text-3xl"></ion-icon>
+                        <span class="text-xl font-semibold text-gray-800">บันทึกเส้นทาง</span>
+                    </div>
+
+                    <div class="space-y-5">
+                        <div>
+                            <label for="routeName" class="block text-sm font-medium text-gray-700 mb-2">
                                 ชื่อเส้นทาง <span class="text-red-500">*</span>
                             </label>
-                            <input 
-                                id="routeName" 
-                                type="text"
-                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 outline-none" 
-                                placeholder="เช่น เส้นทางเก็บขยะเขต 1"
-                            >
+                            <input type="text" id="routeName" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition"
+                                placeholder="เช่น เส้นทางเก็บขยะเขต 1">
                         </div>
 
-                        <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-800">
+                        <div>
+                            <label for="routeNote" class="block text-sm font-medium text-gray-700 mb-2">
                                 หมายเหตุ <span class="text-gray-400 font-normal">(ถ้ามี)</span>
                             </label>
-                            <textarea 
-                                id="routeNote" 
-                                rows="3"
-                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 outline-none resize-none" 
-                                placeholder="เพิ่มหมายเหตุเพิ่มเติม..."
-                            ></textarea>
+                            <textarea id="routeNote" rows="3"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition resize-none"
+                                placeholder="เพิ่มหมายเหตุเพิ่มเติม..."></textarea>
                         </div>
 
                         <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-100">
@@ -2067,104 +2068,125 @@
                             </div>
                         </div>
                     </div>
-                `,
-                focusConfirm: false,
-                showCancelButton: true,
-                confirmButtonText: 'บันทึก',
-                cancelButtonText: 'ยกเลิก',
-                confirmButtonColor: '#3B82F6',
-                width: '600px',
-                preConfirm: () => {
-                    const routeName = document.getElementById('routeName').value;
-                    const routeNote = document.getElementById('routeNote').value;
-                    
-                    if (!routeName) {
-                        Swal.showValidationMessage('กรุณากรอกชื่อเส้นทาง');
-                        return false;
-                    }
-                    
-                    return {
-                        routeName: routeName,
-                        routeNote: routeNote
-                    };
+                </div>
+            `,
+            focusConfirm: false,
+            showCancelButton: true,
+            showCloseButton: true,
+            closeButtonHtml: '&times;',
+            cancelButtonText: 'ยกเลิก',
+            confirmButtonText: 'บันทึก',
+            reverseButtons: true,
+            buttonsStyling: false,
+            width: '700px',
+            customClass: {
+                popup: 'rounded-xl shadow-lg',
+                closeButton: 'custom-close-btn',
+                actions: 'w-full flex justify-end px-6 pb-6',
+                confirmButton: 'px-6 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition duration-200',
+                cancelButton: 'px-6 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition duration-200 mr-2'
+            },
+            preConfirm: () => {
+                const routeName = document.getElementById('routeName').value.trim();
+                const routeNote = document.getElementById('routeNote').value.trim();
+                
+                if (!routeName) {
+                    Swal.showValidationMessage('กรุณากรอกชื่อเส้นทาง');
+                    return false;
                 }
-            });
-            
-            if (!formValues) return;
-            
-            Swal.fire({
-                title: 'กำลังบันทึก...',
-                html: 'กรุณารอสักครู่',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-            
-            try {
-                const routeData = {
-                    routeName: formValues.routeName,
-                    points: optimizedRoutePoints.map((point, index) => ({
-                        pointNumber: index + 1,
-                        lat: point.lat,
-                        lng: point.lng,
-                        address: point.address,
-                        requestId: point.requestId || null
-                    })),
-                    totalDistance: routeAnalysisData.totalDistance,
-                    totalDuration: routeAnalysisData.totalDuration,
-                    note: formValues.routeNote || '',
-                    requestIds: selectedRequestIds
+                
+                return {
+                    routeName: routeName,
+                    routeNote: routeNote
                 };
+            },
+            didOpen: () => {
+                document.getElementById('routeName').focus();
+                const closeBtn = document.querySelector('.swal2-close');
+                const header = document.querySelector('.swal2-html-container > div > div');
                 
-                const response = await fetch('/employee/routes/save', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(routeData)
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'บันทึกสำเร็จ!',
-                        text: result.message,
-                        confirmButtonText: 'ตกลง',
-                        confirmButtonColor: '#28a745',
-                        timer: 3000
-                    }).then(() => {
-                        Swal.fire({
-                            title: 'ดูรายการเส้นทาง?',
-                            text: 'ต้องการไปยังหน้ารายการเส้นทางที่บันทึกหรือไม่',
-                            icon: 'question',
-                            showCancelButton: true,
-                            confirmButtonText: 'ไปดู',
-                            cancelButtonText: 'อยู่หน้านี้',
-                            confirmButtonColor: '#3B82F6'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = '/employee/routeList';
-                            }
-                        });
-                    });
-                } else {
-                    throw new Error(result.message);
+                if (closeBtn && header) {
+                    const headerTop = header.offsetTop;
+                    closeBtn.style.top = `${headerTop + 4}px`;  // +4px เพื่อปรับให้ตรงกลาง
                 }
-                
-            } catch (error) {
-                console.error('Error saving route:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'เกิดข้อผิดพลาด',
-                    text: error.message || 'ไม่สามารถบันทึกเส้นทางได้',
-                    confirmButtonText: 'ตกลง',
-                    confirmButtonColor: '#EF4444'
-                });
             }
+        });
+        
+        if (!formValues) return;
+        
+        Swal.fire({
+            title: 'กำลังบันทึก...',
+            html: 'กรุณารอสักครู่',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+        
+        try {
+            const routeData = {
+                routeName: formValues.routeName,
+                points: optimizedRoutePoints.map((point, index) => ({
+                    pointNumber: index + 1,
+                    lat: point.lat,
+                    lng: point.lng,
+                    address: point.address,
+                    requestId: point.requestId || null
+                })),
+                totalDistance: routeAnalysisData.totalDistance,
+                totalDuration: routeAnalysisData.totalDuration,
+                note: formValues.routeNote || '',
+                requestIds: selectedRequestIds
+            };
+            
+            const response = await fetch('/employee/routes/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(routeData)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'บันทึกสำเร็จ!',
+                    text: result.message,
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#28a745',
+                    timer: 3000
+                }).then(() => {
+                    Swal.fire({
+                        title: 'ดูรายการเส้นทาง?',
+                        text: 'ต้องการไปยังหน้ารายการเส้นทางที่บันทึกหรือไม่',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'ไปดู',
+                        cancelButtonText: 'อยู่หน้านี้',
+                        confirmButtonColor: '#3B82F6'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = '/employee/routeList';
+                        }
+                    });
+                });
+            } else {
+                throw new Error(result.message);
+            }
+            
+        } catch (error) {
+            console.error('Error saving route:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด',
+                text: error.message || 'ไม่สามารถบันทึกเส้นทางได้',
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#EF4444'
+            });
         }
+    }
         
         document.addEventListener('DOMContentLoaded', function() {
             initMap();
