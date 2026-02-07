@@ -1794,7 +1794,7 @@
             const selectedMember = householdMembers.find(m => m._id === selectedId);
             if (selectedMember) {
                 document.getElementById('deceasedAge').value = selectedMember.age || '';
-                document.getElementById('idCard').value = selectedMember.idCardNumber || '';
+                document.getElementById('idCard').value = formatThaiID(selectedMember.idCardNumber || '');
                 document.getElementById('phone').value = selectedMember.phone || '';
             }
         });
