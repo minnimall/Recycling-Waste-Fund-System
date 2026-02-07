@@ -54,6 +54,7 @@ router.get('/withDraw/settings', employeeController.getCurrentSettings);
 // ฌาปนกิจสงเคราะห์
 router.get('/funeralAid', employeeController.funeralAidIndex);
 router.get('/funeral-assistance/search', employeeController.searchHouseholds);
+router.get('/funeral-assistance/members/:familyID', employeeController.getFamilyMembers);
 router.get('/funeral-assistance/eligibility/:familyID', employeeController.checkEligibility);
 router.post('/funeral-assistance/calculate', employeeController.calculateFuneralAmount);
 router.post('/funeral-assistance/preview', employeeController.getDeductionPreview);

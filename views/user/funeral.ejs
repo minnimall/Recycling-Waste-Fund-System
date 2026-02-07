@@ -743,6 +743,10 @@
             const deceasedSelect = document.getElementById('memberSelect');
             const responsibleSelect = document.getElementById('responsiblePersonSelect');
             
+            console.log('🔧 populateMemberSelect called');
+            console.log('deceasedSelect:', deceasedSelect);
+            console.log('responsibleSelect:', responsibleSelect);
+            
             // Clear existing options
             deceasedSelect.innerHTML = '<option value="">-- เลือกสมาชิกที่เสียชีวิต --</option>';
             responsibleSelect.innerHTML = '<option value="">-- เลือกผู้รับผิดชอบ --</option>';
@@ -754,6 +758,7 @@
                 deceasedOption.value = member._id;
                 deceasedOption.textContent = member.name;
                 deceasedOption.dataset.memberData = JSON.stringify(member);
+                deceasedOption.dataset.memberId = member._id;
                 deceasedSelect.appendChild(deceasedOption);
 
                 // Dropdown ผู้รับผิดชอบ
@@ -761,31 +766,153 @@
                 responsibleOption.value = member._id;
                 responsibleOption.textContent = member.name;
                 responsibleOption.dataset.memberData = JSON.stringify(member);
+                responsibleOption.dataset.memberId = member._id;
                 responsibleSelect.appendChild(responsibleOption);
             });
 
-            // เพิ่มตัวเลือก "อื่นๆ - กรอกเอง" สำหรับผู้เสียชีวิต
+            // เพิ่มตัวเลือก "อื่นๆ - กรอกเอง"
             const deceasedOtherOption = document.createElement('option');
             deceasedOtherOption.value = 'other';
             deceasedOtherOption.textContent = '-- อื่นๆ (กรอกข้อมูลเอง) --';
+            deceasedOtherOption.dataset.memberId = 'other';
             deceasedSelect.appendChild(deceasedOtherOption);
 
-            // เพิ่มตัวเลือก "อื่นๆ - กรอกเอง" สำหรับผู้รับผิดชอบ
             const responsibleOtherOption = document.createElement('option');
             responsibleOtherOption.value = 'other';
             responsibleOtherOption.textContent = '-- อื่นๆ (กรอกข้อมูลเอง) --';
+            responsibleOtherOption.dataset.memberId = 'other';
             responsibleSelect.appendChild(responsibleOtherOption);
 
-            // Event listener สำหรับเมื่อเลือกผู้เสียชีวิต
+            console.log('✅ Options created, attaching event listeners...');
+
+            // ✅ Event listener สำหรับเมื่อเลือกผู้เสียชีวิต
             deceasedSelect.addEventListener('change', function() {
+                console.log('💀 Deceased select changed');
+                
+                const selectedOption = this.options[this.selectedIndex];
+                const selectedId = selectedOption?.dataset?.memberId;
+                console.log('Selected deceased ID:', selectedId);
+                
+                // เติมข้อมูล
                 handleMemberSelection(this);
+                
+                // ตรวจสอบการเลือกซ้ำ
+                const responsibleOption = responsibleSelect.options[responsibleSelect.selectedIndex];
+                const responsibleId = responsibleOption?.dataset?.memberId;
+                console.log('Responsible ID:', responsibleId);
+                
+                if (selectedId && responsibleId && 
+                    selectedId !== 'other' && 
+                    selectedId !== '' &&
+                    responsibleId !== 'other' && 
+                    responsibleId !== '' &&
+                    selectedId === responsibleId) {
+                    
+                    console.log('⚠️ DUPLICATE DETECTED!');
+                    
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'ไม่สามารถเลือกได้',
+                        text: 'ผู้รับผิดชอบและผู้เสียชีวิตต้องไม่เป็นคนเดียวกัน',
+                        confirmButtonText: 'ตกลง',
+                    });
+                    
+                    // ล้างค่าผู้เสียชีวิต
+                    this.value = '';
+                    clearDeceasedFields();
+                }
             });
 
-            // Event listener สำหรับเมื่อเลือกผู้รับผิดชอบ
+            // ✅ Event listener สำหรับเมื่อเลือกผู้รับผิดชอบ
             responsibleSelect.addEventListener('change', function() {
+                console.log('👤 Responsible select changed');
+                
+                const selectedOption = this.options[this.selectedIndex];
+                const selectedId = selectedOption?.dataset?.memberId;
+                console.log('Selected responsible ID:', selectedId);
+                
+                // เติมข้อมูล
                 handleResponsibleSelection(this);
+                
+                // ตรวจสอบการเลือกซ้ำ
+                const deceasedOption = deceasedSelect.options[deceasedSelect.selectedIndex];
+                const deceasedId = deceasedOption?.dataset?.memberId;
+                console.log('Deceased ID:', deceasedId);
+                
+                if (selectedId && deceasedId && 
+                    selectedId !== 'other' && 
+                    selectedId !== '' &&
+                    deceasedId !== 'other' && 
+                    deceasedId !== '' &&
+                    selectedId === deceasedId) {
+                    
+                    console.log('⚠️ DUPLICATE DETECTED!');
+                    
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'ไม่สามารถเลือกได้',
+                        text: 'ผู้รับผิดชอบและผู้เสียชีวิตต้องไม่เป็นคนเดียวกัน',
+                        confirmButtonText: 'ตกลง',
+                    });
+                    
+                    // ล้างค่าผู้รับผิดชอบ
+                    this.value = '';
+                    clearResponsibleFields();
+                }
             });
+            
+            console.log('✅ Event listeners attached!');
         }
+
+        // ฟังก์ชันล้างค่าฟิลด์ผู้เสียชีวิต
+        function clearDeceasedFields() {
+            const nameInput = document.getElementById('deceasedName');
+            const ageInput = document.getElementById('deceasedAge');
+            const idCardInput = document.getElementById('idCard');
+            const phoneInput = document.getElementById('phone');
+            
+            if (nameInput) {
+                nameInput.value = '';
+                nameInput.readOnly = false;
+                nameInput.classList.remove('bg-gray-100');
+            }
+            
+            if (ageInput) {
+                ageInput.value = '';
+                ageInput.readOnly = false;
+                ageInput.classList.remove('bg-gray-100');
+            }
+            
+            if (idCardInput) {
+                idCardInput.value = '';
+                idCardInput.readOnly = false;
+                idCardInput.classList.remove('bg-gray-100');
+            }
+            
+            if (phoneInput) {
+                phoneInput.value = '';
+                phoneInput.readOnly = false;
+                phoneInput.classList.remove('bg-gray-100');
+            }
+        }
+
+        // ฟังก์ชันล้างค่าฟิลด์ผู้รับผิดชอบ
+        function clearResponsibleFields() {
+            const nameInput = document.getElementById('responsiblePersonName');
+            const relationshipSelect = document.getElementById('relationship');
+            
+            if (nameInput) {
+                nameInput.value = '';
+                nameInput.readOnly = false;
+                nameInput.classList.remove('bg-gray-100');
+            }
+            
+            if (relationshipSelect) {
+                relationshipSelect.value = '';
+                relationshipSelect.disabled = false;
+            }
+        }
+
 
         // ฟังก์ชันจัดการเมื่อเลือกผู้รับผิดชอบ
         function handleResponsibleSelection(select) {
@@ -793,27 +920,25 @@
             const nameInput = document.getElementById('responsiblePersonName');
             const relationshipSelect = document.getElementById('relationship');
 
+            // ตรวจสอบว่า elements ทั้งหมดมีอยู่จริง
+            if (!nameInput || !relationshipSelect) {
+                console.error('❌ Some input elements are missing!');
+                return;
+            }
+
             if (selectedValue === '' || selectedValue === 'other') {
-                // ล้างข้อมูลให้กรอกเอง
-                nameInput.value = '';
-                relationshipSelect.value = '';
-                nameInput.readOnly = false;
-                relationshipSelect.disabled = false;
-                nameInput.classList.remove('bg-gray-100');
+                clearResponsibleFields();
             } else {
                 // เติมข้อมูลอัตโนมัติ
                 const selectedOption = select.options[select.selectedIndex];
                 const memberData = JSON.parse(selectedOption.dataset.memberData);
 
                 nameInput.value = memberData.name || '';
-                
-                // ทำให้ชื่อเป็น readonly
                 nameInput.readOnly = true;
                 nameInput.classList.add('bg-gray-100');
 
-                // ถ้ามี relation ให้เลือกอัตโนมัติ (สำหรับ beneficiary)
+                // จัดการ relationship
                 if (memberData.type === 'beneficiary' && memberData.relation) {
-                    // พยายามหาค่าที่ตรงกันใน dropdown
                     const relationOptions = Array.from(relationshipSelect.options);
                     const matchingOption = relationOptions.find(opt => 
                         opt.value.toLowerCase().includes(memberData.relation.toLowerCase()) ||
@@ -828,13 +953,36 @@
                         relationshipSelect.disabled = false;
                     }
                 } else {
-                    // สมาชิกหลัก - ให้เลือกความสัมพันธ์เอง
                     relationshipSelect.value = '';
                     relationshipSelect.disabled = false;
                 }
             }
         }
 
+        // เพิ่มฟังก์ชันตรวจสอบการเลือกซ้ำ (ใช้ใน proceedToConfirmation)
+        function validateDuplicateSelection() {
+            const deceasedSelect = document.getElementById('memberSelect');
+            const responsibleSelect = document.getElementById('responsiblePersonSelect');
+            
+            const deceasedOption = deceasedSelect.options[deceasedSelect.selectedIndex];
+            const responsibleOption = responsibleSelect.options[responsibleSelect.selectedIndex];
+            
+            const deceasedId = deceasedOption?.dataset?.memberId;
+            const responsibleId = responsibleOption?.dataset?.memberId;
+            
+            console.log('Validating:', { deceasedId, responsibleId });
+            
+            if (deceasedId && responsibleId && 
+                deceasedId !== 'other' && 
+                deceasedId !== '' &&
+                responsibleId !== 'other' && 
+                responsibleId !== '' &&
+                deceasedId === responsibleId) {
+                return false;
+            }
+            
+            return true;
+        }
         // ฟังก์ชันจัดการเมื่อเลือกสมาชิก
         function handleMemberSelection(select) {
             const selectedValue = select.value;
@@ -843,20 +991,14 @@
             const idCardInput = document.getElementById('idCard');
             const phoneInput = document.getElementById('phone');
 
+            // ตรวจสอบว่า elements ทั้งหมดมีอยู่จริง
+            if (!nameInput || !ageInput || !idCardInput || !phoneInput) {
+                console.error('❌ Some input elements are missing!');
+                return;
+            }
+
             if (selectedValue === '' || selectedValue === 'other') {
-                // ล้างข้อมูลให้กรอกเอง
-                nameInput.value = '';
-                ageInput.value = '';
-                idCardInput.value = '';
-                phoneInput.value = '';
-                nameInput.readOnly = false;
-                ageInput.readOnly = false;
-                idCardInput.readOnly = false;
-                phoneInput.readOnly = false;
-                nameInput.classList.remove('bg-gray-100');
-                ageInput.classList.remove('bg-gray-100');
-                idCardInput.classList.remove('bg-gray-100');
-                phoneInput.classList.remove('bg-gray-100');
+                clearDeceasedFields();
             } else {
                 // เติมข้อมูลอัตโนมัติ
                 const selectedOption = select.options[select.selectedIndex];
@@ -867,11 +1009,11 @@
                 idCardInput.value = formatThaiID(memberData.idCardNumber || '');
                 phoneInput.value = memberData.phone || '';
 
-                // ทำให้ field ชื่อเป็น readonly (ป้องกันแก้ไข)
+                // ทำให้ field ชื่อเป็น readonly
                 nameInput.readOnly = true;
                 nameInput.classList.add('bg-gray-100');
                 
-                // Field อื่นๆ ยังแก้ไขได้ (กรณีข้อมูลไม่ครบ)
+                // Field อื่นๆ
                 if (memberData.age) {
                     ageInput.readOnly = true;
                     ageInput.classList.add('bg-gray-100');
@@ -1185,6 +1327,17 @@
             const form = document.getElementById('funeralRequestForm');
             const idInput = document.getElementById('idCard');
             const idError = document.getElementById('idCardError');
+
+            // ✅ ตรวจสอบการเลือกซ้ำก่อน
+            if (!validateDuplicateSelection()) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'กรุณาตรวจสอบข้อมูล',
+                    text: 'ผู้รับผิดชอบและผู้เสียชีวิตต้องไม่เป็นบุคคลเดียวกัน',
+                    confirmButtonColor: '#ef4444'
+                });
+                return;
+            }
             
             // ตรวจสอบเลขบัตรประชาชน
             const numbersOnly = idInput.value.replace(/\D/g, '');

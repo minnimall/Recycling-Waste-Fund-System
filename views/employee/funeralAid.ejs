@@ -60,6 +60,85 @@
         #householdDropdown::-webkit-scrollbar-thumb:hover {
             background: #a0aec0;
         }
+        /* Custom File Upload Styles */
+        .file-upload-wrapper {
+            position: relative;
+        }
+
+        .file-upload-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            min-height: 140px;
+            padding: 1.5rem;
+            border: 2px dashed #d1d5db;
+            border-radius: 0.5rem;
+            background-color: #f9fafb;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-label:hover {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+
+        .file-upload-label.dragover {
+            border-color: #10b981;
+            background-color: #d1fae5;
+        }
+
+        .file-upload-text {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #4b5563;
+            margin-bottom: 0.25rem;
+        }
+
+        .file-upload-subtext {
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+
+        .file-input.has-file + .file-upload-label {
+            border-color: #10b981;
+            background-color: #ecfdf5;
+        }
+
+        .file-input.has-file + .file-upload-label .file-upload-text {
+            color: #059669;
+            font-weight: 600;
+        }
+        .address-option {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .address-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .address-option.selected {
+            border-color: #10b981;
+            background-color: #f0fdf4;
+        }
+        /* เพิ่มในส่วน <style> ที่มีอยู่แล้ว */
+        #householdDropdown {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            animation: fadeIn 0.1s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 
@@ -202,8 +281,14 @@
 
                             <!-- ชื่อผู้รับผิดชอบในการจัดทำศพ -->
                             <div class="md:col-span-2">
-                                <label for="responsiblePersonName" class="block text-sm font-medium text-gray-700 mb-1">ชื่อผู้รับผิดชอบในการจัดทำศพ <span class="text-red-500">*</span></label>
-                                <input type="text" id="responsiblePersonName" name="responsiblePersonName" required placeholder="ระบุชื่อ-นามสกุล ชื่อผู้รับผิดชอบในการจัดทำศพ" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <label for="responsiblePersonName" class="block text-sm font-medium text-gray-700 mb-1">
+                                    ชื่อผู้รับผิดชอบในการจัดทำศพ <span class="text-red-500">*</span>
+                                </label>
+                                <select id="responsiblePersonName" name="responsiblePersonName" required 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-- เลือกผู้รับผิดชอบ --</option>
+                                </select>
+                                <input type="hidden" id="responsiblePersonId" name="responsiblePersonId">
                             </div>
 
                             <!-- เพิ่มฟิลด์มีความเกี่ยวข้องกับผู้ตายในฐานะ -->
@@ -226,13 +311,15 @@
                             </div>
                             
                             <!-- ชื่อผู้เสียชีวิต -->
-                            <div class="md:col-span-2">
+                            <div class="">
                                 <label for="deceasedName" class="block text-sm font-medium text-gray-700 mb-1">
                                     ชื่อผู้เสียชีวิต <span class="text-red-500">*</span>
                                 </label>
-                                <input type="text" id="deceasedName" name="deceasedName" required 
-                                    placeholder="ระบุชื่อ-นามสกุล ผู้เสียชีวิต" 
+                                <select id="deceasedName" name="deceasedName" required 
                                     class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-- เลือกผู้เสียชีวิต --</option>
+                                </select>
+                                <input type="hidden" id="deceasedId" name="deceasedId">
                             </div>
 
                             <!-- อายุผู้เสียชีวิต -->
@@ -252,66 +339,6 @@
                                 </label>
                                 <input type="text" id="idCard" name="idCard" required 
                                     placeholder="X-XXXX-XXXXX-XX-X" maxlength="17"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-
-                            <!-- บ้านเลขที่ -->
-                            <div>
-                                <label for="deceasedAddress" class="block text-sm font-medium text-gray-700 mb-1">
-                                    อยู่บ้านเลขที่ <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="deceasedAddress" name="deceasedAddress" required 
-                                    placeholder="ระบุบ้านเลขที่" 
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-
-                            <!-- หมู่ที่ -->
-                            <div>
-                                <label for="deceasedVillage" class="block text-sm font-medium text-gray-700 mb-1">
-                                    หมู่ที่ <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="deceasedVillage" name="deceasedVillage" required 
-                                    placeholder="ระบุหมู่ที่" 
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-
-                            <!-- ตำบล -->
-                            <div>
-                                <label for="subDistrict" class="block text-sm font-medium text-gray-700 mb-1">
-                                    ตำบล <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="subDistrict" name="subDistrict" required 
-                                    placeholder="ระบุตำบล" 
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-
-                            <!-- อำเภอ -->
-                            <div>
-                                <label for="district" class="block text-sm font-medium text-gray-700 mb-1">
-                                    อำเภอ <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="district" name="district" required 
-                                    placeholder="ระบุอำเภอ" 
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-
-                            <!-- จังหวัด -->
-                            <div>
-                                <label for="province" class="block text-sm font-medium text-gray-700 mb-1">
-                                    จังหวัด <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="province" name="province" required 
-                                    placeholder="ระบุจังหวัด" 
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-
-                            <!-- รหัสไปรษณีย์ -->
-                            <div>
-                                <label for="postalCode" class="block text-sm font-medium text-gray-700 mb-1">
-                                    รหัสไปรษณีย์ <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="postalCode" name="postalCode" required 
-                                    placeholder="XXXXX" maxlength="5"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                             </div>
 
@@ -342,6 +369,194 @@
                                 </label>
                                 <input type="date" id="dateOfDeath" name="dateOfDeath" required 
                                     class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <!-- ที่อยู่ - มีตัวเลือก -->
+                            <!-- <div class="md:col-span-3">
+                                <p class="block text-base font-medium text-gray-700 mb-3">ที่อยู่</p>
+                            </div> -->
+
+                            <!-- ตัวเลือกใช้ที่อยู่เดิมหรือกรอกใหม่ -->
+                            <div class="md:col-span-3 mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-3">เลือกที่อยู่</label>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="address-option selected border-2 rounded-lg p-4" id="useExistingAddress" onclick="selectAddressOption('existing')">
+                                        <div class="flex items-start">
+                                            <input type="radio" name="addressOption" value="existing" checked class="mt-1 mr-3">
+                                            <div class="flex-1">
+                                                <p class="font-semibold text-gray-800 mb-1">ใช้ที่อยู่ที่บันทึกไว้</p>
+                                                <p class="text-sm text-gray-600" id="existingAddressPreview">
+                                                    กรุณาเลือกครัวเรือนก่อน
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="address-option border-2 rounded-lg p-4" id="useNewAddress" onclick="selectAddressOption('new')">
+                                        <div class="flex items-start">
+                                            <input type="radio" name="addressOption" value="new" class="mt-1 mr-3">
+                                            <div class="flex-1">
+                                                <p class="font-semibold text-gray-800 mb-1">กรอกที่อยู่ใหม่</p>
+                                                <p class="text-sm text-gray-600">กรอกข้อมูลที่อยู่ด้วยตนเอง</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ฟอร์มกรอกที่อยู่ -->
+                            <div>
+                                <label for="deceasedAddress" class="block text-sm font-medium text-gray-700 mb-1">
+                                    บ้านเลขที่ <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" id="deceasedAddress" name="deceasedAddress" required 
+                                    placeholder="ระบุบ้านเลขที่" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <div>
+                                <label for="deceasedVillage" class="block text-sm font-medium text-gray-700 mb-1">
+                                    หมู่ที่ <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" id="deceasedVillage" name="deceasedVillage" required 
+                                    placeholder="ระบุหมู่ที่" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <div>
+                                <label for="subDistrict" class="block text-sm font-medium text-gray-700 mb-1">
+                                    ตำบล <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" id="subDistrict" name="subDistrict" required 
+                                    placeholder="ระบุตำบล" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <div>
+                                <label for="district" class="block text-sm font-medium text-gray-700 mb-1">
+                                    อำเภอ <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" id="district" name="district" required 
+                                    placeholder="ระบุอำเภอ" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <div>
+                                <label for="province" class="block text-sm font-medium text-gray-700 mb-1">
+                                    จังหวัด <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" id="province" name="province" required 
+                                    placeholder="ระบุจังหวัด" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <div>
+                                <label for="postalCode" class="block text-sm font-medium text-gray-700 mb-1">
+                                    รหัสไปรษณีย์ <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" id="postalCode" name="postalCode" required 
+                                    placeholder="XXXXX" maxlength="5"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <!-- เพิ่มส่วนอัปโหลดไฟล์ก่อน "หมายเหตุ" -->
+                            <div class="md:col-span-3">
+                                <p class="block text-base font-medium text-gray-700 mb-3 mt-4">เอกสารประกอบ</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    สำเนาใบมรณะบัตร <span class="text-red-500">*</span>
+                                </label>
+                                <div class="file-upload-wrapper">
+                                    <input type="file" name="deathCertificate" id="deathCertificate" 
+                                        accept="image/*,.pdf" 
+                                        class="file-input hidden">
+                                    <label for="deathCertificate" class="file-upload-label">
+                                        <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        <span class="file-upload-text">คลิกเพื่อเลือกไฟล์</span>
+                                        <span class="file-upload-subtext">หรือลากไฟล์มาวางที่นี่</span>
+                                    </label>
+                                </div>
+                                <div id="deathCertificatePreview" class="mt-2"></div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    สำเนาบัตรประชาชนผู้ตาย <span class="text-red-500">*</span>
+                                </label>
+                                <div class="file-upload-wrapper">
+                                    <input type="file" name="deceasedIdCard" id="deceasedIdCard" 
+                                        accept="image/*,.pdf" 
+                                        class="file-input hidden">
+                                    <label for="deceasedIdCard" class="file-upload-label">
+                                        <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        <span class="file-upload-text">คลิกเพื่อเลือกไฟล์</span>
+                                        <span class="file-upload-subtext">หรือลากไฟล์มาวางที่นี่</span>
+                                    </label>
+                                </div>
+                                <div id="deceasedIdCardPreview" class="mt-2"></div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    สำเนาทะเบียนบ้านผู้ตาย <span class="text-red-500">*</span>
+                                </label>
+                                <div class="file-upload-wrapper">
+                                    <input type="file" name="deceasedHouseRegistration" id="deceasedHouseRegistration" 
+                                        accept="image/*,.pdf" 
+                                        class="file-input hidden">
+                                    <label for="deceasedHouseRegistration" class="file-upload-label">
+                                        <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        <span class="file-upload-text">คลิกเพื่อเลือกไฟล์</span>
+                                        <span class="file-upload-subtext">หรือลากไฟล์มาวางที่นี่</span>
+                                    </label>
+                                </div>
+                                <div id="deceasedHouseRegistrationPreview" class="mt-2"></div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    สำเนาบัตรประชาชนผู้ยื่นคำขอ <span class="text-red-500">*</span>
+                                </label>
+                                <div class="file-upload-wrapper">
+                                    <input type="file" name="applicantIdCard" id="applicantIdCard" 
+                                        accept="image/*,.pdf" 
+                                        class="file-input hidden">
+                                    <label for="applicantIdCard" class="file-upload-label">
+                                        <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        <span class="file-upload-text">คลิกเพื่อเลือกไฟล์</span>
+                                        <span class="file-upload-subtext">หรือลากไฟล์มาวางที่นี่</span>
+                                    </label>
+                                </div>
+                                <div id="applicantIdCardPreview" class="mt-2"></div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    สำเนาทะเบียนบ้านผู้ยื่นคำขอ <span class="text-red-500">*</span>
+                                </label>
+                                <div class="file-upload-wrapper">
+                                    <input type="file" name="applicantHouseRegistration" id="applicantHouseRegistration" 
+                                        accept="image/*,.pdf" 
+                                        class="file-input hidden">
+                                    <label for="applicantHouseRegistration" class="file-upload-label">
+                                        <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        <span class="file-upload-text">คลิกเพื่อเลือกไฟล์</span>
+                                        <span class="file-upload-subtext">หรือลากไฟล์มาวางที่นี่</span>
+                                    </label>
+                                </div>
+                                <div id="applicantHouseRegistrationPreview" class="mt-2"></div>
                             </div>
 
                             <!-- หมายเหตุ -->
@@ -523,6 +738,7 @@
         let selectedHousehold = null;
         let currentFocusIndex = -1;
         let isEligible = false;
+        let accountDetails = null;
 
         const householdSearchInput = document.getElementById('householdSearch');
         const householdDropdown = document.getElementById('householdDropdown');
@@ -530,6 +746,19 @@
         const noResults = document.getElementById('noResults');
 
         // ==================== Event Listeners ====================
+
+        // ✅ เพิ่ม: แสดง dropdown เมื่อ focus ที่ช่องค้นหา
+        householdSearchInput.addEventListener('focus', async function(e) {
+            const searchValue = e.target.value.trim();
+            
+            if (searchValue.length === 0) {
+                // ถ้ายังไม่ได้พิมพ์อะไร แสดงรายการเริ่มต้น 5 รายการ
+                await loadInitialHouseholds();
+            } else {
+                // ถ้ามีข้อความอยู่แล้ว ค้นหาตามปกติ
+                searchHouseholds(searchValue);
+            }
+        });
 
         // ค้นหาครัวเรือน (Debounced)
         let searchTimeout;
@@ -540,8 +769,8 @@
             clearTimeout(searchTimeout);
             
             if (searchValue.length === 0) {
-                hideDropdown();
-                clearHouseholdInfo();
+                // ✅ ถ้าลบข้อความหมด แสดงรายการเริ่มต้น
+                loadInitialHouseholds();
                 return;
             }
 
@@ -595,6 +824,10 @@
             toggleIcon.classList.toggle('rotate-180');
         });
 
+        document.getElementById('viewAllAccounts')?.addEventListener('click', function() {
+            showAccountListModal();
+        });
+
         // Click outside to close dropdown
         document.addEventListener('click', function(e) {
             if (!householdSearchInput.contains(e.target) && !householdDropdown.contains(e.target)) {
@@ -626,6 +859,55 @@
                 return;
             }
 
+            // ✅ เพิ่ม: ตรวจสอบเลขบัตรประชาชน
+            const idInput = document.getElementById('idCard');
+            const numbersOnly = idInput.value.replace(/\D/g, '');
+            if(numbersOnly.length !== 13) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เลขบัตรประชาชนไม่ถูกต้อง',
+                    text: 'กรุณากรอกเลขบัตรประชาชนให้ครบ 13 หลัก',
+                    confirmButtonColor: '#ef4444'
+                });
+                idInput.focus();
+                return;
+            }
+
+            // ✅ เพิ่ม: ตรวจสอบว่ามีการอัปโหลดไฟล์ครบทุกไฟล์
+            const requiredFiles = [
+                'deathCertificate',
+                'deceasedIdCard',
+                'deceasedHouseRegistration',
+                'applicantIdCard',
+                'applicantHouseRegistration'
+            ];
+
+            const missingFiles = [];
+            requiredFiles.forEach(id => {
+                const input = document.getElementById(id);
+                if (input && (!input.files || input.files.length === 0)) {
+                    missingFiles.push(id);
+                }
+            });
+
+            if (missingFiles.length > 0) {
+                const fileLabels = {
+                    deathCertificate: 'สำเนาใบมรณะบัตร',
+                    deceasedIdCard: 'สำเนาบัตรประชาชนผู้ตาย',
+                    deceasedHouseRegistration: 'สำเนาทะเบียนบ้านผู้ตาย',
+                    applicantIdCard: 'สำเนาบัตรประชาชนผู้ยื่นคำขอ',
+                    applicantHouseRegistration: 'สำเนาทะเบียนบ้านผู้ยื่นคำขอ'
+                };
+                
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'กรุณาอัปโหลดเอกสารให้ครบ',
+                    html: `<p>ยังขาดเอกสาร:</p><ul class="text-left list-disc list-inside mt-2">${missingFiles.map(id => `<li>${fileLabels[id]}</li>`).join('')}</ul>`,
+                    confirmButtonColor: '#3b82f6'
+                });
+                return;
+            }
+
             // ✅ รวบรวมข้อมูลให้ครบถ้วนตามที่ Backend ต้องการ
             const formData = {
                 // ข้อมูลครัวเรือน
@@ -633,12 +915,14 @@
                 
                 // ข้อมูลผู้รับผิดชอบ
                 responsiblePersonName: document.getElementById('responsiblePersonName').value.trim(),
+                responsiblePersonId: document.getElementById('responsiblePersonId')?.value || null,
                 relationship: document.getElementById('relationship').value,
                 
                 // ข้อมูลผู้เสียชีวิต
                 deceasedName: document.getElementById('deceasedName').value.trim(),
+                deceasedId: document.getElementById('deceasedId')?.value || null,
                 deceasedAge: document.getElementById('deceasedAge').value,
-                idCard: document.getElementById('idCard').value.trim(),
+                idCard: numbersOnly, // ✅ ใช้ numbersOnly แทน (13 หลักไม่มีขีด)
                 deceasedAddress: document.getElementById('deceasedAddress').value.trim(),
                 deceasedVillage: document.getElementById('deceasedVillage').value.trim(),
                 subDistrict: document.getElementById('subDistrict').value.trim(),
@@ -652,7 +936,7 @@
                 // ข้อมูลอื่นๆ
                 notes: document.getElementById('notes').value.trim(),
                 amount: parseFloat(document.getElementById('amount').value),
-                memberID: null // ถ้ามีการเลือก member ใน UI
+                memberID: document.getElementById('deceasedId')?.value || null // ✅ เพิ่ม memberID
             };
 
             console.log('📋 Form Data:', formData); // Debug
@@ -692,11 +976,64 @@
                 return;
             }
 
+            // ✅ เพิ่ม: ตรวจสอบว่าผู้รับผิดชอบและผู้เสียชีวิตไม่ใช่คนเดียวกัน
+            if (formData.responsiblePersonId && formData.deceasedId && 
+                formData.responsiblePersonId === formData.deceasedId) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่สามารถเลือกได้',
+                    text: 'ผู้รับผิดชอบและผู้เสียชีวิตต้องไม่เป็นคนเดียวกัน',
+                    confirmButtonText: 'ตกลง',
+                });
+                return;
+            }
+
+            // ✅ เพิ่ม: สร้าง FormData สำหรับส่งไฟล์
+            const formDataToSend = new FormData();
+            
+            // เพิ่มข้อมูลทั่วไป
+            Object.keys(formData).forEach(key => {
+                if (formData[key] !== null && formData[key] !== undefined) {
+                    formDataToSend.append(key, formData[key]);
+                }
+            });
+            
+            // เพิ่มไฟล์
+            requiredFiles.forEach(fieldName => {
+                const fileInput = document.querySelector(`input[name="${fieldName}"]`);
+                if (fileInput && fileInput.files[0]) {
+                    formDataToSend.append(fieldName, fileInput.files[0]);
+                }
+            });
+
+            console.log('📦 FormData ready to send'); // Debug
+            
             // เรียกฟังก์ชันบันทึกข้อมูล
             await submitFuneralAssistance(formData);
         });
 
         // ==================== API Functions ====================
+
+        // โหลดรายการครัวเรือนเริ่มต้น 5 รายการ
+        async function loadInitialHouseholds() {
+            try {
+                const response = await fetch('/employee/funeral-assistance/search?query=&limit=5');
+                const result = await response.json();
+
+                if (result.success && result.data.length > 0) {
+                    displayDropdown(result.data, '');
+                } else {
+                    showNoResults();
+                }
+            } catch (error) {
+                console.error('Error searching households:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถค้นหาครัวเรือนได้'
+                });
+            }
+        }
 
         // ค้นหาครัวเรือน
         async function searchHouseholds(query) {
@@ -747,6 +1084,7 @@
                 const result = await response.json();
 
                 if (result.success) {
+                    accountDetails = result.data;
                     displayCalculation(result.data);
                 }
             } catch (error) {
@@ -849,11 +1187,9 @@
             }
         }
 
-        // ฟังก์ชัน submitFuneralAssistance (แก้ไขให้ส่งข้อมูลตรงกับ Backend)
+        // แก้ไข submitFuneralAssistance ให้ส่ง FormData แทน JSON
         async function submitFuneralAssistance(formData) {
             try {
-                console.log('📤 Sending data to server...', formData); // Debug
-                
                 Swal.fire({
                     title: 'กำลังบันทึกข้อมูล...',
                     text: 'โปรดรอสักครู่',
@@ -863,18 +1199,36 @@
                     }
                 });
 
-                const response = await fetch('/employee/funeral-assistance/submit', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
+                // สร้าง FormData สำหรับส่งไฟล์
+                const formDataToSend = new FormData();
+                
+                // เพิ่มข้อมูลทั่วไป
+                Object.keys(formData).forEach(key => {
+                    formDataToSend.append(key, formData[key]);
+                });
+                
+                // เพิ่มไฟล์
+                const fileInputs = [
+                    'deathCertificate',
+                    'deceasedIdCard',
+                    'deceasedHouseRegistration',
+                    'applicantIdCard',
+                    'applicantHouseRegistration'
+                ];
+                
+                fileInputs.forEach(fieldName => {
+                    const fileInput = document.querySelector(`input[name="${fieldName}"]`);
+                    if (fileInput && fileInput.files[0]) {
+                        formDataToSend.append(fieldName, fileInput.files[0]);
+                    }
                 });
 
-                console.log('📥 Response status:', response.status); // Debug
+                const response = await fetch('/employee/funeral-assistance/submit', {
+                    method: 'POST',
+                    body: formDataToSend // ไม่ต้องใส่ Content-Type, browser จะใส่ให้อัตโนมัติ
+                });
 
                 const result = await response.json();
-                console.log('📥 Response data:', result); // Debug
 
                 if (result.success) {
                     await Swal.fire({
@@ -885,31 +1239,24 @@
                             <div class="mt-3 text-sm text-gray-600">
                                 <p>หักเงินจำนวน: ${result.data.totalDeducted.toFixed(2)} บาท</p>
                                 <p>จากบัญชี: ${result.data.accountsDeducted} บัญชี</p>
-                                ${result.data.accountsWithInsufficientBalance > 0 ? 
-                                    `<p class="text-amber-600 mt-2">⚠️ มีบัญชีที่เงินไม่พอ: ${result.data.accountsWithInsufficientBalance} บัญชี</p>` 
-                                    : ''
-                                }
                             </div>
-                        `,
-                        confirmButtonText: 'ดูรายละเอียด'
+                        `
                     });
 
-                    // Redirect ไปหน้ารายละเอียด
-                    // window.location.href = `/employee/funeral-assistance/detail/${result.data.funeralID}`;
                     window.location.href = `/employee/funeralAidHistory`;
                 } else {
                     Swal.fire({
                         icon: 'error',
                         title: 'เกิดข้อผิดพลาด',
-                        text: result.message || 'ไม่สามารถบันทึกข้อมูลได้'
+                        text: result.message
                     });
                 }
             } catch (error) {
-                console.error('❌ Error submitting funeral assistance:', error);
+                console.error('Error:', error);
                 Swal.fire({
                     icon: 'error',
                     title: 'เกิดข้อผิดพลาด',
-                    text: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง'
+                    text: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้'
                 });
             }
         }
@@ -953,12 +1300,14 @@
                                 <span>${household.address}</span>
                             </div>
                         </div>
-                        <div class="ml-3 text-right">
-                            <div class="text-xs text-gray-500">สมาชิก</div>
-                            <div class="text-sm font-medium text-blue-600">${household.memberCount} คน</div>
-                        </div>
                     </div>
                 `;
+
+                // ส่วนของนับจำนวนสมาชิกเอาออกมาจาก innerHTML
+                // <div class="ml-3 text-right">
+                //             <div class="text-xs text-gray-500">จำนวนสมาชิก</div>
+                //             <div class="text-sm font-medium text-blue-600">${household.memberCount} คน</div>
+                //         </div>
                 
                 item.addEventListener('click', () => selectHousehold(household));
                 householdList.appendChild(item);
@@ -989,6 +1338,23 @@
             householdSearchInput.value = `${household.id} - ${household.head}`;
             hideDropdown();
             displayHouseholdInfo(household);
+            
+            // เก็บข้อมูลที่อยู่จาก addressDetails ที่ API ส่งมา
+            if (household.addressDetails) {
+                householdAddressData = household.addressDetails; // เก็บไว้ใน global variable
+                displayExistingAddress(household.addressDetails);
+                
+                // เติมที่อยู่ทันทีถ้าเลือก "ใช้ที่อยู่เดิม"
+                const selectedOption = document.querySelector('input[name="addressOption"]:checked');
+                if (selectedOption && selectedOption.value === 'existing') {
+                    fillExistingAddress();
+                }
+            } else {
+                // ถ้าไม่มีข้อมูลที่อยู่
+                householdAddressData = null;
+                displayExistingAddress(null);
+            }
+            
             checkEligibility(household.familyID);
         }
 
@@ -1017,6 +1383,9 @@
             document.getElementById('householdHead').textContent = data.head;
             document.getElementById('householdAddress').textContent = data.address;
             document.getElementById('memberCount').textContent = data.memberCount + ' คน';
+            
+            // โหลดรายชื่อสมาชิก
+            loadFamilyMembers(data.familyID);
         }
 
         // ฟังก์ชันแสดงผลการตรวจสอบคุณสมบัติ (อัพเดท: 3 เงื่อนไข)
@@ -1026,30 +1395,20 @@
 
             console.log('Eligibility Data:', data);
 
+            // กรอง ineligibleReasons ให้สมเหตุสมผล
+            let filteredReasons = data.ineligibleReasons || [];
+            
+            if (!data.hasEverBeenMember) {
+                // ถ้ายังไม่เคยเป็นสมาชิก -> เอาออกข้อความ "สถานะถูกพัก"
+                filteredReasons = filteredReasons.filter(reason => 
+                    !reason.includes('สถานะสมาชิกถูกพักชั่วคราว')
+                );
+            }
+
             // สร้าง HTML สำหรับ 3 เงื่อนไข
             const conditionsHTML = `
                 <div class="space-y-3">
-                    <!-- เงื่อนไข 1: สมัครครบ 180 วัน (6 เดือน) -->
-                    <div class="flex items-start bg-white rounded-lg p-4 shadow-sm">
-                        <div class="flex-shrink-0 mr-3">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center ${data.passedMembershipPeriod ? 'bg-green-100' : 'bg-red-100'}">
-                                <svg class="w-5 h-5 ${data.passedMembershipPeriod ? 'text-green-600' : 'text-red-600'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${data.passedMembershipPeriod ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'}" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-medium text-gray-800">เป็นสมาชิกครบ 180 วัน (6 เดือน)</p>
-                            <p class="text-sm ${data.passedMembershipPeriod ? 'text-green-600' : 'text-red-600'} mt-1">
-                                ${data.passedMembershipPeriod 
-                                    ? `ผ่าน - เป็นสมาชิกมา ${data.membershipDays} วัน (${data.membershipMonths} เดือน)` 
-                                    : `ไม่ผ่าน - เป็นสมาชิกเพียง ${data.membershipDays} วัน (ต้องครบ 180 วัน)`
-                                }
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- เงื่อนไข 2: ขายขยะครบ 300 บาท -->
+                    <!-- เงื่อนไข 1: ขายขยะครบ 300 บาท -->
                     <div class="flex items-start bg-white rounded-lg p-4 shadow-sm">
                         <div class="flex-shrink-0 mr-3">
                             <div class="w-8 h-8 rounded-full flex items-center justify-center ${data.passedSalesRequirement ? 'bg-green-100' : 'bg-red-100'}">
@@ -1064,6 +1423,26 @@
                                 ${data.passedSalesRequirement 
                                     ? `ผ่าน - ขายสะสม ${data.totalSalesAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท` 
                                     : `ไม่ผ่าน - ขายเพียง ${data.totalSalesAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท (ต้องครบ 300 บาท)`
+                                }
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- เงื่อนไข 2: สมัครครบ 180 วัน (6 เดือน) -->
+                    <div class="flex items-start bg-white rounded-lg p-4 shadow-sm">
+                        <div class="flex-shrink-0 mr-3">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center ${data.passedMembershipPeriod ? 'bg-green-100' : 'bg-red-100'}">
+                                <svg class="w-5 h-5 ${data.passedMembershipPeriod ? 'text-green-600' : 'text-red-600'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${data.passedMembershipPeriod ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'}" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-medium text-gray-800">เป็นสมาชิกครบ 180 วัน (6 เดือน)</p>
+                            <p class="text-sm ${data.passedMembershipPeriod ? 'text-green-600' : 'text-red-600'} mt-1">
+                                ${data.passedMembershipPeriod 
+                                    ? `ผ่าน - เป็นสมาชิกมา ${data.membershipDays} วัน (${data.membershipMonths} เดือน)` 
+                                    : `ไม่ผ่าน - เป็นสมาชิกเพียง ${data.membershipDays} วัน (ต้องครบ 180 วัน)`
                                 }
                             </p>
                         </div>
@@ -1187,8 +1566,485 @@
 
             document.getElementById('beforeBalance').textContent = data.totalBalance.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท';
             document.getElementById('afterBalance').textContent = data.afterBalance.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท';
+            
+            const warningDiv = calculationSection.querySelector('.mt-4.flex.items-start');
+            if (warningDiv && !document.getElementById('viewAllAccounts')) {
+                const buttonHTML = `
+                    <button type="button" id="viewAllAccounts" 
+                        class="mt-3 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        ดูรายการบัญชีที่จะหักทั้งหมด (${data.totalAccounts} บัญชี)
+                    </button>
+                `;
+                warningDiv.insertAdjacentHTML('afterend', buttonHTML);
+                
+                document.getElementById('viewAllAccounts').addEventListener('click', function() {
+                    showAccountListModal();
+                });
+            }
         }
+
+        // ฟังก์ชันแสดง Modal รายการบัญชีทั้งหมด
+        function showAccountListModal() {
+            if (!accountDetails) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'กรุณากรอกจำนวนเงินก่อน',
+                    text: 'โปรดกรอกจำนวนเงินช่วยเหลือเพื่อคำนวณการหักเงิน'
+                });
+                return;
+            }
+
+            const { sufficientAccounts, insufficientAccounts, perAccountAmount } = accountDetails;
+
+            let tableHTML = `
+                <div class="text-left max-h-96 overflow-y-auto">
+                    <div class="mb-4">
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div class="bg-green-50 p-3 rounded-lg">
+                                <p class="text-sm text-gray-600">บัญชีที่หักได้</p>
+                                <p class="text-2xl font-bold text-green-600">${sufficientAccounts.length}</p>
+                            </div>
+                            <div class="bg-red-50 p-3 rounded-lg">
+                                <p class="text-sm text-gray-600">บัญชีเงินไม่พอ</p>
+                                <p class="text-2xl font-bold text-red-600">${insufficientAccounts.length}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${sufficientAccounts.length > 0 ? `
+                        <div class="mb-6">
+                            <h3 class="font-semibold text-green-700 mb-2 flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                บัญชีที่หักได้ปกติ (${sufficientAccounts.length} บัญชี)
+                            </h3>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full text-sm">
+                                    <thead class="bg-gray-100">
+                                        <tr>
+                                            <th class="px-3 py-2 text-left">ลำดับ</th>
+                                            <th class="px-3 py-2 text-left">เลขบัญชี</th>
+                                            <th class="px-3 py-2 text-left">ชื่อครัวเรือน</th>
+                                            <th class="px-3 py-2 text-right">ยอดคงเหลือ</th>
+                                            <th class="px-3 py-2 text-right">หัก</th>
+                                            <th class="px-3 py-2 text-right">คงเหลือหลังหัก</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                                        ${sufficientAccounts.map((acc, idx) => `
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="px-3 py-2">${idx + 1}</td>
+                                                <td class="px-3 py-2 font-medium">${acc.accountNumber}</td>
+                                                <td class="px-3 py-2">${acc.familyName}</td>
+                                                <td class="px-3 py-2 text-right">${acc.currentBalance.toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
+                                                <td class="px-3 py-2 text-right text-orange-600">${acc.deductAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
+                                                <td class="px-3 py-2 text-right font-medium text-green-600">${acc.balanceAfter.toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${insufficientAccounts.length > 0 ? `
+                        <div>
+                            <h3 class="font-semibold text-red-700 mb-2 flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                                บัญชีที่เงินไม่พอหัก (${insufficientAccounts.length} บัญชี)
+                            </h3>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full text-sm">
+                                    <thead class="bg-red-50">
+                                        <tr>
+                                            <th class="px-3 py-2 text-left">ลำดับ</th>
+                                            <th class="px-3 py-2 text-left">เลขบัญชี</th>
+                                            <th class="px-3 py-2 text-left">ชื่อครัวเรือน</th>
+                                            <th class="px-3 py-2 text-right">ยอดคงเหลือ</th>
+                                            <th class="px-3 py-2 text-right">ควรหัก</th>
+                                            <th class="px-3 py-2 text-right">ขาด</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                                        ${insufficientAccounts.map((acc, idx) => `
+                                            <tr class="hover:bg-red-50">
+                                                <td class="px-3 py-2">${idx + 1}</td>
+                                                <td class="px-3 py-2 font-medium">${acc.accountNumber}</td>
+                                                <td class="px-3 py-2">${acc.familyName}</td>
+                                                <td class="px-3 py-2 text-right">${acc.currentBalance.toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
+                                                <td class="px-3 py-2 text-right">${acc.deductAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
+                                                <td class="px-3 py-2 text-right font-medium text-red-600">${acc.shortage.toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                <p class="text-sm text-yellow-800">
+                                    <svg class="inline w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                    </svg>
+                                    ระบบจะหักเงินจากบัญชีเหล่านี้จนเป็น 0 บาท และบันทึกยอดค้างชำระ
+                                </p>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            Swal.fire({
+                title: 'รายการบัญชีที่จะหักเงิน',
+                html: tableHTML,
+                width: '900px',
+                showCloseButton: true,
+                showConfirmButton: false,
+                customClass: {
+                    popup: 'text-left'
+                }
+            });
+        }
+
+        // เพิ่มตัวแปร global
+        let householdMembers = [];
+
+        // เพิ่มฟังก์ชันโหลดสมาชิก (เพิ่มใน displayHouseholdInfo)
+        async function loadFamilyMembers(familyID) {
+            try {
+                const response = await fetch(`/employee/funeral-assistance/members/${familyID}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    householdMembers = result.data;
+                    populateMemberDropdowns();
+                }
+            } catch (error) {
+                console.error('Error loading family members:', error);
+            }
+        }
+
+        // ฟังก์ชันเติมข้อมูลใน dropdown
+        function populateMemberDropdowns() {
+            const responsibleSelect = document.getElementById('responsiblePersonName');
+            const deceasedSelect = document.getElementById('deceasedName');
+
+            // ล้างข้อมูลเดิม
+            responsibleSelect.innerHTML = '<option value="">-- เลือกผู้รับผิดชอบ --</option>';
+            deceasedSelect.innerHTML = '<option value="">-- เลือกผู้เสียชีวิต --</option>';
+
+            // เพิ่ม options
+            householdMembers.forEach(member => {
+                const option1 = new Option(
+                    `${member.name}${member.relation ? ' (' + member.relation + ')' : ''}`,
+                    member.name
+                );
+                option1.dataset.memberId = member._id;
+                option1.dataset.memberType = member.type;
+
+                const option2 = option1.cloneNode(true);
+
+                responsibleSelect.appendChild(option1);
+                deceasedSelect.appendChild(option2);
+            });
+        }
+
+        // Event listeners สำหรับป้องกันการเลือกซ้ำ
+        document.getElementById('responsiblePersonName').addEventListener('change', function() {
+            const selectedId = this.options[this.selectedIndex].dataset.memberId;
+            document.getElementById('responsiblePersonId').value = selectedId;
+            
+            const deceasedSelect = document.getElementById('deceasedName');
+            const deceasedId = document.getElementById('deceasedId').value;
+            
+            if (selectedId && selectedId === deceasedId) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ไม่สามารถเลือกได้',
+                    text: 'ผู้รับผิดชอบและผู้เสียชีวิตต้องไม่เป็นคนเดียวกัน',
+                    confirmButtonText: 'ตกลง'
+                });
+                this.value = '';
+                document.getElementById('responsiblePersonId').value = '';
+            }
+        });
+
+        document.getElementById('deceasedName').addEventListener('change', function() {
+            const selectedId = this.options[this.selectedIndex].dataset.memberId;
+            document.getElementById('deceasedId').value = selectedId;
+            
+            const responsibleId = document.getElementById('responsiblePersonId').value;
+            
+            if (selectedId && selectedId === responsibleId) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ไม่สามารถเลือกได้',
+                    text: 'ผู้รับผิดชอบและผู้เสียชีวิตต้องไม่เป็นคนเดียวกัน',
+                    confirmButtonText: 'ตกลง'
+                });
+                this.value = '';
+                document.getElementById('deceasedId').value = '';
+            }
+            
+            // Auto-fill ข้อมูลผู้เสียชีวิต
+            const selectedMember = householdMembers.find(m => m._id === selectedId);
+            if (selectedMember) {
+                document.getElementById('deceasedAge').value = selectedMember.age || '';
+                document.getElementById('idCard').value = selectedMember.idCardNumber || '';
+                document.getElementById('phone').value = selectedMember.phone || '';
+            }
+        });
+
+        function formatThaiID(value) {
+            // เอาเฉพาะตัวเลข
+            let numbers = value.replace(/\D/g, '').slice(0, 13);
+
+            // ใส่ขีดตามตำแหน่ง 1-4-5-2-1
+            let formatted = '';
+            if(numbers.length > 0) formatted += numbers.substr(0,1);
+            if(numbers.length > 1) formatted += '-' + numbers.substr(1,4);
+            if(numbers.length > 5) formatted += '-' + numbers.substr(5,5);
+            if(numbers.length > 10) formatted += '-' + numbers.substr(10,2);
+            if(numbers.length > 12) formatted += '-' + numbers.substr(12,1);
+
+            return formatted;
+        }
+
+        // ==================== Setup File Preview ====================
+        function setupFilePreview() {
+            const fileInputs = [
+                'deathCertificate',
+                'deceasedIdCard',
+                'deceasedHouseRegistration',
+                'applicantIdCard',
+                'applicantHouseRegistration'
+            ];
+
+            fileInputs.forEach(inputId => {
+                const input = document.getElementById(inputId);
+                const preview = document.getElementById(inputId + 'Preview');
+                const label = input.nextElementSibling;
+
+                // Drag & Drop Events
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    label.addEventListener(eventName, preventDefaults, false);
+                });
+
+                function preventDefaults(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    label.addEventListener(eventName, () => {
+                        label.classList.add('dragover');
+                    });
+                });
+
+                ['dragleave', 'drop'].forEach(eventName => {
+                    label.addEventListener(eventName, () => {
+                        label.classList.remove('dragover');
+                    });
+                });
+
+                // Handle Drop
+                label.addEventListener('drop', function(e) {
+                    const dt = e.dataTransfer;
+                    const files = dt.files;
+                    
+                    if (files.length > 0) {
+                        input.files = files;
+                        handleFileSelect(input, preview);
+                    }
+                });
+
+                // Handle File Select
+                input.addEventListener('change', function(e) {
+                    handleFileSelect(input, preview);
+                });
+            });
+        }
+
+        // ==================== Handle File Selection ====================
+        function handleFileSelect(input, preview) {
+            const file = input.files[0];
+            const label = input.nextElementSibling;
+            
+            if (file) {
+                const fileSize = (file.size / 1024 / 1024).toFixed(2); // MB
+                const fileType = file.type;
+
+                // ตรวจสอบขนาดไฟล์
+                if (file.size > 10 * 1024 * 1024) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ไฟล์ใหญ่เกินไป',
+                        text: 'ไฟล์มีขนาดใหญ่เกิน 10MB กรุณาเลือกไฟล์ใหม่',
+                        confirmButtonColor: '#ef4444'
+                    });
+                    input.value = '';
+                    preview.innerHTML = '';
+                    input.classList.remove('has-file');
+                    return;
+                }
+
+                // เพิ่ม class has-file
+                input.classList.add('has-file');
+
+                // อัปเดตข้อความใน label
+                const textSpan = label.querySelector('.file-upload-text');
+                const subtextSpan = label.querySelector('.file-upload-subtext');
+                textSpan.textContent = '✓ เลือกไฟล์แล้ว';
+                subtextSpan.textContent = file.name;
+
+                // แสดง Preview
+                if (fileType.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        preview.innerHTML = `
+                            <div class="flex items-center space-x-2 p-2 bg-green-50 border border-green-200 rounded-lg">
+                                <img src="${e.target.result}" class="w-16 h-16 object-cover rounded">
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-green-800">${file.name}</p>
+                                    <p class="text-xs text-green-600">${fileSize} MB</p>
+                                </div>
+                                <button type="button" onclick="removeFile('${input.id}')" class="text-red-600 hover:text-red-800">
+                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        `;
+                    };
+                    reader.readAsDataURL(file);
+                } else if (fileType === 'application/pdf') {
+                    preview.innerHTML = `
+                        <div class="flex items-center space-x-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+                            <svg class="w-12 h-12 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
+                            </svg>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-blue-800">${file.name}</p>
+                                <p class="text-xs text-blue-600">${fileSize} MB</p>
+                            </div>
+                            <button type="button" onclick="removeFile('${input.id}')" class="text-red-600 hover:text-red-800">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // ==================== Remove File ====================
+        function removeFile(inputId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(inputId + 'Preview');
+            const label = input.nextElementSibling;
+            const textSpan = label.querySelector('.file-upload-text');
+            const subtextSpan = label.querySelector('.file-upload-subtext');
+
+            input.value = '';
+            input.classList.remove('has-file');
+            preview.innerHTML = '';
+            textSpan.textContent = 'คลิกเพื่อเลือกไฟล์';
+            subtextSpan.textContent = 'หรือลากไฟล์มาวางที่นี่';
+        }
+
+        // ==================== Setup ID Card Auto-Format ====================
+        function setupIDCardFormatter() {
+            const idInput = document.getElementById('idCard');
+            
+            if (idInput) {
+                idInput.addEventListener('input', (e) => {
+                    e.target.value = formatThaiID(e.target.value);
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // เรียกใช้ฟังก์ชัน setup
+            setupFilePreview();
+            setupIDCardFormatter();
+        });
+
+        // ==================== Address Management ====================
+        let householdAddressData = null;
+
+        function selectAddressOption(option) {
+            const existingOption = document.getElementById('useExistingAddress');
+            const newOption = document.getElementById('useNewAddress');
+            const existingRadio = document.querySelector('input[name="addressOption"][value="existing"]');
+            const newRadio = document.querySelector('input[name="addressOption"][value="new"]');
+
+            if (option === 'existing') {
+                existingOption.classList.add('selected');
+                newOption.classList.remove('selected');
+                existingRadio.checked = true;
+                
+                // ⭐ แสดง preview กลับมา
+                if (householdAddressData) {
+                    displayExistingAddress(householdAddressData);
+                }
+                
+                fillExistingAddress();
+            } else {
+                newOption.classList.add('selected');
+                existingOption.classList.remove('selected');
+                newRadio.checked = true;
+                clearAddressFields();
+            }
+        }
+
+        function fillExistingAddress() {
+            if (!householdAddressData) return;
+            
+            const form = document.getElementById('funeralForm');
+            form.deceasedAddress.value = householdAddressData.houseNumber || '';
+            form.deceasedVillage.value = householdAddressData.moo || '';
+            form.subDistrict.value = householdAddressData.subdistrict || '';
+            form.district.value = householdAddressData.district || '';
+            form.province.value = householdAddressData.province || '';
+            form.postalCode.value = householdAddressData.postalCode || '';
+        }
+
+        function clearAddressFields() {
+            const form = document.getElementById('funeralForm');
+            form.deceasedAddress.value = '';
+            form.deceasedVillage.value = '';
+            form.subDistrict.value = '';
+            form.district.value = '';
+            form.province.value = '';
+            form.postalCode.value = '';
+            form.deceasedAddress.focus();
+        }
+
+        function displayExistingAddress(data) {
+            householdAddressData = data; // เก็บข้อมูลไว้ใน global variable
+            const preview = document.getElementById('existingAddressPreview');
+            
+            if (data && data.houseNumber) {
+                preview.innerHTML = `
+                    <span class="text-gray-800">
+                        บ้านเลขที่ ${data.houseNumber || '-'} 
+                        หมู่ ${data.moo || '-'}<br>
+                        ตำบล${data.subdistrict || '-'} 
+                        อำเภอ${data.district || '-'}<br>
+                        จังหวัด${data.province || '-'} 
+                        ${data.postalCode || '-'}
+                    </span>
+                `;
+            } else {
+                preview.innerHTML = '<span class="text-gray-500">ไม่มีที่อยู่ที่บันทึกไว้</span>';
+            }
+        }
+
     </script>
-    
 </body>
 </html>

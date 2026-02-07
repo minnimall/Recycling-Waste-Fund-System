@@ -456,30 +456,96 @@
                                                 <% } %>
                             </tbody>
                         </table>
-                    </div>
-                </div>
+                        
+                        <!-- Pagination -->
+                        <% 
+                            // สร้าง Query String สำหรับคงค่า Filter ต่างๆ
+                            const filterParams = (searchDate ? '&searchDate=' + searchDate : '') + 
+                                                (searchMonth ? '&searchMonth=' + searchMonth : '') + 
+                                                (searchYear ? '&searchYear=' + searchYear : '') + 
+                                                (villageId ? '&villageId=' + villageId : '') + 
+                                                (accountId ? '&accountId=' + accountId : '') + 
+                                                (search ? '&search=' + search : '');
+                        %>
 
-                <!-- Pagination -->
-                <div class="pagination flex justify-center items-center mt-4 mb-6 space-x-2">
-                    <% if (currentPage> 1) { %>
-                        <a href="?page=<%= currentPage - 1 %><%= searchDate ? '&searchDate=' + searchDate : '' %><%= searchMonth ? '&searchMonth=' + searchMonth : '' %><%= villageId ? '&villageId=' + villageId : '' %><%= accountId ? '&accountId=' + accountId : '' %><%= search ? '&search=' + search : '' %>"
-                            class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                            ก่อนหน้า
-                        </a>
-                        <% } %>
-                            <% for (let i=1; i <=totalPages; i++) { %>
-                                <a href="?page=<%= i %><%= searchDate ? '&searchDate=' + searchDate : '' %><%= searchMonth ? '&searchMonth=' + searchMonth : '' %><%= villageId ? '&villageId=' + villageId : '' %><%= accountId ? '&accountId=' + accountId : '' %><%= search ? '&search=' + search : '' %>"
-                                    class="px-3 py-1 border border-gray-300 rounded-md 
-                        <%= currentPage === i ? 'bg-blue-500 text-white' : 'text-gray-700 hover:bg-gray-100' %>">
-                                    <%= i %>
+                        <div class="mx-4 mb-6 mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <div class="text-sm text-gray-700">
+                                แสดง <%= totalCount > 0 ? ((pageNumber - 1) * limit) + 1 : 0 %> 
+                                ถึง <%= Math.min(pageNumber * limit, totalCount) %> 
+                                จาก <%= totalCount %> รายการ
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <% if (pageNumber > 1) { %>
+                                <a href="?page=1<%= filterParams %>" 
+                                class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
+                                    <ion-icon name="play-back-outline"></ion-icon>
                                 </a>
                                 <% } %>
-                                    <% if (currentPage < totalPages) { %>
-                                        <a href="?page=<%= currentPage + 1 %><%= searchDate ? '&searchDate=' + searchDate : '' %><%= searchMonth ? '&searchMonth=' + searchMonth : '' %><%= villageId ? '&villageId=' + villageId : '' %><%= accountId ? '&accountId=' + accountId : '' %><%= search ? '&search=' + search : '' %>"
-                                            class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                                            ถัดไป
-                                        </a>
-                                        <% } %>
+
+                                <% if (pageNumber > 1) { %>
+                                <a href="?page=<%= pageNumber - 1 %><%= filterParams %>" 
+                                class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
+                                    <ion-icon name="chevron-back-outline"></ion-icon>
+                                </a>
+                                <% } else { %>
+                                <button disabled 
+                                        class="px-3 py-2 rounded-md bg-gray-100 border border-gray-300 text-sm text-gray-400 cursor-not-allowed">
+                                    <ion-icon name="chevron-back-outline"></ion-icon>
+                                </button>
+                                <% } %>
+
+                                <% 
+                                const maxPagesToShow = 5;
+                                let startPage = Math.max(1, pageNumber - Math.floor(maxPagesToShow / 2));
+                                let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+                                
+                                if (endPage - startPage < maxPagesToShow - 1) {
+                                    startPage = Math.max(1, endPage - maxPagesToShow + 1);
+                                }
+                                
+                                if (startPage > 1) { %>
+                                    <span class="px-2 text-gray-500">...</span>
+                                <% } 
+                                
+                                for (let i = startPage; i <= endPage; i++) { %>
+                                    <% if (i === pageNumber) { %>
+                                    <button class="px-4 py-2 rounded-md bg-green-600 text-white text-sm font-medium">
+                                        <%= i %>
+                                    </button>
+                                    <% } else { %>
+                                    <a href="?page=<%= i %><%= filterParams %>" 
+                                    class="px-4 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
+                                        <%= i %>
+                                    </a>
+                                    <% } %>
+                                <% } 
+                                
+                                if (endPage < totalPages) { %>
+                                    <span class="px-2 text-gray-500">...</span>
+                                <% } %>
+
+                                <% if (pageNumber < totalPages) { %>
+                                <a href="?page=<%= pageNumber + 1 %><%= filterParams %>" 
+                                class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
+                                    <ion-icon name="chevron-forward-outline"></ion-icon>
+                                </a>
+                                <% } else { %>
+                                <button disabled 
+                                        class="px-3 py-2 rounded-md bg-gray-100 border border-gray-300 text-sm text-gray-400 cursor-not-allowed">
+                                    <ion-icon name="chevron-forward-outline"></ion-icon>
+                                </button>
+                                <% } %>
+
+                                <% if (pageNumber < totalPages) { %>
+                                <a href="?page=<%= totalPages %><%= filterParams %>" 
+                                class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
+                                    <ion-icon name="play-forward-outline"></ion-icon>
+                                </a>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 </body>

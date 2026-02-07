@@ -71,15 +71,17 @@
                         <span class="sm:hidden">Maps</span>
                     </button> -->
                     <!-- View Mode Buttons -->
-                    <div class="view-mode-controls">
+                    <div class="view-mode-controls flex gap-3">
                         <button onclick="toggleEditMode()" 
-                                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-                            <ion-icon name="create-outline" class="align-middle"></ion-icon>
+                                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
                             แก้ไขเส้นทาง
                         </button>
                         <button onclick="deleteRoute()" 
-                                class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">
-                            <ion-icon name="trash-outline" class="align-middle"></ion-icon>
+                                class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition flex items-center">
+                            <ion-icon name="trash-outline" class="mr-2 text-lg"></ion-icon>
                             ลบ
                         </button>
                     </div>
@@ -585,13 +587,13 @@
             
             if (isEditMode) {
                 body.classList.add('edit-mode');
-                // Swal.fire({
-                //     icon: 'info',
-                //     title: 'โหมดแก้ไข',
-                //     text: 'คุณสามารถเพิ่ม/ลบจุด แล้วกดวิเคราะห์เส้นทางใหม่',
-                //     timer: 3000,
-                //     showConfirmButton: false
-                // });
+                Swal.fire({
+                    icon: 'info',
+                    title: 'โหมดแก้ไข',
+                    text: 'คุณสามารถเพิ่ม/ลบจุด แล้วกดวิเคราะห์เส้นทางใหม่',
+                    timer: 8000,
+                    showConfirmButton: false
+                });
             } else {
                 body.classList.remove('edit-mode');
                 // รีโหลดจุดเดิม
