@@ -808,7 +808,11 @@ const getFamilyMembers = async (req, res) => {
                         relation: beneficiary.relation,
                         status: beneficiary.status || 'living',
                         type: 'beneficiary',
-                        mainMemberId: member._id
+                        mainMemberId: member._id,
+                        // ⬇️ เพิ่ม 3 บรรทัดนี้
+                        idCardNumber: '', // beneficiary ไม่มีเลขบัตร
+                        age: '',          // beneficiary ไม่มีอายุ
+                        phone: ''         // beneficiary ไม่มีเบอร์โทร
                     });
                 });
             }
