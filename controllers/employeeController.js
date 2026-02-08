@@ -3343,8 +3343,23 @@ const submitFuneralAssistance = (req, res) => {
                 isDeleted: false,
                 MembershipDate: { $ne: null }
             })
-            .populate('familyID', 'familyName username')
+            .populate({
+                path: 'familyID',
+                select: 'familyName username',
+                match: { isDeleted: false } // ✅ เพิ่มเงื่อนไข
+            })
             .session(session);
+
+            // ✅ กรองเฉพาะบัญชีที่มี familyID
+            const validMemberAccounts = memberAccounts.filter(acc => acc.familyID !== null);
+
+            if (validMemberAccounts.length === 0) {
+                await session.abortTransaction();
+                return res.status(400).json({ 
+                    success: false, 
+                    message: 'ไม่มีบัญชีสมาชิกที่ใช้งานได้ในระบบ' 
+                });
+            }
 
             const accountsToDeduct = [];
             let totalDeductedAmount = 0;
@@ -3353,7 +3368,7 @@ const submitFuneralAssistance = (req, res) => {
             let membershipStatusChanges = [];
 
             // ========== 6. หักเงินจากบัญชีสมาชิกทุกบัญชี ==========
-            for (const acc of memberAccounts) {
+            for (const acc of validMemberAccounts) {
                 const balanceBefore = acc.Balance;
                 const wasActiveMember = acc.IsMember;
                 let status = 'sufficient';
@@ -3376,7 +3391,7 @@ const submitFuneralAssistance = (req, res) => {
                         acc.IsMember = false;
                         membershipStatusChanges.push({
                             accountNumber: acc.AccountNumber,
-                            familyName: acc.familyID.familyName,
+                            familyName: acc.familyID?.familyName || 'ไม่ระบุ',
                             status: 'lost',
                             balanceAfter: acc.Balance
                         });
@@ -3387,7 +3402,7 @@ const submitFuneralAssistance = (req, res) => {
 
                 accountsToDeduct.push({
                     accountID: acc._id,
-                    familyID: acc.familyID._id,
+                    familyID: acc.familyID?._id,
                     accountNumber: acc.AccountNumber,
                     accountName: acc.AccountName,
                     deductedAmount: perAccountAmount,
@@ -3518,11 +3533,16 @@ const submitFuneralAssistance = (req, res) => {
 
         } catch (error) {
             await session.abortTransaction();
-            console.error('Error submitting funeral assistance:', error);
+            console.error('❌ Error submitting funeral assistance:', error);
+            console.error('❌ Error stack:', error.stack);
+            console.error('❌ Request body:', req.body);
+            console.error('❌ Request files:', req.files ? Object.keys(req.files) : 'No files');
+            
             res.status(500).json({ 
                 success: false, 
                 message: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล',
-                error: error.message 
+                error: error.message,
+                stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
             });
         } finally {
             session.endSession();
