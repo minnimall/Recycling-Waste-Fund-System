@@ -839,7 +839,7 @@
         document.getElementById('funeralForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            console.log('🔍 Form submitted'); // Debug
+            console.log('🔍 Form submitted');
             
             if (!selectedHousehold) {
                 Swal.fire({
@@ -859,7 +859,7 @@
                 return;
             }
 
-            // ✅ เพิ่ม: ตรวจสอบเลขบัตรประชาชน
+            // ✅ ตรวจสอบเลขบัตรประชาชน
             const idInput = document.getElementById('idCard');
             const numbersOnly = idInput.value.replace(/\D/g, '');
             if(numbersOnly.length !== 13) {
@@ -873,7 +873,7 @@
                 return;
             }
 
-            // ✅ เพิ่ม: ตรวจสอบว่ามีการอัปโหลดไฟล์ครบทุกไฟล์
+            // ✅ ตรวจสอบว่ามีการอัปโหลดไฟล์ครบทุกไฟล์
             const requiredFiles = [
                 'deathCertificate',
                 'deceasedIdCard',
@@ -915,12 +915,12 @@
                 
                 // ข้อมูลผู้รับผิดชอบ
                 responsiblePersonName: document.getElementById('responsiblePersonName').value.trim(),
-                responsiblePersonId: document.getElementById('responsiblePersonId')?.value || null,
+                responsiblePersonId: document.getElementById('responsiblePersonId')?.value || '',
                 relationship: document.getElementById('relationship').value,
                 
                 // ข้อมูลผู้เสียชีวิต
                 deceasedName: document.getElementById('deceasedName').value.trim(),
-                deceasedId: document.getElementById('deceasedId')?.value || null,
+                deceasedId: document.getElementById('deceasedId')?.value || '',
                 deceasedAge: document.getElementById('deceasedAge').value,
                 idCard: numbersOnly, // ✅ ใช้ numbersOnly แทน (13 หลักไม่มีขีด)
                 deceasedAddress: document.getElementById('deceasedAddress').value.trim(),
@@ -935,15 +935,14 @@
                 
                 // ข้อมูลอื่นๆ
                 notes: document.getElementById('notes').value.trim(),
-                amount: parseFloat(document.getElementById('amount').value),
-                memberID: document.getElementById('deceasedId')?.value || null // ✅ เพิ่ม memberID
+                amount: parseFloat(document.getElementById('amount').value)
             };
 
-            console.log('📋 Form Data:', formData); // Debug
+            console.log('📋 Form Data:', formData);
             
-            // ตรวจสอบข้อมูลก่อนส่ง
+            // ✅ ตรวจสอบข้อมูลก่อนส่ง
             const missingFields = [];
-            const requiredFields = {
+            const requiredFieldLabels = {
                 responsiblePersonName: 'ชื่อผู้รับผิดชอบ',
                 relationship: 'ความสัมพันธ์',
                 deceasedName: 'ชื่อผู้เสียชีวิต',
@@ -961,7 +960,7 @@
                 amount: 'จำนวนเงิน'
             };
 
-            for (const [field, label] of Object.entries(requiredFields)) {
+            for (const [field, label] of Object.entries(requiredFieldLabels)) {
                 if (!formData[field] || formData[field].toString().trim() === '') {
                     missingFields.push(label);
                 }
@@ -971,12 +970,12 @@
                 Swal.fire({
                     icon: 'warning',
                     title: 'กรุณากรอกข้อมูลให้ครบถ้วน',
-                    html: `<p>ข้อมูลที่ขาดหาย:</p><ul class="text-left">${missingFields.map(f => `<li>• ${f}</li>`).join('')}</ul>`
+                    html: `<p>ข้อมูลที่ขาดหาย:</p><ul class="text-left list-disc list-inside">${missingFields.map(f => `<li>${f}</li>`).join('')}</ul>`
                 });
                 return;
             }
 
-            // ✅ เพิ่ม: ตรวจสอบว่าผู้รับผิดชอบและผู้เสียชีวิตไม่ใช่คนเดียวกัน
+            // ✅ ตรวจสอบว่าผู้รับผิดชอบและผู้เสียชีวิตไม่ใช่คนเดียวกัน
             if (formData.responsiblePersonId && formData.deceasedId && 
                 formData.responsiblePersonId === formData.deceasedId) {
                 Swal.fire({
@@ -988,28 +987,37 @@
                 return;
             }
 
-            // ✅ เพิ่ม: สร้าง FormData สำหรับส่งไฟล์
+            // ✅ สร้าง FormData สำหรับส่งไฟล์ (เหมือนเดิม)
             const formDataToSend = new FormData();
             
             // เพิ่มข้อมูลทั่วไป
             Object.keys(formData).forEach(key => {
-                if (formData[key] !== null && formData[key] !== undefined) {
+                if (formData[key] !== null && formData[key] !== undefined && formData[key] !== '') {
                     formDataToSend.append(key, formData[key]);
                 }
             });
             
             // เพิ่มไฟล์
-            requiredFiles.forEach(fieldName => {
+            const fileInputs = [
+                'deathCertificate',
+                'deceasedIdCard',
+                'deceasedHouseRegistration',
+                'applicantIdCard',
+                'applicantHouseRegistration'
+            ];
+            
+            fileInputs.forEach(fieldName => {
                 const fileInput = document.querySelector(`input[name="${fieldName}"]`);
                 if (fileInput && fileInput.files[0]) {
                     formDataToSend.append(fieldName, fileInput.files[0]);
+                    console.log(`📎 Added file: ${fieldName} (${fileInput.files[0].name})`);
                 }
             });
 
-            console.log('📦 FormData ready to send'); // Debug
+            console.log('📦 FormData ready to send');
             
-            // เรียกฟังก์ชันบันทึกข้อมูล
-            await submitFuneralAssistance(formData);
+            // ✅ เรียกฟังก์ชันบันทึกข้อมูล
+            await submitFuneralAssistance(formDataToSend);
         });
 
         // ==================== API Functions ====================
@@ -1187,8 +1195,8 @@
             }
         }
 
-        // แก้ไข submitFuneralAssistance ให้ส่ง FormData แทน JSON
-        async function submitFuneralAssistance(formData) {
+        // ✅ แก้ไขฟังก์ชัน submitFuneralAssistance ให้รับ FormData
+        async function submitFuneralAssistance(formDataToSend) {
             try {
                 Swal.fire({
                     title: 'กำลังบันทึกข้อมูล...',
@@ -1196,30 +1204,6 @@
                     allowOutsideClick: false,
                     didOpen: () => {
                         Swal.showLoading();
-                    }
-                });
-
-                // สร้าง FormData สำหรับส่งไฟล์
-                const formDataToSend = new FormData();
-                
-                // เพิ่มข้อมูลทั่วไป
-                Object.keys(formData).forEach(key => {
-                    formDataToSend.append(key, formData[key]);
-                });
-                
-                // เพิ่มไฟล์
-                const fileInputs = [
-                    'deathCertificate',
-                    'deceasedIdCard',
-                    'deceasedHouseRegistration',
-                    'applicantIdCard',
-                    'applicantHouseRegistration'
-                ];
-                
-                fileInputs.forEach(fieldName => {
-                    const fileInput = document.querySelector(`input[name="${fieldName}"]`);
-                    if (fileInput && fileInput.files[0]) {
-                        formDataToSend.append(fieldName, fileInput.files[0]);
                     }
                 });
 
@@ -1248,11 +1232,11 @@
                     Swal.fire({
                         icon: 'error',
                         title: 'เกิดข้อผิดพลาด',
-                        text: result.message
+                        text: result.message || 'ไม่สามารถบันทึกข้อมูลได้'
                     });
                 }
             } catch (error) {
-                console.error('Error:', error);
+                console.error('❌ Submit Error:', error);
                 Swal.fire({
                     icon: 'error',
                     title: 'เกิดข้อผิดพลาด',
