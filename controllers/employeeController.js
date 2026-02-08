@@ -3149,9 +3149,9 @@ const uploadToCloudinary = (fileBuffer, fileName) => {
             access_mode: 'public'
         };
 
-        if (isPDF) {
-            uploadOptions.format = 'pdf';
-        }
+        // if (isPDF) {
+        //     uploadOptions.format = 'pdf';
+        // }
 
         const stream = cloudinary.uploader.upload_stream(
             uploadOptions,
