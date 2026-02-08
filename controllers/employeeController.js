@@ -3172,7 +3172,7 @@ const uploadToCloudinary = (fileBuffer, fileName) => {
 const submitFuneralAssistance = (req, res) => {
     uploadfuneral(req, res, async (err) => {
         if (err) {
-            console.error("Multer upload error:", err);
+            console.error("❌ Multer upload error:", err);
             return res.status(400).json({
                 success: false,
                 message: 'อัปโหลดไฟล์ไม่สำเร็จ: ' + err.message
@@ -3183,13 +3183,16 @@ const submitFuneralAssistance = (req, res) => {
         session.startTransaction();
 
         try {
+            console.log('📥 Request body:', req.body);
+            console.log('📎 Files:', req.files ? Object.keys(req.files) : 'No files');
+            
             const { 
                 familyID,
                 responsiblePersonName,
-                responsiblePersonId, // เพิ่ม: ID ของผู้รับผิดชอบ
+                responsiblePersonId,
                 relationship,
                 deceasedName,
-                deceasedId, // เพิ่ม: ID ของผู้เสียชีวิต
+                deceasedId,
                 deceasedAge,
                 idCard,
                 deceasedAddress,
@@ -3202,8 +3205,7 @@ const submitFuneralAssistance = (req, res) => {
                 causeOfDeath,
                 dateOfDeath,
                 notes,
-                amount,
-                memberID
+                amount
             } = req.body;
 
             // ========== 1. Validate ข้อมูล ==========
@@ -3250,10 +3252,11 @@ const submitFuneralAssistance = (req, res) => {
                 });
             }
 
-            // ========== 2. ตรวจสอบไฟล์ (ถ้ามี) ==========
+            // ========== 2. ตรวจสอบไฟล์ ==========
             let documents = {};
             
             if (req.files && Object.keys(req.files).length > 0) {
+                console.log('📤 Uploading files to Cloudinary...');
                 const requiredFiles = [
                     'deathCertificate',
                     'deceasedIdCard',
@@ -3262,29 +3265,31 @@ const submitFuneralAssistance = (req, res) => {
                     'applicantHouseRegistration'
                 ];
 
-                // อัปโหลดไฟล์ทั้งหมดไป Cloudinary
                 const uploadPromises = requiredFiles
                     .filter(fieldName => req.files[fieldName] && req.files[fieldName][0])
                     .map(async (fieldName) => {
                         const file = req.files[fieldName][0];
                         try {
+                            console.log(`⏳ Uploading ${fieldName}...`);
                             const result = await uploadToCloudinary(file.buffer, file.originalname);
+                            console.log(`✅ Uploaded ${fieldName}: ${result.secure_url}`);
                             return {
                                 fieldName,
                                 url: result.secure_url
                             };
                         } catch (error) {
-                            console.error(`Error uploading ${fieldName}:`, error);
+                            console.error(`❌ Error uploading ${fieldName}:`, error);
                             throw new Error(`ไม่สามารถอัปโหลด ${fieldName} ได้`);
                         }
                     });
 
                 const uploadedFiles = await Promise.all(uploadPromises);
 
-                // แปลง array เป็น object
                 uploadedFiles.forEach(file => {
                     documents[file.fieldName] = file.url;
                 });
+                
+                console.log('✅ All files uploaded successfully');
             }
 
             // ========== 3. ตรวจสอบบัญชีและคุณสมบัติ ==========
@@ -3346,11 +3351,10 @@ const submitFuneralAssistance = (req, res) => {
             .populate({
                 path: 'familyID',
                 select: 'familyName username',
-                match: { isDeleted: false } // ✅ เพิ่มเงื่อนไข
+                match: { isDeleted: false }
             })
             .session(session);
 
-            // ✅ กรองเฉพาะบัญชีที่มี familyID
             const validMemberAccounts = memberAccounts.filter(acc => acc.familyID !== null);
 
             if (validMemberAccounts.length === 0) {
@@ -3440,7 +3444,7 @@ const submitFuneralAssistance = (req, res) => {
                     phone: phone,
                     causeOfDeath: causeOfDeath,
                     dateOfDeath: new Date(dateOfDeath),
-                    memberID: deceasedId || memberID || null // ใช้ deceasedId ที่เลือกจาก dropdown
+                    memberID: deceasedId || null
                 },
                 financialInfo: {
                     totalAmount: parseFloat(amount),
@@ -3452,10 +3456,19 @@ const submitFuneralAssistance = (req, res) => {
                     accountsWithInsufficientBalance: accountsWithInsufficientBalance
                 },
                 deductedAccounts: accountsToDeduct,
-                documents: documents, // เพิ่ม documents
+                documents: documents,
                 notes: notes || '',
                 status: 'completed',
-                createdBy: req.user._id,
+                
+                // ✅ แก้ไข: ตั้งค่า submittedBy และ createdBy อย่างถูกต้อง
+                submittedBy: {
+                    userType: 'employee',
+                    userId: req.user ? req.user._id : null,
+                    userModel: 'Admin',
+                    submittedAt: new Date()
+                },
+                createdBy: req.user ? req.user._id : null, // ✅ ป้องกัน null error
+                
                 eligibilityCheck: {
                     isMember: true,
                     membershipDate: account.MembershipDate,
@@ -3470,10 +3483,17 @@ const submitFuneralAssistance = (req, res) => {
             });
 
             await funeralRecord.save({ session });
+            console.log('✅ Funeral record saved:', funeralRecord._id);
 
             // ========== 8. สร้าง Notification ==========
             const notifications = [];
             for (const deduction of accountsToDeduct) {
+                // ✅ ตรวจสอบว่ามี familyID ก่อนสร้าง notification
+                if (!deduction.familyID) {
+                    console.warn(`⚠️ Skipping notification for account ${deduction.accountNumber}: no familyID`);
+                    continue;
+                }
+                
                 let notificationContent = `
                     <div>
                         <p><strong>การหักเงินฌาปนกิจสงเคราะห์</strong></p>
@@ -3513,10 +3533,12 @@ const submitFuneralAssistance = (req, res) => {
 
             if (notifications.length > 0) {
                 await Notification.insertMany(notifications, { session });
+                console.log(`✅ Created ${notifications.length} notifications`);
             }
 
             // ========== 9. Commit Transaction ==========
             await session.commitTransaction();
+            console.log('✅ Transaction committed successfully');
 
             res.json({
                 success: true,
