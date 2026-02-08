@@ -139,21 +139,33 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">รูปภาพขยะ</label>
                         
-                        <!-- อัปโหลดรูปภาพ -->
+                        <!-- Preview Area -->
                         <div class="relative">
-                            <input type="file" name="img" id="img" accept="image/png, image/gif, image/jpeg" 
-                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                            <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:bg-gray-100 transition-colors">
-                                <ion-icon name="cloud-upload-outline" class="text-gray-400 text-2xl mb-2"></ion-icon>
-                                <p class="text-sm text-gray-600 mb-1">คลิกเพื่อเลือกรูปภาพ</p>
-                                <p class="text-xs text-gray-500">PNG, JPG, GIF (ไม่เกิน 5MB)</p>
+                            <input type="file" name="img" id="img" accept="image/png, image/gif, image/jpeg" class="hidden">
+                            
+                            <!-- Upload Zone (แสดงเมื่อยังไม่มีรูป) -->
+                            <div id="addUploadZone" 
+                                class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:bg-gray-100 hover:border-gray-400 transition-all cursor-pointer">
+                                <ion-icon name="cloud-upload-outline" class="text-gray-400 text-4xl mb-3"></ion-icon>
+                                <p class="text-sm text-gray-600 mb-1 font-medium">คลิกเพื่อเลือกรูปภาพ</p>
+                                <p class="text-xs text-gray-500">PNG, JPG (ไม่เกิน 10 MB)</p>
                             </div>
-                        </div>
-                        
-                        <!-- แสดงตัวอย่างรูปภาพที่เลือก -->
-                        <div id="imagePreview" class="mt-3 hidden">
-                            <div class="w-full h-32 bg-gray-100 rounded-lg border-2 border-gray-300 flex items-center justify-center overflow-hidden">
-                                <img id="previewImage" src="/placeholder.svg" alt="Preview" class="max-w-full max-h-full object-cover rounded-lg">
+                            
+                            <!-- Image Preview (แสดงเมื่อมีรูป) -->
+                            <div id="addImagePreview" class="hidden">
+                                <div class="relative group">
+                                    <img id="addPreviewImg" src="/placeholder.svg" alt="Preview" 
+                                        class="w-full h-64 object-contain rounded-lg border-2 border-gray-300 bg-gray-50">
+                                    
+                                    <!-- Overlay with Change Button -->
+                                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all rounded-lg flex items-center justify-center">
+                                        <button type="button" id="addChangeImageBtn"
+                                            class="opacity-0 group-hover:opacity-100 transition-opacity bg-white text-gray-700 px-4 py-2 rounded-lg font-medium shadow-lg hover:bg-gray-100 flex items-center gap-2">
+                                            <ion-icon name="camera-outline"></ion-icon>
+                                            <span>เปลี่ยนรูปภาพ</span>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -210,38 +222,37 @@
                             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
                     </div>
                     
-                    <!-- รูปภาพขยะ -->
-                    <div class="mt-3">
-                        <label class="title-img" for="img">รูปภาพขยะ</label>
-                    </div>
-                    <div class="img-input mt-3">
-                        <div class="current-img">
-                            <img src="" alt="Current Waste Image" class="img-edit">
-                        </div>
-                    </div>
+                    <!-- รูปภาพขยะ (ใน Edit Form) -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">รูปภาพขยะที่ต้องการจะแก้ไข</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">รูปภาพขยะ</label>
                         
-                        <!-- แสดงรูปภาพปัจจุบัน -->
-                        <!-- <div class="mb-3">
-                            <div class="w-full h-32 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden">
-                                <img src="/placeholder.svg" alt="Current Waste Image" id="currentWasteImage" 
-                                    class="max-w-full max-h-full object-cover rounded-lg hidden">
-                                <div id="imagePlaceholder" class="text-gray-400 text-center">
-                                    <ion-icon name="image-outline" class="text-3xl mb-2"></ion-icon>
-                                    <p class="text-sm">รูปภาพปัจจุบัน</p>
-                                </div>
-                            </div>
-                        </div> -->
-                        
-                        <!-- อัปโหลดรูปภาพใหม่ -->
+                        <!-- Preview Area -->
                         <div class="relative">
-                            <input type="file" name="img" id="editWasteImg" accept="image/png, image/gif, image/jpeg" 
-                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                            <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:bg-gray-100 transition-colors">
-                                <ion-icon name="cloud-upload-outline" class="text-gray-400 text-2xl mb-2"></ion-icon>
-                                <p class="text-sm text-gray-600 mb-1">คลิกเพื่อเลือกรูปภาพใหม่</p>
+                            <input type="file" name="img" id="editWasteImg" accept="image/png, image/gif, image/jpeg" class="hidden">
+                            
+                            <!-- Upload Zone (แสดงเมื่อยังไม่มีรูป) -->
+                            <div id="editUploadZone" 
+                                class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:bg-gray-100 hover:border-gray-400 transition-all cursor-pointer hidden">
+                                <ion-icon name="cloud-upload-outline" class="text-gray-400 text-4xl mb-3"></ion-icon>
+                                <p class="text-sm text-gray-600 mb-1 font-medium">คลิกเพื่อเลือกรูปภาพ</p>
                                 <p class="text-xs text-gray-500">PNG, JPG, GIF (ไม่เกิน 5MB)</p>
+                            </div>
+                            
+                            <!-- Image Preview (แสดงเมื่อมีรูป) -->
+                            <div id="editImagePreview">
+                                <div class="relative group">
+                                    <img id="editPreviewImg" src="/placeholder.svg" alt="Preview" 
+                                        class="w-full h-64 object-contain rounded-lg border-2 border-gray-300 bg-gray-50">
+                                    
+                                    <!-- Overlay with Change Button -->
+                                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all rounded-lg flex items-center justify-center">
+                                        <button type="button" id="editChangeImageBtn"
+                                            class="opacity-0 group-hover:opacity-100 transition-opacity bg-white text-gray-700 px-4 py-2 rounded-lg font-medium shadow-lg hover:bg-gray-100 flex items-center gap-2">
+                                            <ion-icon name="camera-outline"></ion-icon>
+                                            <span>เปลี่ยนรูปภาพ</span>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -279,11 +290,11 @@
         const InputPricePerUnit = document.getElementById('editPricePerUnit');
         InputPricePerUnit.value = Price;
 
-        // Update the image preview
-        const currentImg = document.querySelector('.current-img img');
-        if (currentImg) {
-            currentImg.src = Img;
-        }
+        // ตั้งค่ารูปภาพเดิม
+        setExistingEditImage(Img);
+
+        // รีเซ็ต input file
+        editFileInput.value = '';
 
         // Hide add form and show edit form
         addForm.style.display = 'none';
@@ -305,11 +316,16 @@
         const addForm = document.getElementById('add_Form');
 
         editForm.style.display = 'none';
-        if (add_Form.style.display === 'block') {
-            add_Form.style.display = 'none';
-        }
-        else {
-            add_Form.style.display = 'block';
+        
+        if (addForm.style.display === 'block') {
+            addForm.style.display = 'none';
+        } else {
+            addForm.style.display = 'block';
+            // รีเซ็ตการแสดงรูปภาพเมื่อเปิด Add Form
+            addFileInput.value = '';
+            addUploadZone.classList.remove('hidden');
+            addImagePreview.classList.add('hidden');
+            addPreviewImg.src = '/placeholder.svg';
         }
     }
     
@@ -354,34 +370,31 @@
         const addForm = document.getElementById('add_Form');
         const editForm = document.getElementById('edit_Form');
         
-        // ซ่อนฟอร์มทั้งสองเมื่อกดปุ่มยกเลิก
         addForm.style.display = 'none';
         editForm.style.display = 'none';
         
-        // รีเซ็ตค่าในฟอร์ม Add
+        // รีเซ็ตฟอร์ม Add
         document.getElementById('wasteName').value = '';
         document.getElementById('pricePerUnit').value = '';
         document.getElementById('wasteType').value = '';
-        document.getElementById('img').value = '';  // ลบรูปภาพที่เลือก
+        addFileInput.value = '';
         
-        // รีเซ็ตค่าในฟอร์ม Edit
+        // รีเซ็ตการแสดงรูปภาพ Add Form
+        addUploadZone.classList.remove('hidden');
+        addImagePreview.classList.add('hidden');
+        addPreviewImg.src = '/placeholder.svg';
+        
+        // รีเซ็ตฟอร์ม Edit
         document.getElementById('editWasteName').value = '';
         document.getElementById('editPricePerUnit').value = '';
         document.getElementById('editWasteType').value = '';
-        document.getElementById('editWasteImg').value = '';  // ลบรูปภาพที่เลือกใหม่
+        editFileInput.value = '';
         
-        // รีเซ็ตการแสดงรูปภาพใน Edit Form
-        const currentImage = document.getElementById('currentWasteImage');
-        const placeholder = document.getElementById('imagePlaceholder');
+        // รีเซ็ตการแสดงรูปภาพ Edit Form
+        editPreviewImg.src = '/placeholder.svg';
+        editUploadZone.classList.add('hidden');
+        editImagePreview.classList.add('hidden');
         
-        // ซ่อนรูปภาพที่เลือกใหม่และแสดง placeholder
-        currentImage.classList.add('hidden');
-        placeholder.classList.remove('hidden');
-        
-        // รีเซ็ต src ของรูปภาพ
-        currentImage.src = '/placeholder.svg';
-        
-        // ยกเลิกแรเงาแถว
         if (lastClickedRow) {
             lastClickedRow.style.backgroundColor = '';
             lastClickedRow = null;
@@ -529,6 +542,145 @@
 
     // Init
     displayData();
+
+    // ==================== Add Form Image Preview ====================
+    const addFileInput = document.getElementById('img');
+    const addUploadZone = document.getElementById('addUploadZone');
+    const addImagePreview = document.getElementById('addImagePreview');
+    const addPreviewImg = document.getElementById('addPreviewImg');
+    const addChangeImageBtn = document.getElementById('addChangeImageBtn');
+
+    // คลิกที่ Upload Zone เพื่อเลือกไฟล์
+    if (addUploadZone) {
+        addUploadZone.addEventListener('click', () => {
+            addFileInput.click();
+        });
+    }
+
+    // คลิกปุ่ม "เปลี่ยนรูปภาพ" เพื่อเลือกไฟล์ใหม่
+    if (addChangeImageBtn) {
+        addChangeImageBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            addFileInput.click();
+        });
+    }
+
+    // เมื่อเลือกไฟล์ใหม่
+    addFileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        
+        if (file) {
+            // ตรวจสอบขนาดไฟล์ (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไฟล์ใหญ่เกินไป',
+                    text: 'ขนาดไฟล์ต้องไม่เกิน 5MB',
+                    confirmButtonColor: '#3085d6'
+                });
+                addFileInput.value = '';
+                return;
+            }
+            
+            // ตรวจสอบประเภทไฟล์
+            const validTypes = ['image/png', 'image/jpeg', 'image/gif'];
+            if (!validTypes.includes(file.type)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ประเภทไฟล์ไม่ถูกต้อง',
+                    text: 'กรุณาเลือกไฟล์ PNG, JPG หรือ GIF เท่านั้น',
+                    confirmButtonColor: '#3085d6'
+                });
+                addFileInput.value = '';
+                return;
+            }
+            
+            // อ่านไฟล์และแสดงรูป
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                addPreviewImg.src = event.target.result;
+                addUploadZone.classList.add('hidden');
+                addImagePreview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // ==================== Edit Form Image Preview ====================
+    const editFileInput = document.getElementById('editWasteImg');
+    const editUploadZone = document.getElementById('editUploadZone');
+    const editImagePreview = document.getElementById('editImagePreview');
+    const editPreviewImg = document.getElementById('editPreviewImg');
+    const editChangeImageBtn = document.getElementById('editChangeImageBtn');
+
+    // คลิกที่ Upload Zone เพื่อเลือกไฟล์
+    if (editUploadZone) {
+        editUploadZone.addEventListener('click', () => {
+            editFileInput.click();
+        });
+    }
+
+    // คลิกปุ่ม "เปลี่ยนรูปภาพ" เพื่อเลือกไฟล์ใหม่
+    if (editChangeImageBtn) {
+        editChangeImageBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            editFileInput.click();
+        });
+    }
+
+    // เมื่อเลือกไฟล์ใหม่
+    editFileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        
+        if (file) {
+            // ตรวจสอบขนาดไฟล์ (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไฟล์ใหญ่เกินไป',
+                    text: 'ขนาดไฟล์ต้องไม่เกิน 5MB',
+                    confirmButtonColor: '#3085d6'
+                });
+                editFileInput.value = '';
+                return;
+            }
+            
+            // ตรวจสอบประเภทไฟล์
+            const validTypes = ['image/png', 'image/jpeg', 'image/gif'];
+            if (!validTypes.includes(file.type)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ประเภทไฟล์ไม่ถูกต้อง',
+                    text: 'กรุณาเลือกไฟล์ PNG, JPG หรือ GIF เท่านั้น',
+                    confirmButtonColor: '#3085d6'
+                });
+                editFileInput.value = '';
+                return;
+            }
+            
+            // อ่านไฟล์และแสดงรูป
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                editPreviewImg.src = event.target.result;
+                editUploadZone.classList.add('hidden');
+                editImagePreview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // ฟังก์ชันสำหรับตั้งค่ารูปภาพเดิมใน Edit Form
+    function setExistingEditImage(imageUrl) {
+        if (imageUrl && imageUrl !== '' && imageUrl !== '/placeholder.svg') {
+            editPreviewImg.src = imageUrl;
+            editUploadZone.classList.add('hidden');
+            editImagePreview.classList.remove('hidden');
+        } else {
+            editPreviewImg.src = '/placeholder.svg';
+            editUploadZone.classList.remove('hidden');
+            editImagePreview.classList.add('hidden');
+        }
+    }
 
 </script>
 

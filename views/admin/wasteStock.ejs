@@ -129,33 +129,30 @@
         </div>
 
         <!-- Summary Cards with Enhanced Information -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <!-- Total Weight -->
-            <div class="mx-4 bg-blue-50 rounded-lg shadow p-6">
+        <div class="mx-4 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white rounded-lg shadow p-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-blue-600">น้ำหนักรวม</p>
-                        <p class="text-2xl font-bold text-blue-900">
+                        <p class="text-sm text-gray-600">น้ำหนักรวม</p>
+                        <p class="text-2xl font-bold text-blue-900 mt-1">
                             <% if (typeof stockData !== 'undefined' && stockData && stockData.length > 0) { %>
                             <%= stockData.reduce((sum, item) => sum + (item.totalQuantityKg || 0), 0).toFixed(2) %>
                             <% } else { %>
                             0.00
                             <% } %> กก.
                         </p>
-                        <p class="text-xs text-blue-700"><%= (stockData && stockData.length) || 0 %> ประเภท</p>
+                        <!-- <p class="text-xs text-blue-700"><%= (stockData && stockData.length) || 0 %> ประเภท</p> -->
                     </div>
                     <div class="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
                         <i class="fas fa-weight text-blue-600"></i>
                     </div>
                 </div>
             </div>
-
-            <!-- Historical Value -->
-            <div class="mx-4 bg-green-50 rounded-lg shadow p-6">
+            <div class="bg-white rounded-lg shadow p-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-green-600">มูลค่าที่จ่ายจริง</p>
-                        <p class="text-2xl font-bold text-green-900">
+                        <p class="text-sm text-gray-600">มูลค่าที่จ่ายจริง</p>
+                        <p class="text-2xl font-bold text-green-900 mt-1">
                             <% if (typeof stockData !== 'undefined' && stockData && stockData.length > 0) { %>
                             <%= stockData.reduce((sum, item) => sum + (item.historicalTotalAmount || 0), 0).toLocaleString() %>
                             <% } else { %>
@@ -169,13 +166,11 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Current Value -->
-            <div class="mx-4 bg-yellow-50 rounded-lg shadow p-6">
+            <div class="bg-white rounded-lg shadow p-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-yellow-600">มูลค่าราคาปัจจุบัน</p>
-                        <p class="text-2xl font-bold text-yellow-900">
+                        <p class="text-sm text-gray-600">มูลค่าราคาปัจจุบัน</p>
+                        <p class="text-2xl font-bold text-yellow-900 mt-1">
                             <% if (typeof stockData !== 'undefined' && stockData && stockData.length > 0) { %>
                             <%= stockData.reduce((sum, item) => sum + (item.currentValueIfSoldToday || 0), 0).toLocaleString() %>
                             <% } else { %>

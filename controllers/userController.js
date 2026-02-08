@@ -967,9 +967,9 @@ const uploadToCloudinary = (fileBuffer, fileName) => {
         };
 
         // เพิ่ม format สำหรับ PDF
-        if (isPDF) {
-            uploadOptions.format = 'pdf';
-        }
+        // if (isPDF) {
+        //     uploadOptions.format = 'pdf';
+        // }
 
         const stream = cloudinary.uploader.upload_stream(
             uploadOptions,

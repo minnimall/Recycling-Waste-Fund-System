@@ -747,7 +747,7 @@ const deleteNews = async (req, res) => {
 
 const upload = multer({
     storage: multer.memoryStorage(),
-    limits: { fileSize: 50 * 1024 * 1024 }
+    limits: { fileSize: 10 * 1024 * 1024 }
 }).single('img');
 
 // กิจกรรม
@@ -925,7 +925,7 @@ const activityEdit = async (req, res) => {
 
 const upload2 = multer({
     storage: multer.memoryStorage(),
-    limits: { fileSize: 50 * 1024 * 1024 }
+    limits: { fileSize: 10 * 1024 * 1024 }
 }).single('img');
 
 // ขยะ
@@ -2182,7 +2182,7 @@ const memberUpdate = async (req, res) => {
 
 const uploadBoard = multer({
     storage: multer.memoryStorage(),
-    limits: { fileSize: 50 * 1024 * 1024 }
+    limits: { fileSize: 10 * 1024 * 1024 }
 }).single('img');
 
 // หน้าแสดงคณะกรรมการ
@@ -2213,6 +2213,24 @@ const boardPost = (req, res) => {
 
             if (!name || !role || !department || !email || !tel) {
                 return res.redirect('/admin/board?error=กรุณากรอกข้อมูลให้ครบถ้วน');
+            }
+
+            // ตรวจสอบข้อมูลซ้ำ
+            const existingBoard = await Board.findOne({
+                isDeleted: false,
+                $or: [
+                    { email: email },
+                    { tel: tel }
+                ]
+            });
+
+            if (existingBoard) {
+                if (existingBoard.email === email) {
+                    return res.redirect('/admin/board?error=อีเมลนี้มีในระบบแล้ว');
+                }
+                if (existingBoard.tel === tel) {
+                    return res.redirect('/admin/board?error=เบอร์โทรศัพท์นี้มีในระบบแล้ว');
+                }
             }
 
             let imageUrl = null;
@@ -2274,6 +2292,25 @@ const boardEdit = (req, res) => {
             const board = await Board.findById(_id);
             if (!board) {
                 return res.redirect('/admin/board?error=ไม่พบข้อมูลคณะกรรมการ');
+            }
+
+            // ตรวจสอบข้อมูลซ้ำ (ยกเว้นตัวเอง)
+            const existingBoard = await Board.findOne({
+                _id: { $ne: _id },
+                isDeleted: false,
+                $or: [
+                    { email: email },
+                    { tel: tel }
+                ]
+            });
+
+            if (existingBoard) {
+                if (existingBoard.email === email) {
+                    return res.redirect('/admin/board?error=อีเมลนี้มีในระบบแล้ว');
+                }
+                if (existingBoard.tel === tel) {
+                    return res.redirect('/admin/board?error=เบอร์โทรศัพท์นี้มีในระบบแล้ว');
+                }
             }
 
             let imageUrl = board.img;
