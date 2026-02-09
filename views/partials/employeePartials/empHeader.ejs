@@ -1,21 +1,31 @@
-<header class="flex items-center justify-between bg-primary-green px-6 py-3 shadow-lg">
-    <!-- Logo -->
-    <div class="flex items-center space-x-3">
-        <a href="/"><img src="/img/logo_เปือยน้อย.png" class="w-[55px]"></a>
-        <div class="text-white">
-            <h1 class="text-xl font-bold">กองทุนขยะรีไซเคิล</h1>
-            <p class="text-sm opacity-90">องค์การบริหารส่วนตำบลขามป้อม</p>
-        </div>
+<header class="flex items-center justify-between bg-primary-green px-4 lg:px-6 py-3 shadow-lg">
+    <!-- Left: Hamburger + Logo -->
+    <div class="flex items-center gap-3">
+        <!-- Hamburger Menu Button (Mobile Only) -->
+        <button id="sidebar-toggle" class="lg:hidden text-white p-2 hover:bg-white/10 rounded-lg transition-colors">
+            <i class="fas fa-bars text-xl"></i>
+        </button>
+        
+        <!-- Logo -->
+        <a href="/" class="flex items-center gap-3">
+            <img src="/img/logo_เปือยน้อย.png" class="w-10 lg:w-[55px] object-contain">
+            <div class="text-white hidden sm:block">
+                <h1 class="text-lg lg:text-xl font-bold">กองทุนขยะรีไซเคิล</h1>
+                <p class="text-xs lg:text-sm opacity-90 hidden md:block">องค์การบริหารส่วนตำบลขามป้อม</p>
+            </div>
+        </a>
     </div>
 
     <!-- User Menu -->
     <div class="relative">
         <button id="user-menu-button"
-            class="flex items-center gap-3 text-white bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg border border-gray-700 shadow transition-all">
-            <img src="/img/admin/logo.png" class="h-12 mr-2 rounded-full">
-            <div class="text-left">
-                <div class="font-semibold">ยินดีต้อนรับ : <%= firstname %> <%= lastname %></div>
-                <div class="text-sm">
+            class="flex items-center gap-2 lg:gap-3 text-white bg-gray-800 hover:bg-gray-700 px-3 lg:px-4 py-2 rounded-lg border border-gray-700 shadow transition-all">
+            <img src="/img/admin/logo.png" class="h-8 lg:h-12 rounded-full">
+            <div class="text-left hidden sm:block">
+                <div class="font-semibold text-sm lg:text-base">
+                    <span class="hidden md:inline">ยินดีต้อนรับ : </span><%= firstname %> <%= lastname %>
+                </div>
+                <div class="text-xs lg:text-sm hidden md:block">
                     <span class="text-yellow-300">ตำแหน่ง : </span>
                     <% if (role === 'admin') { %>ผู้ดูแลระบบ
                     <% } else if (role === 'employee') { %>พนักงาน
@@ -23,7 +33,7 @@
                     <% } else { %>ไม่ทราบตำแหน่ง<% } %>
                 </div>
             </div>
-            <i id="dropdown-arrow" class="fa-solid fa-chevron-down ml-2 text-sm transition-transform duration-200"></i>
+            <i id="dropdown-arrow" class="fa-solid fa-chevron-down text-sm transition-transform duration-200"></i>
         </button>
 
         <!-- Dropdown -->
@@ -35,7 +45,7 @@
             
             <!-- Header -->
             <div class="flex items-center gap-3 px-4 py-3 border-b border-stone-700">
-                <img src="/img/admin/logo.png" class="h-10 mr-2">
+                <img src="/img/admin/logo.png" class="h-10">
                 <div class="text-white text-sm">
                     <div class="font-bold"><%= firstname %> <%= lastname %></div>
                     <div class="text-gray-400 text-xs">

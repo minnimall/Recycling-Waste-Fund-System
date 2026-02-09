@@ -1,0 +1,18 @@
+
+/* Content area - adapts to flex layout */
+.content {
+    margin-left: 0 !important;
+    padding: 0;
+    min-height: calc(100vh - 70px);
+    width: auto !important; /* Override 85% from admin style */
+    flex: 1; /* Take remaining space next to sidebar */
+}
+
+/* On mobile */
+@media (max-width: 1023px) {
+    .content {
+        width: 100% !important;
+        height: auto !important;
+        overflow-y: visible;
+    }
+}

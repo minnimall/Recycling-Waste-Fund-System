@@ -1,229 +1,251 @@
 :root {
-    --form-color: #ddd;
-    --form-border: #c1c1c1;
+  --form-color: #ddd;
+  --form-border: #c1c1c1;
 
-    --gradient-color: linear-gradient(to right,#175028,#00923f);
-    --gradient-color-hover: linear-gradient(to right,#0f361b,#017232);
+  --gradient-color: linear-gradient(to right, #175028, #00923f);
+  --gradient-color-hover: linear-gradient(to right, #0f361b, #017232);
 
-    --text-color-price: #00923f;
+  --text-color-price: #00923f;
+}
+
+/* Content area - adapts to flex layout */
+.content {
+    margin-left: 0 !important;
+    padding: 0;
+    min-height: calc(100vh - 70px);
+    width: auto !important; /* Override 85% from admin style */
+    flex: 1; /* Take remaining space next to sidebar */
+}
+
+/* On mobile */
+@media (max-width: 1023px) {
+    .content {
+        width: 100% !important;
+        height: auto !important;
+        overflow-y: visible;
+    }
 }
 .show-time {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px; /* ระยะห่างระหว่างไอคอนกับตัวเลขเวลา */
-    font-size: 1rem;
-    font-weight: bold;
-    color: #fff;
-    background: rgba(51, 105, 30, 0.8); /* สีเขียวโปร่งแสง */
-    padding: 12px 24px;
-    border-radius: 12px;
-    border: none;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    text-align: center;
-    transition: all 0.3s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px; /* ระยะห่างระหว่างไอคอนกับตัวเลขเวลา */
+  font-size: 1rem;
+  font-weight: bold;
+  color: #fff;
+  background: rgba(51, 105, 30, 0.8); /* สีเขียวโปร่งแสง */
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  transition: all 0.3s ease-in-out;
 }
 
 .content-header h1 {
-    font-size: 2rem;
-    font-weight: 500;
+  font-size: 2rem;
+  font-weight: 500;
 }
 
-.input-group input, 
+.input-group input,
 .input-group select {
-    width: 100%; /* ใช้ความกว้างเต็มพื้นที่ของ container */
-    padding: 10px; /* ระยะห่างภายใน */
-    font-size: 1rem; /* ขนาดตัวอักษร */
-    border-radius: 5px; /* มุมโค้ง */
-    box-sizing: border-box; /* รวม padding ในความกว้าง */
+  width: 100%; /* ใช้ความกว้างเต็มพื้นที่ของ container */
+  padding: 10px; /* ระยะห่างภายใน */
+  font-size: 1rem; /* ขนาดตัวอักษร */
+  border-radius: 5px; /* มุมโค้ง */
+  box-sizing: border-box; /* รวม padding ในความกว้าง */
 }
 
 .submit-btn {
-    display: flex;
-    justify-content: flex-end; /* จัดปุ่มไปทางขวาสุด */
-    margin-top: 10px;
+  display: flex;
+  justify-content: flex-end; /* จัดปุ่มไปทางขวาสุด */
+  margin-top: 10px;
 }
 .submit:hover {
-    background-color: #19851e; /* สีเมื่อ hover */
-    transition: 0.5s;
+  background-color: #19851e; /* สีเมื่อ hover */
+  transition: 0.5s;
 }
 
 .delete-btn {
-    background-color: #f44336; /* สีแดง */
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 12px;
-    transition: background-color 0.3s ease;
+  background-color: #f44336; /* สีแดง */
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.3s ease;
 }
 
 .delete-btn:hover {
-    background-color: #d32f2f; /* สีแดงเข้ม */
+  background-color: #d32f2f; /* สีแดงเข้ม */
 }
 
 .edit-btn {
-    background-color: #007bff; /* สีฟ้าสำหรับแก้ไข */
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 12px;
-    transition: background-color 0.3s ease;
+  background-color: #007bff; /* สีฟ้าสำหรับแก้ไข */
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.3s ease;
 }
 
 .edit-btn:hover {
-    background-color: #0155ad;
+  background-color: #0155ad;
 }
 
-table tbody{
-    background-color: white;
+table tbody {
+  background-color: white;
 }
 
-.waste-img{
-    width: 50px;
-    height: 50px;
-    margin: 5px 0px;
-    object-fit: contain; /* ให้รูปเต็มกรอบโดยไม่เสียสัดส่วน */
+.waste-img {
+  width: 50px;
+  height: 50px;
+  margin: 5px 0px;
+  object-fit: contain; /* ให้รูปเต็มกรอบโดยไม่เสียสัดส่วน */
 }
 
-.img-edit{
-    width: 50px;
-    height: 50px;
-    object-fit: cover;
-    margin-left: 5px;
+.img-edit {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  margin-left: 5px;
 }
 .left-box {
-    width: 70%;
-    height: 85vh;
-    h2 {
-        font-size: 1.6em;
-    }
+  width: 70%;
+  height: 85vh;
+  h2 {
+    font-size: 1.6em;
+  }
 }
 .right-box {
-    width: 30%;
-    h2 {
-        margin: .5em 0;
-        text-align: center;
-        font-size: 1.7em;
-    }
-    button {
-        width: 100%;
-        background: var(--gradient-color);
-    }
-    p {
-        width: 100%;
+  width: 30%;
+  h2 {
+    margin: 0.5em 0;
+    text-align: center;
+    font-size: 1.7em;
+  }
+  button {
+    width: 100%;
+    background: var(--gradient-color);
+  }
+  p {
+    width: 100%;
 
-        display: inline-flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 1.2em;
-        .text-total {
-            width: 20%;
-        }
-        #totalAmount {
-            text-align: right;
-            font-size: 2em;
-            padding-right: 10px;
-            width: 65%;
-            color: var(--text-color-price);
-        } 
-        .text-unit {
-            text-align: right;
-            width: 15%;
-        }
+    display: inline-flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.2em;
+    .text-total {
+      width: 20%;
     }
+    #totalAmount {
+      text-align: right;
+      font-size: 2em;
+      padding-right: 10px;
+      width: 65%;
+      color: var(--text-color-price);
+    }
+    .text-unit {
+      text-align: right;
+      width: 15%;
+    }
+  }
 }
-#selectedWasteList {
-    overflow-y: auto;
-    height: 430px;
-    .cart {
-        width: 100%;
-        margin-top: .3em;
-        display: flex;
-        padding: 5px 10px;
-        justify-content: space-between;
-        /* background-color: white; */
-        background: linear-gradient(to right,#f0f0f0, #ffffff);
-        border-left: 2px solid var(--text-color-price);
-        border-radius: 8px;
-        margin-bottom: 2px;
-        align-items: center;
-        span {
-            span:first-child {
-                font-size: 1.2em;
-            }
-            span:last-child {
-                color: #686868;
-            }
-        }
-        .cart-action {
-            display: flex;
-            align-items: center;
-            .cart-action-edit, .cart-action-close {
-                font-size: 1.2em;
-                margin: 0 5px;
-            }
-            .cart-action-edit {
-                color: rgb(252, 172, 0);
-            }
-            .cart-action-close {
-                color: rgb(141, 0, 0);
-            }
-        }
-    }
+
+/* Responsive styles for mobile and tablet */
+@media (max-width: 1024px) {
+  .left-box,
+  .right-box {
+    width: 100%;
+    height: auto;
+  }
+
+  .left-box {
+    min-height: 500px;
+  }
+
+  .right-box h2 {
+    font-size: 1.4em;
+  }
+
+  .right-box p {
+    font-size: 1em;
+  }
+
+  .right-box p #totalAmount {
+    font-size: 1.5em;
+  }
+}
+
+@media (max-width: 640px) {
+  .right-box h2 {
+    font-size: 1.2em;
+    text-align: left;
+  }
+
+  .right-box p {
+    font-size: 0.9em;
+  }
+
+  #selectedWasteList {
+    height: auto;
+    max-height: 300px;
+  }
 }
 /* กำหนดให้ฟอร์มค้นหามีการจัดวางที่สวยงาม */
 .search-container {
-    display: flex;
-    justify-content: flex-end; /* จัดให้อยู่ขวาสุด */
-    align-items: center; /* จัดให้แนวกลางแนวตั้ง */
-    margin-top: 15px;
+  display: flex;
+  justify-content: flex-end; /* จัดให้อยู่ขวาสุด */
+  align-items: center; /* จัดให้แนวกลางแนวตั้ง */
+  margin-top: 15px;
 }
 
 .search-form {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background-color: #f7f7f7;
-    padding: 6px; /* ลด padding ให้เล็กลง */
-    border-radius: 20px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #f7f7f7;
+  padding: 6px; /* ลด padding ให้เล็กลง */
+  border-radius: 20px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
 /* กำหนดลักษณะอินพุต */
 .search-input {
-    width: 250px; /* ลดความกว้างของช่องค้นหา */
-    padding: 8px 12px; /* ลด padding เพื่อให้ความสูงลดลง */
-    border-left: 2px solid #ddd;
-    font-size: 14px; /* ลดขนาดฟอนต์เล็กลง */
-    transition: all 0.3s ease;
+  width: 250px; /* ลดความกว้างของช่องค้นหา */
+  padding: 8px 12px; /* ลด padding เพื่อให้ความสูงลดลง */
+  border-left: 2px solid #ddd;
+  font-size: 14px; /* ลดขนาดฟอนต์เล็กลง */
+  transition: all 0.3s ease;
 }
 
-.wasteType{
-    background-color: #f7f7f7;
+.wasteType {
+  background-color: #f7f7f7;
 }
 
 /* การโต้ตอบเมื่อมีการโฟกัส (focus) */
 .search-input:focus {
-    border-color: #4CAF50;
-    outline: none;
-    box-shadow: 0px 0px 5px rgba(76, 175, 80, 0.3);
+  border-color: #4caf50;
+  outline: none;
+  box-shadow: 0px 0px 5px rgba(76, 175, 80, 0.3);
 }
 
 /* ปุ่มค้นหา */
 .search-button {
-    padding: 8px 16px; /* ลดขนาด padding ของปุ่ม */
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 30px;
-    font-size: 14px; /* ลดขนาดฟอนต์ของปุ่ม */
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
+  padding: 8px 16px; /* ลดขนาด padding ของปุ่ม */
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  font-size: 14px; /* ลดขนาดฟอนต์ของปุ่ม */
+  cursor: pointer;
+  transition:
+    background-color 0.3s ease,
+    transform 0.3s ease;
 }
 
 /* การโต้ตอบเมื่อ hover บนปุ่มค้นหา
@@ -238,120 +260,113 @@ table tbody{
 } */
 
 .no-data-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 150px; /* ความสูงที่เหมาะสม */
-    background-color: #f8f9fa; /* สีพื้นหลังอ่อน */
-    border-radius: 8px;
-    border: 1px solid #ccc; /* ขอบบางๆ */
-    margin-top: 20px;
-    width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 150px; /* ความสูงที่เหมาะสม */
+  background-color: #f8f9fa; /* สีพื้นหลังอ่อน */
+  border-radius: 8px;
+  border: 1px solid #ccc; /* ขอบบางๆ */
+  margin-top: 20px;
+  width: 100%;
 }
 
 .no-data-container span {
-    font-size: 18px;
-    font-weight: bold;
-    color: #6c757d; /* สีเทาอ่อน */
-    text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: #6c757d; /* สีเทาอ่อน */
+  text-align: center;
 }
 
 .PurchaseHistoryContainer {
+  width: 100%;
+  .PurchaseBoard {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    padding: 10px;
+    gap: 10px;
+  }
+  .PurchaseBoard > div {
+    padding: 10px;
+    font-size: 30px;
+    text-align: center;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    box-shadow: #ccc 2px 2px 5px;
+  }
+  .PurchaseCount {
+    background: #d0ffbf;
+    div:first-child {
+      font-size: 1.4em;
+      color: #008c0e;
+    }
+    div:last-child {
+      text-align: left;
+      font-size: 0.6em;
+    }
+  }
+  .CustomerCount {
+    background: #feffc2;
+    div:first-child {
+      font-size: 1.4em;
+      color: #ffe500;
+    }
+    div:last-child {
+      text-align: left;
+      font-size: 0.6em;
+    }
+  }
+  .PurchaseTotal {
+    background: #ffd9d9;
+    div:first-child {
+      font-size: 1.4em;
+      color: #930000;
+    }
+    div:last-child {
+      text-align: left;
+      font-size: 0.6em;
+    }
+  }
+  .top-table {
+    display: flex;
+    justify-content: space-between;
+  }
+  table {
     width: 100%;
-    .PurchaseBoard {
-        display: grid;
-        grid-template-columns: auto auto auto;
-        padding: 10px;
-        gap: 10px;
+    border-collapse: collapse;
+    border: 1px solid #ccc;
+    margin-top: 10px;
+    thead {
+      background: var(--gradient-color);
+      color: white;
     }
-    .PurchaseBoard > div {
-        padding: 10px;
-        font-size: 30px;
-        text-align: center;
-        border-radius: 10px;
-        border: 1px solid #ccc;
-        box-shadow: #ccc 2px 2px 5px;
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
     }
-    .PurchaseCount {
-        background: #D0FFBF;
-        div:first-child {
-            font-size: 1.4em;
-            color: #008C0E;
-        }
-        div:last-child {
-            text-align: left;
-            font-size: .6em;
-        }
+    th,
+    td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
     }
-    .CustomerCount {
-        background: #FEFFC2;
-        div:first-child {
-            font-size: 1.4em;
-            color: #FFE500;
-        }
-        div:last-child {
-            text-align: left;
-            font-size: .6em;
-        }
+    .purchaseIndex {
+      text-align: center;
+      width: 80px;
     }
-    .PurchaseTotal {
-        background: #FFD9D9;
-        div:first-child {
-            font-size: 1.4em;
-            color: #930000;
-        }
-        div:last-child {
-            text-align: left;
-            font-size: .6em;
-        }
+    .purchaseId {
+      width: 150px;
     }
-    .top-table {
-        display: flex;
-        justify-content: space-between;
+    .purchaseFullname {
+      width: 200px;
     }
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        border: 1px solid #ccc;
-        margin-top: 10px;
-        thead {
-            background: var(--gradient-color);
-            color: white;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-        th, td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        .purchaseIndex {
-            text-align: center;
-            width: 80px;
-        }
-        .purchaseId {
-            width: 150px;
-        }
-        .purchaseFullname {
-            width: 200px;
-        }
-        .purchaseTotal {
-            text-align: center;
-        }
-        .purchaseDate {
-            text-align: center;
-        }
-        .purchaseAction {
-            width: 100px;
-        }
+    .purchaseTotal {
+      text-align: center;
     }
-}
-#itemModal {
-    button {
-        background: var(--gradient-color);
+    .purchaseDate {
+      text-align: center;
     }
-    button:hover {
-        background: var(--gradient-color-hover);
+    .purchaseAction {
+      width: 100px;
     }
+  }
 }

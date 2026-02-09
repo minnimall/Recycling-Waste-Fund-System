@@ -1,27 +1,17 @@
-<!-- Sidebar
-<div class="sidebar bg-stone-900">
-    <h3>สำหรับพนักงาน</h3>
-    <div class="menu-categories text-stone-300">เมนูจัดการข้อมูลขยะ</div>
-    <a href="/employee"><ion-icon class="side-bars-icons" name="stats-chart"></ion-icon> แดชบอร์ด</a>
-    <a href="/employee/wastePurchase"><ion-icon class="side-bars-icons" name="cart"></ion-icon> รับซื้อขยะ</a>
-    <a href="/employee/wasteStock"><ion-icon class="side-bars-icons" name="cube"></ion-icon> สต๊อกขยะ</a>
-    <a href="/employee/wastePurchaseTotal"><ion-icon class="side-bars-icons" name="file-tray-full"></ion-icon> สรุปการรับซื้อขยะ</a>
-    <div class="menu-categories text-stone-300 mt-8">เมนูจัดการข้อมูลสมาชิก</div>
-    <a href="/employee/member"><ion-icon class="side-bars-icons" name="person"></ion-icon> สมาชิกกองทุนขยะรีไซเคิล</a>
-    <a href="/employee"><ion-icon class="side-bars-icons" name="cash"></ion-icon> รายรับรายจ่ายครัวเรือน</a>
-    <a href="/employee/withDraw"><ion-icon class="side-bars-icons" name="wallet"></ion-icon> เบิกถอน</a>
-    <a href="/employee/funeralAid"><ion-icon class="side-bars-icons " name="heart"></ion-icon> ฌาปนกิจสงเคราะห์</a>
-    <a href="/employee/complaint"><ion-icon class="side-bars-icons " name="warning"></ion-icon> ข้อร้องเรียน</a>
-    <a href="/employee"><ion-icon class="side-bars-icons " name="document-text"></ion-icon> เอกสารเบิกถอน</a>
-    <a href="/employee/wasteSaleRequest"><ion-icon class="side-bars-icons " name="megaphone"></ion-icon> ความประสงค์ขายขยะ</a>
-    <a href="/logout">
-        <ion-icon class="side-bars-icons" name="log-out"></ion-icon> ออกจากระบบ
-    </a>
-</div> -->
+<!-- Sidebar Overlay (Mobile) -->
+<div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden transition-opacity"></div>
 
 <!-- Sidebar -->
-<div class="sidebar bg-stone-900 text-base p-4 space-y-3">
-    <h3 class="text-stone-200 text-base font-semibold mb-3">สำหรับพนักงาน</h3>
+<div id="sidebar" class="bg-stone-900 text-base p-4 space-y-3 fixed lg:static top-0 left-0 min-h-screen z-50 w-64 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out overflow-y-auto">
+    <!-- Mobile Close Button -->
+    <div class="flex items-center justify-between lg:hidden mb-2">
+        <h3 class="text-stone-200 text-base font-semibold">เมนู</h3>
+        <button id="sidebar-close" class="text-stone-400 hover:text-white p-2">
+            <i class="fas fa-times text-xl"></i>
+        </button>
+    </div>
+    
+    <h3 class="text-stone-200 text-base font-semibold mb-3 hidden lg:block">สำหรับพนักงาน</h3>
 
     <div class="menu-categories text-stone-400 uppercase text-xs tracking-wide">เมนูจัดการข้อมูลขยะ</div>
 
@@ -98,18 +88,38 @@
         <ion-icon class="text-lg" name="map"></ion-icon>
         แผนที่
     </a>
-    <!-- <a href="/employee/round" 
-        class="flex items-center gap-2 px-2 py-1 rounded-md transition 
-        <%= currentPage === 'wastePoint' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:text-white' %>">
-        <ion-icon class="text-lg" name="car"></ion-icon> 
-        รอบการรับซื้อ
-    </a> -->
-    <!-- <a href="/employee/wastePoint" 
-        class="flex items-center gap-2 px-2 py-1 rounded-md transition 
-        <%= currentPage === 'wastePoint' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:text-white' %>">
-        <ion-icon class="text-lg" name="navigate-circle"></ion-icon>
-        จุดรับซื้อขยะ
-    </a> -->
 </div>
 
+<!-- Sidebar Toggle Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    const closeBtn = document.getElementById('sidebar-close');
 
+    function openSidebar() {
+        sidebar.classList.remove('-translate-x-full');
+        overlay.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden', 'lg:overflow-auto');
+    }
+
+    function closeSidebar() {
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+    }
+
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', openSidebar);
+    }
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeSidebar);
+    }
+
+    if (overlay) {
+        overlay.addEventListener('click', closeSidebar);
+    }
+});
+</script>

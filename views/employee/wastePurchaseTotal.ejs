@@ -5,6 +5,7 @@
     <%- include('../partials/employeePartials/doctype.ejs') %>
         <title><%= mytitle %></title>
         <link rel="stylesheet" href="/style_employee/wastePurchase.css">
+        <link rel="stylesheet" href="/style_employee/res_req.css">
         <script src="https://cdn.tailwindcss.com"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
@@ -44,85 +45,84 @@
             </script>
 
             <!-- Modal -->
-            <div id="itemModal" class="fixed inset-0 overflow-y-auto hidden z-50">
-                <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-                    <div class="fixed inset-0 transition-opacity" aria-hidden="true">
-                        <div class="absolute inset-0 bg-black opacity-75"></div>
+            <div id="itemModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center hidden p-4">
+                <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
+                    
+                    <!-- Header with Gradient -->
+                    <div class="bg-gradient-to-r from-green-800 to-green-600 px-6 py-4 flex items-center justify-between flex-shrink-0">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-white/20 p-2.5 rounded-xl">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-white">รายละเอียดการรับซื้อ</h3>
+                                <p class="text-green-100 text-sm">ข้อมูลรายการขยะและบัญชีลูกค้า</p>
+                            </div>
+                        </div>
+                        <button class="closeModal p-2 hover:bg-white/20 rounded-lg transition-colors">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
                     </div>
-                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                    <div class="max-w-full inline-block overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle"
-                        role="dialog" aria-modal="true" aria-labelledby="modal-headline">
-                        <div class="px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
-                            <h3 class="text-lg font-medium leading-6 text-gray-900" id="modal-headline">
-                                รายละเอียดการรับซื้อ</h3>
-                            <div class="mt-2">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
+                    
+                    <!-- Scrollable Content -->
+                    <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                        
+                        <!-- Account Info Cards -->
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3" id="modalHeaderInfo">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                        
+                        <!-- Items Table Section -->
+                        <div class="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden">
+                            <div class="bg-gray-100 px-4 py-3 border-b border-gray-200">
+                                <h4 class="font-semibold text-gray-700 flex items-center gap-2">
+                                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                    </svg>
+                                    รายการขยะที่รับซื้อ
+                                </h4>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full">
+                                    <thead class="bg-gray-50 border-b border-gray-200">
                                         <tr>
-                                            <th
-                                                class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">
-                                                เลขบัญชี</th>
-                                            <th
-                                                class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
-                                                ชื่อบัญชี</th>
-                                            <th
-                                                class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">
-                                                หมู่ที่</th>
-                                            <th
-                                                class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
-                                                ผู้ขาย</th>
-                                            <th
-                                                class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">
-                                                ยอดรวมสุทธิ (฿)</th>
-                                            <th
-                                                class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">
-                                                วันที่รับซื้อ</th>
-                                            <th
-                                                class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">
-                                                เวลา</th>
-                                            <th
-                                                class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
-                                                พนักงาน</th>
+                                            <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center w-16">ลำดับ</th>
+                                            <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-left">ชื่อสินค้า</th>
+                                            <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">จำนวน</th>
+                                            <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">ราคา/หน่วย</th>
+                                            <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">รวม</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="modalHeaderInfo" class="bg-white divide-y divide-gray-200">
+                                    <tbody id="modalItemTable" class="divide-y divide-gray-100">
+                                        <!-- Populated by JavaScript -->
                                     </tbody>
-                                </table>
-                                <table class="min-w-full divide-y divide-gray-200 mt-4">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th
-                                                class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">
-                                                ลำดับที่</th>
-                                            <th
-                                                class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
-                                                ชื่อสินค้า</th>
-                                            <th
-                                                class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">
-                                                จำนวน/หน่วย</th>
-                                            <th
-                                                class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">
-                                                ราคา/หน่วย</th>
-                                            <th
-                                                class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">
-                                                ยอดรวม (฿)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="modalItemTable" class="bg-white divide-y divide-gray-200">
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <td colspan="4" class="px-6 py-4 text-right font-semibold">ยอดรวมทั้งหมด
-                                            </td>
-                                            <td id="totalAmount" class="px-6 py-4 text-center font-semibold"></td>
-                                        </tr>
-                                    </tfoot>
                                 </table>
                             </div>
                         </div>
-                        <div class="px-4 py-3 bg-gray-50 sm:px-6 sm:flex sm:flex-row-reverse">
-                            <button type="button"
-                                class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 closeModal">
+                    </div>
+                    
+                    <!-- Footer with Total -->
+                    <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex-shrink-0">
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-green-100 p-2 rounded-lg">
+                                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">ยอดรวมทั้งหมด</p>
+                                    <p id="totalAmount" class="text-2xl font-bold text-green-600">฿0.00</p>
+                                </div>
+                            </div>
+                            <button type="button" class="closeModal px-6 py-2.5 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-xl transition-colors flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
                                 ปิด
                             </button>
                         </div>
@@ -132,7 +132,7 @@
 
             <!-- Main -->
             <div class="content bg-gray-50 min-screen">
-                <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+                <div class="mt-4 mx-4 mb-6 bg-white rounded-lg shadow p-4">
                     <div>
                         <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">สรุปการรับซื้อขยะ
                         </h1>
@@ -586,32 +586,87 @@
                 // คำนวณยอดรวม
                 const totalAmount = items.reduce((sum, item) => sum + (item.quantity * item.pricePerUnit), 0);
 
-                // ข้อมูลส่วนหัว
-                const headerRow = `<tr>
-                <td class="px-6 py-4 whitespace-nowrap text-center">${accountId}</td>
-                <td class="px-6 py-4 whitespace-nowrap">${accountName}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-center">${villageNumber}</td>
-                // <td class="px-6 py-4 whitespace-nowrap">${sellerNames}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-center">${totalAmount.toLocaleString('th-TH')}฿</td>
-                <td class="px-6 py-4 whitespace-nowrap text-center">${formattedDate}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-center">${formattedTime}</td>
-                <td class="px-6 py-4 whitespace-nowrap">${accountAddBy}</td>
-            </tr>`;
-                modalHeaderInfo.innerHTML = headerRow;
+                // ข้อมูลส่วนหัว - แบบ Cards
+                const headerCards = `
+                    <div class="bg-blue-50 rounded-xl p-3 border border-blue-100">
+                        <div class="flex items-center gap-2 mb-1">
+                            <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                            </svg>
+                            <span class="text-xs text-blue-600 font-medium">เลขบัญชี</span>
+                        </div>
+                        <p class="text-sm font-bold text-gray-800">${accountId}</p>
+                    </div>
+                    <div class="bg-green-50 rounded-xl p-3 border border-green-100">
+                        <div class="flex items-center gap-2 mb-1">
+                            <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            <span class="text-xs text-green-600 font-medium">ชื่อบัญชี</span>
+                        </div>
+                        <p class="text-sm font-bold text-gray-800">${accountName}</p>
+                    </div>
+                    <div class="bg-purple-50 rounded-xl p-3 border border-purple-100">
+                        <div class="flex items-center gap-2 mb-1">
+                            <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            <span class="text-xs text-purple-600 font-medium">หมู่ที่</span>
+                        </div>
+                        <p class="text-sm font-bold text-gray-800">${villageNumber}</p>
+                    </div>
+                    <div class="bg-amber-50 rounded-xl p-3 border border-amber-100">
+                        <div class="flex items-center gap-2 mb-1">
+                            <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <span class="text-xs text-amber-600 font-medium">วันที่</span>
+                        </div>
+                        <p class="text-sm font-bold text-gray-800">${formattedDate}</p>
+                    </div>
+                    <div class="bg-indigo-50 rounded-xl p-3 border border-indigo-100">
+                        <div class="flex items-center gap-2 mb-1">
+                            <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="text-xs text-indigo-600 font-medium">เวลา</span>
+                        </div>
+                        <p class="text-sm font-bold text-gray-800">${formattedTime}</p>
+                    </div>
+                    <div class="bg-rose-50 rounded-xl p-3 border border-rose-100">
+                        <div class="flex items-center gap-2 mb-1">
+                            <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path>
+                            </svg>
+                            <span class="text-xs text-rose-600 font-medium">พนักงาน</span>
+                        </div>
+                        <p class="text-sm font-bold text-gray-800">${accountAddBy}</p>
+                    </div>
+                `;
+                modalHeaderInfo.innerHTML = headerCards;
 
-                // รายการสินค้า
+                // รายการสินค้า - แบบ Modern Table Rows
                 let itemRows = '';
                 let total = 0;
                 items.forEach((item, index) => {
                     const subtotal = item.quantity * item.pricePerUnit;
                     total += subtotal;
-                    itemRows += `<tr>
-                    <td class="px-6 py-4 whitespace-nowrap text-center">${index + 1}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">${item.name}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center">${item.quantity.toLocaleString('th-TH')} กก.</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center">฿${item.pricePerUnit.toLocaleString('th-TH')}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center">฿${subtotal.toLocaleString('th-TH')}</td>
-                </tr>`;
+                    itemRows += `<tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-4 py-3 text-center">
+                            <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-100 text-green-700 text-sm font-medium">${index + 1}</span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <span class="font-medium text-gray-800">${item.name}</span>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <span class="px-2 py-1 rounded-lg bg-blue-50 text-blue-700 text-sm font-medium">${item.quantity.toLocaleString('th-TH')} กก.</span>
+                        </td>
+                        <td class="px-4 py-3 text-center text-gray-600">฿${item.pricePerUnit.toLocaleString('th-TH')}</td>
+                        <td class="px-4 py-3 text-center">
+                            <span class="font-semibold text-green-600">฿${subtotal.toLocaleString('th-TH')}</span>
+                        </td>
+                    </tr>`;
                 });
                 modalItemTable.innerHTML = itemRows;
                 document.getElementById('totalAmount').textContent = `฿${total.toLocaleString('th-TH')}`;

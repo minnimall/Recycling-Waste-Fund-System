@@ -5,6 +5,7 @@
     <%- include('../partials/employeePartials/doctype.ejs') %>
     <title><%= mytitle %></title>
     <link rel="stylesheet" href="/style_employee/complaint-requests.css">
+    <link rel="stylesheet" href="/style_employee/res_req.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
@@ -45,7 +46,7 @@
     </script>
 
     <main class="content bg-gray-50 min-screen">
-        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
+        <div class="mt-4 mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
                 <div>
                     <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
@@ -56,32 +57,34 @@
             </div>
         </div>
 
-        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
-                <div class="flex items-center">
-                    <span class="text-gray-700 font-medium mr-3">สถานะ:</span>
-                    <div class="flex space-x-2">
-                        <button id="filter-all" class="filter-btn px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-600 transition-colors active">
+        <div id="filter-container" class="mx-4 mb-6 bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full lg:w-auto">
+                    <span class="text-gray-700 font-medium whitespace-nowrap">สถานะ:</span>
+                    <div class="flex flex-wrap gap-2">
+                        <button id="filter-all" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm hover:shadow bg-green-600 text-white active ring-2 ring-green-600 ring-offset-1">
                             ทั้งหมด (<%= complaint.length %>)
                         </button>
-                        <button id="filter-pending" class="filter-btn px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                        <button id="filter-pending" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm hover:shadow bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-green-600">
                             รอดำเนินการ
                         </button>
-                        <button id="filter-in-progress" class="filter-btn px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                        <button id="filter-in-progress" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm hover:shadow bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-green-600">
                             กำลังดำเนินการ
                         </button>
-                        <button id="filter-resolved" class="filter-btn px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                        <button id="filter-resolved" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm hover:shadow bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-green-600">
                             เสร็จสิ้น
                         </button>
                     </div>
                 </div>
                 
-                <div class="w-full md:w-auto">
-                    <div class="relative">
-                        <input type="text" id="search-input" placeholder="ค้นหารายการ..." class="w-full md:w-80 px-4 py-2 pl-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
+                <div class="w-full lg:w-auto">
+                    <div class="relative group">
+                        <input type="text" id="search-input" placeholder="ค้นหารายการ..." class="w-full sm:w-80 pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all shadow-sm">
+                        <div class="absolute left-3 top-2.5 text-gray-400 group-focus-within:text-green-500 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -105,80 +108,97 @@
             <div id="complaints-container" class="space-y-4">
                 <% if (complaint.length > 0) { %>
                     <% complaint.forEach(com => { %>
-                        <div class="complaint-item border border-gray-200 rounded-lg hover:shadow-md transition-shadow duration-300" 
-                            data-status="<%= com.status %>" data-id="<%= com._id %>" data-family="<%= com.family.familyName %>">
-                            <div class="flex flex-col md:flex-row">
-                                <div class="flex-grow p-5">
-                                    <div class="flex flex-col md:flex-row md:items-center justify-between">
-                                        <div class="mb-3 md:mb-0">
-                                            <div class="flex items-center mb-2">
-                                                <i class="fas fa-user-circle text-gray-600 mr-2 text-xl"></i>
-                                                <h2 class="text-xl font-semibold text-gray-700">
-                                                    <%= com.family.familyName %>
-                                                </h2>
-                                                <span class="status-badge ml-3 px-2 py-1 text-xs font-medium rounded-full 
-                                                    <% if (com.status === 'pending') { %>
-                                                        bg-yellow-100 text-yellow-800
-                                                    <% } else if (com.status === 'in-progress') { %>
-                                                        bg-blue-100 text-blue-800
-                                                    <% } else if (com.status === 'resolved') { %>
-                                                        bg-green-100 text-green-800
-                                                    <% } %>
-                                                ">
-                                                    <% if (com.status === 'pending') { %>
-                                                        รอดำเนินการ
-                                                    <% } else if (com.status === 'in-progress') { %>
-                                                        กำลังดำเนินการ
-                                                    <% } else if (com.status === 'resolved') { %>
-                                                        เสร็จสิ้น
+                        <div class="group bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden complaint-item" 
+                            data-status="<%= com.status %>" 
+                            data-id="<%= com._id %>" 
+                            data-family="<%= com.family.familyName %>">
+                            
+                            <!-- Header: User Info & Status -->
+                            <div class="px-5 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-100 bg-gray-50/50">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                                        <i class="fas fa-user text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-base font-semibold text-gray-900"><%= com.family.familyName %></h3>
+                                        <p class="text-xs text-gray-500">รหัสคำร้อง: #<%= com._id.toString().slice(-6) %></p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <% if (com.status === 'pending') { %>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                            <span class="w-1.5 h-1.5 bg-yellow-500 rounded-full mr-1.5"></span>รอดำเนินการ
+                                        </span>
+                                    <% } else if (com.status === 'in-progress') { %>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1.5"></span>กำลังดำเนินการ
+                                        </span>
+                                    <% } else if (com.status === 'resolved') { %>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>เสร็จสิ้น
+                                        </span>
+                                    <% } %>
+                                </div>
+                            </div>
+                            
+                            <!-- Body: Details -->
+                            <div class="p-5 grid grid-cols-1 md:grid-cols-12 gap-6">
+                                <!-- Details Column -->
+                                <div class="md:col-span-9 space-y-3">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div class="flex items-start gap-3">
+                                            <div class="mt-0.5 text-gray-400">
+                                                <i class="far fa-calendar-alt"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">วันที่แจ้ง</p>
+                                                <p class="text-sm text-gray-900 font-medium whitespace-nowrap">
+                                                    <%= com.createdAt.toLocaleString('th-TH', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Bangkok' }) %>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start gap-3">
+                                            <div class="mt-0.5 text-gray-400">
+                                                <i class="fas fa-tag"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">หมวดหมู่</p>
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                                    <% if (com.category === 'waste') { %>
+                                                        การจัดการขยะ
+                                                    <% } else if (com.category === 'service') { %>
+                                                        การบริการของเจ้าหน้าที่
+                                                    <% } else if (com.category === 'noise') { %>
+                                                        เสียงรบกวน
+                                                    <% } else if (com.category === 'sale') { %>
+                                                        การขายขยะ
+                                                    <% } else { %>
+                                                        อื่นๆ
                                                     <% } %>
                                                 </span>
                                             </div>
-                                            
-                                            <div class="flex flex-wrap items-center text-sm text-gray-600">
-                                                <div class="flex items-center mr-6 mb-2 md:mb-0">
-                                                    <i class="far fa-calendar-alt mr-1"></i> 
-                                                    <span>วันที่: <%= com.createdAt.toLocaleString('th-TH', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Bangkok' }) %></span>
-                                                </div>
-                                                <div class="flex items-center mr-6 mb-2 md:mb-0">
-                                                    <i class="fas fa-tag mr-1"></i>
-                                                    <span>หมวดหมู่: 
-                                                        <% if (com.category === 'waste') { %>
-                                                            การจัดการขยะ
-                                                        <% } else if (com.category === 'service') { %>
-                                                            การบริการของเจ้าหน้าที่
-                                                        <% } else if (com.category === 'noise') { %>
-                                                            เสียงรบกวน
-                                                        <% } else if (com.category === 'sale') { %>
-                                                            การขายขยะ
-                                                        <% } else { %>
-                                                            อื่นๆ
-                                                        <% } %>
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="flex items-center space-x-2">
-                                            <!-- ปุ่มเปลี่ยนสถานะสำหรับ complaint -->
-                                            <div class="relative">
-                                            </div>
-                                            <button onclick="conplaintReply('<%= com._id %>')" class="px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-600 transition-colors flex items-center">
-                                                <!-- <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                </svg> -->
-                                                <i class="fa-solid fa-reply mr-2"></i> ตอบกลับ
-                                            </button>
-                                            <button onclick="openModal('<%= com._id %>')" class="px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors flex items-center">
-                                                <!-- <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                </svg> -->
-                                                <i class="fa-solid fa-circle-info mr-2"></i> ดูรายละเอียด
-                                            </button>
                                         </div>
                                     </div>
+                                    
+                                    <% if (com.image) { %>
+                                        <div class="mt-3">
+                                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1 flex items-center gap-1">
+                                                <i class="fas fa-image text-gray-400"></i> มีรูปภาพประกอบ
+                                            </p>
+                                        </div>
+                                    <% } %>
+                                </div>
+                                
+                                <!-- Actions Column -->
+                                <div class="md:col-span-3 flex md:flex-col justify-end md:justify-center gap-3 border-t md:border-t-0 md:border-l border-gray-100 pt-4 md:pt-0 md:pl-4">
+                                    <button onclick="conplaintReply('<%= com._id %>')" 
+                                            class="flex-1 md:flex-none inline-flex justify-center items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm hover:shadow">
+                                        <i class="fa-solid fa-reply mr-2"></i> ตอบกลับ
+                                    </button>
+                                    <button onclick="openModal('<%= com._id %>')" 
+                                            class="flex-1 md:flex-none inline-flex justify-center items-center px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg transition-colors">
+                                        <i class="fa-solid fa-circle-info mr-2 text-gray-500"></i> รายละเอียด
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -481,13 +501,17 @@
             // Filter by status
             filterButtons.forEach(button => {
                 button.addEventListener('click', function() {
+                    // Define class sets
+                    const activeClasses = ['bg-green-600', 'text-white', 'ring-2', 'ring-green-600', 'ring-offset-1'];
+                    const inactiveClasses = ['bg-white', 'text-gray-600', 'border', 'border-gray-200', 'hover:bg-gray-50', 'hover:text-green-600'];
+
                     // Update active button
                     filterButtons.forEach(btn => {
-                        btn.classList.remove('bg-green-700', 'text-white');
-                        btn.classList.add('bg-white', 'border-gray-300', 'text-gray-700');
+                        btn.classList.remove(...activeClasses);
+                        btn.classList.add(...inactiveClasses);
                     });
-                    this.classList.remove('bg-white', 'border-gray-300', 'text-gray-700');
-                    this.classList.add('bg-green-700', 'text-white');
+                    this.classList.remove(...inactiveClasses);
+                    this.classList.add(...activeClasses);
 
                     const filterId = this.id;
                     let visibleCount = 0;
@@ -529,18 +553,21 @@
                     
                     if (familyName.includes(searchTerm) || complaintId.includes(searchTerm)) {
                         // Only show if it also matches current filter
-                        const currentFilter = document.querySelector('.filter-btn.bg-green-700');
-                        const status = item.getAttribute('data-status');
+                        const currentFilter = document.querySelector('.filter-btn.bg-green-600');
                         let shouldShow = false;
 
-                        if (currentFilter.id === 'filter-all') {
+                        // Default to show if no active filter found (shouldn't happen) or if 'all' is active
+                        if (!currentFilter || currentFilter.id === 'filter-all') {
                             shouldShow = true;
-                        } else if (currentFilter.id === 'filter-pending' && status === 'pending') {
-                            shouldShow = true;
-                        } else if (currentFilter.id === 'filter-in-progress' && status === 'in-progress') {
-                            shouldShow = true;
-                        } else if (currentFilter.id === 'filter-resolved' && status === 'resolved') {
-                            shouldShow = true;
+                        } else {
+                            const status = item.getAttribute('data-status');
+                            if (currentFilter.id === 'filter-pending' && status === 'pending') {
+                                shouldShow = true;
+                            } else if (currentFilter.id === 'filter-in-progress' && status === 'in-progress') {
+                                shouldShow = true;
+                            } else if (currentFilter.id === 'filter-resolved' && status === 'resolved') {
+                                shouldShow = true;
+                            }
                         }
 
                         if (shouldShow) {

@@ -55,219 +55,530 @@
         }
     </script>
     
-    <div class="content bg-gray-50 min-screen">
-        <div class="flex gap-6 p-6">
-            <!-- ฝั่งซ้าย: รายการขยะ -->
-            <div class="border p-4 rounded-lg shadow-lg left-box bg-white border h-[750px] flex flex-col">
-                <div class="flex justify-between items-center mb-5 flex-shrink-0">
-                    <h2 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">รับซื้อขยะ</h2>
-                    <div class="flex items-center gap-4">
-                        <!-- ปุ่มเปลี่ยน Layout -->
-                        <div class="flex gap-2">
-                            <button id="cardViewBtn" class="px-3 py-2 bg-blue-500 text-white rounded text-sm" onclick="showCardView()">
-                                การ์ด
+    <div class="content bg-gray-50 min-h-screen">
+        <div class="flex flex-col lg:flex-row gap-4 p-4 lg:p-6">
+            <!-- ฝั่งซ้าย: รายการขยะ  -->
+            <div id="wasteList" class="order-2 lg:order-1 bg-white rounded-2xl shadow-xl border border-gray-100 min-h-[500px] lg:h-[750px] flex flex-col w-full lg:flex-1 overflow-hidden">
+                
+                <!-- Header with Gradient Accent -->
+                <div class="bg-gradient-to-r from-green-800 to-green-600 px-4 sm:px-6 py-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-white/20 p-2.5 rounded-xl">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 class="text-xl sm:text-2xl font-bold text-white">รับซื้อขยะ</h2>
+                                <p class="text-green-100 text-sm hidden sm:block">เลือกรายการและกรอกน้ำหนัก</p>
+                            </div>
+                        </div>
+                        
+                        <!-- View Toggle Buttons -->
+                        <div class="flex bg-white/20 rounded-xl p-1">
+                            <button id="cardViewBtn" class="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white text-green-700 font-medium text-sm transition-all" onclick="showCardView()">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                                </svg>
+                                <span class="hidden sm:inline">การ์ด</span>
                             </button>
-                            <button id="tableViewBtn" class="px-3 py-2 bg-gray-300 text-gray-700 rounded text-sm" onclick="showTableView()">
-                                ตาราง
+                            <button id="tableViewBtn" class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 font-medium text-sm transition-all" onclick="showTableView()">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                                </svg>
+                                <span class="hidden sm:inline">ตาราง</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Toolbar: Search & Filter -->
+                <div class="px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200">
+                    <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+                        <!-- Search Box -->
+                        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                            <div class="relative">
+                                <input type="text" id="searchInput" placeholder="ค้นหาขยะ..." 
+                                    class="w-full sm:w-56 px-4 py-2.5 pl-10 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 text-sm bg-white" 
+                                    oninput="filterWasteItems()">
+                                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </div>
+                            <select id="wasteTypeFilter" 
+                                class="px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 text-sm bg-white" 
+                                onchange="filterWasteItems()">
+                                <option value="">ทุกประเภท</option>
+                                <% wasteTypes.forEach((type) => { %>
+                                    <option value="<%= type.wasteTypeName %>"><%= type.wasteTypeName %></option>
+                                <% }); %>
+                            </select>
+                            <button type="button" onclick="clearSearch()" 
+                                class="px-4 py-2.5 bg-gray-200 text-gray-600 rounded-xl hover:bg-gray-300 transition-colors text-sm font-medium flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                                ล้าง
                             </button>
                         </div>
                         
-                        <div class="">
-                            <!-- ช่องค้นหากิจกรรม -->
-                            <form action="/employee/wastePurchase" method="GET" class="">
-                                <select name="wasteType" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                    <option value="">เลือกประเภทขยะ</option>
-                                    <% wasteTypes.forEach((type) => { %>
-                                        <option value="<%= type._id %>" <%= selectedWasteType === type._id.toString() ? 'selected' : '' %>>
-                                            <%= type.wasteTypeName %>
-                                        </option>
-                                    <% }); %>
-                                </select>
-                                <input type="text" name="search" value="<%= searchQuery %>" placeholder="ค้นหาขยะ" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                                    <i class="fas fa-search mr-2"></i>ค้นหา
-                                </button>
-                            </form>
+                        <!-- Stats Badge -->
+                        <div class="flex items-center gap-2 bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-medium">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                            </svg>
+                            <span id="wasteCountBadge"><%= waste.length %> รายการ</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Optional: Stats or Info Bar -->
-                <div class="mt-4 pt-4 border-t border-gray-200 mb-5 flex-shrink-0">
-                    <div class="flex flex-wrap items-center justify-between gap-4 text-sm text-gray-600">
-                        <div class="flex items-center gap-4">
-                            <p class="text-base font-semibold text-gray-800 mb-4 md:mb-0">
-                                รายการขยะทั้งหมด <span class="text-blue-600 text-base font-normal"><%= waste.length %> รายการ</span>
-                            </p>
-                            <% if (searchQuery) { %>
-                                <span class="flex items-center gap-1">
-                                    <div class="w-2 h-2 bg-blue-400 rounded-full"></div>
-                                    ผลการค้นหา: "<%= searchQuery %>"
-                                </span>
-                            <% } %>
-                        </div>
-                        <!-- <div class="text-xs text-gray-500">
-                            อัพเดทล่าสุด: <%= new Date().toLocaleDateString('th-TH') %>
-                        </div> -->
-                    </div>
-                </div>
-
-                <!-- แบบตาราง -->
+                <!-- แบบตาราง  -->
                 <div id="tableView" class="flex-1 overflow-hidden" style="display: none;">
-                    <div class="h-full overflow-y-auto border border-gray-200 rounded-lg">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-100 sticky top-0 z-10">
-                                <tr>
-                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase w-[10%]">ลำดับ</th>
-                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-700 uppercase w-[40%]">ชื่อรายการขยะ</th>
-                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase w-[25%]">ราคา/กก. (บาท)</th>
-                                    <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase w-[25%]">น้ำหนัก (กก.)</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <% if (waste.length > 0) { %>
-                                    <% waste.forEach((item, index) => { %>
-                                        <tr class="hover:bg-gray-50" id="waste-row-<%= index %>">
-                                            <td class="px-6 py-4 text-center text-sm text-gray-900"><%= index + 1 %></td>
-                                            <td class="px-6 py-4 text-sm text-gray-900 text-left">
-                                                <div class="flex items-center gap-3">
-                                                    <img class="w-10 h-10 object-cover rounded" src="<%= item.img %>" alt="รูป <%= item.wasteName %>">
-                                                    <%= item.wasteName %>
+                    <div class="h-full bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden flex flex-col">
+                        
+                        <!-- Table Content -->
+                        <div class="flex-1 overflow-y-auto">
+                            <table class="min-w-full">
+                                <thead class="bg-gray-50 sticky top-0 z-10">
+                                    <tr>
+                                        <th class="px-4 py-3 text-xs font-semibold tracking-wider text-center text-gray-600 uppercase border-b-2 border-green-200 w-[8%]">
+                                            <div class="flex items-center justify-center gap-1">
+                                                <span>#</span>
+                                            </div>
+                                        </th>
+                                        <th class="px-4 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase border-b-2 border-green-200 w-[42%]">
+                                            <div class="flex items-center gap-2">
+                                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                                </svg>
+                                                <span>ชื่อรายการขยะ</span>
+                                            </div>
+                                        </th>
+                                        <th class="px-4 py-3 text-xs font-semibold tracking-wider text-center text-gray-600 uppercase border-b-2 border-green-200 w-[25%]">
+                                            <div class="flex items-center justify-center gap-1">
+                                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                                <span>ราคา/กก.</span>
+                                            </div>
+                                        </th>
+                                        <th class="px-4 py-3 text-xs font-semibold tracking-wider text-center text-gray-600 uppercase border-b-2 border-green-200 w-[25%]">
+                                            <div class="flex items-center justify-center gap-1">
+                                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path>
+                                                </svg>
+                                                <span>น้ำหนัก (กก.)</span>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    <% if (waste.length > 0) { %>
+                                        <% waste.forEach((item, index) => { %>
+                                            <tr class="hover:bg-green-50/50 transition-colors group" id="waste-row-<%= index %>">
+                                                <td class="px-4 py-3 text-center">
+                                                    <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 text-gray-600 text-sm font-medium group-hover:bg-green-100 group-hover:text-green-700 transition-colors"><%= index + 1 %></span>
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <div class="flex items-center gap-3">
+                                                        <img class="w-12 h-12 object-cover rounded-lg shadow-sm border border-gray-200" src="<%= item.img %>" alt="รูป <%= item.wasteName %>">
+                                                        <div>
+                                                            <p class="font-medium text-gray-800"><%= item.wasteName %></p>
+                                                            <p class="text-xs text-gray-400">คลิกเพื่อกรอกน้ำหนัก</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="px-4 py-3 text-center">
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-700 font-semibold text-sm">
+                                                        ฿<%= item.pricePerUnit %>
+                                                    </span>
+                                                </td>
+                                                <td class="px-4 py-3 text-center">
+                                                    <input type="number" min="0.1" step="0.1" placeholder="0.0" 
+                                                        class="w-24 px-3 py-2 border-2 border-gray-200 rounded-xl text-center font-medium focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 hover:border-green-300 transition-all"
+                                                        id="table-weight-<%= index %>" data-index="<%= index %>" data-name="<%= item.wasteName %>" data-price="<%= item.pricePerUnit %>" data-layout="table"
+                                                        oninput="handleWeightInput('<%= index %>', 'table')"
+                                                        onblur="handleWeightBlur('<%= index %>', 'table')"
+                                                    >
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="4" class="px-6 py-16 text-center">
+                                                <div class="flex flex-col items-center text-gray-400">
+                                                    <svg class="w-12 h-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                                    </svg>
+                                                    <span class="font-medium">ยังไม่มีข้อมูลขยะ</span>
                                                 </div>
                                             </td>
-                                            <td class="px-6 py-4 text-sm text-center text-gray-900"><%= item.pricePerUnit %></td>
-                                            <td class="px-6 py-4 text-sm text-center">
-                                                <input type="number" min="0.1" step="0.1" placeholder="0.0" class="weight-input w-24 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                                    id="table-weight-<%= index %>" data-index="<%= index %>" data-name="<%= item.wasteName %>" data-price="<%= item.pricePerUnit %>" data-layout="table"
-                                                    oninput="handleWeightInput('<%= index %>', 'table')"
-                                                    onblur="handleWeightBlur('<%= index %>', 'table')"
-                                                >
-                                            </td>
                                         </tr>
-                                    <% }); %>
-                                <% } else { %>
-                                    <tr>
-                                        <td colspan="4" class="px-6 py-10 text-center text-gray-500">- ยังไม่มีข้อมูล -</td>
-                                    </tr>
-                                <% } %>
-                            </tbody>
-                        </table>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
-                <!-- แบบการ์ด -->
+                <!-- แบบการ์ด  -->
                 <div id="cardView" class="flex-1 overflow-hidden" style="display: block;">
-                    <div class="h-full overflow-y-auto border border-gray-200 rounded-lg p-4">
-                        <div class="grid grid-cols-5 gap-4">
-                            <% if (waste.length > 0) { %>
-                                <% waste.forEach((item, index) => { %>
-                                    <div class="border p-3 rounded-lg shadow-md h-auto" id="waste-card-<%= index %>">
-                                        <img class="w-full h-32 object-cover mb-2 rounded" src="<%= item.img %>" alt="รูป <%= item.wasteName %>">
-                                        <p class="text-center font-semibold mb-2 text-sm"><%= item.wasteName %></p>
-                                        <p class="text-center text-xs text-gray-500 mb-3">฿ <%= item.pricePerUnit %> บาท/กก.</p>
-                                        <div class="space-y-2">
-                                            <input type="number" min="0.1" step="0.1" placeholder="น้ำหนัก (กก.)" class="w-full p-2 text-sm border rounded weight-input focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                                id="card-weight-<%= index %>" data-index="<%= index %>" data-name="<%= item.wasteName %>" data-price="<%= item.pricePerUnit %>" data-layout="card"
-                                                oninput="handleWeightInput('<%= index %>', 'card')"
-                                                onblur="handleWeightBlur('<%= index %>', 'card')"
-                                            >
+                    <div class="h-full bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden flex flex-col">
+                        
+                        <!-- Cards Grid -->
+                        <div class="flex-1 overflow-y-auto p-4">
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 lg:gap-4">
+                                <% if (waste.length > 0) { %>
+                                    <% waste.forEach((item, index) => { %>
+                                        <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-md hover:shadow-xl hover:border-green-300 transition-all duration-300 group" id="waste-card-<%= index %>">
+                                            <!-- Image Container -->
+                                            <div class="relative overflow-hidden">
+                                                <img class="w-full h-24 sm:h-28 lg:h-32 object-cover group-hover:scale-105 transition-transform duration-300" src="<%= item.img %>" alt="รูป <%= item.wasteName %>">
+                                                <!-- Price Badge -->
+                                                <div class="absolute top-2 right-2 bg-gradient-to-r from-green-700 to-green-600 text-white text-xs px-2 py-1 rounded-full font-semibold shadow-lg">
+                                                    ฿<%= item.pricePerUnit %>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Card Content -->
+                                            <div class="p-3">
+                                                <p class="font-semibold text-gray-800 text-sm line-clamp-1 mb-2" title="<%= item.wasteName %>"><%= item.wasteName %></p>
+                                                <p class="text-xs text-gray-400 mb-3 flex items-center gap-1">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path>
+                                                    </svg>
+                                                    กรอกน้ำหนัก (กก.)
+                                                </p>
+                                                <input type="number" min="0.1" step="0.1" placeholder="0.0" 
+                                                    class="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg text-center font-medium focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 hover:border-green-300 transition-all"
+                                                    id="card-weight-<%= index %>" data-index="<%= index %>" data-name="<%= item.wasteName %>" data-price="<%= item.pricePerUnit %>" data-layout="card"
+                                                    oninput="handleWeightInput('<%= index %>', 'card')"
+                                                    onblur="handleWeightBlur('<%= index %>', 'card')"
+                                                >
+                                            </div>
+                                        </div>
+                                    <% }); %>
+                                <% } else { %>
+                                    <div class="col-span-full py-16 text-center">
+                                        <div class="flex flex-col items-center text-gray-400">
+                                            <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                            </svg>
+                                            <span class="font-medium text-lg">ยังไม่มีข้อมูลขยะ</span>
+                                            <p class="text-sm mt-1">กรุณาเพิ่มรายการขยะในระบบ</p>
                                         </div>
                                     </div>
-                                <% }); %>
-                            <% } else { %>
-                                <div class="col-span-5 mt-3 no-data-container text-center">
-                                    <span class="text-gray-500">- ยังไม่มีข้อมูล -</span>
-                                </div>
-                            <% } %>
+                                <% } %>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>           
 
-            <!-- ฝั่งขวา: ฟอร์มและรายการขยะที่เลือก -->
-            <div class="border p-4 rounded-lg shadow-lg right-box bg-white border ">
-                <h2 class="text-xl font-semibold mb-4">ฟอร์มรับซื้อขยะ</h2>
-                <form id="wastePurchaseForm" action="/employee/wastePurchasePost" method="POST">
-                    <input type="hidden" name="addBy" value="<%= username %>">
-                    <label class="text-base font-semibold block mb-2">รหัสบัญชี:</label>
-                    <div class="relative">
-                        <select name="accountId" id="accountId" class="w-full p-2 border rounded mb-1" required>
-                            <option value="">-- เลือกรหัสบัญชี --</option>
-                            <% if (allWasteBankAccount && allWasteBankAccount.length > 0) { %>
-                                <% allWasteBankAccount.forEach((account) => { %>
-                                    <option value="<%= account._id %>" data-account-number="<%= account.AccountNumber %>" data-account-name="<%= account.AccountName %>">
-                                        <%= account.AccountNumber %> - <%= account.AccountName %>
-                                    </option>
-                                <% }); %>
-                            <% } else { %>
-                                <option value="" disabled>-- ยังไม่มีบัญชีผู้ใช้ --</option>
-                            <% } %>
-                        </select>
+            <!-- ฝั่งขวา: ฟอร์มและรายการขยะที่เลือก  -->
+            <div class="order-1 lg:order-2 w-full lg:w-80 xl:w-96 lg:sticky lg:top-4 lg:h-fit">
+                <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+                    <!-- Cart Header -->
+                    <div class="bg-gradient-to-r from-green-800 to-green-600 px-4 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-white/20 p-2 rounded-lg">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-white">ตะกร้ารับซื้อ</h2>
+                                <p class="text-green-100 text-xs">เพิ่มรายการขยะที่ต้องการรับซื้อ</p>
+                            </div>
+                        </div>
                     </div>
                     
-                    <p><span class="text-total">ยอดรวม</span> <span id="totalAmount">0.00</span> <span class="text-unit">บาท</span></p>
-                    <button type="button" class="mt-1 mb-2 bg-green-500 text-white px-4 py-2 rounded" onclick="openConfirmModal('<%= username %>')">ยืนยันการรับซื้อ</button>
-            
-                    <h3 class="text-lg mb-2">รายการที่เลือก</h3>
-                    <ul id="selectedWasteList" class="mb-4">
-                    </ul>
-                    <input type="hidden" name="wasteItems" id="wasteItemsInput">
-                </form>
+                    <form id="wastePurchaseForm" action="/employee/wastePurchasePost" method="POST" class="p-4 space-y-4">
+                        <input type="hidden" name="addBy" value="<%= username %>">
+                        
+                        <!-- Account Selector (Searchable Dropdown) -->
+                        <div class="relative">
+                            <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                                เลือกบัญชีลูกค้า
+                            </label>
+                            
+                            <!-- Hidden input for form submission -->
+                            <input type="hidden" name="accountId" id="accountId" required>
+                            
+                            <!-- Custom Dropdown Trigger -->
+                            <div id="accountDropdownTrigger" 
+                                onclick="toggleAccountDropdown()" 
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl cursor-pointer bg-white hover:border-green-400 transition-all flex items-center justify-between group">
+                                <div class="flex items-center gap-3 flex-1 min-w-0">
+                                    <div class="bg-green-100 p-2 rounded-lg group-hover:bg-green-200 transition-colors">
+                                        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="truncate">
+                                        <p id="selectedAccountDisplay" class="text-sm text-gray-500">-- เลือกบัญชี --</p>
+                                    </div>
+                                </div>
+                                <svg id="dropdownArrow" class="w-5 h-5 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </div>
+                            
+                            <!-- Dropdown Panel -->
+                            <div id="accountDropdownPanel" class="hidden absolute z-50 w-full mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden">
+                                <!-- Search Input -->
+                                <div class="p-3 border-b border-gray-100">
+                                    <div class="relative">
+                                        <input type="text" id="accountSearchInput" placeholder="ค้นหาบัญชี..." 
+                                            class="w-full px-4 py-2.5 pl-10 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 text-sm"
+                                            oninput="filterAccounts()">
+                                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                
+                                <!-- Account List -->
+                                <div id="accountListContainer" class="max-h-48 overflow-y-auto">
+                                    <% if (allWasteBankAccount && allWasteBankAccount.length > 0) { %>
+                                        <% allWasteBankAccount.forEach((account) => { %>
+                                            <div class="account-option px-4 py-3 hover:bg-green-50 cursor-pointer transition-colors flex items-center gap-3 border-b border-gray-50"
+                                                data-id="<%= account._id %>"
+                                                data-number="<%= account.AccountNumber %>"
+                                                data-name="<%= account.AccountName %>"
+                                                onclick="selectAccount(this)">
+                                                <div class="bg-gray-100 p-2 rounded-lg">
+                                                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                                    </svg>
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <p class="text-sm font-medium text-gray-800 truncate"><%= account.AccountName %></p>
+                                                    <p class="text-xs text-gray-500">รหัส: <%= account.AccountNumber %></p>
+                                                </div>
+                                                <svg class="w-4 h-4 text-green-500 hidden check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                            </div>
+                                        <% }); %>
+                                    <% } else { %>
+                                        <div class="px-4 py-8 text-center text-gray-400">
+                                            <svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                            </svg>
+                                            <p class="text-sm">ยังไม่มีบัญชีผู้ใช้</p>
+                                        </div>
+                                    <% } %>
+                                </div>
+                                
+                                <!-- No Results Message -->
+                                <div id="noAccountResults" class="hidden px-4 py-6 text-center text-gray-400">
+                                    <svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                    <p class="text-sm">ไม่พบบัญชีที่ค้นหา</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Cart Items Section -->
+                        <div>
+                            <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                </svg>
+                                รายการที่เลือก
+                            </label>
+                            <div class="bg-gray-50 rounded-xl border border-gray-200 min-h-[130px] max-h-[280px] overflow-y-auto">
+                                <div id="emptyCartMessage" class="flex flex-col items-center justify-center py-8 text-gray-400">
+                                    <svg class="w-10 h-10 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                    </svg>
+                                    <span class="text-sm">ยังไม่มีรายการ</span>
+                                </div>
+                                <ul id="selectedWasteList" class="divide-y divide-gray-200">
+                                    <!-- Items will be populated by JavaScript -->
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Total Amount Display -->
+                        <div class="bg-gradient-to-r from-green-800 to-green-600 rounded-xl p-4 text-white">
+                            <div class="flex items-center justify-between">
+                                <span class="text-green-100 font-medium">ยอดรวมทั้งหมด</span>
+                                <div class="flex items-baseline gap-1">
+                                    <span id="totalAmount" class="text-2xl font-bold">0.00</span>
+                                    <span class="text-green-200 text-sm">บาท</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <button type="button" 
+                            class="w-full py-3 rounded-xl bg-gradient-to-r from-green-800 to-green-600 text-white font-semibold hover:from-green-900 hover:to-green-700 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                            onclick="openConfirmModal('<%= firstname %> <%= lastname %>')">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            ยืนยันการรับซื้อ
+                        </button>
+                        
+                        <input type="hidden" name="wasteItems" id="wasteItemsInput">
+                    </form>
+                </div>
             </div>
 
-            <!-- Modal ยืนยันการรับซื้อ -->
-            <div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
-                <form class="bg-white p-3 w-1/2 rounded-lg" action="" method="POST">
-                    <input type="hidden" name="accountId" class="w-full p-2 border rounded mb-1" required>
-
-                    <ul id="selectedWasteList" class="hidden" >
-                    </ul>
+            <!-- Modal ยืนยันการรับซื้อ  -->
+            <div id="confirmModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center hidden p-2 sm:p-4">
+                <form class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl max-h-[95vh] overflow-hidden flex flex-col" action="" method="POST">
+                    <input type="hidden" name="accountId" required>
+                    <ul id="selectedWasteList" class="hidden"></ul>
                     <input type="hidden" name="wasteItems" id="wasteItemsInput">
-                    <h2 class="text-xl font-medium leading-6 text-gray-800">รายการการรับซื้อ</h2>
-                    <hr class="my-3">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">รหัสบัญชี</th>
-                                <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">ชื่อ-สกุล</th>
-                                <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">วันที่รับซื้อ</th>
-                                <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">เวลา</th>
-                                <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">พนักงาน</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200" id="user-lists">
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-center" id="accountId"></td>
-                                <td class="px-6 py-4 whitespace-nowrap text-left" id="accountName"></td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center" id="purchaseDate"></td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center" id="purchaseTime"></td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center" id="employeePost"></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">ลำดับที่</th>
-                                <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">ชื่อสินค้า</th>
-                                <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">จำนวน/หน่วย</th>
-                                <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">ราคา/หน่วย</th>
-                                <th class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">ยอดรวม(฿)</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200" id="items-lists">
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td colspan="4" class="px-6 py-4 text-right">ยอดรวมทั้งหมด</td>
-                                <td class="px-6 py-4 text-center" id="totalAmount"></td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                    <hr class="my-5">
-                    <div class="flex justify-end w-full">
-                        <button type="button" onclick="closeConfirmModal()" class="bg-gray-500 text-white px-4 py-2 rounded">ยกเลิก</button>
-                        <button type="button" class="main-bg-color text-white px-4 py-2 rounded ml-2" onclick="wastePurchasePost()">ยืนยันการรับซื้อ</button>                     
+
+                    <!-- Header with Gradient -->
+                    <div class="bg-gradient-to-r from-green-800 to-green-600 px-4 sm:px-6 py-4 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-white/20 p-2 rounded-lg">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 class="text-lg sm:text-xl font-bold text-white">ยืนยันการรับซื้อ</h2>
+                                <p class="text-green-100 text-xs sm:text-sm">กรุณาตรวจสอบข้อมูลก่อนยืนยัน</p>
+                            </div>
+                        </div>
+                        <button type="button" onclick="closeConfirmModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Scrollable Content -->
+                    <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
+                        
+                        <!-- Info Cards Grid -->
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
+                            <!-- Account Number -->
+                            <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-3 rounded-xl border border-blue-200">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
+                                    </svg>
+                                    <span class="text-xs text-blue-600 font-medium">รหัสบัญชี</span>
+                                </div>
+                                <p class="text-sm sm:text-base font-bold text-blue-800 truncate" id="accountId"></p>
+                            </div>
+                            
+                            <!-- Account Name -->
+                            <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-3 rounded-xl border border-purple-200 col-span-2 sm:col-span-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                    <span class="text-xs text-purple-600 font-medium">ชื่อ-สกุล</span>
+                                </div>
+                                <p class="text-sm sm:text-base font-bold text-purple-800 truncate" id="accountName"></p>
+                            </div>
+                            
+                            <!-- Date -->
+                            <div class="bg-gradient-to-br from-amber-50 to-amber-100 p-3 rounded-xl border border-amber-200">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <span class="text-xs text-amber-600 font-medium">วันที่</span>
+                                </div>
+                                <p class="text-sm sm:text-base font-bold text-amber-800" id="purchaseDate"></p>
+                            </div>
+                            
+                            <!-- Time -->
+                            <div class="bg-gradient-to-br from-cyan-50 to-cyan-100 p-3 rounded-xl border border-cyan-200">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <svg class="w-4 h-4 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span class="text-xs text-cyan-600 font-medium">เวลา</span>
+                                </div>
+                                <p class="text-sm sm:text-base font-bold text-cyan-800" id="purchaseTime"></p>
+                            </div>
+                            
+                            <!-- Employee -->
+                            <div class="bg-gradient-to-br from-rose-50 to-rose-100 p-3 rounded-xl border border-rose-200 col-span-2 sm:col-span-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <span class="text-xs text-rose-600 font-medium">พนักงาน</span>
+                                </div>
+                                <p class="text-sm sm:text-base font-bold text-rose-800 truncate" id="employeePost"></p>
+                            </div>
+                        </div>
+
+                        <!-- Items Section -->
+                        <div class="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden">
+                            <div class="bg-gray-100 px-4 py-3 border-b border-gray-200">
+                                <h3 class="font-semibold text-gray-700 flex items-center gap-2">
+                                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                    </svg>
+                                    รายการขยะที่รับซื้อ
+                                </h3>
+                            </div>
+                            
+                            <!-- Items List Header (Desktop) -->
+                            <div class="hidden sm:grid grid-cols-12 gap-2 px-4 py-2 bg-gray-100/50 text-xs font-medium text-gray-500 uppercase">
+                                <div class="col-span-1 text-center">#</div>
+                                <div class="col-span-5">ชื่อขยะ</div>
+                                <div class="col-span-2 text-center">น้ำหนัก</div>
+                                <div class="col-span-2 text-center">ราคา/กก.</div>
+                                <div class="col-span-2 text-right">รวม</div>
+                            </div>
+                            
+                            <!-- Items List -->
+                            <div id="items-lists" class="divide-y divide-gray-200 max-h-48 sm:max-h-64 overflow-y-auto">
+                                <!-- Items will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer with Total & Actions -->
+                    <div class="border-t border-gray-200 bg-gray-50 px-4 sm:px-6 py-4">
+                        <!-- Total Amount -->
+                        <div class="flex items-center justify-between mb-4 bg-gradient-to-r from-green-800 to-green-600 rounded-xl p-4 text-white shadow-lg">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-white/20 p-2 rounded-lg">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <span class="font-medium text-green-100">ยอดรวมทั้งหมด</span>
+                            </div>
+                            <span class="text-2xl sm:text-3xl font-bold" id="totalAmount"></span>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="flex flex-col-reverse sm:flex-row gap-2 sm:justify-end">
+                            <button type="button" onclick="closeConfirmModal()" 
+                                class="w-full sm:w-auto px-6 py-3 rounded-xl border-2 border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition-all flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                                ยกเลิก
+                            </button>
+                            <button type="button" onclick="wastePurchasePost()" 
+                                class="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-green-800 to-green-600 text-white font-medium hover:from-green-700 hover:to-emerald-600 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                ยืนยันการรับซื้อ
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -279,6 +590,142 @@
 <script>
     let selectedWaste = [];
     let inputTimeout = {};
+
+    // ===== Account Dropdown Functions =====
+    function toggleAccountDropdown() {
+        const panel = document.getElementById('accountDropdownPanel');
+        const arrow = document.getElementById('dropdownArrow');
+        const trigger = document.getElementById('accountDropdownTrigger');
+        
+        if (panel.classList.contains('hidden')) {
+            panel.classList.remove('hidden');
+            arrow.classList.add('rotate-180');
+            trigger.classList.add('border-green-400', 'ring-2', 'ring-green-200');
+            document.getElementById('accountSearchInput').focus();
+        } else {
+            closeAccountDropdown();
+        }
+    }
+
+    function closeAccountDropdown() {
+        const panel = document.getElementById('accountDropdownPanel');
+        const arrow = document.getElementById('dropdownArrow');
+        const trigger = document.getElementById('accountDropdownTrigger');
+        
+        panel.classList.add('hidden');
+        arrow.classList.remove('rotate-180');
+        trigger.classList.remove('border-green-400', 'ring-2', 'ring-green-200');
+        document.getElementById('accountSearchInput').value = '';
+        filterAccounts(); // Reset filter
+    }
+
+    function selectAccount(element) {
+        const id = element.dataset.id;
+        const name = element.dataset.name;
+        const number = element.dataset.number;
+        
+        // Set hidden input value
+        document.getElementById('accountId').value = id;
+        
+        // Update display
+        document.getElementById('selectedAccountDisplay').innerHTML = `
+            <p class="text-sm font-medium text-gray-800">${name}</p>
+            <p class="text-xs text-gray-500">รหัส: ${number}</p>
+        `;
+        
+        // Update check icons
+        document.querySelectorAll('.account-option .check-icon').forEach(icon => {
+            icon.classList.add('hidden');
+        });
+        element.querySelector('.check-icon').classList.remove('hidden');
+        
+        // Update selected styling
+        document.querySelectorAll('.account-option').forEach(opt => {
+            opt.classList.remove('bg-green-50');
+            opt.querySelector('.bg-gray-100, .bg-green-100')?.classList.replace('bg-green-100', 'bg-gray-100');
+        });
+        element.classList.add('bg-green-50');
+        element.querySelector('.bg-gray-100')?.classList.replace('bg-gray-100', 'bg-green-100');
+        
+        closeAccountDropdown();
+    }
+
+    function filterAccounts() {
+        const searchText = document.getElementById('accountSearchInput').value.toLowerCase().trim();
+        const options = document.querySelectorAll('.account-option');
+        const noResults = document.getElementById('noAccountResults');
+        let visibleCount = 0;
+        
+        options.forEach(option => {
+            const name = option.dataset.name.toLowerCase();
+            const number = option.dataset.number.toLowerCase();
+            const isVisible = name.includes(searchText) || number.includes(searchText);
+            
+            option.style.display = isVisible ? '' : 'none';
+            if (isVisible) visibleCount++;
+        });
+        
+        noResults.classList.toggle('hidden', visibleCount > 0);
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        const dropdown = document.getElementById('accountDropdownPanel');
+        const trigger = document.getElementById('accountDropdownTrigger');
+        
+        if (dropdown && !dropdown.classList.contains('hidden')) {
+            if (!dropdown.contains(e.target) && !trigger.contains(e.target)) {
+                closeAccountDropdown();
+            }
+        }
+    });
+
+    // ข้อมูลขยะสำหรับ Client-side filtering
+    const wasteData = <%- JSON.stringify(waste.map((w, i) => ({ index: i, name: w.wasteName, type: w.wasteType?.wasteTypeName || '' }))) %>;
+
+    // ฟังก์ชันค้นหาและกรองขยะ (Client-side)
+    function filterWasteItems() {
+        const searchText = document.getElementById('searchInput').value.toLowerCase().trim();
+        const typeFilter = document.getElementById('wasteTypeFilter').value;
+
+        wasteData.forEach(item => {
+            const matchesSearch = item.name.toLowerCase().includes(searchText);
+            const matchesType = !typeFilter || item.type === typeFilter;
+            const isVisible = matchesSearch && matchesType;
+
+            // ซ่อน/แสดงใน TableView
+            const tableRow = document.getElementById(`waste-row-${item.index}`);
+            if (tableRow) {
+                tableRow.style.display = isVisible ? '' : 'none';
+            }
+
+            // ซ่อน/แสดงใน CardView
+            const card = document.getElementById(`waste-card-${item.index}`);
+            if (card) {
+                card.style.display = isVisible ? '' : 'none';
+            }
+        });
+
+        // อัพเดทจำนวนที่แสดง
+        const visibleCount = wasteData.filter(item => {
+            const matchesSearch = item.name.toLowerCase().includes(searchText);
+            const matchesType = !typeFilter || item.type === typeFilter;
+            return matchesSearch && matchesType;
+        }).length;
+        
+        // อัพเดทข้อความจำนวนรายการ (ถ้ามี)
+        const countSpan = document.querySelector('.text-blue-600');
+        if (countSpan && countSpan.textContent.includes('รายการ')) {
+            countSpan.textContent = `${visibleCount} รายการ`;
+        }
+    }
+
+    // ฟังก์ชันล้างการค้นหา
+    function clearSearch() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('wasteTypeFilter').value = '';
+        filterWasteItems();
+    }
 
     // แก้ไขฟังก์ชัน handleWeightInput
     function handleWeightInput(index, layout) {
@@ -379,8 +826,7 @@
         // อัพเดทรายการ
         updateSelectedWasteList();
 
-        // ล้าง input หลังเพิ่มสำเร็จ (ป้องกันการกดซ้ำ)
-        weightInput.value = '';
+
 
         // แสดงข้อความสำเร็จ
         Swal.fire({
@@ -410,9 +856,17 @@
     function updateSelectedWasteList() {
         const list = document.getElementById('selectedWasteList');
         const items_lists = document.getElementById('items-lists');
+        const emptyMessage = document.getElementById('emptyCartMessage');
         list.innerHTML = '';
         items_lists.innerHTML = '';
         let totalAmount = 0;
+
+        // Show/hide empty cart message
+        if (selectedWaste.length === 0) {
+            if (emptyMessage) emptyMessage.style.display = 'flex';
+        } else {
+            if (emptyMessage) emptyMessage.style.display = 'none';
+        }
 
         selectedWaste.forEach((item, index) => {
             totalAmount += parseFloat(item.totalPrice);
@@ -421,11 +875,27 @@
                 maximumFractionDigits: 2,
             });
             list.innerHTML += `
-                <li class="cart">
-                    <span><span>${item.name}</span> <br> <span>${item.weight} กก. (฿${formattedTotalPrice})</span></span>
-                    <div class="cart-action">
-                        <div onclick="editWaste(${index})" class="edit-btn mr-1"><i class="fa fa-edit"></i></div>
-                        <div onclick="deleteWaste(${index})" class="delete-btn"><i class="fa fa-trash"></i></div>
+                <li class="p-3 hover:bg-gray-100 transition-colors group">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1 min-w-0">
+                            <div class="font-medium text-gray-800 truncate">${item.name}</div>
+                            <div class="text-sm text-gray-500 flex items-center gap-2 mt-1">
+                                <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-medium">${item.weight} กก.</span>
+                                <span class="text-green-600 font-semibold">฿${formattedTotalPrice}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                            <button type="button" onclick="editWaste(${index})" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="แก้ไข">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                            </button>
+                            <button type="button" onclick="deleteWaste(${index})" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="ลบ">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </li>
             `;
@@ -438,13 +908,24 @@
                 maximumFractionDigits: 2,
             });
             items_lists.innerHTML += `
-                <tr>
-                    <td class="px-6 py-4 whitespace-nowrap text-center">${index + 1}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-left">${item.name}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center">${item.weight} กก.</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center">${formattedPricePerUnit}฿</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center">${formattedTotalPriceRow}฿</td>
-                </tr>
+                <div class="px-4 py-3 hover:bg-gray-50 transition-colors">
+                    <!-- Desktop Layout (Grid) -->
+                    <div class="hidden sm:grid grid-cols-12 gap-2 items-center">
+                        <div class="col-span-1 text-center text-gray-500 font-medium">${index + 1}</div>
+                        <div class="col-span-5 font-medium text-gray-800">${item.name}</div>
+                        <div class="col-span-2 text-center text-gray-600">${item.weight} กก.</div>
+                        <div class="col-span-2 text-center text-gray-600">${formattedPricePerUnit}฿</div>
+                        <div class="col-span-2 text-right font-semibold text-green-700">${formattedTotalPriceRow}฿</div>
+                    </div>
+                    <!-- Mobile Layout (Card) -->
+                    <div class="sm:hidden flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="font-medium text-gray-800">${index + 1}. ${item.name}</div>
+                            <div class="text-sm text-gray-500 mt-1">${item.weight} กก. × ${formattedPricePerUnit}฿</div>
+                        </div>
+                        <div class="font-semibold text-green-700 text-lg">${formattedTotalPriceRow}฿</div>
+                    </div>
+                </div>
             `;
         });
 
@@ -648,7 +1129,7 @@
     }
 
     function openConfirmModal(employee) {
-        const accountIdInput = document.querySelector("select[name='accountId']");
+        const accountIdInput = document.getElementById("accountId");
         const selectedWasteListElem = document.getElementById("selectedWasteList");
         const totalAmountElem = document.getElementById("totalAmount");
         const confirmModal = document.getElementById("confirmModal");
@@ -680,10 +1161,12 @@
 
         // อัปเดตข้อมูลใน ConfirmModal
         document.querySelector("#confirmModal input[name='accountId']").value = accountId;
-        const selectedOption = accountIdInput.options[accountIdInput.selectedIndex];
-        if (selectedOption) {
-            const accountNumber = selectedOption.textContent.split(' - ')[0].trim();
-            const accountName = selectedOption.textContent.split(' - ')[1].trim();
+        
+        // Get account info from selected option in custom dropdown
+        const selectedAccountOption = document.querySelector(`.account-option[data-id="${accountId}"]`);
+        if (selectedAccountOption) {
+            const accountNumber = selectedAccountOption.dataset.number;
+            const accountName = selectedAccountOption.dataset.name;
             document.querySelector("#confirmModal #accountId").textContent = accountNumber;
             document.querySelector("#confirmModal #accountName").textContent = accountName;
         } else {
@@ -734,9 +1217,9 @@
         document.getElementById("tableView").style.display = "none"
         document.getElementById("cardView").style.display = "block"
 
-        // เปลี่ยนสีปุ่ม
-        document.getElementById("cardViewBtn").className = "px-3 py-2 bg-blue-500 text-white rounded text-sm"
-        document.getElementById("tableViewBtn").className = "px-3 py-2 bg-gray-300 text-gray-700 rounded text-sm"
+        // เปลี่ยนสีปุ่ม - Card View เป็น Active
+        document.getElementById("cardViewBtn").className = "flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white text-green-700 font-medium text-sm transition-all"
+        document.getElementById("tableViewBtn").className = "flex items-center gap-1.5 px-4 py-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 font-medium text-sm transition-all"
     }
 
     function showTableView() {
@@ -744,9 +1227,9 @@
         document.getElementById("cardView").style.display = "none"
         document.getElementById("tableView").style.display = "block"
 
-        // เปลี่ยนสีปุ่ม
-        document.getElementById("tableViewBtn").className = "px-3 py-2 bg-blue-500 text-white rounded text-sm"
-        document.getElementById("cardViewBtn").className = "px-3 py-2 bg-gray-300 text-gray-700 rounded text-sm"
+        // เปลี่ยนสีปุ่ม - Table View เป็น Active
+        document.getElementById("tableViewBtn").className = "flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white text-green-700 font-medium text-sm transition-all"
+        document.getElementById("cardViewBtn").className = "flex items-center gap-1.5 px-4 py-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 font-medium text-sm transition-all"
     }
 </script>
 </html>
