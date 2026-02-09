@@ -139,6 +139,18 @@
                 transform: translateY(0);
             }
         }
+
+        /* Styling สำหรับ option ที่เสียชีวิตแล้ว */
+        select option:disabled {
+            color: #9CA3AF !important;
+            font-style: italic;
+            background-color: #F3F4F6;
+        }
+
+        /* เพิ่ม visual feedback เมื่อ hover */
+        select option:disabled:hover {
+            cursor: not-allowed;
+        }
     </style>
 </head>
 
@@ -1738,39 +1750,76 @@
 
             console.log('👥 Loading members:', householdMembers.length);
 
-            // เพิ่ม options (แสดงเฉพาะคนที่ status === 'living')
+            // เพิ่ม options
             householdMembers.forEach(member => {
-                // ✅ เพิ่มการตรวจสอบสถานะ
-                if (member.status !== 'living') {
-                    console.log(`⏭️ Skipped deceased member: ${member.name}`);
-                    return; // ข้ามคนที่เสียชีวิตแล้ว
-                }
-
+                const isDeceased = member.status !== 'living';
+                
                 // สร้าง option สำหรับผู้รับผิดชอบ
                 const optionResponsible = document.createElement('option');
                 optionResponsible.value = member.name;
-                optionResponsible.textContent = `${member.name}${member.relation ? ' (' + member.relation + ')' : ''}`;
+                
+                // ✅ เพิ่มข้อความแสดงสถานะ
+                if (isDeceased) {
+                    optionResponsible.textContent = `${member.name}${member.relation ? ' (' + member.relation + ')' : ''} - เสียชีวิตแล้ว`;
+                    optionResponsible.disabled = true; // ✅ ทำให้เลือกไม่ได้
+                    optionResponsible.style.color = '#9CA3AF'; // สีเทา
+                    optionResponsible.style.fontStyle = 'italic';
+                } else {
+                    optionResponsible.textContent = `${member.name}${member.relation ? ' (' + member.relation + ')' : ''}`;
+                }
+                
                 optionResponsible.dataset.memberId = member._id;
                 optionResponsible.dataset.memberType = member.type;
+                optionResponsible.dataset.memberStatus = member.status;
                 
                 // สร้าง option สำหรับผู้เสียชีวิต
                 const optionDeceased = document.createElement('option');
                 optionDeceased.value = member.name;
-                optionDeceased.textContent = `${member.name}${member.relation ? ' (' + member.relation + ')' : ''}`;
+                
+                // ✅ เพิ่มข้อความแสดงสถานะ
+                if (isDeceased) {
+                    optionDeceased.textContent = `${member.name}${member.relation ? ' (' + member.relation + ')' : ''} - เสียชีวิตแล้ว`;
+                    optionDeceased.disabled = true; // ✅ ทำให้เลือกไม่ได้
+                    optionDeceased.style.color = '#9CA3AF'; // สีเทา
+                    optionDeceased.style.fontStyle = 'italic';
+                } else {
+                    optionDeceased.textContent = `${member.name}${member.relation ? ' (' + member.relation + ')' : ''}`;
+                }
+                
                 optionDeceased.dataset.memberId = member._id;
                 optionDeceased.dataset.memberType = member.type;
+                optionDeceased.dataset.memberStatus = member.status;
 
                 responsibleSelect.appendChild(optionResponsible);
                 deceasedSelect.appendChild(optionDeceased);
+                
+                if (isDeceased) {
+                    console.log(`⏭️ Added deceased member (disabled): ${member.name}`);
+                }
             });
             
-            console.log('✅ Populated dropdowns with living members only');
+            console.log('✅ Populated dropdowns with all members');
         }
 
         // Event listeners สำหรับป้องกันการเลือกซ้ำ
         document.getElementById('responsiblePersonName').addEventListener('change', function() {
             const selectedOption = this.options[this.selectedIndex];
             const selectedId = selectedOption?.dataset?.memberId;
+            const memberStatus = selectedOption?.dataset?.memberStatus;
+
+            // ✅ ตรวจสอบสถานะ
+            if (memberStatus === 'deceased') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่สามารถเลือกได้',
+                    text: 'ไม่สามารถเลือกผู้ที่เสียชีวิตแล้วเป็นผู้รับผิดชอบได้',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#ef4444'
+                });
+                this.value = '';
+                document.getElementById('responsiblePersonId').value = '';
+                return;
+            }
             
             // ✅ เพิ่ม logging
             console.log('👤 Responsible person changed:', {
@@ -1799,6 +1848,21 @@
         document.getElementById('deceasedName').addEventListener('change', function() {
             const selectedOption = this.options[this.selectedIndex];
             const selectedId = selectedOption?.dataset?.memberId;
+            const memberStatus = selectedOption?.dataset?.memberStatus;
+
+            // ✅ ตรวจสอบสถานะ
+            if (memberStatus === 'deceased') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่สามารถเลือกได้',
+                    text: 'ไม่สามารถเลือกผู้ที่เสียชีวิตแล้วอีกครั้งได้',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#ef4444'
+                });
+                this.value = '';
+                document.getElementById('deceasedId').value = '';
+                return;
+            }
             
             // ✅ เพิ่ม logging
             console.log('💀 Deceased person changed:', {

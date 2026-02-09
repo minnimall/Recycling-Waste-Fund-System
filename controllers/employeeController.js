@@ -2749,47 +2749,52 @@ const getFamilyMembers = async (req, res) => {
             });
         }
 
-        // ดึงข้อมูลสมาชิกทั้งหมด
+        // ✅ ดึงข้อมูลสมาชิกทั้งหมด (ไม่กรอง Status)
         const members = await Member.find({
             familyID: family._id,
-            isDeleted: false,
-            Status: 'living' // ✅ เพิ่มเงื่อนไขกรองเฉพาะคนที่ยังมีชีวิต
+            isDeleted: false
+            // ✅ ลบเงื่อนไข Status: 'living' ออก
         }).select('name idCardNumber age phone birthDate Status beneficiaries').lean();
 
         const memberList = [];
 
         members.forEach(member => {
-            // เพิ่มสมาชิกหลัก (ตัวแทน)
+            // เพิ่มสมาชิกหลัก (ตัวแทน) - ทั้งที่มีชีวิตและเสียชีวิตแล้ว
             memberList.push({
                 _id: member._id,
                 name: member.name,
                 idCardNumber: member.idCardNumber || '',
                 age: member.age || '',
                 phone: member.phone || '',
-                status: member.Status || 'living',
+                status: member.Status || 'living', // ✅ ส่งสถานะจริงไป
                 type: 'main'
             });
 
-            // เพิ่มผู้รับผลประโยชน์ที่ยังมีชีวิตเท่านั้น
+            // ✅ เพิ่มผู้รับผลประโยชน์ทั้งหมด (ไม่กรอง)
             if (member.beneficiaries && member.beneficiaries.length > 0) {
-                member.beneficiaries
-                    .filter(b => b.status === 'living') // ✅ กรองเฉพาะคนที่ยังมีชีวิต
-                    .forEach(beneficiary => {
-                        memberList.push({
-                            _id: `beneficiary_${beneficiary._id}`,
-                            name: beneficiary.name,
-                            relation: beneficiary.relation,
-                            status: beneficiary.status || 'living',
-                            type: 'beneficiary',
-                            mainMemberId: member._id
-                        });
+                member.beneficiaries.forEach(beneficiary => {
+                    memberList.push({
+                        _id: `beneficiary_${beneficiary._id}`,
+                        name: beneficiary.name,
+                        relation: beneficiary.relation,
+                        status: beneficiary.status || 'living', // ✅ ส่งสถานะจริงไป
+                        type: 'beneficiary',
+                        mainMemberId: member._id
                     });
+                });
             }
         });
 
+        // ✅ ส่งข้อมูลทั้งหมดกลับไป (ทั้งคนมีชีวิตและเสียชีวิต)
         return res.json({
             success: true,
-            data: memberList
+            data: memberList,
+            // ✅ เพิ่มสถิติเพื่อให้ Frontend รู้
+            stats: {
+                total: memberList.length,
+                living: memberList.filter(m => m.status === 'living').length,
+                deceased: memberList.filter(m => m.status === 'deceased').length
+            }
         });
 
     } catch (error) {
