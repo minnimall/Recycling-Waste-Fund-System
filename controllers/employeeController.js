@@ -2752,7 +2752,8 @@ const getFamilyMembers = async (req, res) => {
         // ดึงข้อมูลสมาชิกทั้งหมด
         const members = await Member.find({
             familyID: family._id,
-            isDeleted: false
+            isDeleted: false,
+            Status: 'living' // ✅ เพิ่มเงื่อนไขกรองเฉพาะคนที่ยังมีชีวิต
         }).select('name idCardNumber age phone birthDate Status beneficiaries').lean();
 
         const memberList = [];
@@ -2769,27 +2770,26 @@ const getFamilyMembers = async (req, res) => {
                 type: 'main'
             });
 
-            // เพิ่มผู้รับผลประโยชน์
+            // เพิ่มผู้รับผลประโยชน์ที่ยังมีชีวิตเท่านั้น
             if (member.beneficiaries && member.beneficiaries.length > 0) {
-                member.beneficiaries.forEach(beneficiary => {
-                    memberList.push({
-                        _id: `beneficiary_${beneficiary._id}`,
-                        name: beneficiary.name,
-                        relation: beneficiary.relation,
-                        status: beneficiary.status || 'living',
-                        type: 'beneficiary',
-                        mainMemberId: member._id
+                member.beneficiaries
+                    .filter(b => b.status === 'living') // ✅ กรองเฉพาะคนที่ยังมีชีวิต
+                    .forEach(beneficiary => {
+                        memberList.push({
+                            _id: `beneficiary_${beneficiary._id}`,
+                            name: beneficiary.name,
+                            relation: beneficiary.relation,
+                            status: beneficiary.status || 'living',
+                            type: 'beneficiary',
+                            mainMemberId: member._id
+                        });
                     });
-                });
             }
         });
 
-        // กรองเฉพาะคนที่ยังมีชีวิต
-        const livingMembers = memberList.filter(m => m.status === 'living');
-
         return res.json({
             success: true,
-            data: livingMembers
+            data: memberList
         });
 
     } catch (error) {
@@ -3458,7 +3458,7 @@ const submitFuneralAssistance = (req, res) => {
                     console.log(`✅ Valid responsible member ObjectId: ${responsiblePersonId}`);
                 }
             }
-            
+
             const funeralRecord = new FuneralAssistance({
                 familyID: familyID,
                 responsiblePerson: {
@@ -3520,6 +3520,41 @@ const submitFuneralAssistance = (req, res) => {
 
             await funeralRecord.save({ session });
             console.log('✅ Funeral record saved:', funeralRecord._id);
+
+            // ========== 7.5 อัพเดทสถานะผู้เสียชีวิต ========== 
+            if (validDeceasedId) {
+                // ตรวจสอบว่าเป็น Member หรือ Beneficiary
+                if (deceasedId.startsWith('beneficiary_')) {
+                    // กรณีเป็น Beneficiary - ต้องหา Member ที่มี beneficiary นี้
+                    const member = await Member.findOne({
+                        'beneficiaries._id': validDeceasedId,
+                        isDeleted: false
+                    }).session(session);
+
+                    if (member) {
+                        // อัพเดทสถานะ beneficiary
+                        const beneficiaryIndex = member.beneficiaries.findIndex(
+                            b => b._id.toString() === validDeceasedId.toString()
+                        );
+                        
+                        if (beneficiaryIndex !== -1) {
+                            member.beneficiaries[beneficiaryIndex].status = 'deceased';
+                            await member.save({ session });
+                            console.log(`✅ Updated beneficiary status to deceased: ${deceasedName}`);
+                        }
+                    }
+                } else {
+                    // กรณีเป็น Member หลัก
+                    await Member.findByIdAndUpdate(
+                        validDeceasedId,
+                        { 
+                            Status: 'deceased'
+                        },
+                        { session }
+                    );
+                    console.log(`✅ Updated member status to deceased: ${deceasedName}`);
+                }
+            }
 
             // ========== 8. สร้าง Notification ==========
             const notifications = [];

@@ -1736,19 +1736,24 @@
             responsibleSelect.innerHTML = '<option value="">-- เลือกผู้รับผิดชอบ --</option>';
             deceasedSelect.innerHTML = '<option value="">-- เลือกผู้เสียชีวิต --</option>';
 
-            // ✅ เพิ่ม logging เพื่อ debug
             console.log('👥 Loading members:', householdMembers.length);
 
-            // เพิ่ม options
+            // เพิ่ม options (แสดงเฉพาะคนที่ status === 'living')
             householdMembers.forEach(member => {
-                // ✅ สร้าง option สำหรับผู้รับผิดชอบ
+                // ✅ เพิ่มการตรวจสอบสถานะ
+                if (member.status !== 'living') {
+                    console.log(`⏭️ Skipped deceased member: ${member.name}`);
+                    return; // ข้ามคนที่เสียชีวิตแล้ว
+                }
+
+                // สร้าง option สำหรับผู้รับผิดชอบ
                 const optionResponsible = document.createElement('option');
                 optionResponsible.value = member.name;
                 optionResponsible.textContent = `${member.name}${member.relation ? ' (' + member.relation + ')' : ''}`;
                 optionResponsible.dataset.memberId = member._id;
                 optionResponsible.dataset.memberType = member.type;
                 
-                // ✅ สร้าง option สำหรับผู้เสียชีวิต (แยกต่างหาก - ปลอดภัยกว่า)
+                // สร้าง option สำหรับผู้เสียชีวิต
                 const optionDeceased = document.createElement('option');
                 optionDeceased.value = member.name;
                 optionDeceased.textContent = `${member.name}${member.relation ? ' (' + member.relation + ')' : ''}`;
@@ -1759,7 +1764,7 @@
                 deceasedSelect.appendChild(optionDeceased);
             });
             
-            console.log('✅ Populated dropdowns with', householdMembers.length, 'members');
+            console.log('✅ Populated dropdowns with living members only');
         }
 
         // Event listeners สำหรับป้องกันการเลือกซ้ำ
