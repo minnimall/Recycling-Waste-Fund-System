@@ -3423,6 +3423,42 @@ const submitFuneralAssistance = (req, res) => {
             }
 
             // ========== 7. สร้างบันทึกฌาปนกิจ ==========
+            // ✅ ตรวจสอบและแปลง deceasedId
+            let validDeceasedId = null;
+
+            if (deceasedId) {
+                if (deceasedId.startsWith('beneficiary_')) {
+                    const beneficiaryId = deceasedId.split('_')[1];
+                    if (mongoose.Types.ObjectId.isValid(beneficiaryId)) {
+                        validDeceasedId = new mongoose.Types.ObjectId(beneficiaryId);
+                        console.log(`✅ Converted beneficiary ID: ${deceasedId} → ${validDeceasedId}`);
+                    } else {
+                        console.warn(`⚠️ Invalid beneficiary ObjectId: ${beneficiaryId}`);
+                    }
+                } else if (mongoose.Types.ObjectId.isValid(deceasedId)) {
+                    validDeceasedId = new mongoose.Types.ObjectId(deceasedId);
+                    console.log(`✅ Valid member ObjectId: ${deceasedId}`);
+                } else {
+                    console.warn(`⚠️ Invalid ObjectId format: ${deceasedId}`);
+                }
+            }
+
+            // ✅ ทำเช่นเดียวกันกับ responsiblePersonId
+            let validResponsibleId = null;
+
+            if (responsiblePersonId) {
+                if (responsiblePersonId.startsWith('beneficiary_')) {
+                    const beneficiaryId = responsiblePersonId.split('_')[1];
+                    if (mongoose.Types.ObjectId.isValid(beneficiaryId)) {
+                        validResponsibleId = new mongoose.Types.ObjectId(beneficiaryId);
+                        console.log(`✅ Converted responsible beneficiary ID: ${responsiblePersonId} → ${validResponsibleId}`);
+                    }
+                } else if (mongoose.Types.ObjectId.isValid(responsiblePersonId)) {
+                    validResponsibleId = new mongoose.Types.ObjectId(responsiblePersonId);
+                    console.log(`✅ Valid responsible member ObjectId: ${responsiblePersonId}`);
+                }
+            }
+            
             const funeralRecord = new FuneralAssistance({
                 familyID: familyID,
                 responsiblePerson: {
@@ -3444,7 +3480,7 @@ const submitFuneralAssistance = (req, res) => {
                     phone: phone,
                     causeOfDeath: causeOfDeath,
                     dateOfDeath: new Date(dateOfDeath),
-                    memberID: deceasedId || null
+                    memberID: validDeceasedId
                 },
                 financialInfo: {
                     totalAmount: parseFloat(amount),
