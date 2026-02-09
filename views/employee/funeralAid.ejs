@@ -835,7 +835,7 @@
             }
         });
 
-        // ✅ แก้ไข JavaScript - รวบรวมข้อมูลครบถ้วน
+        // แก้ไข JavaScript - รวบรวมข้อมูลครบถ้วน
         document.getElementById('funeralForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -859,7 +859,7 @@
                 return;
             }
 
-            // ✅ ตรวจสอบเลขบัตรประชาชน
+            // ตรวจสอบเลขบัตรประชาชน
             const idInput = document.getElementById('idCard');
             const numbersOnly = idInput.value.replace(/\D/g, '');
             if(numbersOnly.length !== 13) {
@@ -873,7 +873,7 @@
                 return;
             }
 
-            // ✅ ตรวจสอบว่ามีการอัปโหลดไฟล์ครบทุกไฟล์
+            // ตรวจสอบว่ามีการอัปโหลดไฟล์ครบทุกไฟล์
             const requiredFiles = [
                 'deathCertificate',
                 'deceasedIdCard',
@@ -908,7 +908,7 @@
                 return;
             }
 
-            // ✅ รวบรวมข้อมูลให้ครบถ้วนตามที่ Backend ต้องการ
+            // รวบรวมข้อมูลให้ครบถ้วนตามที่ Backend ต้องการ
             const formData = {
                 // ข้อมูลครัวเรือน
                 familyID: selectedHousehold.familyID,
@@ -922,7 +922,7 @@
                 deceasedName: document.getElementById('deceasedName').value.trim(),
                 deceasedId: document.getElementById('deceasedId')?.value || '',
                 deceasedAge: document.getElementById('deceasedAge').value,
-                idCard: numbersOnly, // ✅ ใช้ numbersOnly แทน (13 หลักไม่มีขีด)
+                idCard: numbersOnly, // ใช้ numbersOnly แทน (13 หลักไม่มีขีด)
                 deceasedAddress: document.getElementById('deceasedAddress').value.trim(),
                 deceasedVillage: document.getElementById('deceasedVillage').value.trim(),
                 subDistrict: document.getElementById('subDistrict').value.trim(),
@@ -940,7 +940,7 @@
 
             console.log('📋 Form Data:', formData);
             
-            // ✅ ตรวจสอบข้อมูลก่อนส่ง
+            // ตรวจสอบข้อมูลก่อนส่ง
             const missingFields = [];
             const requiredFieldLabels = {
                 responsiblePersonName: 'ชื่อผู้รับผิดชอบ',
@@ -975,7 +975,7 @@
                 return;
             }
 
-            // ✅ ตรวจสอบว่าผู้รับผิดชอบและผู้เสียชีวิตไม่ใช่คนเดียวกัน
+            // ตรวจสอบว่าผู้รับผิดชอบและผู้เสียชีวิตไม่ใช่คนเดียวกัน
             if (formData.responsiblePersonId && formData.deceasedId && 
                 formData.responsiblePersonId === formData.deceasedId) {
                 Swal.fire({
@@ -987,17 +987,33 @@
                 return;
             }
 
-            // ✅ สร้าง FormData สำหรับส่งไฟล์ (เหมือนเดิม)
+            // สร้าง FormData สำหรับส่งไฟล์
             const formDataToSend = new FormData();
-            
+
             // เพิ่มข้อมูลทั่วไป
             Object.keys(formData).forEach(key => {
-                if (formData[key] !== null && formData[key] !== undefined && formData[key] !== '') {
+                // สำหรับ ID fields ให้ส่งแม้เป็น empty string
+                if (key === 'responsiblePersonId' || key === 'deceasedId') {
+                    formDataToSend.append(key, formData[key] || '');
+                    console.log(`✅ Added ID field: ${key} =`, formData[key] || '(empty)');
+                } 
+                // สำหรับ field อื่นๆ ตรวจสอบว่าไม่เป็น empty
+                else if (formData[key] !== null && formData[key] !== undefined && formData[key] !== '') {
                     formDataToSend.append(key, formData[key]);
                 }
             });
-            
-            // เพิ่มไฟล์
+
+            // เพิ่ม logging เพื่อ debug
+            console.log('📦 FormData contents:');
+            for (let [key, value] of formDataToSend.entries()) {
+                if (value instanceof File) {
+                    console.log(`  ${key}: [File] ${value.name}`);
+                } else {
+                    console.log(`  ${key}:`, value);
+                }
+            }
+
+            // เพิ่มไฟล์ (เหมือนเดิม)
             const fileInputs = [
                 'deathCertificate',
                 'deceasedIdCard',
@@ -1005,7 +1021,7 @@
                 'applicantIdCard',
                 'applicantHouseRegistration'
             ];
-            
+
             fileInputs.forEach(fieldName => {
                 const fileInput = document.querySelector(`input[name="${fieldName}"]`);
                 if (fileInput && fileInput.files[0]) {
@@ -1015,8 +1031,8 @@
             });
 
             console.log('📦 FormData ready to send');
-            
-            // ✅ เรียกฟังก์ชันบันทึกข้อมูล
+
+            // เรียกฟังก์ชันบันทึกข้อมูล
             await submitFuneralAssistance(formDataToSend);
         });
 
@@ -1712,7 +1728,6 @@
             }
         }
 
-        // ฟังก์ชันเติมข้อมูลใน dropdown
         function populateMemberDropdowns() {
             const responsibleSelect = document.getElementById('responsiblePersonName');
             const deceasedSelect = document.getElementById('deceasedName');
@@ -1721,26 +1736,45 @@
             responsibleSelect.innerHTML = '<option value="">-- เลือกผู้รับผิดชอบ --</option>';
             deceasedSelect.innerHTML = '<option value="">-- เลือกผู้เสียชีวิต --</option>';
 
+            // ✅ เพิ่ม logging เพื่อ debug
+            console.log('👥 Loading members:', householdMembers.length);
+
             // เพิ่ม options
             householdMembers.forEach(member => {
-                const option1 = new Option(
-                    `${member.name}${member.relation ? ' (' + member.relation + ')' : ''}`,
-                    member.name
-                );
-                option1.dataset.memberId = member._id;
-                option1.dataset.memberType = member.type;
+                // ✅ สร้าง option สำหรับผู้รับผิดชอบ
+                const optionResponsible = document.createElement('option');
+                optionResponsible.value = member.name;
+                optionResponsible.textContent = `${member.name}${member.relation ? ' (' + member.relation + ')' : ''}`;
+                optionResponsible.dataset.memberId = member._id;
+                optionResponsible.dataset.memberType = member.type;
+                
+                // ✅ สร้าง option สำหรับผู้เสียชีวิต (แยกต่างหาก - ปลอดภัยกว่า)
+                const optionDeceased = document.createElement('option');
+                optionDeceased.value = member.name;
+                optionDeceased.textContent = `${member.name}${member.relation ? ' (' + member.relation + ')' : ''}`;
+                optionDeceased.dataset.memberId = member._id;
+                optionDeceased.dataset.memberType = member.type;
 
-                const option2 = option1.cloneNode(true);
-
-                responsibleSelect.appendChild(option1);
-                deceasedSelect.appendChild(option2);
+                responsibleSelect.appendChild(optionResponsible);
+                deceasedSelect.appendChild(optionDeceased);
             });
+            
+            console.log('✅ Populated dropdowns with', householdMembers.length, 'members');
         }
 
         // Event listeners สำหรับป้องกันการเลือกซ้ำ
         document.getElementById('responsiblePersonName').addEventListener('change', function() {
-            const selectedId = this.options[this.selectedIndex].dataset.memberId;
-            document.getElementById('responsiblePersonId').value = selectedId;
+            const selectedOption = this.options[this.selectedIndex];
+            const selectedId = selectedOption?.dataset?.memberId;
+            
+            // ✅ เพิ่ม logging
+            console.log('👤 Responsible person changed:', {
+                name: this.value,
+                id: selectedId,
+                hasDataset: !!selectedOption?.dataset
+            });
+            
+            document.getElementById('responsiblePersonId').value = selectedId || '';
             
             const deceasedSelect = document.getElementById('deceasedName');
             const deceasedId = document.getElementById('deceasedId').value;
@@ -1758,8 +1792,17 @@
         });
 
         document.getElementById('deceasedName').addEventListener('change', function() {
-            const selectedId = this.options[this.selectedIndex].dataset.memberId;
-            document.getElementById('deceasedId').value = selectedId;
+            const selectedOption = this.options[this.selectedIndex];
+            const selectedId = selectedOption?.dataset?.memberId;
+            
+            // ✅ เพิ่ม logging
+            console.log('💀 Deceased person changed:', {
+                name: this.value,
+                id: selectedId,
+                hasDataset: !!selectedOption?.dataset
+            });
+            
+            document.getElementById('deceasedId').value = selectedId || '';
             
             const responsibleId = document.getElementById('responsiblePersonId').value;
             
@@ -1777,6 +1820,7 @@
             // Auto-fill ข้อมูลผู้เสียชีวิต
             const selectedMember = householdMembers.find(m => m._id === selectedId);
             if (selectedMember) {
+                console.log('📝 Auto-filling deceased info');
                 document.getElementById('deceasedAge').value = selectedMember.age || '';
                 document.getElementById('idCard').value = formatThaiID(selectedMember.idCardNumber || '');
                 document.getElementById('phone').value = selectedMember.phone || '';
