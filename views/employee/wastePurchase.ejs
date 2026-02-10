@@ -21,6 +21,7 @@
             });
         });
     </script>
+    
 </head>
 
 <body>
@@ -61,29 +62,29 @@
             <div id="wasteList" class="order-2 lg:order-1 bg-white rounded-2xl shadow-xl border border-gray-100 min-h-[500px] lg:h-[750px] flex flex-col w-full lg:flex-1 overflow-hidden">
                 
                 <!-- Header with Gradient Accent -->
-                <div class="bg-gradient-to-r from-green-800 to-green-600 px-4 sm:px-6 py-4">
+                <div class="bg-gradient-to-r from-white-800 to-green-600 px-4 sm:px-6 py-4">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                         <div class="flex items-center gap-3">
                             <div class="bg-white/20 p-2.5 rounded-xl">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-6 h-6 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                                 </svg>
                             </div>
                             <div>
-                                <h2 class="text-xl sm:text-2xl font-bold text-white">รับซื้อขยะ</h2>
-                                <p class="text-green-100 text-sm hidden sm:block">เลือกรายการและกรอกน้ำหนัก</p>
+                                <h2 class="text-xl sm:text-2xl font-bold text-gray-800">รับซื้อขยะ</h2>
+                                <p class="text-gray-600 text-sm hidden sm:block">เลือกรายการและกรอกน้ำหนัก</p>
                             </div>
                         </div>
                         
                         <!-- View Toggle Buttons -->
                         <div class="flex bg-white/20 rounded-xl p-1">
-                            <button id="cardViewBtn" class="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white text-green-700 font-medium text-sm transition-all" onclick="showCardView()">
+                            <button id="cardViewBtn" class="flex items-center gap-1.5 px-4 py-2 rounded-md bg-white text-green-700 font-medium text-sm transition-all shadow-sm" onclick="showCardView()">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
                                 </svg>
                                 <span class="hidden sm:inline">การ์ด</span>
                             </button>
-                            <button id="tableViewBtn" class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 font-medium text-sm transition-all" onclick="showTableView()">
+                            <button id="tableViewBtn" class="flex items-center gap-1.5 px-4 py-2 rounded-md text-gray-600 hover:text-gray-800 hover:bg-gray-50 font-medium text-sm transition-all" onclick="showTableView()">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
                                 </svg>
@@ -144,30 +145,30 @@
                                     <tr>
                                         <th class="px-4 py-3 text-xs font-semibold tracking-wider text-center text-gray-600 uppercase border-b-2 border-green-200 w-[8%]">
                                             <div class="flex items-center justify-center gap-1">
-                                                <span>#</span>
+                                                <span>ลำดับที่</span>
                                             </div>
                                         </th>
                                         <th class="px-4 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase border-b-2 border-green-200 w-[42%]">
                                             <div class="flex items-center gap-2">
-                                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <!-- <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                                                </svg>
+                                                </svg> -->
                                                 <span>ชื่อรายการขยะ</span>
                                             </div>
                                         </th>
                                         <th class="px-4 py-3 text-xs font-semibold tracking-wider text-center text-gray-600 uppercase border-b-2 border-green-200 w-[25%]">
                                             <div class="flex items-center justify-center gap-1">
-                                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <!-- <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                </svg>
+                                                </svg> -->
                                                 <span>ราคา/กก.</span>
                                             </div>
                                         </th>
                                         <th class="px-4 py-3 text-xs font-semibold tracking-wider text-center text-gray-600 uppercase border-b-2 border-green-200 w-[25%]">
                                             <div class="flex items-center justify-center gap-1">
-                                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <!-- <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path>
-                                                </svg>
+                                                </svg> -->
                                                 <span>น้ำหนัก (กก.)</span>
                                             </div>
                                         </th>
@@ -185,7 +186,7 @@
                                                         <img class="w-12 h-12 object-cover rounded-lg shadow-sm border border-gray-200" src="<%= item.img %>" alt="รูป <%= item.wasteName %>">
                                                         <div>
                                                             <p class="font-medium text-gray-800"><%= item.wasteName %></p>
-                                                            <p class="text-xs text-gray-400">คลิกเพื่อกรอกน้ำหนัก</p>
+                                                            <!-- <p class="text-xs text-gray-400">คลิกเพื่อกรอกน้ำหนัก</p> -->
                                                         </div>
                                                     </div>
                                                 </td>
@@ -245,9 +246,9 @@
                                             <div class="p-3">
                                                 <p class="font-semibold text-gray-800 text-sm line-clamp-1 mb-2" title="<%= item.wasteName %>"><%= item.wasteName %></p>
                                                 <p class="text-xs text-gray-400 mb-3 flex items-center gap-1">
-                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <!-- <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path>
-                                                    </svg>
+                                                    </svg> -->
                                                     กรอกน้ำหนัก (กก.)
                                                 </p>
                                                 <input type="number" min="0.1" step="0.1" placeholder="0.0" 
@@ -303,7 +304,7 @@
                                 <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                 </svg>
-                                เลือกบัญชีลูกค้า
+                                เลือกบัญชีสมาชิก
                             </label>
                             
                             <!-- Hidden input for form submission -->
@@ -358,7 +359,7 @@
                                                 </div>
                                                 <div class="flex-1 min-w-0">
                                                     <p class="text-sm font-medium text-gray-800 truncate"><%= account.AccountName %></p>
-                                                    <p class="text-xs text-gray-500">รหัส: <%= account.AccountNumber %></p>
+                                                    <p class="text-xs text-gray-500">เลขบัญชี: <%= account.AccountNumber %></p>
                                                 </div>
                                                 <svg class="w-4 h-4 text-green-500 hidden check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -433,26 +434,26 @@
             </div>
 
             <!-- Modal ยืนยันการรับซื้อ  -->
-            <div id="confirmModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center hidden p-2 sm:p-4">
-                <form class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl max-h-[95vh] overflow-hidden flex flex-col" action="" method="POST">
+            <div id="confirmModal" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center hidden p-4">
+                <form class="bg-white w-full max-w-4xl rounded-lg shadow-xl max-h-[95vh] overflow-hidden flex flex-col" action="" method="POST">
                     <input type="hidden" name="accountId" required>
                     <ul id="selectedWasteList" class="hidden"></ul>
                     <input type="hidden" name="wasteItems" id="wasteItemsInput">
 
-                    <!-- Header with Gradient -->
-                    <div class="bg-gradient-to-r from-green-800 to-green-600 px-4 sm:px-6 py-4 flex items-center justify-between">
+                    <!-- Header -->
+                    <div class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
                         <div class="flex items-center gap-3">
-                            <div class="bg-white/20 p-2 rounded-lg">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="bg-green-100 p-2.5 rounded-lg">
+                                <svg class="w-6 h-6 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                             </div>
                             <div>
-                                <h2 class="text-lg sm:text-xl font-bold text-white">ยืนยันการรับซื้อ</h2>
-                                <p class="text-green-100 text-xs sm:text-sm">กรุณาตรวจสอบข้อมูลก่อนยืนยัน</p>
+                                <h2 class="text-xl font-semibold text-gray-800">ยืนยันการรับซื้อ</h2>
+                                <p class="text-gray-600 text-sm">กรุณาตรวจสอบข้อมูลก่อนยืนยัน</p>
                             </div>
                         </div>
-                        <button type="button" onclick="closeConfirmModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all">
+                        <button type="button" onclick="closeConfirmModal()" class="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-all">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
@@ -460,69 +461,75 @@
                     </div>
 
                     <!-- Scrollable Content -->
-                    <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
+                    <div class="flex-1 overflow-y-auto p-6 space-y-6 bg-gray-50">
                         
                         <!-- Info Cards Grid -->
-                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
-                            <!-- Account Number -->
-                            <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-3 rounded-xl border border-blue-200">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
-                                    </svg>
-                                    <span class="text-xs text-blue-600 font-medium">รหัสบัญชี</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                            <!-- Mobile: Account Number + Name in same row -->
+                            <div class="grid grid-cols-2 gap-3 sm:contents">
+                                <!-- Account Number -->
+                                <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
+                                        </svg>
+                                        <span class="text-xs text-gray-500 font-medium">เลขบัญชี</span>
+                                    </div>
+                                    <p class="text-base font-semibold text-gray-800 truncate" id="accountId"></p>
                                 </div>
-                                <p class="text-sm sm:text-base font-bold text-blue-800 truncate" id="accountId"></p>
+                                
+                                <!-- Account Name -->
+                                <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                        </svg>
+                                        <span class="text-xs text-gray-500 font-medium">ชื่อ-สกุล</span>
+                                    </div>
+                                    <p class="text-base font-semibold text-gray-800 truncate" id="accountName"></p>
+                                </div>
                             </div>
                             
-                            <!-- Account Name -->
-                            <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-3 rounded-xl border border-purple-200 col-span-2 sm:col-span-1">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                    </svg>
-                                    <span class="text-xs text-purple-600 font-medium">ชื่อ-สกุล</span>
+                            <!-- Mobile: Date + Time in same row -->
+                            <div class="grid grid-cols-2 gap-3 sm:contents">
+                                <!-- Date -->
+                                <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                        <span class="text-xs text-gray-500 font-medium">วันที่</span>
+                                    </div>
+                                    <p class="text-base font-semibold text-gray-800" id="purchaseDate"></p>
                                 </div>
-                                <p class="text-sm sm:text-base font-bold text-purple-800 truncate" id="accountName"></p>
+                                
+                                <!-- Time -->
+                                <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <span class="text-xs text-gray-500 font-medium">เวลา</span>
+                                    </div>
+                                    <p class="text-base font-semibold text-gray-800" id="purchaseTime"></p>
+                                </div>
                             </div>
                             
-                            <!-- Date -->
-                            <div class="bg-gradient-to-br from-amber-50 to-amber-100 p-3 rounded-xl border border-amber-200">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                    </svg>
-                                    <span class="text-xs text-amber-600 font-medium">วันที่</span>
-                                </div>
-                                <p class="text-sm sm:text-base font-bold text-amber-800" id="purchaseDate"></p>
-                            </div>
-                            
-                            <!-- Time -->
-                            <div class="bg-gradient-to-br from-cyan-50 to-cyan-100 p-3 rounded-xl border border-cyan-200">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <svg class="w-4 h-4 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                    <span class="text-xs text-cyan-600 font-medium">เวลา</span>
-                                </div>
-                                <p class="text-sm sm:text-base font-bold text-cyan-800" id="purchaseTime"></p>
-                            </div>
-                            
-                            <!-- Employee -->
-                            <div class="bg-gradient-to-br from-rose-50 to-rose-100 p-3 rounded-xl border border-rose-200 col-span-2 sm:col-span-1">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <!-- Employee (Full width on mobile) -->
+                            <div class="bg-white p-4 rounded-lg border border-gray-200 sm:col-span-1">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                                     </svg>
-                                    <span class="text-xs text-rose-600 font-medium">พนักงาน</span>
+                                    <span class="text-xs text-gray-500 font-medium">พนักงาน</span>
                                 </div>
-                                <p class="text-sm sm:text-base font-bold text-rose-800 truncate" id="employeePost"></p>
+                                <p class="text-base font-semibold text-gray-800 truncate" id="employeePost"></p>
                             </div>
                         </div>
 
                         <!-- Items Section -->
-                        <div class="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden">
-                            <div class="bg-gray-100 px-4 py-3 border-b border-gray-200">
+                        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                            <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
                                 <h3 class="font-semibold text-gray-700 flex items-center gap-2">
                                     <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
@@ -532,7 +539,7 @@
                             </div>
                             
                             <!-- Items List Header (Desktop) -->
-                            <div class="hidden sm:grid grid-cols-12 gap-2 px-4 py-2 bg-gray-100/50 text-xs font-medium text-gray-500 uppercase">
+                            <div class="hidden sm:grid grid-cols-12 gap-2 px-4 py-3 bg-gray-50 text-xs font-medium text-gray-500 border-b border-gray-200">
                                 <div class="col-span-1 text-center">#</div>
                                 <div class="col-span-5">ชื่อขยะ</div>
                                 <div class="col-span-2 text-center">น้ำหนัก</div>
@@ -548,31 +555,31 @@
                     </div>
 
                     <!-- Footer with Total & Actions -->
-                    <div class="border-t border-gray-200 bg-gray-50 px-4 sm:px-6 py-4">
+                    <div class="border-t border-gray-200 bg-white px-6 py-4">
                         <!-- Total Amount -->
-                        <div class="flex items-center justify-between mb-4 bg-gradient-to-r from-green-800 to-green-600 rounded-xl p-4 text-white shadow-lg">
+                        <div class="flex items-center justify-between mb-4 bg-green-50 border border-green-200 rounded-lg p-4">
                             <div class="flex items-center gap-3">
-                                <div class="bg-white/20 p-2 rounded-lg">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="bg-green-100 p-2 rounded-lg">
+                                    <svg class="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                 </div>
-                                <span class="font-medium text-green-100">ยอดรวมทั้งหมด</span>
+                                <span class="font-medium text-gray-700">ยอดรวมทั้งหมด</span>
                             </div>
-                            <span class="text-2xl sm:text-3xl font-bold" id="totalAmount"></span>
+                            <span class="text-2xl sm:text-3xl font-bold text-green-700" id="totalAmount"></span>
                         </div>
                         
                         <!-- Action Buttons -->
-                        <div class="flex flex-col-reverse sm:flex-row gap-2 sm:justify-end">
+                        <div class="flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
                             <button type="button" onclick="closeConfirmModal()" 
-                                class="w-full sm:w-auto px-6 py-3 rounded-xl border-2 border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition-all flex items-center justify-center gap-2">
+                                class="w-full sm:w-auto px-6 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-all flex items-center justify-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                 </svg>
                                 ยกเลิก
                             </button>
                             <button type="button" onclick="wastePurchasePost()" 
-                                class="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-green-800 to-green-600 text-white font-medium hover:from-green-700 hover:to-emerald-600 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+                                class="w-full sm:w-auto px-6 py-2.5 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition-all shadow-sm flex items-center justify-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                 </svg>
@@ -1631,8 +1638,8 @@
         document.getElementById("cardView").style.display = "block"
 
         // เปลี่ยนสีปุ่ม - Card View เป็น Active
-        document.getElementById("cardViewBtn").className = "flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white text-green-700 font-medium text-sm transition-all"
-        document.getElementById("tableViewBtn").className = "flex items-center gap-1.5 px-4 py-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 font-medium text-sm transition-all"
+        document.getElementById("cardViewBtn").className = "flex items-center gap-1.5 px-4 py-2 rounded-md bg-white text-green-700 font-medium text-sm transition-all shadow-sm"
+        document.getElementById("tableViewBtn").className = "flex items-center gap-1.5 px-4 py-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-50 font-medium text-sm transition-all"
     }
 
     function showTableView() {
@@ -1641,8 +1648,8 @@
         document.getElementById("tableView").style.display = "block"
 
         // เปลี่ยนสีปุ่ม - Table View เป็น Active
-        document.getElementById("tableViewBtn").className = "flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white text-green-700 font-medium text-sm transition-all"
-        document.getElementById("cardViewBtn").className = "flex items-center gap-1.5 px-4 py-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 font-medium text-sm transition-all"
+        document.getElementById("tableViewBtn").className = "flex items-center gap-1.5 px-4 py-2 rounded-md bg-white text-green-700 font-medium text-sm transition-all shadow-sm"
+        document.getElementById("cardViewBtn").className = "flex items-center gap-1.5 px-4 py-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-50 font-medium text-sm transition-all"
     }
 </script>
 </html>
