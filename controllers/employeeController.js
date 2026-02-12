@@ -1648,11 +1648,66 @@ const complaintReplyMessage = async (req, res) => {
 };
 
 const updateMessageReply = async (req, res) => { 
+    try {
+        const { complaintId, replyId } = req.params;
+        const { replyMessage } = req.body;
+        const employeeId = req.user._id;
 
+        const complaint = await Complaint.findById(complaintId);
+        if (!complaint) {
+            return res.status(404).json({ error: 'ไม่พบคำร้องเรียน' });
+        }
+
+        const reply = complaint.reply.id(replyId);
+        if (!reply) {
+            return res.status(404).json({ error: 'ไม่พบข้อความตอบกลับ' });
+        }
+
+        // ตรวจสอบว่าเป็นคนตอบเองหรือไม่
+        if (reply.employee.toString() !== employeeId.toString()) {
+            return res.status(403).json({ error: 'คุณไม่มีสิทธิ์แก้ไขข้อความนี้' });
+        }
+
+        reply.replyMessage = replyMessage;
+        await complaint.save();
+
+        res.json({ success: true, message: 'แก้ไขข้อความสำเร็จ' });
+
+    } catch (error) {
+        console.error('Error updating reply:', error);
+        res.status(500).json({ error: 'เกิดข้อผิดพลาดในการแก้ไข' });
+    }
 };
 
 const deleteMessageReply = async (req, res) => {
+    try {
+        const { id } = req.params; // replyId
+        const employeeId = req.user._id;
 
+        // หา complaint ที่มี reply นี้
+        const complaint = await Complaint.findOne({ 'reply._id': id });
+        
+        if (!complaint) {
+            return res.status(404).json({ error: 'ไม่พบข้อความตอบกลับ' });
+        }
+
+        const reply = complaint.reply.id(id);
+        
+        // ตรวจสอบว่าเป็นคนตอบเองหรือไม่
+        if (reply.employee.toString() !== employeeId.toString()) {
+            return res.status(403).json({ error: 'คุณไม่มีสิทธิ์ลบข้อความนี้' });
+        }
+
+        // ลบ reply
+        complaint.reply.pull(id);
+        await complaint.save();
+
+        res.json({ success: true, message: 'ลบข้อความสำเร็จ' });
+
+    } catch (error) {
+        console.error('Error deleting reply:', error);
+        res.status(500).json({ error: 'เกิดข้อผิดพลาดในการลบ' });
+    }
 };
 
 // เปลี่ยนสถานะของคำร้อง
