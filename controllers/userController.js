@@ -986,7 +986,7 @@ const uploadToCloudinary = (fileBuffer, fileName, folderName = 'funeral-document
     });
 };
 
-// ยื่นคำขอรับฌาปนกิจ
+// ยื่นคำขอรับฌาปนกิจ (แก้ไขแล้ว)
 const submitFuneralRequest = (req, res) => {
     uploadfuneral(req, res, async (err) => {
         if (err) {
@@ -1036,7 +1036,7 @@ const submitFuneralRequest = (req, res) => {
                 causeOfDeath,
                 dateOfDeath,
                 notes,
-                memberID
+                memberID  // ⚠️ อันนี้คือที่มีปัญหา
             } = req.body;
 
             // ตรวจสอบ required fields
@@ -1160,6 +1160,33 @@ const submitFuneralRequest = (req, res) => {
 
             const defaultFuneralAmount = 2000;
 
+            // ============================================
+            // ✅ เพิ่มส่วนนี้: แปลง memberID ให้ถูกต้อง
+            // ============================================
+            let validMemberID = null;
+
+            if (memberID && memberID.trim() !== '') {
+                console.log(`🔍 Original memberID from frontend: ${memberID}`);
+                
+                if (memberID.startsWith('beneficiary_')) {
+                    // กรณี Beneficiary
+                    const beneficiaryId = memberID.split('_')[1];
+                    if (mongoose.Types.ObjectId.isValid(beneficiaryId)) {
+                        validMemberID = memberID; // เก็บเป็น string "beneficiary_xxx" ไว้
+                        console.log(`✅ Valid beneficiary ID: ${validMemberID}`);
+                    } else {
+                        console.warn(`⚠️ Invalid beneficiary ObjectId: ${beneficiaryId}`);
+                    }
+                } else if (mongoose.Types.ObjectId.isValid(memberID)) {
+                    // กรณี Member หลัก
+                    validMemberID = new mongoose.Types.ObjectId(memberID);
+                    console.log(`✅ Valid member ObjectId: ${validMemberID}`);
+                } else {
+                    console.warn(`⚠️ Invalid memberID format: ${memberID}`);
+                }
+            }
+            // ============================================
+
             // สร้างคำขอใหม่
             const request = new FuneralAssistance({
                 familyID,
@@ -1182,7 +1209,7 @@ const submitFuneralRequest = (req, res) => {
                     phone,
                     causeOfDeath,
                     dateOfDeath: new Date(dateOfDeath),
-                    memberID: memberID || null
+                    memberID: validMemberID  // ✅ ใช้ validMemberID ที่แปลงแล้ว
                 },
                 financialInfo: {
                     totalAmount: defaultFuneralAmount,
@@ -1193,7 +1220,7 @@ const submitFuneralRequest = (req, res) => {
                     accountsWithSufficientBalance: 0,
                     accountsWithInsufficientBalance: 0
                 },
-                documents, // ← เก็บ URL จาก Cloudinary
+                documents,
                 notes: notes || '',
                 status: 'pending',
                 submittedBy: {
@@ -1217,13 +1244,16 @@ const submitFuneralRequest = (req, res) => {
 
             await request.save();
 
+            console.log(`✅ Funeral request created with memberID: ${validMemberID}`);
+
             return res.json({
                 success: true,
                 message: 'ยื่นคำขอเรียบร้อย รอเจ้าหน้าที่ตรวจสอบและกำหนดยอดเงิน',
                 data: {
                     requestID: request._id,
                     status: request.status,
-                    defaultAmount: defaultFuneralAmount
+                    defaultAmount: defaultFuneralAmount,
+                    memberID: validMemberID
                 }
             });
 
