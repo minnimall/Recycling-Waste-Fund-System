@@ -38,6 +38,57 @@
         .overflow-y-auto::-webkit-scrollbar-thumb:hover {
             background: #555;
         }
+        /* Custom File Upload Styles */
+        .file-upload-wrapper {
+            position: relative;
+        }
+
+        .file-upload-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            min-height: 140px;
+            padding: 1.5rem;
+            border: 2px dashed #d1d5db;
+            border-radius: 0.5rem;
+            background-color: #f9fafb;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-label:hover {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+
+        .file-upload-label.dragover {
+            border-color: #10b981;
+            background-color: #d1fae5;
+        }
+
+        .file-upload-text {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #4b5563;
+            margin-bottom: 0.25rem;
+        }
+
+        .file-upload-subtext {
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+
+        .file-input.has-file + .file-upload-label {
+            border-color: #10b981;
+            background-color: #ecfdf5;
+        }
+
+        .file-input.has-file + .file-upload-label .file-upload-text {
+            color: #059669;
+            font-weight: 600;
+        }
     </style>
 </head>
 
@@ -368,6 +419,130 @@
                                 <option value="ญาติ">ญาติ</option>
                                 <option value="อื่นๆ">อื่นๆ</option>
                             </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- เอกสารประกอบ -->
+                <div class="mb-6">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center border-b pb-2">
+                        เอกสารประกอบ
+                    </h4>
+                    
+                    <p class="text-sm text-gray-600 mb-4">
+                        <svg class="inline w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        อัปโหลดเฉพาะเอกสารที่ต้องการเปลี่ยน หากไม่อัปโหลดจะใช้เอกสารเดิม
+                    </p>
+                    
+                    <!-- แสดงเอกสารปัจจุบัน -->
+                    <div id="currentDocuments" class="mb-4 bg-gray-50 rounded-lg p-4">
+                        <p class="text-sm font-medium text-gray-700 mb-2">เอกสารปัจจุบัน:</p>
+                        <div id="currentDocsList" class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <!-- จะถูกเติมด้วย JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- สำเนาใบมรณะบัตร -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                สำเนาใบมรณะบัตร
+                            </label>
+                            <div class="file-upload-wrapper">
+                                <input type="file" name="deathCertificate" id="edit_deathCertificate" 
+                                    accept="image/*,.pdf" 
+                                    class="file-input hidden">
+                                <label for="edit_deathCertificate" class="file-upload-label cursor-pointer">
+                                    <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    </svg>
+                                    <span class="file-upload-text">คลิกเพื่อเลือกไฟล์ใหม่</span>
+                                    <span class="file-upload-subtext">หรือลากไฟล์มาวางที่นี่</span>
+                                </label>
+                            </div>
+                            <div id="edit_deathCertificatePreview" class="mt-2"></div>
+                        </div>
+
+                        <!-- สำเนาบัตรประชาชนผู้ตาย -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                สำเนาบัตรประชาชนผู้ตาย
+                            </label>
+                            <div class="file-upload-wrapper">
+                                <input type="file" name="deceasedIdCard" id="edit_deceasedIdCard" 
+                                    accept="image/*,.pdf" 
+                                    class="file-input hidden">
+                                <label for="edit_deceasedIdCard" class="file-upload-label cursor-pointer">
+                                    <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    </svg>
+                                    <span class="file-upload-text">คลิกเพื่อเลือกไฟล์ใหม่</span>
+                                    <span class="file-upload-subtext">หรือลากไฟล์มาวางที่นี่</span>
+                                </label>
+                            </div>
+                            <div id="edit_deceasedIdCardPreview" class="mt-2"></div>
+                        </div>
+
+                        <!-- สำเนาทะเบียนบ้านผู้ตาย -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                สำเนาทะเบียนบ้านผู้ตาย
+                            </label>
+                            <div class="file-upload-wrapper">
+                                <input type="file" name="deceasedHouseRegistration" id="edit_deceasedHouseRegistration" 
+                                    accept="image/*,.pdf" 
+                                    class="file-input hidden">
+                                <label for="edit_deceasedHouseRegistration" class="file-upload-label cursor-pointer">
+                                    <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    </svg>
+                                    <span class="file-upload-text">คลิกเพื่อเลือกไฟล์ใหม่</span>
+                                    <span class="file-upload-subtext">หรือลากไฟล์มาวางที่นี่</span>
+                                </label>
+                            </div>
+                            <div id="edit_deceasedHouseRegistrationPreview" class="mt-2"></div>
+                        </div>
+
+                        <!-- สำเนาบัตรประชาชนผู้ยื่นคำขอ -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                สำเนาบัตรประชาชนผู้ยื่นคำขอ
+                            </label>
+                            <div class="file-upload-wrapper">
+                                <input type="file" name="applicantIdCard" id="edit_applicantIdCard" 
+                                    accept="image/*,.pdf" 
+                                    class="file-input hidden">
+                                <label for="edit_applicantIdCard" class="file-upload-label cursor-pointer">
+                                    <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    </svg>
+                                    <span class="file-upload-text">คลิกเพื่อเลือกไฟล์ใหม่</span>
+                                    <span class="file-upload-subtext">หรือลากไฟล์มาวางที่นี่</span>
+                                </label>
+                            </div>
+                            <div id="edit_applicantIdCardPreview" class="mt-2"></div>
+                        </div>
+
+                        <!-- สำเนาทะเบียนบ้านผู้ยื่นคำขอ -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                สำเนาทะเบียนบ้านผู้ยื่นคำขอ
+                            </label>
+                            <div class="file-upload-wrapper">
+                                <input type="file" name="applicantHouseRegistration" id="edit_applicantHouseRegistration" 
+                                    accept="image/*,.pdf" 
+                                    class="file-input hidden">
+                                <label for="edit_applicantHouseRegistration" class="file-upload-label cursor-pointer">
+                                    <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    </svg>
+                                    <span class="file-upload-text">คลิกเพื่อเลือกไฟล์ใหม่</span>
+                                    <span class="file-upload-subtext">หรือลากไฟล์มาวางที่นี่</span>
+                                </label>
+                            </div>
+                            <div id="edit_applicantHouseRegistrationPreview" class="mt-2"></div>
                         </div>
                     </div>
                 </div>
@@ -1063,8 +1238,13 @@
                 }
                 
                 const record = result.data;
+                currentEditRecord = record; // เก็บข้อมูลไว้
+                displayCurrentDocuments(record.documents);
+                setupEditFilePreview();
+                
                 document.getElementById('funeralEditModal').classList.remove('hidden');
                 
+                // เติมข้อมูลเดิม
                 document.getElementById('edit_funeralId').value = record._id;
                 document.getElementById('edit_deceased_name').value = record.deceasedInfo?.name || '';
                 document.getElementById('edit_deceased_age').value = record.deceasedInfo?.age || '';
@@ -1088,6 +1268,12 @@
                 document.getElementById('edit_responsible_relationship').value = record.responsiblePerson?.relationshipToDeceased || '';
                 document.getElementById('edit_notes').value = record.notes || '';
                 
+                // แสดงเอกสารปัจจุบัน
+                displayCurrentDocuments(record.documents);
+                
+                // Setup file preview สำหรับ edit modal
+                setupEditFilePreview();
+                
                 closeDetailModal();
                 
             } catch (error) {
@@ -1099,6 +1285,236 @@
                     confirmButtonColor: '#3b82f6'
                 });
             }
+        }
+
+        // Global variable
+        let currentEditRecord = null;
+
+        // แสดงเอกสารปัจจุบัน
+        function displayCurrentDocuments(documents) {
+            const container = document.getElementById('currentDocsList');
+            if (!container) return;
+
+            const documentLabels = {
+                deathCertificate: 'สำเนาใบมรณะบัตร',
+                deceasedIdCard: 'สำเนาบัตรประชาชนผู้ตาย',
+                deceasedHouseRegistration: 'สำเนาทะเบียนบ้านผู้ตาย',
+                applicantIdCard: 'สำเนาบัตรประชาชนผู้ยื่นคำขอ',
+                applicantHouseRegistration: 'สำเนาทะเบียนบ้านผู้ยื่นคำขอ'
+            };
+
+            container.innerHTML = '';
+
+            if (!documents || Object.keys(documents).length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-2 text-center py-8">
+                        <svg class="w-16 h-16 mx-auto text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                        <p class="text-sm text-gray-500">ไม่มีเอกสารในระบบ</p>
+                    </div>
+                `;
+                return;
+            }
+
+            Object.entries(documents).forEach(([key, url]) => {
+                if (url && url.trim() !== '') {
+                    const isPDF = url.toLowerCase().includes('.pdf') || url.includes('/raw/');
+
+                    // --- ส่วนที่แก้ไข: เปลี่ยนมาใช้ Font Awesome Icon ---
+                    const iconCard = isPDF 
+                        ? `<div class="w-12 h-12 flex items-center justify-center rounded-lg bg-red-100">
+                                <i class="fa-solid fa-file-pdf text-red-600 text-xl"></i>
+                        </div>` 
+                        : `<div class="w-12 h-12 flex items-center justify-center rounded-lg bg-blue-100">
+                                <i class="fa-solid fa-file-image text-blue-600 text-xl"></i>
+                        </div>`;
+                    // ------------------------------------------------
+
+                    const fileType = isPDF ? 'PDF' : 'รูปภาพ';
+                    const fileTypeColor = isPDF ? 'text-red-600' : 'text-blue-600';
+
+                    container.innerHTML += `
+                        <div class="group relative bg-white border-2 border-gray-200 rounded-xl p-4 hover:border-blue-400 hover:shadow-lg transition-all duration-300">
+                            <div class="flex items-start gap-3">
+                                ${iconCard}
+                                
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-semibold text-gray-800 mb-1 truncate">
+                                        ${documentLabels[key]}
+                                    </p>
+                                    <div class="flex items-center gap-2">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 ${fileTypeColor}">
+                                            ${fileType}
+                                        </span>
+                                        <span class="text-xs text-gray-500">
+                                            <svg class="inline w-3 h-3 mr-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            มีอยู่แล้ว
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button type="button" 
+                                onclick="${isPDF ? `openPDFModal('${url}', '${documentLabels[key]}')` : `openImageModal('${url}', '${documentLabels[key]}')`}" 
+                                class="mt-3 w-full px-3 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-medium rounded-lg hover:from-blue-600 hover:to-blue-700 shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center gap-2 group-hover:scale-[1.02]">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                เปิดดู
+                            </button>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        // Setup file preview สำหรับ edit modal
+        function setupEditFilePreview() {
+            const fileInputs = [
+                'edit_deathCertificate',
+                'edit_deceasedIdCard',
+                'edit_deceasedHouseRegistration',
+                'edit_applicantIdCard',
+                'edit_applicantHouseRegistration'
+            ];
+
+            fileInputs.forEach(inputId => {
+                const input = document.getElementById(inputId);
+                if (!input) return;
+                
+                const preview = document.getElementById(inputId + 'Preview');
+                const label = input.nextElementSibling;
+
+                // Clear previous listeners
+                const newInput = input.cloneNode(true);
+                input.parentNode.replaceChild(newInput, input);
+                
+                const actualInput = document.getElementById(inputId);
+                const actualLabel = actualInput.nextElementSibling;
+
+                // File change event
+                actualInput.addEventListener('change', function(e) {
+                    handleEditFileSelect(actualInput, preview);
+                });
+
+                // Drag & Drop Events
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    actualLabel.addEventListener(eventName, (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    });
+                });
+
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    actualLabel.addEventListener(eventName, () => {
+                        actualLabel.classList.add('dragover');
+                    });
+                });
+
+                ['dragleave', 'drop'].forEach(eventName => {
+                    actualLabel.addEventListener(eventName, () => {
+                        actualLabel.classList.remove('dragover');
+                    });
+                });
+
+                actualLabel.addEventListener('drop', function(e) {
+                    const dt = e.dataTransfer;
+                    const files = dt.files;
+                    
+                    if (files.length > 0) {
+                        actualInput.files = files;
+                        handleEditFileSelect(actualInput, preview);
+                    }
+                });
+            });
+        }
+
+        // Handle file selection ใน edit modal
+        function handleEditFileSelect(input, preview) {
+            const file = input.files[0];
+            const label = input.nextElementSibling;
+            
+            if (file) {
+                const fileSize = (file.size / 1024 / 1024).toFixed(2);
+                const fileType = file.type;
+
+                if (file.size > 10 * 1024 * 1024) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ไฟล์ใหญ่เกินไป',
+                        text: 'ไฟล์มีขนาดใหญ่เกิน 10MB',
+                        confirmButtonColor: '#ef4444'
+                    });
+                    input.value = '';
+                    preview.innerHTML = '';
+                    input.classList.remove('has-file');
+                    return;
+                }
+
+                input.classList.add('has-file');
+
+                const textSpan = label.querySelector('.file-upload-text');
+                const subtextSpan = label.querySelector('.file-upload-subtext');
+                textSpan.textContent = '✓ เลือกไฟล์ใหม่แล้ว';
+                subtextSpan.textContent = file.name;
+
+                if (fileType.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        preview.innerHTML = `
+                            <div class="flex items-center space-x-2 p-2 bg-green-50 border border-green-200 rounded-lg">
+                                <img src="${e.target.result}" class="w-16 h-16 object-cover rounded">
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-green-800">${file.name}</p>
+                                    <p class="text-xs text-green-600">${fileSize} MB</p>
+                                </div>
+                                <button type="button" onclick="removeEditFile('${input.id}')" class="text-red-600 hover:text-red-800">
+                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        `;
+                    };
+                    reader.readAsDataURL(file);
+                } else if (fileType === 'application/pdf') {
+                    preview.innerHTML = `
+                        <div class="flex items-center space-x-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+                            <svg class="w-12 h-12 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
+                            </svg>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-blue-800">${file.name}</p>
+                                <p class="text-xs text-blue-600">${fileSize} MB</p>
+                            </div>
+                            <button type="button" onclick="removeEditFile('${input.id}')" class="text-red-600 hover:text-red-800">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Remove file ใน edit modal
+        function removeEditFile(inputId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(inputId + 'Preview');
+            const label = input.nextElementSibling;
+            const textSpan = label.querySelector('.file-upload-text');
+            const subtextSpan = label.querySelector('.file-upload-subtext');
+
+            input.value = '';
+            input.classList.remove('has-file');
+            preview.innerHTML = '';
+            textSpan.textContent = 'คลิกเพื่อเลือกไฟล์ใหม่';
+            subtextSpan.textContent = 'หรือลากไฟล์มาวางที่นี่';
         }
 
         function closeEditModal() {
@@ -1116,6 +1532,10 @@
                     return;
                 }
                 
+                // ✅ สร้าง FormData แทน JSON
+                const formData = new FormData();
+                
+                // เพิ่มข้อมูลทั่วไป (ส่งแบบ nested object)
                 const updateData = {
                     deceasedInfo: {
                         name: document.getElementById('edit_deceased_name').value,
@@ -1140,6 +1560,30 @@
                     notes: document.getElementById('edit_notes').value
                 };
                 
+                // เพิ่มข้อมูล JSON
+                formData.append('deceasedInfo', JSON.stringify(updateData.deceasedInfo));
+                formData.append('responsiblePerson', JSON.stringify(updateData.responsiblePerson));
+                formData.append('notes', updateData.notes);
+                
+                // เพิ่มไฟล์ (ถ้ามี)
+                const fileInputs = [
+                    'edit_deathCertificate',
+                    'edit_deceasedIdCard',
+                    'edit_deceasedHouseRegistration',
+                    'edit_applicantIdCard',
+                    'edit_applicantHouseRegistration'
+                ];
+                
+                fileInputs.forEach(inputId => {
+                    const input = document.getElementById(inputId);
+                    if (input && input.files && input.files[0]) {
+                        // เอา 'edit_' ออกจากชื่อ field
+                        const fieldName = inputId.replace('edit_', '');
+                        formData.append(fieldName, input.files[0]);
+                        console.log(`📎 Added file: ${fieldName} - ${input.files[0].name}`);
+                    }
+                });
+                
                 Swal.fire({
                     title: 'กำลังบันทึก...',
                     allowOutsideClick: false,
@@ -1150,10 +1594,7 @@
                 
                 const response = await fetch(`/employee/funeral-assistance/update/${funeralId}`, {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(updateData)
+                    body: formData // ✅ ส่ง FormData แทน JSON
                 });
                 
                 const result = await response.json();
@@ -1179,7 +1620,8 @@
                     title: 'เกิดข้อผิดพลาด',
                     text: error.message || 'ไม่สามารถแก้ไขข้อมูลได้',
                     confirmButtonColor: '#3b82f6'
-                });}
+                });
+            }
         }
 
         document.getElementById('funeralDetailModal')?.addEventListener('click', function(e) {

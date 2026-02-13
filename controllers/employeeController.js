@@ -3198,12 +3198,12 @@ const uploadfuneral = multer({
 ]);
 
 // ฟังก์ชันอัปโหลดไฟล์ขึ้น Cloudinary
-const uploadToCloudinary = (fileBuffer, fileName) => {
+const uploadToCloudinary = (fileBuffer, fileName, folderName = 'funeral-documents-fromEmployeeUpload') => {
     const isPDF = fileName.toLowerCase().endsWith('.pdf');
     
     return new Promise((resolve, reject) => {
         const uploadOptions = {
-            folder: 'funeral-documents-fromEmployeeUpload',
+            folder: folderName,
             resource_type: isPDF ? 'raw' : 'image',
             type: 'upload',
             access_mode: 'public'
@@ -3850,93 +3850,175 @@ const getFuneralDetail = async (req, res) => {
 };
 
 // API: แก้ไขข้อมูลฌาปนกิจ
-const updateFuneralAssistance = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const updateData = req.body;
-
-        console.log('Updating funeral assistance:', id);
-        console.log('Update data:', updateData);
-
-        // ตรวจสอบว่ามีข้อมูลอยู่หรือไม่
-        const existingRecord = await FuneralAssistance.findById(id);
-        if (!existingRecord) {
-            return res.status(404).json({ 
-                success: false, 
-                message: 'ไม่พบข้อมูลฌาปนกิจ' 
-            });
-        }
-
-        // ตรวจสอบสถานะ - อนุญาตให้แก้ไขเฉพาะบางสถานะ
-        if (['cancelled'].includes(existingRecord.status)) {
+const updateFuneralAssistance = (req, res) => {
+    uploadfuneral(req, res, async (err) => {
+        if (err) {
+            console.error("❌ Multer upload error:", err);
             return res.status(400).json({
                 success: false,
-                message: 'ไม่สามารถแก้ไขข้อมูลที่ถูกยกเลิกได้'
+                message: 'อัปโหลดไฟล์ไม่สำเร็จ: ' + err.message
             });
         }
 
-        // เตรียมข้อมูลที่จะอัพเดท
-        const updateFields = {};
+        const session = await mongoose.startSession();
+        session.startTransaction();
 
-        // อัพเดทข้อมูลผู้เสียชีวิต
-        if (updateData.deceasedInfo) {
-            updateFields['deceasedInfo.name'] = updateData.deceasedInfo.name;
-            updateFields['deceasedInfo.age'] = updateData.deceasedInfo.age;
-            updateFields['deceasedInfo.idCardNumber'] = updateData.deceasedInfo.idCardNumber;
-            updateFields['deceasedInfo.phone'] = updateData.deceasedInfo.phone;
-            updateFields['deceasedInfo.causeOfDeath'] = updateData.deceasedInfo.causeOfDeath;
-            updateFields['deceasedInfo.dateOfDeath'] = updateData.deceasedInfo.dateOfDeath;
+        try {
+            const { id } = req.params;
             
-            // อัพเดทที่อยู่
-            if (updateData.deceasedInfo.address) {
-                updateFields['deceasedInfo.address.houseNumber'] = updateData.deceasedInfo.address.houseNumber;
-                updateFields['deceasedInfo.address.moo'] = updateData.deceasedInfo.address.moo;
-                updateFields['deceasedInfo.address.subdistrict'] = updateData.deceasedInfo.address.subdistrict;
-                updateFields['deceasedInfo.address.district'] = updateData.deceasedInfo.address.district;
-                updateFields['deceasedInfo.address.province'] = updateData.deceasedInfo.address.province;
-                updateFields['deceasedInfo.address.postalCode'] = updateData.deceasedInfo.address.postalCode;
+            const updateData = {
+                deceasedInfo: req.body.deceasedInfo ? JSON.parse(req.body.deceasedInfo) : null,
+                responsiblePerson: req.body.responsiblePerson ? JSON.parse(req.body.responsiblePerson) : null,
+                notes: req.body.notes
+            };
+
+            console.log('🔄 Updating funeral assistance:', id);
+            console.log('📝 Update data:', updateData);
+            console.log('📎 Files:', req.files ? Object.keys(req.files) : 'No files');
+
+            const existingRecord = await FuneralAssistance.findById(id).session(session);
+            if (!existingRecord) {
+                await session.abortTransaction();
+                return res.status(404).json({ 
+                    success: false, 
+                    message: 'ไม่พบข้อมูลฌาปนกิจ' 
+                });
             }
+
+            if (['cancelled'].includes(existingRecord.status)) {
+                await session.abortTransaction();
+                return res.status(400).json({
+                    success: false,
+                    message: 'ไม่สามารถแก้ไขข้อมูลที่ถูกยกเลิกได้'
+                });
+            }
+
+            // ========== ✅ ✅ ✅ ตรวจสอบว่าข้อมูลนี้มาจากใคร ==========
+            const isFromEmployee = existingRecord.submittedBy?.userType === 'employee';
+            const targetFolder = isFromEmployee 
+                ? 'funeral-documents-fromEmployeeUpload'  // 📁 Employee → Employee folder
+                : 'funeral-documents';                     // 📁 User → User folder
+            
+            console.log(`
+╔═══════════════════════════════════════════════════════════╗
+║  📁 Folder Detection                                      ║
+╠═══════════════════════════════════════════════════════════╣
+║  Record ID: ${id}
+║  Submitted By: ${existingRecord.submittedBy?.userType || 'unknown'}
+║  User Type: ${isFromEmployee ? 'Employee' : 'User'}
+║  Target Folder: ${targetFolder}
+╚═══════════════════════════════════════════════════════════╝
+            `);
+
+            const updateFields = {};
+
+            // อัพเดทข้อมูลผู้เสียชีวิต
+            if (updateData.deceasedInfo) {
+                updateFields['deceasedInfo.name'] = updateData.deceasedInfo.name;
+                updateFields['deceasedInfo.age'] = updateData.deceasedInfo.age;
+                updateFields['deceasedInfo.idCardNumber'] = updateData.deceasedInfo.idCardNumber;
+                updateFields['deceasedInfo.phone'] = updateData.deceasedInfo.phone;
+                updateFields['deceasedInfo.causeOfDeath'] = updateData.deceasedInfo.causeOfDeath;
+                updateFields['deceasedInfo.dateOfDeath'] = updateData.deceasedInfo.dateOfDeath;
+                
+                if (updateData.deceasedInfo.address) {
+                    updateFields['deceasedInfo.address.houseNumber'] = updateData.deceasedInfo.address.houseNumber;
+                    updateFields['deceasedInfo.address.moo'] = updateData.deceasedInfo.address.moo;
+                    updateFields['deceasedInfo.address.subdistrict'] = updateData.deceasedInfo.address.subdistrict;
+                    updateFields['deceasedInfo.address.district'] = updateData.deceasedInfo.address.district;
+                    updateFields['deceasedInfo.address.province'] = updateData.deceasedInfo.address.province;
+                    updateFields['deceasedInfo.address.postalCode'] = updateData.deceasedInfo.address.postalCode;
+                }
+            }
+
+            if (updateData.responsiblePerson) {
+                updateFields['responsiblePerson.name'] = updateData.responsiblePerson.name;
+                updateFields['responsiblePerson.relationshipToDeceased'] = updateData.responsiblePerson.relationshipToDeceased;
+            }
+
+            if (updateData.notes !== undefined) {
+                updateFields['notes'] = updateData.notes;
+            }
+
+            // ========== ✅ ✅ ✅ อัปโหลดไฟล์ไปที่ folder เดิม ==========
+            if (req.files && Object.keys(req.files).length > 0) {
+                console.log(`📤 Uploading new files to Cloudinary (${targetFolder})...`);
+                const fileInputs = [
+                    'deathCertificate',
+                    'deceasedIdCard',
+                    'deceasedHouseRegistration',
+                    'applicantIdCard',
+                    'applicantHouseRegistration'
+                ];
+
+                const uploadPromises = fileInputs
+                    .filter(fieldName => req.files[fieldName] && req.files[fieldName][0])
+                    .map(async (fieldName) => {
+                        const file = req.files[fieldName][0];
+                        try {
+                            console.log(`⏳ Uploading ${fieldName} to ${targetFolder}...`);
+                            
+                            // ✅ ✅ ✅ ใช้ targetFolder ที่ตรวจสอบได้
+                            const result = await uploadToCloudinary(
+                                file.buffer, 
+                                file.originalname,
+                                targetFolder // 📁 ใช้ folder เดิม (Employee หรือ User)
+                            );
+                            
+                            console.log(`✅ Uploaded ${fieldName}: ${result.secure_url}`);
+                            console.log(`   📁 Folder: ${targetFolder}`);
+                            
+                            return {
+                                fieldName,
+                                url: result.secure_url
+                            };
+                        } catch (error) {
+                            console.error(`❌ Error uploading ${fieldName}:`, error);
+                            throw new Error(`ไม่สามารถอัปโหลด ${fieldName} ได้`);
+                        }
+                    });
+
+                const uploadedFiles = await Promise.all(uploadPromises);
+
+                uploadedFiles.forEach(file => {
+                    updateFields[`documents.${file.fieldName}`] = file.url;
+                });
+                
+                console.log(`✅ All new files uploaded successfully to ${targetFolder}`);
+            }
+
+            const updatedRecord = await FuneralAssistance.findByIdAndUpdate(
+                id,
+                { $set: updateFields },
+                { new: true, runValidators: true, session }
+            )
+            .populate('familyID', 'familyName username address')
+            .populate('createdBy', 'name email firstname lastname')
+            .populate('approvedBy', 'name email firstname lastname')
+            .populate('deductedAccounts.familyID', 'familyName username')
+            .populate('deceasedInfo.memberID', 'name');
+
+            await session.commitTransaction();
+            console.log('✅ Updated successfully');
+
+            res.json({
+                success: true,
+                message: 'แก้ไขข้อมูลฌาปนกิจสำเร็จ',
+                data: updatedRecord
+            });
+
+        } catch (error) {
+            await session.abortTransaction();
+            console.error('❌ Error updating funeral assistance:', error);
+            res.status(500).json({ 
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการแก้ไขข้อมูล',
+                error: error.message 
+            });
+        } finally {
+            session.endSession();
         }
-
-        // อัพเดทข้อมูลผู้รับผิดชอบ
-        if (updateData.responsiblePerson) {
-            updateFields['responsiblePerson.name'] = updateData.responsiblePerson.name;
-            updateFields['responsiblePerson.relationshipToDeceased'] = updateData.responsiblePerson.relationshipToDeceased;
-        }
-
-        // อัพเดทหมายเหตุ
-        if (updateData.notes !== undefined) {
-            updateFields['notes'] = updateData.notes;
-        }
-
-        // ทำการอัพเดท
-        const updatedRecord = await FuneralAssistance.findByIdAndUpdate(
-            id,
-            { $set: updateFields },
-            { new: true, runValidators: true }
-        )
-        .populate('familyID', 'familyName username address')
-        .populate('createdBy', 'name email firstname lastname')
-        .populate('approvedBy', 'name email firstname lastname')
-        .populate('deductedAccounts.familyID', 'familyName username')
-        .populate('deceasedInfo.memberID', 'name');
-
-        console.log('✅ Updated successfully');
-
-        res.json({
-            success: true,
-            message: 'แก้ไขข้อมูลฌาปนกิจสำเร็จ',
-            data: updatedRecord
-        });
-
-    } catch (error) {
-        console.error('Error updating funeral assistance:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'เกิดข้อผิดพลาดในการแก้ไขข้อมูล',
-            error: error.message 
-        });
-    }
+    });
 };
 
 // หน้ารายการคำขอที่รอการอนุมัติ
@@ -4198,6 +4280,66 @@ const approveRequest = async (req, res) => {
 
             totalDeductedAmount += perAccountAmount;
         }
+
+        // ============================================
+        // อัปเดตสถานะของสมาชิกที่เสียชีวิต
+        // ============================================
+        if (request.deceasedInfo.memberID && request.deceasedInfo.name) {
+            const deceasedId = request.deceasedInfo.memberID.toString();
+            const deceasedName = request.deceasedInfo.name;
+            
+            console.log(`🔄 Updating deceased status for: ${deceasedName} (ID: ${deceasedId})`);
+            
+            // ตรวจสอบว่าเป็น beneficiary หรือไม่
+            if (deceasedId.startsWith('beneficiary_')) {
+                // ✅ กรณี Beneficiary
+                const beneficiaryObjectId = deceasedId.split('_')[1];
+                
+                const member = await Member.findOne({
+                    'beneficiaries._id': beneficiaryObjectId,
+                    isDeleted: false
+                }).session(session);
+
+                if (member) {
+                    const beneficiaryIndex = member.beneficiaries.findIndex(
+                        b => b._id.toString() === beneficiaryObjectId
+                    );
+                    
+                    if (beneficiaryIndex !== -1) {
+                        member.beneficiaries[beneficiaryIndex].status = 'deceased';
+                        await member.save({ session });
+                        console.log(`✅ Updated beneficiary status to deceased: ${deceasedName}`);
+                    } else {
+                        console.warn(`⚠️ Beneficiary not found in member's list: ${beneficiaryObjectId}`);
+                    }
+                } else {
+                    console.warn(`⚠️ Member containing beneficiary not found: ${beneficiaryObjectId}`);
+                }
+            } else if (mongoose.Types.ObjectId.isValid(deceasedId)) {
+                // ✅ กรณี Member หลัก
+                const updateResult = await Member.findByIdAndUpdate(
+                    deceasedId,
+                    { 
+                        Status: 'deceased'
+                    },
+                    { 
+                        session,
+                        new: true
+                    }
+                );
+                
+                if (updateResult) {
+                    console.log(`✅ Updated member status to deceased: ${deceasedName}`);
+                } else {
+                    console.warn(`⚠️ Member not found for update: ${deceasedId}`);
+                }
+            } else {
+                console.warn(`⚠️ Invalid deceasedId format: ${deceasedId}`);
+            }
+        }
+        // ============================================
+        // จบส่วนที่เพิ่มใหม่
+        // ============================================
 
         // อัปเดตคำขอ
         request.status = 'completed';

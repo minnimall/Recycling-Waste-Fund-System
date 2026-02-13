@@ -642,11 +642,25 @@
                                                     <p class="text-sm text-gray-600"><%= beneficiary.relation %></p>
                                                 </div>
                                             </div>
-                                            <div class="text-sm text-gray-600 space-y-1">
-                                                <p>
-                                                    <!-- <i class="fas <%= beneficiary.status === 'deceased' ? 'fa-cross' : 'fa-heartbeat' %> mr-2"></i> -->
-                                                    สถานะ: <%= beneficiary.status === 'deceased' ? 'เสียชีวิตแล้ว' : 'มีชีวิตอยู่' %>
-                                                </p>
+                                            <div class="mt-2 flex items-center">
+                                                <% 
+                                                    const isDeceased = beneficiary.status === 'deceased';
+                                                    // กำหนดสีและไอคอนตามสถานะ
+                                                    const badgeColor = isDeceased 
+                                                        ? 'bg-gray-100 text-gray-500 border-gray-200' // สีเทาสำหรับผู้เสียชีวิต
+                                                        : 'bg-green-100 text-green-700 border-green-200'; // สีเขียวสำหรับผู้มีชีวิต
+                                                        
+                                                    const iconClass = isDeceased 
+                                                        ? 'fa-user-xmark' // ไอคอนริบบิ้นไว้อาลัย
+                                                        : 'fa-user-check'; // ไอคอนชีพจรหัวใจ
+                                                        
+                                                    const textLabel = isDeceased ? 'เสียชีวิตแล้ว' : 'มีชีวิตอยู่';
+                                                %>
+                                                
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border <%= badgeColor %>">
+                                                    <i class="fas <%= iconClass %> mr-1.5"></i>
+                                                    <%= textLabel %>
+                                                </span>
                                             </div>
                                         </div>
                                     <% }) %>

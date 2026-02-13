@@ -955,12 +955,12 @@ const uploadfuneral = multer({
 ]);
 
 // ฟังก์ชันอัปโหลดไฟล์ขึ้น Cloudinary (รองรับทั้งภาพและ PDF)
-const uploadToCloudinary = (fileBuffer, fileName) => {
+const uploadToCloudinary = (fileBuffer, fileName, folderName = 'funeral-documents') => {
     const isPDF = fileName.toLowerCase().endsWith('.pdf');
     
     return new Promise((resolve, reject) => {
         const uploadOptions = {
-            folder: 'funeral-documents',
+            folder: folderName,
             resource_type: isPDF ? 'raw' : 'image',
             type: 'upload',
             access_mode: 'public'
