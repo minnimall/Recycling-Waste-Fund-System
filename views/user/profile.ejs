@@ -643,10 +643,10 @@
                                                 </div>
                                             </div>
                                             <div class="text-sm text-gray-600 space-y-1">
-                                                <p>การแบ่งเงิน: <%= translateDistribution(beneficiary.distributionType) %></p>
-                                                <% if (beneficiary.distributionType === 'other') { %>
-                                                    <p><i class="fas fa-info-circle mr-2"></i><%= beneficiary.distributionDetail %></p>
-                                                <% } %>
+                                                <p>
+                                                    <!-- <i class="fas <%= beneficiary.status === 'deceased' ? 'fa-cross' : 'fa-heartbeat' %> mr-2"></i> -->
+                                                    สถานะ: <%= beneficiary.status === 'deceased' ? 'เสียชีวิตแล้ว' : 'มีชีวิตอยู่' %>
+                                                </p>
                                             </div>
                                         </div>
                                     <% }) %>

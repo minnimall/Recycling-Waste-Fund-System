@@ -3527,37 +3527,54 @@ const submitFuneralAssistance = (req, res) => {
             console.log('✅ Funeral record saved:', funeralRecord._id);
 
             // ========== 7.5 อัพเดทสถานะผู้เสียชีวิต ========== 
-            if (validDeceasedId) {
-                // ตรวจสอบว่าเป็น Member หรือ Beneficiary
+            if (deceasedId && deceasedName) {
+                console.log(`🔄 Updating deceased status for: ${deceasedName} (ID: ${deceasedId})`);
+                
+                // ตรวจสอบจาก deceasedId เดิม (ก่อนแปลง) เพื่อดูว่าเป็น beneficiary หรือไม่
                 if (deceasedId.startsWith('beneficiary_')) {
-                    // กรณีเป็น Beneficiary - ต้องหา Member ที่มี beneficiary นี้
+                    // ✅ กรณี Beneficiary
+                    const beneficiaryObjectId = deceasedId.split('_')[1];
+                    
                     const member = await Member.findOne({
-                        'beneficiaries._id': validDeceasedId,
+                        'beneficiaries._id': beneficiaryObjectId,
                         isDeleted: false
                     }).session(session);
 
                     if (member) {
-                        // อัพเดทสถานะ beneficiary
                         const beneficiaryIndex = member.beneficiaries.findIndex(
-                            b => b._id.toString() === validDeceasedId.toString()
+                            b => b._id.toString() === beneficiaryObjectId
                         );
                         
                         if (beneficiaryIndex !== -1) {
                             member.beneficiaries[beneficiaryIndex].status = 'deceased';
                             await member.save({ session });
                             console.log(`✅ Updated beneficiary status to deceased: ${deceasedName}`);
+                        } else {
+                            console.warn(`⚠️ Beneficiary not found in member's list: ${beneficiaryObjectId}`);
                         }
+                    } else {
+                        console.warn(`⚠️ Member containing beneficiary not found: ${beneficiaryObjectId}`);
                     }
-                } else {
-                    // กรณีเป็น Member หลัก
-                    await Member.findByIdAndUpdate(
-                        validDeceasedId,
+                } else if (mongoose.Types.ObjectId.isValid(deceasedId)) {
+                    // ✅ กรณี Member หลัก
+                    const updateResult = await Member.findByIdAndUpdate(
+                        deceasedId,
                         { 
                             Status: 'deceased'
                         },
-                        { session }
+                        { 
+                            session,
+                            new: true // ← เพิ่มนี้เพื่อ return ค่าที่อัปเดทแล้ว
+                        }
                     );
-                    console.log(`✅ Updated member status to deceased: ${deceasedName}`);
+                    
+                    if (updateResult) {
+                        console.log(`✅ Updated member status to deceased: ${deceasedName}`);
+                    } else {
+                        console.warn(`⚠️ Member not found for update: ${deceasedId}`);
+                    }
+                } else {
+                    console.warn(`⚠️ Invalid deceasedId format: ${deceasedId}`);
                 }
             }
 
