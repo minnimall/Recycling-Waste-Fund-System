@@ -224,12 +224,31 @@
                                 <div class="space-y-4">
                                     <% if (complaint.reply && complaint.reply.length > 0) { %>
                                         <% complaint.reply.forEach((r, i) => { %>
-                                            <div class="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500 relative mb-4">
+                                            <div class="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500 relative mb-4 group">
                                                 <div class="flex items-center justify-between mb-2">
                                                     <span class="font-medium text-blue-900">
                                                         พนักงาน: <%= r.employee ? r.employee.firstname + ' ' + r.employee.lastname : 'ไม่ระบุ' %>
                                                     </span>
-                                                    <span class="text-sm text-gray-500"><%= new Date(r.createdAt).toLocaleString('th-TH', { dateStyle: 'medium',timeStyle: 'short', timeZone: 'Asia/Bangkok' }) %></span>
+                                                    <div class="flex items-center space-x-2">
+                                                        <span class="text-sm text-gray-500"><%= new Date(r.createdAt).toLocaleString('th-TH', { dateStyle: 'medium',timeStyle: 'short', timeZone: 'Asia/Bangkok' }) %></span>
+                                                        
+                                                        <% if (r.employee && user && r.employee._id.toString() === user._id.toString()) { %>
+                                                            <div class="hidden group-hover:flex space-x-1 ml-2">
+                                                                <button type="button" 
+                                                                    class="text-blue-600 hover:text-blue-800 edit-reply-btn px-2"
+                                                                    data-id="<%= r._id %>"
+                                                                    data-complaint-id="<%= complaint._id %>"
+                                                                    data-message="<%= r.replyMessage %>">
+                                                                    <i class="fas fa-edit"></i>
+                                                                </button>
+                                                                <button type="button" 
+                                                                    class="text-red-600 hover:text-red-800 delete-reply-btn px-2"
+                                                                    data-id="<%= r._id %>">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </div>
+                                                        <% } %>
+                                                    </div>
                                                 </div>
 
                                                 <p class="text-gray-700"><%= r.replyMessage %></p>
@@ -389,11 +408,13 @@
             const editMessage = document.getElementById('editReplyMessage');
             const cancelEdit = document.getElementById('cancelEdit');
             let currentEditId = null;
+            let currentComplaintId = null;
 
             // เมื่อคลิกปุ่ม "แก้ไข"
             document.querySelectorAll('.edit-reply-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     currentEditId = btn.dataset.id;
+                    currentComplaintId = btn.dataset.complaintId;
                     editMessage.value = btn.dataset.message;
                     editModal.classList.remove('hidden');
                 });
@@ -403,6 +424,7 @@
             cancelEdit.addEventListener('click', () => {
                 editModal.classList.add('hidden');
                 currentEditId = null;
+                currentComplaintId = null;
             });
 
             // เมื่อ submit ฟอร์มแก้ไข
@@ -411,16 +433,23 @@
                 const newMessage = editMessage.value.trim();
                 if (!newMessage) return alert('กรุณากรอกข้อความ');
 
-                const res = await fetch(`/employee/complaint/reply/${currentEditId}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ replyMessage: newMessage })
-                });
+                try {
+                    const res = await fetch(`/employee/complaint/complaints/${currentComplaintId}/reply/${currentEditId}/edit`, {
+                        method: 'POST', // Backend route ใช้ POST
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ replyMessage: newMessage })
+                    });
+                    
+                    const result = await res.json();
 
-                if (res.ok) {
-                    location.reload();
-                } else {
-                    alert('เกิดข้อผิดพลาดในการแก้ไข');
+                    if (res.ok) {
+                        location.reload();
+                    } else {
+                        alert(result.error || 'เกิดข้อผิดพลาดในการแก้ไข');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
                 }
             });
 
@@ -428,13 +457,19 @@
             document.querySelectorAll('.delete-reply-btn').forEach(btn => {
                 btn.addEventListener('click', async () => {
                     if (!confirm('คุณต้องการลบข้อความตอบกลับนี้หรือไม่?')) return;
-
-                    const res = await fetch(`/employee/complaint/reply/${btn.dataset.id}`, { method: 'DELETE' });
-
-                    if (res.ok) {
-                        location.reload();
-                    } else {
-                        alert('เกิดข้อผิดพลาดในการลบ');
+                    
+                    try {
+                        const res = await fetch(`/employee/complaint/replyMessage/${btn.dataset.id}`, { method: 'DELETE' });
+                        const result = await res.json();
+    
+                        if (res.ok) {
+                            location.reload();
+                        } else {
+                            alert(result.error || 'เกิดข้อผิดพลาดในการลบ');
+                        }
+                    } catch (error) {
+                         console.error('Error:', error);
+                         alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
                     }
                 });
             });

@@ -163,103 +163,107 @@
                                     </h2>
                                 </div>
                             <!-- Routes Grid -->
-                            <div id="routesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div id="routesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                 <% routes.forEach(route => { %>
-                                    <div class="rounded-lg border  
-                                        <%= route.isAllComplete
-                                            ? 'border-green-400 bg-green-50'
-                                            : 'border-gray-200 bg-white'
-                                        %>"
-                                    
+                                    <div class="route-card group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col h-full relative"
                                         data-name="<%= route.routeName.toLowerCase() %>"
                                         data-date="<%= new Date(route.createdAt).getTime() %>"
                                         data-distance="<%= route.totalDistance %>">
                                         
+                                        <!-- Status Strip -->
+                                        <div class="absolute top-0 left-0 w-full h-1 <%= route.isAllComplete ? 'bg-green-500' : 'bg-blue-500' %>"></div>
+
                                         <!-- Card Header -->
-                                        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50
-                                            <%= route.isAllComplete
-                                                ? 'border-green-400 bg-green-50'
-                                                : 'border-gray-200 bg-white'
-                                            %>"
-                                        ">
-                                            <h3 class="font-semibold text-lg text-gray-900 truncate mb-1" title="<%= route.routeName %>">
+                                        <div class="px-6 pt-6 pb-4">
+                                            <div class="flex justify-between items-start mb-2">
+                                                <div class="p-2.5 rounded-xl <%= route.isAllComplete ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600' %>">
+                                                    <ion-icon name="<%= route.isAllComplete ? 'checkmark-circle' : 'map' %>" class="text-2xl"></ion-icon>
+                                                </div>
+                                                <!-- Date Badge -->
+                                                <span class="px-3 py-1 bg-gray-50 text-gray-500 rounded-full text-xs font-medium border border-gray-100">
+                                                    <%= new Date(route.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }) %>
+                                                </span>
+                                            </div>
+                                            
+                                            <h3 class="font-bold text-lg text-gray-800 mb-1 line-clamp-1 group-hover:text-blue-600 transition-colors" title="<%= route.routeName %>">
                                                 <%= route.routeName %>
                                             </h3>
-                                            <div class="flex items-center text-gray-500 text-xs">
-                                                <span>วันที่ <%= new Date(route.createdAt).toLocaleDateString('th-TH', {
-                                                    year: 'numeric', month: 'long', day: 'numeric'
-                                                }) %></span>
+                                            
+                                            <div class="flex items-center gap-2">
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium <%= route.isAllComplete ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-yellow-50 text-yellow-700 border border-yellow-100' %>">
+                                                    <span class="w-1.5 h-1.5 rounded-full <%= route.isAllComplete ? 'bg-green-500' : 'bg-yellow-500' %>"></span>
+                                                    <%= route.isAllComplete ? 'เสร็จสิ้นแล้ว' : 'กำลังดำเนินการ' %>
+                                                </span>
                                             </div>
                                         </div>
 
-                                        <!-- Card Body -->
-                                        <div class="p-6">
-                                            <!-- Route Statistics -->
-                                            <div class="space-y-3 mb-5">
-                                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
-                                                    <div class="flex items-center text-gray-600 text-sm">
-                                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
-                                                        </svg>
-                                                        <span>ระยะทาง</span>
-                                                    </div>
-                                                    <span class="font-semibold text-gray-900"><%= route.totalDistance.toFixed(2) %> กม.</span>
-                                                </div>
-                                                
-                                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
-                                                    <div class="flex items-center text-gray-600 text-sm">
-                                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                                        </svg>
-                                                        <span>เวลา</span>
-                                                    </div>
-                                                    <span class="font-semibold text-gray-900"><%= Math.round(route.totalDuration) %> นาที</span>
-                                                </div>
-                                                
-                                                <div class="flex items-center justify-between py-2">
-                                                    <div class="flex items-center text-gray-600 text-sm">
-                                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                        </svg>
-                                                        <span>จำนวนจุดหมาย</span>
-                                                    </div>
-                                                    <span class="font-semibold text-gray-900"><%= route.numberOfPoints %> จุด</span>
+                                        <!-- Divider -->
+                                        <div class="px-6"><div class="border-t border-gray-100 border-dashed"></div></div>
+
+                                        <!-- Card Stats -->
+                                        <div class="p-6 grid grid-cols-2 gap-4">
+                                            <div class="space-y-1">
+                                                <p class="text-xs text-gray-400">ระยะทาง</p>
+                                                <div class="flex items-center gap-1.5">
+                                                    <ion-icon name="navigate" class="text-blue-500"></ion-icon>
+                                                    <span class="font-semibold text-gray-700"><%= route.totalDistance.toFixed(2) %> <span class="text-xs font-normal text-gray-400">กม.</span></span>
                                                 </div>
                                             </div>
+                                            <div class="space-y-1">
+                                                <p class="text-xs text-gray-400">จุดหมาย</p>
+                                                <div class="flex items-center gap-1.5">
+                                                    <ion-icon name="location" class="text-red-500"></ion-icon>
+                                                    <span class="font-semibold text-gray-700"><%= route.numberOfPoints %> <span class="text-xs font-normal text-gray-400">จุด</span></span>
+                                                </div>
+                                            </div>
+                                            <div class="space-y-1">
+                                                <p class="text-xs text-gray-400">เวลาโดยประมาณ</p>
+                                                <div class="flex items-center gap-1.5">
+                                                    <ion-icon name="time" class="text-orange-500"></ion-icon>
+                                                    <span class="font-semibold text-gray-700"><%= Math.round(route.totalDuration) %> <span class="text-xs font-normal text-gray-400">นาที</span></span>
+                                                </div>
+                                            </div>
+                                        </div>
 
-                                            <!-- Note Section -->
-                                                <div class="bg-gray-50 border border-gray-200 p-3 mb-5 rounded">
-                                                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">หมายเหตุ</p>
-                                                    <p class="text-sm text-gray-700 leading-relaxed line-clamp-2">
-                                                        <%= route.note || 'ไม่ระบุ' %>
+                                        <!-- Card Footer (Note & Actions) -->
+                                        <div class="mt-auto bg-gray-50/50 p-4 border-t border-gray-100">
+                                            <% if (route.note) { %>
+                                                <div class="mb-4">
+                                                    <p class="text-xs text-gray-400 mb-1 flex items-center gap-1">
+                                                        <ion-icon name="document-text-outline"></ion-icon> หมายเหตุ
+                                                    </p>
+                                                    <p class="text-sm text-gray-600 line-clamp-2 italic bg-white p-2 rounded border border-gray-100">
+                                                        "<%= route.note %>"
                                                     </p>
                                                 </div>
+                                            <% } %>
 
-                                            <!-- Action Buttons -->
-                                            <div class="flex gap-2 pt-2">
-                                                <a href="/employee/routeList/<%= route._id %>"
-                                                    class="flex-1 bg-gray-700 hover:bg-gray-800 text-white text-center py-2.5 px-4 rounded transition-colors duration-150 text-sm font-medium flex items-center justify-center gap-2">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                                    </svg>
-                                                    <span>ดูรายละเอียด</span>
+                                            <div class="grid grid-cols-2 gap-2">
+                                                <a href="/employee/routeList/<%= route._id %>" 
+                                                    class="col-span-2 flex items-center justify-center gap-2 w-full py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 transition-all font-medium text-sm shadow-sm">
+                                                    <ion-icon name="eye-outline" class="text-lg"></ion-icon>
+                                                    รายละเอียด
                                                 </a>
-                                                <button
-                                                    onclick="deleteRoute('<%= route._id %>', '<%= route.routeName %>')"
-                                                    class="bg-white hover:bg-red-50 text-red-600 border border-red-200 hover:border-red-300 py-2.5 px-4 rounded transition-colors duration-150">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                                    </svg>
+                                                
+                                                <% if (!route.isAllComplete) { %>
+                                                    <button onclick="completeAllPoints('<%= route._id %>')"
+                                                        class="flex items-center justify-center gap-2 w-full py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 hover:shadow-lg hover:shadow-green-200 transition-all font-medium text-sm">
+                                                        <ion-icon name="checkmark-done-circle-outline" class="text-lg"></ion-icon>
+                                                        เสร็จสิ้น
+                                                    </button>
+                                                <% } else { %>
+                                                    <button disabled
+                                                        class="col-span-2 flex items-center justify-center gap-2 w-full py-2.5 bg-gray-100 text-gray-400 rounded-xl cursor-not-allowed font-medium text-sm">
+                                                        <ion-icon name="checkmark-circle" class="text-lg"></ion-icon>
+                                                        เรียบร้อย
+                                                    </button>
+                                                <% } %>
+
+                                                <button onclick="deleteRoute('<%= route._id %>', '<%= route.routeName %>')"
+                                                    class="<%= route.isAllComplete ? 'col-span-2' : 'col-span-1' %> flex items-center justify-center gap-2 w-full py-2.5 bg-red-50 text-red-600 border border-red-100 rounded-xl hover:bg-red-100 hover:border-red-200 transition-all font-medium text-sm">
+                                                    <ion-icon name="trash-outline" class="text-lg"></ion-icon>
+                                                    <%= route.isAllComplete ? 'ลบรายการ' : 'ลบ' %>
                                                 </button>
-                                            </div>
-                                            <div class="flex gap-2 pt-2">
-                                                <button 
-                                                    onclick="completeAllPoints('<%= route._id %>')"
-                                                    class="w-full bg-green-600 hover:bg-green-700 text-white border border-green-700 hover:border-green-800 py-2.5 px-4 rounded transition-colors duration-150">
-                                                    เสร็จสิ้น
-                                                </button> 
                                             </div>
                                         </div>
                                     </div>
