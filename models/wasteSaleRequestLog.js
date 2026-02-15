@@ -52,6 +52,7 @@ const wasteSaleRequestLogSchema = new Schema(
                 'EMERGENCY',
                 'OTHER',
                 'USER_NOT_CONFIRMED_IN_TIME',
+                'USER_CANCELLED_AFTER_CONFIRM'
             ],
             required: false
         },

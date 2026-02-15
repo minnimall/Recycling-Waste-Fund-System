@@ -2308,13 +2308,11 @@ const wasteSaleRequestApprovePost = async (req, res) => {
 
         // ================= อนุมัติ =================
         if (action === 'approve') {
-            const deadline = new Date(now.getTime() + (timeToConfirm * 60 * 60 * 1000));
-
             await wasteSaleRequest.findByIdAndUpdate(id, {
                 $set: {
-                    status: 'waitingUser',
+                    status: 'confirmed',
                     approvedAt: now,                // UTC
-                    userConfirmDeadline: deadline,  // UTC
+                    confirmedAt: now,               // Auto-confirm
                     responseMessage: responseMessage || 'ไม่ระบุ',
                     approvePickupDate: pickupDateUTC // ✅ UTC
                 }
@@ -2322,7 +2320,7 @@ const wasteSaleRequestApprovePost = async (req, res) => {
 
             await wasteSaleRequestLog.create({
                 wasteSaleRequest: id,
-                status: 'APPROVED',
+                status: 'CONFIRMED',
                 approveText: responseMessage,
                 actionBy: 'EMPLOYEE'
             });
