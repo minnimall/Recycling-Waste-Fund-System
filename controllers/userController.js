@@ -26,6 +26,7 @@ const path = require('path');
 const moment = require('moment');
 const WastePoint = require('../models/wastePoint');
 const FuneralAssistance = require('../models/funeral');
+const mongoose = require('mongoose');
 
 // หน้าหลัก
 const formatDate = (date) => moment(date).locale('th').format('ddddที่ D MMMM YYYY');
