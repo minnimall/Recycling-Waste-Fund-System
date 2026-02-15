@@ -959,19 +959,16 @@
             cancelButtonColor: '#6b7280',
             confirmButtonText: 'ล้างทั้งหมด',
             cancelButtonText: 'ยกเลิก'
-        }).then((result) => {
+    }).then((result) => {
             if (result.isConfirmed) {
                 // Reset all weight inputs
-                selectedWaste.forEach(item => {
-                    const tableInput = document.querySelector(`input[name="weight-${item.id}"]`);
-                    const cardInput = document.querySelector(`input[name="weightCard-${item.id}"]`);
-                    if (tableInput) tableInput.value = '';
-                    if (cardInput) cardInput.value = '';
+                const inputs = document.querySelectorAll('input[id^="table-weight-"], input[id^="card-weight-"]');
+                inputs.forEach(input => {
+                    input.value = '';
                 });
                 
                 selectedWaste = [];
-                updateCart();
-                updateMobileUI();
+                updateSelectedWasteList();
                 Swal.fire('สำเร็จ', 'ล้างตะกร้าเรียบร้อย', 'success');
             }
         });
