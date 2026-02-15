@@ -4588,7 +4588,6 @@ const approveRequest = async (req, res) => {
 
     try {
         const { id } = req.params;
-        // รับยอดเงินที่พนักงานกำหนด (ถ้าไม่ส่งมาจะใช้ default จาก request)
         const { approvedAmount } = req.body;
 
         const request = await FuneralAssistance.findById(id).session(session);
@@ -4609,7 +4608,6 @@ const approveRequest = async (req, res) => {
             });
         }
 
-        // ใช้ยอดที่พนักงานส่งมา ถ้าไม่มีจะใช้ default จาก request
         const amount = approvedAmount && approvedAmount > 0 
             ? parseFloat(approvedAmount) 
             : (request.financialInfo?.totalAmount || 2000);
@@ -4696,70 +4694,59 @@ const approveRequest = async (req, res) => {
         }
 
         // ============================================
-        // อัปเดตสถานะของสมาชิกที่เสียชีวิต
+        // ✅ อัปเดตสถานะผู้เสียชีวิต (ใช้วิธีเดียวกับ submitFuneralAssistance)
         // ============================================
         if (request.deceasedInfo.memberID && request.deceasedInfo.name) {
-            const deceasedId = request.deceasedInfo.memberID.toString();
+            const memberIdObj = request.deceasedInfo.memberID; // ObjectId
             const deceasedName = request.deceasedInfo.name;
             
-            console.log(`🔄 Updating deceased status for: ${deceasedName} (ID: ${deceasedId})`);
+            console.log(`🔄 Updating deceased status for: ${deceasedName}`);
+            console.log(`📌 MemberID (ObjectId):`, memberIdObj);
             
-            // ตรวจสอบว่าเป็น beneficiary หรือไม่
-            if (deceasedId.startsWith('beneficiary_')) {
-                // ✅ กรณี Beneficiary
-                const beneficiaryObjectId = deceasedId.split('_')[1];
-                
-                const member = await Member.findOne({
-                    'beneficiaries._id': beneficiaryObjectId,
-                    isDeleted: false
-                }).session(session);
+            // ✅ หาว่า beneficiary ไหนมี _id ตรงกับ memberIdObj
+            const memberWithBeneficiary = await Member.findOne({
+                'beneficiaries._id': memberIdObj,
+                isDeleted: false
+            }).session(session);
 
-                if (member) {
-                    const beneficiaryIndex = member.beneficiaries.findIndex(
-                        b => b._id.toString() === beneficiaryObjectId
-                    );
-                    
-                    if (beneficiaryIndex !== -1) {
-                        member.beneficiaries[beneficiaryIndex].status = 'deceased';
-                        await member.save({ session });
-                        console.log(`✅ Updated beneficiary status to deceased: ${deceasedName}`);
-                    } else {
-                        console.warn(`⚠️ Beneficiary not found in member's list: ${beneficiaryObjectId}`);
-                    }
-                } else {
-                    console.warn(`⚠️ Member containing beneficiary not found: ${beneficiaryObjectId}`);
+            if (memberWithBeneficiary) {
+                // ✅ เจอแล้ว = เป็น Beneficiary
+                console.log(`✅ Found as beneficiary in member: ${memberWithBeneficiary.name}`);
+                
+                const beneficiaryIndex = memberWithBeneficiary.beneficiaries.findIndex(
+                    b => b._id.toString() === memberIdObj.toString()
+                );
+                
+                if (beneficiaryIndex !== -1) {
+                    memberWithBeneficiary.beneficiaries[beneficiaryIndex].status = 'deceased';
+                    await memberWithBeneficiary.save({ session });
+                    console.log(`✅ Updated beneficiary status to deceased: ${deceasedName}`);
                 }
-            } else if (mongoose.Types.ObjectId.isValid(deceasedId)) {
-                // ✅ กรณี Member หลัก
+            } else {
+                // ✅ ไม่เจอใน beneficiaries = เป็น Member หลัก
+                console.log(`✅ Not a beneficiary, updating as main member`);
+                
                 const updateResult = await Member.findByIdAndUpdate(
-                    deceasedId,
-                    { 
-                        Status: 'deceased'
-                    },
-                    { 
-                        session,
-                        new: true
-                    }
+                    memberIdObj,
+                    { Status: 'deceased' },
+                    { session, new: true }
                 );
                 
                 if (updateResult) {
                     console.log(`✅ Updated member status to deceased: ${deceasedName}`);
                 } else {
-                    console.warn(`⚠️ Member not found for update: ${deceasedId}`);
+                    console.warn(`⚠️ Member not found for update: ${memberIdObj}`);
                 }
-            } else {
-                console.warn(`⚠️ Invalid deceasedId format: ${deceasedId}`);
             }
         }
         // ============================================
-        // จบส่วนที่เพิ่มใหม่
+        // จบส่วนอัปเดตสถานะ
         // ============================================
 
         // อัปเดตคำขอ
         request.status = 'completed';
         request.approvedBy = req.user._id;
         request.approvedAt = new Date();
-        // อัพเดทยอดเงินที่อนุมัติ
         request.financialInfo.totalAmount = amount;
         request.financialInfo.totalMemberAccounts = totalMemberAccounts;
         request.financialInfo.perAccountAmount = perAccountAmount;
