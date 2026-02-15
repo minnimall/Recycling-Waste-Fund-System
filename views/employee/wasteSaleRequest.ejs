@@ -61,67 +61,172 @@
             </div>
         </div>
         
-        <!-- <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
-                <div>
-                        <div class="flex items-center justify-between">
-                            <h1 class="text-xl font-semibold flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                รอการอนุมัติ
-                                <span class="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-warning-muted text-warning" id="pending-badge">12</span>
-                            </h1>
-                            </div>
-                            <div class="relative mb-8 w-full">
-                                <button class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-5 z-10 w-10 h-10 rounded-full bg-surface-card border border-border text-content-primary flex items-center justify-center hover:bg-surface-card-hover transition-all" id="scroll-left">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-                                    </svg>
-                                </button>
-                                <div class="flex gap-4 overflow-x-auto pb-2 scroll-smooth scrollbar-hide" id="pending-cards">
+        <div id="pending-requests-section" class="mx-4 mb-6 relative bg-white rounded-xl shadow-sm border border-gray-100 p-5 hidden">
+            <div class="flex items-center justify-between mb-4">
+                <h1 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                    <span class="bg-yellow-100 text-yellow-700 p-1.5 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </span>
+                    รอการอนุมัติ
+                    <span id="pending-count" class="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 border border-yellow-200 ml-2">
+                        0 รายการ
+                    </span>
+                </h1>
+            </div>
 
-                                            <div class="min-w-80 bg-yellow-50 border border-yellow-300 rounded-lg p-5 shrink-0 cursor-pointer transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-warning/15" onclick="openModal(${request.id})">
-                                                <div class="flex items-center justify-between mb-4">
-                                                    <div class="flex items-center gap-3">
-                                                        <i class="fas fa-user-circle text-gray-600 mr-1 text-3xl"></i>
-                                                        <div>
-                                                            <h4 class="text-base font-semibold">Test</h4>
-                                                            <p class="text-xs text-content-muted">@family1234</p>
-                                                        </div>
-                                                    </div>
-                                                    <span class="text-xs text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full border border-yellow-200 flex items-center justify-center">รอการอนุมัติ</span>
-                                                </div>
-                                                <div class="flex flex-col gap-3 text-gray-600">
-                                                    <div class="flex items-center gap-2 text-sm text-content-secondary">
-                                                    <i class="far fa-calendar-alt"></i> 
-                                                    วันให้เข้ารับซื้อ : 11 11 11
-                                                    </div>
-                                                    <div class="flex items-center gap-2 text-sm text-content-secondary">
+            <div class="relative group">
+                <!-- Scroll Buttons -->
+                <button class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-10 h-10 rounded-full bg-white shadow-lg border border-gray-100 text-gray-600 flex items-center justify-center hover:bg-gray-50 hover:text-green-600 transition-all opacity-0 group-hover:opacity-100 disabled:opacity-0" id="scroll-left" onclick="scrollContainer('left')">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                
+                <div class="flex gap-4 overflow-x-auto pb-4 scroll-smooth scrollbar-hide px-1" id="pending-cards">
+                    <!-- Cards will be injected here via JS -->
+                </div>
 
-                                                    <i class="fas fa-map-marker-alt"></i>
-                                                    พิกัด : 111111, 1111111
-                                                    </div>
-                                                    <div class="flex flex-wrap gap-1.5 mt-1">
-                                                        รายการขยะ: ขยะ
-                                                    </div>
-                                                </div>
-                                                <div class="relative mt-4 text-sm">
-                                                    <button onclick="loadRequest('')" class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center">
-                                                        <i class="fa-solid fa-reply mr-2"></i> ตอบกลับคำขอ
-                                                    </button>
-                                                </div>
-                                            </div>
+                <button class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-10 h-10 rounded-full bg-white shadow-lg border border-gray-100 text-gray-600 flex items-center justify-center hover:bg-gray-50 hover:text-green-600 transition-all opacity-0 group-hover:opacity-100 disabled:opacity-0" id="scroll-right" onclick="scrollContainer('right')">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <script>
+            function scrollContainer(direction) {
+                const container = document.getElementById('pending-cards');
+                const scrollAmount = 340; // Card width + gap
+                if (direction === 'left') {
+                    container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+                } else {
+                    container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                }
+            }
+
+            // Real-time Pending Requests Fetcher
+            async function fetchPendingRequests() {
+                try {
+                    const response = await fetch('/employee/wasteSaleRequest/pending');
+                    const data = await response.json();
+
+                    if (data.success) {
+                        renderPendingRequests(data.pendingRequests);
+                    }
+                } catch (error) {
+                    console.error('Error fetching pending requests:', error);
+                }
+            }
+
+            function renderPendingRequests(requests) {
+                const container = document.getElementById('pending-cards');
+                const section = document.getElementById('pending-requests-section');
+                const countBadge = document.getElementById('pending-count');
+
+                if (requests.length === 0) {
+                    section.classList.add('hidden');
+                    return;
+                }
+
+                section.classList.remove('hidden');
+                countBadge.textContent = `${requests.length} รายการ`;
+                
+                // Keep track of current scroll position
+                // const scrollLeft = container.scrollLeft;
+
+                // Generate HTML for cards
+                const html = requests.map(request => {
+                    const date = new Date(request.date).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+                    const wasteItems = request.waste.slice(0, 3).map(w => `
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-white border border-gray-200 text-[10px] text-gray-700 shadow-sm">
+                            ${w.wasteName}
+                        </span>
+                    `).join('');
+                    
+                    const moreItems = request.waste.length > 3 ? 
+                        `<span class="text-[10px] text-gray-500 px-1">+${request.waste.length - 3}</span>` : '';
+
+                    return `
+                        <div class="min-w-[320px] max-w-[350px] group bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden cursor-pointer" onclick="openModal('${request._id}')">
+                            
+                            <!-- Header: User Info & Status -->
+                            <div class="px-4 py-3 flex justify-between items-center border-b border-gray-100 bg-gray-50/50">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                        <i class="fas fa-user text-sm"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <h3 class="text-sm font-semibold text-gray-900 truncate max-w-[120px]">${request.family.familyName}</h3>
+                                        <p class="text-[10px] text-gray-500">#${request._id.toString().slice(-6)}</p>
+                                    </div>
                                 </div>
-                                <button class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-5 z-10 w-10 h-10 rounded-full bg-surface-card border border-border text-content-primary flex items-center justify-center hover:bg-surface-card-hover transition-all" id="scroll-right">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </button>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-yellow-100 text-yellow-800">
+                                    <span class="w-1 h-1 bg-yellow-500 rounded-full mr-1"></span>รอการอนุมัติ
+                                </span>
+                            </div>
+                            
+                            <!-- Body: Details & Items -->
+                            <div class="p-4 space-y-3">
+                                <!-- Details -->
+                                <div class="space-y-2">
+                                    <div class="flex items-start gap-2">
+                                        <div class="mt-0.5 text-gray-400 text-xs">
+                                            <i class="far fa-calendar-alt"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-[10px] font-medium text-gray-500 uppercase tracking-wide">วันที่ให้เข้าซื้อ</p>
+                                            <p class="text-xs text-gray-900 font-medium">${date}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-2">
+                                        <div class="mt-0.5 text-gray-400 text-xs">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-[10px] font-medium text-gray-500 uppercase tracking-wide">สถานที่</p>
+                                            <p class="text-xs text-gray-900 line-clamp-1" title="${request.location}">${request.location}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Waste Items -->
+                                <div class="bg-gray-50 rounded-lg p-2.5">
+                                    <p class="text-[10px] font-medium text-gray-500 uppercase tracking-wide mb-1.5 flex items-center gap-1">
+                                        <i class="fas fa-recycle text-green-500"></i> รายการขยะ
+                                    </p>
+                                    <div class="flex flex-wrap gap-1.5">
+                                        ${wasteItems}
+                                        ${moreItems}
+                                        ${request.waste.length === 0 ? '<span class="text-[10px] text-gray-400 italic">ไม่มีรายการ</span>' : ''}
+                                    </div>
+                                </div>
+                                
+                                <!-- Actions -->
+                                <div class="flex gap-2 pt-1">
+                                    <button onclick="event.stopPropagation(); loadRequest('${request._id}')" 
+                                            class="flex-1 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-lg transition-colors shadow-sm hover:shadow flex items-center justify-center gap-1.5">
+                                        <i class="fa-solid fa-reply"></i> ตอบกลับ
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                </div>
-            </div> -->
+                    `;
+                }).join('');
+
+                container.innerHTML = html;
+                // Restore scroll position if needed, but simple re-render usually resets it. 
+                // For a smoother experience, complex diffing would be needed, but basic replace is acceptable for now.
+            }
+
+            // Initial fetch
+            fetchPendingRequests();
+
+            // Poll every 5 seconds
+            setInterval(fetchPendingRequests, 5000);
+        </script>
 
         <div id="filter-container" class="mx-4 mb-6 bg-white rounded-xl shadow-sm border border-gray-100 p-5">
             <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">

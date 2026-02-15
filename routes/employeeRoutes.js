@@ -33,6 +33,7 @@ router.delete('/complaint/replyMessage/:id', employeeController.deleteMessageRep
 
 // ตรวจสอบความประสงค์ขายขยะ
 router.get('/wasteSaleRequest', employeeController.wasteSaleRequestIndex);
+router.get('/wasteSaleRequest/pending', employeeController.getPendingWasteSaleRequests); // API for Real-time updates
 router.put('/wasteSaleRequest/:id/status',  employeeController.updateWasteSaleRequestStatus);
 router.get('/wasteSaleRequest/:id', employeeController.wasteSaleRequestReplyIndex);
 router.get('/wasteSaleRequestReject/:id', employeeController.wasteSaleRequestReject);

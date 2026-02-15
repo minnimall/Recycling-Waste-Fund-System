@@ -2390,6 +2390,22 @@ const updateWasteSaleRequestStatus = async (req, res) => {
     }
 };
 
+// API สำหรับดึงข้อมูลคำขอที่รออนุมัติ (Real-time)
+const getPendingWasteSaleRequests = async (req, res) => {
+    try {
+        const pendingRequests = await wasteSaleRequest
+            .find({ status: 'pending', isDeleted: false })
+            .populate('waste')
+            .populate('family')
+            .sort({ createdAt: -1 });
+
+        res.json({ success: true, pendingRequests });
+    } catch (error) {
+        console.error('Error fetching pending requests:', error);
+        res.status(500).json({ success: false, error: 'เกิดข้อผิดพลาดในการดึงข้อมูล' });
+    }
+};
+
 //หน้าสต๊อกขยะ (เพิ่ม filter เดือน/ปี) - Fixed Version
 const wasteStockIndex = async (req, res) => {
     const villageId = req.query.villageId || null;
@@ -5637,7 +5653,7 @@ module.exports = {
     //หน้าคำร้องหรือหรือข้อร้องเรียน
     complaintIndex,updateComplaintStatus,complaintReply,complaintReplyMessage,updateMessageReply,deleteMessageReply,
     //หน้าตรวจสอบความประสงค์ขายขยะ
-    wasteSaleRequestIndex,updateWasteSaleRequestStatus,wasteSaleRequestReplyIndex,wasteSaleRequestReject,wasteSaleRequestApprovePost,
+    wasteSaleRequestIndex,updateWasteSaleRequestStatus,wasteSaleRequestReplyIndex,wasteSaleRequestReject,wasteSaleRequestApprovePost,getPendingWasteSaleRequests,
     //หน้าสต๊อกขยะ
     wasteStockIndex,
     //หน้าเบิกถอน
