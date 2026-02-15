@@ -817,13 +817,35 @@
 
         // ฟังก์ชันคำนวณใหม่เมื่อปรับยอดเงิน (เพิ่มใหม่)
         function recalculateFuneral() {
-        const newAmount = parseFloat(document.getElementById('approvedAmount').value) || 2000;
-        const totalAccounts = parseInt(document.getElementById('displayTotalAccounts').textContent);
-        const perAccount = newAmount / totalAccounts;// อัพเดทการแสดงผล
-        document.getElementById('displayTotalAmount').textContent = newAmount.toLocaleString() + ' บาท';
-        document.getElementById('displayPerAccount').textContent = perAccount.toFixed(2) + ' บาท';
-
-        console.log(`📊 คำนวณใหม่: ${newAmount} บาท ÷ ${totalAccounts} บัญชี = ${perAccount.toFixed(2)} บาท/บัญชี`);
+            const newAmount = parseFloat(document.getElementById('approvedAmount').value) || 2000;
+            const totalAccounts = parseInt(document.getElementById('displayTotalAccounts').textContent);
+            const perAccount = newAmount / totalAccounts;
+            
+            // ✅ คำนวณใหม่จากข้อมูล accountsPreview
+            if (currentDetail && currentDetail.accountsPreview) {
+                const sufficientCount = currentDetail.accountsPreview.filter(
+                    acc => acc.balanceBefore >= perAccount
+                ).length;
+                
+                const insufficientCount = currentDetail.accountsPreview.filter(
+                    acc => acc.balanceBefore < perAccount
+                ).length;
+                
+                // อัปเดตการแสดงผล
+                document.getElementById('displaySufficient').textContent = sufficientCount;
+                
+                // ถ้ามีช่องแสดงบัญชีเงินไม่พอ ก็อัปเดตด้วย
+                const insufficientElement = document.getElementById('displayInsufficient');
+                if (insufficientElement) {
+                    insufficientElement.textContent = insufficientCount;
+                }
+            }
+            
+            // อัพเดทการแสดงผลอื่นๆ
+            document.getElementById('displayTotalAmount').textContent = newAmount.toLocaleString() + ' บาท';
+            document.getElementById('displayPerAccount').textContent = perAccount.toFixed(2) + ' บาท';
+            
+            console.log(`📊 คำนวณใหม่: ${newAmount} บาท ÷ ${totalAccounts} บัญชี = ${perAccount.toFixed(2)} บาท/บัญชี`);
         }
         // ฟังก์ชันอนุมัติพร้อมส่งยอดเงิน (แก้ไข)
         async function approveRequestWithAmount() {

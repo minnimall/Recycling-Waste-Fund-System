@@ -1431,6 +1431,12 @@
                 return;
             }
 
+            // ✅ เพิ่มการเก็บ memberID
+            const memberSelect = document.getElementById('memberSelect');
+            const selectedMemberID = memberSelect.value;
+            
+            console.log('🔍 Selected memberID from dropdown:', selectedMemberID);
+
             formData = {
                 responsiblePersonName: form.responsiblePersonName.value,
                 relationship: form.relationship.value,
@@ -1447,8 +1453,11 @@
                 province: form.province.value,
                 postalCode: form.postalCode.value,
                 notes: form.notes.value,
+                memberID: selectedMemberID !== 'other' && selectedMemberID !== '' ? selectedMemberID : null,  // ✅ เพิ่มบรรทัดนี้!
                 files: {}
             };
+
+            console.log('✅ formData.memberID:', formData.memberID);
 
             // เก็บข้อมูลไฟล์ (ชื่อและขนาด) สำหรับแสดงในหน้ายืนยัน
             requiredFiles.forEach(fieldName => {
@@ -1633,6 +1642,14 @@
                 formDataToSend.append('postalCode', formData.postalCode);
                 formDataToSend.append('notes', formData.notes || '');
 
+                // ✅ เพิ่มการส่ง memberID
+                if (formData.memberID && formData.memberID !== 'other' && formData.memberID !== '') {
+                    formDataToSend.append('memberID', formData.memberID);
+                    console.log('✅ Sending memberID:', formData.memberID);
+                } else {
+                    console.log('⚠️ No memberID to send (user typed manually)');
+                }
+
                 // เพิ่มไฟล์ทั้งหมด
                 requiredFiles.forEach(fieldName => {
                     const input = document.getElementById(fieldName);
@@ -1640,6 +1657,16 @@
                         formDataToSend.append(fieldName, input.files[0]);
                     }
                 });
+
+                // Debug: แสดงข้อมูลที่จะส่ง
+                console.log('📤 FormData contents:');
+                for (let pair of formDataToSend.entries()) {
+                    if (pair[1] instanceof File) {
+                        console.log(pair[0], ':', pair[1].name);
+                    } else {
+                        console.log(pair[0], ':', pair[1]);
+                    }
+                }
 
                 // ส่งข้อมูล (ไม่ต้องใส่ Content-Type เพราะ FormData จะจัดการให้เอง)
                 const response = await fetch('/user/funeral/request/submit', {

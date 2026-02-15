@@ -811,12 +811,12 @@ ${deductedPending > 0 ? `หักเงินค้าง: ${deductedPending.to
 };
 
 
-// หน้าสรุปการรับซื้อขยะ
+// หน้าสรุปการรับซื้อขยะ (ปรับปรุงใหม่)
 const wastePurchaseTotalIndex = async (req, res) => {
     try {
         const searchDate = req.query.searchDate;
         const searchMonth = req.query.searchMonth;
-        const searchYear = req.query.searchYear; // เพิ่ม
+        const searchYear = req.query.searchYear;
         const villageId = req.query.villageId;
         const accountIdParam = req.query.accountId;
         const page = parseInt(req.query.page) || 1;
@@ -827,7 +827,7 @@ const wastePurchaseTotalIndex = async (req, res) => {
         let query = { isDeleted: false };
         let monthlyQuery = { isDeleted: false };
 
-        // Filter ตามวันที่เฉพาะ (ลำดับความสำคัญสูงสุด)
+        // Filter ตามวันที่เฉพาะ
         if (searchDate) {
             const startDate = new Date(searchDate);
             startDate.setHours(0, 0, 0, 0);
@@ -847,12 +847,11 @@ const wastePurchaseTotalIndex = async (req, res) => {
                 $lte: lastDayOfMonth
             };
         }
-        // Filter ตามเดือนและปี (ถ้าไม่เลือกวันที่)
+        // Filter ตามเดือนและปี
         else if (searchMonth || searchYear) {
             const year = searchYear ? parseInt(searchYear) : new Date().getFullYear();
             
             if (searchMonth) {
-                // เลือกทั้งเดือนและปี
                 const month = parseInt(searchMonth) - 1;
                 const firstDayOfMonth = new Date(year, month, 1);
                 const lastDayOfMonth = new Date(year, month + 1, 0, 23, 59, 59, 999);
@@ -866,7 +865,6 @@ const wastePurchaseTotalIndex = async (req, res) => {
                     $lte: lastDayOfMonth
                 };
             } else {
-                // เลือกเฉพาะปี
                 const firstDayOfYear = new Date(year, 0, 1);
                 const lastDayOfYear = new Date(year, 11, 31, 23, 59, 59, 999);
                 
@@ -935,7 +933,158 @@ const wastePurchaseTotalIndex = async (req, res) => {
             }
         }
 
-        // ดึงข้อมูล WastePurchase พร้อม populate
+        const wasteSummaryPipeline = [
+            { $match: query },
+            {
+                $lookup: {
+                    from: 'wastebankaccounts',
+                    localField: 'accountId',
+                    foreignField: '_id',
+                    as: 'accountInfo'
+                }
+            },
+            {
+                $addFields: {
+                    accountInfo: {
+                        $ifNull: [
+                            { $arrayElemAt: ['$accountInfo', 0] },
+                            { _id: '$accountId', familyID: null, isDeleted: true }
+                        ]
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'families',
+                    localField: 'accountInfo.familyID',
+                    foreignField: '_id',
+                    as: 'familyInfo'
+                }
+            },
+            {
+                $addFields: {
+                    familyInfo: {
+                        $ifNull: [
+                            { $arrayElemAt: ['$familyInfo', 0] },
+                            { _id: '$accountInfo.familyID', village: null, isDeleted: true }
+                        ]
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'villages',
+                    localField: 'familyInfo.village',
+                    foreignField: '_id',
+                    as: 'villageInfo'
+                }
+            },
+            {
+                $addFields: {
+                    villageInfo: {
+                        $ifNull: [
+                            { $arrayElemAt: ['$villageInfo', 0] },
+                            { _id: null, villageNumber: 'ไม่ระบุ', villageName: '' }
+                        ]
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'wasteitems',
+                    localField: 'wasteItems',
+                    foreignField: '_id',
+                    as: 'wasteItemDetails'
+                }
+            },
+            {
+                $match: {
+                    'wasteItemDetails': { $ne: [] }
+                }
+            },
+            { $unwind: '$wasteItemDetails' },
+            
+            // Group แยกตามหมู่บ้านและชื่อขยะ
+            {
+                $group: {
+                    _id: {
+                        villageNumber: '$villageInfo.villageNumber',
+                        villageName: '$villageInfo.villageName',
+                        wasteName: '$wasteItemDetails.name'
+                    },
+                    totalQuantity: { 
+                        $sum: '$wasteItemDetails.quantity' 
+                    },
+                    totalAmount: { 
+                        $sum: { 
+                            $multiply: [
+                                '$wasteItemDetails.quantity', 
+                                '$wasteItemDetails.pricePerUnit'
+                            ] 
+                        } 
+                    },
+                    householdCount: { 
+                        $addToSet: '$accountId' // นับครัวเรือนที่ไม่ซ้ำ
+                    },
+                    purchaseCount: { $sum: 1 }
+                }
+            },
+            
+            // เพิ่ม field จำนวนครัวเรือน
+            {
+                $addFields: {
+                    householdCount: { $size: '$householdCount' }
+                }
+            },
+            
+            // จัดเรียง: หมู่บ้าน -> ชื่อขยะ
+            {
+                $sort: { 
+                    '_id.villageNumber': 1,
+                    '_id.wasteName': 1
+                }
+            },
+            
+            // Group อีกครั้งเพื่อรวมตามหมู่บ้าน
+            {
+                $group: {
+                    _id: {
+                        villageNumber: '$_id.villageNumber',
+                        villageName: '$_id.villageName'
+                    },
+                    wasteItems: {
+                        $push: {
+                            wasteName: '$_id.wasteName',
+                            totalQuantity: '$totalQuantity',
+                            totalAmount: '$totalAmount',
+                            householdCount: '$householdCount',
+                            purchaseCount: '$purchaseCount'
+                        }
+                    },
+                    villageTotalQuantity: { $sum: '$totalQuantity' },
+                    villageTotalAmount: { $sum: '$totalAmount' },
+                    villageTotalHouseholds: { $sum: '$householdCount' }
+                }
+            },
+            
+            {
+                $sort: { '_id.villageNumber': 1 }
+            }
+        ];
+
+        const wasteSummary = await WastePurchase.aggregate(wasteSummaryPipeline);
+
+        // คำนวณยอดรวมทั้งหมด
+        const grandTotal = wasteSummary.reduce((acc, village) => {
+            return {
+                totalQuantity: acc.totalQuantity + village.villageTotalQuantity,
+                totalAmount: acc.totalAmount + village.villageTotalAmount,
+                totalHouseholds: acc.totalHouseholds + village.villageTotalHouseholds,
+                villageCount: acc.villageCount + 1
+            };
+        }, { totalQuantity: 0, totalAmount: 0, totalHouseholds: 0, villageCount: 0 });
+
+        // ดึงข้อมูล WastePurchase พร้อม populate (เหมือนเดิม)
         const wastePurchases = await WastePurchase.find(query)
             .populate({
                 path: 'wasteItems'
@@ -1007,7 +1156,7 @@ const wastePurchaseTotalIndex = async (req, res) => {
             limit,
             searchDate: searchDate || '',
             searchMonth: searchMonth || '',
-            searchYear: searchYear || '', // เพิ่ม
+            searchYear: searchYear || '',
             villageId: villageId || '',
             accountId: accountIdParam || '',
             pageNumber: page,
@@ -1016,7 +1165,10 @@ const wastePurchaseTotalIndex = async (req, res) => {
             search: search || '',
             villages: villages,
             currentPage: 'wastePurchaseTotal',
-            query: req.query
+            query: req.query,
+            // ⭐ เพิ่มตัวแปรใหม่
+            wasteSummary: wasteSummary,
+            grandTotal: grandTotal
         });
     } catch (error) {
         console.error(error);
@@ -1392,6 +1544,35 @@ const memberUpdate = async (req, res) => {
             }
         }
 
+        // ⭐ สร้าง Map ของ beneficiaries เดิม (เก็บ status ไว้)
+        const existingBeneficiariesMap = new Map();
+        if (existingMember.beneficiaries && existingMember.beneficiaries.length > 0) {
+            existingMember.beneficiaries.forEach((ben, index) => {
+                // ใช้ชื่อ + ความสัมพันธ์เป็น key (หรือใช้ index ถ้าต้องการ)
+                const key = `${ben.name}_${ben.relation}`;
+                existingBeneficiariesMap.set(key, {
+                    status: ben.status || 'living',
+                    distributionType: ben.distributionType,
+                    distributionDetail: ben.distributionDetail
+                });
+            });
+        }
+
+        // ⭐ รวม beneficiaries ใหม่กับ status เดิม
+        const updatedBeneficiaries = (req.body.beneficiaries || []).map((newBen) => {
+            const key = `${newBen.name}_${newBen.relation}`;
+            const existingBen = existingBeneficiariesMap.get(key);
+            
+            return {
+                name: newBen.name,
+                relation: newBen.relation,
+                distributionType: newBen.distributionType || 'equal',
+                distributionDetail: newBen.distributionDetail || '',
+                // ⭐ เก็บ status เดิมไว้ ถ้าไม่มีให้เป็น living
+                status: existingBen ? existingBen.status : 'living'
+            };
+        });
+
         // อัปเดตข้อมูลครัวเรือน
         await Family.findByIdAndUpdate(
             familyId,
@@ -1429,7 +1610,7 @@ const memberUpdate = async (req, res) => {
                 nationality: req.body.nationality,
                 ethnicity: req.body.ethnicity,
                 religion: req.body.religion,
-                beneficiaries: req.body.beneficiaries || []
+                beneficiaries: updatedBeneficiaries
             },
             { session }
         );
@@ -1532,6 +1713,239 @@ const memberDelete = async (req, res) => {
         res.status(500).json({ 
             success: false, 
             message: 'เกิดข้อผิดพลาดในการลบข้อมูล: ' + error.message 
+        });
+    }
+};
+
+// ดึงรายชื่อผู้รับผลประโยชน์ที่ยังมีชีวิตอยู่
+const getRepresentatives = async (req, res) => {
+    try {
+        const { familyId } = req.params;
+        
+        // ดึงข้อมูลครัวเรือน
+        const family = await Family.findById(familyId).lean();
+        if (!family) {
+            return res.status(404).json({ 
+                success: false, 
+                error: 'ไม่พบข้อมูลครัวเรือน' 
+            });
+        }
+
+        // ดึงข้อมูลสมาชิกตัวแทนปัจจุบัน
+        const currentRepresentative = await Member.findOne({ 
+            familyID: familyId, 
+            Status: 'living' 
+        }).lean();
+
+        if (!currentRepresentative) {
+            return res.status(404).json({ 
+                success: false, 
+                error: 'ไม่พบข้อมูลสมาชิกตัวแทน' 
+            });
+        }
+
+        // กรองเฉพาะผู้รับผลประโยชน์ที่ยังมีชีวิตอยู่
+        const livingBeneficiaries = currentRepresentative.beneficiaries.filter(
+            b => b.status === 'living'
+        );
+
+        res.json({
+            success: true,
+            data: {
+                family,
+                currentRepresentative: {
+                    _id: currentRepresentative._id,
+                    name: currentRepresentative.name,
+                    idCardNumber: currentRepresentative.idCardNumber,
+                    phone: currentRepresentative.phone,
+                    Status: currentRepresentative.Status
+                },
+                beneficiaries: livingBeneficiaries.map((b, index) => ({
+                    index: index,
+                    name: b.name,
+                    relation: b.relation,
+                    status: b.status
+                }))
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching representatives:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'เกิดข้อผิดพลาดในการดึงข้อมูล' 
+        });
+    }
+};
+
+// ทำเครื่องหมายสมาชิกตัวแทนเป็นเสียชีวิต
+const markMemberDeceased = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        const { familyId } = req.params;
+
+        // อัปเดตสถานะเป็น deceased
+        const member = await Member.findOneAndUpdate(
+            { familyID: familyId, Status: 'living' },
+            { Status: 'deceased' },
+            { session, new: true }
+        );
+
+        if (!member) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(404).json({ 
+                success: false, 
+                message: 'ไม่พบข้อมูลสมาชิกตัวแทน' 
+            });
+        }
+
+        await session.commitTransaction();
+        session.endSession();
+
+        res.json({ 
+            success: true, 
+            message: 'บันทึกสถานะเสียชีวิตสำเร็จ',
+            memberId: member._id
+        });
+
+    } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+
+        console.error('Error marking member deceased:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'เกิดข้อผิดพลาด: ' + error.message 
+        });
+    }
+};
+
+// เปลี่ยนตัวแทนครัวเรือน
+const changeRepresentative = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        const { familyId } = req.params;
+        const { beneficiaryIndex, newRepresentativeData } = req.body;
+
+        // ตรวจสอบข้อมูลที่จำเป็น
+        if (!newRepresentativeData || !newRepresentativeData.name) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(400).json({ 
+                success: false, 
+                message: 'กรุณากรอกข้อมูลตัวแทนใหม่ให้ครบถ้วน' 
+            });
+        }
+
+        // ดึงข้อมูลสมาชิกตัวแทนเดิม
+        const oldRepresentative = await Member.findOne({ 
+            familyID: familyId, 
+            Status: 'living' 
+        }).session(session);
+
+        if (!oldRepresentative) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(404).json({ 
+                success: false, 
+                message: 'ไม่พบข้อมูลสมาชิกตัวแทนเดิม' 
+            });
+        }
+
+        // ตรวจสอบเลขบัตรประชาชนซ้ำ
+        const existingMember = await Member.findOne({
+            idCardNumber: newRepresentativeData.idCardNumber,
+            _id: { $ne: oldRepresentative._id }
+        }).session(session);
+
+        if (existingMember) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(400).json({ 
+                success: false, 
+                message: 'เลขบัตรประชาชนนี้ถูกใช้ไปแล้ว' 
+            });
+        }
+
+        // เปลี่ยนสถานะตัวแทนเดิมเป็น deceased
+        oldRepresentative.Status = 'deceased';
+        await oldRepresentative.save({ session });
+
+        // ดึงข้อมูล beneficiary ที่เลือก (ถ้ามี)
+        let selectedBeneficiary = null;
+        if (beneficiaryIndex !== undefined && beneficiaryIndex !== null) {
+            selectedBeneficiary = oldRepresentative.beneficiaries[beneficiaryIndex];
+            
+            if (selectedBeneficiary) {
+                // ทำเครื่องหมาย beneficiary นี้ว่าเป็นตัวแทนแล้ว
+                oldRepresentative.beneficiaries[beneficiaryIndex].status = 'deceased';
+                await oldRepresentative.save({ session });
+            }
+        }
+
+        // สร้าง beneficiaries ใหม่ โดยไม่รวมคนที่เป็นตัวแทนใหม่
+        const newBeneficiaries = oldRepresentative.beneficiaries
+            .filter((b, idx) => idx !== beneficiaryIndex && b.status === 'living')
+            .map(b => ({
+                name: b.name,
+                relation: b.relation,
+                distributionType: b.distributionType || 'equal',
+                distributionDetail: b.distributionDetail,
+                status: 'living'
+            }));
+
+        // เพิ่มตัวแทนเดิมเข้าไปเป็น beneficiary (ถ้ายังมีชีวิตอยู่ก่อนหน้านี้)
+        if (oldRepresentative.Status === 'deceased') {
+            newBeneficiaries.push({
+                name: oldRepresentative.name,
+                relation: selectedBeneficiary ? selectedBeneficiary.relation : 'ตัวแทนเดิม',
+                distributionType: 'equal',
+                distributionDetail: '',
+                status: 'deceased'
+            });
+        }
+
+        // สร้างสมาชิกตัวแทนใหม่
+        const newRepresentative = new Member({
+            familyID: familyId,
+            name: newRepresentativeData.name,
+            email: newRepresentativeData.email || '',
+            phone: newRepresentativeData.phone || '',
+            idCardNumber: newRepresentativeData.idCardNumber.replace(/\D/g, ''),
+            birthDate: newRepresentativeData.birthDate || null,
+            occupation: newRepresentativeData.occupation || '',
+            age: newRepresentativeData.age || '',
+            nationality: newRepresentativeData.nationality || 'ไทย',
+            ethnicity: newRepresentativeData.ethnicity || 'ไทย',
+            religion: newRepresentativeData.religion || 'พุทธ',
+            beneficiaries: newBeneficiaries,
+            Status: 'living'
+        });
+
+        await newRepresentative.save({ session });
+
+        // Transaction สำเร็จ
+        await session.commitTransaction();
+        session.endSession();
+
+        res.json({ 
+            success: true, 
+            message: 'เปลี่ยนตัวแทนครัวเรือนสำเร็จ',
+            newRepresentativeId: newRepresentative._id
+        });
+
+    } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+
+        console.error('Error changing representative:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'เกิดข้อผิดพลาด: ' + error.message 
         });
     }
 };
@@ -5232,7 +5646,7 @@ module.exports = {
     //หน้าสรุปการรับซื้อขยะ
     wastePurchaseTotalIndex,wastePurchaseDelete,
     //หน้าสมาชิกกองทุนขยะรีไซเคิล
-    memberIndex,memberRegister,getMemberForEdit,memberUpdate,memberDelete,
+    memberIndex,memberRegister,getMemberForEdit,memberUpdate,memberDelete,markMemberDeceased,changeRepresentative,getRepresentatives,
     //หน้าคำร้องหรือหรือข้อร้องเรียน
     complaintIndex,updateComplaintStatus,complaintReply,complaintReplyMessage,updateMessageReply,deleteMessageReply,
     //หน้าตรวจสอบความประสงค์ขายขยะ

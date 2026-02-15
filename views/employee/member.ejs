@@ -207,6 +207,11 @@
                                                 <button onclick="showEditModal('<%= family._id %>')" class="edit-btn">
                                                     <i class="fa-solid fa-pen-to-square"></i>
                                                 </button>
+                                                <button onclick="showChangeRepresentativeModal('<%= family._id %>')" 
+                                                        class="bg-purple-500 text-white px-3 py-1 rounded hover:bg-purple-600 transition-colors"
+                                                        title="เปลี่ยนตัวแทนครัวเรือน">
+                                                    <i class="fa-solid fa-user-check"></i>
+                                                </button>
                                                 <button onclick="showModalDelete('<%= index + 1 %>', '<%= family._id %>','<%= family.AccountNumber %>','<%= family.familyName %>')" class="delete-btn">
                                                     <i class="fa-solid fa-trash"></i>
                                                 </button>
@@ -226,27 +231,46 @@
             </div>
 
             <!-- modal ฟอร์มลงทะเบียนครัวเรือน -->
-            <div id="ShowAddFamilyForm"
-                class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden overflow-y-scroll z-50">
-                <div class="container mx-auto p-6 my-auto">
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <h1 class="text-2xl font-bold mb-6">สมัครเข้าร่วมกองทุนขยะรีไซเคิล</h1>
+            <div id="ShowAddFamilyForm" class="hidden fixed inset-0 z-50 bg-black bg-opacity-30">
+                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-5xl px-4 max-h-[90vh] overflow-y-auto">
+                    <div class="bg-white rounded-xl shadow-lg p-8 space-y-6">
+                        
+                        <div class="flex items-center justify-between border-b pb-4">
+                            <div class="flex items-center space-x-3">
+                                <ion-icon name="document-text-outline" class="text-green-500 text-2xl"></ion-icon>
+                                <span class="text-xl font-semibold text-gray-800">สมัครเข้าร่วมกองทุนขยะรีไซเคิล</span>
+                            </div>
+                            <button type="button" onclick="closeAddFamilyForm()" class="text-gray-400 hover:text-gray-600 transition">
+                                <ion-icon name="close-outline" class="text-2xl"></ion-icon>
+                            </button>
+                        </div>
 
                         <form action="/employee/memberRegister" method="POST" class="space-y-6">
 
                             <!-- ส่วนที่ 1: ข้อมูลครัวเรือน -->
-                            <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
-                                <h2 class="text-lg font-semibold mb-4 text-green-700">1. ข้อมูลครัวเรือน</h2>
+                            <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                                <h2 class="text-base font-semibold mb-4 flex items-center space-x-2">
+                                    <!-- <ion-icon name="home-outline" class="text-lg"></ion-icon> -->
+                                    <span>1. ข้อมูลครัวเรือน</span>
+                                </h2>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                     <div>
-                                        <label class="block text-gray-700 mb-2">ชื่อครัวเรือน <span class="text-red-500">*</span></label>
-                                        <input type="text" name="familyName" class="w-full p-2 border rounded" required>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            ชื่อครัวเรือน <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" name="familyName" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition" 
+                                            required>
                                     </div>
 
                                     <div>
-                                        <label class="block text-gray-700 mb-2">ประเภทครัวเรือน <span class="text-red-500">*</span></label>
-                                        <select name="Type" class="w-full p-2 border rounded" required>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            ประเภทครัวเรือน <span class="text-red-500">*</span>
+                                        </label>
+                                        <select name="Type" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition" 
+                                            required>
                                             <option value="household">บ้านเรือน</option>
                                             <option value="school">โรงเรียน</option>
                                             <option value="municipality">อปท.</option>
@@ -258,192 +282,274 @@
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                     <div>
-                                        <label class="block text-gray-700 mb-2">ชื่อผู้ใช้ (Username) ชื่อผู้ใช้ต้องมี 5-20 ตัวอักษร และไม่มีอักขระพิเศษ <span class="text-red-500">*</span></label>
-                                        <input type="text" name="username" class="w-full p-2 border rounded" required>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            ชื่อผู้ใช้ (Username) <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" name="username" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition" 
+                                            required>
+                                        <p class="text-xs text-gray-500 mt-1">ชื่อผู้ใช้ต้องมี 5-20 ตัวอักษร และไม่มีอักขระพิเศษ</p>
                                     </div>
 
-                                    <div class="mb-4">
-                                        <label for="password" class="block text-gray-700 mb-2">รหัสผ่าน (ตัวเลข 6-8 หลัก) <span class="text-red-500">*</span></label>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            รหัสผ่าน (ตัวเลข 6-8 หลัก) <span class="text-red-500">*</span>
+                                        </label>
                                         <input type="password" name="password" id="password"
-                                            class="w-full p-2 border border-gray-300 rounded focus:ring focus:ring-blue-200" placeholder="กรอกรหัสผ่าน"
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition" 
+                                            placeholder="กรอกรหัสผ่าน"
                                             required>
-                                    </div>
-                                    
-                                    <div class="mb-4">
-                                        <label for="confirmPassword" class="block text-gray-700 mb-2">ยืนยันรหัสผ่าน <span class="text-red-500">*</span></label>
-                                        <input type="password" name="confirmPassword" id="confirmPassword"
-                                            class="w-full p-2 border border-gray-300 rounded focus:ring focus:ring-blue-200"
-                                            placeholder="กรอกรหัสผ่านอีกครั้ง" required>
-                                        <p id="passwordError" class="text-red-500 text-sm mt-1 hidden">รหัสผ่านไม่ตรงกัน</p>
                                     </div>
                                 </div>
 
-                                <h3 class="font-medium text-gray-700 mt-4 mb-2">ที่อยู่ <span class="text-red-500">*</span></h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            ยืนยันรหัสผ่าน <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="password" name="confirmPassword" id="confirmPassword"
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                                            placeholder="กรอกรหัสผ่านอีกครั้ง" required>
+                                        <p id="passwordError" class="text-red-500 text-xs mt-1 hidden">รหัสผ่านไม่ตรงกัน</p>
+                                    </div>
+                                </div>
+
+                                <h3 class="text-sm font-medium text-gray-700 mt-6 mb-3 flex items-center space-x-2">
+                                    <ion-icon name="location-outline" class="text-base"></ion-icon>
+                                    <span>ที่อยู่ <span class="text-red-500">*</span></span>
+                                </h3>
+                                
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
-                                        <label class="block text-gray-700 mb-2">บ้านเลขที่ <span class="text-red-500">*</span></label>
-                                        <input type="text" name="houseNumber" class="w-full p-2 border rounded"
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            บ้านเลขที่ <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" name="houseNumber" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
                                             required>
                                     </div>
 
                                     <div>
-                                        <label class="block text-gray-700 mb-2">หมู่บ้าน <span class="text-red-500">*</span></label>
-                                        <select name="village" class="w-full p-2 border rounded">
-                                            <% villages.forEach(village=> { %>
-                                                <option value="<%= village._id %>">หมู่ <%= village.villageNumber %> -
-                                                        <%= village.villageName %>
-                                                </option>
-                                                <% }); %>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            หมู่บ้าน <span class="text-red-500">*</span>
+                                        </label>
+                                        <select name="village" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
+                                            <% villages.forEach(village => { %>
+                                                <option value="<%= village._id %>">หมู่ <%= village.villageNumber %> - <%= village.villageName %></option>
+                                            <% }); %>
                                         </select>
                                     </div>
 
                                     <div>
-                                        <label class="block text-gray-700 mb-2">ถนน <span class="text-red-500">*</span></label>
-                                        <input type="text" name="road" class="w-full p-2 border rounded">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            ถนน
+                                        </label>
+                                        <input type="text" name="road" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                                     <div>
-                                        <label class="block text-gray-700 mb-2">ตำบล <span class="text-red-500">*</span></label>
-                                        <input type="text" name="subdistrict" class="w-full p-2 border rounded"
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            ตำบล <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" name="subdistrict" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
                                             value="ขามป้อม" required>
                                     </div>
 
                                     <div>
-                                        <label class="block text-gray-700 mb-2">อำเภอ <span class="text-red-500">*</span></label>
-                                        <input type="text" name="district" class="w-full p-2 border rounded"
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            อำเภอ <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" name="district" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
                                             value="เปือยน้อย" required>
                                     </div>
 
                                     <div>
-                                        <label class="block text-gray-700 mb-2">จังหวัด <span class="text-red-500">*</span></label>
-                                        <input type="text" name="province" class="w-full p-2 border rounded"
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            จังหวัด <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" name="province" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
                                             value="ขอนแก่น" required>
                                     </div>
                                 </div>
 
                                 <div class="mt-4">
-                                    <label class="block text-gray-700 mb-2">รหัสไปรษณีย์ <span class="text-red-500">*</span></label>
-                                    <input type="text" name="postalCode" class="w-full md:w-1/3 p-2 border rounded "
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        รหัสไปรษณีย์ <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" name="postalCode" 
+                                        class="w-full md:w-1/3 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
                                         value="40340" required>
                                 </div>
                             </div>
 
                             <!-- ส่วนที่ 2: ข้อมูลสมาชิก (ตัวแทนครอบครัว) -->
-                            <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
-                                <h2 class="text-lg font-semibold mb-4 text-green-700">2. ข้อมูลสมาชิก (ตัวแทนครอบครัว)
+                            <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                                <h2 class="text-base font-semibold mb-4 flex items-center space-x-2">
+                                    <!-- <ion-icon name="person-outline" class="text-lg"></ion-icon> -->
+                                    <span>2. ข้อมูลสมาชิก (ตัวแทนครอบครัว)</span>
                                 </h2>
 
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                                     <div>
-                                        <label class="block text-gray-700 mb-2">ชื่อ-สกุล <span class="text-red-500">*</span></label>
-                                        <input type="text" name="name" class="w-full p-2 border rounded" required>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            ชื่อ-สกุล <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" name="name" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition" 
+                                            required>
                                     </div>
 
-
-                                    <div class="mb-4">
-                                        <label for="idCardNumber" class="block font-medium mb-1">เลขบัตรประชาชน <span class="text-red-500">*</span></label>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            เลขบัตรประชาชน <span class="text-red-500">*</span>
+                                        </label>
                                         <input type="text" name="idCardNumber" id="idCardNumber"
-                                            class="w-full p-2 border border-gray-300 rounded focus:ring focus:ring-blue-200"
-                                            placeholder="กรอกเลขบัตรประชาชน 13 หลัก เช่น X-XXXX-XXXXX-XX-X" required>
-                                        <p id="idCardError" class="text-red-500 text-sm mt-1 hidden">เลขบัตรประชาชนไม่ถูกต้อง</p>
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                                            placeholder="X-XXXX-XXXXX-XX-X" required>
+                                        <p id="idCardError" class="text-red-500 text-xs mt-1 hidden">เลขบัตรประชาชนไม่ถูกต้อง</p>
                                     </div>
 
                                     <div>
-                                        <label class="block text-gray-700 mb-2">วัน/เดือน/ปีเกิด <span class="text-red-500">*</span></label>
-                                        <input type="date" name="birthDate" class="w-full p-2 border rounded">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            วัน/เดือน/ปีเกิด
+                                        </label>
+                                        <input type="date" name="birthDate" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                                     <div>
-                                        <label class="block text-gray-700 mb-2">อาชีพ <span class="text-red-500">*</span></label>
-                                        <input type="text" name="occupation" class="w-full p-2 border rounded">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            อาชีพ
+                                        </label>
+                                        <input type="text" name="occupation" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
                                     </div>
 
                                     <div>
-                                        <label class="block text-gray-700 mb-2">อายุ (ปี) <span class="text-red-500">*</span></label>
-                                        <input type="text" name="age" class="w-full p-2 border rounded">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            อายุ (ปี)
+                                        </label>
+                                        <input type="text" name="age" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
                                     </div>
 
                                     <div>
-                                        <label class="block text-gray-700 mb-2">สัญชาติ <span class="text-red-500">*</span></label>
-                                        <input type="text" name="nationality" class="w-full p-2 border rounded"
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            สัญชาติ
+                                        </label>
+                                        <input type="text" name="nationality" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
                                             value="ไทย">
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                                     <div>
-                                        <label class="block text-gray-700 mb-2">เชื้อชาติ <span class="text-red-500">*</span></label>
-                                        <input type="text" name="ethnicity" class="w-full p-2 border rounded"
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            เชื้อชาติ
+                                        </label>
+                                        <input type="text" name="ethnicity" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
                                             value="ไทย">
                                     </div>
 
                                     <div>
-                                        <label class="block text-gray-700 mb-2">ศาสนา <span class="text-red-500">*</span></label>
-                                        <input type="text" name="religion" class="w-full p-2 border rounded"
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            ศาสนา
+                                        </label>
+                                        <input type="text" name="religion" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
                                             value="พุทธ">
                                     </div>
 
                                     <div>
-                                        <label class="block text-gray-700 mb-2">เบอร์โทรศัพท์ <span class="text-red-500">*</span></label>
-                                        <input type="tel" name="phone" class="w-full p-2 border rounded">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            เบอร์โทรศัพท์
+                                        </label>
+                                        <input type="tel" name="phone" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
                                     </div>
                                 </div>
 
                                 <div class="mb-4">
-                                    <label class="block text-gray-700 mb-2">อีเมล <span class="text-red-500">*</span></label>
-                                    <input type="email" name="email" class="w-full md:w-1/2 p-2 border rounded">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        อีเมล
+                                    </label>
+                                    <input type="email" name="email" 
+                                        class="w-full md:w-1/2 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
                                 </div>
                             </div>
 
                             <!-- ส่วนที่ 3: ผู้รับผลประโยชน์ -->
-                            <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
-                                <h2 class="text-lg font-semibold mb-4 text-green-700">3. เงื่อนไขการรับสวัสดิการ</h2>
+                            <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                                <h2 class="text-base font-semibold mb-4 flex items-center space-x-2">
+                                    <!-- <ion-icon name="people-outline" class="text-lg"></ion-icon> -->
+                                    <span>3. ข้อมูลสมาชิกอื่นๆ</span>
+                                </h2>
 
                                 <div id="beneficiaries-container">
-                                    <div class="beneficiary-item border-b pb-4 mb-4">
+                                    <div class="beneficiary-item border-b border-gray-200 pb-4 mb-4">
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                             <div>
-                                                <label class="block text-gray-700 mb-2">ชื่อ-สกุล
-                                                    ผู้รับผลประโยชน์ <span class="text-red-500">*</span></label>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                    ชื่อ-สกุล ผู้รับผลประโยชน์
+                                                </label>
                                                 <input type="text" name="beneficiaries[0][name]"
-                                                    class="w-full p-2 border rounded">
+                                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
                                             </div>
 
                                             <div>
-                                                <label class="block text-gray-700 mb-2">ความสัมพันธ์ <span class="text-red-500">*</span></label>
-                                                <input type="text" name="beneficiaries[0][relation]"
-                                                    class="w-full p-2 border rounded">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                    ความสัมพันธ์
+                                                </label>
+                                                <select name="beneficiaries[0][relation]" 
+                                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
+                                                    <option value="">-- เลือกความสัมพันธ์ --</option>
+                                                    <option value="หัวหน้าครัวเรือน">หัวหน้าครัวเรือน</option>
+                                                    <option value="คู่สมรส">คู่สมรส</option>
+                                                    <option value="บุตร">บุตร</option>
+                                                    <option value="บิดา/มารดา">บิดา/มารดา</option>
+                                                    <option value="ญาติ">ญาติ</option>
+                                                    <option value="อื่นๆ">อื่นๆ</option>
+                                                </select>
                                             </div>
                                         </div>
 
-                                        <div class="mb-4 text-start">
-                                            <label class="block text-gray-700 mb-2">เงื่อนไขการรับเงิน <span class="text-red-500">*</span></label>
-                                            <div class="flex flex-col space-y-3">
-                                                <div class="grid grid-cols-[24px_1fr] items-start gap-2">
+                                        <div class="mb-4">
+                                            <label class="block text-sm font-medium text-gray-700 mb-3">
+                                                เงื่อนไขการรับเงิน
+                                            </label>
+                                            <div class="space-y-2">
+                                                <label class="flex items-center space-x-3 cursor-pointer">
                                                     <input type="radio" name="beneficiaries[0][distributionType]"
-                                                        value="full" class="mt-0.5" checked>
-                                                    <label class="text-gray-700">ให้ได้รับเต็มจำนวน</label>
-                                                </div>
+                                                        value="full" class="w-4 h-4 text-green-500" checked>
+                                                    <span class="text-sm text-gray-700">ให้ได้รับเต็มจำนวน</span>
+                                                </label>
 
-                                                <div class="grid grid-cols-[24px_1fr] items-start gap-2">
+                                                <label class="flex items-center space-x-3 cursor-pointer">
                                                     <input type="radio" name="beneficiaries[0][distributionType]"
-                                                        value="equal" class="mt-0.5">
-                                                    <label class="text-gray-700">ให้ได้รับส่วนแบ่งเท่ากัน</label>
-                                                </div>
+                                                        value="equal" class="w-4 h-4 text-green-500">
+                                                    <span class="text-sm text-gray-700">ให้ได้รับส่วนแบ่งเท่ากัน</span>
+                                                </label>
 
-                                                <div class="grid grid-cols-[24px_1fr] items-start gap-2">
+                                                <label class="flex items-center space-x-3 cursor-pointer">
                                                     <input type="radio" name="beneficiaries[0][distributionType]"
-                                                        value="other" class="mt-0.5">
-                                                    <label class="text-gray-700">อื่นๆ</label>
-                                                </div>
+                                                        value="other" class="w-4 h-4 text-green-500">
+                                                    <span class="text-sm text-gray-700">อื่นๆ</span>
+                                                </label>
 
-                                                <div class="pl-[24px]">
+                                                <div class="pl-7">
                                                     <input type="text" name="beneficiaries[0][distributionDetail]"
-                                                        class="p-2 border rounded w-full md:w-1/2"
+                                                        class="px-4 py-3 border border-gray-300 rounded-lg w-full md:w-1/2 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
                                                         placeholder="โปรดระบุ">
                                                 </div>
                                             </div>
@@ -452,36 +558,39 @@
                                 </div>
 
                                 <button type="button" id="add-beneficiary"
-                                    class="text-blue-500 hover:text-blue-700 font-medium flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20"
-                                        fill="currentColor">
-                                        <path fill-rule="evenodd"
-                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
-                                            clip-rule="evenodd" />
-                                    </svg>
+                                    class="text-blue-500 hover:text-blue-600 font-medium flex items-center transition duration-200 mt-4">
+                                    <ion-icon name="add-circle-outline" class="text-xl mr-1"></ion-icon>
                                     เพิ่มผู้รับผลประโยชน์
                                 </button>
 
                                 <div class="mt-6">
-                                    <label class="block text-gray-700 mb-2">จำนวนคนที่อาศัยในครัวเรือน (คน) <span class="text-red-500">*</span></label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        จำนวนคนที่อาศัยในครัวเรือน (คน)
+                                    </label>
                                     <input type="number" name="NumFamilyMembers"
-                                        class="w-full md:w-1/4 p-2 border rounded">
+                                        class="w-full md:w-1/4 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
                                 </div>
                             </div>
 
-                            <div class="p-4 bg-gray-100 rounded-md border border-gray-200">
-                                <p class="mb-4">ข้าพเจ้าได้อ่านเข้าใจในเงื่อนไขและระเบียบกองทุนขยะรีไซเคิลแล้ว
-                                    ยินดีปฏิบัติตามทุกประการ</p>
-                                <p class="text-gray-600 text-sm mb-4"><strong>หมายเหตุ:</strong> ผู้ที่เข้าร่วมกองทุนฯ
-                                    ต้องดำเนินการคัดแยกขยะตามประเภท เพื่อเป็นการลดขยะตั้งแต่ต้นทาง</p>
+                            <!-- ข้อตกลง -->
+                            <div class="bg-blue-50 p-5 rounded-lg border border-blue-200">
+                                <p class="text-sm text-gray-700 mb-3">
+                                    ข้าพเจ้าได้อ่านเข้าใจในเงื่อนไขและระเบียบกองทุนขยะรีไซเคิลแล้ว ยินดีปฏิบัติตามทุกประการ
+                                </p>
+                                <p class="text-xs text-gray-600">
+                                    <strong>หมายเหตุ:</strong> ผู้ที่เข้าร่วมกองทุนฯ ต้องดำเนินการคัดแยกขยะตามประเภท เพื่อเป็นการลดขยะตั้งแต่ต้นทาง
+                                </p>
                             </div>
 
-                            <div class="flex gap-4">
-                                <button type="submit"
-                                    class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded font-medium flex-1">ลงทะเบียน</button>
-                                <button type="button"
-                                    class="bg-gray-500 text-white hover:bg-gray-700 px-6 py-3 rounded font-medium flex-1"
-                                    onclick="closeAddFamilyForm()">ปิด</button>
+                            <div class="flex gap-3 pt-4">
+                                <button type="button" onclick="closeAddFamilyForm()" 
+                                    class="flex-1 px-4 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition duration-200">
+                                    ปิด
+                                </button>
+                                <button type="submit" 
+                                    class="flex-1 px-4 py-2.5 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition duration-200">
+                                    ลงทะเบียน
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -554,27 +663,46 @@
             </div>
 
             <!-- Modal แก้ไขข้อมูลครัวเรือน -->
-            <div id="editFamilyModal"
-                class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden overflow-y-scroll z-50">
-                <div class="container mx-auto p-6 my-auto">
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <h1 class="text-2xl font-bold mb-6">แก้ไขข้อมูลสมาชิกกองทุนขยะรีไซเคิล</h1>
+            <div id="editFamilyModal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-30">
+                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-5xl px-4 max-h-[90vh] overflow-y-auto">
+                    <div class="bg-white rounded-xl shadow-lg p-8 space-y-6">
+                        
+                        <div class="flex items-center justify-between border-b pb-4">
+                            <div class="flex items-center space-x-3">
+                                <ion-icon name="create-outline" class="text-blue-500 text-3xl"></ion-icon>
+                                <span class="text-xl font-semibold text-gray-800">แก้ไขข้อมูลสมาชิกกองทุนขยะรีไซเคิล</span>
+                            </div>
+                            <button type="button" onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 transition">
+                                <ion-icon name="close-outline" class="text-2xl"></ion-icon>
+                            </button>
+                        </div>
 
                         <form id="editFamilyForm" method="POST" class="space-y-6">
 
                             <!-- ส่วนที่ 1: ข้อมูลครัวเรือน -->
-                            <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
-                                <h2 class="text-lg font-semibold mb-4 text-green-700">1. ข้อมูลครัวเรือน</h2>
+                            <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                                <h2 class="text-base font-semibold mb-4 flex items-center space-x-2">
+                                    <!-- <ion-icon name="home-outline" class="text-lg"></ion-icon> -->
+                                    <span>1. ข้อมูลครัวเรือน</span>
+                                </h2>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                     <div>
-                                        <label class="block text-gray-700 mb-2">ชื่อครัวเรือน <span class="text-red-500">*</span></label>
-                                        <input type="text" name="familyName" class="w-full p-2 border rounded" required>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            ชื่อครัวเรือน <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" name="familyName" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition" 
+                                            required>
                                     </div>
 
                                     <div>
-                                        <label class="block text-gray-700 mb-2">ประเภทครัวเรือน <span class="text-red-500">*</span></label>
-                                        <select name="Type" class="w-full p-2 border rounded" required>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            ประเภทครัวเรือน <span class="text-red-500">*</span>
+                                        </label>
+                                        <select name="Type" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition" 
+                                            required>
                                             <option value="household">บ้านเรือน</option>
                                             <option value="school">โรงเรียน</option>
                                             <option value="municipality">อปท.</option>
@@ -586,167 +714,378 @@
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                     <div>
-                                        <label class="block text-gray-700 mb-2">ชื่อผู้ใช้ (Username) <span class="text-red-500">*</span></label>
-                                        <input type="text" name="username" class="w-full p-2 border rounded" required>
-                                    </div>
-
-                                    <div>
-                                        <label class="block text-gray-700 mb-2">รหัสผ่านใหม่
-                                            (ปล่อยว่างหากไม่ต้องการเปลี่ยน) <span class="text-red-500">*</span></label>
-                                        <input type="password" name="password" class="w-full p-2 border rounded"
-                                            minlength="6" maxlength="8" pattern="\d{6,8}"
-                                            placeholder="กรอกเฉพาะเมื่อต้องการเปลี่ยน">
-                                        <p class="text-sm text-gray-500 mt-1">กรอกตัวเลข 6-8 หลัก หรือปล่อยว่าง</p>
-                                    </div>
-                                </div>
-
-                                <h3 class="font-medium text-gray-700 mt-4 mb-2">ที่อยู่ <span class="text-red-500">*</span></h3>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label class="block text-gray-700 mb-2">บ้านเลขที่ <span class="text-red-500">*</span></label>
-                                        <input type="text" name="houseNumber" class="w-full p-2 border rounded"
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            ชื่อผู้ใช้ (Username) <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" name="username" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition" 
                                             required>
                                     </div>
 
                                     <div>
-                                        <label class="block text-gray-700 mb-2">หมู่บ้าน <span class="text-red-500">*</span></label>
-                                        <select name="village" class="w-full p-2 border rounded">
-                                            <% villages.forEach(village=> { %>
-                                                <option value="<%= village._id %>">หมู่ <%= village.villageNumber %> -
-                                                        <%= village.villageName %>
-                                                </option>
-                                                <% }); %>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            รหัสผ่านใหม่ (ปล่อยว่างหากไม่ต้องการเปลี่ยน)
+                                        </label>
+                                        <input type="password" name="password" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                                            minlength="6" maxlength="8" pattern="\d{6,8}"
+                                            placeholder="กรอกเฉพาะเมื่อต้องการเปลี่ยน">
+                                        <p class="text-xs text-gray-500 mt-1">กรอกตัวเลข 6-8 หลัก หรือปล่อยว่าง</p>
+                                    </div>
+                                </div>
+
+                                <h3 class="text-sm font-medium text-gray-700 mt-6 mb-3 flex items-center space-x-2">
+                                    <ion-icon name="location-outline" class="text-base"></ion-icon>
+                                    <span>ที่อยู่ <span class="text-red-500">*</span></span>
+                                </h3>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            บ้านเลขที่ <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" name="houseNumber" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                                            required>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            หมู่บ้าน <span class="text-red-500">*</span>
+                                        </label>
+                                        <select name="village" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
+                                            <% villages.forEach(village => { %>
+                                                <option value="<%= village._id %>">หมู่ <%= village.villageNumber %> - <%= village.villageName %></option>
+                                            <% }); %>
                                         </select>
                                     </div>
 
                                     <div>
-                                        <label class="block text-gray-700 mb-2">ถนน <span class="text-red-500">*</span></label>
-                                        <input type="text" name="road" class="w-full p-2 border rounded">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            ถนน
+                                        </label>
+                                        <input type="text" name="road" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                                     <div>
-                                        <label class="block text-gray-700 mb-2">ตำบล <span class="text-red-500">*</span></label>
-                                        <input type="text" name="subdistrict" class="w-full p-2 border rounded"
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            ตำบล <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" name="subdistrict" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
                                             required>
                                     </div>
 
                                     <div>
-                                        <label class="block text-gray-700 mb-2">อำเภอ <span class="text-red-500">*</span></label>
-                                        <input type="text" name="district" class="w-full p-2 border rounded" required>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            อำเภอ <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" name="district" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition" 
+                                            required>
                                     </div>
 
                                     <div>
-                                        <label class="block text-gray-700 mb-2">จังหวัด <span class="text-red-500">*</span></label>
-                                        <input type="text" name="province" class="w-full p-2 border rounded" required>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            จังหวัด <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" name="province" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition" 
+                                            required>
                                     </div>
                                 </div>
 
                                 <div class="mt-4">
-                                    <label class="block text-gray-700 mb-2">รหัสไปรษณีย์ <span class="text-red-500">*</span></label>
-                                    <input type="text" name="postalCode" class="w-full md:w-1/3 p-2 border rounded"
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        รหัสไปรษณีย์ <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" name="postalCode" 
+                                        class="w-full md:w-1/3 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
                                         required>
                                 </div>
                             </div>
 
                             <!-- ส่วนที่ 2: ข้อมูลสมาชิก -->
-                            <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
-                                <h2 class="text-lg font-semibold mb-4 text-green-700">2. ข้อมูลสมาชิก (ตัวแทนครอบครัว)
+                            <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                                <h2 class="text-base font-semibold mb-4 flex items-center space-x-2">
+                                    <!-- <ion-icon name="person-outline" class="text-lg"></ion-icon> -->
+                                    <span>2. ข้อมูลสมาชิก (ตัวแทนครอบครัว)</span>
                                 </h2>
 
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                                     <div>
-                                        <label class="block text-gray-700 mb-2">ชื่อ-สกุล <span class="text-red-500">*</span></label>
-                                        <input type="text" name="name" class="w-full p-2 border rounded" required>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            ชื่อ-สกุล <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" name="name" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition" 
+                                            required>
                                     </div>
 
                                     <div>
-                                        <label class="block text-gray-700 mb-2">เลขบัตรประชาชน <span class="text-red-500">*</span></label>
-                                        <input type="text" name="idCardNumber" class="w-full p-2 border rounded"
-                                            maxlength="13" required>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            เลขบัตรประชาชน <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" name="idCardNumber" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                                            placeholder="X-XXXX-XXXXX-XX-X"
+                                            maxlength="17" required>
                                     </div>
 
                                     <div>
-                                        <label class="block text-gray-700 mb-2">วัน/เดือน/ปีเกิด <span class="text-red-500">*</span></label>
-                                        <input type="date" name="birthDate" class="w-full p-2 border rounded">
-                                    </div>
-                                </div>
-
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                    <div>
-                                        <label class="block text-gray-700 mb-2">อาชีพ <span class="text-red-500">*</span></label>
-                                        <input type="text" name="occupation" class="w-full p-2 border rounded">
-                                    </div>
-
-                                    <div>
-                                        <label class="block text-gray-700 mb-2">อายุ (ปี) <span class="text-red-500">*</span></label>
-                                        <input type="text" name="age" class="w-full p-2 border rounded">
-                                    </div>
-
-                                    <div>
-                                        <label class="block text-gray-700 mb-2">สัญชาติ <span class="text-red-500">*</span></label>
-                                        <input type="text" name="nationality" class="w-full p-2 border rounded">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            วัน/เดือน/ปีเกิด
+                                        </label>
+                                        <input type="date" name="birthDate" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                                     <div>
-                                        <label class="block text-gray-700 mb-2">เชื้อชาติ <span class="text-red-500">*</span></label>
-                                        <input type="text" name="ethnicity" class="w-full p-2 border rounded">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            อาชีพ
+                                        </label>
+                                        <input type="text" name="occupation" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
                                     </div>
 
                                     <div>
-                                        <label class="block text-gray-700 mb-2">ศาสนา <span class="text-red-500">*</span></label>
-                                        <input type="text" name="religion" class="w-full p-2 border rounded">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            อายุ (ปี)
+                                        </label>
+                                        <input type="text" name="age" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
                                     </div>
 
                                     <div>
-                                        <label class="block text-gray-700 mb-2">เบอร์โทรศัพท์ <span class="text-red-500">*</span></label>
-                                        <input type="tel" name="phone" class="w-full p-2 border rounded">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            สัญชาติ
+                                        </label>
+                                        <input type="text" name="nationality" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            เชื้อชาติ
+                                        </label>
+                                        <input type="text" name="ethnicity" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            ศาสนา
+                                        </label>
+                                        <input type="text" name="religion" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            เบอร์โทรศัพท์
+                                        </label>
+                                        <input type="tel" name="phone" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                                            placeholder="XXX-XXXXXXX"
+                                            maxlength="12">
                                     </div>
                                 </div>
 
                                 <div class="mb-4">
-                                    <label class="block text-gray-700 mb-2">อีเมล <span class="text-red-500">*</span></label>
-                                    <input type="email" name="email" class="w-full md:w-1/2 p-2 border rounded">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        อีเมล
+                                    </label>
+                                    <input type="email" name="email" 
+                                        class="w-full md:w-1/2 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
                                 </div>
                             </div>
 
                             <!-- ส่วนที่ 3: ผู้รับผลประโยชน์ -->
-                            <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
-                                <h2 class="text-lg font-semibold mb-4 text-green-700">3. เงื่อนไขการรับสวัสดิการ</h2>
+                            <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                                <h2 class="text-base font-semibold mb-4 flex items-center space-x-2">
+                                    <!-- <ion-icon name="people-outline" class="text-lg"></ion-icon> -->
+                                    <span>3. เงื่อนไขการรับสวัสดิการ</span>
+                                </h2>
 
                                 <div id="edit-beneficiaries-container">
                                     <!-- ข้อมูลผู้รับผลประโยชน์จะถูกเพิ่มที่นี่โดย JavaScript -->
                                 </div>
 
                                 <button type="button" id="add-edit-beneficiary"
-                                    class="text-blue-500 hover:text-blue-700 font-medium flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20"
-                                        fill="currentColor">
-                                        <path fill-rule="evenodd"
-                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
-                                            clip-rule="evenodd" />
-                                    </svg>
+                                    class="text-blue-500 hover:text-blue-600 font-medium flex items-center transition duration-200 mt-4">
+                                    <ion-icon name="add-circle-outline" class="text-xl mr-1"></ion-icon>
                                     เพิ่มผู้รับผลประโยชน์
                                 </button>
 
                                 <div class="mt-6">
-                                    <label class="block text-gray-700 mb-2">จำนวนคนที่อาศัยในครัวเรือน (คน) <span class="text-red-500">*</span></label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        จำนวนคนที่อาศัยในครัวเรือน (คน)
+                                    </label>
                                     <input type="number" name="NumFamilyMembers"
-                                        class="w-full md:w-1/4 p-2 border rounded">
+                                        class="w-full md:w-1/4 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
                                 </div>
                             </div>
 
-                            <div class="flex gap-4">
-                                <button type="submit"
-                                    class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded font-medium flex-1">บันทึกการแก้ไข</button>
-                                <button type="button"
-                                    class="bg-gray-500 text-white hover:bg-gray-700 px-6 py-3 rounded font-medium flex-1"
-                                    onclick="closeEditModal()">ยกเลิก</button>
+                            <div class="flex gap-3 pt-4">
+                                <button type="button" onclick="closeEditModal()" 
+                                    class="flex-1 px-4 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition duration-200">
+                                    ยกเลิก
+                                </button>
+                                <button type="submit" 
+                                    class="flex-1 px-4 py-2.5 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition duration-200">
+                                    บันทึกการแก้ไข
+                                </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal เปลี่ยนตัวแทนครัวเรือน -->
+            <div id="changeRepresentativeModal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-30">
+                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl px-4 max-h-[90vh] overflow-y-auto">
+                    <div class="bg-white rounded-xl shadow-lg p-8 space-y-6">
+                        
+                        <!-- Header -->
+                        <div class="flex items-center justify-between border-b pb-4">
+                            <div class="flex items-center space-x-3">
+                                <ion-icon name="people-outline" class="text-blue-500 text-2xl"></ion-icon>
+                                <span class="text-xl font-semibold text-gray-800">เปลี่ยนตัวแทนครัวเรือน</span>
+                            </div>
+                            <button type="button" onclick="closeChangeRepresentativeModal()" class="text-gray-400 hover:text-gray-600 transition">
+                                <ion-icon name="close-outline" class="text-2xl"></ion-icon>
+                            </button>
+                        </div>
+
+                        <!-- ข้อมูลตัวแทนเดิม -->
+                        <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                            <h2 class="text-base font-semibold mb-4 text-gray-700 flex items-center space-x-2">
+                                <ion-icon name="person-circle-outline" class="text-lg"></ion-icon>
+                                <span>ตัวแทนครัวเรือนปัจจุบัน</span>
+                            </h2>
+                            <div id="currentRepInfo" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- ข้อมูลจะถูกเติมด้วย JavaScript -->
+                            </div>
+                        </div>
+
+                        <!-- เลือกผู้รับผลประโยชน์ -->
+                        <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                            <h2 class="text-base font-semibold mb-4 text-green-700 flex items-center space-x-2">
+                                <ion-icon name="arrow-forward-circle-outline" class="text-lg"></ion-icon>
+                                <span>เลือกตัวแทนคนใหม่</span>
+                            </h2>
+                            
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">เลือกจากผู้รับผลประโยชน์</label>
+                                <select id="beneficiarySelect" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
+                                    <option value="">-- เลือกผู้รับผลประโยชน์หรือกรอกข้อมูลใหม่ --</option>
+                                </select>
+                            </div>
+
+                            <form id="changeRepresentativeForm" class="space-y-4">
+                                <input type="hidden" id="changeFamilyId" name="familyId">
+                                <input type="hidden" id="selectedBeneficiaryIndex" name="beneficiaryIndex">
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            ชื่อ-สกุล <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" name="name" id="newRepName" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition" 
+                                            required>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            เลขบัตรประชาชน <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" name="idCardNumber" id="newRepIdCard" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition" 
+                                            placeholder="X-XXXX-XXXXX-XX-X"
+                                            maxlength="17" required>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">เบอร์โทรศัพท์</label>
+                                        <input type="tel" name="phone" id="newRepPhone" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                                            placeholder="XXX-XXXXXXX"
+                                            maxlength="12">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">อีเมล</label>
+                                        <input type="email" name="email" id="newRepEmail" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">วัน/เดือน/ปีเกิด</label>
+                                        <input type="date" name="birthDate" id="newRepBirthDate" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">อายุ (ปี)</label>
+                                        <input type="text" name="age" id="newRepAge" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">อาชีพ</label>
+                                        <input type="text" name="occupation" id="newRepOccupation" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">สัญชาติ</label>
+                                        <input type="text" name="nationality" id="newRepNationality" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition" 
+                                            value="ไทย">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">เชื้อชาติ</label>
+                                        <input type="text" name="ethnicity" id="newRepEthnicity" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition" 
+                                            value="ไทย">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">ศาสนา</label>
+                                        <input type="text" name="religion" id="newRepReligion" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition" 
+                                            value="พุทธ">
+                                    </div>
+                                </div>
+
+                                <div class="flex gap-3 pt-4">
+                                    <button type="button" onclick="closeChangeRepresentativeModal()" 
+                                        class="flex-1 px-4 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition duration-200">
+                                        ยกเลิก
+                                    </button>
+                                    <button type="submit" 
+                                        class="flex-1 px-4 py-2.5 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition duration-200">
+                                        ยืนยันเปลี่ยนตัวแทน
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -779,7 +1118,15 @@
                 
                 <div>
                     <label class="block text-gray-700 mb-2">ความสัมพันธ์</label>
-                    <input type="text" name="beneficiaries[${index}][relation]" class="w-full p-2 border rounded">
+                    <select name="beneficiaries[${index}][relation]" class="w-full p-2 border rounded">
+                        <option value="">-- เลือกความสัมพันธ์ --</option>
+                        <option value="หัวหน้าครัวเรือน">หัวหน้าครัวเรือน</option>
+                        <option value="คู่สมรส">คู่สมรส</option>
+                        <option value="บุตร">บุตร</option>
+                        <option value="บิดา/มารดา">บิดา/มารดา</option>
+                        <option value="ญาติ">ญาติ</option>
+                        <option value="อื่นๆ">อื่นๆ</option>
+                    </select>
                 </div>
             </div>
             
@@ -979,14 +1326,22 @@
 
             // เติมข้อมูลสมาชิก
             document.querySelector('#editFamilyModal input[name="name"]').value = member.name || '';
-            document.querySelector('#editFamilyModal input[name="idCardNumber"]').value = member.idCardNumber || '';
+            
+            // Format เลขบัตรประชาชน
+            const idCardInput = document.querySelector('#editFamilyModal input[name="idCardNumber"]');
+            idCardInput.value = formatThaiID(member.idCardNumber || '');
+            
             document.querySelector('#editFamilyModal input[name="birthDate"]').value = member.birthDate ? member.birthDate.split('T')[0] : '';
             document.querySelector('#editFamilyModal input[name="occupation"]').value = member.occupation || '';
             document.querySelector('#editFamilyModal input[name="age"]').value = member.age || '';
             document.querySelector('#editFamilyModal input[name="nationality"]').value = member.nationality || '';
             document.querySelector('#editFamilyModal input[name="ethnicity"]').value = member.ethnicity || '';
             document.querySelector('#editFamilyModal input[name="religion"]').value = member.religion || '';
-            document.querySelector('#editFamilyModal input[name="phone"]').value = member.phone || '';
+            
+            // Format เบอร์โทร
+            const phoneInput = document.querySelector('#editFamilyModal input[name="phone"]');
+            phoneInput.value = formatPhoneNumber(member.phone || '');
+            
             document.querySelector('#editFamilyModal input[name="email"]').value = member.email || '';
 
             // เติมข้อมูลผู้รับผลประโยชน์
@@ -1007,6 +1362,9 @@
 
             // เก็บ familyId ไว้ใน form action
             document.getElementById('editFamilyForm').action = `/employee/memberUpdate/${family._id}`;
+
+            // เพิ่ม Event Listener สำหรับ Auto-format ขณะพิมพ์
+            setupAutoFormatListeners('#editFamilyModal');
 
         } catch (error) {
             console.error('Error loading member data:', error);
@@ -1036,6 +1394,7 @@
                 </button>
             </div>
             ` : ''}
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="block text-gray-700 mb-2">ชื่อ-สกุล ผู้รับผลประโยชน์</label>
@@ -1043,7 +1402,15 @@
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">ความสัมพันธ์</label>
-                    <input type="text" name="beneficiaries[${index}][relation]" value="${data.relation || ''}" class="w-full p-2 border rounded">
+                    <select name="beneficiaries[${index}][relation]" class="w-full p-2 border rounded">
+                        <option value="">-- เลือกความสัมพันธ์ --</option>
+                        <option value="หัวหน้าครัวเรือน" ${data.relation === 'หัวหน้าครัวเรือน' ? 'selected' : ''}>หัวหน้าครัวเรือน</option>
+                        <option value="คู่สมรส" ${data.relation === 'คู่สมรส' ? 'selected' : ''}>คู่สมรส</option>
+                        <option value="บุตร" ${data.relation === 'บุตร' ? 'selected' : ''}>บุตร</option>
+                        <option value="บิดา/มารดา" ${data.relation === 'บิดา/มารดา' ? 'selected' : ''}>บิดา/มารดา</option>
+                        <option value="ญาติ" ${data.relation === 'ญาติ' ? 'selected' : ''}>ญาติ</option>
+                        <option value="อื่นๆ" ${data.relation === 'อื่นๆ' ? 'selected' : ''}>อื่นๆ</option>
+                    </select>
                 </div>
             </div>
             <div class="mb-4 text-start">
@@ -1211,6 +1578,310 @@
             idError.classList.add('hidden');
             idInput.classList.remove('border-red-500', 'focus:ring-red-300');
         }
+    });
+
+    // เปิด Modal เปลี่ยนตัวแทน
+    async function showChangeRepresentativeModal(familyId) {
+        try {
+            // แสดง loading
+            Swal.fire({
+                title: 'กำลังโหลดข้อมูล...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // ดึงข้อมูลผู้รับผลประโยชน์
+            const response = await fetch(`/employee/member/${familyId}/representatives`);
+            const result = await response.json();
+
+            Swal.close();
+
+            if (!result.success) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: result.error || 'ไม่สามารถดึงข้อมูลได้',
+                    confirmButtonColor: '#d33'
+                });
+                return;
+            }
+
+            const { currentRepresentative, beneficiaries } = result.data;
+
+            // แสดง Modal
+            const modal = document.getElementById('changeRepresentativeModal');
+            modal.classList.remove('hidden');
+
+            // เติมข้อมูลตัวแทนปัจจุบัน พร้อม Format
+            document.getElementById('currentRepInfo').innerHTML = `
+                <div>
+                    <label class="block text-gray-600 text-sm">ชื่อ-สกุล</label>
+                    <p class="font-medium">${currentRepresentative.name}</p>
+                </div>
+                <div>
+                    <label class="block text-gray-600 text-sm">เลขบัตรประชาชน</label>
+                    <p class="font-medium">${formatThaiID(currentRepresentative.idCardNumber)}</p>
+                </div>
+                <div>
+                    <label class="block text-gray-600 text-sm">เบอร์โทร</label>
+                    <p class="font-medium">${currentRepresentative.phone ? formatPhoneNumber(currentRepresentative.phone) : '-'}</p>
+                </div>
+            `;
+
+            // เติม dropdown ผู้รับผลประโยชน์
+            const beneficiarySelect = document.getElementById('beneficiarySelect');
+            beneficiarySelect.innerHTML = '<option value="">-- เลือกผู้รับผลประโยชน์หรือกรอกข้อมูลใหม่ --</option>';
+            
+            beneficiaries.forEach((b, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${b.name} (${b.relation})`;
+                option.dataset.name = b.name;
+                option.dataset.relation = b.relation;
+                beneficiarySelect.appendChild(option);
+            });
+
+            // เก็บ familyId
+            document.getElementById('changeFamilyId').value = familyId;
+
+            // Event: เลือกผู้รับผลประโยชน์ → เติมชื่ออัตโนมัติ
+            beneficiarySelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                if (this.value !== '') {
+                    document.getElementById('newRepName').value = selectedOption.dataset.name || '';
+                    document.getElementById('selectedBeneficiaryIndex').value = this.value;
+                } else {
+                    document.getElementById('newRepName').value = '';
+                    document.getElementById('selectedBeneficiaryIndex').value = '';
+                }
+            });
+
+            // เพิ่ม Event Listener สำหรับ Auto-format ขณะพิมพ์
+            setupAutoFormatListeners('#changeRepresentativeModal');
+
+        } catch (error) {
+            console.error('Error loading representatives:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด',
+                text: 'ไม่สามารถโหลดข้อมูลได้',
+                confirmButtonColor: '#d33'
+            });
+        }
+    }
+
+    // ปิด Modal
+    function closeChangeRepresentativeModal() {
+        Swal.fire({
+            title: "คุณต้องการปิดฟอร์มนี้ใช่หรือไม่",
+            text: "หากปิดแล้วข้อมูลที่กรอกจะหายไป",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#00923f",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "ยืนยัน",
+            cancelButtonText: "ยกเลิก"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('changeRepresentativeModal').classList.add("hidden");
+                document.getElementById('changeRepresentativeForm').reset();
+            }
+        });
+    }
+
+    // Submit Form เปลี่ยนตัวแทน (อัปเดต)
+    document.getElementById('changeRepresentativeForm')?.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const familyId = document.getElementById('changeFamilyId').value;
+        const beneficiaryIndex = document.getElementById('selectedBeneficiaryIndex').value;
+
+        // เอา Format ออกก่อนส่งข้อมูล
+        const idCardValue = removeFormat(document.getElementById('newRepIdCard').value);
+        const phoneValue = removeFormat(document.getElementById('newRepPhone').value);
+
+        const formData = {
+            beneficiaryIndex: beneficiaryIndex !== '' ? parseInt(beneficiaryIndex) : null,
+            newRepresentativeData: {
+                name: document.getElementById('newRepName').value,
+                idCardNumber: idCardValue,
+                phone: phoneValue,
+                email: document.getElementById('newRepEmail').value,
+                birthDate: document.getElementById('newRepBirthDate').value,
+                age: document.getElementById('newRepAge').value,
+                occupation: document.getElementById('newRepOccupation').value,
+                nationality: document.getElementById('newRepNationality').value,
+                ethnicity: document.getElementById('newRepEthnicity').value,
+                religion: document.getElementById('newRepReligion').value
+            }
+        };
+
+        // แสดงยืนยัน
+        const result = await Swal.fire({
+            title: 'ยืนยันการเปลี่ยนตัวแทน?',
+            html: `
+                <p class="text-red-600 font-semibold mb-2">⚠️ การดำเนินการนี้จะทำให้:</p>
+                <ul class="text-left text-sm text-gray-700 space-y-1 ml-6">
+                    <li>• ตัวแทนเดิมถูกเปลี่ยนสถานะเป็นเสียชีวิต</li>
+                    <li>• สร้างสมาชิกตัวแทนใหม่</li>
+                    <li>• ไม่สามารถย้อนกลับได้</li>
+                </ul>
+            `,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'ยืนยัน',
+            cancelButtonText: 'ยกเลิก'
+        });
+
+        if (!result.isConfirmed) return;
+
+        // แสดง Loading
+        Swal.fire({
+            title: 'กำลังดำเนินการ...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        try {
+            const response = await fetch(`/employee/member/${familyId}/change-representative`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'เปลี่ยนตัวแทนสำเร็จ',
+                    text: data.message,
+                    confirmButtonColor: '#28a745',
+                    timer: 2000
+                }).then(() => {
+                    window.location.reload();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: data.message || 'ไม่สามารถเปลี่ยนตัวแทนได้',
+                    confirmButtonColor: '#d33'
+                });
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด',
+                text: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้',
+                confirmButtonColor: '#d33'
+            });
+        }
+    });
+
+    // ฟังก์ชัน Format เลขบัตรประชาชนไทย (X-XXXX-XXXXX-XX-X)
+    function formatThaiID(value) {
+        // เอาเฉพาะตัวเลข
+        let numbers = value.replace(/\D/g, '').slice(0, 13);
+        
+        // ใส่ขีดตามตำแหน่ง 1-4-5-2-1
+        let formatted = '';
+        if(numbers.length > 0) formatted += numbers.substr(0, 1);
+        if(numbers.length > 1) formatted += '-' + numbers.substr(1, 4);
+        if(numbers.length > 5) formatted += '-' + numbers.substr(5, 5);
+        if(numbers.length > 10) formatted += '-' + numbers.substr(10, 2);
+        if(numbers.length > 12) formatted += '-' + numbers.substr(12, 1);
+        
+        return formatted;
+    }
+
+    // ฟังก์ชัน Format เบอร์โทรศัพท์ (XXX-XXXXXXX หรือ XX-XXXX-XXXX)
+    function formatPhoneNumber(value) {
+        // เอาเฉพาะตัวเลข
+        let numbers = value.replace(/\D/g, '').slice(0, 10);
+        
+        // Format เป็น XXX-XXXXXXX (มือถือ) หรือ XX-XXXX-XXXX (บ้าน)
+        let formatted = '';
+        if (numbers.length > 0) {
+            // ถ้าเบอร์มือถือ (เริ่ม 06, 08, 09)
+            if (numbers.startsWith('0')) {
+                if(numbers.length > 0) formatted += numbers.substr(0, 3);
+                if(numbers.length > 3) formatted += '-' + numbers.substr(3);
+            } else {
+                // เบอร์บ้าน
+                if(numbers.length > 0) formatted += numbers.substr(0, 2);
+                if(numbers.length > 2) formatted += '-' + numbers.substr(2, 4);
+                if(numbers.length > 6) formatted += '-' + numbers.substr(6);
+            }
+        }
+        
+        return formatted;
+    }
+
+    // ฟังก์ชันเอาเฉพาะตัวเลข (สำหรับส่งไปยัง backend)
+    function removeFormat(value) {
+        return value.replace(/\D/g, '');
+    }
+
+    // ฟังก์ชัน Setup Auto-format Listeners
+    function setupAutoFormatListeners(modalSelector) {
+        // Format เลขบัตรประชาชน
+        const idCardInput = document.querySelector(`${modalSelector} input[name="idCardNumber"]`);
+        if (idCardInput) {
+            idCardInput.addEventListener('input', function(e) {
+                const cursorPosition = e.target.selectionStart;
+                const oldLength = e.target.value.length;
+                
+                e.target.value = formatThaiID(e.target.value);
+                
+                const newLength = e.target.value.length;
+                const diff = newLength - oldLength;
+                
+                // Adjust cursor position
+                e.target.setSelectionRange(cursorPosition + diff, cursorPosition + diff);
+            });
+        }
+
+        // Format เบอร์โทร
+        const phoneInput = document.querySelector(`${modalSelector} input[name="phone"]`);
+        if (phoneInput) {
+            phoneInput.addEventListener('input', function(e) {
+                const cursorPosition = e.target.selectionStart;
+                const oldLength = e.target.value.length;
+                
+                e.target.value = formatPhoneNumber(e.target.value);
+                
+                const newLength = e.target.value.length;
+                const diff = newLength - oldLength;
+                
+                // Adjust cursor position
+                e.target.setSelectionRange(cursorPosition + diff, cursorPosition + diff);
+            });
+        }
+    }
+
+    // แก้ไข editFamilyForm submit - เอา Format ออกก่อนส่ง
+    document.getElementById('editFamilyForm')?.addEventListener('submit', function(e) {
+        const idCardInput = document.querySelector('#editFamilyModal input[name="idCardNumber"]');
+        const phoneInput = document.querySelector('#editFamilyModal input[name="phone"]');
+        
+        if (idCardInput) {
+            idCardInput.value = removeFormat(idCardInput.value);
+        }
+        if (phoneInput) {
+            phoneInput.value = removeFormat(phoneInput.value);
+        }
+        
+        // ส่งฟอร์มตามปกติ (ไม่ต้อง e.preventDefault())
     });
 </script>
 

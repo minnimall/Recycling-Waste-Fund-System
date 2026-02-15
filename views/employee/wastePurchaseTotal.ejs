@@ -10,6 +10,131 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
         <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <style>
+        @media print {
+            /* ซ่อนส่วนที่ไม่ต้องการพิมพ์ */
+            .no-print {
+                display: none !important;
+            }
+            
+            /* แสดงเฉพาะตารางสรุป */
+            body * {
+                visibility: hidden;
+            }
+            
+            #printable-summary-section,
+            #printable-summary-section * {
+                visibility: visible;
+            }
+            
+            #printable-summary-section {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            
+            /* Header สำหรับการพิมพ์ */
+            #print-header {
+                display: block !important;
+                text-align: center;
+                margin-bottom: 20px;
+                padding-bottom: 15px;
+                border-bottom: 2px solid #333;
+            }
+            
+            #print-header h1 {
+                font-size: 20px;
+                font-weight: bold;
+                margin-bottom: 10px;
+                color: #000;
+            }
+            
+            #print-header p {
+                font-size: 10px;
+                color: #333;
+                margin: 5px 0;
+            }
+            
+            /* ปรับตาราง */
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            
+            table th,
+            table td {
+                border: 1px solid #333;
+                padding: 8px;
+                text-align: left;
+                font-size: 12px;
+                color: #000;
+            }
+            
+            table th {
+                background-color: #f3f4f6 !important;
+                font-weight: bold;
+            }
+            
+            /* แถวรวม */
+            .total-row {
+                background-color: #fef3c7 !important;
+                font-weight: bold;
+            }
+            
+            /* ข้อมูล Filter */
+            .filter-info {
+                margin-top: 15px;
+                padding-top: 10px;
+                border-top: 1px solid #666;
+                font-size: 12px;
+            }
+            
+            /* Footer */
+            #print-footer {
+                display: block !important;
+                margin-top: 20px;
+                text-align: center;
+                font-size: 11px;
+                color: #666;
+            }
+            
+            /* ปรับขนาดหน้ากระดาษ */
+            @page {
+                size: A4;
+                margin: 15mm;
+            }
+        }
+        
+        /* ซ่อน header สำหรับพิมพ์ในหน้าจอปกติ */
+        #print-header,
+        #print-footer {
+            display: none;
+        }
+
+        /* Smooth transition สำหรับ collapse */
+#summary-table-content {
+    transition: max-height 0.3s ease-in-out;
+}
+
+#toggle-icon {
+    transition: transform 0.3s ease-in-out;
+}
+#summary-table-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+#summary-table-content:not(.hidden) {
+    max-height: none;
+    overflow: visible;
+}
+/* Hover effect สำหรับ header */
+.cursor-pointer:hover {
+    background-color: #f9fafb;
+}
+    </style>
 </head>
 
 <body>
@@ -547,6 +672,190 @@
                         </div>
                     </div>
                 </div>
+
+                <% if (wasteSummary && wasteSummary.length > 0) { %>
+                <div class="mx-4 mb-6 bg-white rounded-lg shadow">
+                    
+                    <!-- Header ที่สามารถคลิกได้ -->
+                    <div class="p-4 cursor-pointer hover:bg-gray-50 transition-colors" onclick="toggleSummaryTable()">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-green-100 p-2 rounded-lg">
+                                    <i class="fas fa-chart-bar text-green-600 text-lg"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-lg font-semibold text-gray-800">
+                                        สรุปยอดขายแยกตามประเภทขยะ
+                                        <% if (searchMonth || searchYear || villageId || accountId) { %>
+                                        <span class="text-sm font-normal text-gray-500">(กรองแล้ว)</span>
+                                        <% } %>
+                                    </h2>
+                                    <p class="text-sm text-gray-500 mt-1">
+                                        รวม <%= wasteSummary.length %> รายการ | 
+                                        น้ำหนัก <%= grandTotal.totalQuantity.toFixed(2) %> กก. | 
+                                        มูลค่า <%= grandTotal.totalAmount.toLocaleString('th-TH') %> บาท
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="text-sm text-gray-500">คลิกเพื่อแสดง/ซ่อน</span>
+                                <div id="toggle-icon" class="transform transition-transform duration-300">
+                                    <i class="fas fa-chevron-down text-gray-600 text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- เนื้อหาที่ซ่อน/แสดงได้ -->
+                    <div id="summary-table-content" class="hidden">
+                        <div class="p-4 border-t border-gray-200" id="printable-summary-section">
+                            
+                            <!-- Header สำหรับพิมพ์ (ซ่อนในหน้าจอปกติ) -->
+                            <div id="print-header" style="display: none;">
+                                <h1>รายงานสรุปยอดขายแยกตามประเภทขยะ</h1>
+                                <p>วันที่พิมพ์: <%= new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %></p>
+                                <% if (searchDate || searchMonth || searchYear || villageId || accountId) { %>
+                                <p>เงื่อนไข: 
+                                    <%= searchDate ? 'วันที่ ' + new Date(searchDate).toLocaleDateString('th-TH') : '' %>
+                                    <%= searchMonth && !searchDate ? ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'][parseInt(searchMonth) - 1] : '' %>
+                                    <%= searchYear && !searchDate ? ' ปี ' + (parseInt(searchYear) + 543) : '' %>
+                                    <% if (villageId && villages) { %>
+                                        <% const selectedVillage = villages.find(v => v._id.toString() === villageId.toString()); %>
+                                        <%= selectedVillage ? 'หมู่ ' + selectedVillage.villageNumber + ' - ' + selectedVillage.villageName : '' %>
+                                    <% } %>
+                                    <%= accountId ? ' เลขบัญชี: ' + accountId : '' %>
+                                </p>
+                                <% } else { %>
+                                <p>แสดงข้อมูลทั้งหมด</p>
+                                <% } %>
+                            </div>
+                            
+                            <!-- ปุ่มควบคุม (แสดงเมื่อเปิดตาราง) -->
+                            <div class="mb-4 flex justify-end gap-2 no-print">
+                                <button onclick="printSummaryReport()" 
+                                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition border border-blue-600 text-sm">
+                                    <i class="fas fa-print mr-2"></i>พิมพ์รายงาน
+                                </button>
+                                <button onclick="exportWasteSummaryToCSV()" 
+                                        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition border border-green-600 text-sm">
+                                    <i class="fas fa-file-csv mr-2"></i>ส่งออก CSV
+                                </button>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-100">
+                                        <tr>
+                                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                                หมู่ที่ / ลำดับ
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                                ชื่อขยะ / รายการ
+                                            </th>
+                                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                                จำนวน<br>(ครัวเรือน)
+                                            </th>
+                                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                                น้ำหนักรวม<br>(กก.)
+                                            </th>
+                                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                                จำนวนเงิน
+                                            </th>
+                                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                                หมายเหตุ
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <% if (!wasteSummary || wasteSummary.length === 0) { %>
+                                        <tr>
+                                            <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                                                ไม่พบข้อมูล
+                                            </td>
+                                        </tr>
+                                        <% } else { %>
+                                            <% let globalIndex = 0; %>
+                                            <% wasteSummary.forEach((village, villageIdx) => { %>
+                                                <% village.wasteItems.forEach((item, itemIdx) => { %>
+                                                    <% globalIndex++; %>
+                                                    <tr class="<%= globalIndex % 2 === 0 ? 'bg-gray-50' : 'bg-white' %> hover:bg-blue-50">
+                                                        <td class="px-6 py-4 text-center text-sm text-gray-900">
+                                                            <% if (itemIdx === 0) { %>
+                                                                <div class="font-bold text-blue-700 text-base">
+                                                                    หมู่ <%= village._id.villageNumber %>
+                                                                </div>
+                                                            <% } else { %>
+                                                                <span class="text-gray-400">-</span>
+                                                            <% } %>
+                                                        </td>
+                                                        <td class="px-6 py-4 text-sm text-gray-900">
+                                                            <%= item.wasteName %>
+                                                        </td>
+                                                        <td class="px-6 py-4 text-center text-sm text-gray-900">
+                                                            <%= item.householdCount %>
+                                                        </td>
+                                                        <td class="px-6 py-4 text-center text-sm text-gray-900">
+                                                            <div class="font-medium"><%= item.totalQuantity.toFixed(2) %></div>
+                                                        </td>
+                                                        <td class="px-6 py-4 text-center text-sm font-semibold text-green-600">
+                                                            <%= item.totalAmount.toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>
+                                                        </td>
+                                                        <td class="px-6 py-4 text-center text-sm text-gray-500">
+                                                            -
+                                                        </td>
+                                                    </tr>
+                                                <% }); %>
+                                                
+                                                <!-- แถวรวมของแต่ละหมู่บ้าน -->
+                                                <tr class="bg-blue-50 font-semibold">
+                                                    <td colspan="2" class="px-6 py-3 text-right text-sm">
+                                                        รวมหมู่ <%= village._id.villageNumber %> 
+                                                        <span class="text-xs font-normal text-gray-600">
+                                                            (<%= village._id.villageName %>)
+                                                        </span>
+                                                    </td>
+                                                    <td class="px-6 py-3 text-center text-sm text-blue-700">
+                                                        <%= village.villageTotalHouseholds %>
+                                                    </td>
+                                                    <td class="px-6 py-3 text-center text-sm text-blue-700">
+                                                        <%= village.villageTotalQuantity.toFixed(2) %>
+                                                    </td>
+                                                    <td class="px-6 py-3 text-center text-sm text-blue-700">
+                                                        <%= village.villageTotalAmount.toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>
+                                                    </td>
+                                                    <td class="px-6 py-3"></td>
+                                                </tr>
+                                            <% }); %>
+                                            
+                                            <!-- แถวรวมทั้งหมด -->
+                                            <tr class="bg-yellow-50 border-t-2 border-yellow-300 font-bold">
+                                                <td colspan="2" class="px-6 py-4 text-right text-sm">
+                                                    รวมทั้งหมด (<%= grandTotal.villageCount %> หมู่บ้าน)
+                                                </td>
+                                                <td class="px-6 py-4 text-center text-sm text-green-700">
+                                                    <%= grandTotal.totalHouseholds %>
+                                                </td>
+                                                <td class="px-6 py-4 text-center text-sm text-green-700">
+                                                    <%= grandTotal.totalQuantity.toFixed(2) %>
+                                                </td>
+                                                <td class="px-6 py-4 text-center text-sm text-green-700">
+                                                    <%= grandTotal.totalAmount.toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>
+                                                </td>
+                                                <td class="px-6 py-4"></td>
+                                            </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Footer สำหรับพิมพ์ -->
+                            <div id="print-footer" style="display: none;">
+                                เอกสารนี้สร้างโดยระบบกองทุนขยะรีไซเคิล เมื่อ <%= new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
             </div>
 </body>
 
@@ -731,6 +1040,137 @@
                     });
             }
         });
+    }
+
+    function exportWasteSummaryToCSV() {
+        <% if (wasteSummary && wasteSummary.length > 0) { %>
+        const wasteSummary = <%- JSON.stringify(wasteSummary) %>;
+        const grandTotal = <%- JSON.stringify(grandTotal) %>;
+        
+        const reportDate = new Date().toLocaleDateString('th-TH', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric', 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+        
+        let filterText = 'เงื่อนไข: แสดงข้อมูลทั้งหมด';
+        <% if (searchDate || searchMonth || searchYear || villageId || accountId) { %>
+            let filters = [];
+            <% if (searchDate) { %>
+                filters.push('วันที่: <%= new Date(searchDate).toLocaleDateString("th-TH") %>');
+            <% } else if (searchMonth || searchYear) { %>
+                <% if (searchMonth) { %>
+                    const monthNames = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+                                        'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+                    filters.push('เดือน: ' + monthNames[<%= parseInt(searchMonth) - 1 %>]);
+                <% } %>
+                <% if (searchYear) { %>
+                    filters.push('ปี: <%= parseInt(searchYear) + 543 %>');
+                <% } %>
+            <% } %>
+            <% if (villageId && villages) { %>
+                const selectedVillage = <%- JSON.stringify(villages.find(v => v._id.toString() === villageId.toString())) %>;
+                if(selectedVillage) filters.push('หมู่บ้าน: หมู่ ' + selectedVillage.villageNumber + ' - ' + selectedVillage.villageName);
+            <% } %>
+            <% if (accountId) { %>
+                filters.push('เลขบัญชี: <%= accountId %>');
+            <% } %>
+            if(filters.length > 0) filterText = 'เงื่อนไข: ' + filters.join(', ');
+        <% } %>
+
+        const BOM = '\uFEFF';
+        let csvContent = BOM;
+
+        csvContent += `สรุปยอดขายแยกตามประเภทขยะ\n`;
+        csvContent += `วันที่พิมพ์,${reportDate}\n`;
+        csvContent += `"${filterText}"\n\n`;
+        
+        csvContent += "หมู่ที่/ลำดับ,ชื่อขยะ/รายการ,จำนวน(ครัวเรือน),จำนวนเงิน(บาท),จำนวนเงิน,หมายเหตุ\n";
+        
+        let rowIndex = 0;
+        wasteSummary.forEach((village, villageIdx) => {
+            village.wasteItems.forEach((item, itemIdx) => {
+                rowIndex++;
+                const villageLabel = itemIdx === 0 ? `หมู่ ${village._id.villageNumber}` : rowIndex;
+                csvContent += `"${villageLabel}","${item.wasteName}",${item.householdCount},${item.totalQuantity.toFixed(2)},${item.totalAmount.toFixed(2)},-\n`;
+            });
+            
+            // แถวรวมหมู่บ้าน
+            csvContent += `,รวมหมู่ ${village._id.villageNumber} (${village._id.villageName}),${village.villageTotalHouseholds},${village.villageTotalQuantity.toFixed(2)},${village.villageTotalAmount.toFixed(2)},-\n`;
+        });
+
+        // แถวรวมทั้งหมด
+        csvContent += `,รวมทั้งหมด (${grandTotal.villageCount} หมู่บ้าน),${grandTotal.totalHouseholds},${grandTotal.totalQuantity.toFixed(2)},${grandTotal.totalAmount.toFixed(2)},-\n`;
+        csvContent += `\nข้อมูล ณ วันที่ ${reportDate} โดยระบบกองทุนขยะรีไซเคิล`;
+
+        const blob = new Blob([csvContent], { 
+            type: 'text/csv;charset=utf-8;' 
+        });
+        
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        
+        const now = new Date();
+        const dateStr = now.toISOString().split('T')[0];
+        const fileName = `สรุปยอดขาย_${dateStr}.csv`;
+        
+        link.setAttribute('download', fileName);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        <% } else { %>
+        alert('ไม่มีข้อมูลสำหรับส่งออก');
+        <% } %>
+    }
+
+    // ฟังก์ชันพิมพ์รายงานสรุปยอดขาย
+    function printSummaryReport() {
+        window.print();
+    }
+
+    // ฟังก์ชัน Toggle แสดง/ซ่อนตารางสรุป (แก้ไขแล้ว)
+    function toggleSummaryTable() {
+        const content = document.getElementById('summary-table-content');
+        const icon = document.getElementById('toggle-icon');
+        
+        if (content.classList.contains('hidden')) {
+            // แสดงตาราง
+            content.classList.remove('hidden');
+            
+            // คำนวณความสูงจริงของเนื้อหา
+            const actualHeight = content.scrollHeight;
+            
+            // ตั้งค่าความสูงเป็น auto แทน
+            content.style.maxHeight = actualHeight + 'px';
+            icon.style.transform = 'rotate(180deg)';
+            
+            // หลังจาก animation เสร็จ ให้เป็น auto เพื่อให้เลื่อนได้เต็มที่
+            setTimeout(() => {
+                content.style.maxHeight = 'none';
+                content.style.overflow = 'visible';
+            }, 300);
+        } else {
+            // ซ่อนตาราง
+            // ตั้งค่าความสูงจริงก่อน แล้วค่อยลดลงเป็น 0
+            const actualHeight = content.scrollHeight;
+            content.style.maxHeight = actualHeight + 'px';
+            content.style.overflow = 'hidden';
+            
+            // Force reflow
+            content.offsetHeight;
+            
+            // Animation ปิด
+            content.style.maxHeight = '0';
+            icon.style.transform = 'rotate(0deg)';
+            
+            setTimeout(() => {
+                content.classList.add('hidden');
+            }, 300);
+        }
     }
 </script>
 

@@ -1518,10 +1518,59 @@
         }
 
         function closeEditModal() {
-            document.getElementById('funeralEditModal').classList.add('hidden');
-            document.getElementById('editFuneralForm').reset();
+            const modal = document.getElementById('funeralEditModal');
+            const form = document.getElementById('editFuneralForm');
+            
+            // ซ่อน modal
+            modal.classList.add('hidden');
+            
+            // Reset form
+            form.reset();
+            
+            // Clear ไฟล์ทั้งหมดและ preview
+            const fileInputs = [
+                'edit_deathCertificate',
+                'edit_deceasedIdCard',
+                'edit_deceasedHouseRegistration',
+                'edit_applicantIdCard',
+                'edit_applicantHouseRegistration'
+            ];
+            
+            fileInputs.forEach(inputId => {
+                const input = document.getElementById(inputId);
+                const preview = document.getElementById(inputId + 'Preview');
+                const label = input?.nextElementSibling;
+                
+                if (input) {
+                    input.value = '';
+                    input.classList.remove('has-file');
+                }
+                
+                if (preview) {
+                    preview.innerHTML = '';
+                }
+                
+                if (label) {
+                    const textSpan = label.querySelector('.file-upload-text');
+                    const subtextSpan = label.querySelector('.file-upload-subtext');
+                    if (textSpan) textSpan.textContent = 'คลิกเพื่อเลือกไฟล์ใหม่';
+                    if (subtextSpan) subtextSpan.textContent = 'หรือลากไฟล์มาวางที่นี่';
+                }
+            });
+            
+            // Clear current documents list
+            const currentDocsList = document.getElementById('currentDocsList');
+            if (currentDocsList) {
+                currentDocsList.innerHTML = '';
+            }
+            
+            // Reset global variable
+            currentEditRecord = null;
+            
+            // Restore body scroll
+            document.body.style.overflow = 'auto';
         }
-
+        
         async function submitEditForm() {
             try {
                 const funeralId = document.getElementById('edit_funeralId').value;

@@ -19,6 +19,9 @@ router.post('/memberRegister', employeeController.memberRegister);
 router.get('/member/:familyId/edit', employeeController.getMemberForEdit);
 router.post('/memberUpdate/:familyId', employeeController.memberUpdate);
 router.delete('/memberDelete/:familyId', employeeController.memberDelete);
+router.get('/member/:familyId/representatives', employeeController.getRepresentatives); 
+router.post('/member/:familyId/change-representative', employeeController.changeRepresentative); 
+router.post('/member/:familyId/mark-deceased', employeeController.markMemberDeceased); 
 
 // คำร้องหรือหรือข้อร้องเรียน
 router.get('/complaint', employeeController.complaintIndex);
