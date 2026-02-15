@@ -1173,8 +1173,8 @@ const submitFuneralRequest = (req, res) => {
                     // กรณี Beneficiary
                     const beneficiaryId = memberID.split('_')[1];
                     if (mongoose.Types.ObjectId.isValid(beneficiaryId)) {
-                        validMemberID = memberID; // เก็บเป็น string "beneficiary_xxx" ไว้
-                        console.log(`✅ Valid beneficiary ID: ${validMemberID}`);
+                        validMemberID = new mongoose.Types.ObjectId(beneficiaryId);
+                        console.log(`✅ Valid beneficiary ObjectId: ${validMemberID}`);
                     } else {
                         console.warn(`⚠️ Invalid beneficiary ObjectId: ${beneficiaryId}`);
                     }
