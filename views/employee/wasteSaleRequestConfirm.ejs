@@ -553,6 +553,17 @@
 
                         <!-- Response Message -->
                         <div>
+                            <label class="block text-sm font-medium mb-2">เลือกข้อความตอบกลับด่วน</label>
+                            <select id="responseTemplate" class="w-full bg-gray-50 border border-gray-200 px-3 py-2 rounded-md mb-3" onchange="applyTemplate()">
+                                <option value="">-- เลือกข้อความ --</option>
+                                <option value="ยืนยันการรับซื้อตามเวลาที่นัดหมาย หากมีการเปลี่ยนแปลงจะแจ้งให้ทราบล่วงหน้าครับ">ยืนยันการรับซื้อตามนัด</option>
+                                <option value="ขอรบกวนเลื่อนวันรับซื้อ เนื่องจากเจ้าหน้าที่ติดภารกิจ จะติดต่อกลับเพื่อนนัดหมายใหม่ครับ">ขอเลื่อนนัด (ติดภารกิจ)</option>
+                                <option value="รบกวนจัดเตรียมขยะแยกประเภทให้เรียบร้อยก่อนเจ้าหน้าที่เข้าไปรับนะครับ">แจ้งจัดเตรียมขยะ</option>
+                                <option value="ได้รับข้อมูลแล้ว กำลังดำเนินการจัดสรรรถรับซื้อขยะครับ">กำลังดำเนินการ</option>
+                                <option value="ขอปฏิเสธคำขอเนื่องจากข้อมูลไม่ถูกต้อง รบกวนตรวจสอบและส่งคำขอใหม่อีกครั้งครับ">ปฏิเสธ (ข้อมูลไม่ถูกต้อง)</option>
+                                <option value="ขอปฏิเสธคำขอเนื่องจากอยู่นอกพื้นที่ให้บริการครับ">ปฏิเสธ (อยู่นอกพื้นที่)</option>
+                            </select>
+
                             <label class="block text-sm font-medium mb-2">ข้อความตอบกลับ</label>
                             <textarea 
                                 id="responseMessage"
@@ -658,6 +669,16 @@ function confirmAction(action) {
             form.submit();
         }
     });
+}
+
+function applyTemplate() {
+    const select = document.getElementById('responseTemplate');
+    const textarea = document.getElementById('responseMessage');
+    const value = select.value;
+    
+    if (value) {
+        textarea.value = value;
+    }
 }
 </script>
 </html>
