@@ -10,6 +10,33 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <style>
+        /* html {
+            zoom: 0.9;
+        }
+        html, body {
+            height: auto !important;
+            min-height: unset !important;
+            overflow-x: hidden;
+        }
+        .content {
+            min-height: unset !important;
+            height: auto !important;
+        } */
+
+        #accountDropdown {
+            transform-origin: top;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        #accountDropdown.dropdown-enter {
+            opacity: 0;
+            transform: scaleY(0.95) translateY(-4px);
+        }
+        #accountDropdown.dropdown-visible {
+            opacity: 1;
+            transform: scaleY(1) translateY(0);
+        }
+    </style>
 </head>
 
 <body class="bg-gray-50">
@@ -86,16 +113,23 @@
                         ค้นหาบัญชี
                     </h2>
                     <div class="space-y-4">
-                        <form onsubmit="event.preventDefault(); searchAccount();">
+                        <form onsubmit="event.preventDefault();">
                             <div>
-                                <div class="flex">
+                                <div class="flex relative" id="searchWrapper">
                                     <input type="text" id="accountId" name="accountId"
                                         class="flex-1 rounded-l-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50 p-3"
-                                        placeholder="กรอกเลขบัญชี" required>
-                                    <button type="submit"
+                                        placeholder="กรอกเลขบัญชี" 
+                                        autocomplete="off"
+                                        oninput="onAccountInput(this.value)">
+                                    <button type="button" onclick="searchAccount()"
                                         class="bg-green-600 text-white px-4 py-2 rounded-r-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition">
                                         <ion-icon name="search-outline"></ion-icon>
                                     </button>
+
+                                    <!-- Dropdown -->
+                                    <ul id="accountDropdown"
+                                        class="hidden absolute top-full left-0 right-0 z-50 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                    </ul>
                                 </div>
                             </div>
                             <div class="text-sm text-gray-600 mt-3">
@@ -126,7 +160,7 @@
                         <div class="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <p class="text-sm text-gray-500">ชื่อเจ้าของบัญชี</p>
+                                    <p class="text-sm text-gray-500">ชื่อบัญชี</p>
                                     <p id="accountName" class="text-lg font-medium text-gray-800">-</p>
                                 </div>
                                 <div>
@@ -175,7 +209,7 @@
         </div>
 
         <!-- ประวัติการถอนเงินล่าสุด -->
-        <div class="mx-4 mt-6">
+        <div class="mx-4 mt-6 mb-6">
             <div class="bg-white rounded-lg shadow p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-semibold text-gray-800 flex items-center">
@@ -629,6 +663,123 @@
                 closeSettingsModal();
             }
         });
+
+        let searchDebounceTimer = null;
+
+        async function onAccountInput(value) {
+            clearTimeout(searchDebounceTimer);
+
+            if (!value || value.trim() === '') {
+                hideDropdown();
+                clearAccountDetails();
+                return;
+            }
+
+            if (value.trim().length < 2) {
+                hideDropdown();
+                return;
+            }
+
+            searchDebounceTimer = setTimeout(async () => {
+                try {
+                    const response = await fetch(`/employee/withDraw/search?q=${encodeURIComponent(value.trim())}`);
+                    if (!response.ok) return;
+
+                    const data = await response.json();
+
+                    if (!data.success || !data.accounts || data.accounts.length === 0) {
+                        showDropdown('<li class="px-4 py-3 text-sm text-gray-500">ไม่พบบัญชี</li>');
+                        return;
+                    }
+
+                    showDropdown(data.accounts.map(acc => `
+                        <li onclick="selectAccount('${acc.AccountNumber}', '${acc.AccountName}')"
+                            class="px-4 py-3 text-sm text-gray-800 hover:bg-green-50 cursor-pointer border-b border-gray-100 last:border-0">
+                            <span class="font-medium text-green-700">${acc.AccountNumber}</span>
+                            <span class="text-gray-500 ml-2">${acc.AccountName}</span>
+                        </li>
+                    `).join(''));
+
+                } catch (err) {
+                    console.error('Autocomplete error:', err);
+                }
+            }, 300);
+        }
+
+        function clearAccountDetails() {
+            hideDropdown();
+
+            document.getElementById('accountDetails').classList.add('hidden');
+            document.getElementById('loadingState').classList.add('hidden');
+
+            document.getElementById('withdrawAmount').value = '';
+            document.getElementById('withdrawAmount').disabled = true;
+            document.getElementById('withdrawButton').disabled = true;
+            document.getElementById('hiddenAccountNumber').value = '';
+            document.getElementById('amountError').textContent = '';
+            document.getElementById('amountInfo').textContent = '';
+        }
+
+        function selectAccount(accountNumber, accountName) {
+            document.getElementById('accountId').value = accountNumber;
+            hideDropdown();
+            searchAccount();
+        }
+
+        // ปิด dropdown เมื่อคลิกที่อื่น
+        document.addEventListener('click', function(e) {
+            const wrapper = document.getElementById('searchWrapper');
+            if (!wrapper.contains(e.target)) {
+                hideDropdown();
+            }
+        });
+
+        document.getElementById('accountId').addEventListener('focus', async function() {
+            if (this.value.trim().length >= 2) return;
+            try {
+                const response = await fetch(`/employee/withDraw/search?q=&limit=5`);
+                if (!response.ok) return;
+                const data = await response.json();
+                if (!data.success || !data.accounts || data.accounts.length === 0) return;
+
+                showDropdown(data.accounts.map(acc => `
+                    <li onclick="selectAccount('${acc.AccountNumber}', '${acc.AccountName}')"
+                        class="px-4 py-3 text-sm text-gray-800 hover:bg-green-50 cursor-pointer border-b border-gray-100 last:border-0">
+                        <span class="font-medium text-green-700">${acc.AccountNumber}</span>
+                        <span class="text-gray-500 ml-2">${acc.AccountName}</span>
+                    </li>
+                `).join(''));
+            } catch (err) {
+                console.error('Focus fetch error:', err);
+            }
+        });
+
+        function showDropdown(html) {
+            const dropdown = document.getElementById('accountDropdown');
+            dropdown.innerHTML = html;
+            dropdown.classList.remove('hidden', 'dropdown-visible');
+            dropdown.classList.add('dropdown-enter');
+            
+            // trigger reflow แล้วเริ่ม animation
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    dropdown.classList.remove('dropdown-enter');
+                    dropdown.classList.add('dropdown-visible');
+                });
+            });
+        }
+
+        function hideDropdown() {
+            const dropdown = document.getElementById('accountDropdown');
+            dropdown.classList.remove('dropdown-visible');
+            dropdown.classList.add('dropdown-enter');
+            
+            setTimeout(() => {
+                dropdown.classList.add('hidden');
+                dropdown.classList.remove('dropdown-enter');
+                dropdown.innerHTML = '';
+            }, 200); // ตรงกับ transition duration
+        }
     </script>
 </body>
 

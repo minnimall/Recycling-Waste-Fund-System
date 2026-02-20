@@ -21,7 +21,7 @@ router.post('/memberUpdate/:familyId', employeeController.memberUpdate);
 router.delete('/memberDelete/:familyId', employeeController.memberDelete);
 router.get('/member/:familyId/representatives', employeeController.getRepresentatives); 
 router.post('/member/:familyId/change-representative', employeeController.changeRepresentative); 
-router.post('/member/:familyId/mark-deceased', employeeController.markMemberDeceased); 
+// router.post('/member/:familyId/mark-deceased', employeeController.markMemberDeceased); 
 
 // คำร้องหรือหรือข้อร้องเรียน
 router.get('/complaint', employeeController.complaintIndex);
@@ -53,6 +53,8 @@ router.get('/withDraw/account/:accountNumber', employeeController.getAccountByNu
 router.post('/withDraw/settings/minimum', employeeController.updateMinimumWithdraw);
 // ดึงการตั้งค่าปัจจุบัน (เพิ่มใหม่)
 router.get('/withDraw/settings', employeeController.getCurrentSettings);
+// ค้นหาบัญชี (เพิ่มใหม่)
+router.get('/withDraw/search', employeeController.searchAccounts);
 
 
 // ฌาปนกิจสงเคราะห์

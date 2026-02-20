@@ -1282,6 +1282,9 @@ const memberRegister = async (req, res) => {
     session.startTransaction();  
 
     try {
+        console.log('=== DEBUG: Request Body ===');
+        console.log('req.body.beneficiaries:', JSON.stringify(req.body.beneficiaries, null, 2));
+        
         // ตรวจสอบว่า village ที่ระบุมีอยู่จริงหรือไม่
         const village = await Village.findById(req.body.village).session(session);
         if (!village) {
@@ -1315,23 +1318,25 @@ const memberRegister = async (req, res) => {
         }
 
         // ตรวจสอบอีเมลหรือเบอร์โทรซ้ำ
+        const phoneNumber = req.body.phone ? req.body.phone.replace(/\D/g, '') : '';
         const existingMember = await Member.findOne({
-            $or: [{ email: req.body.email }, { phone: req.body.phone }, { idCardNumber: req.body.idCardNumber }]
+            $or: [
+                phoneNumber ? { phone: phoneNumber } : null,
+                { idCardNumber: req.body.idCardNumber.replace(/\D/g, '') }
+            ].filter(Boolean)
         }).session(session);
+        
         if (existingMember) {
             await session.abortTransaction();
             session.endSession();
-            return res.redirect('/employee/member?error=อีเมลหรือหมายเลขโทรศัพท์นี้ถูกใช้ไปแล้ว');
+            return res.redirect('/employee/member?error=เบอร์โทรหรือเลขบัตรประชาชนนี้ถูกใช้ไปแล้ว');
         }
 
-        // แปลง village number เป็นเลข 2 หลัก
+        // สร้างเลขบัญชี
         const villageNumber = String(village.villageNumber).padStart(2, '0');
+        const currentYear = new Date().getFullYear() + 543;
+        const yearSuffix = String(currentYear).slice(-2);
         
-        // สร้างปีพ.ศ. 2 ตัวท้าย (เช่น 68 จาก 2568)
-        const currentYear = new Date().getFullYear() + 543; // แปลงเป็นพ.ศ. (จาก ค.ศ.)
-        const yearSuffix = String(currentYear).slice(-2); // เอาเฉพาะ 2 ตัวท้าย
-        
-        // หาลำดับล่าสุดของหมู่บ้านนั้นๆ
         const latestAccount = await WasteBankAccount.find({
             AccountNumber: new RegExp(`^${yearSuffix}${villageNumber}`)
         })
@@ -1339,15 +1344,12 @@ const memberRegister = async (req, res) => {
         .limit(1)
         .session(session);
         
-        let sequenceNumber = 1; // เริ่มที่ 1 ถ้าไม่มีบัญชีก่อนหน้า
-        
+        let sequenceNumber = 1;
         if (latestAccount && latestAccount.length > 0) {
-            // ถ้ามีบัญชีก่อนหน้า ดึงเลขลำดับล่าสุดและบวก 1
             const latestSequence = parseInt(latestAccount[0].AccountNumber.slice(-2));
             sequenceNumber = latestSequence + 1;
         }
         
-        // สร้าง accountNumber ในรูปแบบ YYMMSS (ปี-หมู่-ลำดับ)
         const accountNumber = `${yearSuffix}${villageNumber}${String(sequenceNumber).padStart(2, '0')}`;
 
         // 1. สร้างข้อมูลครอบครัว
@@ -1372,26 +1374,74 @@ const memberRegister = async (req, res) => {
 
         const savedFamily = await family.save({ session });
 
-        // 2. สร้างสมาชิกคนแรก (ตัวแทนครอบครัว)
+        // 2. สร้าง householdMembers (แก้ไขให้รองรับทุกกรณี)
+        const beneficiariesArray = Array.isArray(req.body.beneficiaries) 
+            ? req.body.beneficiaries 
+            : [];
+
+        console.log('=== DEBUG: Processing Beneficiaries ===');
+        console.log('Total beneficiaries:', beneficiariesArray.length);
+
+        const householdMembers = beneficiariesArray
+            .filter(b => {
+                const hasName = b.name && b.name.trim() !== '';
+                console.log('Beneficiary:', b.name, 'hasName:', hasName);
+                return hasName;
+            })
+            .map((b, index) => {
+                const cleanIdCard = b.idCardNumber ? b.idCardNumber.replace(/\D/g, '') : '';
+                const cleanPhone = b.phone ? b.phone.replace(/\D/g, '') : '';
+                
+                console.log(`Processing member ${index}:`, {
+                    name: b.name,
+                    idCardNumber: cleanIdCard,
+                    phone: cleanPhone
+                });
+
+                return {
+                    _id: new mongoose.Types.ObjectId(),
+                    name: b.name.trim(),
+                    idCardNumber: cleanIdCard,
+                    phone: cleanPhone,
+                    birthDate: b.birthDate && b.birthDate !== '' ? new Date(b.birthDate) : null,
+                    age: b.age || '',
+                    occupation: b.occupation || '',
+                    nationality: b.nationality || 'ไทย',
+                    ethnicity: b.ethnicity || 'ไทย',
+                    religion: b.religion || 'พุทธ',
+                    relationToHead: b.relation || 'ญาติ',
+                    funeralBenefitCondition: {
+                        distributionType: b.distributionType || 'equal',
+                        distributionDetail: b.distributionDetail || ''
+                    },
+                    status: 'living',
+                    joinDate: new Date()
+                };
+            });
+
+        console.log('=== Final householdMembers count:', householdMembers.length);
+
+        // 3. สร้างสมาชิกตัวแทนครอบครัว
         const member = new Member({
             familyID: savedFamily._id,
             name: req.body.name,
-            email: req.body.email,
-            phone: req.body.phone,
+            phone: phoneNumber,
             idCardNumber: req.body.idCardNumber.replace(/\D/g, ''),
-            birthDate: req.body.birthDate,
-            occupation: req.body.occupation,
-            age: req.body.age,
-            nationality: req.body.nationality,
-            ethnicity: req.body.ethnicity,
-            religion: req.body.religion,
-            beneficiaries: req.body.beneficiaries || [],
-            Status: 'living'
+            birthDate: req.body.birthDate && req.body.birthDate !== '' ? new Date(req.body.birthDate) : null,
+            occupation: req.body.occupation || '',
+            age: req.body.age || '',
+            nationality: req.body.nationality || 'ไทย',
+            ethnicity: req.body.ethnicity || 'ไทย',
+            religion: req.body.religion || 'พุทธ',
+            isRepresentative: true,
+            Status: 'living',
+            householdMembers: householdMembers
         });
 
+        console.log('=== Saving member with householdMembers ===');
         await member.save({ session });
 
-        // 3. สร้างบัญชีธนาคารขยะอัตโนมัติ
+        // 4. สร้างบัญชีธนาคารขยะ
         const account = new WasteBankAccount({
             familyID: savedFamily._id,
             AccountName: savedFamily.familyName,
@@ -1402,17 +1452,25 @@ const memberRegister = async (req, res) => {
 
         await account.save({ session });
 
-        // ✅ Transaction สำเร็จ
         await session.commitTransaction();
         session.endSession();
 
+        console.log('=== Registration Success ===');
         res.redirect('/employee/member?message=ลงทะเบียนครัวเรือนสำเร็จ');
 
     } catch (error) {
         await session.abortTransaction();  
         session.endSession();
 
-        console.error('Error registering household:', error);
+        console.error('=== Error registering household ===');
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        
+        if (error.errors) {
+            console.error('Validation errors:', JSON.stringify(error.errors, null, 2));
+        }
+
         res.redirect('/employee/member?error=เกิดข้อผิดพลาดในการลงทะเบียน: ' + error.message);
     }
 };
@@ -1422,26 +1480,49 @@ const getMemberForEdit = async (req, res) => {
     try {
         const { familyId } = req.params;
         
-        // ดึงข้อมูลครัวเรือน
         const family = await Family.findById(familyId).populate('village').lean();
         if (!family) {
             return res.status(404).json({ error: 'ไม่พบข้อมูลครัวเรือน' });
         }
 
-        // ดึงข้อมูลสมาชิกตัวแทน (คนแรก)
-        const member = await Member.findOne({ familyID: familyId, Status: 'living' }).lean();
+        // ดึงเฉพาะตัวแทนที่มีชีวิต
+        const member = await Member.findOne({ 
+            familyID: familyId, 
+            isRepresentative: true,
+            Status: 'living' 
+        }).lean();
+        
         if (!member) {
-            return res.status(404).json({ error: 'ไม่พบข้อมูลสมาชิก' });
+            return res.status(404).json({ error: 'ไม่พบข้อมูลสมาชิกตัวแทน' });
         }
 
-        // ดึงข้อมูลบัญชีธนาคารขยะ
         const account = await WasteBankAccount.findOne({ familyID: familyId }).lean();
+
+        // แปลง householdMembers กลับเป็น beneficiaries สำหรับฟอร์ม
+        const beneficiaries = (member.householdMembers || []).map(m => ({
+            name: m.name,
+            idCardNumber: m.idCardNumber || '',     
+            phone: m.phone || '',                   
+            birthDate: m.birthDate || null,             
+            age: m.age || '',                             
+            occupation: m.occupation || '',               
+            nationality: m.nationality || 'ไทย',       
+            ethnicity: m.ethnicity || 'ไทย',            
+            religion: m.religion || 'พุทธ',
+            relation: m.relationToHead,
+            distributionType: m.funeralBenefitCondition?.distributionType || 'equal',
+            distributionDetail: m.funeralBenefitCondition?.distributionDetail || '',
+            status: m.status
+        }));
 
         res.json({
             success: true,
             data: {
                 family,
-                member,
+                member: {
+                    ...member,
+                    beneficiaries: beneficiaries
+                },
                 account
             }
         });
@@ -1459,7 +1540,6 @@ const memberUpdate = async (req, res) => {
     try {
         const { familyId } = req.params;
 
-        // ตรวจสอบว่าครัวเรือนมีอยู่จริง
         const existingFamily = await Family.findById(familyId).session(session);
         if (!existingFamily) {
             await session.abortTransaction();
@@ -1477,7 +1557,7 @@ const memberUpdate = async (req, res) => {
             }
         }
 
-        // ตรวจสอบ username (ถ้ามีการเปลี่ยน)
+        // ตรวจสอบ username
         if (req.body.username && req.body.username !== existingFamily.username) {
             const usernameRegex = /^[a-zA-Z0-9_\u0E00-\u0E7F]{5,20}$/;
             if (!usernameRegex.test(req.body.username)) {
@@ -1486,7 +1566,6 @@ const memberUpdate = async (req, res) => {
                 return res.redirect('/employee/member?error=ชื่อผู้ใช้ต้องมี 5-20 ตัวอักษร และไม่มีอักขระพิเศษ');
             }
 
-            // ตรวจสอบว่าชื่อผู้ใช้ซ้ำหรือไม่
             const duplicateUsername = await Family.findOne({ 
                 username: req.body.username,
                 _id: { $ne: familyId }
@@ -1499,7 +1578,7 @@ const memberUpdate = async (req, res) => {
             }
         }
 
-        // ตรวจสอบ password (ถ้ามีการเปลี่ยน)
+        // ตรวจสอบ password
         let hashedPassword = existingFamily.password;
         if (req.body.password && req.body.password.trim() !== '') {
             const passwordRegex = /^\d{6,8}$/;
@@ -1511,67 +1590,97 @@ const memberUpdate = async (req, res) => {
             hashedPassword = await bcrypt.hash(req.body.password, 10);
         }
 
-        // หาข้อมูลสมาชิกเดิม
+        // หาสมาชิกตัวแทนเดิม
         const existingMember = await Member.findOne({ 
             familyID: familyId,
+            isRepresentative: true,
             Status: 'living'
         }).session(session);
 
         if (!existingMember) {
             await session.abortTransaction();
             session.endSession();
-            return res.redirect('/employee/member?error=ไม่พบข้อมูลสมาชิก');
+            return res.redirect('/employee/member?error=ไม่พบข้อมูลสมาชิกตัวแทน');
         }
 
-        // ตรวจสอบอีเมล เบอร์โทร และเลขบัตรประชาชนซ้ำ (ถ้ามีการเปลี่ยน)
-        if (req.body.email !== existingMember.email || 
-            req.body.phone !== existingMember.phone || 
-            req.body.idCardNumber !== existingMember.idCardNumber) {
+        // ตรวจสอบเบอร์โทรและเลขบัตรประชาชนซ้ำ
+        const cleanPhone = req.body.phone ? req.body.phone.replace(/\D/g, '') : '';
+        const cleanIdCard = req.body.idCardNumber ? req.body.idCardNumber.replace(/\D/g, '') : '';
+        
+        if (cleanPhone !== existingMember.phone || 
+            cleanIdCard !== existingMember.idCardNumber) {
             
             const duplicateMember = await Member.findOne({
                 _id: { $ne: existingMember._id },
                 $or: [
-                    { email: req.body.email },
-                    { phone: req.body.phone },
-                    { idCardNumber: req.body.idCardNumber }
-                ]
+                    cleanPhone ? { phone: cleanPhone } : null,
+                    cleanIdCard ? { idCardNumber: cleanIdCard } : null
+                ].filter(Boolean)
             }).session(session);
 
             if (duplicateMember) {
                 await session.abortTransaction();
                 session.endSession();
-                return res.redirect('/employee/member?error=อีเมล หมายเลขโทรศัพท์ หรือเลขบัตรประชาชนนี้ถูกใช้ไปแล้ว');
+                return res.redirect('/employee/member?error=เบอร์โทรหรือเลขบัตรประชาชนนี้ถูกใช้ไปแล้ว');
             }
         }
 
-        // ⭐ สร้าง Map ของ beneficiaries เดิม (เก็บ status ไว้)
-        const existingBeneficiariesMap = new Map();
-        if (existingMember.beneficiaries && existingMember.beneficiaries.length > 0) {
-            existingMember.beneficiaries.forEach((ben, index) => {
-                // ใช้ชื่อ + ความสัมพันธ์เป็น key (หรือใช้ index ถ้าต้องการ)
-                const key = `${ben.name}_${ben.relation}`;
-                existingBeneficiariesMap.set(key, {
-                    status: ben.status || 'living',
-                    distributionType: ben.distributionType,
-                    distributionDetail: ben.distributionDetail
+        // สร้าง Map ของ householdMembers เดิม (เก็บ status ไว้)
+        const existingMembersMap = new Map();
+            if (existingMember.householdMembers && existingMember.householdMembers.length > 0) {
+                existingMember.householdMembers.forEach((m) => {
+                    // key หลัก — idCardNumber
+                    if (m.idCardNumber) {
+                        existingMembersMap.set(m.idCardNumber, {
+                            status: m.status || 'living',
+                            funeralBenefitCondition: m.funeralBenefitCondition
+                        });
+                    }
+                    // key สำรอง — ชื่อ+ความสัมพันธ์ (กรณีไม่มี idCard)
+                    const nameKey = `${m.name.trim()}_${m.relationToHead.trim()}`;
+                    existingMembersMap.set(nameKey, {
+                        status: m.status || 'living',
+                        funeralBenefitCondition: m.funeralBenefitCondition
+                    });
                 });
-            });
-        }
+            }
 
-        // ⭐ รวม beneficiaries ใหม่กับ status เดิม
-        const updatedBeneficiaries = (req.body.beneficiaries || []).map((newBen) => {
-            const key = `${newBen.name}_${newBen.relation}`;
-            const existingBen = existingBeneficiariesMap.get(key);
-            
-            return {
-                name: newBen.name,
-                relation: newBen.relation,
-                distributionType: newBen.distributionType || 'equal',
-                distributionDetail: newBen.distributionDetail || '',
-                // ⭐ เก็บ status เดิมไว้ ถ้าไม่มีให้เป็น living
-                status: existingBen ? existingBen.status : 'living'
-            };
-        });
+        // แปลง beneficiaries ใหม่เป็น householdMembers พร้อมรักษา status และบันทึกข้อมูลครบถ้วน
+        const beneficiariesArray = Array.isArray(req.body.beneficiaries) 
+            ? req.body.beneficiaries 
+            : [];
+
+        const updatedHouseholdMembers = beneficiariesArray
+            .filter(b => b.name && b.name.trim() !== '')
+            .map((newBen) => {
+                const cleanBenIdCard = newBen.idCardNumber ? newBen.idCardNumber.replace(/\D/g, '') : '';
+                const cleanBenPhone = newBen.phone ? newBen.phone.replace(/\D/g, '') : '';
+                
+                // ค้นหาด้วย idCard ก่อน ถ้าไม่เจอ fallback ด้วยชื่อ+ความสัมพันธ์
+                const existingMem = cleanBenIdCard 
+                    ? (existingMembersMap.get(cleanBenIdCard) ?? existingMembersMap.get(`${newBen.name.trim()}_${newBen.relation.trim()}`))
+                    : existingMembersMap.get(`${newBen.name.trim()}_${newBen.relation.trim()}`);
+                
+                return {
+                    _id: new mongoose.Types.ObjectId(),
+                    name: newBen.name.trim(),
+                    idCardNumber: cleanBenIdCard,
+                    phone: cleanBenPhone,
+                    birthDate: newBen.birthDate && newBen.birthDate !== '' ? new Date(newBen.birthDate) : null,
+                    age: newBen.age || '',
+                    occupation: newBen.occupation || '',
+                    nationality: newBen.nationality || 'ไทย',
+                    ethnicity: newBen.ethnicity || 'ไทย',
+                    religion: newBen.religion || 'พุทธ',
+                    relationToHead: newBen.relation,
+                    funeralBenefitCondition: {
+                        distributionType: newBen.distributionType || 'equal',
+                        distributionDetail: newBen.distributionDetail || ''
+                    },
+                    status: existingMem ? existingMem.status : 'living', // รักษา status เดิมได้ถูกต้อง
+                    joinDate: new Date()
+                };
+            });
 
         // อัปเดตข้อมูลครัวเรือน
         await Family.findByIdAndUpdate(
@@ -1596,33 +1705,31 @@ const memberUpdate = async (req, res) => {
             { session }
         );
 
-        // อัปเดตข้อมูลสมาชิก
+        // อัปเดตข้อมูลสมาชิกตัวแทน (ลบ format ออกก่อนบันทึก)
         await Member.findByIdAndUpdate(
             existingMember._id,
             {
                 name: req.body.name,
-                email: req.body.email,
-                phone: req.body.phone,
-                idCardNumber: req.body.idCardNumber,
-                birthDate: req.body.birthDate,
-                occupation: req.body.occupation,
-                age: req.body.age,
-                nationality: req.body.nationality,
-                ethnicity: req.body.ethnicity,
-                religion: req.body.religion,
-                beneficiaries: updatedBeneficiaries
+                phone: cleanPhone,
+                idCardNumber: cleanIdCard,
+                birthDate: req.body.birthDate && req.body.birthDate !== '' ? new Date(req.body.birthDate) : null,
+                occupation: req.body.occupation || '',
+                age: req.body.age || '',
+                nationality: req.body.nationality || 'ไทย',
+                ethnicity: req.body.ethnicity || 'ไทย',
+                religion: req.body.religion || 'พุทธ',
+                householdMembers: updatedHouseholdMembers
             },
             { session }
         );
 
-        // อัปเดตชื่อบัญชีธนาคารขยะ (ถ้าชื่อครัวเรือนเปลี่ยน)
+        // อัปเดตชื่อบัญชีธนาคารขยะ
         await WasteBankAccount.findOneAndUpdate(
             { familyID: familyId },
             { AccountName: req.body.familyName },
             { session }
         );
 
-        // Transaction สำเร็จ
         await session.commitTransaction();
         session.endSession();
 
@@ -1637,7 +1744,7 @@ const memberUpdate = async (req, res) => {
     }
 };
 
-// ฟังก์ชัน Soft Delete สมาชิกกองทุนขยะรีไซเคิล
+// ฟังก์ชัน Soft Delete
 const memberDelete = async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -1645,7 +1752,6 @@ const memberDelete = async (req, res) => {
     try {
         const { familyId } = req.params;
 
-        // ตรวจสอบว่าครัวเรือนมีอยู่จริง
         const family = await Family.findById(familyId).session(session);
         if (!family) {
             await session.abortTransaction();
@@ -1656,7 +1762,6 @@ const memberDelete = async (req, res) => {
             });
         }
 
-        // ตรวจสอบว่าถูกลบไปแล้วหรือไม่
         if (family.isDeleted) {
             await session.abortTransaction();
             session.endSession();
@@ -1666,7 +1771,6 @@ const memberDelete = async (req, res) => {
             });
         }
 
-        // 1. Soft delete ครัวเรือน
         await Family.findByIdAndUpdate(
             familyId,
             { 
@@ -1676,7 +1780,6 @@ const memberDelete = async (req, res) => {
             { session }
         );
 
-        // 2. Soft delete สมาชิกทั้งหมดในครัวเรือน
         await Member.updateMany(
             { familyID: familyId },
             { 
@@ -1686,7 +1789,6 @@ const memberDelete = async (req, res) => {
             { session }
         );
 
-        // 3. Soft delete บัญชีธนาคารขยะ
         await WasteBankAccount.findOneAndUpdate(
             { familyID: familyId },
             { 
@@ -1696,7 +1798,6 @@ const memberDelete = async (req, res) => {
             { session }
         );
 
-        // Transaction สำเร็จ
         await session.commitTransaction();
         session.endSession();
 
@@ -1717,12 +1818,11 @@ const memberDelete = async (req, res) => {
     }
 };
 
-// ดึงรายชื่อผู้รับผลประโยชน์ที่ยังมีชีวิตอยู่
+// ดึงรายชื่อสมาชิกที่ยังมีชีวิตอยู่
 const getRepresentatives = async (req, res) => {
     try {
         const { familyId } = req.params;
         
-        // ดึงข้อมูลครัวเรือน
         const family = await Family.findById(familyId).lean();
         if (!family) {
             return res.status(404).json({ 
@@ -1731,9 +1831,10 @@ const getRepresentatives = async (req, res) => {
             });
         }
 
-        // ดึงข้อมูลสมาชิกตัวแทนปัจจุบัน
+        // ดึงตัวแทนปัจจุบัน
         const currentRepresentative = await Member.findOne({ 
             familyID: familyId, 
+            isRepresentative: true,
             Status: 'living' 
         }).lean();
 
@@ -1744,10 +1845,43 @@ const getRepresentatives = async (req, res) => {
             });
         }
 
-        // กรองเฉพาะผู้รับผลประโยชน์ที่ยังมีชีวิตอยู่
-        const livingBeneficiaries = currentRepresentative.beneficiaries.filter(
-            b => b.status === 'living'
-        );
+        const livingMembers = (currentRepresentative.householdMembers || [])
+            .filter(m => m.status === 'living')
+            .map((m, index) => ({
+                index: index,
+                name: m.name,
+                idCardNumber: m.idCardNumber || '',
+                phone: m.phone || '',
+                birthDate: m.birthDate || null,
+                age: m.age || '',
+                occupation: m.occupation || '',
+                nationality: m.nationality || 'ไทย',
+                ethnicity: m.ethnicity || 'ไทย',
+                religion: m.religion || 'พุทธ',
+                relation: m.relationToHead,
+                status: m.status
+            }));
+
+        const deceasedFormerReps = await Member.find({
+            familyID: familyId,
+            isRepresentative: false,
+            Status: 'deceased',
+            isDeleted: false
+        }).lean();
+
+        const formerReps = deceasedFormerReps.map(m => ({
+            memberId: m._id,
+            name: m.name,
+            idCardNumber: m.idCardNumber || '',
+            phone: m.phone || '',
+            birthDate: m.birthDate || null,
+            age: m.age || '',
+            occupation: m.occupation || '',
+            nationality: m.nationality || 'ไทย',
+            ethnicity: m.ethnicity || 'ไทย',
+            religion: m.religion || 'พุทธ',
+            status: 'deceased'
+        }));
 
         res.json({
             success: true,
@@ -1760,12 +1894,8 @@ const getRepresentatives = async (req, res) => {
                     phone: currentRepresentative.phone,
                     Status: currentRepresentative.Status
                 },
-                beneficiaries: livingBeneficiaries.map((b, index) => ({
-                    index: index,
-                    name: b.name,
-                    relation: b.relation,
-                    status: b.status
-                }))
+                householdMembers: livingMembers, 
+                formerRepresentatives: formerReps
             }
         });
     } catch (error) {
@@ -1777,61 +1907,14 @@ const getRepresentatives = async (req, res) => {
     }
 };
 
-// ทำเครื่องหมายสมาชิกตัวแทนเป็นเสียชีวิต
-const markMemberDeceased = async (req, res) => {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
-    try {
-        const { familyId } = req.params;
-
-        // อัปเดตสถานะเป็น deceased
-        const member = await Member.findOneAndUpdate(
-            { familyID: familyId, Status: 'living' },
-            { Status: 'deceased' },
-            { session, new: true }
-        );
-
-        if (!member) {
-            await session.abortTransaction();
-            session.endSession();
-            return res.status(404).json({ 
-                success: false, 
-                message: 'ไม่พบข้อมูลสมาชิกตัวแทน' 
-            });
-        }
-
-        await session.commitTransaction();
-        session.endSession();
-
-        res.json({ 
-            success: true, 
-            message: 'บันทึกสถานะเสียชีวิตสำเร็จ',
-            memberId: member._id
-        });
-
-    } catch (error) {
-        await session.abortTransaction();
-        session.endSession();
-
-        console.error('Error marking member deceased:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'เกิดข้อผิดพลาด: ' + error.message 
-        });
-    }
-};
-
-// เปลี่ยนตัวแทนครัวเรือน
 const changeRepresentative = async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
         const { familyId } = req.params;
-        const { beneficiaryIndex, newRepresentativeData } = req.body;
+        const { memberIndex, newRepresentativeData, beneficiaryType } = req.body;
 
-        // ตรวจสอบข้อมูลที่จำเป็น
         if (!newRepresentativeData || !newRepresentativeData.name) {
             await session.abortTransaction();
             session.endSession();
@@ -1841,13 +1924,14 @@ const changeRepresentative = async (req, res) => {
             });
         }
 
-        // ดึงข้อมูลสมาชิกตัวแทนเดิม
-        const oldRepresentative = await Member.findOne({ 
+        // 1. หาตัวแทนเดิม
+        const oldRep = await Member.findOne({ 
             familyID: familyId, 
+            isRepresentative: true,
             Status: 'living' 
         }).session(session);
 
-        if (!oldRepresentative) {
+        if (!oldRep) {
             await session.abortTransaction();
             session.endSession();
             return res.status(404).json({ 
@@ -1856,92 +1940,172 @@ const changeRepresentative = async (req, res) => {
             });
         }
 
-        // ตรวจสอบเลขบัตรประชาชนซ้ำ
-        const existingMember = await Member.findOne({
-            idCardNumber: newRepresentativeData.idCardNumber,
-            _id: { $ne: oldRepresentative._id }
+        const cleanIdCard = newRepresentativeData.idCardNumber.replace(/\D/g, '');
+        const cleanPhone = newRepresentativeData.phone ? newRepresentativeData.phone.replace(/\D/g, '') : '';
+
+        // 2. หาว่าคนใหม่มี Member document อยู่แล้วไหม
+        const existingNewRep = await Member.findOne({
+            idCardNumber: cleanIdCard,
+            familyID: familyId
         }).session(session);
 
-        if (existingMember) {
+        // 3. บล็อกถ้าเป็นคนที่ deceased
+        if (existingNewRep && existingNewRep.Status === 'deceased') {
             await session.abortTransaction();
             session.endSession();
             return res.status(400).json({ 
                 success: false, 
-                message: 'เลขบัตรประชาชนนี้ถูกใช้ไปแล้ว' 
+                message: 'ไม่สามารถเลือกผู้ที่เสียชีวิตแล้วมาเป็นตัวแทนได้' 
             });
         }
 
-        // เปลี่ยนสถานะตัวแทนเดิมเป็น deceased
-        oldRepresentative.Status = 'deceased';
-        await oldRepresentative.save({ session });
+        // 4. สร้าง householdMembers ใหม่สำหรับตัวแทนคนใหม่
+        const newHouseholdMembers = [];
 
-        // ดึงข้อมูล beneficiary ที่เลือก (ถ้ามี)
-        let selectedBeneficiary = null;
-        if (beneficiaryIndex !== undefined && beneficiaryIndex !== null) {
-            selectedBeneficiary = oldRepresentative.beneficiaries[beneficiaryIndex];
-            
-            if (selectedBeneficiary) {
-                // ทำเครื่องหมาย beneficiary นี้ว่าเป็นตัวแทนแล้ว
-                oldRepresentative.beneficiaries[beneficiaryIndex].status = 'deceased';
-                await oldRepresentative.save({ session });
-            }
-        }
+        oldRep.householdMembers.forEach((m, idx) => {
+            // ข้ามคนที่จะขึ้นเป็นตัวแทนใหม่
+            if (beneficiaryType === 'household' && idx === parseInt(memberIndex)) return;
+            if (m.idCardNumber && m.idCardNumber === cleanIdCard) return;
 
-        // สร้าง beneficiaries ใหม่ โดยไม่รวมคนที่เป็นตัวแทนใหม่
-        const newBeneficiaries = oldRepresentative.beneficiaries
-            .filter((b, idx) => idx !== beneficiaryIndex && b.status === 'living')
-            .map(b => ({
-                name: b.name,
-                relation: b.relation,
-                distributionType: b.distributionType || 'equal',
-                distributionDetail: b.distributionDetail,
-                status: 'living'
-            }));
+            newHouseholdMembers.push({
+                _id: m._id,
+                name: m.name,
+                idCardNumber: m.idCardNumber || '',
+                phone: m.phone || '',
+                birthDate: m.birthDate,
+                age: m.age || '',
+                occupation: m.occupation || '',
+                nationality: m.nationality || 'ไทย',
+                ethnicity: m.ethnicity || 'ไทย',
+                religion: m.religion || 'พุทธ',
+                relationToHead: m.relationToHead,
+                funeralBenefitCondition: m.funeralBenefitCondition,
+                status: m.status,
+                joinDate: m.joinDate
+            });
+        });
 
-        // เพิ่มตัวแทนเดิมเข้าไปเป็น beneficiary (ถ้ายังมีชีวิตอยู่ก่อนหน้านี้)
-        if (oldRepresentative.Status === 'deceased') {
-            newBeneficiaries.push({
-                name: oldRepresentative.name,
-                relation: selectedBeneficiary ? selectedBeneficiary.relation : 'ตัวแทนเดิม',
+        // เพิ่ม oldRep เข้าไปใน householdMembers ของตัวแทนใหม่
+        newHouseholdMembers.push({
+            _id: oldRep._id,
+            name: oldRep.name,
+            idCardNumber: oldRep.idCardNumber,
+            phone: oldRep.phone,
+            birthDate: oldRep.birthDate,
+            age: oldRep.age,
+            occupation: oldRep.occupation,
+            nationality: oldRep.nationality,
+            ethnicity: oldRep.ethnicity,
+            religion: oldRep.religion,
+            relationToHead: 'หัวหน้าครัวเรือน',
+            funeralBenefitCondition: {
                 distributionType: 'equal',
-                distributionDetail: '',
-                status: 'deceased'
+                distributionDetail: ''
+            },
+            status: oldRep.Status,
+            joinDate: oldRep.joinDate || new Date()
+        });
+
+        // 5. คนใหม่มี Member document อยู่แล้ว → สลับระหว่าง 2 documents
+        if (existingNewRep) {
+            // oldRep → ไม่เป็นตัวแทน
+            oldRep.isRepresentative = false;
+            oldRep.householdMembers = [];
+            await oldRep.save({ session });
+
+            // existingNewRep → เป็นตัวแทน + รับ householdMembers
+            existingNewRep.isRepresentative = true;
+            existingNewRep.Status = 'living';
+            existingNewRep.name = newRepresentativeData.name;
+            existingNewRep.phone = cleanPhone;
+            existingNewRep.birthDate = newRepresentativeData.birthDate 
+                ? new Date(newRepresentativeData.birthDate) 
+                : existingNewRep.birthDate;
+            existingNewRep.age = newRepresentativeData.age || existingNewRep.age;
+            existingNewRep.occupation = newRepresentativeData.occupation || existingNewRep.occupation;
+            existingNewRep.nationality = newRepresentativeData.nationality || existingNewRep.nationality;
+            existingNewRep.ethnicity = newRepresentativeData.ethnicity || existingNewRep.ethnicity;
+            existingNewRep.religion = newRepresentativeData.religion || existingNewRep.religion;
+            existingNewRep.householdMembers = newHouseholdMembers;
+            await existingNewRep.save({ session });
+
+            await session.commitTransaction();
+            session.endSession();
+
+            return res.json({ 
+                success: true, 
+                message: 'เปลี่ยนตัวแทนครัวเรือนสำเร็จ (สลับตัวแทน)',
+                newRepresentativeId: existingNewRep._id
             });
         }
 
-        // สร้างสมาชิกตัวแทนใหม่
-        const newRepresentative = new Member({
+        // 6. คนใหม่อยู่แค่ใน householdMembers (ไม่มี Member document)
+        //    → update oldRep document เดิม เปลี่ยนข้อมูลเป็นคนใหม่
+        if (beneficiaryType === 'household' && memberIndex !== null && memberIndex !== undefined) {
+            oldRep.isRepresentative = true;
+            oldRep.name = newRepresentativeData.name;
+            oldRep.idCardNumber = cleanIdCard;
+            oldRep.phone = cleanPhone;
+            oldRep.birthDate = newRepresentativeData.birthDate 
+                ? new Date(newRepresentativeData.birthDate) 
+                : null;
+            oldRep.age = newRepresentativeData.age || '';
+            oldRep.occupation = newRepresentativeData.occupation || '';
+            oldRep.nationality = newRepresentativeData.nationality || 'ไทย';
+            oldRep.ethnicity = newRepresentativeData.ethnicity || 'ไทย';
+            oldRep.religion = newRepresentativeData.religion || 'พุทธ';
+            oldRep.Status = 'living';
+            oldRep.householdMembers = newHouseholdMembers;
+            await oldRep.save({ session });
+
+            await session.commitTransaction();
+            session.endSession();
+
+            return res.json({ 
+                success: true, 
+                message: 'เปลี่ยนตัวแทนครัวเรือนสำเร็จ (สลับข้อมูล)',
+                newRepresentativeId: oldRep._id
+            });
+        }
+
+        // 7. กรณีกรอกข้อมูลคนใหม่ที่ไม่เคยมีในระบบเลย → สร้าง document ใหม่
+        oldRep.isRepresentative = false;
+        oldRep.householdMembers = [];
+        await oldRep.save({ session });
+
+        const newRep = new Member({
             familyID: familyId,
             name: newRepresentativeData.name,
-            email: newRepresentativeData.email || '',
-            phone: newRepresentativeData.phone || '',
-            idCardNumber: newRepresentativeData.idCardNumber.replace(/\D/g, ''),
-            birthDate: newRepresentativeData.birthDate || null,
+            phone: cleanPhone,
+            idCardNumber: cleanIdCard,
+            birthDate: newRepresentativeData.birthDate && newRepresentativeData.birthDate !== '' 
+                ? new Date(newRepresentativeData.birthDate) 
+                : null,
             occupation: newRepresentativeData.occupation || '',
             age: newRepresentativeData.age || '',
             nationality: newRepresentativeData.nationality || 'ไทย',
             ethnicity: newRepresentativeData.ethnicity || 'ไทย',
             religion: newRepresentativeData.religion || 'พุทธ',
-            beneficiaries: newBeneficiaries,
-            Status: 'living'
+            isRepresentative: true,
+            Status: 'living',
+            householdMembers: newHouseholdMembers,
+            joinDate: new Date()
         });
 
-        await newRepresentative.save({ session });
+        await newRep.save({ session });
 
-        // Transaction สำเร็จ
         await session.commitTransaction();
         session.endSession();
 
         res.json({ 
             success: true, 
             message: 'เปลี่ยนตัวแทนครัวเรือนสำเร็จ',
-            newRepresentativeId: newRepresentative._id
+            newRepresentativeId: newRep._id
         });
 
     } catch (error) {
         await session.abortTransaction();
         session.endSession();
-
         console.error('Error changing representative:', error);
         res.status(500).json({ 
             success: false, 
@@ -3035,6 +3199,45 @@ const getCurrentSettings = async (req, res) => {
     }
 };
 
+const searchAccounts = async (req, res) => {
+    try {
+        const { q } = req.query;
+        const limit = parseInt(req.query.limit) || 10;
+
+        // ✅ ถ้า q ว่าง ให้ดึง 5 รายการล่าสุด
+        if (!q || q.trim() === '') {
+            const accounts = await WasteBankAccount.find({ isDeleted: false })
+                .select('AccountNumber AccountName Balance')
+                .sort({ createdAt: -1 })
+                .limit(limit)
+                .lean();
+
+            return res.json({ success: true, accounts });
+        }
+
+        if (q.trim().length < 2) {
+            return res.json({ success: true, accounts: [] });
+        }
+
+        const accounts = await WasteBankAccount.find({
+            isDeleted: false,
+            $or: [
+                { AccountNumber: { $regex: q.trim(), $options: 'i' } },
+                { AccountName: { $regex: q.trim(), $options: 'i' } }
+            ]
+        })
+        .select('AccountNumber AccountName Balance')
+        .limit(limit)
+        .lean();
+
+        res.json({ success: true, accounts });
+
+    } catch (err) {
+        console.error('Search error:', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
 
 // หน้าฌาปนกิจสงเคราะห์
 const funeralAidIndex = (req, res) => {
@@ -3050,7 +3253,7 @@ const searchHouseholds = async (req, res) => {
         const { query, limit } = req.query;
         const maxLimit = parseInt(limit) || 20;
 
-        // ฟังก์ชันช่วยนับสมาชิกทั้งหมด (รวม beneficiaries)
+        // ฟังก์ชันช่วยนับสมาชิกทั้งหมดของครอบครัว (รวม householdMembers ที่ยังมีชีวิต)
         const countTotalMembers = async (familyId) => {
             // ดึงข้อมูล Member ทั้งหมดของครอบครัว
             const members = await Member.find({
@@ -3062,11 +3265,11 @@ const searchHouseholds = async (req, res) => {
             let totalCount = members.length;
 
             members.forEach(member => {
-                if (member.beneficiaries && member.beneficiaries.length > 0) {
-                    const livingBeneficiaries = member.beneficiaries.filter(
-                        b => b.status === 'living'
+                if (member.householdMembers && member.householdMembers.length > 0) {
+                    const livingHouseholdMembers = member.householdMembers.filter(
+                        m => m.status === 'living'
                     );
-                    totalCount += livingBeneficiaries.length;
+                    totalCount += livingHouseholdMembers.length;
                 }
             });
 
@@ -3232,47 +3435,47 @@ const getFamilyMembers = async (req, res) => {
             });
         }
 
-        // ✅ ดึงข้อมูลสมาชิกทั้งหมด (ไม่กรอง Status)
         const members = await Member.find({
             familyID: family._id,
             isDeleted: false
-            // ✅ ลบเงื่อนไข Status: 'living' ออก
-        }).select('name idCardNumber age phone birthDate Status beneficiaries').lean();
+        }).select('name idCardNumber age phone birthDate Status householdMembers').lean();
 
         const memberList = [];
 
         members.forEach(member => {
-            // เพิ่มสมาชิกหลัก (ตัวแทน) - ทั้งที่มีชีวิตและเสียชีวิตแล้ว
+            // ✅ ตัวแทนครัวเรือน (main) — มีข้อมูลครบ
             memberList.push({
                 _id: member._id,
                 name: member.name,
                 idCardNumber: member.idCardNumber || '',
                 age: member.age || '',
                 phone: member.phone || '',
-                status: member.Status || 'living', // ✅ ส่งสถานะจริงไป
-                type: 'main'
+                status: member.Status || 'living',
+                type: 'main',
+                relation: 'ตัวแทนครัวเรือน'
             });
 
-            // ✅ เพิ่มผู้รับผลประโยชน์ทั้งหมด (ไม่กรอง)
-            if (member.beneficiaries && member.beneficiaries.length > 0) {
-                member.beneficiaries.forEach(beneficiary => {
+            // ✅ สมาชิกในครัวเรือน (householdMember) — ดึงข้อมูลครบจาก Schema
+            if (member.householdMembers && member.householdMembers.length > 0) {
+                member.householdMembers.forEach(hm => {
                     memberList.push({
-                        _id: `beneficiary_${beneficiary._id}`,
-                        name: beneficiary.name,
-                        relation: beneficiary.relation,
-                        status: beneficiary.status || 'living', // ✅ ส่งสถานะจริงไป
-                        type: 'beneficiary',
+                        _id: `householdMember_${hm._id}`,
+                        name: hm.name,
+                        idCardNumber: hm.idCardNumber || '', 
+                        age: hm.age || '',                   
+                        phone: hm.phone || '',               
+                        relation: hm.relationToHead || '',
+                        status: hm.status || 'living',
+                        type: 'householdMember',
                         mainMemberId: member._id
                     });
                 });
             }
         });
 
-        // ✅ ส่งข้อมูลทั้งหมดกลับไป (ทั้งคนมีชีวิตและเสียชีวิต)
         return res.json({
             success: true,
             data: memberList,
-            // ✅ เพิ่มสถิติเพื่อให้ Frontend รู้
             stats: {
                 total: memberList.length,
                 living: memberList.filter(m => m.status === 'living').length,
@@ -3911,41 +4114,29 @@ const submitFuneralAssistance = (req, res) => {
             }
 
             // ========== 7. สร้างบันทึกฌาปนกิจ ==========
-            // ✅ ตรวจสอบและแปลง deceasedId
             let validDeceasedId = null;
-
-            if (deceasedId) {
-                if (deceasedId.startsWith('beneficiary_')) {
-                    const beneficiaryId = deceasedId.split('_')[1];
-                    if (mongoose.Types.ObjectId.isValid(beneficiaryId)) {
-                        validDeceasedId = new mongoose.Types.ObjectId(beneficiaryId);
-                        console.log(`✅ Converted beneficiary ID: ${deceasedId} → ${validDeceasedId}`);
-                    } else {
-                        console.warn(`⚠️ Invalid beneficiary ObjectId: ${beneficiaryId}`);
+                if (deceasedId) {
+                    if (deceasedId.startsWith('householdMember_')) {
+                        const hmId = deceasedId.split('_')[1];
+                        if (mongoose.Types.ObjectId.isValid(hmId)) {
+                            validDeceasedId = new mongoose.Types.ObjectId(hmId);
+                        }
+                    } else if (mongoose.Types.ObjectId.isValid(deceasedId)) {
+                        validDeceasedId = new mongoose.Types.ObjectId(deceasedId);
                     }
-                } else if (mongoose.Types.ObjectId.isValid(deceasedId)) {
-                    validDeceasedId = new mongoose.Types.ObjectId(deceasedId);
-                    console.log(`✅ Valid member ObjectId: ${deceasedId}`);
-                } else {
-                    console.warn(`⚠️ Invalid ObjectId format: ${deceasedId}`);
                 }
-            }
 
-            // ✅ ทำเช่นเดียวกันกับ responsiblePersonId
-            let validResponsibleId = null;
-
-            if (responsiblePersonId) {
-                if (responsiblePersonId.startsWith('beneficiary_')) {
-                    const beneficiaryId = responsiblePersonId.split('_')[1];
-                    if (mongoose.Types.ObjectId.isValid(beneficiaryId)) {
-                        validResponsibleId = new mongoose.Types.ObjectId(beneficiaryId);
-                        console.log(`✅ Converted responsible beneficiary ID: ${responsiblePersonId} → ${validResponsibleId}`);
+                let validResponsibleId = null;
+                if (responsiblePersonId) {
+                    if (responsiblePersonId.startsWith('householdMember_')) {
+                        const hmId = responsiblePersonId.split('_')[1];
+                        if (mongoose.Types.ObjectId.isValid(hmId)) {
+                            validResponsibleId = new mongoose.Types.ObjectId(hmId);
+                        }
+                    } else if (mongoose.Types.ObjectId.isValid(responsiblePersonId)) {
+                        validResponsibleId = new mongoose.Types.ObjectId(responsiblePersonId);
                     }
-                } else if (mongoose.Types.ObjectId.isValid(responsiblePersonId)) {
-                    validResponsibleId = new mongoose.Types.ObjectId(responsiblePersonId);
-                    console.log(`✅ Valid responsible member ObjectId: ${responsiblePersonId}`);
                 }
-            }
 
             const funeralRecord = new FuneralAssistance({
                 familyID: familyID,
@@ -4012,45 +4203,37 @@ const submitFuneralAssistance = (req, res) => {
             // ========== 7.5 อัพเดทสถานะผู้เสียชีวิต ========== 
             if (deceasedId && deceasedName) {
                 console.log(`🔄 Updating deceased status for: ${deceasedName} (ID: ${deceasedId})`);
-                
-                // ตรวจสอบจาก deceasedId เดิม (ก่อนแปลง) เพื่อดูว่าเป็น beneficiary หรือไม่
-                if (deceasedId.startsWith('beneficiary_')) {
-                    // ✅ กรณี Beneficiary
-                    const beneficiaryObjectId = deceasedId.split('_')[1];
-                    
+
+                if (deceasedId.startsWith('householdMember_')) {
+                    const householdMemberObjectId = deceasedId.split('_')[1];
+
                     const member = await Member.findOne({
-                        'beneficiaries._id': beneficiaryObjectId,
+                        'householdMembers._id': householdMemberObjectId,
                         isDeleted: false
                     }).session(session);
 
                     if (member) {
-                        const beneficiaryIndex = member.beneficiaries.findIndex(
-                            b => b._id.toString() === beneficiaryObjectId
+                        const memberIndex = member.householdMembers.findIndex(
+                            m => m._id.toString() === householdMemberObjectId
                         );
-                        
-                        if (beneficiaryIndex !== -1) {
-                            member.beneficiaries[beneficiaryIndex].status = 'deceased';
+
+                        if (memberIndex !== -1) {
+                            member.householdMembers[memberIndex].status = 'deceased';
                             await member.save({ session });
-                            console.log(`✅ Updated beneficiary status to deceased: ${deceasedName}`);
+                            console.log(`✅ Updated householdMember status to deceased: ${deceasedName}`);
                         } else {
-                            console.warn(`⚠️ Beneficiary not found in member's list: ${beneficiaryObjectId}`);
+                            console.warn(`⚠️ HouseholdMember not found: ${householdMemberObjectId}`);
                         }
                     } else {
-                        console.warn(`⚠️ Member containing beneficiary not found: ${beneficiaryObjectId}`);
+                        console.warn(`⚠️ Member containing householdMember not found: ${householdMemberObjectId}`);
                     }
                 } else if (mongoose.Types.ObjectId.isValid(deceasedId)) {
-                    // ✅ กรณี Member หลัก
                     const updateResult = await Member.findByIdAndUpdate(
                         deceasedId,
-                        { 
-                            Status: 'deceased'
-                        },
-                        { 
-                            session,
-                            new: true // ← เพิ่มนี้เพื่อ return ค่าที่อัปเดทแล้ว
-                        }
+                        { Status: 'deceased' },
+                        { session, new: true }
                     );
-                    
+
                     if (updateResult) {
                         console.log(`✅ Updated member status to deceased: ${deceasedName}`);
                     } else {
@@ -4711,34 +4894,34 @@ const approveRequest = async (req, res) => {
         // ✅ อัปเดตสถานะผู้เสียชีวิต (ใช้วิธีเดียวกับ submitFuneralAssistance)
         // ============================================
         if (request.deceasedInfo.memberID && request.deceasedInfo.name) {
-            const memberIdObj = request.deceasedInfo.memberID; // ObjectId
+            const memberIdObj = request.deceasedInfo.memberID;
             const deceasedName = request.deceasedInfo.name;
             
             console.log(`🔄 Updating deceased status for: ${deceasedName}`);
             console.log(`📌 MemberID (ObjectId):`, memberIdObj);
             
-            // ✅ หาว่า beneficiary ไหนมี _id ตรงกับ memberIdObj
-            const memberWithBeneficiary = await Member.findOne({
-                'beneficiaries._id': memberIdObj,
+            // ✅ ตรวจสอบว่าเป็น householdMember ของ Member ไหน
+            const memberWithHouseholdMember = await Member.findOne({
+                'householdMembers._id': memberIdObj,
                 isDeleted: false
             }).session(session);
 
-            if (memberWithBeneficiary) {
-                // ✅ เจอแล้ว = เป็น Beneficiary
-                console.log(`✅ Found as beneficiary in member: ${memberWithBeneficiary.name}`);
+            if (memberWithHouseholdMember) {
+                // ✅ เป็น householdMember
+                console.log(`✅ Found as householdMember in member: ${memberWithHouseholdMember.name}`);
                 
-                const beneficiaryIndex = memberWithBeneficiary.beneficiaries.findIndex(
+                const householdIndex = memberWithHouseholdMember.householdMembers.findIndex(
                     b => b._id.toString() === memberIdObj.toString()
                 );
                 
-                if (beneficiaryIndex !== -1) {
-                    memberWithBeneficiary.beneficiaries[beneficiaryIndex].status = 'deceased';
-                    await memberWithBeneficiary.save({ session });
-                    console.log(`✅ Updated beneficiary status to deceased: ${deceasedName}`);
+                if (householdIndex !== -1) {
+                    memberWithHouseholdMember.householdMembers[householdIndex].status = 'deceased';
+                    await memberWithHouseholdMember.save({ session });
+                    console.log(`✅ Updated householdMember status to deceased: ${deceasedName}`);
                 }
             } else {
-                // ✅ ไม่เจอใน beneficiaries = เป็น Member หลัก
-                console.log(`✅ Not a beneficiary, updating as main member`);
+                // ✅ เป็น Member หลัก
+                console.log(`✅ Not a householdMember, updating as main member`);
                 
                 const updateResult = await Member.findByIdAndUpdate(
                     memberIdObj,
@@ -5647,7 +5830,7 @@ module.exports = {
     //หน้าสรุปการรับซื้อขยะ
     wastePurchaseTotalIndex,wastePurchaseDelete,
     //หน้าสมาชิกกองทุนขยะรีไซเคิล
-    memberIndex,memberRegister,getMemberForEdit,memberUpdate,memberDelete,markMemberDeceased,changeRepresentative,getRepresentatives,
+    memberIndex,memberRegister,getMemberForEdit,memberUpdate,memberDelete,changeRepresentative,getRepresentatives, //markMemberDeceased,
     //หน้าคำร้องหรือหรือข้อร้องเรียน
     complaintIndex,updateComplaintStatus,complaintReply,complaintReplyMessage,updateMessageReply,deleteMessageReply,
     //หน้าตรวจสอบความประสงค์ขายขยะ
@@ -5655,7 +5838,7 @@ module.exports = {
     //หน้าสต๊อกขยะ
     wasteStockIndex,
     //หน้าเบิกถอน
-    withDrawIndex,getAccountByNumber,showWithdrawPage,updateMinimumWithdraw,getCurrentSettings,
+    withDrawIndex,getAccountByNumber,showWithdrawPage,updateMinimumWithdraw,getCurrentSettings,searchAccounts,
     //หน้าฌาปนกิจสงเคราะห์
     funeralAidIndex,getFamilyMembers,searchHouseholds,checkEligibility,calculateFuneralAmount,getDeductionPreview,submitFuneralAssistance,
     //หน้าประวัติฌาปนกิจ

@@ -985,93 +985,51 @@
         }
         // ฟังก์ชันจัดการเมื่อเลือกสมาชิก
         function handleMemberSelection(select) {
-            console.log('🔍 handleMemberSelection called');
-            
             const selectedValue = select.value;
-            console.log('Selected value:', selectedValue);
-            
             const nameInput = document.getElementById('deceasedName');
             const ageInput = document.getElementById('deceasedAge');
             const idCardInput = document.getElementById('idCard');
             const phoneInput = document.getElementById('phone');
 
-            console.log('Name input element:', nameInput);
-            console.log('Age input element:', ageInput);
-            console.log('ID Card input element:', idCardInput);
-            console.log('Phone input element:', phoneInput);
-
-            // ตรวจสอบว่า elements ทั้งหมดมีอยู่จริง
-            if (!nameInput || !ageInput || !idCardInput || !phoneInput) {
-                console.error('❌ Some input elements are missing!');
-                return;
-            }
+            if (!nameInput || !ageInput || !idCardInput || !phoneInput) return;
 
             if (selectedValue === '' || selectedValue === 'other') {
-                console.log('Clearing deceased fields');
                 clearDeceasedFields();
             } else {
-                // เติมข้อมูลอัตโนมัติ
                 const selectedOption = select.options[select.selectedIndex];
-                console.log('Selected option:', selectedOption);
-                console.log('Dataset memberData:', selectedOption.dataset.memberData);
-                
                 const memberData = JSON.parse(selectedOption.dataset.memberData);
-                console.log('Parsed member data:', memberData);
-                console.log('Member name:', memberData.name);
-                console.log('Member type:', memberData.type);
 
-                // เติมชื่อเสมอ (ทั้ง member และ beneficiary)
-                console.log('Setting name input value to:', memberData.name);
                 nameInput.value = memberData.name || '';
                 nameInput.readOnly = true;
                 nameInput.classList.add('bg-gray-100');
-                console.log('Name input value after set:', nameInput.value);
-                
-                // ตรวจสอบ type
-                if (memberData.type === 'beneficiary') {
-                    console.log('Type is beneficiary - clearing other fields');
-                    // สำหรับ beneficiary ให้เคลียร์ field อื่นๆ แล้วปล่อยให้กรอกเอง
-                    ageInput.value = '';
+
+                // เปลี่ยนจาก type === 'beneficiary' → type === 'household'
+                if (memberData.type === 'household') {
+                    ageInput.value = memberData.age || '';
                     ageInput.readOnly = false;
                     ageInput.classList.remove('bg-gray-100');
                     
-                    idCardInput.value = '';
+                    idCardInput.value = memberData.idCardNumber ? formatThaiID(memberData.idCardNumber) : '';
                     idCardInput.readOnly = false;
                     idCardInput.classList.remove('bg-gray-100');
                     
-                    phoneInput.value = '';
+                    phoneInput.value = memberData.phone || '';
                     phoneInput.readOnly = false;
                     phoneInput.classList.remove('bg-gray-100');
                 } else {
-                    console.log('Type is main member - filling all fields');
-                    // สำหรับ member ตัวแทน ทำแบบเดิม
+                    // type === 'main'
                     ageInput.value = memberData.age || '';
                     idCardInput.value = formatThaiID(memberData.idCardNumber || '');
                     phoneInput.value = memberData.phone || '';
 
-                    if (memberData.age) {
-                        ageInput.readOnly = true;
-                        ageInput.classList.add('bg-gray-100');
-                    } else {
-                        ageInput.readOnly = false;
-                        ageInput.classList.remove('bg-gray-100');
-                    }
+                    ageInput.readOnly = !!memberData.age;
+                    ageInput.classList.toggle('bg-gray-100', !!memberData.age);
 
-                    if (memberData.idCardNumber) {
-                        idCardInput.readOnly = true;
-                        idCardInput.classList.add('bg-gray-100');
-                    } else {
-                        idCardInput.readOnly = false;
-                        idCardInput.classList.remove('bg-gray-100');
-                    }
+                    idCardInput.readOnly = !!memberData.idCardNumber;
+                    idCardInput.classList.toggle('bg-gray-100', !!memberData.idCardNumber);
 
-                    if (memberData.phone) {
-                        phoneInput.readOnly = true;
-                        phoneInput.classList.add('bg-gray-100');
-                    } else {
-                        phoneInput.readOnly = false;
-                        phoneInput.classList.remove('bg-gray-100');
-                    }
+                    phoneInput.readOnly = !!memberData.phone;
+                    phoneInput.classList.toggle('bg-gray-100', !!memberData.phone);
                 }
             }
         }

@@ -204,17 +204,25 @@
                                                 </span>
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-center">
-                                                <button onclick="showEditModal('<%= family._id %>')" class="edit-btn">
-                                                    <i class="fa-solid fa-pen-to-square"></i>
-                                                </button>
-                                                <button onclick="showChangeRepresentativeModal('<%= family._id %>')" 
-                                                        class="bg-purple-500 text-white px-3 py-1 rounded hover:bg-purple-600 transition-colors"
+                                                <div class="flex items-center justify-center gap-2"> <button onclick="showEditModal('<%= family._id %>')" 
+                                                        class="h-8 w-8 rounded bg-blue-500 text-white hover:bg-blue-600 transition-colors flex items-center justify-center"
+                                                        title="แก้ไข">
+                                                        <i class="fa-solid fa-pen-to-square text-xs"></i>
+                                                    </button>
+
+                                                    <button onclick="showChangeRepresentativeModal('<%= family._id %>')" 
+                                                        class="h-8 w-8 rounded bg-purple-500 text-white hover:bg-purple-600 transition-colors flex items-center justify-center"
                                                         title="เปลี่ยนตัวแทนครัวเรือน">
-                                                    <i class="fa-solid fa-user-check"></i>
-                                                </button>
-                                                <button onclick="showModalDelete('<%= index + 1 %>', '<%= family._id %>','<%= family.AccountNumber %>','<%= family.familyName %>')" class="delete-btn">
-                                                    <i class="fa-solid fa-trash"></i>
-                                                </button>
+                                                        <i class="fa-solid fa-user-check text-xs"></i>
+                                                    </button>
+
+                                                    <button onclick="showModalDelete('<%= index + 1 %>', '<%= family._id %>','<%= family.AccountNumber %>','<%= family.familyName %>')" 
+                                                        class="h-8 w-8 rounded bg-red-500 text-white hover:bg-red-600 transition-colors flex items-center justify-center"
+                                                        title="ลบ">
+                                                        <i class="fa-solid fa-trash text-xs"></i>
+                                                    </button>
+                                                    
+                                                </div>
                                             </td>
                                         </tr>
                                         <% }); %>
@@ -223,7 +231,7 @@
                                                     <td colspan="8" class="text-center py-4 text-gray-500">
                                                         -ไม่พบข้อมูลสมาชิก -</td>
                                                 </tr>
-                                                <% } %>
+                                            <% } %>
                             </tbody>
                         </table>
                     </div>
@@ -245,12 +253,11 @@
                             </button>
                         </div>
 
-                        <form action="/employee/memberRegister" method="POST" class="space-y-6">
+                        <form action="/employee/memberRegister" method="POST" class="space-y-6" id="registerForm">
 
                             <!-- ส่วนที่ 1: ข้อมูลครัวเรือน -->
                             <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
                                 <h2 class="text-base font-semibold mb-4 flex items-center space-x-2">
-                                    <!-- <ion-icon name="home-outline" class="text-lg"></ion-icon> -->
                                     <span>1. ข้อมูลครัวเรือน</span>
                                 </h2>
 
@@ -392,8 +399,7 @@
                             <!-- ส่วนที่ 2: ข้อมูลสมาชิก (ตัวแทนครอบครัว) -->
                             <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
                                 <h2 class="text-base font-semibold mb-4 flex items-center space-x-2">
-                                    <!-- <ion-icon name="person-outline" class="text-lg"></ion-icon> -->
-                                    <span>2. ข้อมูลสมาชิก (ตัวแทนครอบครัว)</span>
+                                    <span>2. ข้อมูลสมาชิกตัวแทนครัวเรือน</span>
                                 </h2>
 
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -444,12 +450,13 @@
 
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">
-                                            สัญชาติ
+                                            เบอร์โทรศัพท์
                                         </label>
-                                        <input type="text" name="nationality" 
+                                        <input type="tel" name="phone" id="registerPhone"
                                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
-                                            value="ไทย">
+                                            placeholder="XXX-XXXXXXX">
                                     </div>
+                                    
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -470,51 +477,125 @@
                                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
                                             value="พุทธ">
                                     </div>
-
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">
-                                            เบอร์โทรศัพท์
+                                            สัญชาติ
                                         </label>
-                                        <input type="tel" name="phone" 
-                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
+                                        <input type="text" name="nationality" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                                            value="ไทย">
                                     </div>
-                                </div>
-
-                                <div class="mb-4">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        อีเมล
-                                    </label>
-                                    <input type="email" name="email" 
-                                        class="w-full md:w-1/2 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
                                 </div>
                             </div>
 
-                            <!-- ส่วนที่ 3: ผู้รับผลประโยชน์ -->
+                            <!-- ส่วนที่ 3: สมาชิกอื่นๆ ในครัวเรือน -->
                             <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
                                 <h2 class="text-base font-semibold mb-4 flex items-center space-x-2">
-                                    <!-- <ion-icon name="people-outline" class="text-lg"></ion-icon> -->
-                                    <span>3. ข้อมูลสมาชิกอื่นๆ</span>
+                                    <span>3. ข้อมูลสมาชิกอื่นๆ ในครัวเรือน</span>
                                 </h2>
+                                <p class="text-sm text-gray-600 mb-4">
+                                    <ion-icon name="information-circle-outline" class="align-middle"></ion-icon>
+                                    กรอกข้อมูลสมาชิกอื่นๆ ที่ไม่ใช่ตัวแทนครัวเรือน (เช่น คู่สมรส บุตร บิดา มารดา ญาติ)
+                                </p>
 
                                 <div id="beneficiaries-container">
                                     <div class="beneficiary-item border-b border-gray-200 pb-4 mb-4">
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                        <h4 class="text-sm font-semibold text-gray-700 mb-3">สมาชิกในครัวเรือน #1</h4>
+                                        
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                                                    ชื่อ-สกุล ผู้รับผลประโยชน์
+                                                    ชื่อ-สกุล <span class="text-red-500">*</span>
                                                 </label>
                                                 <input type="text" name="beneficiaries[0][name]"
+                                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition" required>
+                                            </div>
+
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                    เลขบัตรประชาชน
+                                                </label>
+                                                <input type="text" name="beneficiaries[0][idCardNumber]"
+                                                    class="household-id-card w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                                                    placeholder="X-XXXX-XXXXX-XX-X"
+                                                    maxlength="17">
+                                            </div>
+
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                    วัน/เดือน/ปีเกิด
+                                                </label>
+                                                <input type="date" name="beneficiaries[0][birthDate]"
+                                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
+                                            </div>
+                                        </div>
+
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                    อาชีพ
+                                                </label>
+                                                <input type="text" name="beneficiaries[0][occupation]"
                                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
                                             </div>
 
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                                                    ความสัมพันธ์
+                                                    อายุ (ปี)
+                                                </label>
+                                                <input type="text" name="beneficiaries[0][age]"
+                                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
+                                            </div>
+
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                    เบอร์โทรศัพท์
+                                                </label>
+                                                <input type="tel" name="beneficiaries[0][phone]"
+                                                    class="household-phone w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                                                    placeholder="XXX-XXXXXXX"
+                                                    maxlength="12">
+                                            </div>
+                                        </div>
+
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                    สัญชาติ
+                                                </label>
+                                                <input type="text" name="beneficiaries[0][nationality]"
+                                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                                                    value="ไทย">
+                                            </div>
+
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                    เชื้อชาติ
+                                                </label>
+                                                <input type="text" name="beneficiaries[0][ethnicity]"
+                                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                                                    value="ไทย">
+                                            </div>
+
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                    ศาสนา
+                                                </label>
+                                                <input type="text" name="beneficiaries[0][religion]"
+                                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                                                    value="พุทธ">
+                                            </div>
+                                        </div>
+
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                    ความสัมพันธ์กับตัวแทนครัวเรือน <span class="text-red-500">*</span>
                                                 </label>
                                                 <select name="beneficiaries[0][relation]" 
-                                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
+                                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                                                    required>
                                                     <option value="">-- เลือกความสัมพันธ์ --</option>
-                                                    <option value="หัวหน้าครัวเรือน">หัวหน้าครัวเรือน</option>
                                                     <option value="คู่สมรส">คู่สมรส</option>
                                                     <option value="บุตร">บุตร</option>
                                                     <option value="บิดา/มารดา">บิดา/มารดา</option>
@@ -526,18 +607,18 @@
 
                                         <div class="mb-4">
                                             <label class="block text-sm font-medium text-gray-700 mb-3">
-                                                เงื่อนไขการรับเงิน
+                                                เงื่อนไขการรับเงินฌาปนกิจ
                                             </label>
                                             <div class="space-y-2">
                                                 <label class="flex items-center space-x-3 cursor-pointer">
                                                     <input type="radio" name="beneficiaries[0][distributionType]"
-                                                        value="full" class="w-4 h-4 text-green-500" checked>
+                                                        value="full" class="w-4 h-4 text-green-500">
                                                     <span class="text-sm text-gray-700">ให้ได้รับเต็มจำนวน</span>
                                                 </label>
 
                                                 <label class="flex items-center space-x-3 cursor-pointer">
                                                     <input type="radio" name="beneficiaries[0][distributionType]"
-                                                        value="equal" class="w-4 h-4 text-green-500">
+                                                        value="equal" class="w-4 h-4 text-green-500" checked>
                                                     <span class="text-sm text-gray-700">ให้ได้รับส่วนแบ่งเท่ากัน</span>
                                                 </label>
 
@@ -550,7 +631,7 @@
                                                 <div class="pl-7">
                                                     <input type="text" name="beneficiaries[0][distributionDetail]"
                                                         class="px-4 py-3 border border-gray-300 rounded-lg w-full md:w-1/2 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
-                                                        placeholder="โปรดระบุ">
+                                                        placeholder="โปรดระบุ (ถ้าเลือกอื่นๆ)">
                                                 </div>
                                             </div>
                                         </div>
@@ -560,19 +641,20 @@
                                 <button type="button" id="add-beneficiary"
                                     class="text-blue-500 hover:text-blue-600 font-medium flex items-center transition duration-200 mt-4">
                                     <ion-icon name="add-circle-outline" class="text-xl mr-1"></ion-icon>
-                                    เพิ่มผู้รับผลประโยชน์
+                                    เพิ่มสมาชิกในครัวเรือน
                                 </button>
 
                                 <div class="mt-6">
                                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        จำนวนคนที่อาศัยในครัวเรือน (คน)
+                                        จำนวนคนที่อาศัยในครัวเรือนทั้งหมด (รวมตัวแทน)
                                     </label>
                                     <input type="number" name="NumFamilyMembers"
-                                        class="w-full md:w-1/4 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
+                                        class="w-full md:w-1/4 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                                        placeholder="เช่น 4"
+                                        min="1">
                                 </div>
                             </div>
 
-                            <!-- ข้อตกลง -->
                             <div class="bg-blue-50 p-5 rounded-lg border border-blue-200">
                                 <p class="text-sm text-gray-700 mb-3">
                                     ข้าพเจ้าได้อ่านเข้าใจในเงื่อนไขและระเบียบกองทุนขยะรีไซเคิลแล้ว ยินดีปฏิบัติตามทุกประการ
@@ -681,10 +763,7 @@
 
                             <!-- ส่วนที่ 1: ข้อมูลครัวเรือน -->
                             <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
-                                <h2 class="text-base font-semibold mb-4 flex items-center space-x-2">
-                                    <!-- <ion-icon name="home-outline" class="text-lg"></ion-icon> -->
-                                    <span>1. ข้อมูลครัวเรือน</span>
-                                </h2>
+                                <h2 class="text-base font-semibold mb-4">1. ข้อมูลครัวเรือน</h2>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                     <div>
@@ -809,12 +888,9 @@
                                 </div>
                             </div>
 
-                            <!-- ส่วนที่ 2: ข้อมูลสมาชิก -->
+                            <!-- ส่วนที่ 2: ข้อมูลสมาชิกตัวแทน -->
                             <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
-                                <h2 class="text-base font-semibold mb-4 flex items-center space-x-2">
-                                    <!-- <ion-icon name="person-outline" class="text-lg"></ion-icon> -->
-                                    <span>2. ข้อมูลสมาชิก (ตัวแทนครอบครัว)</span>
-                                </h2>
+                                <h2 class="text-base font-semibold mb-4">2. ข้อมูลสมาชิกตัวแทนครัวเรือน</h2>
 
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                                     <div>
@@ -830,7 +906,7 @@
                                         <label class="block text-sm font-medium text-gray-700 mb-2">
                                             เลขบัตรประชาชน <span class="text-red-500">*</span>
                                         </label>
-                                        <input type="text" name="idCardNumber" 
+                                        <input type="text" name="idCardNumber" id="editIdCard"
                                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
                                             placeholder="X-XXXX-XXXXX-XX-X"
                                             maxlength="17" required>
@@ -892,45 +968,39 @@
                                         <label class="block text-sm font-medium text-gray-700 mb-2">
                                             เบอร์โทรศัพท์
                                         </label>
-                                        <input type="tel" name="phone" 
+                                        <input type="tel" name="phone" id="editPhone"
                                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
                                             placeholder="XXX-XXXXXXX"
                                             maxlength="12">
                                     </div>
                                 </div>
-
-                                <div class="mb-4">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        อีเมล
-                                    </label>
-                                    <input type="email" name="email" 
-                                        class="w-full md:w-1/2 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
-                                </div>
                             </div>
 
-                            <!-- ส่วนที่ 3: ผู้รับผลประโยชน์ -->
+                            <!-- ส่วนที่ 3: สมาชิกอื่นๆ ในครัวเรือน -->
                             <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
-                                <h2 class="text-base font-semibold mb-4 flex items-center space-x-2">
-                                    <!-- <ion-icon name="people-outline" class="text-lg"></ion-icon> -->
-                                    <span>3. เงื่อนไขการรับสวัสดิการ</span>
-                                </h2>
+                                <h2 class="text-base font-semibold mb-4">3. ข้อมูลสมาชิกอื่นๆ ในครัวเรือน</h2>
+                                <p class="text-sm text-gray-600 mb-4">
+                                    <ion-icon name="information-circle-outline" class="align-middle"></ion-icon>
+                                    สมาชิกอื่นๆ ที่ไม่ใช่ตัวแทนครัวเรือน
+                                </p>
 
                                 <div id="edit-beneficiaries-container">
-                                    <!-- ข้อมูลผู้รับผลประโยชน์จะถูกเพิ่มที่นี่โดย JavaScript -->
+                                    <!-- ข้อมูลสมาชิกจะถูกเพิ่มที่นี่โดย JavaScript -->
                                 </div>
 
                                 <button type="button" id="add-edit-beneficiary"
                                     class="text-blue-500 hover:text-blue-600 font-medium flex items-center transition duration-200 mt-4">
                                     <ion-icon name="add-circle-outline" class="text-xl mr-1"></ion-icon>
-                                    เพิ่มผู้รับผลประโยชน์
+                                    เพิ่มสมาชิกในครัวเรือน
                                 </button>
 
                                 <div class="mt-6">
                                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        จำนวนคนที่อาศัยในครัวเรือน (คน)
+                                        จำนวนคนที่อาศัยในครัวเรือนทั้งหมด (รวมตัวแทน)
                                     </label>
                                     <input type="number" name="NumFamilyMembers"
-                                        class="w-full md:w-1/4 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
+                                        class="w-full md:w-1/4 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                                        min="1">
                                 </div>
                             </div>
 
@@ -954,10 +1024,9 @@
                 <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl px-4 max-h-[90vh] overflow-y-auto">
                     <div class="bg-white rounded-xl shadow-lg p-8 space-y-6">
                         
-                        <!-- Header -->
                         <div class="flex items-center justify-between border-b pb-4">
                             <div class="flex items-center space-x-3">
-                                <ion-icon name="people-outline" class="text-blue-500 text-2xl"></ion-icon>
+                                <ion-icon name="people-outline" class="text-purple-500 text-2xl"></ion-icon>
                                 <span class="text-xl font-semibold text-gray-800">เปลี่ยนตัวแทนครัวเรือน</span>
                             </div>
                             <button type="button" onclick="closeChangeRepresentativeModal()" class="text-gray-400 hover:text-gray-600 transition">
@@ -976,7 +1045,7 @@
                             </div>
                         </div>
 
-                        <!-- เลือกผู้รับผลประโยชน์ -->
+                        <!-- เลือกสมาชิกในครัวเรือน -->
                         <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
                             <h2 class="text-base font-semibold mb-4 text-green-700 flex items-center space-x-2">
                                 <ion-icon name="arrow-forward-circle-outline" class="text-lg"></ion-icon>
@@ -984,17 +1053,24 @@
                             </h2>
                             
                             <div class="mb-4">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">เลือกจากผู้รับผลประโยชน์</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    เลือกจากสมาชิกในครัวเรือน (ที่ยังมีชีวิต)
+                                </label>
                                 <select id="beneficiarySelect" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
-                                    <option value="">-- เลือกผู้รับผลประโยชน์หรือกรอกข้อมูลใหม่ --</option>
+                                    <option value="">-- เลือกสมาชิกหรือกรอกข้อมูลใหม่ --</option>
                                 </select>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    <ion-icon name="information-circle-outline" class="align-middle"></ion-icon>
+                                    สามารถเลือกจากสมาชิกที่มีอยู่ หรือกรอกข้อมูลใหม่
+                                </p>
                             </div>
 
                             <form id="changeRepresentativeForm" class="space-y-4">
                                 <input type="hidden" id="changeFamilyId" name="familyId">
                                 <input type="hidden" id="selectedBeneficiaryIndex" name="beneficiaryIndex">
+                                <input type="hidden" id="selectedBeneficiaryType" name="beneficiaryType">
                                 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">
                                             ชื่อ-สกุล <span class="text-red-500">*</span>
@@ -1013,21 +1089,13 @@
                                             placeholder="X-XXXX-XXXXX-XX-X"
                                             maxlength="17" required>
                                     </div>
-                                </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">เบอร์โทรศัพท์</label>
                                         <input type="tel" name="phone" id="newRepPhone" 
                                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
                                             placeholder="XXX-XXXXXXX"
                                             maxlength="12">
-                                    </div>
-
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">อีเมล</label>
-                                        <input type="email" name="email" id="newRepEmail" 
-                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
                                     </div>
                                 </div>
 
@@ -1080,7 +1148,7 @@
                                         ยกเลิก
                                     </button>
                                     <button type="submit" 
-                                        class="flex-1 px-4 py-2.5 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition duration-200">
+                                        class="flex-1 px-4 py-2.5 bg-purple-500 hover:bg-purple-600 text-white font-medium rounded-lg transition duration-200">
                                         ยืนยันเปลี่ยนตัวแทน
                                     </button>
                                 </div>
@@ -1093,796 +1161,1078 @@
             <%- include('../partials/employeePartials/empFooter.ejs') %>
 </body>
 <script>
-    // JavaScript สำหรับเพิ่มผู้รับผลประโยชน์
-    document.getElementById('add-beneficiary').addEventListener('click', function () {
-        const container = document.getElementById('beneficiaries-container');
-        const beneficiaryCount = container.getElementsByClassName('beneficiary-item').length;
-        const index = beneficiaryCount;
+    // ============================================
+// 1. ฟังก์ชัน Format ข้อมูล
+// ============================================
 
-        const newBeneficiary = document.createElement('div');
-        newBeneficiary.className = 'beneficiary-item border-b pb-4 mb-4';
-        newBeneficiary.innerHTML = `
-            <div class="flex justify-between items-center mb-2">
-                <h3 class="font-medium">ผู้รับผลประโยชน์ ${index + 1}</h3>
-                <button type="button" class="text-red-500 hover:text-red-700 remove-beneficiary">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                    </svg>
-                </button>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label class="block text-gray-700 mb-2">ชื่อ-สกุล ผู้รับผลประโยชน์</label>
-                    <input type="text" name="beneficiaries[${index}][name]" class="w-full p-2 border rounded">
-                </div>
-                
-                <div>
-                    <label class="block text-gray-700 mb-2">ความสัมพันธ์</label>
-                    <select name="beneficiaries[${index}][relation]" class="w-full p-2 border rounded">
-                        <option value="">-- เลือกความสัมพันธ์ --</option>
-                        <option value="หัวหน้าครัวเรือน">หัวหน้าครัวเรือน</option>
-                        <option value="คู่สมรส">คู่สมรส</option>
-                        <option value="บุตร">บุตร</option>
-                        <option value="บิดา/มารดา">บิดา/มารดา</option>
-                        <option value="ญาติ">ญาติ</option>
-                        <option value="อื่นๆ">อื่นๆ</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="mb-4 text-start">
-                <label class="block text-gray-700 mb-2">เงื่อนไขการรับเงิน</label>
-                <div class="flex flex-col space-y-3">
-                    <div class="grid grid-cols-[24px_1fr] items-start gap-2">
-                        <input type="radio" name="beneficiaries[${index}][distributionType]" value="full" class="mt-0.5" checked>
-                        <label class="text-gray-700">ให้ได้รับเต็มจำนวน</label>
-                    </div>
-                                        
-                    <div class="grid grid-cols-[24px_1fr] items-start gap-2">
-                        <input type="radio" name="beneficiaries[${index}][distributionType]" value="equal" class="mt-0.5">
-                        <label class="text-gray-700">ให้ได้รับส่วนแบ่งเท่ากัน</label>
-                    </div>
-                                        
-                    <div class="grid grid-cols-[24px_1fr] items-start gap-2">
-                        <input type="radio" name="beneficiaries[${index}][distributionType]" value="other" class="mt-0.5">
-                        <label class="text-gray-700">อื่นๆ</label>
-                    </div>
-                                        
-                    <div class="pl-[24px]">
-                        <input type="text" name="beneficiaries[${index}][distributionType]" class="p-2 border rounded w-full md:w-1/2" placeholder="โปรดระบุ">
-                    </div>
-                </div>                                
-            </div>
-        `;
+function formatThaiID(value) {
+    let numbers = value.replace(/\D/g, '').slice(0, 13);
+    let formatted = '';
+    if(numbers.length > 0) formatted += numbers.substr(0, 1);
+    if(numbers.length > 1) formatted += '-' + numbers.substr(1, 4);
+    if(numbers.length > 5) formatted += '-' + numbers.substr(5, 5);
+    if(numbers.length > 10) formatted += '-' + numbers.substr(10, 2);
+    if(numbers.length > 12) formatted += '-' + numbers.substr(12, 1);
+    return formatted;
+}
 
-        container.appendChild(newBeneficiary);
+function formatPhoneNumber(value) {
+    let numbers = value.replace(/\D/g, '').slice(0, 10);
+    let formatted = '';
+    if (numbers.length > 0) {
+        if(numbers.length > 0) formatted += numbers.substr(0, 3);
+        if(numbers.length > 3) formatted += '-' + numbers.substr(3);
+    }
+    return formatted;
+}
 
-        // เพิ่ม event listener สำหรับปุ่มลบ
-        const removeButtons = document.getElementsByClassName('remove-beneficiary');
-        for (let btn of removeButtons) {
-            btn.addEventListener('click', function () {
-                this.closest('.beneficiary-item').remove();
-                // อัพเดต index สำหรับผู้รับผลประโยชน์ที่เหลือ
-                updateBeneficiaryIndexes();
-            });
-        }
+function removeFormat(value) {
+    return value.replace(/\D/g, '');
+}
+
+// ============================================
+// 2. Setup Auto-format Listeners
+// ============================================
+
+function setupAutoFormatListeners(modalSelector) {
+    const idCardInput = document.querySelector(`${modalSelector} input[name="idCardNumber"]`);
+    if (idCardInput) {
+        idCardInput.addEventListener('input', function(e) {
+            const cursorPosition = e.target.selectionStart;
+            const oldLength = e.target.value.length;
+            e.target.value = formatThaiID(e.target.value);
+            const newLength = e.target.value.length;
+            const diff = newLength - oldLength;
+            e.target.setSelectionRange(cursorPosition + diff, cursorPosition + diff);
+        });
+    }
+
+    const phoneInput = document.querySelector(`${modalSelector} input[name="phone"]`);
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function(e) {
+            const cursorPosition = e.target.selectionStart;
+            const oldLength = e.target.value.length;
+            e.target.value = formatPhoneNumber(e.target.value);
+            const newLength = e.target.value.length;
+            const diff = newLength - oldLength;
+            e.target.setSelectionRange(cursorPosition + diff, cursorPosition + diff);
+        });
+    }
+}
+
+// ⭐ ฟังก์ชัน auto-format สำหรับ household members (ID Card และ Phone)
+function setupHouseholdAutoFormat() {
+    // Format ID Card สำหรับ household members
+    const householdIdCards = document.querySelectorAll('.household-id-card');
+    householdIdCards.forEach(input => {
+        // Remove old listeners
+        const newInput = input.cloneNode(true);
+        input.parentNode.replaceChild(newInput, input);
+        
+        newInput.addEventListener('input', function(e) {
+            const cursorPosition = e.target.selectionStart;
+            const oldLength = e.target.value.length;
+            e.target.value = formatThaiID(e.target.value);
+            const newLength = e.target.value.length;
+            const diff = newLength - oldLength;
+            e.target.setSelectionRange(cursorPosition + diff, cursorPosition + diff);
+        });
     });
 
-    // ฟังก์ชันอัพเดต index ของผู้รับผลประโยชน์
-    function updateBeneficiaryIndexes() {
-        const beneficiaryItems = document.getElementsByClassName('beneficiary-item');
-        for (let i = 0; i < beneficiaryItems.length; i++) {
-            const inputs = beneficiaryItems[i].querySelectorAll('input[name^="beneficiaries"]');
-            for (let input of inputs) {
-                const name = input.getAttribute('name');
-                input.setAttribute('name', name.replace(/beneficiaries\[\d+\]/, `beneficiaries[${i}]`));
-            }
+    // Format Phone สำหรับ household members
+    const householdPhones = document.querySelectorAll('.household-phone');
+    householdPhones.forEach(input => {
+        // Remove old listeners
+        const newInput = input.cloneNode(true);
+        input.parentNode.replaceChild(newInput, input);
+        
+        newInput.addEventListener('input', function(e) {
+            const cursorPosition = e.target.selectionStart;
+            const oldLength = e.target.value.length;
+            e.target.value = formatPhoneNumber(e.target.value);
+            const newLength = e.target.value.length;
+            const diff = newLength - oldLength;
+            e.target.setSelectionRange(cursorPosition + diff, cursorPosition + diff);
+        });
+    });
+}
 
-            const title = beneficiaryItems[i].querySelector('h3');
-            if (title && i > 0) { // ไม่อัพเดตชื่อผู้รับผลประโยชน์คนแรก
-                title.textContent = `ผู้รับผลประโยชน์ ${i + 1}`;
-            }
+// ⭐ ฟังก์ชัน auto-format สำหรับ household members ใน Modal แก้ไข
+function setupEditHouseholdAutoFormat() {
+    // Format ID Card สำหรับ edit household members
+    const editHouseholdIdCards = document.querySelectorAll('.edit-household-id-card');
+    editHouseholdIdCards.forEach(input => {
+        const newInput = input.cloneNode(true);
+        input.parentNode.replaceChild(newInput, input);
+        
+        newInput.addEventListener('input', function(e) {
+            const cursorPosition = e.target.selectionStart;
+            const oldLength = e.target.value.length;
+            e.target.value = formatThaiID(e.target.value);
+            const newLength = e.target.value.length;
+            const diff = newLength - oldLength;
+            e.target.setSelectionRange(cursorPosition + diff, cursorPosition + diff);
+        });
+    });
+
+    // Format Phone สำหรับ edit household members
+    const editHouseholdPhones = document.querySelectorAll('.edit-household-phone');
+    editHouseholdPhones.forEach(input => {
+        const newInput = input.cloneNode(true);
+        input.parentNode.replaceChild(newInput, input);
+        
+        newInput.addEventListener('input', function(e) {
+            const cursorPosition = e.target.selectionStart;
+            const oldLength = e.target.value.length;
+            e.target.value = formatPhoneNumber(e.target.value);
+            const newLength = e.target.value.length;
+            const diff = newLength - oldLength;
+            e.target.setSelectionRange(cursorPosition + diff, cursorPosition + diff);
+        });
+    });
+}
+
+// ============================================
+// 3. Modal Management
+// ============================================
+
+function ShowAddFamilyForm() {
+    const modal = document.getElementById('ShowAddFamilyForm');
+    modal.classList.remove("hidden");
+    modal.scrollTo({ top: 0, behavior: 'smooth' });
+    setupAutoFormatListeners('#ShowAddFamilyForm');
+    setupHouseholdAutoFormat(); // ⭐ Setup auto-format สำหรับ household members
+}
+
+function closeAddFamilyForm() {
+    Swal.fire({
+        title: "คุณต้องการปิดฟอร์มนี้ใช่หรือไม่",
+        text: "หากปิดแล้วข้อมูลที่กรอกจะหายไป",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#00923f",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "ยืนยัน",
+        cancelButtonText: "ยกเลิก"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('ShowAddFamilyForm').classList.add("hidden");
+            document.getElementById('registerForm').reset();
+        }
+    });
+}
+
+function closeEditModal() {
+    Swal.fire({
+        title: "คุณต้องการปิดฟอร์มนี้ใช่หรือไม่",
+        text: "หากปิดแล้วข้อมูลที่แก้ไขจะไม่ถูกบันทึก",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#00923f",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "ยืนยัน",
+        cancelButtonText: "ยกเลิก"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('editFamilyModal').classList.add("hidden");
+        }
+    });
+}
+
+function closeChangeRepresentativeModal() {
+    Swal.fire({
+        title: "คุณต้องการปิดฟอร์มนี้ใช่หรือไม่",
+        text: "หากปิดแล้วข้อมูลที่กรอกจะหายไป",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#00923f",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "ยืนยัน",
+        cancelButtonText: "ยกเลิก"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('changeRepresentativeModal').classList.add("hidden");
+            document.getElementById('changeRepresentativeForm').reset();
+        }
+    });
+}
+
+function ShowLocation(family) {
+    const modal = document.getElementById('ShowLocationModal');
+    modal.classList.remove("hidden");
+    document.querySelector("#ShowLocationModal input[name='familyName']").value = family.familyName;
+    document.querySelector("#ShowLocationModal input[name='houseNumber']").value = family.address.houseNumber;
+    document.querySelector("#ShowLocationModal input[name='road']").value = family.address.road;
+    document.querySelector("#ShowLocationModal input[name='subdistrict']").value = family.address.subdistrict;
+    document.querySelector("#ShowLocationModal input[name='district']").value = family.address.district;
+    document.querySelector("#ShowLocationModal input[name='province']").value = family.address.province;
+    document.querySelector("#ShowLocationModal input[name='postalCode']").value = family.address.postalCode;
+}
+
+function CloseLocationModal() {
+    document.getElementById('ShowLocationModal').classList.add("hidden");
+}
+
+// ============================================
+// 4. ⭐ จัดการสมาชิกในครัวเรือน (เปลี่ยนจาก beneficiaries)
+// ============================================
+
+// เพิ่มสมาชิกในครัวเรือน - ฟอร์มลงทะเบียน (พร้อมฟิลด์ครบถ้วน)
+document.getElementById('add-beneficiary')?.addEventListener('click', function () {
+    const container = document.getElementById('beneficiaries-container');
+    const beneficiaryCount = container.getElementsByClassName('beneficiary-item').length;
+    const index = beneficiaryCount;
+
+    const newMember = document.createElement('div');
+    newMember.className = 'beneficiary-item border-b border-gray-200 pb-4 mb-4';
+    newMember.innerHTML = `
+        <div class="flex justify-between items-center mb-3">
+            <h4 class="text-sm font-semibold text-gray-700">สมาชิกในครัวเรือน #${index + 1}</h4>
+            <button type="button" class="text-red-500 hover:text-red-700 remove-beneficiary transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+        
+        <!-- ข้อมูลพื้นฐาน -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    ชื่อ-สกุล <span class="text-red-500">*</span>
+                </label>
+                <input type="text" name="beneficiaries[${index}][name]" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                    placeholder="เช่น นางสาวสมหญิง ใจดี"
+                    required>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    เลขบัตรประชาชน
+                </label>
+                <input type="text" name="beneficiaries[${index}][idCardNumber]" 
+                    class="household-id-card w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                    placeholder="X-XXXX-XXXXX-XX-X"
+                    maxlength="17">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    วัน/เดือน/ปีเกิด
+                </label>
+                <input type="date" name="beneficiaries[${index}][birthDate]" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    เบอร์โทรศัพท์
+                </label>
+                <input type="tel" name="beneficiaries[${index}][phone]" 
+                    class="household-phone w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                    placeholder="XXX-XXXXXXX"
+                    maxlength="12">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    อายุ (ปี)
+                </label>
+                <input type="text" name="beneficiaries[${index}][age]" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                    placeholder="เช่น 25">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    อาชีพ
+                </label>
+                <input type="text" name="beneficiaries[${index}][occupation]" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                    placeholder="เช่น พนักงานบริษัท">
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    สัญชาติ
+                </label>
+                <input type="text" name="beneficiaries[${index}][nationality]" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                    value="ไทย">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    เชื้อชาติ
+                </label>
+                <input type="text" name="beneficiaries[${index}][ethnicity]" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                    value="ไทย">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    ศาสนา
+                </label>
+                <input type="text" name="beneficiaries[${index}][religion]" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                    value="พุทธ">
+            </div>
+        </div>
+        
+        <!-- ความสัมพันธ์และเงื่อนไขฌาปนกิจ -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    ความสัมพันธ์กับตัวแทนครัวเรือน <span class="text-red-500">*</span>
+                </label>
+                <select name="beneficiaries[${index}][relation]" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                    required>
+                    <option value="">-- เลือกความสัมพันธ์ --</option>
+                    <option value="คู่สมรส">คู่สมรส</option>
+                    <option value="บุตร">บุตร</option>
+                    <option value="บิดา/มารดา">บิดา/มารดา</option>
+                    <option value="ญาติ">ญาติ</option>
+                    <option value="อื่นๆ">อื่นๆ</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-3">
+                เงื่อนไขการรับเงินฌาปนกิจ
+            </label>
+            <div class="space-y-2">
+                <label class="flex items-center space-x-3 cursor-pointer">
+                    <input type="radio" name="beneficiaries[${index}][distributionType]" value="full" class="w-4 h-4 text-green-500">
+                    <span class="text-sm text-gray-700">ให้ได้รับเต็มจำนวน</span>
+                </label>
+                
+                <label class="flex items-center space-x-3 cursor-pointer">
+                    <input type="radio" name="beneficiaries[${index}][distributionType]" value="equal" class="w-4 h-4 text-green-500" checked>
+                    <span class="text-sm text-gray-700">ให้ได้รับส่วนแบ่งเท่ากัน</span>
+                </label>
+                
+                <label class="flex items-center space-x-3 cursor-pointer">
+                    <input type="radio" name="beneficiaries[${index}][distributionType]" value="other" class="w-4 h-4 text-green-500">
+                    <span class="text-sm text-gray-700">อื่นๆ</span>
+                </label>
+                
+                <div class="pl-7">
+                    <input type="text" name="beneficiaries[${index}][distributionDetail]" 
+                        class="px-4 py-3 border border-gray-300 rounded-lg w-full md:w-1/2 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition" 
+                        placeholder="โปรดระบุ (ถ้าเลือกอื่นๆ)">
+                </div>
+            </div>
+        </div>
+    `;
+
+    container.appendChild(newMember);
+
+    // เพิ่ม event listener สำหรับปุ่มลบ
+    const removeButtons = document.getElementsByClassName('remove-beneficiary');
+    for (let btn of removeButtons) {
+        btn.removeEventListener('click', removeBeneficiaryHandler);
+        btn.addEventListener('click', removeBeneficiaryHandler);
+    }
+    
+    // Setup auto-format สำหรับฟิลด์ที่เพิ่มใหม่
+    setupHouseholdAutoFormat();
+});
+
+function removeBeneficiaryHandler() {
+    this.closest('.beneficiary-item').remove();
+    updateBeneficiaryIndexes();
+}
+
+function updateBeneficiaryIndexes() {
+    const beneficiaryItems = document.getElementsByClassName('beneficiary-item');
+    for (let i = 0; i < beneficiaryItems.length; i++) {
+        const inputs = beneficiaryItems[i].querySelectorAll('input[name^="beneficiaries"], select[name^="beneficiaries"]');
+        for (let input of inputs) {
+            const name = input.getAttribute('name');
+            input.setAttribute('name', name.replace(/beneficiaries\[\d+\]/, `beneficiaries[${i}]`));
+        }
+
+        const title = beneficiaryItems[i].querySelector('h3');
+        if (title) {
+            title.textContent = `สมาชิกในครัวเรือน ${i + 1}`;
         }
     }
-    function ShowAddFamilyForm() {
-        const modal = document.getElementById('ShowAddFamilyForm');
-        modal.classList.remove("hidden");
-        modal.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-    function closeAddFamilyForm() {
-        Swal.fire({
-            title: "คุณต้องการจะปิดฟอร์มนี้ใช่หรือไม่",
-            text: "หากปิดแล้วจะข้อมูลที่กรอกจะหายไป",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#00923f",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "ยืนยัน",
-            cancelButtonText: "ยกเลิก"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('ShowAddFamilyForm').classList.add("hidden");
-            }
-        });
-    }
-    function ShowLocation(family) {
-        const ShowLocationModal = document.getElementById('ShowLocationModal');
-        ShowLocationModal.classList.remove("hidden");
+}
 
-        document.querySelector("#ShowLocationModal input[name='familyName']").value = family.familyName;
-        document.querySelector("#ShowLocationModal input[name='houseNumber']").value = family.address.houseNumber;
-        document.querySelector("#ShowLocationModal input[name='road']").value = family.address.road;
-        document.querySelector("#ShowLocationModal input[name='subdistrict']").value = family.address.subdistrict;
-        document.querySelector("#ShowLocationModal input[name='district']").value = family.address.district;
-        document.querySelector("#ShowLocationModal input[name='province']").value = family.address.province;
-        document.querySelector("#ShowLocationModal input[name='postalCode']").value = family.address.postalCode;
-    }
-    function CloseLocationModal() {
-        document.getElementById('ShowLocationModal').classList.add("hidden");
-    }
+// ============================================
+// 5. ⭐ ฟังก์ชันแก้ไขข้อมูล - รองรับ Schema ใหม่
+// ============================================
 
-    // ลบสมัครกองทุน
-    function showModalDelete(index, familyId, familyAccountNumber, familyName) {
-        Swal.fire({
-            title: `ลบสมาชิก "${familyName}" หรือไม่?`,
-            html: `
-                <p class="text-gray-600 mb-2">เลขบัญชี ${familyAccountNumber}</p>
-            `,
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#6b7280",
-            cancelButtonText: "ยกเลิก",
-            confirmButtonText: "ยืนยัน"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // แสดง Loading
-                Swal.fire({
-                    title: 'กำลังลบข้อมูล...',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
+async function showEditModal(familyId) {
+    try {
+        const response = await fetch(`/employee/member/${familyId}/edit`);
+        const result = await response.json();
 
-                // ส่ง Request ไปยัง Backend
-                fetch(`/employee/memberDelete/${familyId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'ลบข้อมูลสำเร็จ',
-                            text: data.message || 'ข้อมูลสมาชิกถูกลบเรียบร้อยแล้ว',
-                            confirmButtonColor: '#28a745',
-                            timer: 2000
-                        }).then(() => {
-                            window.location.reload();
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'ลบข้อมูลไม่สำเร็จ',
-                            text: data.message || 'เกิดข้อผิดพลาดในการลบข้อมูล',
-                            confirmButtonColor: '#d33'
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'เกิดข้อผิดพลาด',
-                        text: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้',
-                        confirmButtonColor: '#d33'
-                    });
-                });
-            }
-        });
-    }
-
-    // ฟังก์ชันเปิด Modal แก้ไขข้อมูล
-    async function showEditModal(familyId) {
-        try {
-            // ดึงข้อมูลจาก API
-            const response = await fetch(`/employee/member/${familyId}/edit`);
-            const result = await response.json();
-
-            if (!result.success) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'เกิดข้อผิดพลาด',
-                    text: result.error || 'ไม่สามารถดึงข้อมูลได้',
-                    confirmButtonColor: '#d33'
-                });
-                return;
-            }
-
-            const { family, member, account } = result.data;
-
-            // แสดง Modal
-            const modal = document.getElementById('editFamilyModal');
-            modal.classList.remove('hidden');
-
-            // เติมข้อมูลครัวเรือน
-            document.querySelector('#editFamilyModal input[name="familyName"]').value = family.familyName || '';
-            document.querySelector('#editFamilyModal select[name="Type"]').value = family.Type || 'household';
-            document.querySelector('#editFamilyModal input[name="username"]').value = family.username || '';
-            document.querySelector('#editFamilyModal input[name="password"]').value = ''; // ไม่แสดงรหัสผ่านเดิม
-
-            // เติมข้อมูลที่อยู่
-            document.querySelector('#editFamilyModal input[name="houseNumber"]').value = family.address?.houseNumber || '';
-            document.querySelector('#editFamilyModal select[name="village"]').value = family.village?._id || '';
-            document.querySelector('#editFamilyModal input[name="road"]').value = family.address?.road || '';
-            document.querySelector('#editFamilyModal input[name="subdistrict"]').value = family.address?.subdistrict || '';
-            document.querySelector('#editFamilyModal input[name="district"]').value = family.address?.district || '';
-            document.querySelector('#editFamilyModal input[name="province"]').value = family.address?.province || '';
-            document.querySelector('#editFamilyModal input[name="postalCode"]').value = family.address?.postalCode || '';
-
-            // เติมข้อมูลสมาชิก
-            document.querySelector('#editFamilyModal input[name="name"]').value = member.name || '';
-            
-            // Format เลขบัตรประชาชน
-            const idCardInput = document.querySelector('#editFamilyModal input[name="idCardNumber"]');
-            idCardInput.value = formatThaiID(member.idCardNumber || '');
-            
-            document.querySelector('#editFamilyModal input[name="birthDate"]').value = member.birthDate ? member.birthDate.split('T')[0] : '';
-            document.querySelector('#editFamilyModal input[name="occupation"]').value = member.occupation || '';
-            document.querySelector('#editFamilyModal input[name="age"]').value = member.age || '';
-            document.querySelector('#editFamilyModal input[name="nationality"]').value = member.nationality || '';
-            document.querySelector('#editFamilyModal input[name="ethnicity"]').value = member.ethnicity || '';
-            document.querySelector('#editFamilyModal input[name="religion"]').value = member.religion || '';
-            
-            // Format เบอร์โทร
-            const phoneInput = document.querySelector('#editFamilyModal input[name="phone"]');
-            phoneInput.value = formatPhoneNumber(member.phone || '');
-            
-            document.querySelector('#editFamilyModal input[name="email"]').value = member.email || '';
-
-            // เติมข้อมูลผู้รับผลประโยชน์
-            const beneficiariesContainer = document.getElementById('edit-beneficiaries-container');
-            beneficiariesContainer.innerHTML = ''; // ล้างข้อมูลเดิม
-
-            if (member.beneficiaries && member.beneficiaries.length > 0) {
-                member.beneficiaries.forEach((beneficiary, index) => {
-                    addEditBeneficiary(index, beneficiary);
-                });
-            } else {
-                // เพิ่มผู้รับผลประโยชน์คนแรกเปล่าๆ
-                addEditBeneficiary(0, {});
-            }
-
-            // เติมจำนวนสมาชิกในครัวเรือน
-            document.querySelector('#editFamilyModal input[name="NumFamilyMembers"]').value = family.NumFamilyMembers || '';
-
-            // เก็บ familyId ไว้ใน form action
-            document.getElementById('editFamilyForm').action = `/employee/memberUpdate/${family._id}`;
-
-            // เพิ่ม Event Listener สำหรับ Auto-format ขณะพิมพ์
-            setupAutoFormatListeners('#editFamilyModal');
-
-        } catch (error) {
-            console.error('Error loading member data:', error);
+        if (!result.success) {
             Swal.fire({
                 icon: 'error',
                 title: 'เกิดข้อผิดพลาด',
-                text: 'ไม่สามารถโหลดข้อมูลได้',
+                text: result.error || 'ไม่สามารถดึงข้อมูลได้',
                 confirmButtonColor: '#d33'
             });
+            return;
+        }
+
+        const { family, member } = result.data;
+        const modal = document.getElementById('editFamilyModal');
+        modal.classList.remove('hidden');
+
+        // เติมข้อมูลครัวเรือน
+        document.querySelector('#editFamilyModal input[name="familyName"]').value = family.familyName || '';
+        document.querySelector('#editFamilyModal select[name="Type"]').value = family.Type || 'household';
+        document.querySelector('#editFamilyModal input[name="username"]').value = family.username || '';
+        document.querySelector('#editFamilyModal input[name="password"]').value = '';
+
+        // เติมข้อมูลที่อยู่
+        document.querySelector('#editFamilyModal input[name="houseNumber"]').value = family.address?.houseNumber || '';
+        document.querySelector('#editFamilyModal select[name="village"]').value = family.village?._id || '';
+        document.querySelector('#editFamilyModal input[name="road"]').value = family.address?.road || '';
+        document.querySelector('#editFamilyModal input[name="subdistrict"]').value = family.address?.subdistrict || '';
+        document.querySelector('#editFamilyModal input[name="district"]').value = family.address?.district || '';
+        document.querySelector('#editFamilyModal input[name="province"]').value = family.address?.province || '';
+        document.querySelector('#editFamilyModal input[name="postalCode"]').value = family.address?.postalCode || '';
+
+        // เติมข้อมูลสมาชิกตัวแทน
+        document.querySelector('#editFamilyModal input[name="name"]').value = member.name || '';
+        document.querySelector('#editFamilyModal #editIdCard').value = formatThaiID(member.idCardNumber || '');
+        document.querySelector('#editFamilyModal input[name="birthDate"]').value = member.birthDate ? member.birthDate.split('T')[0] : '';
+        document.querySelector('#editFamilyModal input[name="occupation"]').value = member.occupation || '';
+        document.querySelector('#editFamilyModal input[name="age"]').value = member.age || '';
+        document.querySelector('#editFamilyModal input[name="nationality"]').value = member.nationality || '';
+        document.querySelector('#editFamilyModal input[name="ethnicity"]').value = member.ethnicity || '';
+        document.querySelector('#editFamilyModal input[name="religion"]').value = member.religion || '';
+        document.querySelector('#editFamilyModal #editPhone').value = formatPhoneNumber(member.phone || '');
+
+        // ⭐ เติมข้อมูลสมาชิกอื่นๆ ในครัวเรือน (จาก beneficiaries ที่ backend แปลงมาจาก householdMembers)
+        const beneficiariesContainer = document.getElementById('edit-beneficiaries-container');
+        beneficiariesContainer.innerHTML = '';
+
+        if (member.beneficiaries && member.beneficiaries.length > 0) {
+            member.beneficiaries.forEach((beneficiary, index) => {
+                addEditBeneficiary(index, beneficiary);
+            });
+        } else {
+            addEditBeneficiary(0, {});
+        }
+
+        document.querySelector('#editFamilyModal input[name="NumFamilyMembers"]').value = family.NumFamilyMembers || '';
+        document.getElementById('editFamilyForm').action = `/employee/memberUpdate/${family._id}`;
+
+        setupAutoFormatListeners('#editFamilyModal');
+
+    } catch (error) {
+        console.error('Error loading member data:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'เกิดข้อผิดพลาด',
+            text: 'ไม่สามารถโหลดข้อมูลได้',
+            confirmButtonColor: '#d33'
+        });
+    }
+}
+
+// เพิ่มสมาชิกในครัวเรือนใน Modal แก้ไข
+function addEditBeneficiary(index, data = {}) {
+    const container = document.getElementById('edit-beneficiaries-container');
+
+    // ⭐ Format วันที่ให้ถูกต้อง
+    let formattedBirthDate = '';
+    if (data.birthDate) {
+        const date = new Date(data.birthDate);
+        if (!isNaN(date.getTime())) {
+            formattedBirthDate = date.toISOString().split('T')[0];
         }
     }
 
-    // ฟังก์ชันเพิ่มผู้รับผลประโยชน์ใน Modal แก้ไข
-    function addEditBeneficiary(index, data = {}) {
-        const container = document.getElementById('edit-beneficiaries-container');
+    // ⭐ Format เลขบัตรประชาชน
+    const formattedIdCard = data.idCardNumber ? formatThaiID(data.idCardNumber) : '';
+    
+    // ⭐ Format เบอร์โทร
+    const formattedPhone = data.phone ? formatPhoneNumber(data.phone) : '';
 
-        const beneficiaryItem = document.createElement('div');
-        beneficiaryItem.className = 'beneficiary-item border-b pb-4 mb-4';
-        beneficiaryItem.innerHTML = `
-            ${index > 0 ? `
-            <div class="flex justify-between items-center mb-2">
-                <h3 class="font-medium">ผู้รับผลประโยชน์ ${index + 1}</h3>
-                <button type="button" class="text-red-500 hover:text-red-700 remove-edit-beneficiary">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                    </svg>
-                </button>
-            </div>
-            ` : ''}
+    console.log('=== addEditBeneficiary Debug ===');
+    console.log('Index:', index);
+    console.log('Raw data:', data);
+    console.log('Formatted birthDate:', formattedBirthDate);
+    console.log('Formatted idCard:', formattedIdCard);
+    console.log('Formatted phone:', formattedPhone);
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label class="block text-gray-700 mb-2">ชื่อ-สกุล ผู้รับผลประโยชน์</label>
-                    <input type="text" name="beneficiaries[${index}][name]" value="${data.name || ''}" class="w-full p-2 border rounded">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">ความสัมพันธ์</label>
-                    <select name="beneficiaries[${index}][relation]" class="w-full p-2 border rounded">
-                        <option value="">-- เลือกความสัมพันธ์ --</option>
-                        <option value="หัวหน้าครัวเรือน" ${data.relation === 'หัวหน้าครัวเรือน' ? 'selected' : ''}>หัวหน้าครัวเรือน</option>
-                        <option value="คู่สมรส" ${data.relation === 'คู่สมรส' ? 'selected' : ''}>คู่สมรส</option>
-                        <option value="บุตร" ${data.relation === 'บุตร' ? 'selected' : ''}>บุตร</option>
-                        <option value="บิดา/มารดา" ${data.relation === 'บิดา/มารดา' ? 'selected' : ''}>บิดา/มารดา</option>
-                        <option value="ญาติ" ${data.relation === 'ญาติ' ? 'selected' : ''}>ญาติ</option>
-                        <option value="อื่นๆ" ${data.relation === 'อื่นๆ' ? 'selected' : ''}>อื่นๆ</option>
-                    </select>
+    const beneficiaryItem = document.createElement('div');
+    beneficiaryItem.className = 'beneficiary-item border-b border-gray-200 pb-4 mb-4';
+    beneficiaryItem.innerHTML = `
+        ${index > 0 ? `
+        <div class="flex justify-between items-center mb-3">
+            <h4 class="text-sm font-semibold text-gray-700">สมาชิกในครัวเรือน #${index + 1}</h4>
+            <button type="button" class="text-red-500 hover:text-red-700 remove-edit-beneficiary transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+        ` : '<h4 class="text-sm font-semibold text-gray-700 mb-3">สมาชิกในครัวเรือน #1</h4>'}
+
+        <!-- ข้อมูลพื้นฐาน -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    ชื่อ-สกุล ${index === 0 ? '<span class="text-red-500">*</span>' : ''}
+                </label>
+                <input type="text" name="beneficiaries[${index}][name]" value="${data.name || ''}" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                    ${index === 0 ? 'required' : ''}>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">เลขบัตรประชาชน</label>
+                <input type="text" name="beneficiaries[${index}][idCardNumber]" value="${formattedIdCard}" 
+                    class="edit-household-id-card w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                    placeholder="X-XXXX-XXXXX-XX-X"
+                    maxlength="17">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">วัน/เดือน/ปีเกิด</label>
+                <input type="date" name="beneficiaries[${index}][birthDate]" value="${formattedBirthDate}" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">เบอร์โทรศัพท์</label>
+                <input type="tel" name="beneficiaries[${index}][phone]" value="${formattedPhone}" 
+                    class="edit-household-phone w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                    placeholder="XXX-XXXXXXX"
+                    maxlength="12">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">อายุ (ปี)</label>
+                <input type="text" name="beneficiaries[${index}][age]" value="${data.age || ''}" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">อาชีพ</label>
+                <input type="text" name="beneficiaries[${index}][occupation]" value="${data.occupation || ''}" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">สัญชาติ</label>
+                <input type="text" name="beneficiaries[${index}][nationality]" value="${data.nationality || 'ไทย'}" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">เชื้อชาติ</label>
+                <input type="text" name="beneficiaries[${index}][ethnicity]" value="${data.ethnicity || 'ไทย'}" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">ศาสนา</label>
+                <input type="text" name="beneficiaries[${index}][religion]" value="${data.religion || 'พุทธ'}" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition">
+            </div>
+        </div>
+
+        <!-- ความสัมพันธ์และเงื่อนไขฌาปนกิจ -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    ความสัมพันธ์กับตัวแทนครัวเรือน ${index === 0 ? '<span class="text-red-500">*</span>' : ''}
+                </label>
+                <select name="beneficiaries[${index}][relation]" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition"
+                    ${index === 0 ? 'required' : ''}>
+                    <option value="">-- เลือกความสัมพันธ์ --</option>
+                    <option value="คู่สมรส" ${data.relation === 'คู่สมรส' ? 'selected' : ''}>คู่สมรส</option>
+                    <option value="บุตร" ${data.relation === 'บุตร' ? 'selected' : ''}>บุตร</option>
+                    <option value="บิดา/มารดา" ${data.relation === 'บิดา/มารดา' ? 'selected' : ''}>บิดา/มารดา</option>
+                    <option value="ญาติ" ${data.relation === 'ญาติ' ? 'selected' : ''}>ญาติ</option>
+                    <option value="อื่นๆ" ${data.relation === 'อื่นๆ' ? 'selected' : ''}>อื่นๆ</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-3">เงื่อนไขการรับเงินฌาปนกิจ</label>
+            <div class="space-y-2">
+                <label class="flex items-center space-x-3 cursor-pointer">
+                    <input type="radio" name="beneficiaries[${index}][distributionType]" value="full" ${data.distributionType === 'full' ? 'checked' : ''} class="w-4 h-4 text-green-500">
+                    <span class="text-sm text-gray-700">ให้ได้รับเต็มจำนวน</span>
+                </label>
+                <label class="flex items-center space-x-3 cursor-pointer">
+                    <input type="radio" name="beneficiaries[${index}][distributionType]" value="equal" ${!data.distributionType || data.distributionType === 'equal' ? 'checked' : ''} class="w-4 h-4 text-green-500">
+                    <span class="text-sm text-gray-700">ให้ได้รับส่วนแบ่งเท่ากัน</span>
+                </label>
+                <label class="flex items-center space-x-3 cursor-pointer">
+                    <input type="radio" name="beneficiaries[${index}][distributionType]" value="other" ${data.distributionType === 'other' ? 'checked' : ''} class="w-4 h-4 text-green-500">
+                    <span class="text-sm text-gray-700">อื่นๆ</span>
+                </label>
+                <div class="pl-7">
+                    <input type="text" name="beneficiaries[${index}][distributionDetail]" value="${data.distributionDetail || ''}" 
+                        class="px-4 py-3 border border-gray-300 rounded-lg w-full md:w-1/2 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition" 
+                        placeholder="โปรดระบุ">
                 </div>
             </div>
-            <div class="mb-4 text-start">
-                <label class="block text-gray-700 mb-2">เงื่อนไขการรับเงิน</label>
-                <div class="flex flex-col space-y-3">
-                    <div class="grid grid-cols-[24px_1fr] items-start gap-2">
-                        <input type="radio" name="beneficiaries[${index}][distributionType]" value="full" ${data.distributionType === 'full' ? 'checked' : ''} class="mt-0.5">
-                        <label class="text-gray-700">ให้ได้รับเต็มจำนวน</label>
-                    </div>
-                    <div class="grid grid-cols-[24px_1fr] items-start gap-2">
-                        <input type="radio" name="beneficiaries[${index}][distributionType]" value="equal" ${!data.distributionType || data.distributionType === 'equal' ? 'checked' : ''} class="mt-0.5">
-                        <label class="text-gray-700">ให้ได้รับส่วนแบ่งเท่ากัน</label>
-                    </div>
-                    <div class="grid grid-cols-[24px_1fr] items-start gap-2">
-                        <input type="radio" name="beneficiaries[${index}][distributionType]" value="other" ${data.distributionType === 'other' ? 'checked' : ''} class="mt-0.5">
-                        <label class="text-gray-700">อื่นๆ</label>
-                    </div>
-                    <div class="pl-[24px]">
-                        <input type="text" name="beneficiaries[${index}][distributionDetail]" value="${data.distributionDetail || ''}" class="p-2 border rounded w-full md:w-1/2" placeholder="โปรดระบุ">
-                    </div>
-                </div>
+        </div>
+    `;
+
+    container.appendChild(beneficiaryItem);
+
+    if (index > 0) {
+        const removeBtn = beneficiaryItem.querySelector('.remove-edit-beneficiary');
+        removeBtn.addEventListener('click', function () {
+            this.closest('.beneficiary-item').remove();
+            updateEditBeneficiaryIndexes();
+        });
+    }
+    
+    // ⭐ Setup auto-format สำหรับฟิลด์ที่เพิ่มใหม่
+    setupEditHouseholdAutoFormat();
+}
+
+function updateEditBeneficiaryIndexes() {
+    const beneficiaryItems = document.querySelectorAll('#edit-beneficiaries-container .beneficiary-item');
+    beneficiaryItems.forEach((item, i) => {
+        const inputs = item.querySelectorAll('input[name^="beneficiaries"], select[name^="beneficiaries"]');
+        inputs.forEach(input => {
+            const name = input.getAttribute('name');
+            input.setAttribute('name', name.replace(/beneficiaries\[\d+\]/, `beneficiaries[${i}]`));
+        });
+
+        const title = item.querySelector('h3');
+        if (title) {
+            title.textContent = `สมาชิกในครัวเรือน ${i + 1}`;
+        }
+    });
+}
+
+document.getElementById('add-edit-beneficiary')?.addEventListener('click', function () {
+    const container = document.getElementById('edit-beneficiaries-container');
+    const beneficiaryCount = container.getElementsByClassName('beneficiary-item').length;
+    addEditBeneficiary(beneficiaryCount, {});
+});
+
+// ============================================
+// 6. ฟังก์ชันลบข้อมูล
+// ============================================
+
+function showModalDelete(index, familyId, familyAccountNumber, familyName) {
+    Swal.fire({
+        title: `ลบสมาชิก "${familyName}" หรือไม่?`,
+        html: `<p class="text-gray-600 mb-2">เลขบัญชี ${familyAccountNumber}</p>`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#6b7280",
+        cancelButtonText: "ยกเลิก",
+        confirmButtonText: "ยืนยัน"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'กำลังลบข้อมูล...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            fetch(`/employee/memberDelete/${familyId}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'ลบข้อมูลสำเร็จ',
+                        text: data.message || 'ข้อมูลสมาชิกถูกลบเรียบร้อยแล้ว',
+                        confirmButtonColor: '#28a745',
+                        timer: 2000
+                    }).then(() => { window.location.reload(); });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ลบข้อมูลไม่สำเร็จ',
+                        text: data.message || 'เกิดข้อผิดพลาดในการลบข้อมูล',
+                        confirmButtonColor: '#d33'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้',
+                    confirmButtonColor: '#d33'
+                });
+            });
+        }
+    });
+}
+
+// ============================================
+// 7. ⭐ ฟังก์ชันเปลี่ยนตัวแทนครัวเรือน - รองรับ Schema ใหม่
+// ============================================
+
+async function showChangeRepresentativeModal(familyId) {
+    try {
+        Swal.fire({
+            title: 'กำลังโหลดข้อมูล...',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
+        });
+
+        const response = await fetch(`/employee/member/${familyId}/representatives`);
+        const result = await response.json();
+        Swal.close();
+
+        if (!result.success) {
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด',
+                text: result.error || 'ไม่สามารถดึงข้อมูลได้',
+                confirmButtonColor: '#d33'
+            });
+            return;
+        }
+
+        const { currentRepresentative, householdMembers, formerRepresentatives } = result.data;
+
+        const modal = document.getElementById('changeRepresentativeModal');
+        modal.classList.remove('hidden');
+
+        // แสดงข้อมูลตัวแทนปัจจุบัน
+        document.getElementById('currentRepInfo').innerHTML = `
+            <div>
+                <label class="block text-gray-600 text-sm">ชื่อ-สกุล</label>
+                <p class="font-medium">${currentRepresentative.name}</p>
+            </div>
+            <div>
+                <label class="block text-gray-600 text-sm">เลขบัตรประชาชน</label>
+                <p class="font-medium">${formatThaiID(currentRepresentative.idCardNumber)}</p>
+            </div>
+            <div>
+                <label class="block text-gray-600 text-sm">เบอร์โทร</label>
+                <p class="font-medium">${currentRepresentative.phone ? formatPhoneNumber(currentRepresentative.phone) : '-'}</p>
             </div>
         `;
 
-        container.appendChild(beneficiaryItem);
+        // ประกาศ membersData ก่อนใช้งาน
+        const membersData = {};
 
-        // เพิ่ม event listener สำหรับปุ่มลบ
-        if (index > 0) {
-            const removeBtn = beneficiaryItem.querySelector('.remove-edit-beneficiary');
-            removeBtn.addEventListener('click', function () {
-                this.closest('.beneficiary-item').remove();
-                updateEditBeneficiaryIndexes();
+        const beneficiarySelect = document.getElementById('beneficiarySelect');
+        beneficiarySelect.innerHTML = '<option value="">-- เลือกสมาชิกหรือกรอกข้อมูลใหม่ --</option>';
+
+        // กลุ่มที่ 1 — สมาชิกที่มีชีวิต
+        if (householdMembers.length > 0) {
+            const livingGroup = document.createElement('optgroup');
+            livingGroup.label = '👤 สมาชิกในครัวเรือน';
+            householdMembers.forEach((member) => {
+                const option = document.createElement('option');
+                option.value = member.index;
+                option.dataset.type = 'household';
+                option.textContent = `${member.name} (${member.relation})`;
+                livingGroup.appendChild(option);
+                membersData[member.index] = member; // เก็บข้อมูล
             });
+            beneficiarySelect.appendChild(livingGroup);
         }
-    }
 
-    // ฟังก์ชันอัปเดต index ของผู้รับผลประโยชน์ใน Modal แก้ไข
-    function updateEditBeneficiaryIndexes() {
-        const beneficiaryItems = document.querySelectorAll('#edit-beneficiaries-container .beneficiary-item');
-        beneficiaryItems.forEach((item, i) => {
-            const inputs = item.querySelectorAll('input[name^="beneficiaries"]');
-            inputs.forEach(input => {
-                const name = input.getAttribute('name');
-                input.setAttribute('name', name.replace(/beneficiaries\[\d+\]/, `beneficiaries[${i}]`));
+        // กลุ่มที่ 2 — อดีตตัวแทน
+        if (formerRepresentatives && formerRepresentatives.length > 0) {
+            const formerGroup = document.createElement('optgroup');
+            formerGroup.label = '🔄 อดีตตัวแทนครัวเรือน';
+            formerRepresentatives.forEach((member, i) => {
+                const option = document.createElement('option');
+                option.value = `former_${i}`;
+                option.dataset.type = 'former';
+                option.textContent = `${member.name} (อดีตตัวแทน)`;
+                formerGroup.appendChild(option);
+                membersData[`former_${i}`] = member; // เก็บข้อมูล
             });
+            beneficiarySelect.appendChild(formerGroup);
+        }
 
-            const title = item.querySelector('h3');
-            if (title && i > 0) {
-                title.textContent = `ผู้รับผลประโยชน์ ${i + 1}`;
+        document.getElementById('changeFamilyId').value = familyId;
+
+        // ลบ event listener เก่าออกก่อน ป้องกัน listener ซ้อนกัน
+        const newSelect = beneficiarySelect.cloneNode(true);
+        beneficiarySelect.parentNode.replaceChild(newSelect, beneficiarySelect);
+
+        newSelect.addEventListener('change', function () {
+            const selectedValue = this.value;
+
+            if (selectedValue !== '') {
+                const member = membersData[selectedValue];
+
+                document.getElementById('newRepName').value = member.name || '';
+                document.getElementById('newRepIdCard').value = formatThaiID(member.idCardNumber || '');
+                document.getElementById('newRepPhone').value = formatPhoneNumber(member.phone || '');
+                document.getElementById('newRepBirthDate').value = member.birthDate
+                    ? new Date(member.birthDate).toISOString().split('T')[0]
+                    : '';
+                document.getElementById('newRepAge').value = member.age || '';
+                document.getElementById('newRepOccupation').value = member.occupation || '';
+                document.getElementById('newRepNationality').value = member.nationality || 'ไทย';
+                document.getElementById('newRepEthnicity').value = member.ethnicity || 'ไทย';
+                document.getElementById('newRepReligion').value = member.religion || 'พุทธ';
+
+                // เก็บทั้ง value และ type แยกกัน
+                document.getElementById('selectedBeneficiaryIndex').value = selectedValue;
+                document.getElementById('selectedBeneficiaryType').value = this.options[this.selectedIndex].dataset.type;
+            } else {
+                document.getElementById('newRepName').value = '';
+                document.getElementById('newRepIdCard').value = '';
+                document.getElementById('newRepPhone').value = '';
+                document.getElementById('newRepBirthDate').value = '';
+                document.getElementById('newRepAge').value = '';
+                document.getElementById('newRepOccupation').value = '';
+                document.getElementById('newRepNationality').value = 'ไทย';
+                document.getElementById('newRepEthnicity').value = 'ไทย';
+                document.getElementById('newRepReligion').value = 'พุทธ';
+
+                document.getElementById('selectedBeneficiaryIndex').value = '';
+                document.getElementById('selectedBeneficiaryType').value = '';
             }
         });
-    }
 
-    // Event listener สำหรับปุ่มเพิ่มผู้รับผลประโยชน์ใน Modal แก้ไข
-    document.getElementById('add-edit-beneficiary')?.addEventListener('click', function () {
-        const container = document.getElementById('edit-beneficiaries-container');
-        const beneficiaryCount = container.getElementsByClassName('beneficiary-item').length;
-        addEditBeneficiary(beneficiaryCount, {});
+        setupAutoFormatListeners('#changeRepresentativeModal');
+
+    } catch (error) {
+        console.error('Error loading representatives:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'เกิดข้อผิดพลาด',
+            text: 'ไม่สามารถโหลดข้อมูลได้',
+            confirmButtonColor: '#d33'
+        });
+    }
+}
+
+// Submit Form เปลี่ยนตัวแทน
+document.getElementById('changeRepresentativeForm')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const familyId = document.getElementById('changeFamilyId').value;
+    const beneficiaryIndex = document.getElementById('selectedBeneficiaryIndex').value;
+    const beneficiaryType = document.getElementById('selectedBeneficiaryType').value;
+
+    const idCardValue = removeFormat(document.getElementById('newRepIdCard').value);
+    const phoneValue = removeFormat(document.getElementById('newRepPhone').value);
+
+    const formData = {
+        memberIndex: beneficiaryType === 'household' ? parseInt(beneficiaryIndex) : null,
+        beneficiaryType: beneficiaryType,
+        newRepresentativeData: {
+            name: document.getElementById('newRepName').value,
+            idCardNumber: idCardValue,
+            phone: phoneValue,
+            birthDate: document.getElementById('newRepBirthDate').value,
+            age: document.getElementById('newRepAge').value,
+            occupation: document.getElementById('newRepOccupation').value,
+            nationality: document.getElementById('newRepNationality').value,
+            ethnicity: document.getElementById('newRepEthnicity').value,
+            religion: document.getElementById('newRepReligion').value
+        }
+    };
+
+    const result = await Swal.fire({
+        title: 'ยืนยันการเปลี่ยนตัวแทน?',
+        html: `
+            <p class="text-gray-700 mb-2">ระบบจะดำเนินการ:</p>
+            <ul class="text-left text-sm text-gray-700 space-y-1 ml-6">
+                <li>• แต่งตั้งตัวแทนครัวเรือนคนใหม่</li>
+                <li>• ตัวแทนเดิมจะถูกย้ายเป็นสมาชิกในครัวเรือน</li>
+            </ul>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'ยืนยัน',
+        cancelButtonText: 'ยกเลิก',
+        reverseButtons: true
     });
 
-    // ฟังก์ชันปิด Modal แก้ไข
-    function closeEditModal() {
+    if (!result.isConfirmed) return;
+
+    Swal.fire({
+        title: 'กำลังดำเนินการ...',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
+    });
+
+    try {
+        const response = await fetch(`/employee/member/${familyId}/change-representative`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'เปลี่ยนตัวแทนสำเร็จ',
+                text: data.message,
+                confirmButtonColor: '#28a745',
+                timer: 2000
+            }).then(() => { window.location.reload(); });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด',
+                text: data.message || 'ไม่สามารถเปลี่ยนตัวแทนได้',
+                confirmButtonColor: '#d33'
+            });
+        }
+    } catch (error) {
+        console.error('Error:', error);
         Swal.fire({
-            title: "คุณต้องการปิดฟอร์มนี้ใช่หรือไม่",
-            text: "หากปิดแล้วข้อมูลที่แก้ไขจะไม่ถูกบันทึก",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#00923f",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "ยืนยัน",
-            cancelButtonText: "ยกเลิก"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('editFamilyModal').classList.add("hidden");
-            }
+            icon: 'error',
+            title: 'เกิดข้อผิดพลาด',
+            text: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้',
+            confirmButtonColor: '#d33'
         });
     }
+});
 
-    // ตรวจสอบรหัสผ่านก่อนส่งฟอร์ม
-    document.addEventListener("DOMContentLoaded", () => {
+// ============================================
+// 8. Form Validation
+// ============================================
+
+document.addEventListener("DOMContentLoaded", () => {
     const password = document.getElementById("password");
     const confirmPassword = document.getElementById("confirmPassword");
     const passwordError = document.getElementById("passwordError");
-    const form = document.querySelector("form");
+    const registerForm = document.querySelector("#registerForm");
 
-    // ฟังก์ชันตรวจสอบความตรงกัน
-    function checkPasswordMatch() {
-        if (confirmPassword.value === "") {
-        confirmPassword.classList.remove("border-red-500", "focus:ring-red-300");
-        passwordError.classList.add("hidden");
-        return true;
-        }
-
-        if (password.value !== confirmPassword.value) {
-        confirmPassword.classList.add("border-red-500", "focus:ring-red-300");
-        passwordError.classList.remove("hidden");
-        return false;
-        } else {
-        confirmPassword.classList.remove("border-red-500", "focus:ring-red-300");
-        passwordError.classList.add("hidden");
-        return true;
-        }
-    }
-
-    // ตรวจสอบแบบ real-time
-    confirmPassword.addEventListener("input", checkPasswordMatch);
-    password.addEventListener("input", checkPasswordMatch);
-
-    // ตรวจสอบตอนส่งฟอร์ม
-    form.addEventListener("submit", (e) => {
-        if (!checkPasswordMatch()) {
-        e.preventDefault();
-        Swal.fire({
-            icon: "error",
-            title: "รหัสผ่านไม่ตรงกัน",
-            text: "กรุณากรอกให้ตรงกันทั้งสองช่อง",
-            confirmButtonColor: "#ef4444"
-        });
-        }
-    });
-    });
-
-    // Format IDCard ให้เป็น Pattern ไทย
-    const idInput = document.getElementById("idCardNumber");
-    const idError = document.getElementById("idCardError");
-
-    // ฟังก์ชันฟอร์แมตเลขบัตรประชาชนไทย
-    function formatThaiID(value) {
-    // เอาเฉพาะตัวเลข
-    let numbers = value.replace(/\D/g, '').slice(0, 13);
-
-    // ใส่ขีดตามตำแหน่ง 1-4-5-2-1
-    let formatted = '';
-    if(numbers.length > 0) formatted += numbers.substr(0,1);
-    if(numbers.length > 1) formatted += '-' + numbers.substr(1,4);
-    if(numbers.length > 5) formatted += '-' + numbers.substr(5,5);
-    if(numbers.length > 10) formatted += '-' + numbers.substr(10,2);
-    if(numbers.length > 12) formatted += '-' + numbers.substr(12,1);
-
-    return formatted;
-    }
-
-    // ฟอร์แมตแบบ real-time
-    idInput.addEventListener('input', (e) => {
-    e.target.value = formatThaiID(e.target.value);
-    });
-
-    // ตรวจสอบตอน submit
-    document.getElementById("ShowAddFamilyForm").addEventListener("submit", function(e) {
-        // เอาเฉพาะตัวเลขมาลอง validate
-        const numbersOnly = idInput.value.replace(/\D/g, '');
-        if(numbersOnly.length !== 13) {
-            e.preventDefault();
-            idError.classList.remove('hidden');
-            idInput.classList.add('border-red-500', 'focus:ring-red-300');
-            Swal.fire({
-                icon: 'error',
-                title: 'เลขบัตรประชาชนไม่ถูกต้อง',
-                text: 'กรุณากรอกเลขบัตรประชาชนให้ครบ 13 หลัก',
-                confirmButtonColor: '#ef4444'
-            });
-        } else {
-            idInput.value = numbersOnly;
-
-            idError.classList.add('hidden');
-            idInput.classList.remove('border-red-500', 'focus:ring-red-300');
-        }
-    });
-
-    // เปิด Modal เปลี่ยนตัวแทน
-    async function showChangeRepresentativeModal(familyId) {
-        try {
-            // แสดง loading
-            Swal.fire({
-                title: 'กำลังโหลดข้อมูล...',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            // ดึงข้อมูลผู้รับผลประโยชน์
-            const response = await fetch(`/employee/member/${familyId}/representatives`);
-            const result = await response.json();
-
-            Swal.close();
-
-            if (!result.success) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'เกิดข้อผิดพลาด',
-                    text: result.error || 'ไม่สามารถดึงข้อมูลได้',
-                    confirmButtonColor: '#d33'
-                });
-                return;
+    if (password && confirmPassword && registerForm) {
+        function checkPasswordMatch() {
+            if (confirmPassword.value === "") {
+                confirmPassword.classList.remove("border-red-500", "focus:ring-red-300");
+                passwordError.classList.add("hidden");
+                return true;
             }
+            if (password.value !== confirmPassword.value) {
+                confirmPassword.classList.add("border-red-500", "focus:ring-red-300");
+                passwordError.classList.remove("hidden");
+                return false;
+            } else {
+                confirmPassword.classList.remove("border-red-500", "focus:ring-red-300");
+                passwordError.classList.add("hidden");
+                return true;
+            }
+        }
 
-            const { currentRepresentative, beneficiaries } = result.data;
+        confirmPassword.addEventListener("input", checkPasswordMatch);
+        password.addEventListener("input", checkPasswordMatch);
 
-            // แสดง Modal
-            const modal = document.getElementById('changeRepresentativeModal');
-            modal.classList.remove('hidden');
+        registerForm.addEventListener("submit", (e) => {
+            if (!checkPasswordMatch()) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: "error",
+                    title: "รหัสผ่านไม่ตรงกัน",
+                    text: "กรุณากรอกให้ตรงกันทั้งสองช่อง",
+                    confirmButtonColor: "#ef4444"
+                });
+            } else {
+                // เอา Format ออกก่อนส่งฟอร์ม - สมาชิกตัวแทน
+                const idCardInput = document.getElementById('idCardNumber');
+                const phoneInput = document.getElementById('registerPhone');
+                
+                if (idCardInput) {
+                    idCardInput.value = removeFormat(idCardInput.value);
+                }
+                if (phoneInput) {
+                    phoneInput.value = removeFormat(phoneInput.value);
+                }
+                
+                // ⭐ เอา Format ออกจาก household members ทั้งหมด
+                const householdIdCards = document.querySelectorAll('.household-id-card');
+                householdIdCards.forEach(input => {
+                    if (input.value) {
+                        input.value = removeFormat(input.value);
+                    }
+                });
+                
+                const householdPhones = document.querySelectorAll('.household-phone');
+                householdPhones.forEach(input => {
+                    if (input.value) {
+                        input.value = removeFormat(input.value);
+                    }
+                });
+            }
+        });
+    }
 
-            // เติมข้อมูลตัวแทนปัจจุบัน พร้อม Format
-            document.getElementById('currentRepInfo').innerHTML = `
-                <div>
-                    <label class="block text-gray-600 text-sm">ชื่อ-สกุล</label>
-                    <p class="font-medium">${currentRepresentative.name}</p>
-                </div>
-                <div>
-                    <label class="block text-gray-600 text-sm">เลขบัตรประชาชน</label>
-                    <p class="font-medium">${formatThaiID(currentRepresentative.idCardNumber)}</p>
-                </div>
-                <div>
-                    <label class="block text-gray-600 text-sm">เบอร์โทร</label>
-                    <p class="font-medium">${currentRepresentative.phone ? formatPhoneNumber(currentRepresentative.phone) : '-'}</p>
-                </div>
-            `;
-
-            // เติม dropdown ผู้รับผลประโยชน์
-            const beneficiarySelect = document.getElementById('beneficiarySelect');
-            beneficiarySelect.innerHTML = '<option value="">-- เลือกผู้รับผลประโยชน์หรือกรอกข้อมูลใหม่ --</option>';
+    // เอา Format ออกก่อนส่งฟอร์มแก้ไข
+    const editForm = document.getElementById('editFamilyForm');
+    if (editForm) {
+        editForm.addEventListener('submit', function(e) {
+            const idCardInput = document.getElementById('editIdCard');
+            const phoneInput = document.getElementById('editPhone');
             
-            beneficiaries.forEach((b, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                option.textContent = `${b.name} (${b.relation})`;
-                option.dataset.name = b.name;
-                option.dataset.relation = b.relation;
-                beneficiarySelect.appendChild(option);
-            });
-
-            // เก็บ familyId
-            document.getElementById('changeFamilyId').value = familyId;
-
-            // Event: เลือกผู้รับผลประโยชน์ → เติมชื่ออัตโนมัติ
-            beneficiarySelect.addEventListener('change', function() {
-                const selectedOption = this.options[this.selectedIndex];
-                if (this.value !== '') {
-                    document.getElementById('newRepName').value = selectedOption.dataset.name || '';
-                    document.getElementById('selectedBeneficiaryIndex').value = this.value;
-                } else {
-                    document.getElementById('newRepName').value = '';
-                    document.getElementById('selectedBeneficiaryIndex').value = '';
+            if (idCardInput) {
+                idCardInput.value = removeFormat(idCardInput.value);
+            }
+            if (phoneInput) {
+                phoneInput.value = removeFormat(phoneInput.value);
+            }
+            
+            // ⭐ เอา Format ออกจาก household members ทั้งหมด
+            const editHouseholdIdCards = document.querySelectorAll('.edit-household-id-card');
+            editHouseholdIdCards.forEach(input => {
+                if (input.value) {
+                    input.value = removeFormat(input.value);
                 }
             });
-
-            // เพิ่ม Event Listener สำหรับ Auto-format ขณะพิมพ์
-            setupAutoFormatListeners('#changeRepresentativeModal');
-
-        } catch (error) {
-            console.error('Error loading representatives:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'เกิดข้อผิดพลาด',
-                text: 'ไม่สามารถโหลดข้อมูลได้',
-                confirmButtonColor: '#d33'
+            
+            const editHouseholdPhones = document.querySelectorAll('.edit-household-phone');
+            editHouseholdPhones.forEach(input => {
+                if (input.value) {
+                    input.value = removeFormat(input.value);
+                }
             });
-        }
-    }
-
-    // ปิด Modal
-    function closeChangeRepresentativeModal() {
-        Swal.fire({
-            title: "คุณต้องการปิดฟอร์มนี้ใช่หรือไม่",
-            text: "หากปิดแล้วข้อมูลที่กรอกจะหายไป",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#00923f",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "ยืนยัน",
-            cancelButtonText: "ยกเลิก"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('changeRepresentativeModal').classList.add("hidden");
-                document.getElementById('changeRepresentativeForm').reset();
-            }
         });
     }
 
-    // Submit Form เปลี่ยนตัวแทน (อัปเดต)
-    document.getElementById('changeRepresentativeForm')?.addEventListener('submit', async function(e) {
-        e.preventDefault();
-
-        const familyId = document.getElementById('changeFamilyId').value;
-        const beneficiaryIndex = document.getElementById('selectedBeneficiaryIndex').value;
-
-        // เอา Format ออกก่อนส่งข้อมูล
-        const idCardValue = removeFormat(document.getElementById('newRepIdCard').value);
-        const phoneValue = removeFormat(document.getElementById('newRepPhone').value);
-
-        const formData = {
-            beneficiaryIndex: beneficiaryIndex !== '' ? parseInt(beneficiaryIndex) : null,
-            newRepresentativeData: {
-                name: document.getElementById('newRepName').value,
-                idCardNumber: idCardValue,
-                phone: phoneValue,
-                email: document.getElementById('newRepEmail').value,
-                birthDate: document.getElementById('newRepBirthDate').value,
-                age: document.getElementById('newRepAge').value,
-                occupation: document.getElementById('newRepOccupation').value,
-                nationality: document.getElementById('newRepNationality').value,
-                ethnicity: document.getElementById('newRepEthnicity').value,
-                religion: document.getElementById('newRepReligion').value
-            }
-        };
-
-        // แสดงยืนยัน
-        const result = await Swal.fire({
-            title: 'ยืนยันการเปลี่ยนตัวแทน?',
-            html: `
-                <p class="text-red-600 font-semibold mb-2">⚠️ การดำเนินการนี้จะทำให้:</p>
-                <ul class="text-left text-sm text-gray-700 space-y-1 ml-6">
-                    <li>• ตัวแทนเดิมถูกเปลี่ยนสถานะเป็นเสียชีวิต</li>
-                    <li>• สร้างสมาชิกตัวแทนใหม่</li>
-                    <li>• ไม่สามารถย้อนกลับได้</li>
-                </ul>
-            `,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: 'ยืนยัน',
-            cancelButtonText: 'ยกเลิก'
+    // Setup auto-format สำหรับ ID Card และ Phone ในฟอร์มลงทะเบียน
+    const idInput = document.getElementById("idCardNumber");
+    if (idInput) {
+        idInput.addEventListener('input', (e) => {
+            e.target.value = formatThaiID(e.target.value);
         });
+    }
 
-        if (!result.isConfirmed) return;
-
-        // แสดง Loading
-        Swal.fire({
-            title: 'กำลังดำเนินการ...',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
+    const registerPhone = document.getElementById("registerPhone");
+    if (registerPhone) {
+        registerPhone.addEventListener('input', (e) => {
+            e.target.value = formatPhoneNumber(e.target.value);
         });
-
-        try {
-            const response = await fetch(`/employee/member/${familyId}/change-representative`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'เปลี่ยนตัวแทนสำเร็จ',
-                    text: data.message,
-                    confirmButtonColor: '#28a745',
-                    timer: 2000
-                }).then(() => {
-                    window.location.reload();
-                });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'เกิดข้อผิดพลาด',
-                    text: data.message || 'ไม่สามารถเปลี่ยนตัวแทนได้',
-                    confirmButtonColor: '#d33'
-                });
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'เกิดข้อผิดพลาด',
-                text: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้',
-                confirmButtonColor: '#d33'
-            });
-        }
-    });
-
-    // ฟังก์ชัน Format เลขบัตรประชาชนไทย (X-XXXX-XXXXX-XX-X)
-    function formatThaiID(value) {
-        // เอาเฉพาะตัวเลข
-        let numbers = value.replace(/\D/g, '').slice(0, 13);
-        
-        // ใส่ขีดตามตำแหน่ง 1-4-5-2-1
-        let formatted = '';
-        if(numbers.length > 0) formatted += numbers.substr(0, 1);
-        if(numbers.length > 1) formatted += '-' + numbers.substr(1, 4);
-        if(numbers.length > 5) formatted += '-' + numbers.substr(5, 5);
-        if(numbers.length > 10) formatted += '-' + numbers.substr(10, 2);
-        if(numbers.length > 12) formatted += '-' + numbers.substr(12, 1);
-        
-        return formatted;
     }
-
-    // ฟังก์ชัน Format เบอร์โทรศัพท์ (XXX-XXXXXXX หรือ XX-XXXX-XXXX)
-    function formatPhoneNumber(value) {
-        // เอาเฉพาะตัวเลข
-        let numbers = value.replace(/\D/g, '').slice(0, 10);
-        
-        // Format เป็น XXX-XXXXXXX (มือถือ) หรือ XX-XXXX-XXXX (บ้าน)
-        let formatted = '';
-        if (numbers.length > 0) {
-            // ถ้าเบอร์มือถือ (เริ่ม 06, 08, 09)
-            if (numbers.startsWith('0')) {
-                if(numbers.length > 0) formatted += numbers.substr(0, 3);
-                if(numbers.length > 3) formatted += '-' + numbers.substr(3);
-            } else {
-                // เบอร์บ้าน
-                if(numbers.length > 0) formatted += numbers.substr(0, 2);
-                if(numbers.length > 2) formatted += '-' + numbers.substr(2, 4);
-                if(numbers.length > 6) formatted += '-' + numbers.substr(6);
-            }
-        }
-        
-        return formatted;
-    }
-
-    // ฟังก์ชันเอาเฉพาะตัวเลข (สำหรับส่งไปยัง backend)
-    function removeFormat(value) {
-        return value.replace(/\D/g, '');
-    }
-
-    // ฟังก์ชัน Setup Auto-format Listeners
-    function setupAutoFormatListeners(modalSelector) {
-        // Format เลขบัตรประชาชน
-        const idCardInput = document.querySelector(`${modalSelector} input[name="idCardNumber"]`);
-        if (idCardInput) {
-            idCardInput.addEventListener('input', function(e) {
-                const cursorPosition = e.target.selectionStart;
-                const oldLength = e.target.value.length;
-                
-                e.target.value = formatThaiID(e.target.value);
-                
-                const newLength = e.target.value.length;
-                const diff = newLength - oldLength;
-                
-                // Adjust cursor position
-                e.target.setSelectionRange(cursorPosition + diff, cursorPosition + diff);
-            });
-        }
-
-        // Format เบอร์โทร
-        const phoneInput = document.querySelector(`${modalSelector} input[name="phone"]`);
-        if (phoneInput) {
-            phoneInput.addEventListener('input', function(e) {
-                const cursorPosition = e.target.selectionStart;
-                const oldLength = e.target.value.length;
-                
-                e.target.value = formatPhoneNumber(e.target.value);
-                
-                const newLength = e.target.value.length;
-                const diff = newLength - oldLength;
-                
-                // Adjust cursor position
-                e.target.setSelectionRange(cursorPosition + diff, cursorPosition + diff);
-            });
-        }
-    }
-
-    // แก้ไข editFamilyForm submit - เอา Format ออกก่อนส่ง
-    document.getElementById('editFamilyForm')?.addEventListener('submit', function(e) {
-        const idCardInput = document.querySelector('#editFamilyModal input[name="idCardNumber"]');
-        const phoneInput = document.querySelector('#editFamilyModal input[name="phone"]');
-        
-        if (idCardInput) {
-            idCardInput.value = removeFormat(idCardInput.value);
-        }
-        if (phoneInput) {
-            phoneInput.value = removeFormat(phoneInput.value);
-        }
-        
-        // ส่งฟอร์มตามปกติ (ไม่ต้อง e.preventDefault())
-    });
+});
 </script>
 
 </html>

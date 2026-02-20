@@ -7,9 +7,9 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" /> -->
     <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script> -->
     
     <%- include('../partials/userPartials/head.ejs') %>
 
@@ -48,7 +48,7 @@
         #map {
             height: 400px;
             width: 100%;
-            border-radius: 0.5rem;
+            /* border-radius: 0.5rem; */
             border: 1px solid #d1d5db;
         }
         
@@ -105,6 +105,9 @@
     </style>
 </head>
 <body class="bg-gray-50">
+    <script async
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCOj0SmyVA_9XcjvxjELwfzvO8LNN6uJgw&libraries=places,geometry&loading=async&callback=initializeMap">
+    </script>
     <script>
         // เช็คข้อความที่ส่งมาจาก URL
         const urlParams = new URLSearchParams(window.location.search);
@@ -769,302 +772,389 @@
     <%- include('../partials/userPartials/footer.ejs') %>
 
     <script>
-        // แสดงวัน
-        function updateTime() {
-            const currentDate = new Date();
-            const timeString = currentDate.toLocaleString('th-TH', {year: 'numeric', month: 'long', day: 'numeric'});
-            document.getElementById('date-time').textContent = timeString;
-        }
-        updateTime();
+    // แสดงวัน
+    function updateTime() {
+        const currentDate = new Date();
+        const timeString = currentDate.toLocaleString('th-TH', {year: 'numeric', month: 'long', day: 'numeric'});
+        document.getElementById('date-time').textContent = timeString;
+    }
+    updateTime();
 
-        // Initialize Select2
-        $(document).ready(function() {
-            $('#waste').select2({
-                placeholder: "เลือกขยะที่ต้องการขาย",
-                allowClear: true
-            });
+    // Initialize Select2
+    $(document).ready(function() {
+        $('#waste').select2({
+            placeholder: "เลือกขยะที่ต้องการขาย",
+            allowClear: true
+        });
+    });
+
+    // Set minimum date to today
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('date').setAttribute('min', today);
+    });
+
+    // ===== Google Maps =====
+    let map;
+    let marker = null;
+    let geocoder;
+    let tambolPolygon = null;
+    let checkPolygon = null;
+    let selectedLat = null;
+    let selectedLng = null;
+    let autocompleteService = null;
+    let placesService = null;
+    let searchTimeout = null;
+
+    // พิกัด Polygon ตำบลขามป้อม
+    const KHAMPO_POLYGON_COORDS = [
+        { lat: 15.9917406, lng: 102.9022698 },
+        { lat: 15.9847685, lng: 102.9053383 },
+        { lat: 15.9805724, lng: 102.905049 },
+        { lat: 15.9736823, lng: 102.9033324 },
+        { lat: 15.9674935, lng: 102.9031393 },
+        { lat: 15.9622328, lng: 102.9013798 },
+        { lat: 15.9578798, lng: 102.8959725 },
+        { lat: 15.9531553, lng: 102.897217 },
+        { lat: 15.9505557, lng: 102.8983757 },
+        { lat: 15.9452121, lng: 102.8965089 },
+        { lat: 15.9417871, lng: 102.8927109 },
+        { lat: 15.9387954, lng: 102.8906724 },
+        { lat: 15.9372067, lng: 102.890651 },
+        { lat: 15.9362163, lng: 102.891874 },
+        { lat: 15.934318, lng: 102.8916165 },
+        { lat: 15.9333483, lng: 102.8911874 },
+        { lat: 15.9316151, lng: 102.8925607 },
+        { lat: 15.9268487, lng: 102.8976032 },
+        { lat: 15.9231964, lng: 102.8980538 },
+        { lat: 15.9195854, lng: 102.8975174 },
+        { lat: 15.9167997, lng: 102.9001138 },
+        { lat: 15.9117028, lng: 102.9021308 },
+        { lat: 15.9087312, lng: 102.9032895 },
+        { lat: 15.9058009, lng: 102.9032895 },
+        { lat: 15.902788, lng: 102.9043195 },
+        { lat: 15.9017149, lng: 102.9014012 },
+        { lat: 15.8994036, lng: 102.8953073 },
+        { lat: 15.8968034, lng: 102.8912732 },
+        { lat: 15.8967621, lng: 102.8874967 },
+        { lat: 15.8978352, lng: 102.8839776 },
+        { lat: 15.9017562, lng: 102.8802869 },
+        { lat: 15.9028293, lng: 102.8745792 },
+        { lat: 15.9033659, lng: 102.8739354 },
+        { lat: 15.9024166, lng: 102.8714892 },
+        { lat: 15.8993211, lng: 102.8696439 },
+        { lat: 15.89961,   lng: 102.8648803 },
+        { lat: 15.9010133, lng: 102.862477 },
+        { lat: 15.9043564, lng: 102.862992 },
+        { lat: 15.9225968, lng: 102.8317473 },
+        { lat: 15.9290346, lng: 102.8333781 },
+        { lat: 15.938691,  lng: 102.8343222 },
+        { lat: 15.953381,  lng: 102.8323481 },
+        { lat: 15.9575806, lng: 102.8497956 },
+        { lat: 15.9756524, lng: 102.8656742 },
+        { lat: 15.9906697, lng: 102.8862736 },
+        { lat: 15.9917406, lng: 102.9022698 }
+    ];
+
+    function initializeMap() {
+        const initialLat = 15.9493;
+        const initialLng = 102.8551;
+
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: { lat: initialLat, lng: initialLng },
+            zoom: 13,
+            mapTypeId: 'hybrid',
+            streetViewControl: false,
+            fullscreenControl: true,
+            disableDoubleClickZoom: false
         });
 
-        // Set minimum date to today
-        document.addEventListener('DOMContentLoaded', function() {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('date').setAttribute('min', today);
-        });
+        geocoder = new google.maps.Geocoder();
+        autocompleteService = new google.maps.places.AutocompleteService();
+        placesService = new google.maps.places.PlacesService(map);
 
-        // Initialize Map
-        let map;
-        let marker;
-        let selectedLat = null;
-        let selectedLng = null;
+        // วาด Polygon ตำบลขามป้อม
+        drawTambolPolygon();
 
-        function initializeMap() {
-            // set จุดเริ่มหน้าแมพเป็น อบต.ขามป้อม
-            const initialLat = 15.9493;
-            const initialLng = 102.8551;
-            
-            // Initialize map centered on อบต.ขามป้อม
-            map = L.map('map').setView([initialLat, initialLng], 13);
+        // คลิกบนแผนที่เพื่อปักหมุด
+        map.addListener('click', function(e) {
+            const lat = e.latLng.lat();
+            const lng = e.latLng.lng();
 
-            // Add OpenStreetMap tiles
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                maxZoom: 19
-            }).addTo(map);
-
-            // Add click event to map
-            map.on('click', function(e) {
-                const lat = e.latlng.lat;
-                const lng = e.latlng.lng;
-                
-                addMarkerAtLocation(lat, lng);
-            });
-
-            // Try to get user's current location (optional)
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    // Don't change the map view, just log the user's location
-                    console.log('User location:', position.coords.latitude, position.coords.longitude);
-                }, function(error) {
-                    console.log('Geolocation error:', error);
+            if (!isWithinTambol(lat, lng)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'อยู่นอกพื้นที่',
+                    text: 'กรุณาเลือกตำแหน่งภายในเขตตำบลขามป้อมเท่านั้น',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#EF4444'
                 });
+                return;
             }
+
+            addMarkerAtLocation(lat, lng);
+        });
+
+        setupSearch();
+    }
+
+    function drawTambolPolygon() {
+        // Polygon แสดงบนแผนที่
+        tambolPolygon = new google.maps.Polygon({
+            paths: KHAMPO_POLYGON_COORDS,
+            strokeColor: '#2563EB',
+            strokeOpacity: 0.8,
+            strokeWeight: 2.5,
+            fillColor: '#3B82F6',
+            fillOpacity: 0.08,
+            map: map,
+            zIndex: 0,
+            clickable: false // ไม่ดัก event เพื่อให้คลิกผ่านถึง map ได้
+        });
+
+        // Polygon สำหรับเช็คพื้นที่ (ไม่แสดงบนแผนที่)
+        checkPolygon = new google.maps.Polygon({
+            paths: KHAMPO_POLYGON_COORDS
+        });
+
+        // Fit bounds แล้ว set zoom
+        const bounds = new google.maps.LatLngBounds();
+        KHAMPO_POLYGON_COORDS.forEach(coord => bounds.extend(coord));
+        map.fitBounds(bounds);
+
+        google.maps.event.addListenerOnce(map, 'bounds_changed', function() {
+            map.setZoom(13);
+        });
+    }
+
+    function isWithinTambol(lat, lng) {
+        if (!checkPolygon) return true;
+        const point = new google.maps.LatLng(lat, lng);
+        return google.maps.geometry.poly.containsLocation(point, checkPolygon);
+    }
+
+    async function addMarkerAtLocation(lat, lng) {
+        // ลบ marker เดิม
+        if (marker) {
+            marker.setMap(null);
         }
 
-        // Function to add marker at specific location
-        async function addMarkerAtLocation(lat, lng) {
-            // Remove existing marker (only one marker allowed)
-            if (marker) {
-                map.removeLayer(marker);
-            }
-            
-            // Add new marker
-            marker = L.marker([lat, lng]).addTo(map);
-            
-            // Update coordinates
-            selectedLat = lat;
-            selectedLng = lng;
-            
-            // Update hidden inputs
-            document.getElementById('latitude').value = lat;
-            document.getElementById('longitude').value = lng;
-            
-            // Update display
-            document.getElementById('display-lat').textContent = lat.toFixed(6);
-            document.getElementById('display-lng').textContent = lng.toFixed(6);
-            document.getElementById('coordinates-display').style.display = 'block';
+        // สร้าง marker ใหม่
+        marker = new google.maps.Marker({
+            position: { lat, lng },
+            map: map,
+            animation: google.maps.Animation.DROP
+        });
 
-            const address = await getAddressFromLatLng(lat, lng);
-            document.getElementById('search-input').value = address;
-            document.getElementById('location').value = address;
-            document.getElementById("display-location").innerHTML = address;
-            
-            // Enable submit button
-            const submitBtn = document.getElementById('submit-btn');
-            submitBtn.disabled = false;
-            submitBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
-            submitBtn.classList.add('bg-primary-green', 'hover:bg-secondary-green');
-        }
+        selectedLat = lat;
+        selectedLng = lng;
 
-        // Search functionality
-        let searchTimeout;
-        document.getElementById('search-input').addEventListener('input', function() {
+        document.getElementById('latitude').value = lat;
+        document.getElementById('longitude').value = lng;
+        document.getElementById('display-lat').textContent = lat.toFixed(6);
+        document.getElementById('display-lng').textContent = lng.toFixed(6);
+        document.getElementById('coordinates-display').style.display = 'block';
+
+        // ดึงที่อยู่ภาษาไทย
+        const address = await reverseGeocode(lat, lng);
+        document.getElementById('search-input').value = address;
+        document.getElementById('location').value = address;
+        document.getElementById('display-location').textContent = address;
+
+        // เปิดปุ่ม submit
+        const submitBtn = document.getElementById('submit-btn');
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+        submitBtn.classList.add('bg-primary-green', 'hover:bg-secondary-green');
+    }
+
+    async function reverseGeocode(lat, lng) {
+        return new Promise((resolve) => {
+            geocoder.geocode({
+                location: { lat, lng },
+                language: 'th'
+            }, (results, status) => {
+                if (status === 'OK' && results.length > 0) {
+                    // กรองเอาแบบที่ไม่ใช่ Plus Code
+                    const filtered = results.find(r =>
+                        !r.formatted_address.match(/^[A-Z0-9]{4}\+[A-Z0-9]{2,}/)
+                    );
+                    resolve(filtered ? filtered.formatted_address : results[0].formatted_address);
+                } else {
+                    resolve(`${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+                }
+            });
+        });
+    }
+
+    // ===== ระบบค้นหา =====
+    function setupSearch() {
+        const searchInput = document.getElementById('search-input');
+        const suggestionsDiv = document.getElementById('search-results');
+
+        searchInput.addEventListener('input', function() {
             clearTimeout(searchTimeout);
             const query = this.value.trim();
-            
-            if (query.length < 3) {
-                document.getElementById('search-results').classList.add('hidden');
+
+            if (query.length < 2) {
+                suggestionsDiv.classList.add('hidden');
                 return;
             }
-            
+
             searchTimeout = setTimeout(() => {
-                searchLocation(query);
-            }, 500);
+                autocompleteService.getPlacePredictions({
+                    input: query,
+                    location: new google.maps.LatLng(15.9487, 102.8552),
+                    radius: 50000,
+                    language: 'th'
+                }, (predictions, status) => {
+                    if (status !== google.maps.places.PlacesServiceStatus.OK || !predictions) {
+                        suggestionsDiv.classList.add('hidden');
+                        return;
+                    }
+                    renderSuggestions(predictions);
+                });
+            }, 300);
         });
 
-        function searchLocation(query) {
-            // Using Nominatim API for geocoding
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=th`;
-            
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    displaySearchResults(data);
-                })
-                .catch(error => {
-                    console.error('Search error:', error);
-                });
-        }
-        // ฟังก์ชันดึงที่อยู่จาก lat,lng
-        async function getAddressFromLatLng(lat, lng) {
-            const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=th&limit=5&countrycodes=th`;
-            const response = await fetch(url);
-            const data = await response.json();
-            return data.display_name || `${lat}, ${lng}`;
-        }
-
-        function displaySearchResults(results) {
-            const resultsContainer = document.getElementById('search-results');
-            resultsContainer.innerHTML = '';
-            
-            if (results.length === 0) {
-                resultsContainer.innerHTML = '<div class="p-3 text-gray-500">ไม่พบสถานที่ที่ค้นหา</div>';
-                resultsContainer.classList.remove('hidden');
-                return;
+        // ซ่อน dropdown เมื่อคลิกนอก
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('#search-input') && !e.target.closest('#search-results')) {
+                suggestionsDiv.classList.add('hidden');
             }
-            
-            results.forEach(result => {
-                const div = document.createElement('div');
-                div.className = 'p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-200 last:border-b-0';
-                div.innerHTML = `
-                    <div class="font-medium text-gray-900">${result.display_name}</div>
-                    <div class="text-sm text-gray-500">ละติจูด: ${parseFloat(result.lat).toFixed(6)}, ลองติจูด: ${parseFloat(result.lon).toFixed(6)}</div>
-                `;
-                
-                div.addEventListener('click',async function() {
-                    const lat = parseFloat(result.lat);
-                    const lng = parseFloat(result.lon);
-                    
-                    // Move map to location and add marker
-                    map.setView([lat, lng], 16);
-                    addMarkerAtLocation(lat, lng);
-                    
-                    const address = await getAddressFromLatLng(lat, lng);
-                    document.getElementById("display-location").innerHTML = address;
-                    // Clear search
-                    // document.getElementById('search-input').value = result.display_name.split(',')[0];
-                    document.getElementById('search-input').value = address;
-                    resultsContainer.classList.add('hidden');
-                });
-                
-                resultsContainer.appendChild(div);
-            });
-            
-            resultsContainer.classList.remove('hidden');
-        }
+        });
+    }
 
-        // Current Location functionality
-        document.getElementById('current-location-btn').addEventListener('click', function() {
+    function renderSuggestions(predictions) {
+        const suggestionsDiv = document.getElementById('search-results');
+        let html = '';
+
+        predictions.forEach(pred => {
+            const mainText = pred.structured_formatting?.main_text || pred.description;
+            const secondaryText = pred.structured_formatting?.secondary_text || '';
+
+            html += `
+                <div class="suggestion-item p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-200 last:border-b-0"
+                     data-place-id="${pred.place_id}">
+                    <div class="font-medium text-gray-900 text-sm">${mainText}</div>
+                    ${secondaryText ? `<div class="text-xs text-gray-500 mt-0.5">${secondaryText}</div>` : ''}
+                </div>
+            `;
+        });
+
+        suggestionsDiv.innerHTML = html;
+        suggestionsDiv.classList.remove('hidden');
+
+        suggestionsDiv.querySelectorAll('.suggestion-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const placeId = this.dataset.placeId;
+                placesService.getDetails({
+                    placeId: placeId,
+                    fields: ['geometry', 'formatted_address', 'name']
+                }, (place, status) => {
+                    if (status === google.maps.places.PlacesServiceStatus.OK && place.geometry) {
+                        const lat = place.geometry.location.lat();
+                        const lng = place.geometry.location.lng();
+
+                        if (!isWithinTambol(lat, lng)) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'อยู่นอกพื้นที่',
+                                text: 'สถานที่นี้อยู่นอกเขตตำบลขามป้อม',
+                                confirmButtonText: 'ตกลง',
+                                confirmButtonColor: '#EF4444'
+                            });
+                            return;
+                        }
+
+                        map.setCenter({ lat, lng });
+                        map.setZoom(16);
+                        addMarkerAtLocation(lat, lng);
+                        suggestionsDiv.classList.add('hidden');
+                    }
+                });
+            });
+        });
+    }
+
+    // ===== ตำแหน่งปัจจุบัน =====
+    const locBtn = document.getElementById('current-location-btn');
+    if (locBtn) {
+        locBtn.addEventListener('click', function() {
             const button = this;
             const icon = document.getElementById('location-icon');
             const text = document.getElementById('location-text');
-            
-            // Check if geolocation is supported
+
             if (!navigator.geolocation) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'ไม่รองรับ',
-                    text: 'เบราว์เซอร์ของคุณไม่รองรับการระบุตำแหน่ง',
-                    confirmButtonColor: '#059669'
-                });
+                Swal.fire({ icon: 'error', title: 'ไม่รองรับ', text: 'เบราว์เซอร์ไม่รองรับการระบุตำแหน่ง' });
                 return;
             }
-            
-            // Show loading state
+
             button.disabled = true;
             button.classList.add('opacity-75');
             icon.innerHTML = `<svg class="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>`;
-            text.textContent = 'กำลังค้นหา...';
-            
+            if (text) text.textContent = 'กำลังค้นหา...';
+
             navigator.geolocation.getCurrentPosition(
                 function(position) {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
-                    
-                    // Move map to user location and add marker
-                    map.setView([lat, lng], 16);
+
+                    if (!isWithinTambol(lat, lng)) {
+                        resetLocationButton();
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'อยู่นอกพื้นที่',
+                            text: 'ตำแหน่งปัจจุบันของคุณอยู่นอกเขตตำบลขามป้อม',
+                            confirmButtonText: 'ตกลง'
+                        });
+                        return;
+                    }
+
+                    map.setCenter({ lat, lng });
+                    map.setZoom(16);
                     addMarkerAtLocation(lat, lng);
-                    
-                    // Get address from coordinates
-                    reverseGeocode(lat, lng);
-                    
-                    // Reset button state
                     resetLocationButton();
-                    
-                    // Show success message
+
                     Swal.fire({
                         icon: 'success',
                         title: 'สำเร็จ!',
                         text: 'ใช้ตำแหน่งปัจจุบันของคุณแล้ว',
                         timer: 2000,
-                        showConfirmButton: false,
-                        confirmButtonColor: '#059669'
+                        showConfirmButton: false
                     });
                 },
                 function(error) {
                     resetLocationButton();
-                    
                     let errorMessage = 'ไม่สามารถระบุตำแหน่งได้';
-                    switch(error.code) {
-                        case error.PERMISSION_DENIED:
-                            errorMessage = 'คุณได้ปฏิเสธการเข้าถึงตำแหน่ง กรุณาอนุญาตในเบราว์เซอร์';
-                            break;
-                        case error.POSITION_UNAVAILABLE:
-                            errorMessage = 'ข้อมูลตำแหน่งไม่พร้อมใช้งาน';
-                            break;
-                        case error.TIMEOUT:
-                            errorMessage = 'หมดเวลาในการค้นหาตำแหน่ง';
-                            break;
-                    }
-                    
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'ไม่สามารถระบุตำแหน่งได้',
-                        text: errorMessage,
-                        confirmButtonColor: '#059669'
-                    });
+                    if (error.code === error.PERMISSION_DENIED) errorMessage = 'กรุณาอนุญาตการเข้าถึงตำแหน่งในเบราว์เซอร์';
+                    else if (error.code === error.POSITION_UNAVAILABLE) errorMessage = 'ข้อมูลตำแหน่งไม่พร้อมใช้งาน';
+                    else if (error.code === error.TIMEOUT) errorMessage = 'หมดเวลาค้นหาตำแหน่ง';
+                    Swal.fire({ icon: 'error', title: 'ไม่สามารถระบุตำแหน่งได้', text: errorMessage });
                 },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 60000
-                }
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
             );
         });
+    }
 
-        function resetLocationButton() {
-            const button = document.getElementById('current-location-btn');
-            const icon = document.getElementById('location-icon');
-            const text = document.getElementById('location-text');
-            
-            button.disabled = false;
-            button.classList.remove('opacity-75');
-            icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>`;
-            text.textContent = 'ตำแหน่งปัจจุบัน';
-        }
+    function resetLocationButton() {
+        const button = document.getElementById('current-location-btn');
+        const icon = document.getElementById('location-icon');
+        const text = document.getElementById('location-text');
 
-        function reverseGeocode(lat, lng) {
-            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&accept-language=th`;
-            
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data && data.display_name) {
-                        // Update the search input with the address
-                        // document.getElementById('search-input').value = data.display_name.split(',').slice(0, 3).join(', ');
-                    }
-                })
-                .catch(error => {
-                    console.error('Reverse geocoding error:', error);
-                });
-        }
+        button.disabled = false;
+        button.classList.remove('opacity-75');
+        icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>`;
+        if (text) text.textContent = 'ตำแหน่งปัจจุบัน';
+    }
 
-        // Hide search results when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('#search-input') && !e.target.closest('#search-results')) {
-                document.getElementById('search-results').classList.add('hidden');
-            }
-        });
-
-        // Initialize map when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeMap();
-        });
-
-        // Form validation
-        document.getElementById('waste-sale-form').addEventListener('submit', function(e) {
+    // ===== Form Validation =====
+    const wasteForm = document.getElementById('waste-sale-form');
+    if (wasteForm) {
+        wasteForm.addEventListener('submit', function(e) {
             if (!selectedLat || !selectedLng) {
                 e.preventDefault();
                 Swal.fire({
@@ -1076,10 +1166,10 @@
                 });
             }
         });
+    }
 
-        // Custom styles for the color scheme
-        document.documentElement.style.setProperty('--primary-green', '#059669');
-        document.documentElement.style.setProperty('--secondary-green', '#047857');
-    </script>
+    document.documentElement.style.setProperty('--primary-green', '#059669');
+    document.documentElement.style.setProperty('--secondary-green', '#047857');
+</script>
 </body>
 </html>

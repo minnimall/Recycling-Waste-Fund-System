@@ -732,16 +732,16 @@ const getFamilyMembers = async (req, res) => {
             });
         }
 
-        // ดึงข้อมูลสมาชิกทั้งหมด
+        // ดึงข้อมูลสมาชิกทั้งหมด (เปลี่ยน beneficiaries → householdMembers)
         const members = await Member.find({
             familyID: family._id,
             isDeleted: false
-        }).select('name idCardNumber age phone birthDate Status beneficiaries').lean();
+        }).select('name idCardNumber age phone birthDate Status householdMembers').lean();
 
         const memberList = [];
 
         members.forEach(member => {
-            // เพิ่มสมาชิกหลัก (ตัวแทน)
+            // เพิ่มสมาชิกหลัก
             memberList.push({
                 _id: member._id,
                 name: member.name,
@@ -752,20 +752,19 @@ const getFamilyMembers = async (req, res) => {
                 type: 'main'
             });
 
-            // เพิ่มผู้รับผลประโยชน์
-            if (member.beneficiaries && member.beneficiaries.length > 0) {
-                member.beneficiaries.forEach(beneficiary => {
+            // เพิ่มสมาชิกในครัวเรือน (householdMembers แทน beneficiaries)
+            if (member.householdMembers && member.householdMembers.length > 0) {
+                member.householdMembers.forEach(hm => {
                     memberList.push({
-                        _id: `beneficiary_${beneficiary._id}`,
-                        name: beneficiary.name,
-                        relation: beneficiary.relation,
-                        status: beneficiary.status || 'living',
-                        type: 'beneficiary',
+                        _id: `household_${hm._id}`,   
+                        name: hm.name,
+                        relation: hm.relationToHead,      
+                        status: hm.status || 'living',
+                        type: 'household',              
                         mainMemberId: member._id,
-                        // ⬇️ เพิ่ม 3 บรรทัดนี้
-                        idCardNumber: '', // beneficiary ไม่มีเลขบัตร
-                        age: '',          // beneficiary ไม่มีอายุ
-                        phone: ''         // beneficiary ไม่มีเบอร์โทร
+                        idCardNumber: hm.idCardNumber || '',
+                        age: hm.age || '',
+                        phone: hm.phone || ''
                     });
                 });
             }
@@ -1118,26 +1117,26 @@ const submitFuneralRequest = (req, res) => {
             // ============================================
             let validMemberID = null;
 
-            if (memberID && memberID.trim() !== '') {
-                console.log(`🔍 Original memberID from frontend: ${memberID}`);
-                
-                if (memberID.startsWith('beneficiary_')) {
-                    // กรณี Beneficiary
-                    const beneficiaryId = memberID.split('_')[1];
-                    if (mongoose.Types.ObjectId.isValid(beneficiaryId)) {
-                        validMemberID = new mongoose.Types.ObjectId(beneficiaryId);
-                        console.log(`✅ Valid beneficiary ObjectId: ${validMemberID}`);
+                if (memberID && memberID.trim() !== '') {
+                    console.log(`🔍 Original memberID from frontend: ${memberID}`);
+                    
+                    if (memberID.startsWith('household_')) {
+                        // กรณี householdMember (เปลี่ยนจาก beneficiary_ → household_)
+                        const householdId = memberID.split('_')[1];
+                        if (mongoose.Types.ObjectId.isValid(householdId)) {
+                            validMemberID = new mongoose.Types.ObjectId(householdId);
+                            console.log(`✅ Valid householdMember ObjectId: ${validMemberID}`);
+                        } else {
+                            console.warn(`⚠️ Invalid householdMember ObjectId: ${householdId}`);
+                        }
+                    } else if (mongoose.Types.ObjectId.isValid(memberID)) {
+                        // กรณี Member หลัก
+                        validMemberID = new mongoose.Types.ObjectId(memberID);
+                        console.log(`✅ Valid member ObjectId: ${validMemberID}`);
                     } else {
-                        console.warn(`⚠️ Invalid beneficiary ObjectId: ${beneficiaryId}`);
+                        console.warn(`⚠️ Invalid memberID format: ${memberID}`);
                     }
-                } else if (mongoose.Types.ObjectId.isValid(memberID)) {
-                    // กรณี Member หลัก
-                    validMemberID = new mongoose.Types.ObjectId(memberID);
-                    console.log(`✅ Valid member ObjectId: ${validMemberID}`);
-                } else {
-                    console.warn(`⚠️ Invalid memberID format: ${memberID}`);
                 }
-            }
             // ============================================
 
             // สร้างคำขอใหม่
