@@ -207,7 +207,10 @@
                                                     data-location="<%= request.location %>"
                                                     data-family="<%= request.family ? (request.family.firstname + ' ' + request.family.lastname) : 'N/A' %>"
                                                     data-familyname="<%= request.family ? request.family.familyName : '' %>"
-                                                    data-pickup-date="<%= request.approvePickupDate ? new Date(request.approvePickupDate).toISOString().split('T')[0] : '' %>"
+                                                    data-pickup-date="<%= request.approvePickupDate ? (() => { 
+                                                        const d = new Date(request.approvePickupDate);
+                                                        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+                                                    })() : '' %>"
                                                     onclick="toggleRequestSelection(this)">
                                                     <div class="flex items-start">
                                                         <input type="checkbox" 
@@ -835,7 +838,12 @@
             } else {
                 const d = new Date();
                 if (preset === 'tomorrow') d.setDate(d.getDate() + 1);
-                dateInput.value = d.toISOString().split('T')[0];
+                
+                // Format to YYYY-MM-DD in local time
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                dateInput.value = `${year}-${month}-${day}`;
             }
             filterByDate();
         }

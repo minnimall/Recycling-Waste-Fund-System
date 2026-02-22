@@ -171,7 +171,7 @@
         APPROVED: 'อนุมัติแล้ว',
         WAITING_USER: 'รอผู้ใช้ยืนยัน',
         CONFIRMED: 'ผู้ใช้ยืนยันแล้ว',
-        IN_PROGRESS: 'กำลังดำเนินการ',
+        IN_PROGRESS: 'กำลังเข้าจัดเก็บ',
         COMPLETED: 'เสร็จสิ้น',
         CANCELLED_BY_USER: 'ผู้ใช้ยกเลิก',
         CANCELLED_BY_EMPLOYEE: 'เจ้าหน้าที่ยกเลิก',
@@ -223,12 +223,12 @@
                         </div>
                         <% if (request.status === 'resolved') { %><span class="text-sm text-green-600 bg-green-100 px-2 py-1 rounded-full border border-green-200">เสร็จสิ้น</span>
                         <% } else if (request.status === 'pending') { %><span class="text-sm text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full border border-yellow-200">รอการอนุมัติ</span>
-                        <% } else if (request.status === 'waitingUser') { %><span class="text-sm text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full border border-yellow-200">รอผู้ใช้ยืนยืน</span>
-                        <% } else if (request.status === 'in-progress') { %><span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded-full border border-blue-200">กำลังดำเนินการ</span>
-                        <% } else if (request.status === 'confirmed') { %><span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded-full border border-blue-200">รอการดำเนินการ</span>
-                        <% } else if (request.status === 'complete') { %><span class="text-sm text-green-600 bg-green-100 px-2 py-1 rounded-full border border-green-200">เสร็จสิ้น</span>
+                        <% } else if (request.status === 'waitingUser') { %><span class="text-sm text-orange-600 bg-orange-100 px-2 py-1 rounded-full border border-orange-200">รอผู้ใช้ยืนยัน</span>
+                        <% } else if (request.status === 'in-progress') { %><span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded-full border border-blue-200">กำลังเข้าจัดเก็บ</span>
+                        <% } else if (request.status === 'confirmed') { %><span class="text-sm text-indigo-600 bg-indigo-100 px-2 py-1 rounded-full border border-indigo-200">รอการดำเนินการ</span>
                         <% } else if (request.status === 'cancelled') { %><span class="text-sm text-red-600 bg-red-100 px-2 py-1 rounded-full border border-red-200">ยกเลิกโดยผู้ใช้</span>
                         <% } else if (request.status === 'rejected') { %><span class="text-sm text-red-600 bg-red-100 px-2 py-1 rounded-full border border-red-200">ปฏิเสธคำขอ</span>
+                        <% } else if (request.status === 'failed') { %><span class="text-sm text-gray-600 bg-gray-200 px-2 py-1 rounded-full border border-gray-300">ไม่สำเร็จ</span>
                         <% } else { %><span class="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded-full border border-gray-200">ไม่ทราบ</span><% } %>
                     </div>
 
@@ -559,7 +559,7 @@
                                 <option value="ยืนยันการรับซื้อตามเวลาที่นัดหมาย หากมีการเปลี่ยนแปลงจะแจ้งให้ทราบล่วงหน้าครับ">ยืนยันการรับซื้อตามนัด</option>
                                 <option value="ขอรบกวนเลื่อนวันรับซื้อ เนื่องจากเจ้าหน้าที่ติดภารกิจ จะติดต่อกลับเพื่อนนัดหมายใหม่ครับ">ขอเลื่อนนัด (ติดภารกิจ)</option>
                                 <option value="รบกวนจัดเตรียมขยะแยกประเภทให้เรียบร้อยก่อนเจ้าหน้าที่เข้าไปรับนะครับ">แจ้งจัดเตรียมขยะ</option>
-                                <option value="ได้รับข้อมูลแล้ว กำลังดำเนินการจัดสรรรถรับซื้อขยะครับ">กำลังดำเนินการ</option>
+                                <option value="ได้รับข้อมูลแล้ว กำลังเข้าจัดเก็บขยะครับ">กำลังเข้าจัดเก็บ</option>
                                 <option value="ขอปฏิเสธคำขอเนื่องจากข้อมูลไม่ถูกต้อง รบกวนตรวจสอบและส่งคำขอใหม่อีกครั้งครับ">ปฏิเสธ (ข้อมูลไม่ถูกต้อง)</option>
                                 <option value="ขอปฏิเสธคำขอเนื่องจากอยู่นอกพื้นที่ให้บริการครับ">ปฏิเสธ (อยู่นอกพื้นที่)</option>
                             </select>

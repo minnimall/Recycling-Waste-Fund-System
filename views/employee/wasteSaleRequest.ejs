@@ -233,23 +233,29 @@
                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full lg:w-auto">
                     <span class="text-gray-700 font-medium whitespace-nowrap">สถานะ:</span>
                     <div class="flex flex-wrap gap-2">
-                        <button id="filter-all" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm hover:shadow bg-green-600 text-white active ring-2 ring-green-600 ring-offset-1">
+                        <button id="filter-all" data-color="green" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm hover:shadow bg-green-600 text-white ring-2 ring-green-600 ring-offset-1">
                             ทั้งหมด (<%= wasteSaleRequests.length %>)
                         </button>
-                        <button id="filter-pending" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm hover:shadow bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-green-600">
-                            รอการอนุมัติ
+                        <button id="filter-pending" data-color="yellow" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm hover:shadow bg-white text-gray-600 border border-gray-200 hover:bg-yellow-50 hover:text-yellow-700">
+                            <span class="inline-block w-1.5 h-1.5 rounded-full bg-yellow-500 mr-1"></span>รอการอนุมัติ (<%= wasteSaleRequests.filter(r => r.status === 'pending').length %>)
                         </button>
-                        <button id="filter-waitingUser" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm hover:shadow bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-green-600">
-                            รอผู้ใช้ยืนยืน
+                        <!-- <button id="filter-waitingUser" data-color="orange" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm hover:shadow bg-white text-gray-600 border border-gray-200 hover:bg-orange-50 hover:text-orange-700">
+                            <span class="inline-block w-1.5 h-1.5 rounded-full bg-orange-500 mr-1"></span>รอผู้ใช้ยืนยัน (<%= wasteSaleRequests.filter(r => r.status === 'waitingUser').length %>)
+                        </button> -->
+                        <button id="filter-confirmed" data-color="indigo" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm hover:shadow bg-white text-gray-600 border border-gray-200 hover:bg-indigo-50 hover:text-indigo-700">
+                            <span class="inline-block w-1.5 h-1.5 rounded-full bg-indigo-500 mr-1"></span>รอการดำเนินการ (<%= wasteSaleRequests.filter(r => r.status === 'confirmed').length %>)
                         </button>
-                        <button id="filter-confirmed" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm hover:shadow bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-green-600">
-                            รอการดำเนินการ
+                        <button id="filter-in-progress" data-color="blue" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm hover:shadow bg-white text-gray-600 border border-gray-200 hover:bg-blue-50 hover:text-blue-700">
+                            <span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-500 mr-1"></span>กำลังเข้าจัดเก็บ (<%= wasteSaleRequests.filter(r => r.status === 'in-progress').length %>)
                         </button>
-                        <button id="filter-in-progress" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm hover:shadow bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-green-600">
-                            กำลังดำเนินการ
+                        <button id="filter-resolved" data-color="green" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm hover:shadow bg-white text-gray-600 border border-gray-200 hover:bg-green-50 hover:text-green-700">
+                            <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500 mr-1"></span>เสร็จสิ้น (<%= wasteSaleRequests.filter(r => r.status === 'resolved').length %>)
                         </button>
-                        <button id="filter-complete" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm hover:shadow bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-green-600">
-                            เสร็จสิ้น
+                        <button id="filter-rejected" data-color="red" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm hover:shadow bg-white text-gray-600 border border-gray-200 hover:bg-red-50 hover:text-red-700">
+                            <span class="inline-block w-1.5 h-1.5 rounded-full bg-red-500 mr-1"></span>ปฏิเสธ (<%= wasteSaleRequests.filter(r => r.status === 'rejected').length %>)
+                        </button>
+                        <button id="filter-cancelled" data-color="red" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm hover:shadow bg-white text-gray-600 border border-gray-200 hover:bg-red-50 hover:text-red-700">
+                            <span class="inline-block w-1.5 h-1.5 rounded-full bg-red-400 mr-1"></span>ยกเลิก (<%= wasteSaleRequests.filter(r => r.status === 'cancelled').length %>)
                         </button>
                     </div>
                 </div>
@@ -307,19 +313,15 @@
                                         </span>
                                     <% } else if (request.status === 'waitingUser') { %>
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                                            <span class="w-1.5 h-1.5 bg-orange-500 rounded-full mr-1.5"></span>รอผู้ใช้ยืนยืน
+                                            <span class="w-1.5 h-1.5 bg-orange-500 rounded-full mr-1.5"></span>รอผู้ใช้ยืนยัน
                                         </span>
                                     <% } else if (request.status === 'in-progress') { %>
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1.5"></span>กำลังดำเนินการ
+                                            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1.5"></span>กำลังเข้าจัดเก็บ
                                         </span>
                                     <% } else if (request.status === 'confirmed') { %>
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
                                             <span class="w-1.5 h-1.5 bg-indigo-500 rounded-full mr-1.5"></span>รอการดำเนินการ
-                                        </span>
-                                    <% } else if (request.status === 'complete') { %>
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>เสร็จสิ้น
                                         </span>
                                     <% } else if (request.status === 'rejected') { %>
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
@@ -328,6 +330,10 @@
                                     <% } else if (request.status === 'cancelled') { %>
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                             <span class="w-1.5 h-1.5 bg-red-500 rounded-full mr-1.5"></span>ยกเลิกคำขอโดยผู้ใช้
+                                        </span>
+                                    <% } else if (request.status === 'failed') { %>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-800">
+                                            <span class="w-1.5 h-1.5 bg-gray-500 rounded-full mr-1.5"></span>ไม่สำเร็จ
                                         </span>
                                     <% } else { %>
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
@@ -524,12 +530,28 @@
                         </div>
                     <% }) %>
                 <% } else { %>
-                    <div class="empty-state text-center py-8">
-                        <i class="fas fa-clipboard-list text-gray-300 text-5xl mb-4"></i>
-                        <h3 class="text-xl font-medium text-gray-500">ไม่พบรายการความประสงค์ขายขยะ</h3>
-                        <p class="text-gray-400 mt-2">กรุณาเพิ่มรายการใหม่เพื่อแสดงที่นี่</p>
+                    <div class="flex flex-col items-center justify-center py-16 px-6">
+                        <div class="w-32 h-32 mb-6 rounded-full bg-gray-100 flex items-center justify-center">
+                            <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-600 mb-2">ไม่มีรายการความประสงค์ขายขยะ</h3>
+                        <p class="text-gray-400 text-sm text-center max-w-md">ยังไม่มีคำขอขายขยะในระบบ เมื่อผู้ใช้ส่งคำขอเข้ามา รายการจะแสดงที่นี่</p>
                     </div>
                 <% } %>
+
+                <!-- Empty state for filtered results (hidden by default) -->
+                <div id="no-filter-results" class="hidden flex flex-col items-center justify-center py-16 px-6">
+                    <div class="w-28 h-28 mb-5 rounded-full bg-gray-100 flex items-center justify-center">
+                        <svg class="w-14 h-14 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-500 mb-1">ไม่พบรายการที่ตรงกับตัวกรอง</h3>
+                    <p class="text-gray-400 text-sm text-center">ลองเปลี่ยนสถานะหรือคำค้นหาใหม่</p>
+                </div>
+
             </div>
         </div>
     </div>
@@ -608,7 +630,7 @@
                 } else if (status === 'in-progress') {
                     if (statusBadge) statusBadge.className += 'bg-blue-100 text-blue-800';
                     if (modalStatus) modalStatus.className += 'bg-blue-100 text-blue-800';
-                    statusText = 'กำลังดำเนินการ';
+                    statusText = 'กำลังเข้าจัดเก็บ';
                 } else if (status === 'resolved') {
                     if (statusBadge) statusBadge.className += 'bg-green-100 text-green-800';
                     if (modalStatus) modalStatus.className += 'bg-green-100 text-green-800';
@@ -675,25 +697,39 @@
     }
     
     // Filter Functions
+    const statusColorMap = {
+        'all':         { bg: 'bg-green-600',  text: 'text-white',      ring: 'ring-green-600'  },
+        'pending':     { bg: 'bg-yellow-500', text: 'text-white',      ring: 'ring-yellow-500' },
+        'waitingUser': { bg: 'bg-orange-500', text: 'text-white',      ring: 'ring-orange-500' },
+        'confirmed':   { bg: 'bg-indigo-600', text: 'text-white',      ring: 'ring-indigo-600' },
+        'in-progress': { bg: 'bg-blue-600',   text: 'text-white',      ring: 'ring-blue-600'   },
+        'resolved':    { bg: 'bg-green-600',  text: 'text-white',      ring: 'ring-green-600'  },
+        'rejected':    { bg: 'bg-red-600',    text: 'text-white',      ring: 'ring-red-600'    },
+        'cancelled':   { bg: 'bg-red-500',    text: 'text-white',      ring: 'ring-red-500'    }
+    };
+
     function filterRequests(status) {
         const cards = document.querySelectorAll('[data-status]');
         const filterButtons = document.querySelectorAll('.filter-btn');
         
-        // Define class sets
-        const activeClasses = ['bg-green-600', 'text-white', 'ring-2', 'ring-green-600', 'ring-offset-1'];
-        const inactiveClasses = ['bg-white', 'text-gray-600', 'border', 'border-gray-200', 'hover:bg-gray-50', 'hover:text-green-600'];
+        const inactiveClasses = ['bg-white', 'text-gray-600', 'border', 'border-gray-200'];
         
-        // Reset button styles
+        // Reset all buttons to inactive
         filterButtons.forEach(btn => {
-            btn.classList.remove(...activeClasses);
+            // Remove all possible active color classes
+            Object.values(statusColorMap).forEach(c => {
+                btn.classList.remove(c.bg, c.text, c.ring);
+            });
+            btn.classList.remove('ring-2', 'ring-offset-1');
             btn.classList.add(...inactiveClasses);
         });
         
-        // Set active button
+        // Set active button with status-specific color
         const activeBtn = document.getElementById(`filter-${status}`);
+        const colors = statusColorMap[status] || statusColorMap['all'];
         if (activeBtn) {
             activeBtn.classList.remove(...inactiveClasses);
-            activeBtn.classList.add(...activeClasses);
+            activeBtn.classList.add(colors.bg, colors.text, 'ring-2', colors.ring, 'ring-offset-1');
         }
         
         let visibleCount = 0;
@@ -712,6 +748,16 @@
         const totalCountElement = document.getElementById('total-count');
         if (totalCountElement) {
             totalCountElement.textContent = `${visibleCount} รายการ`;
+        }
+
+        // Show/hide no-results empty state
+        const noResults = document.getElementById('no-filter-results');
+        if (noResults) {
+            if (visibleCount === 0 && cards.length > 0) {
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
+            }
         }
         
         // Re-run search if there is input
@@ -797,16 +843,20 @@
         const filterAll = document.getElementById('filter-all');
         const filterPending = document.getElementById('filter-pending');
         const filterInProgress = document.getElementById('filter-in-progress');
-        const filterResolved = document.getElementById('filter-complete');
+        const filterResolved = document.getElementById('filter-resolved');
         const filterWaitingUser = document.getElementById('filter-waitingUser');
         const filterConfirmed = document.getElementById('filter-confirmed');
+        const filterRejected = document.getElementById('filter-rejected');
+        const filterCancelled = document.getElementById('filter-cancelled');
         
         if (filterAll) filterAll.addEventListener('click', () => filterRequests('all'));
         if (filterPending) filterPending.addEventListener('click', () => filterRequests('pending'));
         if (filterConfirmed) filterConfirmed.addEventListener('click', () => filterRequests('confirmed'));
         if (filterWaitingUser) filterWaitingUser.addEventListener('click', () => filterRequests('waitingUser'));
         if (filterInProgress) filterInProgress.addEventListener('click', () => filterRequests('in-progress'));
-        if (filterResolved) filterResolved.addEventListener('click', () => filterRequests('complete'));
+        if (filterResolved) filterResolved.addEventListener('click', () => filterRequests('resolved'));
+        if (filterRejected) filterRejected.addEventListener('click', () => filterRequests('rejected'));
+        if (filterCancelled) filterCancelled.addEventListener('click', () => filterRequests('cancelled'));
         
         // Search input
         const searchInput = document.getElementById('search-input');

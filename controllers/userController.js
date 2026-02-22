@@ -255,6 +255,7 @@ const user_wasteSaleRequest = async (req, res) => {
         let hasPendingRequest = false;
         let hasComfirmed = false;
         let hasInprogress = false;
+        let hasResolved = false;
         let latestRequest = null;
 
         if (req.session?.user) {
@@ -268,12 +269,25 @@ const user_wasteSaleRequest = async (req, res) => {
                 .sort({ createdAt: -1 });
 
             if (latestRequest) {
-                if (latestRequest.status === 'pending') {
-                    hasPendingRequest = true;
-                } else if (latestRequest.status === 'confirmed') {
-                    hasComfirmed = true;
-                } else if (latestRequest.status === 'in-progress') {
-                    hasInprogress = true;
+                // Check if user want to create new request (and previous is terminal)
+                const isTerminal = ['resolved', 'rejected', 'cancelled', 'failed'].includes(latestRequest.status);
+                const wantsNew = req.query.action === 'new';
+
+                if (isTerminal && wantsNew) {
+                    latestRequest.status = 'archived';
+                    await latestRequest.save();
+                    // After archiving, we don't want to show any status for THIS archived request
+                    latestRequest = null; 
+                } else {
+                    if (latestRequest.status === 'pending') {
+                        hasPendingRequest = true;
+                    } else if (latestRequest.status === 'confirmed') {
+                        hasComfirmed = true;
+                    } else if (latestRequest.status === 'in-progress') {
+                        hasInprogress = true;
+                    } else if (latestRequest.status === 'resolved') {
+                        hasResolved = true;
+                    }
                 }
             }
         }
@@ -287,6 +301,7 @@ const user_wasteSaleRequest = async (req, res) => {
             hasPendingRequest,
             hasComfirmed,
             hasInprogress,
+            hasResolved,
             latestRequest,
             pickupDate
         });

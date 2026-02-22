@@ -47,7 +47,7 @@ const wasteSaleRequestSchema = new Schema(
         },
         status: {
             type: String,
-            enum: ['pending', 'confirmed', 'in-progress', 'resolved', 'rejected', 'cancelled', 'failed'],
+            enum: ['pending', 'confirmed', 'in-progress', 'resolved', 'rejected', 'cancelled', 'failed', 'archived'],
             default: 'pending'
         },
         isDeleted: {

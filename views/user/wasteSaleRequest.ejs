@@ -158,11 +158,13 @@
                         if (hasPendingRequest) currentStep = 2;
                         if (hasComfirmed) currentStep = 3;
                         if (hasInprogress) currentStep = 4;
+                        if (hasResolved) currentStep = 5;
                         
                         let progressWidth = "0%";
-                        if (currentStep === 2) progressWidth = "33%";
-                        if (currentStep === 3) progressWidth = "66%";
-                        if (currentStep === 4) progressWidth = "100%";
+                        if (currentStep === 2) progressWidth = "25%";
+                        if (currentStep === 3) progressWidth = "50%";
+                        if (currentStep === 4) progressWidth = "75%";
+                        if (currentStep === 5) progressWidth = "100%";
                     %>
 
                     <!-- Status Timeline -->
@@ -190,14 +192,21 @@
                                 <div class="w-10 h-10 rounded-full border-4 border-white flex items-center justify-center shadow-md transition-all duration-500 <%= currentStep >= 3 ? 'bg-blue-500 text-white status-pulse' : 'bg-gray-200 text-gray-500' %> <%= currentStep > 3 ? 'bg-green-500' : '' %>">
                                     <i class="fa-solid fa-calendar-check text-xs"></i>
                                 </div>
-                                <span class="mt-2 text-[10px] md:text-xs font-bold <%= currentStep >= 3 ? 'text-blue-600' : 'text-gray-400' %> <%= currentStep > 3 ? 'text-green-600' : '' %>">นัดหมายแล้ว</span>
+                                <span class="mt-2 text-[10px] md:text-xs font-bold <%= currentStep >= 3 ? 'text-blue-600' : 'text-gray-400' %> <%= currentStep > 3 ? 'text-green-600' : '' %>">รอวันจัดเก็บ</span>
                             </div>
                             <!-- Step 4 -->
                             <div class="flex flex-col items-center">
-                                <div class="w-10 h-10 rounded-full border-4 border-white flex items-center justify-center shadow-md transition-all duration-500 <%= currentStep >= 4 ? 'bg-indigo-500 text-white status-pulse' : 'bg-gray-200 text-gray-500' %>">
+                                <div class="w-10 h-10 rounded-full border-4 border-white flex items-center justify-center shadow-md transition-all duration-500 <%= currentStep >= 4 ? 'bg-indigo-500 text-white status-pulse' : 'bg-gray-200 text-gray-500' %> <%= currentStep > 4 ? 'bg-green-500' : '' %>">
                                     <i class="fa-solid fa-truck-fast text-xs"></i>
                                 </div>
-                                <span class="mt-2 text-[10px] md:text-xs font-bold <%= currentStep >= 4 ? 'text-indigo-600' : 'text-gray-400' %>">พนักงานกำลังเข้า</span>
+                                <span class="mt-2 text-[10px] md:text-xs font-bold <%= currentStep >= 4 ? 'text-indigo-600' : 'text-gray-400' %> <%= currentStep > 4 ? 'text-green-600' : '' %>">กำลังเข้าจัดเก็บ</span>
+                            </div>
+                            <!-- Step 5 -->
+                            <div class="flex flex-col items-center">
+                                <div class="w-10 h-10 rounded-full border-4 border-white flex items-center justify-center shadow-md transition-all duration-500 <%= currentStep >= 5 ? 'bg-teal-500 text-white' : 'bg-gray-200 text-gray-500' %>">
+                                    <i class="fa-solid fa-check-double text-xs"></i>
+                                </div>
+                                <span class="mt-2 text-[10px] md:text-xs font-bold <%= currentStep >= 5 ? 'text-teal-600' : 'text-gray-400' %>">สำเร็จ</span>
                             </div>
                         </div>
                     </div>
@@ -333,11 +342,11 @@
                                 <!-- Status Badge -->
                                 <div class="bg-blue-100/80 backdrop-blur px-4 py-1.5 rounded-full border border-blue-200 flex items-center gap-2">
                                     <span class="w-2 h-2 bg-blue-500 rounded-full animate-ping"></span>
-                                    <span class="text-xs font-bold text-blue-700 uppercase tracking-wider">ยืนยันนัดหมายแล้ว</span>
+                                    <span class="text-xs font-bold text-blue-700 uppercase tracking-wider">รอวันจัดเก็บ</span>
                                 </div>
 
                                 <div class="space-y-3">
-                                    <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">เตรียมนัดหมายเข้ารับซื้อ</h2>
+                                    <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">รอวันที่พนักงานนัดหมายไว้</h2>
                                     <p class="text-gray-500 max-w-sm mx-auto">พนักงานได้ยืนยันวันเข้ารับซื้อขยะของคุณแล้ว กรุณาเตรียมขยะให้พร้อมตามวันเวลาที่กำหนด</p>
                                 </div>
 
@@ -391,7 +400,7 @@
                                 <!-- Notice -->
                                 <div class="flex items-center gap-3 text-sm text-gray-500 bg-gray-50/50 p-4 rounded-xl w-full justify-center">
                                     <i class="fa-solid fa-circle-info text-blue-400"></i>
-                                    <span>เจ้าหน้าที่จะติดต่อคุณล่วงหน้าก่อนถึงสถานที่</span>
+                                    <span>ระบบจะเปลี่ยนสถานะเป็น "กำลังเข้าจัดเก็บ" ให้โดยอัตโนมัติเมื่อถึงวันนัดหมาย</span>
                                 </div>
 
                                 <!-- Actions -->
@@ -490,6 +499,67 @@
                         });
                     });
                     </script>
+                    <% } else if (hasResolved) { %>
+                    <!-- ================= ดำเนินการสำเร็จ ================= -->
+                    <div class="mt-8 mb-10 overflow-hidden">
+                        <div class="bg-gradient-to-br from-teal-50 via-white to-green-50 rounded-3xl border border-teal-200 p-8 md:p-12 relative overflow-hidden">
+                            <!-- Background Decoration -->
+                            <div class="absolute -top-24 -right-24 w-64 h-64 bg-teal-200 rounded-full opacity-20 blur-3xl"></div>
+                            
+                            <div class="relative z-10 flex flex-col items-center text-center gap-8">
+                                <!-- Status Badge -->
+                                <div class="bg-teal-100/80 backdrop-blur px-4 py-1.5 rounded-full border border-teal-200 flex items-center gap-2">
+                                    <i class="fa-solid fa-check-circle text-teal-600"></i>
+                                    <span class="text-xs font-bold text-teal-700 uppercase tracking-wider">ดำเนินการสำเร็จ</span>
+                                </div>
+
+                                <div class="space-y-3">
+                                    <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">การขายขยะเสร็จสมบูรณ์</h2>
+                                    <p class="text-gray-500 max-w-sm mx-auto">ทางเจ้าหน้าที่ได้ดำเนินการรับซื้อและอัปเดตยอดเงินในบัญชีของคุณเรียบร้อยแล้ว ขอบคุณที่ร่วมเป็นส่วนหนึ่งของการคัดแยกขยะ</p>
+                                </div>
+
+                                <!-- Success Details -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                                    <div class="glass-card p-5 text-left flex items-start gap-4 shadow-sm border-teal-100">
+                                        <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-600 flex items-center justify-center flex-shrink-0">
+                                            <i class="fa-solid fa-calendar-check"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs text-gray-400 font-bold uppercase mb-1">วันที่ดำเนินการสำเร็จ</p>
+                                            <p class="font-bold text-gray-800">
+                                                <%= latestRequest.updatedAt ? new Date(latestRequest.updatedAt).toLocaleDateString('th-TH',{year:'numeric', month:'long', day:'numeric'}) : '-' %>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="glass-card p-5 text-left flex items-start gap-4 shadow-sm border-green-100">
+                                        <div class="w-10 h-10 rounded-xl bg-green-100 text-green-600 flex items-center justify-center flex-shrink-0">
+                                            <i class="fa-solid fa-receipt"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs text-gray-400 font-bold uppercase mb-1">เลขที่อ้างอิง</p>
+                                            <p class="font-bold text-gray-800 line-clamp-1">
+                                                #<%= latestRequest._id.toString().substring(latestRequest._id.toString().length - 8).toUpperCase() %>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Actions -->
+                                <div class="flex flex-col sm:flex-row gap-4 w-full justify-center">
+                                    <a href="/user/profile?tab=requests"
+                                       class="px-8 py-3.5 bg-teal-600 text-white hover:bg-teal-700 rounded-2xl font-bold transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center gap-2">
+                                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                                        ดูรายละเอียดในประวัติ
+                                    </a>
+                                    <a href="/user/wasteSaleRequest?action=new"
+                                       class="px-8 py-3.5 bg-white text-teal-600 border border-teal-200 hover:bg-teal-50 rounded-2xl font-bold transition-all shadow-sm hover:shadow active:scale-95 flex items-center justify-center gap-2">
+                                        ส่งคำขอใหม่
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <% } else if (hasInprogress) { %>
                     <!-- ================= กำลังดำเนินการ ================= -->
                     <div class="mt-8 mb-10 overflow-hidden">
@@ -501,11 +571,11 @@
                                 <!-- Status Badge -->
                                 <div class="bg-green-100/80 backdrop-blur px-4 py-1.5 rounded-full border border-green-200 flex items-center gap-2">
                                     <span class="w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
-                                    <span class="text-xs font-bold text-green-700 uppercase tracking-wider">พนักงานกำลังดำเนินการ</span>
+                                    <span class="text-xs font-bold text-green-700 uppercase tracking-wider">กำลังเข้าจัดเก็บ</span>
                                 </div>
 
                                 <div class="space-y-3">
-                                    <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">เจ้าหน้าที่กำลังเข้าพบคุณ</h2>
+                                    <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">ถึงวันที่จะเข้าไปรับซื้อแล้วโปรดเตรียมตัว</h2>
                                     <p class="text-gray-500 max-w-sm mx-auto">ขณะนี้พนักงานกำลังเดินทางหรือกำลังดำเนินการจัดเก็บขยะตามจุดนัดหมาย กรุณาสแตนด์บายรอรับการติดต่อ</p>
                                 </div>
 
