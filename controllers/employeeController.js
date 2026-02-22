@@ -2315,7 +2315,7 @@ const updateComplaintStatus = async (req, res) => {
 const wasteSaleRequestIndex = async (req, res) => {
     try {
         const wasteSaleRequests = await wasteSaleRequest
-            .find({ isDeleted: false }) // เพิ่มเงื่อนไขไม่แสดงรายการที่ถูกลบ
+            .find({ isDeleted: false, status: { $ne: 'archived' } }) // ซ่อนรายการที่ถูก archive
             .populate('waste') // ดึงข้อมูลขยะจาก ObjectId
             .populate('family') // ดึงข้อมูลครอบครัว
             .sort({ createdAt: -1 }); // เรียงตามวันที่สร้างล่าสุด
