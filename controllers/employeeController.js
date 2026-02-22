@@ -5148,7 +5148,7 @@ const mapIndex = async (req, res) => {
 // บันทึกเส้นทาง
 const saveRoute = async (req, res) => {
     try {
-        const { routeName, points, totalDistance, totalDuration, note, requestIds, scheduledDate } = req.body;
+        const { routeName, points, totalDistance, totalDuration, note, requestIds } = req.body;
         
         // ตรวจสอบข้อมูลพื้นฐาน
         if (!routeName || !points || points.length < 2) {
@@ -5167,8 +5167,7 @@ const saveRoute = async (req, res) => {
             numberOfPoints: points.length,
             createdBy: req.user._id,
             note: note || '',
-            wasteSaleRequests: requestIds || [],
-            scheduledDate: scheduledDate || new Date()
+            wasteSaleRequests: requestIds || [] // เก็บ ID ของ wasteSaleRequest ที่เกี่ยวข้อง
         });
         
         // บันทึกลงฐานข้อมูล

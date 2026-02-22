@@ -58,10 +58,6 @@ const routeSchema = new mongoose.Schema({
     isAllComplete: {
         type: Boolean,
         default: false
-    },
-    scheduledDate: {
-        type: Date,
-        required: false
     }
     
 }, {
