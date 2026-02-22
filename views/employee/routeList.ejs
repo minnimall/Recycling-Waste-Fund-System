@@ -26,6 +26,19 @@
                 transform: translateY(-4px);
                 box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
             }
+
+            .filter-tab {
+                color: #6B7280;
+                background: transparent;
+            }
+            .filter-tab:hover {
+                background: #F3F4F6;
+            }
+            .filter-tab.active-tab {
+                background: #EFF6FF;
+                color: #2563EB;
+                font-weight: 600;
+            }
         </style>
 </head>
 
@@ -121,6 +134,30 @@
                     </div>
                 </div> -->
 
+                <!-- Filter Tabs -->
+                <div class="mx-4 mb-4">
+                    <div class="bg-white rounded-lg shadow p-2 flex gap-2 overflow-x-auto">
+                        <button onclick="filterByStatus('all')" id="tab-all"
+                            class="filter-tab active-tab flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap">
+                            <ion-icon name="list-outline"></ion-icon>
+                            ทั้งหมด
+                            <span class="tab-count bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs font-bold"><%= routes.length %></span>
+                        </button>
+                        <button onclick="filterByStatus('active')" id="tab-active"
+                            class="filter-tab flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap">
+                            <ion-icon name="time-outline"></ion-icon>
+                            กำลังดำเนินการ
+                            <span class="tab-count bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full text-xs font-bold"><%= routes.filter(r => !r.isAllComplete).length %></span>
+                        </button>
+                        <button onclick="filterByStatus('completed')" id="tab-completed"
+                            class="filter-tab flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap">
+                            <ion-icon name="checkmark-circle-outline"></ion-icon>
+                            เสร็จสิ้นแล้ว
+                            <span class="tab-count bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-bold"><%= routes.filter(r => r.isAllComplete).length %></span>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Filter and Search -->
                 <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
                     <div class="flex flex-col md:flex-row gap-4">
@@ -169,7 +206,8 @@
                                     <div class="route-card group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col h-full relative"
                                         data-name="<%= route.routeName.toLowerCase() %>"
                                         data-date="<%= new Date(route.createdAt).getTime() %>"
-                                        data-distance="<%= route.totalDistance %>">
+                                        data-distance="<%= route.totalDistance %>"
+                                        data-status="<%= route.isAllComplete ? 'completed' : 'active' %>">
                                         
                                         <!-- Status Strip -->
                                         <div class="absolute top-0 left-0 w-full h-1 <%= route.isAllComplete ? 'bg-green-500' : 'bg-blue-500' %>"></div>
@@ -240,7 +278,7 @@
                                             <% } %>
 
                                             <div class="grid grid-cols-2 gap-2">
-                                                <a href="/employee/routeList/<%= route._id %>" 
+                                                <a href="/employee/routeDetail/<%= route._id %>" 
                                                     class="col-span-2 flex items-center justify-center gap-2 w-full py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 transition-all font-medium text-sm shadow-sm">
                                                     <ion-icon name="eye-outline" class="text-lg"></ion-icon>
                                                     รายละเอียด
@@ -319,19 +357,36 @@
                         }
                     }
                 }
-                // Search functionality
-                document.getElementById('searchInput').addEventListener('input', function (e) {
-                    const searchTerm = e.target.value.toLowerCase();
+                // Tab filter state
+                let currentFilter = 'all';
+
+                function filterByStatus(status) {
+                    currentFilter = status;
+
+                    // Update active tab
+                    document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active-tab'));
+                    document.getElementById(`tab-${status}`).classList.add('active-tab');
+
+                    applyFilters();
+                }
+
+                function applyFilters() {
+                    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
                     const cards = document.querySelectorAll('.route-card');
+                    let visibleCount = 0;
 
                     cards.forEach(card => {
-                        const name = card.dataset.name;
-                        if (name.includes(searchTerm)) {
-                            card.style.display = 'block';
-                        } else {
-                            card.style.display = 'none';
-                        }
+                        const matchesSearch = card.dataset.name.includes(searchTerm);
+                        const matchesFilter = currentFilter === 'all' || card.dataset.status === currentFilter;
+                        const show = matchesSearch && matchesFilter;
+                        card.style.display = show ? '' : 'none';
+                        if (show) visibleCount++;
                     });
+                }
+
+                // Search functionality
+                document.getElementById('searchInput').addEventListener('input', function (e) {
+                    applyFilters();
                 });
 
                 // Sort functionality

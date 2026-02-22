@@ -400,7 +400,7 @@ const wasteSaleRequestUserReject = async (req, res) => {
 
         // update main request
         await wasteSaleRequest.findByIdAndUpdate(id, {
-            status: 'CANCELLED_BY_USER'
+            status: 'cancelled'
         });
 
         // log

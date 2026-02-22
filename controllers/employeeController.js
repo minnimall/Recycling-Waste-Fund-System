@@ -5123,7 +5123,7 @@ const mapIndex = async (req, res) => {
     try {
         // ดึงข้อมูล wasteSaleRequest ที่ status = 'pending' และยังไม่ถูกลบ
         const pendingRequests = await wasteSaleRequest.find({ 
-            status: 'in-progress',
+            status: 'confirmed',
             isDeleted: false
         })
         .populate('waste') // ดึงข้อมูลขยะมาด้วย
@@ -5148,7 +5148,7 @@ const mapIndex = async (req, res) => {
 // บันทึกเส้นทาง
 const saveRoute = async (req, res) => {
     try {
-        const { routeName, points, totalDistance, totalDuration, note, requestIds } = req.body;
+        const { routeName, points, totalDistance, totalDuration, note, requestIds, scheduledDate } = req.body;
         
         // ตรวจสอบข้อมูลพื้นฐาน
         if (!routeName || !points || points.length < 2) {
@@ -5167,7 +5167,8 @@ const saveRoute = async (req, res) => {
             numberOfPoints: points.length,
             createdBy: req.user._id,
             note: note || '',
-            wasteSaleRequests: requestIds || [] // เก็บ ID ของ wasteSaleRequest ที่เกี่ยวข้อง
+            wasteSaleRequests: requestIds || [],
+            scheduledDate: scheduledDate || new Date()
         });
         
         // บันทึกลงฐานข้อมูล
@@ -5200,9 +5201,7 @@ const saveRoute = async (req, res) => {
 // ดูรายการเส้นทางที่บันทึกไว้ทั้งหมด
 const getAllRoutes = async (req, res) => {
     try {
-        const routes = await Route.find({ 
-            status: 'active'
-        })
+        const routes = await Route.find()
         .sort({ createdAt: -1 })
         .populate('createdBy', 'firstname lastname')
         .populate('wasteSaleRequests'); // ดึงข้อมูล wasteSaleRequest มาด้วย
@@ -5219,6 +5218,32 @@ const getAllRoutes = async (req, res) => {
     }
 };
 
+// ปฏิทินตารางการดำเนินการ
+const routeCalendarIndex = async (req, res) => {
+    try {
+        const routes = await Route.find()
+        .sort({ createdAt: -1 })
+        .populate('createdBy', 'firstname lastname')
+        .populate({
+            path: 'points.requestId',
+            select: 'family',
+            populate: {
+                path: 'family',
+                select: 'familyName'
+            }
+        });
+        
+        res.render('employee/routeCalendar', {
+            mytitle: 'ตารางการดำเนินการ',
+            currentPage: 'routeCalendar',
+            routes: routes
+        });
+    } catch (error) {
+        console.error('Error getting routes for calendar:', error);
+        res.redirect('/employee/routeList?error=ไม่สามารถโหลดปฏิทินได้');
+    }
+};
+
 // ดูรายละเอียดเส้นทาง
 const getRouteDetail = async (req, res) => {
     try {
@@ -5232,6 +5257,14 @@ const getRouteDetail = async (req, res) => {
                     { path: 'waste', select: 'wasteName type' },
                     { path: 'family', select: 'firstname lastname familyName' }
                 ]
+            })
+            .populate({
+                path: 'points.requestId',
+                select: 'family',
+                populate: {
+                    path: 'family',
+                    select: 'familyName'
+                }
             });
         
         if (!route) {
@@ -5380,102 +5413,132 @@ const updateRoutePoints = async (req, res) => {
     }
 };
 
+// อัปเดตสถานะจุดเดี่ยวในเส้นทาง (complete / failed / in-progress)
 const RoutePointsComplete = async (req, res) => {
     try {
         const { routeId, pointId } = req.params;
-        const { status } = req.body; // completed, skipped
+        const { status, reason } = req.body;
 
-        // 1. update point และดึง route กลับมา
-        const updatedRoute = await Route.findOneAndUpdate(
-            { _id: routeId, "points._id": pointId },
-            { $set: { "points.$.status": status } },
-            { new: true }
-        );
-
-        if (!updatedRoute) {
-            return res.status(404).json({
-                success: false,
-                message: "Route หรือ Point ไม่พบ"
-            });
+        const allowedStatuses = ['complete', 'failed', 'in-progress'];
+        if (!allowedStatuses.includes(status)) {
+            return res.status(400).json({ success: false, message: 'สถานะไม่ถูกต้อง' });
         }
 
-        // 2. หา point ที่เพิ่งอัปเดต
-        const point = updatedRoute.points.id(pointId);
-
-        // 3. ถ้า point นี้เชื่อมกับ wasteSaleRequest
-        if (point?.requestId) {
-            await wasteSaleRequest.findByIdAndUpdate(
-                point.requestId,
-                { status: status },
-                { new: true }
-            );
-            await wasteSaleRequestLog.create({
-                wasteSaleRequest: point.requestId,
-                status: status.toUpperCase(), // COMPLETED / SKIPPED
-                approveText:
-                    status === 'complete'
-                        ? 'ดำเนินการรับขยะสำเร็จ'
-                        : 'ข้ามจุดรับขยะ',
-                actionBy: 'EMPLOYEE'
-            });
+        const route = await Route.findById(routeId);
+        if (!route) {
+            return res.status(404).json({ success: false, message: 'ไม่พบเส้นทาง' });
         }
 
-        res.json({
-            success: true,
-            message: "อัปเดตจุดเรียบร้อย",
-            pointStatus: status
+        const point = route.points.id(pointId);
+        if (!point) {
+            return res.status(404).json({ success: false, message: 'ไม่พบจุดในเส้นทาง' });
+        }
+
+        // อัปเดตสถานะจุด
+        point.status = status;
+        if (status === 'failed' && reason) {
+            point.failReason = reason;
+        }
+
+        // ตรวจสอบว่าครบทุกจุดหรือยัง (ข้ามจุดเริ่มต้น)
+        const allDone = route.points.slice(1).every(p => p.status === 'complete' || p.status === 'failed');
+        route.isAllComplete = allDone;
+        if (allDone) {
+            route.status = 'archived';
+        }
+
+        await route.save();
+
+        // อัปเดต wasteSaleRequest ที่เชื่อมกับจุดนี้
+        if (point.requestId) {
+            if (status === 'complete') {
+                await wasteSaleRequest.findByIdAndUpdate(point.requestId, { status: 'resolved' });
+                await wasteSaleRequestLog.create({
+                    wasteSaleRequest: point.requestId,
+                    status: 'COMPLETED',
+                    approveText: `รับซื้อสำเร็จ (เส้นทาง: ${route.routeName})`,
+                    actionBy: 'EMPLOYEE'
+                });
+            } else if (status === 'failed') {
+                await wasteSaleRequest.findByIdAndUpdate(point.requestId, { status: 'failed' });
+                await wasteSaleRequestLog.create({
+                    wasteSaleRequest: point.requestId,
+                    status: 'REJECTED',
+                    reason: reason || 'OTHER',
+                    approveText: `เข้ารับไม่ได้ (เส้นทาง: ${route.routeName})`,
+                    actionBy: 'EMPLOYEE'
+                });
+            } else if (status === 'in-progress') {
+                await wasteSaleRequest.findByIdAndUpdate(point.requestId, { status: 'in-progress' });
+            }
+        }
+
+        res.json({ 
+            success: true, 
+            message: 'อัปเดตสถานะเรียบร้อย',
+            isAllComplete: route.isAllComplete
         });
 
     } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
+        console.error('Error updating point status:', error);
+        res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาด' });
     }
 };
 
+// จบงานทุกจุดในเส้นทาง (complete all)
 const RoutePointsCompleteAll = async (req, res) => {
     try {
-            const { routeId } = req.params;
+        const { routeId } = req.params;
 
-            // 1. ค้นหา Route และดึง requestId ทั้งหมดออกมา
-            const route = await Route.findById(routeId);
-            if (!route) return res.status(404).json({ success: false, message: 'ไม่พบเส้นทาง' });
+        const route = await Route.findById(routeId);
+        if (!route) {
+            return res.status(404).json({ success: false, message: 'ไม่พบเส้นทาง' });
+        }
 
-            const requestIds = route.points
-                .filter(p => p.requestId) // เอาเฉพาะจุดที่มี requestId (ไม่ใช่จุด Depot)
-                .map(p => p.requestId);
+        const requestIds = [];
 
-            // 2. อัปเดตทุก point ใน Route ให้เป็น complete
-            await Route.updateOne(
-                {  _id: routeId },
-                { 
-                    isAllComplete: true,
-                    $set: { "points.$[].status": "complete" } } // อัปเดตทุก element ใน array
+        // ข้ามจุดแรก (จุดเริ่มต้น/depot) — เริ่มจาก index 1
+        route.points.forEach((point, index) => {
+            if (index === 0) return; // ข้ามจุดเริ่มต้น
+            if (point.status === 'in-progress') {
+                point.status = 'complete';
+                if (point.requestId) {
+                    requestIds.push(point.requestId);
+                }
+            }
+        });
+
+        // ตรวจสอบว่าจุดที่ไม่ใช่ depot เสร็จหมดแล้ว
+        const allNonDepotDone = route.points.slice(1).every(p => p.status === 'complete' || p.status === 'failed');
+        route.isAllComplete = allNonDepotDone;
+        if (allNonDepotDone) route.status = 'archived';
+        await route.save();
+
+        if (requestIds.length > 0) {
+            await wasteSaleRequest.updateMany(
+                { _id: { $in: requestIds } },
+                { $set: { status: 'resolved' } }
             );
 
-            // 3. อัปเดต wasteSaleRequest ที่เกี่ยวข้องทั้งหมดเป็น complete
-            if (requestIds.length > 0) {
-                await wasteSaleRequest.updateMany(
-                    { _id: { $in: requestIds } },
-                    { $set: { status: 'complete' } }
-                );
+            const logs = requestIds.map(id => ({
+                wasteSaleRequest: id,
+                status: 'COMPLETED',
+                approveText: `รับซื้อสำเร็จ (เส้นทาง: ${route.routeName})`,
+                actionBy: 'EMPLOYEE'
+            }));
 
-                const logs = requestIds.map(id => ({
-                    wasteSaleRequest: id,
-                    status: 'COMPLETED',
-                    approveText: `เสร็จสิ้นการรับขยะ (เส้นทาง: ${route.routeName})`,
-                    actionBy: 'EMPLOYEE'
-                }));
-
-                await wasteSaleRequestLog.insertMany(logs);
-            }
-
-            res.json({ success: true, message: 'อัปเดตสำเร็จทุกจุด' });
-        } catch (err) {
-            res.status(500).json({ success: false, message: err.message });
+            await wasteSaleRequestLog.insertMany(logs);
         }
+
+        res.json({ 
+            success: true, 
+            message: `อัปเดตสำเร็จทุกจุด (${requestIds.length} คำขอ)`
+        });
+
+    } catch (error) {
+        console.error('Error completing all points:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
 };
 
 
@@ -5846,7 +5909,7 @@ module.exports = {
     //หน้าคำขอฌาปนกิจ
     pendingFuneralRequestsPage,getPendingFuneralRequests,getRequestDetail,approveRequest,rejectRequest,
     //หน้าแผนที่เข้ารับซื้อ
-    mapIndex,saveRoute,getAllRoutes,getRouteDetail,deleteRoute,updateRoute,updateRoutePoints,RoutePointsComplete,RoutePointsCompleteAll,
+    mapIndex,saveRoute,getAllRoutes,getRouteDetail,deleteRoute,updateRoute,updateRoutePoints,RoutePointsComplete,RoutePointsCompleteAll,routeCalendarIndex,
     //หน้าจัดการจุดรับซื้อ
     wastePointIndex,wastePointPost,wastePointCreate,wastePointToggle,wastePointEdit,wastePointUpdate,wastePointDelete,
     //หน้าจัดการรอบการรับซื้อ

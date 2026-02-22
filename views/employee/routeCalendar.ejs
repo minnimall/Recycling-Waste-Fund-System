@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <%- include('../partials/employeePartials/doctype.ejs') %>
+        <title>
+            <%= mytitle %>
+        </title>
+        <link rel="stylesheet" href="/style_admin/waste.css">
+        <link rel="stylesheet" href="/style_employee/res_req.css">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+        <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+        <!-- FullCalendar -->
+        <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+        <style>
+            .content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            /* FullCalendar Custom Styles */
+            .fc {
+                font-family: 'Noto Sans Thai', sans-serif;
+                background: white;
+                border-radius: 12px;
+                overflow: hidden;
+            }
+            .fc .fc-toolbar-title {
+                font-size: 1.25rem !important;
+                font-weight: 700;
+                color: #1F2937;
+            }
+            .fc .fc-button {
+                background: #3B82F6 !important;
+                border: none !important;
+                border-radius: 8px !important;
+                font-size: 0.85rem !important;
+                padding: 6px 14px !important;
+                text-transform: none !important;
+                box-shadow: 0 2px 4px rgba(59,130,246,0.3);
+            }
+            .fc .fc-button:hover {
+                background: #2563EB !important;
+            }
+            .fc .fc-button-active {
+                background: #1D4ED8 !important;
+            }
+            .fc .fc-col-header-cell {
+                background: #F9FAFB;
+                font-weight: 600;
+                color: #4B5563;
+                padding: 10px 0;
+            }
+            .fc .fc-daygrid-day-number {
+                color: #374151;
+                font-weight: 500;
+                padding: 8px;
+            }
+            .fc .fc-day-today {
+                background: #EFF6FF !important;
+            }
+            .fc .fc-day-today .fc-daygrid-day-number {
+                background: #3B82F6;
+                color: white;
+                border-radius: 50%;
+                width: 28px;
+                height: 28px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .fc .fc-daygrid-event {
+                border-radius: 6px !important;
+                padding: 2px 6px !important;
+                margin: 1px 3px !important;
+                font-size: 0.75rem !important;
+                border: none !important;
+                cursor: pointer;
+            }
+            .fc .fc-event-active {
+                background: linear-gradient(135deg, #3B82F6, #2563EB) !important;
+            }
+            .fc .fc-event-completed {
+                background: linear-gradient(135deg, #10B981, #059669) !important;
+            }
+            .fc .fc-h-event .fc-event-title {
+                font-weight: 500;
+            }
+            .fc .fc-daygrid-more-link {
+                color: #3B82F6;
+                font-weight: 600;
+            }
+
+            /* Legend */
+            .legend-dot {
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                display: inline-block;
+            }
+
+            /* Minimal custom CSS — only for things Tailwind CDN can't handle */
+
+            /* Modal open/close animation */
+            #routeModal { transition: opacity 0.3s ease, visibility 0.3s ease; }
+            #routeModal .modal-box { transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+            #routeModal.active .modal-box { transform: scale(1) translateY(0); }
+
+            /* Header gradient variants */
+            .header-active { background: linear-gradient(135deg, #1E40AF, #3B82F6, #60A5FA); }
+            .header-completed { background: linear-gradient(135deg, #065F46, #059669, #34D399); }
+
+            /* SVG progress ring */
+            .progress-ring-circle {
+                transition: stroke-dashoffset 1s ease-in-out;
+                transform: rotate(-90deg);
+                transform-origin: 50% 50%;
+            }
+
+            /* Timeline connector line (pseudo-element) */
+            .tl-item { position: relative; padding-left: 36px; padding-bottom: 16px; }
+            .tl-item:last-child { padding-bottom: 0; }
+            .tl-item::before {
+                content: '';
+                position: absolute;
+                left: 13px; top: 28px; bottom: 0;
+                width: 2px;
+                background: #E5E7EB;
+            }
+            .tl-item:last-child::before { display: none; }
+
+            /* Timeline dot gradients */
+            .tl-dot-depot { background: linear-gradient(135deg, #6366F1, #8B5CF6); }
+            .tl-dot-complete { background: linear-gradient(135deg, #10B981, #059669); }
+            .tl-dot-failed { background: linear-gradient(135deg, #EF4444, #DC2626); }
+            .tl-dot-in-progress { background: linear-gradient(135deg, #F59E0B, #D97706); }
+
+            /* Stat pill background tint */
+            .stat-pill-bg::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                opacity: 0.06;
+                background: currentColor;
+                border-radius: 14px;
+            }
+        </style>
+</head>
+
+<body>
+
+    <%- include('../partials/employeePartials/empHeader.ejs') %>
+        <%- include('../partials/employeePartials/empSidebar.ejs') %>
+
+            <main class="content bg-gray-50 min-screen">
+                <!-- Page Header -->
+                <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                        <div>
+                            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center gap-2">
+                                <ion-icon name="calendar-outline" class="text-blue-600"></ion-icon>
+                                ตารางการดำเนินการ
+                            </h1>
+                            <p class="text-gray-600 mt-2">ปฏิทินแสดงแผนเส้นทางเข้ารับซื้อขยะ</p>
+                        </div>
+                        <div class="mt-4 md:mt-0 flex gap-2">
+                            <a href="/employee/routeList"
+                                class="inline-flex items-center bg-gray-100 text-gray-700 px-4 py-2.5 rounded-lg hover:bg-gray-200 transition text-sm font-medium">
+                                <ion-icon name="list-outline" class="text-lg mr-2"></ion-icon>
+                                รายการเส้นทาง
+                            </a>
+                            <a href="/employee/map"
+                                class="inline-flex items-center bg-green-600 text-white px-4 py-2.5 rounded-lg hover:bg-green-700 transition shadow-md text-sm font-medium">
+                                <ion-icon name="add-outline" class="text-lg mr-2"></ion-icon>
+                                สร้างเส้นทางใหม่
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="mx-4 mb-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-white rounded-xl shadow p-4">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2.5 bg-blue-100 rounded-lg">
+                                <ion-icon name="map-outline" class="text-blue-600 text-xl"></ion-icon>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">ทั้งหมด</p>
+                                <p class="text-xl font-bold text-gray-800"><%= routes.length %></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow p-4">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2.5 bg-yellow-100 rounded-lg">
+                                <ion-icon name="time-outline" class="text-yellow-600 text-xl"></ion-icon>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">กำลังดำเนินการ</p>
+                                <p class="text-xl font-bold text-yellow-600"><%= routes.filter(r => !r.isAllComplete).length %></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow p-4">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2.5 bg-green-100 rounded-lg">
+                                <ion-icon name="checkmark-circle-outline" class="text-green-600 text-xl"></ion-icon>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">เสร็จสิ้น</p>
+                                <p class="text-xl font-bold text-green-600"><%= routes.filter(r => r.isAllComplete).length %></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow p-4">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2.5 bg-purple-100 rounded-lg">
+                                <ion-icon name="location-outline" class="text-purple-600 text-xl"></ion-icon>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">จุดรวม</p>
+                                <p class="text-xl font-bold text-purple-600"><%= routes.reduce((sum, r) => sum + r.numberOfPoints, 0) %></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Legend -->
+                <div class="mx-4 mb-4">
+                    <div class="bg-white rounded-lg shadow px-4 py-3 flex flex-wrap items-center gap-6 text-sm text-gray-600">
+                        <span class="font-medium text-gray-700">สัญลักษณ์:</span>
+                        <div class="flex items-center gap-2">
+                            <span class="legend-dot" style="background: linear-gradient(135deg, #3B82F6, #2563EB);"></span>
+                            กำลังดำเนินการ
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="legend-dot" style="background: linear-gradient(135deg, #10B981, #059669);"></span>
+                            เสร็จสิ้นแล้ว
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calendar -->
+                <div class="mx-4 mb-6 bg-white rounded-xl shadow p-4">
+                    <div id="calendar"></div>
+                </div>
+            </main>
+
+            <!-- Custom Route Detail Modal -->
+            <div id="routeModal" class="fixed inset-0 z-[9999] flex items-center justify-center p-4 opacity-0 invisible" style="background:rgba(0,0,0,0.6);" onclick="if(event.target===this)closeModal()">
+                <div class="modal-box bg-white rounded-2xl w-full max-w-[520px] max-h-[90vh] overflow-hidden flex flex-col shadow-2xl" style="transform:scale(0.9) translateY(20px);">
+                    <!-- Header -->
+                    <div id="modalHeader" class="header-active relative overflow-hidden text-white px-6 pt-6 pb-5">
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1 min-w-0 pr-4">
+                                    <p class="text-xs font-medium opacity-80 mb-1" id="modalDate"></p>
+                                    <h2 class="text-xl font-bold truncate" id="modalTitle"></h2>
+                                    <div class="flex items-center gap-2 mt-2" id="modalStatus"></div>
+                                </div>
+                                <!-- Progress Ring -->
+                                <div class="flex-shrink-0">
+                                    <div class="relative w-[68px] h-[68px]">
+                                        <svg width="68" height="68" viewBox="0 0 68 68">
+                                            <circle cx="34" cy="34" r="28" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="5"/>
+                                            <circle id="progressRing" class="progress-ring-circle" cx="34" cy="34" r="28" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" stroke-dasharray="175.93" stroke-dashoffset="175.93"/>
+                                        </svg>
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <span class="text-sm font-bold" id="progressText">0%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Close button -->
+                        <button onclick="closeModal()" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition z-10 backdrop-blur-sm">
+                            <ion-icon name="close" class="text-lg"></ion-icon>
+                        </button>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="px-6 py-5 overflow-y-auto flex-1">
+                        <!-- Stats Row -->
+                        <div class="grid grid-cols-3 gap-3 mb-5">
+                            <div class="stat-pill-bg relative flex flex-col items-center py-3 px-2 rounded-[14px] overflow-hidden text-blue-600">
+                                <ion-icon name="navigate-outline" class="text-xl mb-1"></ion-icon>
+                                <span class="text-lg font-bold" id="statDistance">0</span>
+                                <span class="text-[10px] opacity-70">กิโลเมตร</span>
+                            </div>
+                            <div class="stat-pill-bg relative flex flex-col items-center py-3 px-2 rounded-[14px] overflow-hidden text-orange-500">
+                                <ion-icon name="time-outline" class="text-xl mb-1"></ion-icon>
+                                <span class="text-lg font-bold" id="statDuration">0</span>
+                                <span class="text-[10px] opacity-70">นาที</span>
+                            </div>
+                            <div class="stat-pill-bg relative flex flex-col items-center py-3 px-2 rounded-[14px] overflow-hidden text-purple-600">
+                                <ion-icon name="location-outline" class="text-xl mb-1"></ion-icon>
+                                <span class="text-lg font-bold" id="statPoints">0</span>
+                                <span class="text-[10px] opacity-70">จุดหมาย</span>
+                            </div>
+                        </div>
+
+                        <!-- Status Summary -->
+                        <div class="flex items-center gap-3 mb-5 p-3 bg-gray-50 rounded-xl">
+                            <div class="flex items-center gap-1.5 text-xs">
+                                <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span>
+                                <span class="text-gray-600">เสร็จ <strong class="text-green-700" id="countComplete">0</strong></span>
+                            </div>
+                            <div class="flex items-center gap-1.5 text-xs">
+                                <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                                <span class="text-gray-600">ปัญหา <strong class="text-red-600" id="countFailed">0</strong></span>
+                            </div>
+                            <div class="flex items-center gap-1.5 text-xs">
+                                <span class="w-2.5 h-2.5 rounded-full bg-yellow-400"></span>
+                                <span class="text-gray-600">รอ <strong class="text-yellow-600" id="countPending">0</strong></span>
+                            </div>
+                            <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden flex ml-2">
+                                <div id="barComplete" class="h-full bg-green-500 transition-all duration-700" style="width:0%"></div>
+                                <div id="barFailed" class="h-full bg-red-400 transition-all duration-700" style="width:0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Note -->
+                        <div id="noteSection" class="mb-5 hidden">
+                            <div class="bg-amber-50 border border-amber-100 rounded-xl p-3">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <ion-icon name="document-text-outline" class="text-amber-500"></ion-icon>
+                                    <span class="text-xs font-medium text-amber-700">หมายเหตุ</span>
+                                </div>
+                                <p class="text-sm text-amber-900 italic" id="noteText"></p>
+                            </div>
+                        </div>
+
+                        <!-- Timeline Points -->
+                        <div class="mb-2">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-sm font-semibold text-gray-700 flex items-center gap-1.5">
+                                    <ion-icon name="git-branch-outline" class="text-base text-gray-400"></ion-icon>
+                                    เส้นทางจุดรับซื้อ
+                                </h3>
+                                <span class="text-[10px] text-gray-400" id="createdByText"></span>
+                            </div>
+                            <div id="timelineContainer"></div>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/80">
+                        <div class="flex gap-3">
+                            <button onclick="closeModal()" class="flex-1 py-2.5 px-4 bg-gray-100 text-gray-600 rounded-xl text-sm font-medium hover:bg-gray-200 transition flex items-center justify-center gap-2">
+                                <ion-icon name="close-outline" class="text-lg"></ion-icon>
+                                ปิด
+                            </button>
+                            <a id="detailLink" href="#" class="flex-1 py-2.5 px-4 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-lg shadow-blue-200 no-underline">
+                                <ion-icon name="open-outline" class="text-lg"></ion-icon>
+                                ดูรายละเอียดเต็ม
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                // Prepare route data from EJS
+                const routesData = <%- JSON.stringify(routes.map(r => ({
+                    id: r._id,
+                    title: r.routeName,
+                    date: r.scheduledDate || r.createdAt,
+                    isAllComplete: r.isAllComplete,
+                    status: r.status,
+                    totalDistance: r.totalDistance,
+                    totalDuration: r.totalDuration,
+                    numberOfPoints: r.numberOfPoints,
+                    note: r.note || '',
+                    points: r.points.map(p => ({
+                        _id: p._id,
+                        address: p.address,
+                        status: p.status,
+                        pointNumber: p.pointNumber,
+                        failReason: p.failReason || '',
+                        sellerName: p.requestId && p.requestId.family ? p.requestId.family.familyName : ''
+                    })),
+                    createdBy: r.createdBy ? (r.createdBy.firstname + ' ' + r.createdBy.lastname) : '-'
+                }))) %>;
+
+                document.addEventListener('DOMContentLoaded', function() {
+                    const calendarEl = document.getElementById('calendar');
+
+                    const events = routesData.map(route => {
+                        const dateStr = new Date(route.date).toISOString().split('T')[0];
+                        return {
+                            id: route.id,
+                            title: route.title,
+                            start: dateStr,
+                            allDay: true,
+                            className: route.isAllComplete ? 'fc-event-completed' : 'fc-event-active',
+                            extendedProps: route
+                        };
+                    });
+
+                    const calendar = new FullCalendar.Calendar(calendarEl, {
+                        initialView: 'dayGridMonth',
+                        locale: 'th',
+                        headerToolbar: {
+                            left: 'prev,next today',
+                            center: 'title',
+                            right: 'dayGridMonth,dayGridWeek'
+                        },
+                        buttonText: {
+                            today: 'วันนี้',
+                            month: 'เดือน',
+                            week: 'สัปดาห์'
+                        },
+                        height: 'auto',
+                        events: events,
+                        eventClick: function(info) {
+                            showRouteDetail(info.event.extendedProps);
+                        },
+                        dayMaxEvents: 3,
+                        moreLinkText: function(num) {
+                            return '+' + num + ' เส้นทาง';
+                        },
+                        eventDisplay: 'block'
+                    });
+
+                    calendar.render();
+                });
+
+                const reasonMap = {
+                    'NO_ONE_HOME': 'ไม่มีคนอยู่บ้าน',
+                    'WASTE_NOT_READY': 'ขยะไม่พร้อม',
+                    'WRONG_LOCATION': 'หาสถานที่ไม่เจอ',
+                    'ROAD_BLOCKED': 'ถนนเข้าไม่ได้',
+                    'OTHER': 'อื่นๆ'
+                };
+
+                function showRouteDetail(route) {
+                    const modal = document.getElementById('routeModal');
+                    const header = document.getElementById('modalHeader');
+
+                    // Header styling
+                    header.classList.remove('header-active', 'header-completed');
+                    header.classList.add(route.isAllComplete ? 'header-completed' : 'header-active');
+
+                    // Title & date
+                    document.getElementById('modalTitle').textContent = route.title;
+                    document.getElementById('modalDate').textContent = new Date(route.date).toLocaleDateString('th-TH', { 
+                        year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
+                    });
+
+                    // Status badge
+                    const statusEl = document.getElementById('modalStatus');
+                    if (route.isAllComplete) {
+                        statusEl.innerHTML = '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/20 text-xs font-medium backdrop-blur-sm"><ion-icon name="checkmark-circle"></ion-icon> เสร็จสิ้นแล้ว</span>';
+                    } else {
+                        statusEl.innerHTML = '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/20 text-xs font-medium backdrop-blur-sm"><ion-icon name="time"></ion-icon> กำลังดำเนินการ</span>';
+                    }
+
+                    // Stats
+                    document.getElementById('statDistance').textContent = route.totalDistance.toFixed(1);
+                    document.getElementById('statDuration').textContent = Math.round(route.totalDuration);
+                    document.getElementById('statPoints').textContent = route.numberOfPoints;
+
+                    // Counts
+                    const pts = route.points.slice(1);
+                    const total = pts.length || 1;
+                    const completed = pts.filter(p => p.status === 'complete').length;
+                    const failed = pts.filter(p => p.status === 'failed').length;
+                    const pending = pts.filter(p => p.status === 'in-progress').length;
+
+                    document.getElementById('countComplete').textContent = completed;
+                    document.getElementById('countFailed').textContent = failed;
+                    document.getElementById('countPending').textContent = pending;
+
+                    // Progress bar
+                    const completePct = Math.round((completed / total) * 100);
+                    const failedPct = Math.round((failed / total) * 100);
+                    document.getElementById('barComplete').style.width = completePct + '%';
+                    document.getElementById('barFailed').style.width = failedPct + '%';
+
+                    // Progress ring
+                    const donePct = Math.round(((completed + failed) / total) * 100);
+                    const circumference = 2 * Math.PI * 28;
+                    const offset = circumference - (donePct / 100) * circumference;
+                    const ring = document.getElementById('progressRing');
+                    ring.style.strokeDasharray = circumference;
+                    ring.style.strokeDashoffset = circumference;
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => {
+                            ring.style.strokeDashoffset = offset;
+                        });
+                    });
+                    document.getElementById('progressText').textContent = donePct + '%';
+
+                    // Note
+                    const noteSection = document.getElementById('noteSection');
+                    if (route.note) {
+                        noteSection.classList.remove('hidden');
+                        document.getElementById('noteText').textContent = '"' + route.note + '"';
+                    } else {
+                        noteSection.classList.add('hidden');
+                    }
+
+                    // Timeline — using Tailwind classes + minimal custom classes for pseudo-elements/gradients
+                    const container = document.getElementById('timelineContainer');
+                    container.innerHTML = route.points.map((p, i) => {
+                        if (i === 0) {
+                            return `
+                                <div class="tl-item">
+                                    <div class="tl-dot-depot absolute left-1 top-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white z-[1] shadow-md">
+                                        <ion-icon name="flag" style="font-size:11px;"></ion-icon>
+                                    </div>
+                                    <div class="bg-gray-50 rounded-[10px] p-2.5 px-3.5 border border-gray-100 border-l-[3px] border-l-purple-500 hover:bg-gray-100 transition-all">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-[10px] font-bold text-purple-600 bg-purple-100 px-1.5 py-0.5 rounded">จุดเริ่มต้น</span>
+                                        </div>
+                                        <p class="text-xs text-gray-600 mt-1 leading-relaxed">${p.address}</p>
+                                    </div>
+                                </div>
+                            `;
+                        }
+
+                        let dotClass, badgeHtml, borderClass;
+                        if (p.status === 'complete') {
+                            dotClass = 'tl-dot-complete';
+                            borderClass = 'border-l-green-500';
+                            badgeHtml = '<span class="text-[10px] font-medium text-green-700 bg-green-100 px-1.5 py-0.5 rounded">เสร็จสิ้น</span>';
+                        } else if (p.status === 'failed') {
+                            dotClass = 'tl-dot-failed';
+                            borderClass = 'border-l-red-500';
+                            const reason = p.failReason ? ' · ' + (reasonMap[p.failReason] || p.failReason) : '';
+                            badgeHtml = '<span class="text-[10px] font-medium text-red-700 bg-red-100 px-1.5 py-0.5 rounded">มีปัญหา' + reason + '</span>';
+                        } else {
+                            dotClass = 'tl-dot-in-progress';
+                            borderClass = 'border-l-yellow-500';
+                            badgeHtml = '<span class="text-[10px] font-medium text-yellow-700 bg-yellow-100 px-1.5 py-0.5 rounded">รอดำเนินการ</span>';
+                        }
+
+                        const dotContent = p.status === 'complete' 
+                            ? '<ion-icon name="checkmark" style="font-size:11px;"></ion-icon>'
+                            : p.status === 'failed' 
+                                ? '<ion-icon name="close" style="font-size:11px;"></ion-icon>'
+                                : p.pointNumber;
+
+                        return `
+                            <div class="tl-item">
+                                <div class="${dotClass} absolute left-1 top-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white z-[1] shadow-md">${dotContent}</div>
+                                <div class="bg-gray-50 rounded-[10px] p-2.5 px-3.5 border border-gray-100 border-l-[3px] ${borderClass} hover:bg-gray-100 transition-all">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[10px] text-gray-400 font-mono">#${p.pointNumber}</span>
+                                        ${badgeHtml}
+                                    </div>
+                                    <p class="text-xs text-gray-600 mt-1 leading-relaxed ${p.status === 'complete' ? 'line-through opacity-60' : ''}">${p.address}</p>
+                                    ${p.sellerName ? '<div class="flex items-center gap-1 mt-1.5"><ion-icon name="person-outline" class="text-[11px] text-indigo-400"></ion-icon><span class="text-[10px] text-indigo-500 font-medium">' + p.sellerName + '</span></div>' : ''}
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    // Detail link
+                    document.getElementById('detailLink').href = '/employee/routeDetail/' + route.id;
+
+                    // Created by
+                    document.getElementById('createdByText').textContent = 'สร้างโดย: ' + route.createdBy;
+
+                    // Show modal
+                    modal.classList.add('active');
+                    modal.classList.remove('opacity-0', 'invisible');
+                    modal.classList.add('opacity-100', 'visible');
+                    document.body.style.overflow = 'hidden';
+                }
+
+                function closeModal() {
+                    const modal = document.getElementById('routeModal');
+                    modal.classList.remove('active');
+                    modal.classList.remove('opacity-100', 'visible');
+                    modal.classList.add('opacity-0', 'invisible');
+                    document.body.style.overflow = '';
+                }
+
+                // Close on Escape
+                document.addEventListener('keydown', e => {
+                    if (e.key === 'Escape') closeModal();
+                });
+            </script>
+</body>
+
+</html>

@@ -232,20 +232,20 @@
                     <!-- Points List -->
                     <div id="pointsList" class="space-y-3 mb-4">
                         <% route.points.forEach((point, index) => { %>
-                            <div class="point-item <%= point.status === 'complete' ? 'bg-gray-100 opacity-75' : (index === 0 ? 'bg-green-50 border-green-300' : 'bg-blue-50 border-blue-200') %> 
+                            <div class="point-item 
+                                        <%= point.status === 'complete' ? 'bg-green-50 border-green-300' : (point.status === 'failed' ? 'bg-red-50 border-red-300' : (index === 0 ? 'bg-green-50 border-green-300' : 'bg-blue-50 border-blue-200')) %> 
                                         border rounded-lg p-4 transition-all" 
                                         id="point-card-<%= point._id %>">
                                 <div class="flex items-start gap-3">
-                                    <div class="view-mode-controls flex items-center h-10">
-                                        <input type="checkbox" 
-                                            class="w-5 h-5 text-green-600 rounded cursor-pointer transition focus:ring-green-500"
-                                            onchange="updatePointStatus('<%= route._id %>', '<%= point._id %>', this.checked)"
-                                            <%= point.status === 'complete' ? 'checked' : '' %>>
-                                    </div>
-
-                                    <div class="<%= index === 0 ? 'bg-green-600' : (point.status === 'complete' ? 'bg-gray-500' : 'bg-blue-600') %> 
+                                    <div class="<%= point.status === 'complete' ? 'bg-green-600' : (point.status === 'failed' ? 'bg-red-500' : (index === 0 ? 'bg-green-600' : 'bg-blue-600')) %> 
                                                 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold flex-shrink-0">
-                                        <%= point.pointNumber %>
+                                        <% if (point.status === 'complete') { %>
+                                            <ion-icon name="checkmark" class="text-xl"></ion-icon>
+                                        <% } else if (point.status === 'failed') { %>
+                                            <ion-icon name="close" class="text-xl"></ion-icon>
+                                        <% } else { %>
+                                            <%= point.pointNumber %>
+                                        <% } %>
                                     </div>
 
                                     <div class="flex-1 min-w-0">
@@ -254,14 +254,50 @@
                                             <%= point.address %>
                                         </p>
                                         <div class="flex items-center gap-2 mt-1">
-                                            <span id="status-badge-<%= point._id %>" 
-                                                class="text-[10px] px-2 py-0.5 rounded-full <%= point.status === 'complete' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' %>">
-                                                <%= point.status === 'complete' ? 'เสร็จสิ้นแล้ว' : 'รอดำเนินการ' %>
-                                            </span>
+                                            <% if (index === 0) { %>
+                                                <span class="text-[10px] px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+                                                    📍 จุดเริ่มต้น
+                                                </span>
+                                            <% } else { %>
+                                                <span id="status-badge-<%= point._id %>" 
+                                                    class="text-[10px] px-2 py-0.5 rounded-full 
+                                                        <%= point.status === 'complete' ? 'bg-green-100 text-green-700' : 
+                                                           (point.status === 'failed' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700') %>">
+                                                    <%= point.status === 'complete' ? '✅ เสร็จสิ้น' : 
+                                                       (point.status === 'failed' ? '❌ มีปัญหา' : '⏳ รอดำเนินการ') %>
+                                                </span>
+                                            <% } %>
                                             <p class="text-[10px] text-gray-400">
                                                 <%= point.lat.toFixed(6) %>, <%= point.lng.toFixed(6) %>
                                             </p>
                                         </div>
+                                        <% if (index !== 0 && point.requestId && point.requestId.family) { %>
+                                        <div class="flex items-center gap-1 mt-1.5">
+                                            <ion-icon name="person-outline" class="text-[11px] text-indigo-400"></ion-icon>
+                                            <span class="text-[10px] text-indigo-500 font-medium"><%= point.requestId.family.familyName %></span>
+                                        </div>
+                                        <% } %>
+
+                                        <!-- Action Buttons (View Mode) — ไม่แสดงจุดแรก (จุดเริ่มต้น) -->
+                                        <% if (index !== 0) { %>
+                                        <div class="view-mode-controls flex gap-2 mt-3" id="actions-<%= point._id %>">
+                                            <% if (point.status === 'in-progress') { %>
+                                                <button onclick="markPointComplete('<%= route._id %>', '<%= point._id %>')" 
+                                                        class="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white text-xs rounded-lg hover:bg-green-700 transition shadow-sm">
+                                                    <ion-icon name="checkmark-circle-outline"></ion-icon> เสร็จสิ้น
+                                                </button>
+                                                <button onclick="markPointFailed('<%= route._id %>', '<%= point._id %>')" 
+                                                        class="flex items-center gap-1 px-3 py-1.5 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 transition shadow-sm">
+                                                    <ion-icon name="alert-circle-outline"></ion-icon> มีปัญหา
+                                                </button>
+                                            <% } else { %>
+                                                <button onclick="markPointReset('<%= route._id %>', '<%= point._id %>')" 
+                                                        class="flex items-center gap-1 px-3 py-1.5 bg-gray-500 text-white text-xs rounded-lg hover:bg-gray-600 transition shadow-sm">
+                                                    <ion-icon name="refresh-outline"></ion-icon> ยกเลิกสถานะ
+                                                </button>
+                                            <% } %>
+                                        </div>
+                                        <% } %>
                                     </div>
                                     
                                     <button onclick="removePoint(<%= index %>)" class="edit-mode-controls text-red-500">
@@ -271,6 +307,18 @@
                             </div>
                         <% }); %>
                     </div>
+
+                    <!-- Complete All Button (View Mode) -->
+                    <% const hasInProgress = route.points.slice(1).some(p => p.status === 'in-progress'); %>
+                    <% if (hasInProgress) { %>
+                    <div class="view-mode-controls mb-4">
+                        <button onclick="completeAllPoints('<%= route._id %>')" 
+                                class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 px-4 rounded-xl hover:from-green-700 hover:to-emerald-700 transition shadow-lg shadow-green-200 font-medium">
+                            <ion-icon name="checkmark-done-outline" class="text-xl"></ion-icon>
+                            จบงานทุกจุดที่เหลือ
+                        </button>
+                    </div>
+                    <% } %>
 
                     <!-- Edit Mode: Analyze Button -->
                     <div class="edit-mode-controls space-y-3">
@@ -1982,61 +2030,156 @@
             }
         }
 
-        async function updatePointStatus(routeId, pointId, isChecked) {
-            const newStatus = isChecked ? 'complete' : 'in-progress';
-            
+        // === Per-Point Completion Functions ===
+
+        async function callPointStatusAPI(routeId, pointId, status, reason = null) {
+            const body = { status };
+            if (reason) body.reason = reason;
+
+            const response = await fetch(`/employee/routeList/${routeId}/point/${pointId}/status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            return response.json();
+        }
+
+        async function markPointComplete(routeId, pointId) {
+            const confirm = await Swal.fire({
+                title: 'ยืนยันเสร็จสิ้น?',
+                text: 'ยืนยันว่ารับซื้อขยะจุดนี้สำเร็จแล้ว',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#16A34A',
+                confirmButtonText: 'เสร็จสิ้น',
+                cancelButtonText: 'ยกเลิก'
+            });
+            if (!confirm.isConfirmed) return;
+
             try {
-                // แสดงสถานะกำลังโหลด
-                const badge = document.getElementById(`status-badge-${pointId}`);
-                const originalBadgeHTML = badge.innerHTML;
-                badge.innerHTML = '<ion-icon name="refresh-outline" class="animate-spin"></ion-icon> กำลังอัปเดต...';
-
-                // ส่ง Request ไปยัง Backend (คุณต้องสร้าง Route นี้รองรับใน Express)
-                const response = await fetch(`/employee/routeList/${routeId}/point/${pointId}/status`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: newStatus })
-                });
-
-                const result = await response.json();
-
+                const result = await callPointStatusAPI(routeId, pointId, 'complete');
                 if (result.success) {
-                    // อัปเดต UI หน้าเว็บทันที
-                    const card = document.getElementById(`point-card-${pointId}`);
-                    const addressText = document.getElementById(`address-text-${pointId}`);
-                    
-                    if (isChecked) {
-                        card.classList.add('bg-gray-100', 'opacity-75');
-                        addressText.classList.add('line-through', 'text-gray-500');
-                        badge.innerText = 'เสร็จสิ้นแล้ว';
-                        badge.className = 'text-[10px] px-2 py-0.5 rounded-full bg-green-100 text-green-700';
-                    } else {
-                        card.classList.remove('bg-gray-100', 'opacity-75');
-                        addressText.classList.remove('line-through', 'text-gray-500');
-                        badge.innerText = 'รอดำเนินการ';
-                        badge.className = 'text-[10px] px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700';
-                    }
-
                     Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'success',
-                        title: 'อัปเดตสถานะเรียบร้อย',
-                        showConfirmButton: false,
-                        timer: 1500
+                        toast: true, position: 'top-end', icon: 'success',
+                        title: '✅ อัปเดตเสร็จสิ้น', showConfirmButton: false, timer: 1500
                     });
+                    if (result.isAllComplete) {
+                        setTimeout(() => {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '🎉 ครบทุกจุดแล้ว!',
+                                text: 'เส้นทางนี้เสร็จสมบูรณ์',
+                                timer: 2500
+                            }).then(() => window.location.reload());
+                        }, 1600);
+                    } else {
+                        setTimeout(() => window.location.reload(), 1500);
+                    }
                 } else {
                     throw new Error(result.message);
                 }
             } catch (error) {
-                console.error('Update error:', error);
-                // ติ๊ก Checkbox กลับคืนถ้าเกิดข้อผิดพลาด
-                event.target.checked = !isChecked;
-                Swal.fire({
-                    icon: 'error',
-                    title: 'ผิดพลาด',
-                    text: 'ไม่สามารถอัปเดตสถานะได้'
+                Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: error.message || 'ไม่สามารถอัปเดตได้' });
+            }
+        }
+
+        async function markPointFailed(routeId, pointId) {
+            const { value: reason } = await Swal.fire({
+                title: 'เหตุผลที่เข้ารับไม่ได้',
+                input: 'select',
+                inputOptions: {
+                    'NO_ONE_HOME': 'ไม่มีคนอยู่บ้าน',
+                    'WASTE_NOT_READY': 'ขยะไม่พร้อม',
+                    'WRONG_LOCATION': 'หาสถานที่ไม่เจอ',
+                    'ROAD_BLOCKED': 'ถนนเข้าไม่ได้',
+                    'OTHER': 'อื่นๆ'
+                },
+                inputPlaceholder: 'เลือกเหตุผล',
+                showCancelButton: true,
+                confirmButtonColor: '#EF4444',
+                confirmButtonText: 'ยืนยัน',
+                cancelButtonText: 'ยกเลิก',
+                inputValidator: (value) => {
+                    if (!value) return 'กรุณาเลือกเหตุผล';
+                }
+            });
+            if (!reason) return;
+
+            try {
+                const result = await callPointStatusAPI(routeId, pointId, 'failed', reason);
+                if (result.success) {
+                    Swal.fire({
+                        toast: true, position: 'top-end', icon: 'info',
+                        title: '❌ บันทึกปัญหาแล้ว', showConfirmButton: false, timer: 1500
+                    });
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: error.message || 'ไม่สามารถอัปเดตได้' });
+            }
+        }
+
+        async function markPointReset(routeId, pointId) {
+            const confirm = await Swal.fire({
+                title: 'ยกเลิกสถานะ?',
+                text: 'ต้องการเปลี่ยนกลับเป็นรอดำเนินการ?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'ยืนยัน',
+                cancelButtonText: 'ยกเลิก'
+            });
+            if (!confirm.isConfirmed) return;
+
+            try {
+                const result = await callPointStatusAPI(routeId, pointId, 'in-progress');
+                if (result.success) {
+                    Swal.fire({
+                        toast: true, position: 'top-end', icon: 'success',
+                        title: 'ยกเลิกสถานะแล้ว', showConfirmButton: false, timer: 1500
+                    });
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: error.message || 'ไม่สามารถอัปเดตได้' });
+            }
+        }
+
+        async function completeAllPoints(routeId) {
+            const confirm = await Swal.fire({
+                title: 'จบงานทุกจุดที่เหลือ?',
+                html: 'จุดที่ยังเป็น <b>รอดำเนินการ</b> จะถูกเปลี่ยนเป็น <b>เสร็จสิ้น</b> ทั้งหมด',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#16A34A',
+                confirmButtonText: '✅ ยืนยัน จบงานทั้งหมด',
+                cancelButtonText: 'ยกเลิก'
+            });
+            if (!confirm.isConfirmed) return;
+
+            try {
+                const response = await fetch(`/employee/routeList/${routeId}/complete-all`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' }
                 });
+                const result = await response.json();
+
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '🎉 จบงานทั้งหมดสำเร็จ!',
+                        text: result.message,
+                        timer: 2500,
+                        showConfirmButton: false
+                    }).then(() => window.location.reload());
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: error.message || 'ไม่สามารถอัปเดตได้' });
             }
         }
     </script>

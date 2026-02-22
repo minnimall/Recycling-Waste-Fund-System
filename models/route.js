@@ -17,7 +17,12 @@ const routeSchema = new mongoose.Schema({
             ref: 'wasteSaleRequest',
             required: false
         },
-        status: { type: String, default: 'in-progress' }
+        status: { 
+            type: String, 
+            enum: ['in-progress', 'complete', 'failed'],
+            default: 'in-progress' 
+        },
+        failReason: { type: String, trim: true }
     }],
     // ข้อมูลสรุปเส้นทาง
     totalDistance: {
@@ -53,6 +58,10 @@ const routeSchema = new mongoose.Schema({
     isAllComplete: {
         type: Boolean,
         default: false
+    },
+    scheduledDate: {
+        type: Date,
+        required: false
     }
     
 }, {
