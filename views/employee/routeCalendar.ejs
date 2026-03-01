@@ -607,7 +607,7 @@
           // Title & date
           document.getElementById('modalTitle').textContent = route.title;
           document.getElementById('modalDate').textContent = new Date(route.date).toLocaleDateString('th-TH', {
-              year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
+              year: 'numeric', month: 'long', day: 'numeric', weekday: 'long', timeZone: 'UTC'
           });
 
           // Status badge

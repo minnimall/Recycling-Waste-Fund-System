@@ -207,10 +207,7 @@
                                                     data-location="<%= request.location %>"
                                                     data-family="<%= request.family ? (request.family.firstname + ' ' + request.family.lastname) : 'N/A' %>"
                                                     data-familyname="<%= request.family ? request.family.familyName : '' %>"
-                                                    data-pickup-date="<%= request.approvePickupDate ? (() => { 
-                                                        const d = new Date(request.approvePickupDate);
-                                                        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-                                                    })() : '' %>"
+                                                    data-pickup-date="<%= request.approvePickupDate ? new Date(request.approvePickupDate).toISOString().split('T')[0] : '' %>"
                                                     onclick="toggleRequestSelection(this)">
                                                     <div class="flex items-start">
                                                         <input type="checkbox" 
@@ -227,7 +224,7 @@
                                                             <% if (request.approvePickupDate) { %>
                                                             <div class="text-xs mt-1 flex items-center gap-1">
                                                                 <ion-icon name="calendar" class="text-blue-500"></ion-icon>
-                                                                <span class="text-blue-600 font-medium">นัดรับ <%= new Date(request.approvePickupDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }) %></span>
+                                                                <span class="text-blue-600 font-medium">นัดรับ <%= new Date(request.approvePickupDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit', timeZone: 'UTC' }) %></span>
                                                             </div>
                                                             <% } else { %>
                                                             <div class="text-xs text-gray-400 mt-1">

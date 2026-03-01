@@ -211,9 +211,9 @@
         </div>
 
             <!-- Request Details Card -->
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <!-- Left Column - Request Info -->
-            <div class="lg:col-span-3 space-y-6">
+            <div class="lg:col-span-7 space-y-6">
                 <!-- Status and Date -->
                 <div class="w-full bg-white rounded-lg shadow p-4 mx-4 mb-6 text-black">
                     <div class="flex items-center justify-between mb-6 ">
@@ -545,75 +545,91 @@
             </div>
 
             <!-- Right Column - Response Form -->
-            <div class="lg:col-span-1">
-                <div class="sticky top-8 bg-white rounded-lg shadow p-4 mx-4 mb-6 text-black">
-                    <h3 class="text-lg font-semibold mb-4">ตอบกลับคำขอ</h3>
+            <div class="lg:col-span-5">
+                <div class="sticky top-8 bg-white rounded-xl shadow-lg border border-gray-100 p-6 mx-4 mb-6 text-black">
+                    <div class="flex items-center border-b border-gray-100 pb-4 mb-5">
+                        <div class="bg-green-100 w-12 h-12 p-2.5 rounded-lg mr-3 shadow-sm text-green-600 flex items-center justify-center">
+                            <i class="fa-solid fa-reply text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800">จัดการคำขอ</h3>
+                            <p class="text-sm text-gray-500 mt-0.5">ตอบกลับและปรับปรุงสถานะ</p>
+                        </div>
+                    </div>
                     
-                    <form id="responseForm" class="space-y-4" action="/employee/wasteSaleRequestApprove/<%= request._id  %>" method="POST">
+                    <form id="responseForm" class="space-y-5" action="/employee/wasteSaleRequestApprove/<%= request._id  %>" method="POST">
 
                         <!-- Response Message -->
-                        <div>
-                            <label class="block text-sm font-medium mb-2">เลือกข้อความตอบกลับด่วน</label>
-                            <select id="responseTemplate" class="w-full bg-gray-50 border border-gray-200 px-3 py-2 rounded-md mb-3" onchange="applyTemplate()">
-                                <option value="">-- เลือกข้อความ --</option>
-                                <option value="ยืนยันการรับซื้อตามเวลาที่นัดหมาย หากมีการเปลี่ยนแปลงจะแจ้งให้ทราบล่วงหน้าครับ">ยืนยันการรับซื้อตามนัด</option>
-                                <option value="ขอรบกวนเลื่อนวันรับซื้อ เนื่องจากเจ้าหน้าที่ติดภารกิจ จะติดต่อกลับเพื่อนนัดหมายใหม่ครับ">ขอเลื่อนนัด (ติดภารกิจ)</option>
-                                <option value="รบกวนจัดเตรียมขยะแยกประเภทให้เรียบร้อยก่อนเจ้าหน้าที่เข้าไปรับนะครับ">แจ้งจัดเตรียมขยะ</option>
-                                <option value="ได้รับข้อมูลแล้ว กำลังเข้าจัดเก็บขยะครับ">กำลังเข้าจัดเก็บ</option>
-                                <option value="ขอปฏิเสธคำขอเนื่องจากข้อมูลไม่ถูกต้อง รบกวนตรวจสอบและส่งคำขอใหม่อีกครั้งครับ">ปฏิเสธ (ข้อมูลไม่ถูกต้อง)</option>
-                                <option value="ขอปฏิเสธคำขอเนื่องจากอยู่นอกพื้นที่ให้บริการครับ">ปฏิเสธ (อยู่นอกพื้นที่)</option>
-                            </select>
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 shadow-sm">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">ข้อความตอบกลับด่วน</label>
+                            <div class="relative mb-4">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                    <i class="fa-solid fa-bolt"></i>
+                                </span>
+                                <select id="responseTemplate" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full pl-10 p-2.5 transition-all shadow-sm hover:border-green-400 cursor-pointer" onchange="applyTemplate()">
+                                    <option value="">-- เลือกข้อความตอบกลับอัตโนมัติ --</option>
+                                    <option value="ยืนยันการรับซื้อตามเวลาที่นัดหมาย หากมีการเปลี่ยนแปลงจะแจ้งให้ทราบล่วงหน้าครับ">ยืนยันการรับซื้อตามนัด</option>
+                                    <option value="ขอรบกวนเลื่อนวันรับซื้อ เนื่องจากเจ้าหน้าที่ติดภารกิจ จะติดต่อกลับเพื่อนนัดหมายใหม่ครับ">ขอเลื่อนนัด (ติดภารกิจ)</option>
+                                    <option value="ขอปฏิเสธคำขอเนื่องจากข้อมูลไม่ถูกต้อง รบกวนตรวจสอบและส่งคำขอใหม่อีกครั้งครับ">ปฏิเสธ (ข้อมูลไม่ถูกต้อง)</option>
+                                    <option value="ขอปฏิเสธคำขอเนื่องจากอยู่นอกพื้นที่ให้บริการครับ">ปฏิเสธ (อยู่นอกพื้นที่)</option>
+                                </select>
+                            </div>
 
-                            <label class="block text-sm font-medium mb-2">ข้อความตอบกลับ</label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2 mt-4">ข้อความที่จะส่งให้ผู้ใช้ <span class="text-red-500">*</span></label>
                             <textarea 
                                 id="responseMessage"
-                                class="w-full bg-gray-50 border border-gray-200 px-3 py-2 rounded-md"
-                                placeholder="กรอกข้อความตอบกลับ..."
+                                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-3 transition-all shadow-sm resize-none min-h-[200px] focus:bg-white"
+                                rows="3"
+                                placeholder="พิมพ์ข้อความตอบกลับที่นี่..."
                                 name="responseMessage"
                                 required
                             ><%= request.responseMessage || '' %></textarea>
                         </div>
 
-                        <div>
-                            <label class="block text-sm font-medium mb-2">วันที่นัดรับ</label>
-                            <input 
-                                type="date"
-                                id="pickupDate"
-                                name="pickupDate"
-                                class="w-full bg-gray-50 border border-gray-200 px-3 py-2 rounded-md"
-                                value="<%= request.date ? new Date(request.date).toISOString().split('T')[0] : '' %>"
-                                required
-                            />
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 shadow-sm">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">วันที่นัดรับ (หรือวันที่เลื่อน) <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                    <i class="fa-regular fa-calendar"></i>
+                                </span>
+                                <input 
+                                    type="date"
+                                    id="pickupDate"
+                                    name="pickupDate"
+                                    class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full pl-10 p-2.5 transition-all shadow-sm"
+                                    value="<%= request.date ? new Date(request.date).toISOString().split('T')[0] : '' %>"
+                                    required
+                                />
+                            </div>
 
                             <% if (request.date) { 
                                 const d = new Date(request.date);
                                 const buddhistYear = d.getFullYear() + 543;
+                                const formattedDate = d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth() + 1).toString().padStart(2, '0') + '/' + buddhistYear;
                             %>
-                            <p class="text-sm text-gray-500 mt-2">
-                                (วันที่แจ้ง: <%= d.getDate() %>/<%= d.getMonth() + 1 %>/<%= buddhistYear %>)
-                            </p>
+                            <div class="mt-3 flex items-start text-sm text-blue-700 bg-blue-100/50 px-3 py-2.5 rounded-md border border-blue-200">
+                                <i class="fa-solid fa-circle-info mt-0.5 mr-2"></i>
+                                <div>
+                                    <p>วันที่ผู้ใช้ต้องการให้เข้ารับ:</p>
+                                    <p class="font-bold text-blue-800"><%= formattedDate %></p>
+                                </div>
+                            </div>
                             <% } %>
                         </div>
 
                         <!-- Action Buttons -->
-                        <!-- <div class="space-y-2 pt-4">
-                            <button type="submit" class="btn btn-primary w-full">
-                                อนุมัติคำขอ
-                            </button>
-                            <button type="button" onclick="rejectRequest('<%= request._id  %>')" class="btn btn-danger w-full">
-                                ปฏิเสธคำขอ
-                            </button>
-                        </div> -->
-                        <div class="space-y-2 pt-4">
+                        <div class="pt-2 space-y-3 mt-4">
                             <button type="button"
-                                    class="btn btn-primary w-full"
+                                    class="w-full flex items-center justify-center gap-2 text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-3 text-center transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 active:translate-y-0"
                                     onclick="confirmAction('approve')">
-                                อนุมัติคำขอ
+                                <i class="fa-solid fa-check-circle text-lg"></i>
+                                อนุมัติและบันทึก
                             </button>
 
                             <button type="button"
-                                    class="btn btn-danger w-full"
+                                    class="w-full flex items-center justify-center gap-2 text-red-600 bg-white border border-red-200 hover:bg-red-50 hover:text-red-700 focus:ring-4 focus:ring-red-100 font-medium rounded-lg text-sm px-5 py-3 text-center transition-all transform hover:-translate-y-0.5 active:translate-y-0"
                                     onclick="confirmAction('reject')">
+                                <i class="fa-solid fa-times-circle text-lg"></i>
                                 ปฏิเสธคำขอ
                             </button>
                         </div>
