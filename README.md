@@ -49,7 +49,7 @@
 1. **โคลนโปรเจกต์ (Clone repository):**
 
    ```bash
-   git clone https://github.com/Username/Recycling-Waste-Fund-System.git
+   git clone https://github.com/minnimall/Recycling-Waste-Fund-System.git
    cd Recycling-Waste-Fund-System
    ```
 
