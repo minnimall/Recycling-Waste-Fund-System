@@ -297,7 +297,7 @@
 
                             <textarea id="replyMessage" name="replyMessage" rows="6" 
                                     placeholder="พิมพ์ข้อความตอบกลับที่นี่..."
-                                    class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"></textarea>
+                                    class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4" required></textarea>
                             
                             <div class="flex items-center justify-end">
                                 <div class="flex space-x-3">
@@ -305,7 +305,8 @@
                                             class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors">
                                         บันทึกแบบร่าง
                                     </button> -->
-                                    <button onclick="sendReply(${complaint.id})" 
+                                    <!-- เปลี่ยน type="submit" เป็น type="button" และเพิ่ม onclick -->
+                                    <button type="submit"
                                             class="px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center">
                                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
@@ -456,22 +457,70 @@
             // เมื่อคลิกปุ่ม "ลบ"
             document.querySelectorAll('.delete-reply-btn').forEach(btn => {
                 btn.addEventListener('click', async () => {
-                    if (!confirm('คุณต้องการลบข้อความตอบกลับนี้หรือไม่?')) return;
-                    
-                    try {
-                        const res = await fetch(`/employee/complaint/replyMessage/${btn.dataset.id}`, { method: 'DELETE' });
-                        const result = await res.json();
-    
-                        if (res.ok) {
-                            location.reload();
-                        } else {
-                            alert(result.error || 'เกิดข้อผิดพลาดในการลบ');
+                    Swal.fire({
+                        title: 'ลบข้อความตอบกลับ?',
+                        text: 'หากลบแล้วจะไม่สามารถกู้คืนได้',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ef4444',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: 'ลบ',
+                        cancelButtonText: 'ยกเลิก',
+                        reverseButtons: true
+                    }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            try {
+                                const res = await fetch(`/employee/complaint/replyMessage/${btn.dataset.id}`, { method: 'DELETE' });
+                                const data = await res.json();
+
+                                if (res.ok) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'ลบสำเร็จ!',
+                                        text: 'ข้อความตอบกลับถูกลบเรียบร้อยแล้ว',
+                                        timer: 1500,
+                                        timerProgressBar: true,
+                                        showConfirmButton: false,
+                                    }).then(() => {
+                                        location.reload();
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'เกิดข้อผิดพลาด',
+                                        text: data.error || 'ไม่สามารถลบข้อความได้',
+                                        confirmButtonColor: '#ef4444',
+                                    });
+                                }
+                            } catch (error) {
+                                console.error('Error:', error);
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'เชื่อมต่อไม่ได้',
+                                    text: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้',
+                                    confirmButtonColor: '#ef4444',
+                                });
+                            }
                         }
-                    } catch (error) {
-                         console.error('Error:', error);
-                         alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
-                    }
+                    });
                 });
+            });
+        });
+        document.querySelector('form[action*="replyMessage"]').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const form = this;
+            const message = document.getElementById('replyMessage').value.trim();
+            if (!message) return;
+            Swal.fire({
+                icon: 'success',
+                title: 'ส่งคำตอบสำเร็จ!',
+                text: 'ข้อความตอบกลับถูกส่งเรียบร้อยแล้ว',
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#16a34a',
+                timer: 2000,
+                timerProgressBar: true,
+            }).then(() => {
+                form.submit();
             });
         });
     </script>
