@@ -22,29 +22,29 @@
 </div> -->
 
 <!-- Sidebar --> 
-<div class="sidebar bg-stone-900 text-base p-4 space-y-3">
+<div class="bg-stone-900 text-base p-4 space-y-3">
   <h3 class="text-stone-200 text-base font-semibold mb-3">สำหรับผู้ดูแลระบบ</h3>
 
   <!-- หมวด: สื่อ ความรู้ กิจกรรม -->
   <div class="menu-categories text-stone-400 uppercase text-xs tracking-wide mb-1">เมนูจัดการสื่อ ความรู้ กิจกรรม</div>
   <a href="/admin" 
       class="flex items-center gap-2 px-2 py-1 rounded-md transition 
-      <%= currentPage === 'dashboard' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:text-white' %>">
+      <%= currentPage === 'dashboard' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:bg-stone-700 hover:text-white' %>">
     <ion-icon class="text-lg" name="stats-chart"></ion-icon> แดชบอร์ด
   </a>
   <a href="/admin/media" 
       class="flex items-center gap-2 px-2 py-1 rounded-md transition 
-      <%= currentPage === 'media' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:text-white' %>">
+      <%= currentPage === 'media' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:bg-stone-700 hover:text-white' %>">
     <ion-icon class="text-lg" name="play-circle"></ion-icon> สื่อความรู้
   </a>
   <a href="/admin/news" 
       class="flex items-center gap-2 px-2 py-1 rounded-md transition 
-      <%= currentPage === 'news' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:text-white' %>">
+      <%= currentPage === 'news' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:bg-stone-700 hover:text-white' %>">
     <ion-icon class="text-lg" name="newspaper"></ion-icon> ข่าวสาร
   </a>
   <a href="/admin/activity" 
       class="flex items-center gap-2 px-2 py-1 rounded-md transition 
-      <%= currentPage === 'activity' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:text-white' %>">
+      <%= currentPage === 'activity' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:bg-stone-700 hover:text-white' %>">
     <ion-icon class="text-lg" name="newspaper"></ion-icon> กิจกรรม
   </a>
 
@@ -52,17 +52,17 @@
   <div class="menu-categories text-stone-400 uppercase text-xs tracking-wide mt-6 mb-1">เมนูจัดการขยะ</div>
   <a href="/admin/waste" 
       class="flex items-center gap-2 px-2 py-1 rounded-md transition 
-      <%= currentPage === 'waste' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:text-white' %>">
+      <%= currentPage === 'waste' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:bg-stone-700 hover:text-white' %>">
     <ion-icon class="text-lg" name="trash"></ion-icon> ขยะ
   </a>
   <a href="/admin/wasteType" 
       class="flex items-center gap-2 px-2 py-1 rounded-md transition 
-      <%= currentPage === 'wasteType' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:text-white' %>">
+      <%= currentPage === 'wasteType' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:bg-stone-700 hover:text-white' %>">
     <ion-icon class="text-lg" name="keypad"></ion-icon> ประเภทขยะ
   </a>
   <a href="/admin/wasteStock" 
       class="flex items-center gap-2 px-2 py-1 rounded-md transition 
-      <%= currentPage === 'wasteStock' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:text-white' %>">
+      <%= currentPage === 'wasteStock' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:bg-stone-700 hover:text-white' %>">
     <ion-icon class="text-lg" name="cube"></ion-icon> สต๊อกขยะ
   </a>
 
@@ -70,38 +70,38 @@
   <div class="menu-categories text-stone-400 uppercase text-xs tracking-wide mt-6 mb-1">เมนูจัดการพนักงาน สมาชิก</div>
   <a href="/admin/employee" 
       class="flex items-center gap-2 px-2 py-1 rounded-md transition 
-      <%= currentPage === 'employee' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:text-white' %>">
+      <%= currentPage === 'employee' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:bg-stone-700 hover:text-white' %>">
     <ion-icon class="text-lg" name="person"></ion-icon> พนักงาน
   </a>
   <a href="/admin/member" 
       class="flex items-center gap-2 px-2 py-1 rounded-md transition 
-      <%= currentPage === 'member' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:text-white' %>">
+      <%= currentPage === 'member' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:bg-stone-700 hover:text-white' %>">
     <ion-icon class="text-lg" name="person"></ion-icon> สมาชิกกองทุนขยะรีไซเคิล
   </a>
   <a href="/admin/board" 
       class="flex items-center gap-2 px-2 py-1 rounded-md transition 
-      <%= currentPage === 'board' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:text-white' %>">
+      <%= currentPage === 'board' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:bg-stone-700 hover:text-white' %>">
     <ion-icon class="text-lg" name="person"></ion-icon> คณะกรรมการ
   </a>
   <a href="/admin/village" 
       class="flex items-center gap-2 px-2 py-1 rounded-md transition 
-      <%= currentPage === 'village' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:text-white' %>">
+      <%= currentPage === 'village' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:bg-stone-700 hover:text-white' %>">
     <ion-icon class="text-lg" name="home"></ion-icon> หมู่บ้าน
   </a>
   <a href="/admin/round" 
       class="flex items-center gap-2 px-2 py-1 rounded-md transition 
-      <%= currentPage === 'round' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:text-white' %>">
+      <%= currentPage === 'round' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:bg-stone-700 hover:text-white' %>">
     <ion-icon class="text-lg" name="car"></ion-icon> รอบการรับซื้อ
   </a>
   <a href="/admin/wastePoint" 
         class="flex items-center gap-2 px-2 py-1 rounded-md transition 
-        <%= currentPage === 'wastePoint' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:text-white' %>">
+        <%= currentPage === 'wastePoint' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:bg-stone-700 hover:text-white' %>">
         <ion-icon class="text-lg" name="navigate-circle"></ion-icon>
         จุดรับซื้อขยะ
     </a>
   <a href="/admin/funeralAid" 
       class="flex items-center gap-2 px-2 py-1 rounded-md transition 
-      <%= currentPage === 'funeralAid' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:text-white' %>">
+      <%= currentPage === 'funeralAid' ? 'bg-stone-700 text-white' : 'text-stone-300 hover:bg-stone-700 hover:text-white' %>">
     <ion-icon class="text-lg" name="heart"></ion-icon> ฌาปนกิจสงเคราะห์
   </a>
 </div>

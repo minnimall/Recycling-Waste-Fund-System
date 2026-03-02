@@ -132,14 +132,14 @@
                         <div>
                             <label for="roundName" class="block text-sm font-medium text-gray-700 mb-1">ชื่อรอบ</label>
                             <input type="text" name="roundName" placeholder="ชื่อรอบการรับซื้อขยะ" required
-                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500">
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
                         </div>
 
                         <!-- หมู่บ้าน -->
                         <div>
                             <label for="village" class="block text-sm font-medium text-gray-700 mb-1">หมู่บ้าน</label>
                             <select name="village" id="add_village" required 
-                                class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500" onchange="filterWastePointsByVillage('add')">
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" onchange="filterWastePointsByVillage('add')">
                                 <option value="">เลือกหมู่บ้าน</option>
                                 <% village.forEach(v => { %>
                                     <option value="<%= v._id %>"><%= v.villageName %></option>
@@ -152,7 +152,7 @@
                                 จุดรับซื้อขยะ <span class="text-xs text-gray-500">(ไม่บังคับ)</span>
                             </label>
                             <select name="wastePoint" id="add_wastePoint"
-                                class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500">
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
                                 <option value="">ไม่ระบุจุดรับซื้อ</option>
                             </select>
                             <p class="text-xs text-gray-500 mt-1">กรุณาเลือกหมู่บ้านก่อนเพื่อกรองจุดรับซื้อ</p>
@@ -162,7 +162,7 @@
                         <div>
                             <label for="date" class="block text-sm font-medium text-gray-700 mb-1">วันที่</label>
                             <input type="date" name="date" required
-                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500">
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
                         </div>
 
                         <!-- เวลาเริ่มต้น -->
@@ -170,7 +170,7 @@
                             <label for="startTime" class="block text-sm font-medium text-gray-700 mb-1">
                                 เวลาเริ่มต้น
                             </label>
-                            <input type="text" name="startTime" id="add_startTime" class="startTime w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500"
+                            <input type="text" name="startTime" id="add_startTime" class="startTime w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500"
                                 placeholder="เช่น 08:00"
                                 required>
                         </div>
@@ -180,7 +180,7 @@
                             <label for="endTime" class="block text-sm font-medium text-gray-700 mb-1">
                                 เวลาสิ้นสุด
                             </label>
-                            <input type="text" name="endTime" id="add_endTime" class="endTime w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500"
+                            <input type="text" name="endTime" id="add_endTime" class="endTime w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500"
                                 placeholder="เช่น 11:30"
                                 required>
                         </div>
@@ -217,14 +217,14 @@
                         <div>
                             <label for="roundName" class="block text-sm font-medium text-gray-700 mb-1">ชื่อรอบ</label>
                             <input type="text" id="roundName" name="roundName" placeholder="ชื่อรอบการรับซื้อขยะ" required
-                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-500">
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
                         </div>
 
                         <!-- หมู่บ้าน -->
                         <div>
                             <label for="village" class="block text-sm font-medium text-gray-700 mb-1">หมู่บ้าน</label>
                             <select id="village" name="village" required
-                                class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-500" onchange="filterWastePointsByVillage('edit')">
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" onchange="filterWastePointsByVillage('edit')">
                                 <option value="">เลือกหมู่บ้าน</option>
                                 <% village.forEach(v => { %>
                                     <option value="<%= v._id %>"><%= v.villageName %></option>
@@ -238,7 +238,7 @@
                                 จุดรับซื้อขยะ <span class="text-xs text-gray-500">(ไม่บังคับ)</span>
                             </label>
                             <select name="wastePoint" id="edit_wastePoint"
-                                class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-500">
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
                                 <option value="">ไม่ระบุจุดรับซื้อ</option>
                             </select>
                         </div>
@@ -247,7 +247,7 @@
                         <div>
                             <label for="date" class="block text-sm font-medium text-gray-700 mb-1">วันที่</label>
                             <input type="date" id="date" name="date" required
-                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-500">
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
                         </div>
 
                         <!-- เวลาเริ่มต้น -->
@@ -255,7 +255,7 @@
                             <label for="startTime" class="block text-sm font-medium text-gray-700 mb-1">
                                 เวลาเริ่มต้น
                             </label>
-                            <input type="text" id="startTime" name="startTime" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-500"
+                            <input type="text" id="startTime" name="startTime" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500"
                                 placeholder="เช่น 08:00" 
                                 required>
                         </div>
@@ -265,7 +265,7 @@
                             <label for="endTime" class="block text-sm font-medium text-gray-700 mb-1">
                                 เวลาสิ้นสุด
                             </label>
-                            <input type="text" id="endTime" name="endTime" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-500"
+                            <input type="text" id="endTime" name="endTime" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500"
                                 placeholder="เช่น 11:30" 
                                 required>
                         </div>

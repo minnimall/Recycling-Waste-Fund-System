@@ -182,16 +182,16 @@
 
                                 <!-- หัวข้อกิจกรรม -->
                                 <div>
-                                    <label for="newsTitle" class="block text-sm font-medium text-gray-700 mb-1">หัวข้อกิจกรรม</label>
-                                    <input type="text" name="newsTitle" id="newsTitle" required placeholder="ระบุหัวข้อกิจกรรม"
+                                    <label for="newsTitle" class="block text-sm font-medium text-gray-700 mb-1">หัวข้อข่าวสาร <span class="text-red-500">*</span></label>
+                                    <input type="text" name="newsTitle" id="newsTitle" required placeholder="ระบุหัวข้อข่าวสาร"
                                         class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
                                 </div>
 
                                 <!-- คำอธิบาย -->
                                 <div>
-                                    <label for="newsDescription" class="block text-sm font-medium text-gray-700 mb-1">คำอธิบาย</label>
-                                    <input type="text" name="newsDescription" id="newsDescription" required placeholder="คำอธิบาย"
-                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
+                                    <label for="newsDescription" class="block text-sm font-medium text-gray-700 mb-1">คำอธิบาย <span class="text-red-500">*</span></label>
+                                    <textarea rows="6" type="text" name="newsDescription" id="newsDescription" required placeholder="คำอธิบาย"
+                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" ></textarea>
                                 </div>
 
                                 <!-- ผู้เขียน -->
@@ -199,8 +199,8 @@
 
                                 <!-- อัปโหลด PDF -->
                                 <div>
-                                    <label for="newsFile" class="block text-sm font-medium text-gray-700 mb-1">รายละเอียดกิจกรรม (ไฟล์
-                                        PDF)</label>
+                                    <label for="newsFile" class="block text-sm font-medium text-gray-700 mb-1">รายละเอียดข่าวสาร (ไฟล์
+                                        PDF) <span class="text-red-500">*</span></label>
                                     <input type="file" name="newsFile" id="newsFile" accept=".pdf" required
                                         class="block w-full text-sm text-slate-500 border border-gray-300 rounded-lg px-4 py-2 bg-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100" />
                                 </div>
@@ -239,8 +239,8 @@
                                 <!-- คำอธิบาย -->
                                 <div>
                                     <label for="newsEditDescription" class="block text-sm font-medium text-gray-700 mb-1">คำอธิบาย</label>
-                                    <input type="text" name="newsEditDescription" id="newsEditDescription" required placeholder="คำอธิบาย"
-                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
+                                    <textarea rows="6" type="text" name="newsEditDescription" id="newsEditDescription" required placeholder="คำอธิบาย"
+                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" ></textarea>
                                 </div>
                     
                                 <!-- อัปโหลด PDF -->
@@ -284,7 +284,7 @@
             // ล้างค่า input ถ้าต้องการ
             document.getElementById('newsForm')?.reset();
         }
-        function openEditModal(id, title, description, file) {
+        function openEditModal(id, title, description) {
             modalEdit.classList.remove('hidden');
             document.getElementById('newsEditForm')?.reset();
 
@@ -390,7 +390,7 @@
                 </td>
                 <td class="px-6 py-4 text-center">
                     <div class="flex items-center justify-center gap-2 opacity-70 group-hover:opacity-100 transition-opacity">
-                        <button onclick="openEditModal('${item._id}','${item.newsTitle}','${item.newsDescription}','${item.newsFile}')" 
+                        <button onclick="openEditModal('${item._id}','${item.newsTitle}','${item.newsDescription}')"
                             class="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors" title="แก้ไข">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>

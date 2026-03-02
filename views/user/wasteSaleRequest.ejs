@@ -878,7 +878,7 @@
 
     // พิกัด Polygon ตำบลขามป้อม
     const KHAMPO_POLYGON_COORDS = [
-        { lat: 15.9917406, lng: 102.9022698 },
+        { lat: 15.9917406, lng: 102.9022698 }, // จุดแรก
         { lat: 15.9847685, lng: 102.9053383 },
         { lat: 15.9805724, lng: 102.905049 },
         { lat: 15.9736823, lng: 102.9033324 },
@@ -923,7 +923,7 @@
         { lat: 15.9575806, lng: 102.8497956 },
         { lat: 15.9756524, lng: 102.8656742 },
         { lat: 15.9906697, lng: 102.8862736 },
-        { lat: 15.9917406, lng: 102.9022698 }
+        { lat: 15.9917406, lng: 102.9022698 } // จุดสุดท้าย = จุดแรก (ปิด polygon)
     ];
 
     function initializeMap() {
@@ -936,7 +936,8 @@
             mapTypeId: 'hybrid',
             streetViewControl: false,
             fullscreenControl: true,
-            disableDoubleClickZoom: false
+            disableDoubleClickZoom: false,
+            gestureHandling: 'greedy'
         });
 
         geocoder = new google.maps.Geocoder();
@@ -979,7 +980,7 @@
             fillOpacity: 0.08,
             map: map,
             zIndex: 0,
-            clickable: false // ไม่ดัก event เพื่อให้คลิกผ่านถึง map ได้
+            clickable: false
         });
 
         // Polygon สำหรับเช็คพื้นที่ (ไม่แสดงบนแผนที่)
@@ -999,7 +1000,7 @@
 
     function isWithinTambol(lat, lng) {
         if (!checkPolygon) return true;
-        const point = new google.maps.LatLng(lat, lng);
+        const point = new google.maps.LatLng(lat, lng); // แปลงพิกัดเป็น objectของ Google Maps
         return google.maps.geometry.poly.containsLocation(point, checkPolygon);
     }
 

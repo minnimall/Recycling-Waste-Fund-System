@@ -160,51 +160,66 @@
                             <div class="mr-5">
                                 <!-- Username -->
                                 <div class="mb-3">
-                                    <label>ชื่อผู้ใช้ (username)</label>
+                                    <label>ชื่อผู้ใช้ (username) <span class="text-red-500">*</span></label>
                                     <input type="text" name="username" placeholder="ชื่อผู้ใช้" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500"> 
                                 </div>
 
                                 <!-- Password -->
                                 <div class="mb-3">
-                                    <label>รหัสผ่าน (กรอกตัวเลข 6-8 หลัก)</label>
-                                    <input type="password" name="password" placeholder="รหัสผ่าน" minlength="6" maxlength="8" pattern="\d{6,8}" required >
+                                    <label>รหัสผ่าน (กรอกตัวเลข 6-8 หลัก) <span class="text-red-500">*</span></label>
+                                    <div class="relative">
+                                        <input type="password" name="password" id="addPassword" placeholder="รหัสผ่าน" 
+                                            minlength="6" maxlength="8" pattern="\d{6,8}" required
+                                            class="w-full border border-gray-300 rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                        <button type="button" onclick="togglePassword('addPassword', 'eyeIcon1')"
+                                                class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                            <i id="eyeIcon1" class="fa fa-eye-slash"></i>
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <!-- ConfirmPassword -->
                                 <div class="mb-3">
-                                    <label>ยืนยันรหัสผ่าน</label>
-                                    <input type="password" name="confirmPassword" placeholder="ยืนยันรหัสผ่าน" required>
+                                    <label>ยืนยันรหัสผ่าน <span class="text-red-500">*</span></label>
+                                    <div class="relative">
+                                        <input type="password" name="confirmPassword" id="addConfirmPassword" placeholder="ยืนยันรหัสผ่าน" required
+                                            class="w-full border border-gray-300 rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                        <button type="button" onclick="togglePassword('addConfirmPassword', 'eyeIcon2')"
+                                                class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                            <i id="eyeIcon2" class="fa fa-eye-slash"></i>
+                                        </button>
+                                    </div>
                                 </div>
-                                
                             </div>
                             <div>
                                 <!-- ชื่อจริง -->
                                 <div class="mb-3">
-                                    <label>ชื่อจริง</label>
+                                    <label>ชื่อจริง <span class="text-red-500">*</span></label>
                                     <input type="text" name="firstname" placeholder="ชื่อจริง" required>
                                 </div>
                                 
                                 <!-- นามสกุล -->
                                 <div class="mb-3">
-                                    <label>นามสกุล</label>
+                                    <label>นามสกุล <span class="text-red-500">*</span></label>
                                     <input type="text" name="lastname" placeholder="นามสกุล" required>
                                 </div>
                                 
                                 <!-- เบอร์ -->
                                 <div class="mb-3">
-                                    <label>เบอร์โทรศัพท์</label>
-                                    <input type="tel" name="tel" placeholder="081-XXXXXXX" pattern="[0-9]{3}-[0-9]{7}" required>
+                                    <label>เบอร์โทรศัพท์ <span class="text-red-500">*</span></label>
+                                    <input type="tel" name="tel" id="addTel" placeholder="081-XXXXXXX" 
+                                        pattern="[0-9]{3}-[0-9]{7}" maxlength="11" required>
                                 </div>
 
                                 <!-- Email -->
                                 <div class="mb-3">
-                                    <label>อีเมล</label>
+                                    <label>อีเมล <span class="text-red-500">*</span></label>
                                     <input type="email" name="email" placeholder="emp@mail.com" required>
                                 </div>
 
                                 <!-- Role -->
                                 <div class="mb-3">
-                                    <label>บทบาท</label>
+                                    <label>บทบาท <span class="text-red-500">*</span></label>
                                     <select name="role" required>
                                         <option value="" disabled selected>เลือกบทบาท</option>
                                         <option value="admin">Admin</option>
@@ -413,103 +428,136 @@
         }
     </script>
     <script>
-  const empData = <%- JSON.stringify(emp) %>; // Array ของพนักงานจาก server
-  const tableBody = document.getElementById('tableBody');
-  const searchInput = document.getElementById('searchInput');
-  const roleFilter = document.getElementById('roleFilter');
-  const itemsPerPageSelect = document.getElementById('itemsPerPage');
-  const pagination = document.getElementById('pagination');
-  const totalItemsEl = document.getElementById('totalItems');
+        const empData = <%- JSON.stringify(emp) %>; // Array ของพนักงานจาก server
+        const tableBody = document.getElementById('tableBody');
+        const searchInput = document.getElementById('searchInput');
+        const roleFilter = document.getElementById('roleFilter');
+        const itemsPerPageSelect = document.getElementById('itemsPerPage');
+        const pagination = document.getElementById('pagination');
+        const totalItemsEl = document.getElementById('totalItems');
 
-  let currentPage = 1;
-  let itemsPerPage = parseInt(itemsPerPageSelect.value);
-  let filteredData = [...empData];
+        let currentPage = 1;
+        let itemsPerPage = parseInt(itemsPerPageSelect.value);
+        let filteredData = [...empData];
 
-  function createRow(employee, index){
-    return `
-      <tr class="hover:bg-gray-50 transition-colors">
-        <td class="px-4 py-3 text-sm text-center">${(currentPage-1)*itemsPerPage + index + 1}</td>
-        <td class="px-4 py-3 text-sm">${employee.firstname} ${employee.lastname}</td>
-        <td class="px-4 py-3 text-sm">${employee.email}</td>
-        <td class="px-4 py-3 text-sm">${employee.tel}</td>
-        <td class="px-4 py-3 text-sm">
-          <div class="role-tag ${employee.role === 'admin' ? 'admin-role-bg' : 'employee-role-bg'}">${employee.role}</div>
-        </td>
-        <td class="px-4 py-3 text-center">
-          <button type="button" class="was-row-${(currentPage-1)*itemsPerPage + index + 1} row-active edit-btn" 
-              onclick="setEmpEditForm('${(currentPage-1)*itemsPerPage + index + 1}', '${employee._id}', '${employee.username}',
-                                      '${employee.firstname}', '${employee.lastname}', '${employee.tel}',
-                                      '${employee.email}','${employee.role}')">
-              <i class="fa fa-edit"></i>
-          </button>
-          <button
-              onclick="deleteEmp(['${(currentPage-1)*itemsPerPage + index + 1}', '${employee._id}','${employee.username}','${employee.firstname}','${employee.lastname}'])"
-              class="delete-btn">
-              <i class="fa fa-trash"></i>
-          </button>
-        </td>
-      </tr>
-    `;
-  }
+        function createRow(employee, index){
+            return `
+            <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-4 py-3 text-sm text-center">${(currentPage-1)*itemsPerPage + index + 1}</td>
+                <td class="px-4 py-3 text-sm">${employee.firstname} ${employee.lastname}</td>
+                <td class="px-4 py-3 text-sm">${employee.email}</td>
+                <td class="px-4 py-3 text-sm">${employee.tel}</td>
+                <td class="px-4 py-3 text-sm">
+                <div class="role-tag ${employee.role === 'admin' ? 'admin-role-bg' : 'employee-role-bg'}">${employee.role}</div>
+                </td>
+                <td class="px-4 py-3 text-center">
+                <button type="button" class="was-row-${(currentPage-1)*itemsPerPage + index + 1} row-active edit-btn" 
+                    onclick="setEmpEditForm('${(currentPage-1)*itemsPerPage + index + 1}', '${employee._id}', '${employee.username}',
+                                            '${employee.firstname}', '${employee.lastname}', '${employee.tel}',
+                                            '${employee.email}','${employee.role}')">
+                    <i class="fa fa-edit"></i>
+                </button>
+                <button
+                    onclick="deleteEmp(['${(currentPage-1)*itemsPerPage + index + 1}', '${employee._id}','${employee.username}','${employee.firstname}','${employee.lastname}'])"
+                    class="delete-btn">
+                    <i class="fa fa-trash"></i>
+                </button>
+                </td>
+            </tr>
+            `;
+        }
 
-  function displayData(){
-    // แสดงผล pagination
-    const start = (currentPage - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-    const dataToShow = filteredData.slice(start, end);
+        function displayData(){
+            // แสดงผล pagination
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const dataToShow = filteredData.slice(start, end);
 
-    totalItemsEl.textContent = `${filteredData.length} รายการ`;
+            totalItemsEl.textContent = `${filteredData.length} รายการ`;
 
-    if(dataToShow.length === 0){
-      tableBody.innerHTML = '<tr><td colspan="6" class="text-center py-2">- ไม่พบข้อมูล -</td></tr>';
-      pagination.innerHTML = '';
-      return;
-    }
+            if(dataToShow.length === 0){
+            tableBody.innerHTML = '<tr><td colspan="6" class="text-center py-2">- ไม่พบข้อมูล -</td></tr>';
+            pagination.innerHTML = '';
+            return;
+            }
 
-    tableBody.innerHTML = dataToShow.map(createRow).join('');
-    renderPagination();
-  }
+            tableBody.innerHTML = dataToShow.map(createRow).join('');
+            renderPagination();
+        }
 
-  function renderPagination(){
-    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-    if(totalPages <= 1) { pagination.innerHTML = ''; return; }
+        function renderPagination(){
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            if(totalPages <= 1) { pagination.innerHTML = ''; return; }
 
-    let html = '';
-    for(let i=1; i<=totalPages; i++){
-      html += `<button onclick="goToPage(${i})" class="px-3 py-1 border rounded ${i===currentPage ? 'bg-green-600 text-white' : 'bg-white text-gray-700'}">${i}</button>`;
-    }
-    pagination.innerHTML = html;
-  }
+            let html = '';
+            for(let i=1; i<=totalPages; i++){
+            html += `<button onclick="goToPage(${i})" class="px-3 py-1 border rounded ${i===currentPage ? 'bg-green-600 text-white' : 'bg-white text-gray-700'}">${i}</button>`;
+            }
+            pagination.innerHTML = html;
+        }
 
-  function goToPage(page){
-    currentPage = page;
-    displayData();
-  }
+        function goToPage(page){
+            currentPage = page;
+            displayData();
+        }
 
-  function applyFilter(){
-    const term = searchInput.value.toLowerCase();
-    const role = roleFilter.value;
+        function applyFilter(){
+            const term = searchInput.value.toLowerCase();
+            const role = roleFilter.value;
 
-    filteredData = empData.filter(e => {
-      const matchesSearch = e.firstname.toLowerCase().includes(term) || e.lastname.toLowerCase().includes(term) || e.email.toLowerCase().includes(term);
-      const matchesRole = role === '' || e.role === role;
-      return matchesSearch && matchesRole;
-    });
+            filteredData = empData.filter(e => {
+            const matchesSearch = e.firstname.toLowerCase().includes(term) || e.lastname.toLowerCase().includes(term) || e.email.toLowerCase().includes(term);
+            const matchesRole = role === '' || e.role === role;
+            return matchesSearch && matchesRole;
+            });
 
-    currentPage = 1;
-    displayData();
-  }
+            currentPage = 1;
+            displayData();
+        }
 
-  // Event listeners
-  searchInput.addEventListener('input', applyFilter);
-  roleFilter.addEventListener('change', applyFilter);
-  itemsPerPageSelect.addEventListener('change', () => {
-    itemsPerPage = parseInt(itemsPerPageSelect.value);
-    currentPage = 1;
-    displayData();
-  });
+        // Event listeners
+        searchInput.addEventListener('input', applyFilter);
+        roleFilter.addEventListener('change', applyFilter);
+        itemsPerPageSelect.addEventListener('change', () => {
+            itemsPerPage = parseInt(itemsPerPageSelect.value);
+            currentPage = 1;
+            displayData();
+        });
 
-  // Initial render
-  displayData();
-</script>
+        // Initial render
+        displayData();
+    </script>
+
+    <script>
+        // Toggle แสดง/ซ่อน รหัสผ่าน
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            }
+        }
+
+        // Auto format เบอร์โทร xxx-xxxxxxx
+        document.getElementById('addTel').addEventListener('input', function (e) {
+            // เอาเฉพาะตัวเลข
+            let digits = this.value.replace(/\D/g, '');
+
+            // จำกัดไม่เกิน 10 หลัก
+            if (digits.length > 10) digits = digits.slice(0, 10);
+
+            // ใส่ - หลังตัวที่ 3
+            if (digits.length > 3) {
+                this.value = digits.slice(0, 3) + '-' + digits.slice(3);
+            } else {
+                this.value = digits;
+            }
+        });
+    </script>
 </html>

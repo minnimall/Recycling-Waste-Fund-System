@@ -232,31 +232,151 @@
 
 </body>
     <script>
-        // Initialize map centered on Thailand (Khon Kaen)
-        const map = L.map('map').setView([16.4322, 102.8236], 13);
+        // ขอบเขตของตำบลขามป้อม
+        const KHAMPO_POLYGON_COORDS = [
+            { lat: 15.9917406, lng: 102.9022698 },
+            { lat: 15.9847685, lng: 102.9053383 },
+            { lat: 15.9805724, lng: 102.905049 },
+            { lat: 15.9736823, lng: 102.9033324 },
+            { lat: 15.9674935, lng: 102.9031393 },
+            { lat: 15.9622328, lng: 102.9013798 },
+            { lat: 15.9578798, lng: 102.8959725 },
+            { lat: 15.9531553, lng: 102.897217 },
+            { lat: 15.9505557, lng: 102.8983757 },
+            { lat: 15.9452121, lng: 102.8965089 },
+            { lat: 15.9417871, lng: 102.8927109 },
+            { lat: 15.9387954, lng: 102.8906724 },
+            { lat: 15.9372067, lng: 102.890651 },
+            { lat: 15.9362163, lng: 102.891874 },
+            { lat: 15.934318, lng: 102.8916165 },
+            { lat: 15.9333483, lng: 102.8911874 },
+            { lat: 15.9316151, lng: 102.8925607 },
+            { lat: 15.9268487, lng: 102.8976032 },
+            { lat: 15.9231964, lng: 102.8980538 },
+            { lat: 15.9195854, lng: 102.8975174 },
+            { lat: 15.9167997, lng: 102.9001138 },
+            { lat: 15.9117028, lng: 102.9021308 },
+            { lat: 15.9087312, lng: 102.9032895 },
+            { lat: 15.9058009, lng: 102.9032895 },
+            { lat: 15.902788, lng: 102.9043195 },
+            { lat: 15.9017149, lng: 102.9014012 },
+            { lat: 15.8994036, lng: 102.8953073 },
+            { lat: 15.8968034, lng: 102.8912732 },
+            { lat: 15.8967621, lng: 102.8874967 },
+            { lat: 15.8978352, lng: 102.8839776 },
+            { lat: 15.9017562, lng: 102.8802869 },
+            { lat: 15.9028293, lng: 102.8745792 },
+            { lat: 15.9033659, lng: 102.8739354 },
+            { lat: 15.9024166, lng: 102.8714892 },
+            { lat: 15.8993211, lng: 102.8696439 },
+            { lat: 15.89961, lng: 102.8648803 },
+            { lat: 15.9010133, lng: 102.862477 },
+            { lat: 15.9043564, lng: 102.862992 },
+            { lat: 15.9225968, lng: 102.8317473 },
+            { lat: 15.9290346, lng: 102.8333781 },
+            { lat: 15.938691, lng: 102.8343222 },
+            { lat: 15.953381, lng: 102.8323481 },
+            { lat: 15.9575806, lng: 102.8497956 },
+            { lat: 15.9756524, lng: 102.8656742 },
+            { lat: 15.9906697, lng: 102.8862736 },
+            { lat: 15.9917406, lng: 102.9022698 }
+        ];
 
-        // Add OpenStreetMap tiles
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
-            maxZoom: 19
+        // Ray casting algorithm ตรวจสอบจุดอยู่ใน polygon หรือไม่
+        function isPointInPolygon(lat, lng, polygon) {
+            let inside = false;
+            const x = lng, y = lat;
+            for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+                const xi = polygon[i].lng, yi = polygon[i].lat;
+                const xj = polygon[j].lng, yj = polygon[j].lat;
+                const intersect = ((yi > y) !== (yj > y)) &&
+                    (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+                if (intersect) inside = !inside;
+            }
+            return inside;
+        }
+
+        // คำนวณ center ของ polygon สำหรับ default view
+        const centerLat = KHAMPO_POLYGON_COORDS.reduce((sum, c) => sum + c.lat, 0) / KHAMPO_POLYGON_COORDS.length;
+        const centerLng = KHAMPO_POLYGON_COORDS.reduce((sum, c) => sum + c.lng, 0) / KHAMPO_POLYGON_COORDS.length;
+
+        const map = L.map('map').setView([centerLat, centerLng], 13);
+
+        L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+            attribution: '© Google',
+            maxZoom: 20  // เปลี่ยนจาก 15 → 20
         }).addTo(map);
+
+        // วาด polygon ขอบเขตตำบลขามป้อม
+        const polygonLatLngs = KHAMPO_POLYGON_COORDS.map(c => [c.lat, c.lng]);
+        const khampoPolygon = L.polygon(polygonLatLngs, {
+            color: '#2563EB',
+            weight: 2.5,
+            opacity: 0.85,
+            fillColor: '#3B82F6',
+            fillOpacity: 0.08,
+            dashArray: '6, 4'
+        }).addTo(map);
+
+        khampoPolygon.bindTooltip('ขอบเขตตำบลขามป้อม', {
+            permanent: false,
+            direction: 'center',
+            className: 'polygon-label-tooltip'
+        });
+
+        // Fit map ให้พอดีกับ polygon
+        map.fitBounds(khampoPolygon.getBounds().pad(0.05));
 
         let marker = null;
         let selectedLat = null;
         let selectedLng = null;
+
+        // แสดง badge แจ้งเตือนตำแหน่งนอก/ใน polygon
+        function showLocationBadge(inBounds) {
+            // ลบ badge เก่า
+            const old = document.getElementById('location-badge');
+            if (old) old.remove();
+
+            const coordsBox = document.querySelector('.bg-gray-50.rounded-lg.p-4');
+            const badge = document.createElement('div');
+            badge.id = 'location-badge';
+            badge.className = `mt-3 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${
+                inBounds 
+                    ? 'bg-green-50 text-green-700 border border-green-200' 
+                    : 'bg-orange-50 text-orange-700 border border-orange-200'
+            }`;
+            badge.innerHTML = inBounds
+                ? `<i class="fas fa-check-circle"></i> ตำแหน่งอยู่ในขอบเขตตำบลขามป้อม`
+                : `<i class="fas fa-exclamation-triangle"></i> ⚠️ ตำแหน่งอยู่<strong class="mx-1">นอกขอบเขต</strong>ตำบลขามป้อม — กรุณาตรวจสอบ`;
+            coordsBox.appendChild(badge);
+        }
 
         // Function to update marker and get location name
         function updateMarker(lat, lng) {
             selectedLat = lat;
             selectedLng = lng;
 
-            // Remove old marker
             if (marker) {
                 map.removeLayer(marker);
             }
 
-            // Add new marker
-            marker = L.marker([lat, lng]).addTo(map);
+            // ตรวจสอบว่าอยู่ในขอบเขตหรือไม่
+            const inBounds = isPointInPolygon(lat, lng, KHAMPO_POLYGON_COORDS);
+
+            // สร้าง marker icon ตามสถานะ
+            const markerIcon = L.divIcon({
+                html: `
+                    <div style="background-color: ${inBounds ? '#16A34A' : '#EA580C'};" 
+                        class="w-10 h-10 rounded-full flex items-center justify-center shadow-lg border-4 border-white">
+                        <i class="fas fa-map-marker-alt text-white text-sm"></i>
+                    </div>
+                `,
+                className: 'custom-marker',
+                iconSize: [40, 40],
+                iconAnchor: [20, 40]
+            });
+
+            marker = L.marker([lat, lng], { icon: markerIcon }).addTo(map);
 
             // Update display
             document.getElementById('latDisplay').textContent = lat.toFixed(6);
@@ -264,10 +384,13 @@
             document.getElementById('latitude').value = lat;
             document.getElementById('longitude').value = lng;
 
-            // Get location name using Nominatim reverse geocoding
+            // แสดง badge สถานะ
+            showLocationBadge(inBounds);
+
+            // Reverse geocoding
             document.getElementById('locationName').textContent = '🔄 กำลังค้นหาชื่อสถานที่...';
             document.getElementById('searchInput').value = '🔄 กำลังค้นหาชื่อสถานที่...';
-            
+
             fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=th`)
                 .then(response => response.json())
                 .then(data => {
@@ -275,25 +398,51 @@
                     document.getElementById('locationName').textContent = locationName;
                     document.getElementById('location').value = locationName;
                     document.getElementById('searchInput').value = locationName;
-                    marker.bindPopup(`<b>${locationName}</b><br>Lat: ${lat.toFixed(6)}<br>Lng: ${lng.toFixed(6)}`).openPopup();
+
+                    const popupColor = inBounds ? '#16A34A' : '#EA580C';
+                    const popupStatus = inBounds
+                        ? `<span style="color:#16A34A;font-size:11px;"><i class="fas fa-check-circle"></i> ในขอบเขตตำบล</span>`
+                        : `<span style="color:#EA580C;font-size:11px;"><i class="fas fa-exclamation-triangle"></i> นอกขอบเขตตำบล</span>`;
+
+                    marker.bindPopup(`
+                        <div style="min-width:200px;">
+                            <b style="color:${popupColor};">${locationName}</b><br>
+                            <small>Lat: ${lat.toFixed(6)} | Lng: ${lng.toFixed(6)}</small><br>
+                            ${popupStatus}
+                        </div>
+                    `).openPopup();
                 })
-                .catch(error => {
-                    console.error('Error:', error);
+                .catch(() => {
                     document.getElementById('locationName').textContent = 'ไม่สามารถค้นหาชื่อสถานที่ได้';
                 });
         }
 
-        // Click on map to set location
+        // Click on map
         map.on('click', function(e) {
-            updateMarker(e.latlng.lat, e.latlng.lng);
+            const lat = e.latlng.lat;
+            const lng = e.latlng.lng;
+            const inBounds = isPointInPolygon(lat, lng, KHAMPO_POLYGON_COORDS);
+
+            if (!inBounds) {
+                Swal.fire({
+                        icon: 'error',
+                        title: 'จุดอยู่นอกพื้นที่',
+                        text: 'สามารถปักหมุดได้เฉพาะในเขตตำบลขามป้อมเท่านั้น',
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#EF4444'
+                    });
+                return; // ไม่ปักหมุด ไม่ทำอะไรต่อ
+            }
+
+            updateMarker(lat, lng);
         });
 
         // Current location button
         document.getElementById('currentLocationBtn').addEventListener('click', function() {
             if (navigator.geolocation) {
-                this.innerHTML = '<i class="fa-solid fa-magnifying-glass mr-1"></i> กำลังค้นหา...';
+                this.innerHTML = '<i class="fa-solid fa-hourglass-start mr-1"></i> กำลังค้นหา...';
                 this.disabled = true;
-                
+
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
                         const lat = position.coords.latitude;
@@ -304,18 +453,24 @@
                         this.disabled = false;
                     },
                     (error) => {
-                        alert('ไม่สามารถเข้าถึงตำแหน่งปัจจุบันได้: ' + error.message);
+                        Swal.fire({
+                            title: 'ไม่สามารถเข้าถึงตำแหน่งได้',
+                            text: error.message,
+                            icon: 'error',
+                            confirmButtonColor: '#16A34A',
+                            confirmButtonText: 'ตกลง'
+                        });
                         this.innerHTML = '<i class="fa-solid fa-map-pin mr-1"></i> ตำแหน่งปัจจุบัน';
                         this.disabled = false;
                     }
                 );
             } else {
                 Swal.fire({
-                    title: `เบราว์เซอร์ของคุณไม่รองรับการระบุตำแหน่ง`,
-                    icon: "warning",
-                    confirmButtonColor: "#3085d6",
-                    confirmButtonText: "ยืนยัน"
-                })
+                    title: 'เบราว์เซอร์ไม่รองรับการระบุตำแหน่ง',
+                    icon: 'warning',
+                    confirmButtonColor: '#16A34A',
+                    confirmButtonText: 'ตกลง'
+                });
             }
         });
 
@@ -324,18 +479,17 @@
             const query = document.getElementById('searchInput').value.trim();
             if (!query) {
                 Swal.fire({
-                    title: `กรุณาพิมพ์ชื่อสถานที่ที่ต้องการค้นหา`,
-                    icon: "warning",
-                    confirmButtonColor: "#3085d6",
-                    confirmButtonText: "ยืนยัน"
-                })
+                    title: 'กรุณาพิมพ์ชื่อสถานที่ที่ต้องการค้นหา',
+                    icon: 'warning',
+                    confirmButtonColor: '#16A34A',
+                    confirmButtonText: 'ตกลง'
+                });
                 return;
             }
 
             this.innerHTML = '<i class="fa-solid fa-hourglass-start mr-1"></i> กำลังค้นหา...';
             this.disabled = true;
 
-            // Search using Nominatim
             fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1&accept-language=th`)
                 .then(response => response.json())
                 .then(data => {
@@ -346,34 +500,109 @@
                         updateMarker(lat, lng);
                     } else {
                         Swal.fire({
-                            title: `ไม่พบสถานที่ที่ค้นหา กรุณาลองใหม่อีกครั้ง`,
-                            icon: "warning",
-                            confirmButtonColor: "#3085d6",
-                            confirmButtonText: "ยืนยัน"
-                        })
+                            title: 'ไม่พบสถานที่ที่ค้นหา',
+                            text: 'กรุณาลองใหม่อีกครั้ง',
+                            icon: 'warning',
+                            confirmButtonColor: '#16A34A',
+                            confirmButtonText: 'ตกลง'
+                        });
                     }
                     this.innerHTML = '<i class="fa-solid fa-magnifying-glass mr-1"></i> ค้นหา';
                     this.disabled = false;
                 })
-                .catch(error => {
-                    console.error('Error:', error);
+                .catch(() => {
                     Swal.fire({
-                        title: `เกิดข้อผิดพลาดในการค้นหา`,
-                        icon: "error",
-                        confirmButtonColor: "#3085d6",
-                        confirmButtonText: "ยืนยัน"
-                    })
+                        title: 'เกิดข้อผิดพลาดในการค้นหา',
+                        icon: 'error',
+                        confirmButtonColor: '#16A34A',
+                        confirmButtonText: 'ตกลง'
+                    });
                     this.innerHTML = '<i class="fa-solid fa-magnifying-glass mr-1"></i> ค้นหา';
                     this.disabled = false;
                 });
         });
 
-        // Allow Enter key to search
+        // Enter key to search
         document.getElementById('searchInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
                 document.getElementById('searchBtn').click();
             }
+        });
+
+        // ===== FORM SUBMIT VALIDATION =====
+        document.getElementById('wasteForm').addEventListener('submit', function(e) {
+            // ตรวจสอบว่าปักหมุดหรือยัง
+            if (!selectedLat || !selectedLng) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'กรุณาปักหมุดตำแหน่งบนแผนที่',
+                    html: `
+                        <div class="text-gray-600 text-sm">
+                            <p class="mb-3">ระบุตำแหน่งจุดรับซื้อขยะบนแผนที่ก่อนบันทึก</p>
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 text-left text-gray-800">
+                                <p class="font-semibold mb-1"> วิธีปักหมุด</p>
+                                <ul class="text-xs space-y-1">
+                                    <li>• <strong>คลิกบนแผนที่</strong> เพื่อเลือกตำแหน่ง</li>
+                                    <li>• ใช้ <strong>"ค้นหา"</strong> เพื่อค้นหาสถานที่</li>
+                                    <li>• กด <strong>"ตำแหน่งปัจจุบัน"</strong> เพื่อใช้พิกัดของคุณ</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `,
+                    confirmButtonText: 'ไปปักหมุด',
+                    confirmButtonColor: '#16A34A',
+                    showCancelButton: true,
+                    cancelButtonText: 'ปิด',
+                    cancelButtonColor: '#6B7280',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Scroll ขึ้นไปที่แผนที่
+                        document.getElementById('map').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        // Pulse effect บน map
+                        document.getElementById('map').style.boxShadow = '0 0 0 4px rgba(22,163,74,0.4)';
+                        setTimeout(() => {
+                            document.getElementById('map').style.boxShadow = '';
+                        }, 2000);
+                    }
+                });
+                return;
+            }
+
+            // แจ้งเตือนถ้าอยู่นอกขอบเขต (แต่ยังให้บันทึกได้)
+            const inBounds = isPointInPolygon(selectedLat, selectedLng, KHAMPO_POLYGON_COORDS);
+            if (!inBounds) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ตำแหน่งอยู่นอกขอบเขตตำบล!',
+                    html: `
+                        <div class="text-sm text-gray-600">
+                            <p>ตำแหน่งที่เลือกอยู่<strong class="text-orange-600">นอกขอบเขตตำบลขามป้อม</strong></p>
+                            <p class="mt-2">คุณต้องการบันทึกข้อมูลนี้ต่อไปหรือไม่?</p>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="fas fa-save mr-2"></i>บันทึกต่อไป',
+                    cancelButtonText: '<i class="fas fa-map-marker-alt mr-2"></i>เปลี่ยนตำแหน่ง',
+                    confirmButtonColor: '#EA580C',
+                    cancelButtonColor: '#16A34A',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Submit จริง
+                        document.getElementById('wasteForm').submit();
+                    } else {
+                        // Scroll กลับไปที่แผนที่
+                        document.getElementById('map').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                });
+                return;
+            }
+
+            // ถ้าผ่านทุก validation → submit ปกติ
         });
 
         // Reset form
@@ -388,6 +617,8 @@
             document.getElementById('lngDisplay').textContent = '-';
             document.getElementById('locationName').textContent = 'กรุณาคลิกบนแผนที่เพื่อเลือกตำแหน่ง';
             document.getElementById('searchInput').value = '';
+            const badge = document.getElementById('location-badge');
+            if (badge) badge.remove();
         });
     </script>
 </html>

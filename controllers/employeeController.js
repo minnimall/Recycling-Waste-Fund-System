@@ -1215,7 +1215,7 @@ const wastePurchaseDelete = async (req, res) => {
 // หน้าสมาชิกกองทุนขยะรีไซเคิล
 const memberIndex = async (req, res) => {
     try {
-        const { familyName, AccountName, AccountNumber, village, Type } = req.query;
+        const { familyName, AccountName, AccountNumber, village, Type, page } = req.query;
         let searchQuery = { isDeleted: false };
 
         if (familyName) searchQuery.familyName = { $regex: familyName, $options: 'i' };
@@ -1262,10 +1262,31 @@ const memberIndex = async (req, res) => {
             );
         }
 
+        // ─── Pagination ───────────────────────────────────────────
+        const itemsPerPage = 10;
+        const totalItems = familiesWithAccount.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+        const currentPage = Math.max(1, Math.min(parseInt(page) || 1, totalPages || 1));
+
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const paginatedFamilies = familiesWithAccount.slice(startIndex, startIndex + itemsPerPage);
+
+        const pagination = {
+            currentPage,
+            totalPages,
+            totalItems,
+            itemsPerPage,
+            hasPrevPage: currentPage > 1,
+            hasNextPage: currentPage < totalPages,
+        };
+        // ──────────────────────────────────────────────────────────
+
         res.render('employee/member', { 
             mytitle: 'พนักงาน | สมาชิกกองทุนขยะรีไซเคิล',
             villages,
-            allFamilies: familiesWithAccount,
+            allFamilies: paginatedFamilies,
+            totalFamilies: totalItems,
+            pagination,
             currentPage: 'member',
             query: req.query  
         });

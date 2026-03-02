@@ -601,62 +601,61 @@
                             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 
                             <% members.forEach(function(member) { %>
-                                <!-- สมาชิก -->
+                                <!-- สมาชิกหลัก (ตัวแทนครัวเรือน) -->
                                 <div class="bg-gray-50 rounded-lg p-4 mb-4">
                                     <div class="flex items-center space-x-3 mb-3">
                                         <div class="w-12 h-12 bg-green-700 rounded-full flex items-center justify-center">
-                                            <i class="fas fa-female text-white"></i>
+                                            <i class="fas fa-user text-white"></i>
                                         </div>
                                         <div>
                                             <h4 class="font-semibold"><%= member.name %></h4>
-                                            <p class="text-sm text-gray-600">ตัวแทนสมาชิกครอบครัว</p>
+                                            <p class="text-sm text-gray-600">
+                                                <%= member.isRepresentative ? 'ตัวแทนครัวเรือน' : 'สมาชิกครัวเรือน' %>
+                                            </p>
                                         </div>
                                     </div>
                                     <div class="text-sm text-gray-600 space-y-1">
-                                        <!-- <p><i class="fas fa-phone mr-2"></i> -->เบอร์โทรศัพท์ : <%= member.phone %></p>
-                                        <!-- <p>อายุ : <%= member.age %> ปี</p> -->
+                                        เบอร์โทรศัพท์ : <%= member.phone || '-' %>
+                                    </div>
+                                    <!-- แสดงสถานะของสมาชิกหลัก -->
+                                    <div class="mt-2 flex items-center">
+                                        <%
+                                            const isMemberDeceased = member.Status === 'deceased';
+                                            const memberBadge = isMemberDeceased
+                                                ? 'bg-gray-100 text-gray-500 border-gray-200'
+                                                : 'bg-green-100 text-green-700 border-green-200';
+                                            const memberIcon = isMemberDeceased ? 'fa-user-xmark' : 'fa-user-check';
+                                            const memberLabel = isMemberDeceased ? 'เสียชีวิตแล้ว' : 'มีชีวิตอยู่';
+                                        %>
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border <%= memberBadge %>">
+                                            <i class="fas <%= memberIcon %> mr-1.5"></i>
+                                            <%= memberLabel %>
+                                        </span>
                                     </div>
                                 </div>
 
-                                <% 
-                                    function translateDistribution(type) {
-                                        switch(type) {
-                                            case 'full': return 'รับเต็มจำนวน';
-                                            case 'equal': return 'แบ่งเท่ากัน';
-                                            case 'other': return 'อื่นๆ';
-                                            default: return type;
-                                        }
-                                    }
-                                %>
-
-                                <!-- ผู้รับผลประโยชน์ -->
-                                <% if (member.beneficiaries && member.beneficiaries.length > 0) { %>
-                                    <% member.beneficiaries.forEach(function(beneficiary) { %>
+                                <!-- สมาชิกในครัวเรือน (householdMembers) -->
+                                <% if (member.householdMembers && member.householdMembers.length > 0) { %>
+                                    <% member.householdMembers.forEach(function(hm) { %>
                                         <div class="bg-gray-50 rounded-lg p-4 mb-4">
                                             <div class="flex items-center space-x-3 mb-3">
                                                 <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
                                                     <i class="fas fa-child text-white"></i>
                                                 </div>
                                                 <div>
-                                                    <h4 class="font-semibold"><%= beneficiary.name %></h4>
-                                                    <p class="text-sm text-gray-600"><%= beneficiary.relation %></p>
+                                                    <h4 class="font-semibold"><%= hm.name %></h4>
+                                                    <p class="text-sm text-gray-600"><%= hm.relationToHead || '-' %></p>
                                                 </div>
                                             </div>
                                             <div class="mt-2 flex items-center">
-                                                <% 
-                                                    const isDeceased = beneficiary.status === 'deceased';
-                                                    // กำหนดสีและไอคอนตามสถานะ
-                                                    const badgeColor = isDeceased 
-                                                        ? 'bg-gray-100 text-gray-500 border-gray-200' // สีเทาสำหรับผู้เสียชีวิต
-                                                        : 'bg-green-100 text-green-700 border-green-200'; // สีเขียวสำหรับผู้มีชีวิต
-                                                        
-                                                    const iconClass = isDeceased 
-                                                        ? 'fa-user-xmark' // ไอคอนริบบิ้นไว้อาลัย
-                                                        : 'fa-user-check'; // ไอคอนชีพจรหัวใจ
-                                                        
+                                                <%
+                                                    const isDeceased = hm.status === 'deceased';
+                                                    const badgeColor = isDeceased
+                                                        ? 'bg-gray-100 text-gray-500 border-gray-200'
+                                                        : 'bg-green-100 text-green-700 border-green-200';
+                                                    const iconClass = isDeceased ? 'fa-user-xmark' : 'fa-user-check';
                                                     const textLabel = isDeceased ? 'เสียชีวิตแล้ว' : 'มีชีวิตอยู่';
                                                 %>
-                                                
                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border <%= badgeColor %>">
                                                     <i class="fas <%= iconClass %> mr-1.5"></i>
                                                     <%= textLabel %>
@@ -665,7 +664,7 @@
                                         </div>
                                     <% }) %>
                                 <% } else { %>
-                                    <p class="text-gray-500 italic">ไม่มีข้อมูลผู้รับผลประโยชน์</p>
+                                    <p class="text-gray-500 italic">ไม่มีสมาชิกในครัวเรือนอื่น</p>
                                 <% } %>
                             <% }) %>
                             </div>

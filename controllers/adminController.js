@@ -510,15 +510,16 @@ const mediaPost = async (req, res) => {
         const { title, youtubeUrl } = req.body;
 
         if (!youtubeUrl || !youtubeUrl.includes('youtube.com/watch?v=')) {
-            return res.status(400).redirect('/admin?error=URL ไม่ถูกต้อง');
+            return res.status(400).redirect('/admin/media?error=URL ไม่ถูกต้อง');
         }
 
         const existingMedia = await myMedia.findOne({ 
+            isDeleted: false, 
             $or: [{ title }, { youtubeUrl }] 
         });
 
         if (existingMedia) {
-            return res.status(400).redirect('/admin?error=มีสื่อนี้อยู่แล้ว');
+            return res.status(400).redirect('/admin/media?error=มีสื่อนี้อยู่แล้ว');
         }
 
         const media = new myMedia({
@@ -528,10 +529,10 @@ const mediaPost = async (req, res) => {
 
         await media.save();
         console.log('Media saved successfully:', media);
-        res.redirect('/admin?message=เพิ่มสื่อความรู้สำเร็จ');
+        res.redirect('/admin/media?message=เพิ่มสื่อความรู้สำเร็จ');
     } catch (err) {
         console.error('Error saving media:', err);
-        res.status(500).redirect('/admin?error=เพิ่มสื่อความรู้ไม่สำเร็จ');
+        res.status(500).redirect('/admin/media?error=เพิ่มสื่อความรู้ไม่สำเร็จ');
     }
 };
 // ลบสื่อ (softDelete)
@@ -542,12 +543,12 @@ const mediaDelete = async (req, res) => {
         const result = await myMedia.findByIdAndUpdate(id,{ isDeleted: true});
 
         if (!result) {
-            return res.status(404).redirect('/admin?message=ไม่พบข้อมูลสื่อความรู้ที่ต้องการลบ');
+            return res.status(404).redirect('/admin/media?message=ไม่พบข้อมูลสื่อความรู้ที่ต้องการลบ');
         }
-        res.redirect('/admin?message=ลบสื่อความรู้สำเร็จ');
+        res.redirect('/admin/media?message=ลบสื่อความรู้สำเร็จ');
     } catch (err) {
         console.error('Error deleting media:', err);
-        res.status(500).redirect('/admin?message=เกิดข้อผิดพลาดในการลบข้อมูลสื่อความรู้');
+        res.status(500).redirect('/admin/media?message=เกิดข้อผิดพลาดในการลบข้อมูลสื่อความรู้');
     }
 };
 // แก้ไขสื่อ
@@ -557,12 +558,12 @@ const mediaEdit = (req, res) => {
 
     myMedia.findByIdAndUpdate(mediaId, { title, youtubeUrl })
         .then(result => {
-            res.redirect('/admin?message=แก้ไขสื่อความรู้สำเร็จ'); // เปลี่ยนเส้นทางกลับไปยังหน้าแสดงสื่อ
+            res.redirect('/admin/media?message=แก้ไขสื่อความรู้สำเร็จ');
             
         })
         .catch(err => {
             console.log(err);
-            res.status(500).redirect('/admin?error=ลบสื่อความรู้ไม่สำเร็จ');
+            res.status(500).redirect('/admin/media?error=แก้ไขสื่อความรู้ไม่สำเร็จ');
         });
 };
 
@@ -573,7 +574,7 @@ const newsIndex = async (req, res) => {
         const filter = { isDeleted: false };
 
         // ดึงข่าวทั้งหมด
-        const newsList = await myNews.find(filter);
+        const newsList = await myNews.find(filter).sort({ createdAt: -1 })  
 
         // ดึง username ของผู้เขียนทั้งหมด
         const adminUsernames = newsList.map(p => p.newsAuthor);
@@ -606,15 +607,8 @@ const newsIndex = async (req, res) => {
 };
 
 
-const storageNews = multer.diskStorage({
-    destination: './public/uploads/news/PDF/',
-    filename: function (req, file, cb) {
-        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
-    }
-});
-
 const uploadNews = multer({
-    storage: storageNews,
+    storage: multer.memoryStorage(),
     limits: { fileSize: 50 * 1024 * 1024 },
     fileFilter: function (req, file, cb) {
         if (file.mimetype === 'application/pdf') {
@@ -624,6 +618,23 @@ const uploadNews = multer({
         }
     }
 }).single('newsFile');
+
+// ฟังก์ชัน upload PDF ไปยัง Cloudinary
+const uploadPDFToCloudinary = (fileBuffer) => {
+    return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+            {
+                folder: 'news_pdfs',
+                resource_type: 'raw' // ต้องใช้ 'raw' สำหรับ PDF
+            },
+            (error, result) => {
+                if (result) resolve(result);
+                else reject(error);
+            }
+        );
+        streamifier.createReadStream(fileBuffer).pipe(stream);
+    });
+};
 
 const newsPost = async (req, res) => {
     uploadNews(req, res, async (err) => {
@@ -635,11 +646,16 @@ const newsPost = async (req, res) => {
                 return res.status(400).send({ error: 'Invalid file type', details: err.message });
             }
         }
+
         try {
             const { newsTitle, newsDescription, newsAuthor } = req.body;
-            const fileNews = req.file
-                ? `/uploads/news/PDF/${req.file.filename}`
-                : '/img/no_PDF.pdf';
+
+            let fileNews = '/img/no_PDF.pdf'; // ค่า default ถ้าไม่มีไฟล์
+
+            if (req.file) {
+                const result = await uploadPDFToCloudinary(req.file.buffer);
+                fileNews = result.secure_url;
+            }
 
             const newNews = new myNews({
                 newsTitle,
@@ -656,8 +672,9 @@ const newsPost = async (req, res) => {
         }
     });
 };
+
 const uploadNewsEdit = multer({
-    storage: storageNews,
+    storage: multer.memoryStorage(),
     limits: { fileSize: 50 * 1024 * 1024 },
     fileFilter: function (req, file, cb) {
         if (file.mimetype === 'application/pdf') {
@@ -683,26 +700,26 @@ const newsEdit = async (req, res) => {
             const { newsEditTitle, newsEditDescription, newsEditAuthor } = req.body;
             const newsId = req.params.id;
 
-            // หาไฟล์ใหม่ ถ้ามีอัปโหลดมา
-            const fileNews = req.file
-                ? `/uploads/news/PDF/${req.file.filename}`
-                : undefined; // ถ้าไม่ได้อัปโหลดใหม่ จะไม่แก้ไฟล์
-
-            // เตรียม object สำหรับอัปเดต
-            const updateData = {
-                newsTitle: newsEditTitle,
-                newsDescription: newsEditDescription,
-                newsAuthor: newsEditAuthor,
-            };
-
-            if (fileNews) updateData.newsFile = fileNews;
-
-            // อัปเดตข่าวสาร
-            const updatedNews = await myNews.findByIdAndUpdate(newsId, updateData, { new: true });
-
-            if (!updatedNews) {
+            const news = await myNews.findById(newsId);
+            if (!news) {
                 return res.status(404).send({ error: 'News not found' });
             }
+
+            let fileNews = news.newsFile; // ค่าเริ่มต้น = ไฟล์เดิม
+
+            // ถ้ามีการอัปโหลดไฟล์ใหม่
+            if (req.file) {
+                const result = await uploadPDFToCloudinary(req.file.buffer);
+                fileNews = result.secure_url;
+            }
+
+            // อัปเดตข้อมูล
+            news.newsTitle = newsEditTitle || news.newsTitle;
+            news.newsDescription = newsEditDescription || news.newsDescription;
+            news.newsAuthor = newsEditAuthor || news.newsAuthor;
+            news.newsFile = fileNews;
+
+            await news.save();
 
             res.redirect('/admin/news?message=แก้ไขข่าวสารสำเร็จ');
         } catch (error) {
@@ -716,7 +733,6 @@ const deleteNews = async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Perform the "soft delete"
         const result = await myNews.findByIdAndUpdate(id, { isDeleted: true });
 
         if (!result) {
@@ -753,7 +769,7 @@ const upload = multer({
 // กิจกรรม
 const activityIndex = (req, res) => {
     const filter = { isDeleted: false };
-    myActivity.find(filter)
+    myActivity.find(filter).sort({ createdAt: -1 }) 
         .then((result) => {
                     result.forEach(item => {
                         item.formattedDate = moment(item.createdAt).format('YYYY-MM-DD');
@@ -780,7 +796,10 @@ const activityPost = (req, res) => {
         try {
             const { title, content } = req.body; // แก้ไข: เพิ่ม content ใน destructuring
             // ตรวจสอบว่ามีกิจกรรมที่มี title และ content ซ้ำกันหรือไม่ (กรณีต้องการให้เนื้อหาไม่ซ้ำด้วย)
-            const existingActivity = await myActivity.findOne({ title, isDeleted: false });
+            const existingActivity = await myActivity.findOne({ 
+                title: title, 
+                isDeleted: false 
+            });
             if (existingActivity) {
                 return res.status(400).redirect('/admin/activity?error=มีกิจกรรมนี้อยู่แล้ว');
             }
@@ -2225,9 +2244,9 @@ const boardPost = (req, res) => {
             });
 
             if (existingBoard) {
-                if (existingBoard.email === email) {
-                    return res.redirect('/admin/board?error=อีเมลนี้มีในระบบแล้ว');
-                }
+                // if (existingBoard.email === email) {
+                //     return res.redirect('/admin/board?error=อีเมลนี้มีในระบบแล้ว');
+                // }
                 if (existingBoard.tel === tel) {
                     return res.redirect('/admin/board?error=เบอร์โทรศัพท์นี้มีในระบบแล้ว');
                 }

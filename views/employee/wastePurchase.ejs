@@ -1550,12 +1550,24 @@
         const totalAmount = totalAmountElem.innerText.trim();
 
         if (!accountId) {
-            Swal.fire("กรุณาเลือกรหัสบัญชี", "", "warning");
+            Swal.fire({
+                icon: 'warning',
+                title: 'กรุณาเลือกบัญชีสมาชิก',
+                text: '',
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#2563EB'
+            });
             return;
         }
 
         if (selectedWaste.length === 0) {
-            Swal.fire("กรุณาเลือกรายการขยะที่ต้องการรับซื้อ", "", "warning");
+            Swal.fire({
+                icon: 'warning',
+                title: 'ไม่มีรายการขยะ',
+                text: 'กรุณาเลือกรายการขยะที่ต้องการรับซื้ออย่างน้อย 1 รายการ',
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#2563EB'
+            });
             return;
         }
 

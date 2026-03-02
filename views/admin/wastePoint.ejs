@@ -315,365 +315,450 @@
 </body>
 
     <script>
-        let map;
-        let markers = [];
-        let currentFilter = 'all';
-        
-        // Sample data - replace with actual data from server
-        const wastePoints = <%- JSON.stringify(wastePoints) %>; 
+    let map;
+    let markers = [];
+    let currentFilter = 'all';
+    let khampoPolygon;
+    
+    const wastePoints = <%- JSON.stringify(wastePoints) %>; 
 
-        function initMap() {
-            map = L.map("map").setView([13.7563, 100.5018], 15);
-            L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
-                attribution: '© Google',
-                maxZoom: 20
-            }).addTo(map);
-            
-            updateStatistics();
+    // ขอบเขตของตำบลขามป้อม
+    const KHAMPO_POLYGON_COORDS = [
+        { lat: 15.9917406, lng: 102.9022698 },
+        { lat: 15.9847685, lng: 102.9053383 },
+        { lat: 15.9805724, lng: 102.905049 },
+        { lat: 15.9736823, lng: 102.9033324 },
+        { lat: 15.9674935, lng: 102.9031393 },
+        { lat: 15.9622328, lng: 102.9013798 },
+        { lat: 15.9578798, lng: 102.8959725 },
+        { lat: 15.9531553, lng: 102.897217 },
+        { lat: 15.9505557, lng: 102.8983757 },
+        { lat: 15.9452121, lng: 102.8965089 },
+        { lat: 15.9417871, lng: 102.8927109 },
+        { lat: 15.9387954, lng: 102.8906724 },
+        { lat: 15.9372067, lng: 102.890651 },
+        { lat: 15.9362163, lng: 102.891874 },
+        { lat: 15.934318, lng: 102.8916165 },
+        { lat: 15.9333483, lng: 102.8911874 },
+        { lat: 15.9316151, lng: 102.8925607 },
+        { lat: 15.9268487, lng: 102.8976032 },
+        { lat: 15.9231964, lng: 102.8980538 },
+        { lat: 15.9195854, lng: 102.8975174 },
+        { lat: 15.9167997, lng: 102.9001138 },
+        { lat: 15.9117028, lng: 102.9021308 },
+        { lat: 15.9087312, lng: 102.9032895 },
+        { lat: 15.9058009, lng: 102.9032895 },
+        { lat: 15.902788, lng: 102.9043195 },
+        { lat: 15.9017149, lng: 102.9014012 },
+        { lat: 15.8994036, lng: 102.8953073 },
+        { lat: 15.8968034, lng: 102.8912732 },
+        { lat: 15.8967621, lng: 102.8874967 },
+        { lat: 15.8978352, lng: 102.8839776 },
+        { lat: 15.9017562, lng: 102.8802869 },
+        { lat: 15.9028293, lng: 102.8745792 },
+        { lat: 15.9033659, lng: 102.8739354 },
+        { lat: 15.9024166, lng: 102.8714892 },
+        { lat: 15.8993211, lng: 102.8696439 },
+        { lat: 15.89961, lng: 102.8648803 },
+        { lat: 15.9010133, lng: 102.862477 },
+        { lat: 15.9043564, lng: 102.862992 },
+        { lat: 15.9225968, lng: 102.8317473 },
+        { lat: 15.9290346, lng: 102.8333781 },
+        { lat: 15.938691, lng: 102.8343222 },
+        { lat: 15.953381, lng: 102.8323481 },
+        { lat: 15.9575806, lng: 102.8497956 },
+        { lat: 15.9756524, lng: 102.8656742 },
+        { lat: 15.9906697, lng: 102.8862736 },
+        { lat: 15.9917406, lng: 102.9022698 }
+    ];
+
+    // ฟังก์ชันตรวจสอบว่าจุดอยู่ใน polygon หรือไม่ (Ray casting algorithm)
+    function isPointInPolygon(lat, lng, polygon) {
+        let inside = false;
+        const x = lng, y = lat;
+        for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+            const xi = polygon[i].lng, yi = polygon[i].lat;
+            const xj = polygon[j].lng, yj = polygon[j].lat;
+            const intersect = ((yi > y) !== (yj > y)) &&
+                (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+            if (intersect) inside = !inside;
         }
+        return inside;
+    }
 
-        function getMarkerIcon(type, isOpen) {
-            const colors = {
-                'bank': '#3B82F6',
-                'center': '#10B981',
-                'community': '#8B5CF6',
-                'mobile': '#F97316'
-            };
-            
-            const icons = {
-                'bank': 'university',
-                'center': 'recycle',
-                'community': 'users',
-                'mobile': 'truck'
-            };
+    function initMap() {
+        map = L.map("map").setView([15.9500, 102.8700], 12);
+        L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+            attribution: '© Google',
+            maxZoom: 20
+        }).addTo(map);
 
-            const color = colors[type] || '#6B7280';
-            const icon = icons[type] || 'map-marker-alt';
-            const opacity = isOpen ? '1' : '0.5';
+        // วาด polygon ขอบเขตตำบลขามป้อม
+        const polygonLatLngs = KHAMPO_POLYGON_COORDS.map(c => [c.lat, c.lng]);
+        khampoPolygon = L.polygon(polygonLatLngs, {
+            color: '#2563EB',
+            weight: 2.5,
+            opacity: 0.85,
+            fillColor: '#3B82F6',
+            fillOpacity: 0.08,
+            dashArray: '6, 4'
+        }).addTo(map);
 
-            return L.divIcon({
-                html: `
-                    <div style="background-color: ${color}; opacity: ${opacity};" 
-                        class="w-10 h-10 rounded-full flex items-center justify-center shadow-lg border-4 border-white">
-                        <i class="fas fa-${icon} text-white text-sm"></i>
-                    </div>
-                `,
-                className: 'custom-marker',
-                iconSize: [40, 40],
-                iconAnchor: [20, 20]
+        khampoPolygon.bindTooltip('ขอบเขตตำบลขามป้อม', {
+            permanent: false,
+            direction: 'center',
+            className: 'polygon-tooltip'
+        });
+
+        // Fit map to polygon bounds
+        map.fitBounds(khampoPolygon.getBounds().pad(0.05));
+
+        updateStatistics();
+    }
+
+    function getMarkerIcon(type, isOpen) {
+        const colors = {
+            'bank': '#3B82F6',
+            'center': '#10B981',
+            'community': '#8B5CF6',
+            'mobile': '#F97316'
+        };
+        const icons = {
+            'bank': 'university',
+            'center': 'recycle',
+            'community': 'users',
+            'mobile': 'truck'
+        };
+
+        const color = colors[type] || '#6B7280';
+        const icon = icons[type] || 'map-marker-alt';
+        const opacity = isOpen ? '1' : '0.5';
+
+        return L.divIcon({
+            html: `
+                <div style="background-color: ${color}; opacity: ${opacity};" 
+                    class="w-10 h-10 rounded-full flex items-center justify-center shadow-lg border-4 border-white">
+                    <i class="fas fa-${icon} text-white text-sm"></i>
+                </div>
+            `,
+            className: 'custom-marker',
+            iconSize: [40, 40],
+            iconAnchor: [20, 20]
+        });
+    }
+
+    function getTypeLabel(type) {
+        const labels = {
+            'bank': 'ธนาคารขยะ',
+            'center': 'ศูนย์รับซื้อขยะ',
+            'community': 'จุดรับซื้อชุมชน',
+            'mobile': 'รถรับซื้อเคลื่อนที่'
+        };
+        return labels[type] || 'ไม่ระบุ';
+    }
+
+    function updateMap() {
+        markers.forEach(m => map.removeLayer(m));
+        markers = [];
+
+        const filteredPoints = currentFilter === 'all' 
+            ? wastePoints 
+            : wastePoints.filter(p => p.type === currentFilter);
+
+        // แจ้งเตือนถ้ามีจุดที่ยังไม่ได้ปักหมุด (ไม่มี lat/lng)
+        const unpinnedPoints = filteredPoints.filter(p => !p.latitude || !p.longitude);
+        if (unpinnedPoints.length > 0) {
+            const nameList = unpinnedPoints.map(p => `• ${p.wastePointName}`).join('\n');
+            Swal.fire({
+                icon: 'warning',
+                title: `พบจุดรับซื้อที่ยังไม่ได้ปักหมุด (${unpinnedPoints.length} จุด)`,
+                html: `<div class="text-left text-sm text-gray-700 mt-2 space-y-1">
+                    ${unpinnedPoints.map(p => `<div class="flex items-center gap-2"><i class="fas fa-exclamation-circle text-yellow-500"></i> ${p.wastePointName}</div>`).join('')}
+                </div><p class="text-xs text-gray-500 mt-3">กรุณาแก้ไขและปักหมุดตำแหน่งบนแผนที่</p>`,
+                confirmButtonText: 'รับทราบ',
+                confirmButtonColor: '#16A34A',
+                showCancelButton: true,
+                cancelButtonText: 'ปิด',
+                cancelButtonColor: '#6B7280'
+            }).then((result) => {
+                if (result.isConfirmed && unpinnedPoints.length === 1) {
+                    window.location.href = `/admin/wastePoint/edit/${unpinnedPoints[0]._id}`;
+                }
             });
         }
 
-        function getTypeLabel(type) {
-            const labels = {
-                'bank': 'ธนาคารขยะ',
-                'center': 'ศูนย์รับซื้อขยะ',
-                'community': 'จุดรับซื้อชุมชน',
-                'mobile': 'รถรับซื้อเคลื่อนที่'
-            };
-            return labels[type] || 'ไม่ระบุ';
-        }
+        filteredPoints.forEach((point) => {
+            if (!point.latitude || !point.longitude) return;
 
-        // ใน <script> ส่วน updateMap()
-        function updateMap() {
-            markers.forEach(m => map.removeLayer(m));
-            markers = [];
+            // ตรวจสอบว่าจุดอยู่ในขอบเขตตำบลหรือไม่
+            const inBounds = isPointInPolygon(point.latitude, point.longitude, KHAMPO_POLYGON_COORDS);
 
-            const filteredPoints = currentFilter === 'all' 
-                ? wastePoints 
-                : wastePoints.filter(p => p.type === currentFilter);
-
-            filteredPoints.forEach((point) => {
-                if (!point.latitude || !point.longitude) return;
-                
-                const marker = L.marker([point.latitude, point.longitude], {
-                    icon: getMarkerIcon(point.type, point.isOpen)
-                })
-                .addTo(map)
-                .bindPopup(`
-                    <div class="p-3 min-w-[250px]">
-                        <h3 class="font-bold text-lg text-gray-800 mb-2 flex items-center gap-2">
-                            <i class="fas fa-map-marker-alt text-green-600"></i>
-                            ${point.wastePointName}
-                        </h3>
-                        <div class="space-y-2 text-sm">
-                            <p class="flex items-center gap-2 text-gray-600">
-                                <i class="fas fa-tag text-gray-400 w-4"></i>
-                                <span class="font-medium">${getTypeLabel(point.type)}</span>
-                            </p>
-                            ${point.village ? `
-                            <p class="flex items-center gap-2 text-gray-600">
-                                <i class="fas fa-home text-gray-400 w-4"></i>
-                                ${point.village.villageName}
-                            </p>` : ''}
-                            <p class="flex items-center gap-2 text-gray-600">
-                                <i class="fas fa-map-pin text-gray-400 w-4"></i>
-                                ${point.location}
-                            </p>
-                            ${point.note ? `
-                            <p class="flex items-center gap-2 text-gray-600 pt-2 border-t">
-                                <i class="fas fa-info-circle text-blue-400 w-4"></i>
-                                ${point.note}
-                            </p>` : ''}
-                            <div class="pt-2 border-t">
-                                <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full ${
-                                    point.isOpen ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                                }">
-                                    <i class="fas fa-${point.isOpen ? 'check' : 'times'}-circle"></i>
-                                    ${point.isOpen ? "เปิดบริการ" : "ปิดชั่วคราว"}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                `);
-                markers.push(marker);
-            });
-
-            if (markers.length > 0) {
-                const group = new L.featureGroup(markers);
-                map.fitBounds(group.getBounds().pad(0.1));
-            }
-
-            document.getElementById('visible-markers').textContent = markers.length;
-        }
-
-        function updatePointsList() {
-            const tbody = document.getElementById("points-table-body");
-            const totalPoints = document.getElementById("total-points");
-            tbody.innerHTML = "";
-            totalPoints.textContent = wastePoints.length;
-
-            wastePoints.forEach((point) => {
-                const row = document.createElement("tr");
-                row.className = "hover:bg-gray-50 transition duration-150";
-                row.innerHTML = `
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full flex items-center justify-center ${
-                                point.type === 'bank' ? 'bg-blue-100' :
-                                point.type === 'center' ? 'bg-green-100' :
-                                point.type === 'community' ? 'bg-purple-100' : 'bg-orange-100'
-                            }">
-                                <i class="fas fa-${
-                                    point.type === 'bank' ? 'university' :
-                                    point.type === 'center' ? 'recycle' :
-                                    point.type === 'community' ? 'users' : 'truck'
-                                } ${
-                                    point.type === 'bank' ? 'text-blue-600' :
-                                    point.type === 'center' ? 'text-green-600' :
-                                    point.type === 'community' ? 'text-purple-600' : 'text-orange-600'
-                                }"></i>
-                            </div>
-                            <div>
-                                <div class="text-sm font-semibold text-gray-900">${point.wastePointName}</div>
-                                <div class="text-xs text-gray-500">${point.location}</div>
-                            </div>
-                        </div>
-                    </td>
-
-                    <td class="px-6 py-4 hidden md:table-cell">
+            const marker = L.marker([point.latitude, point.longitude], {
+                icon: getMarkerIcon(point.type, point.isOpen)
+            })
+            .addTo(map)
+            .bindPopup(`
+                <div class="p-3 min-w-[250px]">
+                    <h3 class="font-bold text-lg text-gray-800 mb-2 flex items-center gap-2">
+                        <i class="fas fa-map-marker-alt text-green-600"></i>
+                        ${point.wastePointName}
+                    </h3>
+                    ${!inBounds ? `
+                    <div class="mb-2 px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-700 flex items-center gap-1">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        จุดนี้อยู่นอกขอบเขตตำบลขามป้อม
+                    </div>` : ''}
+                    <div class="space-y-2 text-sm">
+                        <p class="flex items-center gap-2 text-gray-600">
+                            <i class="fas fa-tag text-gray-400 w-4"></i>
+                            <span class="font-medium">${getTypeLabel(point.type)}</span>
+                        </p>
                         ${point.village ? `
-                            <div class="text-sm text-gray-900">${point.village.villageName}</div>
-                        ` : '<span class="text-xs text-gray-400">ไม่ระบุ</span>'}
-                    </td>
-                    
-                    <td class="px-6 py-4">
-                        <span class="px-3 py-1 text-xs font-medium rounded-full ${
-                            point.type === 'bank' ? 'bg-blue-100 text-blue-700' :
-                            point.type === 'center' ? 'bg-green-100 text-green-700' :
-                            point.type === 'community' ? 'bg-purple-100 text-purple-700' : 'bg-orange-100 text-orange-700'
-                        }">
-                            ${getTypeLabel(point.type)}
-                        </span>
-                    </td>
-
-                    <td class="px-6 py-4">
-                        <span class="px-3 py-1 inline-flex items-center gap-1 text-xs font-semibold rounded-full ${
-                            point.isOpen ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                        }">
-                            <i class="fas fa-${point.isOpen ? 'check' : 'times'}-circle"></i>
-                            ${point.isOpen ? "เปิดบริการ" : "ปิดชั่วคราว"}
-                        </span>
-                    </td>
-
-                    <td class="px-6 py-4">
-                        <div class="flex gap-2">
-                            <button onclick="toggleStatus('${point._id}', ${!point.isOpen})" 
-                                    class="min-w-[70px] px-3 py-1.5 rounded-lg text-xs font-medium text-white transition duration-200 ${
-                                        point.isOpen ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'
-                                    }">
-                                <i class="fas fa-${point.isOpen ? 'times' : 'check'}-circle mr-1"></i>
-                                ${point.isOpen ? 'ปิด' : 'เปิด'}
-                            </button>
-                            <button onclick="editPoint('${point._id}')" 
-                                    class="px-3 py-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium transition duration-200">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="deletePoint('${point._id}')" 
-                                    class="px-3 py-1.5 rounded-lg bg-red-500 hover:bg-red-600 text-white text-xs font-medium transition duration-200">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                        <p class="flex items-center gap-2 text-gray-600">
+                            <i class="fas fa-home text-gray-400 w-4"></i>
+                            ${point.village.villageName}
+                        </p>` : ''}
+                        <p class="flex items-center gap-2 text-gray-600">
+                            <i class="fas fa-map-pin text-gray-400 w-4"></i>
+                            ${point.location}
+                        </p>
+                        ${point.note ? `
+                        <p class="flex items-center gap-2 text-gray-600 pt-2 border-t">
+                            <i class="fas fa-info-circle text-blue-400 w-4"></i>
+                            ${point.note}
+                        </p>` : ''}
+                        <div class="pt-2 border-t">
+                            <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full ${
+                                point.isOpen ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                            }">
+                                <i class="fas fa-${point.isOpen ? 'check' : 'times'}-circle"></i>
+                                ${point.isOpen ? "เปิดบริการ" : "ปิดชั่วคราว"}
+                            </span>
                         </div>
-                    </td>
-                `;
-                tbody.appendChild(row);
+                    </div>
+                </div>
+            `);
+            markers.push(marker);
+        });
+
+        document.getElementById('visible-markers').textContent = markers.length;
+    }
+
+    function updatePointsList() {
+        const tbody = document.getElementById("points-table-body");
+        const totalPoints = document.getElementById("total-points");
+        tbody.innerHTML = "";
+        totalPoints.textContent = wastePoints.length;
+
+        wastePoints.forEach((point) => {
+            const hasPin = point.latitude && point.longitude;
+            const inBounds = hasPin 
+                ? isPointInPolygon(point.latitude, point.longitude, KHAMPO_POLYGON_COORDS) 
+                : null;
+
+            const row = document.createElement("tr");
+            row.className = `hover:bg-gray-50 transition duration-150 ${!hasPin ? 'bg-yellow-50' : ''}`;
+            row.innerHTML = `
+                <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center ${
+                            point.type === 'bank' ? 'bg-blue-100' :
+                            point.type === 'center' ? 'bg-green-100' :
+                            point.type === 'community' ? 'bg-purple-100' : 'bg-orange-100'
+                        }">
+                            <i class="fas fa-${
+                                point.type === 'bank' ? 'university' :
+                                point.type === 'center' ? 'recycle' :
+                                point.type === 'community' ? 'users' : 'truck'
+                            } ${
+                                point.type === 'bank' ? 'text-blue-600' :
+                                point.type === 'center' ? 'text-green-600' :
+                                point.type === 'community' ? 'text-purple-600' : 'text-orange-600'
+                            }"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                                ${point.wastePointName}
+                                ${!hasPin ? `<span class="px-2 py-0.5 text-xs bg-yellow-100 text-yellow-700 rounded-full flex items-center gap-1"><i class="fas fa-map-marker-alt"></i> ยังไม่ปักหมุด</span>` : ''}
+                                ${hasPin && !inBounds ? `<span class="px-2 py-0.5 text-xs bg-orange-100 text-orange-700 rounded-full flex items-center gap-1"><i class="fas fa-exclamation-triangle"></i> นอกขอบเขต</span>` : ''}
+                            </div>
+                            <div class="text-xs text-gray-500">${point.location}</div>
+                        </div>
+                    </div>
+                </td>
+
+                <td class="px-6 py-4 hidden md:table-cell">
+                    ${point.village ? `
+                        <div class="text-sm text-gray-900">${point.village.villageName}</div>
+                    ` : '<span class="text-xs text-gray-400">ไม่ระบุ</span>'}
+                </td>
+                
+                <td class="px-6 py-4">
+                    <span class="px-3 py-1 text-xs font-medium rounded-full ${
+                        point.type === 'bank' ? 'bg-blue-100 text-blue-700' :
+                        point.type === 'center' ? 'bg-green-100 text-green-700' :
+                        point.type === 'community' ? 'bg-purple-100 text-purple-700' : 'bg-orange-100 text-orange-700'
+                    }">
+                        ${getTypeLabel(point.type)}
+                    </span>
+                </td>
+
+                <td class="px-6 py-4">
+                    <span class="px-3 py-1 inline-flex items-center gap-1 text-xs font-semibold rounded-full ${
+                        point.isOpen ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                    }">
+                        <i class="fas fa-${point.isOpen ? 'check' : 'times'}-circle"></i>
+                        ${point.isOpen ? "เปิดบริการ" : "ปิดชั่วคราว"}
+                    </span>
+                </td>
+
+                <td class="px-6 py-4">
+                    <div class="flex gap-2">
+                        <button onclick="toggleStatus('${point._id}', ${!point.isOpen})" 
+                                class="min-w-[70px] px-3 py-1.5 rounded-lg text-xs font-medium text-white transition duration-200 ${
+                                    point.isOpen ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'
+                                }">
+                            <i class="fas fa-${point.isOpen ? 'times' : 'check'}-circle mr-1"></i>
+                            ${point.isOpen ? 'ปิด' : 'เปิด'}
+                        </button>
+                        <button onclick="editPoint('${point._id}')" 
+                                class="px-3 py-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium transition duration-200">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deletePoint('${point._id}')" 
+                                class="px-3 py-1.5 rounded-lg bg-red-500 hover:bg-red-600 text-white text-xs font-medium transition duration-200">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function updateStatistics() {
+        const totalAll = wastePoints.length;
+        const totalOpen = wastePoints.filter(p => p.isOpen).length;
+        const totalClosed = wastePoints.filter(p => !p.isOpen).length;
+
+        document.getElementById('total-all').textContent = totalAll;
+        document.getElementById('total-open').textContent = totalOpen;
+        document.getElementById('total-closed').textContent = totalClosed;
+    }
+
+    function filterByType(type) {
+        currentFilter = type;
+        document.querySelectorAll('.filter-badge').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+        updateMap();
+    }
+
+    function centerMap() {
+        if (khampoPolygon) {
+            map.fitBounds(khampoPolygon.getBounds().pad(0.05));
+        } else if (markers.length > 0) {
+            const group = new L.featureGroup(markers);
+            map.fitBounds(group.getBounds().pad(0.1));
+        }
+    }
+
+    function refreshMap() {
+        updateMap();
+        Swal.fire({
+            icon: 'success',
+            title: 'รีเฟรชแล้ว',
+            text: 'อัพเดทข้อมูลบนแผนที่เรียบร้อย',
+            timer: 1500,
+            showConfirmButton: false
+        });
+    }
+
+    async function toggleStatus(id, newStatus) {
+        const result = await Swal.fire({
+            title: "ยืนยันการเปลี่ยนสถานะ?",
+            text: newStatus ? "เปิดให้บริการอีกครั้ง" : "ปิดให้บริการชั่วคราว",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-check mr-2"></i>ยืนยัน',
+            cancelButtonText: '<i class="fas fa-times mr-2"></i>ยกเลิก',
+            confirmButtonColor: '#16A34A',
+            cancelButtonColor: '#6B7280'
+        });
+
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'กำลังประมวลผล...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
             });
+            setTimeout(() => {
+                window.location.href = `/admin/wastePoint/toggle/${id}?isOpen=${newStatus}`;
+            }, 1000);
         }
+    }
 
-        function updateStatistics() {
-            const totalAll = wastePoints.length;
-            const totalOpen = wastePoints.filter(p => p.isOpen).length;
-            const totalClosed = wastePoints.filter(p => !p.isOpen).length;
+    function editPoint(id) {
+        window.location.href = `/admin/wastePoint/edit/${id}`;
+    }
 
-            document.getElementById('total-all').textContent = totalAll;
-            document.getElementById('total-open').textContent = totalOpen;
-            document.getElementById('total-closed').textContent = totalClosed;
-        }
+    async function deletePoint(id) {
+        const result = await Swal.fire({
+            title: "ยืนยันการลบ?",
+            text: "คุณต้องการลบจุดรับซื้อขยะนี้หรือไม่ การดำเนินการนี้ไม่สามารถย้อนกลับได้",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DC2626",
+            cancelButtonColor: "#6B7280",
+            confirmButtonText: '<i class="fas fa-trash mr-2"></i>ลบ',
+            cancelButtonText: '<i class="fas fa-times mr-2"></i>ยกเลิก',
+        });
 
-        function filterByType(type) {
-            currentFilter = type;
-            
-            // Update active button
-            document.querySelectorAll('.filter-badge').forEach(btn => {
-                btn.classList.remove('active');
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'กำลังลบ...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
             });
-            event.target.classList.add('active');
-            
-            updateMap();
+            setTimeout(() => {
+                window.location.href = `/admin/wastePoint/delete/${id}`;
+            }, 1000);
         }
+    }
 
-        function centerMap() {
-            if (markers.length > 0) {
-                const group = new L.featureGroup(markers);
-                map.fitBounds(group.getBounds().pad(0.1));
-            }
-        }
+    window.addEventListener('DOMContentLoaded', () => {
+        initMap();
+        updatePointsList();
+        updateMap();
 
-        function refreshMap() {
-            updateMap();
+        const urlParams = new URLSearchParams(window.location.search);
+        const successMessage = urlParams.get('message');
+        const errorMessage = urlParams.get('error');
+
+        if (successMessage) {
             Swal.fire({
                 icon: 'success',
-                title: 'รีเฟรชแล้ว',
-                text: 'อัพเดทข้อมูลบนแผนที่เรียบร้อย',
-                timer: 1500,
-                showConfirmButton: false
-            });
-        }
-
-        async function toggleStatus(id, newStatus) {
-            const result = await Swal.fire({
-                title: "ยืนยันการเปลี่ยนสถานะ?",
-                text: newStatus ? "เปิดให้บริการอีกครั้ง" : "ปิดให้บริการชั่วคราว",
-                icon: "question",
-                showCancelButton: true,
-                confirmButtonText: '<i class="fas fa-check mr-2"></i>ยืนยัน',
-                cancelButtonText: '<i class="fas fa-times mr-2"></i>ยกเลิก',
+                title: 'สำเร็จ!',
+                text: successMessage,
+                confirmButtonText: 'ตกลง',
                 confirmButtonColor: '#16A34A',
-                cancelButtonColor: '#6B7280'
+                timer: 3000
             });
-
-            if (result.isConfirmed) {
-                // Simulate API call
-                Swal.fire({
-                    title: 'กำลังประมวลผล...',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-
-                setTimeout(() => {
-                    window.location.href = `/admin/wastePoint/toggle/${id}?isOpen=${newStatus}`;
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'สำเร็จ!',
-                        text: 'เปลี่ยนสถานะเรียบร้อยแล้ว',
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                }, 1000);
-            }
         }
 
-        function editPoint(id) {
-            window.location.href = `/admin/wastePoint/edit/${id}`;
+        if (errorMessage) {
             Swal.fire({
-                icon: 'info',
-                title: 'แก้ไขจุดรับซื้อ',
-                text: `กำลังไปยังหน้าแก้ไข ID: ${id}`,
-                timer: 1500,
-                showConfirmButton: false
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: errorMessage,
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
             });
         }
-
-        async function deletePoint(id) {
-            const result = await Swal.fire({
-                title: "ยืนยันการลบ?",
-                text: "คุณต้องการลบจุดรับซื้อขยะนี้หรือไม่ การดำเนินการนี้ไม่สามารถย้อนกลับได้",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#DC2626",
-                cancelButtonColor: "#6B7280",
-                confirmButtonText: '<i class="fas fa-trash mr-2"></i>ลบ',
-                cancelButtonText: '<i class="fas fa-times mr-2"></i>ยกเลิก',
-            });
-
-            if (result.isConfirmed) {
-                Swal.fire({
-                    title: 'กำลังลบ...',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-
-                setTimeout(() => {
-                    window.location.href = `/admin/wastePoint/delete/${id}`;
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'ลบสำเร็จ!',
-                        text: 'ลบจุดรับซื้อขยะเรียบร้อยแล้ว',
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                }, 1000);
-            }
-        }
-
-        // Initialize
-        window.addEventListener('DOMContentLoaded', () => {
-            initMap();
-            updatePointsList();
-            updateMap();
-
-            // Check for messages in URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const successMessage = urlParams.get('message');
-            const errorMessage = urlParams.get('error');
-
-            if (successMessage) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'สำเร็จ!',
-                    text: successMessage,
-                    confirmButtonText: 'ตกลง',
-                    confirmButtonColor: '#16A34A',
-                    timer: 3000
-                });
-            }
-
-            if (errorMessage) {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'error',
-                    title: errorMessage,
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true
-                });
-            }
-        });
-    </script>
+    });
+</script>
 
 </html>

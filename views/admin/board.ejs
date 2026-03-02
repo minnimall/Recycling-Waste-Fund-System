@@ -137,7 +137,7 @@
 
                     <div>
                         <label for="tel" class="block text-sm font-medium text-gray-700 mb-1">เบอร์โทรศัพท์ <span class="text-red-500">*</span></label>
-                        <input type="text" name="tel" id="tel" placeholder="081-234-5678" required
+                        <input type="tel" name="tel" id="tel" placeholder="081-XXXXXXX" pattern="[0-9]{3}-[0-9]{7}" maxlength="11" required
                             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
                     </div>
                     
@@ -645,6 +645,22 @@
                 editImagePreview.classList.add('hidden');
             }
         }
+
+        // Auto format เบอร์โทร xxx-xxxxxxx
+        document.getElementById('tel').addEventListener('input', function (e) {
+            // เอาเฉพาะตัวเลข
+            let digits = this.value.replace(/\D/g, '');
+
+            // จำกัดไม่เกิน 10 หลัก
+            if (digits.length > 10) digits = digits.slice(0, 10);
+
+            // ใส่ - หลังตัวที่ 3
+            if (digits.length > 3) {
+                this.value = digits.slice(0, 3) + '-' + digits.slice(3);
+            } else {
+                this.value = digits;
+            }
+        });
     </script>
 </body>
 </html>
