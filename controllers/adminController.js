@@ -621,14 +621,15 @@ const uploadNews = multer({
 }).single('newsFile');
 
 
-const uploadFileToCloudinary = (fileBuffer, fileName, folderName = 'news_files') => {
-    const isPDF = fileName.toLowerCase().endsWith('.pdf');
+const uploadFileToCloudinary = (fileBuffer, mimeType, folderName = 'news_files') => {
+    const isPDF = mimeType === 'application/pdf';
 
     return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
             {
                 folder: folderName,
                 resource_type: isPDF ? 'raw' : 'image',
+                format: isPDF ? 'pdf' : undefined,
                 type: 'upload',
                 access_mode: 'public'
             },
@@ -640,6 +641,7 @@ const uploadFileToCloudinary = (fileBuffer, fileName, folderName = 'news_files')
         streamifier.createReadStream(fileBuffer).pipe(stream);
     });
 };
+
 const newsPost = async (req, res) => {
     uploadNews(req, res, async (err) => {
         if (err) {
@@ -657,9 +659,8 @@ const newsPost = async (req, res) => {
             let fileNews = '/img/no_PDF.pdf';
 
             if (req.file) {
-                const result = await uploadFileToCloudinary(req.file.buffer, req.file.originalname);
-                const isPDF = req.file.mimetype === 'application/pdf';
-                fileNews = isPDF ? result.secure_url + '.pdf' : result.secure_url;
+                const result = await uploadFileToCloudinary(req.file.buffer, req.file.mimetype);
+                fileNews = result.secure_url;
             }
 
             const newNews = new myNews({
@@ -716,9 +717,8 @@ const newsEdit = async (req, res) => {
 
             // ถ้ามีการอัปโหลดไฟล์ใหม่
             if (req.file) {
-                const result = await uploadFileToCloudinary(req.file.buffer, req.file.originalname);
-                const isPDF = req.file.mimetype === 'application/pdf';
-                fileNews = isPDF ? result.secure_url + '.pdf' : result.secure_url;
+                const result = await uploadFileToCloudinary(req.file.buffer, req.file.mimetype);
+                fileNews = result.secure_url;
             }
 
             // อัปเดตข้อมูล
