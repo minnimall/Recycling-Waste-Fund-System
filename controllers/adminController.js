@@ -611,20 +611,23 @@ const uploadNews = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: 50 * 1024 * 1024 },
     fileFilter: function (req, file, cb) {
-        if (file.mimetype === 'application/pdf') {
+        const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+        if (allowedTypes.includes(file.mimetype)) {
             cb(null, true);
         } else {
-            cb(new Error('Only PDF files are allowed!'), false);
+            cb(new Error('Only PDF and image files are allowed!'), false);
         }
     }
 }).single('newsFile');
 
 
-const uploadPDFToCloudinary = (fileBuffer) => {
+const uploadFileToCloudinary = (fileBuffer, fileName, folderName = 'news_files') => {
+    const isPDF = fileName.toLowerCase().endsWith('.pdf');
+
     return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
             {
-                folder: 'news_pdfs',
+                folder: folderName,
                 resource_type: isPDF ? 'raw' : 'image',
                 type: 'upload',
                 access_mode: 'public'
@@ -637,15 +640,14 @@ const uploadPDFToCloudinary = (fileBuffer) => {
         streamifier.createReadStream(fileBuffer).pipe(stream);
     });
 };
-
 const newsPost = async (req, res) => {
     uploadNews(req, res, async (err) => {
         if (err) {
             console.error('Error uploading file:', err);
             if (err instanceof multer.MulterError) {
-                return res.status(400).send({ error: 'File upload failed', details: err.message });
+                return res.status(400).redirect('/admin/media?error=File upload failed');
             } else {
-                return res.status(400).send({ error: 'Invalid file type', details: err.message });
+                return res.status(400).redirect('/admin/media?error=Invalid file type');
             }
         }
 
@@ -655,8 +657,8 @@ const newsPost = async (req, res) => {
             let fileNews = '/img/no_PDF.pdf';
 
             if (req.file) {
-                const result = await uploadPDFToCloudinary(req.file.buffer);
-                fileNews = result.secure_url + '.pdf';
+                const result = await uploadFileToCloudinary(req.file.buffer, req.file.originalname);
+                fileNews = result.secure_url;
             }
 
             const newNews = new myNews({
@@ -671,6 +673,7 @@ const newsPost = async (req, res) => {
         } catch (error) {
             console.error('Error saving news:', error);
             res.status(500).send({ error: 'Failed to save news', details: error.message });
+            res.status(500).redirect('/admin/news?error=เพิ่มข่าวสารไม่สำเร็จ');
         }
     });
 };
@@ -679,10 +682,11 @@ const uploadNewsEdit = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: 50 * 1024 * 1024 },
     fileFilter: function (req, file, cb) {
-        if (file.mimetype === 'application/pdf') {
+        const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+        if (allowedTypes.includes(file.mimetype)) {
             cb(null, true);
         } else {
-            cb(new Error('Only PDF files are allowed!'), false);
+            cb(new Error('Only PDF and image files are allowed!'), false);
         }
     }
 }).single('newsEditFile');
@@ -711,8 +715,8 @@ const newsEdit = async (req, res) => {
 
             // ถ้ามีการอัปโหลดไฟล์ใหม่
             if (req.file) {
-                const result = await uploadPDFToCloudinary(req.file.buffer);
-                fileNews = result.secure_url + '.pdf';
+                const result = await uploadFileToCloudinary(req.file.buffer, req.file.originalname);
+                fileNews = result.secure_url;
             }
 
             // อัปเดตข้อมูล
