@@ -168,7 +168,7 @@
                 </div>
             </div>
         </div>
-                    <!-- Modal -->
+                    <!-- Modal เพิ่มข่าวสาร -->
                     <div id="modal" class="fixed top-0 left-0 w-full h-full z-50 bg-black bg-opacity-30 hidden">
                         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl px-4">
                             <form action="/admin/newsPost" method="POST" enctype="multipart/form-data"
@@ -217,10 +217,10 @@
                     </div>
         
 
-                    <!-- Modal -->
+                    <!-- Modal แก้ไขข่าวสาร -->
                     <div id="modalEdit" class="fixed top-0 left-0 w-full h-full z-50 bg-black bg-opacity-30 hidden">
                         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl px-4">
-                            <form action="/admin/newsEdit" id="newsEditForm" method="POST" enctype="multipart/form-data""
+                            <form action="/admin/newsEdit" id="newsEditForm" method="POST" enctype="multipart/form-data"
                                 class="bg-white rounded-xl shadow-lg p-6 space-y-5" id="newsEditForm">
                     
                                 <!-- หัวฟอร์ม -->
@@ -247,9 +247,8 @@
                                 <div>
                                     <label for="newsEditFile" class="block text-sm font-medium text-gray-700 mb-1">รายละเอียดกิจกรรม (ไฟล์
                                         PDF)</label>
-                                    <input type="file" name="newsEditFile" id="newsEditFile" accept=".pdf"
+                                    <input type="file" name="newsEditFile" id="newsEditFile" accept=".pdf,image/*"
                                         class="block w-full text-sm text-slate-500 border border-gray-300 rounded-lg px-4 py-2 bg-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100" />
-                                </div>
                     
                                 <!-- ปุ่ม -->
                                 <div class="flex justify-end space-x-3 pt-2">
@@ -284,14 +283,13 @@
             // ล้างค่า input ถ้าต้องการ
             document.getElementById('newsForm')?.reset();
         }
+
         function openEditModal(id, title, description) {
             modalEdit.classList.remove('hidden');
-            document.getElementById('newsEditForm')?.reset();
+            document.getElementById('newsEditForm').reset();
 
             document.getElementById('newsEditTitle').value = title;
             document.getElementById('newsEditDescription').value = description;
-
-            // ตั้ง action ใหม่ให้ส่งไปที่ newsPostEdit/:id
             document.getElementById('newsEditForm').action = `/admin/newsPostEdit/${id}`;
         }
 

@@ -658,7 +658,8 @@ const newsPost = async (req, res) => {
 
             if (req.file) {
                 const result = await uploadFileToCloudinary(req.file.buffer, req.file.originalname);
-                fileNews = result.secure_url;
+                const isPDF = req.file.mimetype === 'application/pdf';
+                fileNews = isPDF ? result.secure_url + '.pdf' : result.secure_url;
             }
 
             const newNews = new myNews({
@@ -716,7 +717,8 @@ const newsEdit = async (req, res) => {
             // ถ้ามีการอัปโหลดไฟล์ใหม่
             if (req.file) {
                 const result = await uploadFileToCloudinary(req.file.buffer, req.file.originalname);
-                fileNews = result.secure_url;
+                const isPDF = req.file.mimetype === 'application/pdf';
+                fileNews = isPDF ? result.secure_url + '.pdf' : result.secure_url;
             }
 
             // อัปเดตข้อมูล
