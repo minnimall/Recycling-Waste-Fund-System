@@ -178,7 +178,7 @@
     </div>
 
     <!-- Filter Section -->
-    <section class="py-4 bg-gray-100">
+    <section class="py-4 pt-6">
       <div class="container mx-auto px-4">
         <div class="flex flex-wrap justify-center gap-3">
           <button
@@ -209,153 +209,124 @@
     </section>
 
     <!-- Posts Section -->
-    <section class="py-8">
+    <section class="py-12 bg-gray-50">
       <div class="container mx-auto px-4">
-        <div class="max-w-4xl mx-auto" id="posts-container">
-          <% posts.forEach(post=> { %>
-            <article class="idea-post bg-white rounded-lg shadow-lg mb-6 overflow-hidden"
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="posts-container">
+          <% posts.forEach(post => { %>
+            <article class="idea-post group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col"
               data-category="<%= post.category %>" data-post-id="<%= post._id %>">
-              <div class="p-6">
-                <div class="flex items-center mb-4">
-                  <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center mr-4">
-                    <i class="fas fa-user text-white"></i>
-                  </div>
-                  <div class="flex-1">
-                    <h3 class="font-semibold text-gray-800">
-                      <%= post.authorId?.familyName || 'ไม่ระบุชื่อ' %>
-                    </h3>
-
-
-                    <div class="flex items-center text-sm text-gray-500">
-                    <span class="post-time text-sm text-gray-500" data-time="<%= post.createdAt.toISOString() %>"></span>
-
-                      <span class="mx-2">•</span>
-                      <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
-                        <% const categoryNames={ reduce: 'ลดการใช้' , reuse: 'นำกลับมาใช้' , recycle: 'รีไซเคิล' ,
-                          diy: 'DIY/ทำเอง' , community: 'โครงการชุมชน' , other: 'อื่นๆ' }; %>
-                          <%= categoryNames[post.category] || post.category %>
-                      </span>
-
-                      <% if (user && post.authorId && user._id.toString()===post.authorId._id.toString()) { %>
-                        <div class="relative ml-auto">
-                          <button type="button"
-                            class="text-gray-500 hover:text-gray-700 focus:outline-none dropdown-toggle"
-                            data-dropdown-id="dropdown-<%= post._id %>">
-                            <i class="fas fa-ellipsis-v"></i>
-                          </button>
-                          <div id="dropdown-<%= post._id %>"
-                            class="absolute right-0 mt-2 w-32 bg-white border rounded shadow-md hidden z-50">
-                            <button onclick="openEditModal(
-                                '<%= post._id %>',
-                                '<%= post.title %>',
-                                '<%= post.content %>',
-                                '<%= post.category %>',
-                                '<%= post.imageUrl %>'
-                              )" class="w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-blue-50">
-                              ✏️ แก้ไข
-                            </button>
-                            <button data-post-id="<%= post._id %>"
-                              onclick="deleteIdeas('<%= post._id %>', '<%= post.title %>')"
-                              class="delete-post-btn w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">🗑️
-                              ลบ</button>
-                          </div>
-                        </div>
-                        <% } %>
-
-                    </div>
+              
+              <% if (post.imageUrl && post.imageUrl !== "no_image") { %>
+                <div class="relative overflow-hidden aspect-video">
+                  <img src="<%= post.imageUrl %>" alt="Post thumbnail" 
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                  <div class="absolute top-4 left-4">
+                    <span class="bg-white/90 backdrop-blur-sm text-blue-600 px-3 py-1 rounded-full text-xs font-bold shadow-sm">
+                      <% const categoryNames={ reduce: 'ลดการใช้' , reuse: 'นำกลับมาใช้' , recycle: 'รีไซเคิล' , diy: 'DIY/ทำเอง' , community: 'โครงการชุมชน' , other: 'อื่นๆ' }; %>
+                      <%= categoryNames[post.category] || post.category %>
+                    </span>
                   </div>
                 </div>
-                <h2 class="text-xl font-semibold text-gray-800 mb-3">
-                  <%= post.title %>
-                </h2>
-                <p class="text-gray-600 mb-4">
-                  <%= post.content %>
-                </p>
+              <% } %>
 
-                <% if (post.imageUrl && post.imageUrl !=="no_image" ) { %>
-                  <div class="mb-4">
-                    <img src="<%= post.imageUrl %>" alt="รูปภาพประกอบ" class="w-full h-64 object-cover rounded-lg">
+              <div class="p-6 flex-1 flex flex-col">
+                <div class="flex items-center justify-between mb-5">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-tr from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-inner">
+                      <i class="fas fa-user text-white text-sm"></i>
+                    </div>
+                    <div>
+                      <h3 class="font-bold text-gray-900 leading-tight">
+                        <%= post.authorId?.familyName || 'ไม่ระบุชื่อ' %>
+                      </h3>
+                      <div class="flex items-center text-xs text-gray-400 mt-0.5">
+                        <span class="post-time" data-time="<%= post.createdAt.toISOString() %>"></span>
+                      </div>
+                    </div>
                   </div>
-                  <% } else { %>
 
-                    <% } %>
+                  <% if (user && post.authorId && user._id.toString()===post.authorId._id.toString()) { %>
+                    <div class="relative dropdown-container">
+                      <button type="button" class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors dropdown-toggle"
+                        data-dropdown-id="dropdown-<%= post._id %>">
+                        <i class="fas fa-ellipsis-h"></i>
+                      </button>
+                      <div id="dropdown-<%= post._id %>" class="absolute right-0 mt-2 w-36 bg-white rounded-xl shadow-lg border border-gray-100 hidden z-50 py-2">
+                        <button onclick="openEditModal('<%= post._id %>', '<%= post.title %>', '<%= post.content %>', '<%= post.category %>', '<%= post.imageUrl %>')" 
+                          class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                          <i class="far fa-edit mr-2"></i> แก้ไข
+                        </button>
+                        <button onclick="deleteIdeas('<%= post._id %>', '<%= post.title %>')" 
+                          class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                          <i class="far fa-trash-alt mr-2"></i> ลบ
+                        </button>
+                      </div>
+                    </div>
+                  <% } %>
+                </div>
 
-                      <div class="flex items-center justify-between border-t pt-4">
-                        <div class="flex items-center space-x-6">
-                          <% let liked=false; if (typeof user !=='undefined' && user && user._id) {
-                            liked=post.likes.some(id=> id.toString() === user._id.toString());
-                            }
-                            %>
-                            <button
-                              class="like-btn flex items-center text-gray-500 hover:text-red-500 transition-colors"
-                              data-post-id="<%= post._id %>" type="button">
-                              <i
-                                class="<%= liked ? 'fas' : 'far' %> fa-heart mr-2 <%= liked ? 'text-red-500' : '' %>"></i>
-                              <span class="like-count">
-                                <%= post.likes.length %>
-                              </span>
-                            </button>
-                            <button
-                              class="comment-btn flex items-center text-gray-500 hover:text-blue-500 transition-colors"
-                              data-post-id="<%= post._id %>" type="button">
-                              <i class="far fa-comment mr-2"></i>
-                              <span class="comment-count">
-                                <%= post.comments.length %>
-                              </span>
-                            </button>
+                <div class="flex-1">
+                  <h2 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors leading-snug">
+                    <%= post.title %>
+                  </h2>
+                  <p class="text-gray-600 text-sm line-clamp-3 leading-relaxed mb-4">
+                    <%= post.content %>
+                  </p>
+                </div>
+
+                <div class="flex items-center justify-between pt-4 border-t border-gray-50">
+                  <div class="flex items-center space-x-4">
+                    <% let liked=false; if (typeof user !=='undefined' && user && user._id) {
+                      liked=post.likes.some(id=> id.toString() === user._id.toString());
+                    } %>
+                    <button class="like-btn group/btn flex items-center space-x-1.5 text-gray-500 hover:text-red-500 transition-colors"
+                      data-post-id="<%= post._id %>">
+                      <div class="p-2 rounded-full group-hover/btn:bg-red-50 transition-colors">
+                        <i class="<%= liked ? 'fas' : 'far' %> fa-heart <%= liked ? 'text-red-500' : '' %>"></i>
+                      </div>
+                      <span class="text-sm font-medium like-count"><%= post.likes.length %></span>
+                    </button>
+
+                    <button class="comment-btn group/btn flex items-center space-x-1.5 text-gray-500 hover:text-blue-500 transition-colors"
+                      data-post-id="<%= post._id %>">
+                      <div class="p-2 rounded-full group-hover/btn:bg-blue-50 transition-colors">
+                        <i class="far fa-comment"></i>
+                      </div>
+                      <span class="text-sm font-medium comment-count"><%= post.comments.length %></span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="comments-section bg-gray-50/50 hidden border-t border-gray-100" id="comments-<%= post._id %>">
+                <div class="p-6">
+                  <div class="space-y-4 max-h-64 overflow-y-auto mb-4 scrollbar-hide">
+                    <% post.comments.forEach(comment=> { %>
+                      <div class="flex space-x-3">
+                        <div class="flex-shrink-0 w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-[10px] text-gray-500 font-bold uppercase">
+                          <%= (comment.author.familyName || 'U').substring(0,1) %>
+                        </div>
+                        <div class="flex-1 bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-gray-100">
+                          <p class="font-bold text-xs text-gray-800 mb-1"><%= comment.author.familyName || 'ผู้ใช้งาน' %></p>
+                          <p class="text-gray-600 text-sm"><%= comment.content %></p>
                         </div>
                       </div>
-
-
-                      <!-- Comments Section -->
-                      <div class="comments-section mt-4 hidden" id="comments-<%= post._id %>">
-                        <div class="border-t pt-4">
-                          <div class="space-y-3 mb-4">
-                            <% post.comments.forEach(comment=> { %>
-                              <div class="flex items-start space-x-3">
-                                <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                                  <i class="fas fa-user text-gray-600 text-sm"></i>
-                                </div>
-                                <div class="flex-1">
-                                  <div class="bg-gray-100 rounded-lg p-3">
-                                    <p class="font-semibold text-sm text-gray-800">
-                                      <%= comment.author.familyName || 'ไม่ระบุ' %>
-                                    </p>
-                                    <p class="text-gray-600 text-sm">
-                                      <%= comment.content %>
-                                    </p>
-                                  </div>
-                                  <div class="flex items-center mt-1 text-xs text-gray-500">
-                                    <span class="post-time text-sm text-gray-500" data-time="<%= comment.createdAt.toISOString() %>"></span>
-
-                                    <!-- <button class="ml-3 hover:text-blue-500">ตอบกลับ</button> -->
-                                  </div>
-                                </div>
-                              </div>
-                              <% }) %>
-                          </div>
-
-                          <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                              <i class="fas fa-user text-white text-sm"></i>
-                            </div>
-                            <div class="flex-1">
-                              <input type="text" placeholder="เขียนความคิดเห็น..."
-                                class="w-full px-3 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-primary focus:border-transparent comment-input"
-                                data-post-id="<%= post._id %>">
-                            </div>
-                            <button
-                              class="bg-primary text-white px-4 py-2 rounded-full hover:bg-primary-dark transition-colors submit-comment"
-                              data-post-id="<%= post._id %>">
-                              <i class="fas fa-paper-plane"></i>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-
+                    <% }) %>
+                  </div>
+                  
+                  <div class="flex items-center space-x-2">
+                    <input type="text" placeholder="แสดงความคิดเห็นของคุณ..."
+                      class="flex-1 bg-white px-4 py-2 text-sm border border-gray-200 rounded-full focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none transition-all comment-input"
+                      data-post-id="<%= post._id %>">
+                    <button class="p-2.5 bg-blue-600 text-white rounded-full hover:bg-blue-700 hover:shadow-lg transition-all submit-comment"
+                      data-post-id="<%= post._id %>">
+                      <i class="fas fa-paper-plane text-xs"></i>
+                    </button>
+                  </div>
+                </div>
               </div>
             </article>
-            <% }); %>
+          <% }); %>
         </div>
       </div>
     </section>

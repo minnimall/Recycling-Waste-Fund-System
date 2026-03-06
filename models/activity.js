@@ -12,8 +12,9 @@ const activitySchema = new Schema( {
         required: true
     },
     img: {
-        type: String,
-        required: false
+        type: [String],
+        required: false,
+        default: []
     },
     isDeleted: {
         type: Boolean,

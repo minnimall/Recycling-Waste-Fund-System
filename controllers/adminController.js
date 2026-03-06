@@ -619,13 +619,15 @@ const uploadNews = multer({
     }
 }).single('newsFile');
 
-// ฟังก์ชัน upload PDF ไปยัง Cloudinary
+
 const uploadPDFToCloudinary = (fileBuffer) => {
     return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
             {
                 folder: 'news_pdfs',
-                resource_type: 'raw' // ต้องใช้ 'raw' สำหรับ PDF
+                resource_type: isPDF ? 'raw' : 'image',
+                type: 'upload',
+                access_mode: 'public'
             },
             (error, result) => {
                 if (result) resolve(result);
@@ -650,11 +652,11 @@ const newsPost = async (req, res) => {
         try {
             const { newsTitle, newsDescription, newsAuthor } = req.body;
 
-            let fileNews = '/img/no_PDF.pdf'; // ค่า default ถ้าไม่มีไฟล์
+            let fileNews = '/img/no_PDF.pdf';
 
             if (req.file) {
                 const result = await uploadPDFToCloudinary(req.file.buffer);
-                fileNews = result.secure_url;
+                fileNews = result.secure_url + '.pdf';
             }
 
             const newNews = new myNews({
@@ -710,7 +712,7 @@ const newsEdit = async (req, res) => {
             // ถ้ามีการอัปโหลดไฟล์ใหม่
             if (req.file) {
                 const result = await uploadPDFToCloudinary(req.file.buffer);
-                fileNews = result.secure_url;
+                fileNews = result.secure_url + '.pdf';
             }
 
             // อัปเดตข้อมูล
@@ -764,7 +766,7 @@ const deleteNews = async (req, res) => {
 const upload = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: 10 * 1024 * 1024 }
-}).single('img');
+}).array('img', 10); // รับได้สูงสุด 10 รูป
 
 // กิจกรรม
 const activityIndex = (req, res) => {
@@ -804,36 +806,27 @@ const activityPost = (req, res) => {
                 return res.status(400).redirect('/admin/activity?error=มีกิจกรรมนี้อยู่แล้ว');
             }
 
-            let imageUrl = null;
+            let imageUrls = [];
 
-            // ถ้ามีการอัปโหลดรูป
-            if (req.file) {
-                const uploadFromBuffer = () => {
-                return new Promise((resolve, reject) => {
-                    const stream = cloudinary.uploader.upload_stream(
-                    {
-                        folder: 'activity_images',
-                        resource_type: 'image'
-                    },
-                    (error, result) => {
-                        if (result) resolve(result);
-                        else reject(error);
-                    }
-                    );
-
-                    streamifier.createReadStream(req.file.buffer).pipe(stream);
+            if (req.files && req.files.length > 0) {
+                const uploadPromises = req.files.map(file => {
+                    return new Promise((resolve, reject) => {
+                        const stream = cloudinary.uploader.upload_stream(
+                            { folder: 'activity_images', resource_type: 'image' },
+                            (error, result) => {
+                                if (result) resolve(result.secure_url);
+                                else reject(error);
+                            }
+                        );
+                        streamifier.createReadStream(file.buffer).pipe(stream);
+                    });
                 });
-                };
 
-                const result = await uploadFromBuffer();
-                imageUrl = result.secure_url; // URL รูปจาก Cloudinary
+                imageUrls = await Promise.all(uploadPromises);
             }
 
-            const activity = new myActivity({
-                title,
-                content,
-                img: imageUrl
-            });
+            const activity = new myActivity({ title, content, img: imageUrls });
+
             await activity.save();
             console.log('Activity saved successfully:', activity);
             res.redirect('/admin/activity?message=เพิ่มกิจกรรมสำเร็จ');
@@ -879,37 +872,29 @@ const activityEdit = async (req, res) => {
                 return res.status(404).redirect('/admin/activity?error=ไม่พบกิจกรรม');
             }
 
-            let imageUrl = activity.img; // ค่าเริ่มต้น = รูปเดิม
+            let imageUrls = activity.img; // ค่าเริ่มต้น = รูปเดิม
 
             // ถ้ามีการอัปโหลดรูปใหม่
-            if (req.file) {
-                const uploadFromBuffer = () => {
+            if (req.files && req.files.length > 0) {
+                const uploadPromises = req.files.map(file => {
                     return new Promise((resolve, reject) => {
                         const stream = cloudinary.uploader.upload_stream(
-                            {
-                                folder: 'activity_images',
-                                resource_type: 'image'
-                            },
+                            { folder: 'activity_images', resource_type: 'image' },
                             (error, result) => {
-                                if (result) resolve(result);
+                                if (result) resolve(result.secure_url);
                                 else reject(error);
                             }
                         );
-
-                        streamifier
-                            .createReadStream(req.file.buffer)
-                            .pipe(stream);
+                        streamifier.createReadStream(file.buffer).pipe(stream);
                     });
-                };
-
-                const result = await uploadFromBuffer();
-                imageUrl = result.secure_url;
+                });
+                imageUrls = await Promise.all(uploadPromises);
             }
 
             // อัปเดตข้อมูล
             activity.title = title || activity.title;
             activity.content = content || activity.content;
-            activity.img = imageUrl;
+            activity.img = imageUrls;
 
             await activity.save();
 

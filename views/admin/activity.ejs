@@ -10,277 +10,366 @@
 
 <body>
     <%- include('../partials/adminPartials/adminHeader.ejs') %>
-
     <%- include('../partials/adminPartials/adminSidebar.ejs') %>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // เช็คข้อความที่ส่งมาจาก URL
         const urlParams = new URLSearchParams(window.location.search);
         const successMessage = urlParams.get('message');
         const errorMessage = urlParams.get('error');
 
         if (successMessage) {
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: 'success',
-                title: successMessage,
-                showConfirmButton: false,
-                timer: 3000
-            });
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: successMessage, showConfirmButton: false, timer: 3000 });
         }
-
         if (errorMessage) {
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: 'error',
-                title: errorMessage,
-                showConfirmButton: false,
-                timer: 3000
-            });
+            Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: errorMessage, showConfirmButton: false, timer: 3000 });
         }
-
     </script>
 
     <div class="content bg-gray-50 min-screen">
         <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
             <div>
-                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">กิจกรรม <span class="text-blue-600 text-xl ml-2 font-normal">(ทั้งหมด <%= activity.length %> รายการ)</span></h1>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
+                    กิจกรรม <span class="text-blue-600 text-xl ml-2 font-normal">(ทั้งหมด <%= activity.length %> รายการ)</span>
+                </h1>
                 <p class="text-gray-600">กิจกรรมของกองทุนขยะรีไซเคิล</p>
             </div>
-            
             <div>
-                <button type="button" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition duration-300" onclick="openModal()">เพิ่มกิจกรรม</button>
+                <button type="button"
+                    class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition duration-300"
+                    onclick="openAddModal()">เพิ่มกิจกรรม</button>
             </div>
         </div>
 
-    <!-- Search + ItemsPerPage -->
-    <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex flex-col md:flex-row justify-between items-center gap-4">
-        <div class="flex-1 relative w-full">
-            <input type="text" id="searchInput" placeholder="ค้นหากิจกรรม..." 
-                class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-            <div class="absolute left-3 top-2.5 text-gray-400">
-                <i class="fas fa-search"></i>
+        <!-- Search + ItemsPerPage -->
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex-1 relative w-full">
+                <input type="text" id="searchInput" placeholder="ค้นหากิจกรรม..."
+                    class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                <div class="absolute left-3 top-2.5 text-gray-400">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <label for="itemsPerPage" class="text-sm text-gray-600">แสดง:</label>
+                <select id="itemsPerPage" class="border rounded-lg px-2 py-1 focus:ring-2 focus:ring-green-500">
+                    <option value="5" selected>5</option>
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                </select>
             </div>
         </div>
-        <div class="flex items-center gap-2">
-            <label for="itemsPerPage" class="text-sm text-gray-600">แสดง:</label>
-            <select id="itemsPerPage" class="border rounded-lg px-2 py-1 focus:ring-2 focus:ring-green-500">
-                <option value="5" selected>5</option>
-                <option value="10">10</option>
-                <option value="20">20</option>
-            </select>
+
+        <!-- Container -->
+        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+            <div class="mb-4 border-b border-gray-200 pb-4">
+                <h2 class="text-base font-semibold text-gray-800">
+                    กิจกรรม <span id="totalItems" class="text-blue-600 text-base font-normal"></span>
+                </h2>
+            </div>
+            <div id="cardsContainer" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6"></div>
+            <div id="noResults" class="hidden text-center py-8 text-gray-500">- ไม่พบข้อมูล -</div>
+            <div id="pagination" class="flex justify-center mt-6 gap-2"></div>
         </div>
     </div>
 
-    <!-- Container -->
-    <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
-        <div class="mb-4 border-b border-gray-200 pb-4">
-            <h2 class="text-base font-semibold text-gray-800">
-                สื่อความรู้ <span id="totalItems" class="text-blue-600 text-base font-normal"></span>
-            </h2>
-        </div>
 
-        <div id="cardsContainer" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6"></div>
-
-        <!-- No results -->
-        <div id="noResults" class="hidden text-center py-8 text-gray-500">
-            - ไม่พบข้อมูล -
-        </div>
-
-        <!-- Pagination -->
-        <div id="pagination" class="flex justify-center mt-6 gap-2"></div>
-    </div>
-
-    </div>
-
-    <!-- Modal สำหรับแก้ไขกิจกรรม -->
-    <div id="modal" class="fixed inset-0 z-50 bg-black bg-opacity-30 hidden">
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl px-4">
-            <form id="activityForm" action="/admin/activityPost" method="POST" enctype="multipart/form-data"
-                class="bg-white rounded-xl shadow-lg p-6 space-y-5">
+    <!-- modal เพิ่มกิจกรรม -->
+    <div id="addModal" class="fixed inset-0 z-50 bg-black bg-opacity-30 hidden overflow-y-auto">
+        <div class="min-h-screen flex items-center justify-center px-4 py-8">
+            <form id="addActivityForm" action="/admin/activityPost" method="POST" enctype="multipart/form-data"
+                class="bg-white rounded-xl shadow-lg p-6 space-y-5 w-full max-w-2xl">
 
                 <!-- หัวฟอร์ม -->
                 <div class="flex items-center space-x-3 border-b pb-3">
                     <ion-icon name="information-circle-outline" class="text-blue-500 text-2xl"></ion-icon>
-                    <span class="text-xl font-semibold text-gray-800">จัดการกิจกรรม</span>
+                    <span class="text-xl font-semibold text-gray-800">เพิ่มกิจกรรม</span>
                 </div>
 
                 <!-- ชื่อหัวข้อ -->
                 <div>
-                    <label for="title" class="block text-sm font-medium text-gray-700 mb-1">ชื่อหัวข้อ <span class="text-red-500">*</span></label>
-                    <input type="text" name="title" id="title" placeholder="ใส่ชื่อหัวข้อ ..." required
+                    <label for="addTitle" class="block text-sm font-medium text-gray-700 mb-1">ชื่อหัวข้อ <span class="text-red-500">*</span></label>
+                    <input type="text" name="title" id="addTitle" placeholder="ใส่ชื่อหัวข้อ ..." required
                         class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
                 </div>
 
                 <!-- เนื้อหา -->
                 <div>
-                    <label for="content" class="block text-sm font-medium text-gray-700 mb-1">เนื้อหา <span class="text-red-500">*</span></label>
-                    <textarea name="content" id="content" rows="6" placeholder="ใส่เนื้อหา ..." required
-                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500"></textarea>
+                    <label for="addContent" class="block text-sm font-medium text-gray-700 mb-1">เนื้อหา <span class="text-red-500">*</span></label>
+                    <textarea name="content" id="addContent" rows="6" placeholder="ใส่เนื้อหา ..." required
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500"></textarea>
                 </div>
 
                 <!-- รูปภาพ -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">รูปภาพกิจกรรม</label>
-                    
-                    <!-- Preview Area -->
-                    <div class="relative">
-                        <input type="file" name="img" id="img" accept="image/png, image/gif, image/jpeg" class="hidden">
-                        
-                        <!-- Upload Zone (แสดงเมื่อยังไม่มีรูป) -->
-                        <div id="uploadZone" 
-                            class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:bg-gray-100 hover:border-gray-400 transition-all cursor-pointer">
-                            <ion-icon name="cloud-upload-outline" class="text-gray-400 text-4xl mb-3"></ion-icon>
-                            <p class="text-sm text-gray-600 mb-1 font-medium">คลิกเพื่อเลือกรูปภาพ</p>
-                            <p class="text-xs text-gray-500">PNG, JPG (ไม่เกิน 10 MB)</p>
-                        </div>
-                        
-                        <!-- Image Preview (แสดงเมื่อมีรูป) -->
-                        <div id="imagePreview" class="hidden">
-                            <div class="relative group">
-                                <img id="previewImg" src="/placeholder.svg" alt="Preview" 
-                                    class="w-full h-64 object-contain rounded-lg border-2 border-gray-300 bg-gray-50">
-                                
-                                <!-- Overlay with Change Button -->
-                                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all rounded-lg flex items-center justify-center">
-                                    <button type="button" id="changeImageBtn"
-                                        class="opacity-0 group-hover:opacity-100 transition-opacity bg-white text-gray-700 px-4 py-2 rounded-lg font-medium shadow-lg hover:bg-gray-100 flex items-center gap-2">
-                                        <ion-icon name="camera-outline"></ion-icon>
-                                        <span>เปลี่ยนรูปภาพ</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                    <input type="file" name="img" id="addImg" accept="image/png, image/gif, image/jpeg" class="hidden" multiple>
+
+                    <!-- Upload Zone -->
+                    <div id="addUploadZone"
+                        class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:bg-gray-100 hover:border-gray-400 transition-all cursor-pointer">
+                        <ion-icon name="cloud-upload-outline" class="text-gray-400 text-4xl mb-3"></ion-icon>
+                        <p class="text-sm text-gray-600 mb-1 font-medium">คลิกเพื่อเลือกรูปภาพ</p>
+                        <p class="text-xs text-gray-500">PNG, JPG, GIF (ไม่เกิน 5MB ต่อรูป)</p>
+                    </div>
+
+                    <!-- Image Preview -->
+                    <div id="addImagePreview" class="hidden">
+                        <!-- ปุ่มเพิ่มรูป -->
+                        <button type="button" id="addMoreBtn"
+                            class="w-full mb-2 py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-blue-400 hover:text-blue-500 transition flex items-center justify-center gap-2">
+                            <ion-icon name="add-circle-outline"></ion-icon>
+                            <span>เพิ่มรูปภาพ</span>
+                        </button>
+                        <!-- Grid รูป -->
+                        <div id="addPreviewGrid" class="grid grid-cols-3 gap-2"></div>
                     </div>
                 </div>
 
                 <!-- ปุ่ม -->
                 <div class="flex justify-end space-x-3 pt-2">
-                    <button type="button" onclick="closeModal()"
-                            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition">ยกเลิก</button>
+                    <button type="button" onclick="closeAddModal()"
+                        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition">ยกเลิก</button>
                     <button type="submit"
-                            class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition">ยืนยัน</button>
+                        class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition">เพิ่มกิจกรรม</button>
                 </div>
             </form>
         </div>
     </div>
 
+
+    <!-- ==================== MODAL แก้ไขกิจกรรม ==================== -->
+    <div id="editModal" class="fixed inset-0 z-50 bg-black bg-opacity-30 hidden overflow-y-auto">
+        <div class="min-h-screen flex items-center justify-center px-4 py-8">
+            <form id="editActivityForm" action="" method="POST" enctype="multipart/form-data"
+                class="bg-white rounded-xl shadow-lg p-6 space-y-5 w-full max-w-2xl">
+
+                <!-- หัวฟอร์ม -->
+                <div class="flex items-center space-x-3 border-b pb-3">
+                    <ion-icon name="create-outline" class="text-blue-500 text-2xl"></ion-icon>
+                    <span class="text-xl font-semibold text-gray-800">แก้ไขกิจกรรม</span>
+                </div>
+
+                <!-- ชื่อหัวข้อ -->
+                <div>
+                    <label for="editTitle" class="block text-sm font-medium text-gray-700 mb-1">ชื่อหัวข้อ <span class="text-red-500">*</span></label>
+                    <input type="text" name="title" id="editTitle" placeholder="ใส่ชื่อหัวข้อ ..." required
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
+                </div>
+
+                <!-- เนื้อหา -->
+                <div>
+                    <label for="editContent" class="block text-sm font-medium text-gray-700 mb-1">เนื้อหา <span class="text-red-500">*</span></label>
+                    <textarea name="content" id="editContent" rows="6" placeholder="ใส่เนื้อหา ..." required
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500"></textarea>
+                </div>
+
+                <!-- รูปภาพ -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">รูปภาพกิจกรรม</label>
+                    <p class="text-xs text-gray-400 mb-2">* หากเลือกรูปใหม่จะแทนที่รูปเดิมทั้งหมด</p>
+                    <input type="file" name="img" id="editImg" accept="image/png, image/gif, image/jpeg" class="hidden" multiple>
+
+                    <!-- Upload Zone -->
+                    <div id="editUploadZone"
+                        class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:bg-gray-100 hover:border-gray-400 transition-all cursor-pointer">
+                        <ion-icon name="cloud-upload-outline" class="text-gray-400 text-4xl mb-3"></ion-icon>
+                        <p class="text-sm text-gray-600 mb-1 font-medium">คลิกเพื่อเลือกรูปภาพใหม่</p>
+                        <p class="text-xs text-gray-500">PNG, JPG, GIF (ไม่เกิน 5MB ต่อรูป)</p>
+                    </div>
+
+                    <!-- Image Preview -->
+                    <div id="editImagePreview" class="hidden">
+                        <!-- ปุ่มเพิ่มรูป -->
+                        <button type="button" id="editAddMoreBtn"
+                            class="w-full mb-2 py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-blue-400 hover:text-blue-500 transition flex items-center justify-center gap-2">
+                            <ion-icon name="add-circle-outline"></ion-icon>
+                            <span>เพิ่มรูปภาพ</span>
+                        </button>
+                        <!-- Grid รูป -->
+                        <div id="editPreviewGrid" class="grid grid-cols-3 gap-2"></div>
+                    </div>
+                </div>
+
+                <!-- ปุ่ม -->
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button type="button" onclick="closeEditModal()"
+                        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition">ยกเลิก</button>
+                    <button type="submit"
+                        class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition">บันทึกการแก้ไข</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
     <%- include('../partials/adminPartials/adminFooter.ejs') %>
 
     <script>
-        const modal = document.getElementById('modal');
-        let formAction = "/admin/activityPost";
+        // ==================== ADD MODAL ====================
+        const addModal       = document.getElementById('addModal');
+        const addFileInput   = document.getElementById('addImg');
+        const addUploadZone  = document.getElementById('addUploadZone');
+        const addImgPreview  = document.getElementById('addImagePreview');
+        const addPreviewGrid = document.getElementById('addPreviewGrid');
+        const addMoreBtn     = document.getElementById('addMoreBtn');
 
-        // ==================== Image Preview System ====================
-        const fileInput = document.getElementById('img');
-        const uploadZone = document.getElementById('uploadZone');
-        const imagePreview = document.getElementById('imagePreview');
-        const previewImg = document.getElementById('previewImg');
-        const changeImageBtn = document.getElementById('changeImageBtn');
+        addUploadZone.addEventListener('click', () => addFileInput.click());
+        addMoreBtn.addEventListener('click', () => addFileInput.click());
 
-        // คลิกที่ Upload Zone เพื่อเลือกไฟล์
-        uploadZone.addEventListener('click', () => {
-            fileInput.click();
+        addFileInput.addEventListener('change', function(e) {
+            handleFileSelect(e.target.files, addPreviewGrid, addUploadZone, addImgPreview, addFileInput);
         });
 
-        // คลิกปุ่ม "เปลี่ยนรูปภาพ" เพื่อเลือกไฟล์ใหม่
-        changeImageBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            fileInput.click();
+        function openAddModal() {
+            resetImageArea(addFileInput, addUploadZone, addImgPreview, addPreviewGrid);
+            document.getElementById('addActivityForm').reset();
+            addModal.classList.remove('hidden');
+        }
+
+        function closeAddModal() {
+            addModal.classList.add('hidden');
+            document.getElementById('addActivityForm').reset();
+            resetImageArea(addFileInput, addUploadZone, addImgPreview, addPreviewGrid);
+        }
+
+
+        // ==================== EDIT MODAL ====================
+        const editModal       = document.getElementById('editModal');
+        const editFileInput   = document.getElementById('editImg');
+        const editUploadZone  = document.getElementById('editUploadZone');
+        const editImgPreview  = document.getElementById('editImagePreview');
+        const editPreviewGrid = document.getElementById('editPreviewGrid');
+        const editAddMoreBtn  = document.getElementById('editAddMoreBtn');
+
+        editUploadZone.addEventListener('click', () => editFileInput.click());
+        editAddMoreBtn.addEventListener('click', () => editFileInput.click());
+
+        editFileInput.addEventListener('change', function(e) {
+            handleFileSelect(e.target.files, editPreviewGrid, editUploadZone, editImgPreview, editFileInput);
         });
 
-        // เมื่อเลือกไฟล์
-        fileInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            
-            if (file) {
-                // ตรวจสอบขนาดไฟล์ (5MB)
+        function openEditModal(id, title, content, imgs) {
+            document.getElementById('editActivityForm').setAttribute('action', '/admin/activityEdit/' + id);
+            document.getElementById('editTitle').value = title;
+            document.getElementById('editContent').value = content;
+
+            // แสดงรูปเดิม
+            resetImageArea(editFileInput, editUploadZone, editImgPreview, editPreviewGrid);
+            const imgArray = Array.isArray(imgs) ? imgs : (imgs ? [imgs] : []);
+            if (imgArray.length > 0) {
+                imgArray.forEach(url => {
+                    if (url && url !== 'null' && url !== '') {
+                        appendExistingImage(url, editPreviewGrid, editUploadZone, editImgPreview);
+                    }
+                });
+            }
+
+            editModal.classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            editModal.classList.add('hidden');
+            document.getElementById('editActivityForm').reset();
+            resetImageArea(editFileInput, editUploadZone, editImgPreview, editPreviewGrid);
+        }
+
+
+        // ==================== SHARED FUNCTIONS ====================
+
+        // ตรวจสอบและแสดง preview ไฟล์ที่เลือก
+        function handleFileSelect(fileList, previewGrid, uploadZone, imgPreview, fileInput) {
+            const files = Array.from(fileList);
+            if (files.length === 0) return;
+
+            const validTypes = ['image/png', 'image/jpeg', 'image/gif'];
+
+            for (const file of files) {
                 if (file.size > 5 * 1024 * 1024) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'ไฟล์ใหญ่เกินไป',
-                        text: 'ขนาดไฟล์ต้องไม่เกิน 5MB',
-                        confirmButtonColor: '#3085d6'
-                    });
+                    Swal.fire({ icon: 'error', title: 'ไฟล์ใหญ่เกินไป', text: `"${file.name}" มีขนาดเกิน 5MB`, confirmButtonColor: '#3085d6' });
                     fileInput.value = '';
                     return;
                 }
-                
-                // ตรวจสอบประเภทไฟล์
-                const validTypes = ['image/png', 'image/jpeg', 'image/gif'];
                 if (!validTypes.includes(file.type)) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'ประเภทไฟล์ไม่ถูกต้อง',
-                        text: 'กรุณาเลือกไฟล์ PNG, JPG หรือ GIF เท่านั้น',
-                        confirmButtonColor: '#3085d6'
-                    });
+                    Swal.fire({ icon: 'error', title: 'ประเภทไฟล์ไม่ถูกต้อง', text: `"${file.name}" ไม่ใช่ไฟล์ PNG, JPG หรือ GIF`, confirmButtonColor: '#3085d6' });
                     fileInput.value = '';
                     return;
                 }
-                
-                // อ่านไฟล์และแสดงรูป
+            }
+
+            files.forEach(file => {
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    previewImg.src = event.target.result;
-                    uploadZone.classList.add('hidden');
-                    imagePreview.classList.remove('hidden');
+                    appendPreviewImage(event.target.result, file.name, previewGrid, uploadZone, imgPreview);
                 };
                 reader.readAsDataURL(file);
-            }
-        });
+            });
 
-        // ฟังก์ชันสำหรับตั้งค่ารูปภาพ
-        function setExistingImage(imageUrl) {
-            if (imageUrl && imageUrl !== '' && imageUrl !== '/placeholder.svg') {
-                previewImg.src = imageUrl;
-                uploadZone.classList.add('hidden');
-                imagePreview.classList.remove('hidden');
-            } else {
-                previewImg.src = '/placeholder.svg';
-                uploadZone.classList.remove('hidden');
-                imagePreview.classList.add('hidden');
-            }
+            uploadZone.classList.add('hidden');
+            imgPreview.classList.remove('hidden');
+            fileInput.value = ''; // reset เพื่อให้เลือกซ้ำได้
         }
 
-        function openModal() {
-            modal.classList.remove('hidden');
-            formAction = "/admin/activityPost";
-            document.getElementById('activityForm').setAttribute('action', formAction);
-            document.getElementById('activityForm').reset();
+        // สร้าง element รูป preview (จากไฟล์ที่เลือก)
+        function appendPreviewImage(src, altText, previewGrid, uploadZone, imgPreview) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'relative group';
 
-            // รีเซ็ตการแสดงรูปภาพ
+            const img = document.createElement('img');
+            img.src = src;
+            img.alt = altText || 'preview';
+            img.className = 'w-full h-32 object-cover rounded-lg border-2 border-gray-300 bg-gray-50';
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.className = 'absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 text-xs opacity-0 group-hover:opacity-100 transition flex items-center justify-center';
+            deleteBtn.innerHTML = '✕';
+            deleteBtn.addEventListener('click', () => {
+                wrapper.remove();
+                if (previewGrid.children.length === 0) {
+                    imgPreview.classList.add('hidden');
+                    uploadZone.classList.remove('hidden');
+                }
+            });
+
+            wrapper.appendChild(img);
+            wrapper.appendChild(deleteBtn);
+            previewGrid.appendChild(wrapper);
+        }
+
+        // แสดงรูปเดิม (จาก URL Cloudinary) ใน edit modal
+        function appendExistingImage(url, previewGrid, uploadZone, imgPreview) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'relative group';
+
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = 'existing image';
+            img.className = 'w-full h-32 object-cover rounded-lg border-2 border-blue-300 bg-gray-50';
+
+            // badge "รูปเดิม"
+            const badge = document.createElement('span');
+            badge.className = 'absolute bottom-1 left-1 bg-blue-500 text-white text-xs px-1.5 py-0.5 rounded';
+            badge.textContent = 'รูปเดิม';
+
+            wrapper.appendChild(img);
+            wrapper.appendChild(badge);
+            previewGrid.appendChild(wrapper);
+
+            uploadZone.classList.add('hidden');
+            imgPreview.classList.remove('hidden');
+        }
+
+        // รีเซ็ต image area
+        function resetImageArea(fileInput, uploadZone, imgPreview, previewGrid) {
             fileInput.value = '';
+            previewGrid.innerHTML = '';
             uploadZone.classList.remove('hidden');
-            imagePreview.classList.add('hidden');
-            previewImg.src = '/placeholder.svg';
+            imgPreview.classList.add('hidden');
         }
 
-        function openEditModal(id, title, content, img) {
-            modal.classList.remove('hidden');
-            formAction = '/admin/activityEdit/' + id;
-            document.getElementById('activityForm').setAttribute('action', formAction);
-            document.getElementById('title').value = title;
-            document.getElementById('content').value = content;
-            // ตั้งค่ารูปภาพเดิม
-            fileInput.value = '';
-            setExistingImage(img);
-        }
 
-        function closeModal() {
-            modal.classList.add('hidden');
-            document.getElementById('activityForm').reset();
-
-            // รีเซ็ตการแสดงรูปภาพ
-            fileInput.value = '';
-            uploadZone.classList.remove('hidden');
-            imagePreview.classList.add('hidden');
-            previewImg.src = '/placeholder.svg';
-        }
-
+        // ==================== DELETE ====================
         function deleteActivity(id, title) {
             Swal.fire({
                 title: `ลบ "${title}" หรือไม่?`,
@@ -295,129 +384,121 @@
                 if (result.isConfirmed) {
                     fetch('/admin/deleteActivity/' + id, {
                         method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                     })
-                    .then(result => {
-                            if (result.isConfirmed) {
-                                Swal.fire('ลบข้อมูลไม่สำเร็จ', 'ข้อมูลกิจกรรมถูกลบเรียบร้อยแล้ว', 'error')
-                                    .then(() => {
-                                        location.reload();
-                                    });
-                            } else {
-                                Swal.fire('ลบข้อมูลสำเร็จ', 'ข้อมูลกิจกรรมถูกลบเรียบร้อยแล้ว', 'success')
-                                .then(() => {
-                                        location.reload();
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้', 'error');
+                    .then(res => {
+                        if (res.ok) {
+                            Swal.fire('ลบข้อมูลสำเร็จ', 'ข้อมูลกิจกรรมถูกลบเรียบร้อยแล้ว', 'success')
+                                .then(() => location.reload());
+                        } else {
+                            Swal.fire('ลบข้อมูลไม่สำเร็จ', 'กรุณาลองใหม่อีกครั้ง', 'error');
+                        }
+                    })
+                    .catch(() => {
+                        Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้', 'error');
                     });
                 }
             });
         }
-            const allActivity = <%- JSON.stringify(activity) %>;
-            const searchInput = document.getElementById("searchInput");
-            const itemsPerPageSelect = document.getElementById("itemsPerPage");
-            const cardsContainer = document.getElementById("cardsContainer");
-            const pagination = document.getElementById("pagination");
-            const noResults = document.getElementById("noResults");
-            const totalItems = document.getElementById("totalItems");
 
-            let currentPage = 1;
-            let itemsPerPage = parseInt(itemsPerPageSelect.value);
-            let filteredData = [...allActivity];
 
-            // Template card
-            function createCard(act) {
-                return `
-                    <div class="bg-gray-100 border border-gray-300 p-4 rounded-lg shadow-md transition-transform transform hover:scale-105 relative">
-                        <img src="${act.img}" alt="Item" class="w-full h-[150px] object-cover rounded">
-                        <h2 class="text-lg font-medium mt-2 h-[100px] overflow-hidden">${act.title}</h2>
-                        <p class="text-gray-400 text-xs mt-1">วันที่เพิ่ม ${formatDate(act.createdAt)}</p>
-                        <div class="flex flex-auto items-center justify-end">
-                            <button class="edit-btn" onclick="openEditModal('${act._id}', '${act.title}', '${act.content}', '${act.img}')">
-                                <i class="fa fa-edit"></i>
-                            </button>
-                            <button onclick="deleteActivity('${act._id}', '${act.title}')" class="delete-btn">
-                                <i class="fa fa-trash"></i>
-                            </button>
-                        </div>
+        // ==================== CARDS + PAGINATION ====================
+        const allActivity       = <%- JSON.stringify(activity) %>;
+        const searchInput       = document.getElementById("searchInput");
+        const itemsPerPageSelect= document.getElementById("itemsPerPage");
+        const cardsContainer    = document.getElementById("cardsContainer");
+        const pagination        = document.getElementById("pagination");
+        const noResults         = document.getElementById("noResults");
+        const totalItems        = document.getElementById("totalItems");
+
+        let currentPage  = 1;
+        let itemsPerPage = parseInt(itemsPerPageSelect.value);
+        let filteredData = [...allActivity];
+
+        function createCard(act) {
+            const images = Array.isArray(act.img) ? act.img : (act.img ? [act.img] : []);
+            const imgHtml = images.length > 0
+                ? images.map(url => `<img src="${url}" class="w-full h-[150px] object-cover rounded mb-1">`).join('')
+                : `<div class="w-full h-[150px] bg-gray-200 rounded mb-1 flex items-center justify-center text-gray-400 text-sm">ไม่มีรูปภาพ</div>`;
+
+            // ส่ง array imgs ไปให้ openEditModal
+            const imgsJson = JSON.stringify(images).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
+            return `
+                <div class="bg-gray-100 border border-gray-300 p-4 rounded-lg shadow-md transition-transform transform hover:scale-105 relative">
+                    ${imgHtml}
+                    <h2 class="text-lg font-medium mt-2 h-[100px] overflow-hidden">${act.title}</h2>
+                    <p class="text-gray-400 text-xs mt-1">วันที่เพิ่ม ${formatDate(act.createdAt)}</p>
+                    <div class="flex flex-auto items-center justify-end">
+                        <button class="edit-btn" onclick='openEditModal("${act._id}", "${act.title.replace(/"/g,"&quot;")}", "${act.content.replace(/"/g,"&quot;")}", ${JSON.stringify(images)})'>
+                            <i class="fa fa-edit"></i>
+                        </button>
+                        <button onclick="deleteActivity('${act._id}', '${act.title.replace(/'/g, "\\'")}')" class="delete-btn">
+                            <i class="fa fa-trash"></i>
+                        </button>
                     </div>
-                `;
+                </div>
+            `;
+        }
+
+        function formatDate(dateStr) {
+            const d = new Date(dateStr);
+            return d.toLocaleDateString("th-TH", { year: "numeric", month: "short", day: "numeric" });
+        }
+
+        function displayData() {
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const dataToShow = filteredData.slice(start, end);
+            totalItems.textContent = `${filteredData.length} รายการ`;
+
+            if (dataToShow.length === 0) {
+                noResults.classList.remove("hidden");
+                cardsContainer.innerHTML = "";
+                pagination.innerHTML = "";
+                return;
             }
+            noResults.classList.add("hidden");
+            cardsContainer.innerHTML = dataToShow.map(createCard).join("");
+            renderPagination();
+        }
 
-            // ฟอร์แมทวันที่
-            function formatDate(dateStr) {
-                const d = new Date(dateStr);
-                return d.toLocaleDateString("th-TH", { year: "numeric", month: "short", day: "numeric" });
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            if (totalPages <= 1) { pagination.innerHTML = ""; return; }
+            let html = "";
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<button onclick="goToPage(${i})" 
+                            class="px-3 py-1 border rounded ${i === currentPage ? 'bg-green-600 text-white' : 'bg-white text-gray-700'}">
+                            ${i}
+                        </button>`;
             }
+            pagination.innerHTML = html;
+        }
 
-            // แสดงผล
-            function displayData() {
-                const start = (currentPage - 1) * itemsPerPage;
-                const end = start + itemsPerPage;
-                const dataToShow = filteredData.slice(start, end);
-
-                totalItems.textContent = `${filteredData.length} รายการ`;
-
-                if (dataToShow.length === 0) {
-                    noResults.classList.remove("hidden");
-                    cardsContainer.innerHTML = "";
-                    pagination.innerHTML = "";
-                    return;
-                }
-
-                noResults.classList.add("hidden");
-                cardsContainer.innerHTML = dataToShow.map(createCard).join("");
-                renderPagination();
-            }
-
-            // Pagination
-            function renderPagination() {
-                const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-                if (totalPages <= 1) {
-                    pagination.innerHTML = "";
-                    return;
-                }
-                let html = "";
-                for (let i = 1; i <= totalPages; i++) {
-                    html += `<button onclick="goToPage(${i})" 
-                                class="px-3 py-1 border rounded ${i === currentPage ? 'bg-green-600 text-white' : 'bg-white text-gray-700'}">
-                                ${i}
-                            </button>`;
-                }
-                pagination.innerHTML = html;
-            }
-
-            function goToPage(page) {
-                currentPage = page;
-                displayData();
-                window.scrollTo({ top: 0, behavior: "smooth" });
-            }
-
-            // Search
-            searchInput.addEventListener("input", () => {
-                const term = searchInput.value.toLowerCase();
-                filteredData = allActivity.filter(act =>
-                    act.title.toLowerCase().includes(term) || 
-                    (act.content && act.content.toLowerCase().includes(term))
-                );
-                currentPage = 1;
-                displayData();
-            });
-
-            // Change items per page
-            itemsPerPageSelect.addEventListener("change", () => {
-                itemsPerPage = parseInt(itemsPerPageSelect.value);
-                currentPage = 1;
-                displayData();
-            });
-
-            // Init
+        function goToPage(page) {
+            currentPage = page;
             displayData();
-        </script>
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        searchInput.addEventListener("input", () => {
+            const term = searchInput.value.toLowerCase();
+            filteredData = allActivity.filter(act =>
+                act.title.toLowerCase().includes(term) ||
+                (act.content && act.content.toLowerCase().includes(term))
+            );
+            currentPage = 1;
+            displayData();
+        });
+
+        itemsPerPageSelect.addEventListener("change", () => {
+            itemsPerPage = parseInt(itemsPerPageSelect.value);
+            currentPage = 1;
+            displayData();
+        });
+
+        displayData();
+    </script>
 </body>
 </html>

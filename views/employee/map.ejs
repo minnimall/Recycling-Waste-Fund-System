@@ -2568,7 +2568,7 @@
                             </label>
                             <input type="text" id="routeName" 
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition"
-                                placeholder="เช่น เส้นทางเก็บขยะเขต 1">
+                                required placeholder="กรอกชื่อเส้นทาง...">
                         </div>
 
                         <div>
@@ -2664,7 +2664,15 @@
                 const routeNote = document.getElementById('routeNote').value.trim();
                 
                 if (!routeName) {
-                    Swal.showValidationMessage('กรุณากรอกชื่อเส้นทาง');
+                    Swal.showValidationMessage(`
+                        <div class="flex items-center gap-2 text-red-600">
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span>กรุณากรอกชื่อเส้นทาง</span>
+                        </div>
+                    `);
+                    document.getElementById('routeName').classList.add('border-red-400', 'ring-2', 'ring-red-200');
                     return false;
                 }
                 
@@ -2675,12 +2683,17 @@
             },
             didOpen: () => {
                 document.getElementById('routeName').focus();
+                
+                // เคลียร์ error เมื่อพิมพ์
+                document.getElementById('routeName').addEventListener('input', () => {
+                    document.getElementById('routeName').classList.remove('border-red-400', 'ring-2', 'ring-red-200');
+                    Swal.resetValidationMessage();
+                });
+
                 const closeBtn = document.querySelector('.swal2-close');
                 const header = document.querySelector('.swal2-html-container > div > div');
-                
                 if (closeBtn && header) {
-                    const headerTop = header.offsetTop;
-                    closeBtn.style.top = `${headerTop + 4}px`;  // +4px เพื่อปรับให้ตรงกลาง
+                    closeBtn.style.top = `${header.offsetTop + 4}px`;
                 }
             }
         });
