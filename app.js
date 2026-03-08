@@ -1,3 +1,4 @@
+require('dotenv').config()
 // require('./jobs/autoRejectWaitingUser');
 require('./jobs/moveToInProgress');
 // require('./jobs/buildDailyRoutes.job.js');
@@ -25,15 +26,15 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 //Connect to MongoDB Atlas
-const dbURI = 'mongodb+srv://dullapaht:18072546@cluster0.xyho3qt.mongodb.net/RecyclingWasteFundSystem?retryWrites=true&w=majority&appName=Cluster0'
+const dbURI = process.env.MONGODB_URI
 
 mongoose.connect(dbURI)
-    .then((result) => app.listen(3000, () => {console.log(`
+    .then((result) => app.listen(process.env.PORT || 3000, () => {console.log(`
 🧙‍♂️ ====================================
 ✨  Recycling Waste Fund System Server Started!  ✨
-🔮 Server running on port 3000
+🔮 Server running on port ${process.env.PORT || 3000}
 🌟 Using MongoDB Database
-⚡ API Base URL: http://localhost:3000
+⚡ API Base URL: http://localhost:${process.env.PORT || 3000}
 🧙‍♂️ ====================================
         `)
     }))
@@ -51,7 +52,7 @@ app.use(methodOverride('_method'));
 app.use(morgan('dev'))
 
 app.use(session({
-    secret: 'your_secret_key',
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true
 }));

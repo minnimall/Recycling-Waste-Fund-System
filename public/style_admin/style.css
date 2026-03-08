@@ -45,6 +45,8 @@ body {
     margin: 0;
     font-family: kanit;
     background-color: var(--bg-color);
+    zoom: 0.9;
+    min-height: 111.11vh;
 }
   /* Custom scrollbar */
   ::-webkit-scrollbar {
@@ -93,27 +95,13 @@ body {
 
   /* Sidebar */
   .sidebar {
-    font-size: 1.2em;
     width: 15%;
-    height: 92.7vh;
-    background-color: var(--side-bar-bg);
-    color: var(--white);
-    top: 70px;
-    bottom: 0;
-    padding: 20px;
-    
-        .menu-categories {
-            margin-bottom: .9em;
-            font-size: .8em;
-
-            .offCategorie {
-                cursor: pointer;
-            }
-        }
-        .active {
-            color: var(--site-bar-active);
-        }
-  }
+    height: calc(111.11vh - 70px); /* แทน 92.7vh */
+    position: sticky;           /* ติดอยู่กับหน้าจอ */
+    top: 0;
+    overflow-y: auto;
+    flex-shrink: 0;             /* ป้องกันหด */
+}
 
   .sidebar h3 {
     margin-bottom: 20px;
@@ -140,93 +128,14 @@ body {
 
   /* Main content */
   .content {
-    height: 92.7vh;
-    width: 85%;
-    padding: 20px;
-    height: 92vh;
+    width: calc(100% - 15%);   /* แทน 85% */
+    min-height: calc(111.11vh - 70px);
+    height: calc(100vh - 70px);
     overflow-y: scroll;
-     
-      .card-container {
-        height: 80vh;
-        overflow-y: scroll;
-      }
-      .xtop-container {
-        display: flex;
-        margin-bottom: 1em;
-      }
-      .search {
-        form {
-          display: flex;
-          font-size: .8em;
-          justify-content: space-evenly;
-          width: 30%;
-    
-          input {
-            width: 80%;
-            margin-right: 1em;
-            border-radius: 20px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            border: 0;
-            padding: 10px 20px;
-          }
-          button {
-            color: white;
-            background: var(--header-bg);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            border: 0;
-            border-radius: 3px;
-            padding: 5px 10px;
-          }
-        }
-      }
-      .count-con {
-        color: var(--white);
-        display: flex;
-        margin-bottom: 10px;
-        .box {
-          border-radius: 15px;
-          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-          border: 1px solid var(--card-border);
-          width: 320px;
-          padding: 15px 30px;
-          margin: 0 10px;
-          span {
-            font-size: 2em;
-            margin-right: 10px;
-          }
-        }
-        .user-box {
-          background: var(--user-color);
-        }
-        .employee-box {
-          background: var(--employee-color);
-        }
-        .admin-box {
-          background: var(--admin-color);
-        }
-      }
-
-  /* Custom scrollbar */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    background: #c5c5c5;
-    border-radius: 10px;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background: #a0a0a0;
-  }
-
-  }
+    flex: 1;                    /* ขยายเต็มที่เหลือ */
+    min-width: 0;               /* ป้องกัน overflow */
+    padding-top: 20px;
+}
   .content-header2 {
     width: 100%;
     display: flex;

@@ -1263,6 +1263,19 @@
         return value.replace(/\D/g, '');
     }
 
+    function calculateAge(birthDateValue) {
+        if (!birthDateValue) return '';
+        const today = new Date();
+        const birth = new Date(birthDateValue);
+        if (isNaN(birth.getTime())) return '';
+        let age = today.getFullYear() - birth.getFullYear();
+        const monthDiff = today.getMonth() - birth.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        return age >= 0 ? age : '';
+    }
+
     // ============================================
     // 2. Setup Auto-format Listeners
     // ============================================
@@ -1374,7 +1387,7 @@
         modal.classList.remove("hidden");
         modal.scrollTo({ top: 0, behavior: 'smooth' });
         setupAutoFormatListeners('#ShowAddFamilyForm');
-        setupHouseholdAutoFormat(); // ⭐ Setup auto-format สำหรับ household members
+        setupHouseholdAutoFormat();
     }
 
     function closeAddFamilyForm() {
@@ -1617,6 +1630,15 @@
         
         // Setup auto-format สำหรับฟิลด์ที่เพิ่มใหม่
         setupHouseholdAutoFormat();
+
+        // คำนวณอายุสำหรับสมาชิกที่เพิ่มใหม่
+        const newBirthInput = newMember.querySelector(`input[name="beneficiaries[${index}][birthDate]"]`);
+        const newAgeInput = newMember.querySelector(`input[name="beneficiaries[${index}][age]"]`);
+        if (newBirthInput && newAgeInput) {
+            newBirthInput.addEventListener('change', function() {
+                newAgeInput.value = calculateAge(this.value);
+            });
+        }
     });
 
     function removeBeneficiaryHandler() {
@@ -1705,6 +1727,17 @@
             document.getElementById('editFamilyForm').action = `/employee/memberUpdate/${family._id}`;
 
             setupAutoFormatListeners('#editFamilyModal');
+
+            const editBirthDate = document.querySelector('#editFamilyModal input[name="birthDate"]');
+            const editAgeInput = document.querySelector('#editFamilyModal input[name="age"]');
+            if (editBirthDate && editAgeInput) {
+                const newBirthDate = editBirthDate.cloneNode(true);
+                editBirthDate.parentNode.replaceChild(newBirthDate, editBirthDate);
+                
+                newBirthDate.addEventListener('change', function() {
+                    editAgeInput.value = calculateAge(this.value);
+                });
+            }
 
         } catch (error) {
             console.error('Error loading member data:', error);
@@ -1878,8 +1911,18 @@
             });
         }
         
-        // ⭐ Setup auto-format สำหรับฟิลด์ที่เพิ่มใหม่
         setupEditHouseholdAutoFormat();
+        
+        const rawBirthInput = beneficiaryItem.querySelector(`input[name="beneficiaries[${index}][birthDate]"]`);
+        const ageInput = beneficiaryItem.querySelector(`input[name="beneficiaries[${index}][age]"]`);
+        if (rawBirthInput && ageInput) {
+            const newBirthInput = rawBirthInput.cloneNode(true);
+            rawBirthInput.parentNode.replaceChild(newBirthInput, rawBirthInput);
+            
+            newBirthInput.addEventListener('change', function() {
+                ageInput.value = calculateAge(this.value);
+            });
+        }
     }
 
     function updateEditBeneficiaryIndexes() {
@@ -2300,6 +2343,24 @@
         if (registerPhone) {
             registerPhone.addEventListener('input', (e) => {
                 e.target.value = formatPhoneNumber(e.target.value);
+            });
+        }
+
+        // คำนวณอายุ — ตัวแทนครัวเรือน (ฟอร์มลงทะเบียน)
+        const registerBirthDate = document.querySelector('#registerForm input[name="birthDate"]');
+        const registerAge = document.querySelector('#registerForm input[name="age"]');
+        if (registerBirthDate && registerAge) {
+            registerBirthDate.addEventListener('change', function() {
+                registerAge.value = calculateAge(this.value);
+            });
+        }
+
+        // คำนวณอายุ — สมาชิกคนแรก (index 0) ในฟอร์มลงทะเบียน
+        const firstMemberBirth = document.querySelector('input[name="beneficiaries[0][birthDate]"]');
+        const firstMemberAge = document.querySelector('input[name="beneficiaries[0][age]"]');
+        if (firstMemberBirth && firstMemberAge) {
+            firstMemberBirth.addEventListener('change', function() {
+                firstMemberAge.value = calculateAge(this.value);
             });
         }
     });

@@ -659,9 +659,13 @@ const newsPost = async (req, res) => {
             let fileNews = '/img/no_PDF.pdf';
 
             if (req.file) {
-                const result = await uploadFileToCloudinary(req.file.buffer, req.file.mimetype);
-                fileNews = result.secure_url;
-            }
+                    const result = await uploadFileToCloudinary(req.file.buffer, req.file.mimetype);
+                    const isPDF = req.file.mimetype === 'application/pdf';
+                    // ต่อ .pdf เฉพาะถ้า URL ยังไม่มี .pdf ต่อท้าย
+                    fileNews = isPDF && !result.secure_url.endsWith('.pdf') 
+                        ? result.secure_url + '.pdf' 
+                        : result.secure_url;
+                }
 
             const newNews = new myNews({
                 newsTitle,
@@ -718,7 +722,11 @@ const newsEdit = async (req, res) => {
             // ถ้ามีการอัปโหลดไฟล์ใหม่
             if (req.file) {
                 const result = await uploadFileToCloudinary(req.file.buffer, req.file.mimetype);
-                fileNews = result.secure_url;
+                const isPDF = req.file.mimetype === 'application/pdf';
+                // ต่อ .pdf เฉพาะถ้า URL ยังไม่มี .pdf ต่อท้าย
+                fileNews = isPDF && !result.secure_url.endsWith('.pdf') 
+                    ? result.secure_url + '.pdf' 
+                    : result.secure_url;
             }
 
             // อัปเดตข้อมูล
