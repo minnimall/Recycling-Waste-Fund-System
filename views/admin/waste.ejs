@@ -46,8 +46,18 @@
                 <p class="text-gray-600">รายการขยะทั้งหมดที่รับซื้อของกองทุนขยะรีไซเคิล</p>
             </div>
             
-            <div>
-                <button type="button" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition duration-300" onclick="wasFormToggle()">เพิ่มรายการขยะ</button>
+            <!-- แทนที่ปุ่ม "เพิ่มรายการขยะ" เดิม -->
+            <div class="flex gap-2">
+                <button type="button" 
+                    id="bulkPriceBtn"
+                    class="hidden bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition duration-300"
+                    onclick="openBulkPriceModal()">
+                    <i class="fas fa-tags mr-1"></i>
+                    ปรับราคายกกลุ่ม (<span id="selectedCount">0</span> รายการ)
+                </button>
+                <button type="button" 
+                    class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition duration-300" 
+                    onclick="wasFormToggle()">เพิ่มรายการขยะ</button>
             </div>
         </div>
 
@@ -81,6 +91,9 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-100">
                         <tr>
+                            <th class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">
+                                <input type="checkbox" id="selectAll" class="w-4 h-4 cursor-pointer">
+                            </th>
                             <th class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">ลำดับ</th>
                             <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">ชื่อรายการขยะ</th>
                             <th class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">ประเภทขยะ</th>
@@ -97,7 +110,7 @@
             </div>
         </div>
 
-        <!-- Modal Add -->
+        <!-- Modal เพิ่มรายการขยะ -->
         <div id="add_Form" class="fixed inset-0 z-50 bg-black bg-opacity-30 flex items-center justify-center hidden">
             <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl px-4">
                 <form action="/admin/wastePost" method="POST" enctype="multipart/form-data"
@@ -181,7 +194,7 @@
             </div>
         </div>
         
-        <!-- Modal Edit -->
+        <!-- Modal แก้ไข -->
         <div id="edit_Form" class="fixed top-0 left-0 w-full h-full z-50 bg-black bg-opacity-30 hidden">
             <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl px-4">
                 <form action="/admin/wasteEdit" method="POST" enctype="multipart/form-data"
@@ -268,6 +281,68 @@
             </div>
         </div>
 
+        <!-- Modal ปรับราคายกกลุ่ม -->
+        <div id="bulkPriceModal" class="fixed inset-0 z-50 bg-black bg-opacity-30 flex items-center justify-center hidden">
+            <div class="bg-white rounded-xl shadow-lg w-full max-w-lg p-6 space-y-5 mx-4">
+                
+                <div class="flex items-center justify-between border-b pb-3">
+                    <div class="flex items-center space-x-2">
+                        <ion-icon name="pricetags-outline" class="text-blue-500 text-2xl"></ion-icon>
+                        <span class="text-xl font-semibold text-gray-800">ปรับราคายกกลุ่ม</span>
+                    </div>
+                    <button onclick="closeBulkPriceModal()" class="text-gray-400 hover:text-gray-600">
+                        <ion-icon name="close-outline" class="text-2xl"></ion-icon>
+                    </button>
+                </div>
+
+                <!-- รายการที่เลือก -->
+                <div>
+                    <p class="text-sm font-medium text-gray-700 mb-2">รายการขยะที่เลือก:</p>
+                    <div id="selectedWasteList" class="bg-gray-50 rounded-lg p-3 max-h-40 overflow-y-auto space-y-1">
+                        <!-- จะถูก render ด้วย JS -->
+                    </div>
+                </div>
+
+                <!-- วิธีปรับราคา -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">วิธีปรับราคา</label>
+                    <div class="flex gap-3">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="adjustType" value="add" checked class="w-4 h-4 text-green-500">
+                            <span class="text-sm">บวกเพิ่ม / ลดลง (บาท)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="adjustType" value="set" class="w-4 h-4 text-green-500">
+                            <span class="text-sm">กำหนดราคาใหม่</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- ช่องกรอกค่า -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        <span id="adjustLabel">จำนวนที่ปรับ (บาท)</span>
+                        <span class="text-xs text-gray-500 ml-1">— ใส่ค่าลบเพื่อลดราคา เช่น -0.5</span>
+                    </label>
+                    <input type="number" id="adjustValue" step="0.01" placeholder="เช่น 0.5 หรือ -1"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                </div>
+
+                <!-- Preview ราคา -->
+                <div id="pricePreview" class="hidden">
+                    <p class="text-sm font-medium text-gray-700 mb-2">ตัวอย่างราคาหลังปรับ:</p>
+                    <div id="pricePreviewList" class="bg-blue-50 rounded-lg p-3 max-h-36 overflow-y-auto space-y-1 text-sm">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-2">
+                    <button onclick="closeBulkPriceModal()"
+                        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition">ยกเลิก</button>
+                    <button onclick="confirmBulkPrice()"
+                        class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition">ยืนยันปรับราคา</button>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 <%- include('../partials/adminPartials/adminFooter.ejs') %>
@@ -464,7 +539,14 @@
 
     function createRow(item, index) {
         return `
-            <tr class="hover:bg-gray-50 transition-colors">
+            <tr class="hover:bg-gray-50 transition-colors" data-id="${item._id}">
+                <td class="px-4 py-3 text-center">
+                    <input type="checkbox" class="row-checkbox w-4 h-4 cursor-pointer" 
+                        data-id="${item._id}" 
+                        data-name="${item.wasteName}" 
+                        data-price="${item.pricePerUnit}"
+                        onchange="updateSelection()">
+                </td>
                 <td class="px-4 py-3 text-sm whitespace-nowrap text-center">${index + 1}</td>
                 <td class="px-4 py-3 text-sm whitespace-nowrap">${item.wasteName}</td>
                 <td class="px-4 py-3 text-sm whitespace-nowrap">${item.wasteType.wasteTypeName}</td>
@@ -473,7 +555,6 @@
                     ${item.img ? `<img src="${item.img}" alt="รูป" class="waste-img" />` : "<span>ไม่มีรูปภาพ</span>"}
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-left">
-
                     <button type="button" class="was-row-${index + 1} row-active edit-btn" 
                         onclick="setWasteForm('${index + 1}', '${item._id}', '${item.wasteName}',
                                             '${item.pricePerUnit}', '${item.wasteType._id}', '${item.img}')">
@@ -487,7 +568,6 @@
         `;
     }
     function displayData() {
-
         const start = (currentPage - 1) * itemsPerPage;
         const end = start + itemsPerPage;
         const dataToShow = filteredData.slice(start, end);
@@ -496,12 +576,19 @@
             noResults.classList.remove("hidden");
             tableBody.innerHTML = "";
             pagination.innerHTML = "";
+            // ✅ เพิ่มตรงนี้
+            document.getElementById('selectAll').checked = false;
+            updateSelection();
             return;
         }
 
         noResults.classList.add("hidden");
         tableBody.innerHTML = dataToShow.map((item, i) => createRow(item, start + i)).join("");
         renderPagination();
+
+        // ✅ เพิ่มตรงนี้
+        document.getElementById('selectAll').checked = false;
+        updateSelection();
     }
 
     function renderPagination() {
@@ -681,6 +768,195 @@
             editImagePreview.classList.add('hidden');
         }
     }
+
+    // ============================================
+    // Bulk Price Update Functions
+    // ============================================
+
+    function updateSelection() {
+        const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+        const count = checkboxes.length;
+        const bulkBtn = document.getElementById('bulkPriceBtn');
+        const countSpan = document.getElementById('selectedCount');
+
+        countSpan.textContent = count;
+
+        if (count > 0) {
+            bulkBtn.classList.remove('hidden');
+        } else {
+            bulkBtn.classList.add('hidden');
+        }
+    }
+
+    // Select All
+    document.getElementById('selectAll')?.addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+        checkboxes.forEach(cb => cb.checked = this.checked);
+        updateSelection();
+    });
+
+    // เพิ่ม listener ให้ selectAll ทำงานหลัง render ด้วย
+    // const origDisplayData = displayData;
+    // function displayData() {
+    //     origDisplayData();
+    //     document.getElementById('selectAll').checked = false;
+    //     updateSelection();
+    // }
+
+    function getSelectedItems() {
+        const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+        return Array.from(checkboxes).map(cb => ({
+            id: cb.dataset.id,
+            name: cb.dataset.name,
+            price: parseFloat(cb.dataset.price)
+        }));
+    }
+
+    function openBulkPriceModal() {
+        const selected = getSelectedItems();
+        if (selected.length === 0) return;
+
+        // แสดงรายการที่เลือก
+        const listEl = document.getElementById('selectedWasteList');
+        listEl.innerHTML = selected.map(item => `
+            <div class="flex justify-between text-sm text-gray-700">
+                <span>• ${item.name}</span>
+                <span class="text-gray-500">${item.price.toFixed(2)} บาท/กก.</span>
+            </div>
+        `).join('');
+
+        // ซ่อน preview
+        document.getElementById('pricePreview').classList.add('hidden');
+        document.getElementById('adjustValue').value = '';
+
+        document.getElementById('bulkPriceModal').classList.remove('hidden');
+    }
+
+    function closeBulkPriceModal() {
+        document.getElementById('bulkPriceModal').classList.add('hidden');
+        document.getElementById('pricePreview').classList.add('hidden');
+    }
+
+    // เปลี่ยน label ตาม radio
+    document.querySelectorAll('input[name="adjustType"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const label = document.getElementById('adjustLabel');
+            const hint = document.querySelector('#adjustLabel + span') || document.querySelector('.text-xs.text-gray-500');
+            if (this.value === 'add') {
+                label.textContent = 'จำนวนที่ปรับ (บาท)';
+            } else {
+                label.textContent = 'ราคาใหม่ (บาท)';
+            }
+            document.getElementById('pricePreview').classList.add('hidden');
+        });
+    });
+
+    function previewBulkPrice() {
+        const selected = getSelectedItems();
+        const adjustType = document.querySelector('input[name="adjustType"]:checked').value;
+        const adjustValue = parseFloat(document.getElementById('adjustValue').value);
+
+        // ถ้ายังไม่กรอกค่า ให้ซ่อน preview เฉยๆ ไม่ต้อง alert
+        if (isNaN(adjustValue)) {
+            document.getElementById('pricePreview').classList.add('hidden');
+            return;
+        }
+
+        const previewList = document.getElementById('pricePreviewList');
+        previewList.innerHTML = selected.map(item => {
+            const newPrice = adjustType === 'add'
+                ? Math.max(0, item.price + adjustValue)
+                : Math.max(0, adjustValue);
+
+            const diff = newPrice - item.price;
+            const diffText = diff > 0
+                ? `<span class="text-green-600">+${diff.toFixed(2)}</span>`
+                : diff < 0
+                ? `<span class="text-red-600">${diff.toFixed(2)}</span>`
+                : `<span class="text-gray-500">ไม่เปลี่ยน</span>`;
+
+            return `
+                <div class="flex justify-between">
+                    <span class="text-gray-700">• ${item.name}</span>
+                    <span>${item.price.toFixed(2)} → <strong>${newPrice.toFixed(2)}</strong> บาท ( ${diffText} )</span>
+                </div>
+            `;
+        }).join('');
+
+        document.getElementById('pricePreview').classList.remove('hidden');
+    }
+
+    async function confirmBulkPrice() {
+        const selected = getSelectedItems();
+        const adjustType = document.querySelector('input[name="adjustType"]:checked').value;
+        const adjustValue = parseFloat(document.getElementById('adjustValue').value);
+
+        if (isNaN(adjustValue)) {
+            Swal.fire({ icon: 'warning', title: 'กรุณากรอกจำนวนที่ต้องการปรับ', confirmButtonColor: '#3085d6' });
+            return;
+        }
+
+        const confirm = await Swal.fire({
+            title: `ยืนยันปรับราคา ${selected.length} รายการ?`,
+            text: adjustType === 'add'
+                ? `ปรับราคา ${adjustValue >= 0 ? '+' : ''}${adjustValue} บาท ทุกรายการที่เลือก`
+                : `กำหนดราคาใหม่เป็น ${adjustValue} บาท ทุกรายการที่เลือก`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'ยืนยัน',
+            cancelButtonText: 'ยกเลิก',
+            reverseButtons: true
+        });
+
+        if (!confirm.isConfirmed) return;
+
+        Swal.fire({ title: 'กำลังอัปเดต...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+        try {
+            const response = await fetch('/admin/wasteBulkPriceUpdate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    items: selected.map(item => ({ id: item.id, currentPrice: item.price })),
+                    adjustType,
+                    adjustValue
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'ปรับราคาสำเร็จ',
+                    text: `อัปเดต ${selected.length} รายการเรียบร้อยแล้ว`,
+                    confirmButtonColor: '#28a745',
+                    timer: 2000
+                }).then(() => window.location.reload());
+            } else {
+                Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: data.message, confirmButtonColor: '#d33' });
+            }
+        } catch (err) {
+            Swal.fire({ icon: 'error', title: 'เชื่อมต่อไม่ได้', confirmButtonColor: '#d33' });
+        }
+    }
+
+    // Auto-preview เมื่อกรอกค่าหรือเปลี่ยน radio
+    document.getElementById('adjustValue').addEventListener('input', previewBulkPrice);
+    document.querySelectorAll('input[name="adjustType"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const label = document.getElementById('adjustLabel');
+            if (this.value === 'add') {
+                label.textContent = 'จำนวนที่ปรับ (บาท)';
+            } else {
+                label.textContent = 'ราคาใหม่ (บาท)';
+            }
+            // auto-preview เมื่อเปลี่ยน mode ด้วย
+            previewBulkPrice();
+        });
+    });
 
 </script>
 

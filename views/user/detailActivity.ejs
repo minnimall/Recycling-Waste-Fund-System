@@ -61,12 +61,71 @@
             <!-- รูปภาพและรายละเอียดกิจกรรม -->
             <div class="grid md:grid-cols-12 gap-4">
                 <div class="md:col-span-5">
-                    <img 
-                        src="<%= activity.img %>" 
-                        class="w-full h-auto rounded-lg shadow-sm object-cover" 
-                        alt="รูปภาพกิจกรรม"
-                    >
+                    <% if (activity.img && activity.img.length > 1) { %>
+                        <!-- Carousel สำหรับหลายรูป -->
+                        <div id="activityCarousel" class="carousel slide rounded-lg shadow-sm overflow-hidden" data-bs-ride="carousel">
+                            <div class="carousel-indicators">
+                                <% activity.img.forEach((img, index) => { %>
+                                    <button 
+                                        type="button" 
+                                        data-bs-target="#activityCarousel" 
+                                        data-bs-slide-to="<%= index %>"
+                                        class="<%= index === 0 ? 'active' : '' %>"
+                                        aria-label="Slide <%= index + 1 %>"
+                                    ></button>
+                                <% }) %>
+                            </div>
+
+                            <div class="carousel-inner">
+                                <% activity.img.forEach((img, index) => { %>
+                                    <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
+                                        <img 
+                                            src="<%= img %>" 
+                                            class="d-block w-100 object-cover"
+                                            style="height: 320px; object-fit: cover;"
+                                            alt="รูปภาพกิจกรรม <%= index + 1 %>"
+                                        >
+                                    </div>
+                                <% }) %>
+                            </div>
+
+                            <button class="carousel-control-prev" type="button" data-bs-target="#activityCarousel" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#activityCarousel" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            </button>
+                        </div>
+
+                        <!-- Thumbnail ด้านล่าง -->
+                        <div class="flex gap-2 mt-2 overflow-x-auto pb-1">
+                            <% activity.img.forEach((img, index) => { %>
+                                <img 
+                                    src="<%= img %>" 
+                                    class="rounded cursor-pointer border-2 flex-shrink-0 transition-all duration-200"
+                                    style="width: 60px; height: 60px; object-fit: cover;"
+                                    alt="thumbnail <%= index + 1 %>"
+                                    onclick="goToSlide(<%= index %>)"
+                                    id="thumb-<%= index %>"
+                                >
+                            <% }) %>
+                        </div>
+
+                    <% } else if (activity.img && activity.img.length === 1) { %>
+                        <!-- รูปเดียว -->
+                        <img 
+                            src="<%= activity.img[0] %>" 
+                            class="w-full h-auto rounded-lg shadow-sm object-cover" 
+                            alt="รูปภาพกิจกรรม"
+                        >
+                    <% } else { %>
+                        <!-- ไม่มีรูป -->
+                        <div class="w-full rounded-lg shadow-sm bg-gray-100 flex items-center justify-center" style="height: 320px;">
+                            <p class="text-gray-400"><i class="fas fa-image mr-2"></i>ไม่มีรูปภาพ</p>
+                        </div>
+                    <% } %>
                 </div>
+                
                 <div class="md:col-span-7">
                     <!-- หัวข้อ + วันที่ในบรรทัดเดียวกัน -->
                     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 gap-2">
@@ -123,5 +182,31 @@
 
 
     <%- include('../partials/userPartials/footer.ejs') %>
+    <script>
+        const carousel = document.getElementById('activityCarousel');
+        if (carousel) {
+            // Highlight thumbnail ที่ active
+            const updateThumbs = (index) => {
+                document.querySelectorAll('[id^="thumb-"]').forEach((thumb, i) => {
+                    thumb.classList.toggle('border-green-500', i === index);
+                    thumb.classList.toggle('border-transparent', i !== index);
+                    thumb.classList.toggle('opacity-60', i !== index);
+                });
+            };
+
+            updateThumbs(0);
+
+            carousel.addEventListener('slid.bs.carousel', (e) => {
+                updateThumbs(e.to);
+            });
+        }
+
+        function goToSlide(index) {
+            const carouselEl = document.getElementById('activityCarousel');
+            if (carouselEl) {
+                bootstrap.Carousel.getInstance(carouselEl)?.to(index);
+            }
+        }
+    </script>
 </body>
 </html>

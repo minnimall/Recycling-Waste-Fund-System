@@ -139,7 +139,7 @@
 
 <body>
     <%- include('../partials/employeePartials/empHeader.ejs') %>
-        <%- include('../partials/employeePartials/empSidebar.ejs') %>
+        
 
             <script>
                 const urlParams = new URLSearchParams(window.location.search);
@@ -256,606 +256,609 @@
             </div>
 
             <!-- Main -->
-            <div class="content bg-gray-50 min-screen">
-                <div class="mt-4 mx-4 mb-6 bg-white rounded-lg shadow p-4">
-                    <div>
-                        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">สรุปการรับซื้อขยะ
-                        </h1>
-                        <p class="text-gray-600">ข้อมูลสรุปในการออกรับซื้อขยะ</p>
+            <div class="flex w-full">
+                <%- include('../partials/employeePartials/empSidebar.ejs') %>
+                <div class="content bg-gray-50 min-screen">
+                    <div class="mt-4 mx-4 mb-6 bg-white rounded-lg shadow p-4">
+                        <div>
+                            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">สรุปการรับซื้อขยะ
+                            </h1>
+                            <p class="text-gray-600">ข้อมูลสรุปในการออกรับซื้อขยะ</p>
+                        </div>
                     </div>
-                </div>
 
-                <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
-                    <div class="mb-6 ">
-                        <!-- Filter Form -->
-                        <form action="" method="GET">
-                            <div class="flex flex-wrap items-end gap-3">
-                                <!-- Filter วันที่ -->
-                                <div class="flex-1 min-w-[150px]">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">วันที่</label>
-                                    <input type="date" name="searchDate" value="<%= searchDate %>" 
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                                </div>
+                    <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+                        <div class="mb-6 ">
+                            <!-- Filter Form -->
+                            <form action="" method="GET">
+                                <div class="flex flex-wrap items-end gap-3">
+                                    <!-- Filter วันที่ -->
+                                    <div class="flex-1 min-w-[150px]">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">วันที่</label>
+                                        <input type="date" name="searchDate" value="<%= searchDate %>" 
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    </div>
 
-                                <!-- Filter เดือน -->
-                                <div class="flex-1 min-w-[150px]">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">เดือน</label>
-                                    <select name="searchMonth" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                                        <option value="">ทั้งหมด</option>
-                                        <option value="01" <%= searchMonth === '01' ? 'selected' : '' %>>มกราคม</option>
-                                        <option value="02" <%= searchMonth === '02' ? 'selected' : '' %>>กุมภาพันธ์</option>
-                                        <option value="03" <%= searchMonth === '03' ? 'selected' : '' %>>มีนาคม</option>
-                                        <option value="04" <%= searchMonth === '04' ? 'selected' : '' %>>เมษายน</option>
-                                        <option value="05" <%= searchMonth === '05' ? 'selected' : '' %>>พฤษภาคม</option>
-                                        <option value="06" <%= searchMonth === '06' ? 'selected' : '' %>>มิถุนายน</option>
-                                        <option value="07" <%= searchMonth === '07' ? 'selected' : '' %>>กรกฎาคม</option>
-                                        <option value="08" <%= searchMonth === '08' ? 'selected' : '' %>>สิงหาคม</option>
-                                        <option value="09" <%= searchMonth === '09' ? 'selected' : '' %>>กันยายน</option>
-                                        <option value="10" <%= searchMonth === '10' ? 'selected' : '' %>>ตุลาคม</option>
-                                        <option value="11" <%= searchMonth === '11' ? 'selected' : '' %>>พฤศจิกายน</option>
-                                        <option value="12" <%= searchMonth === '12' ? 'selected' : '' %>>ธันวาคม</option>
-                                    </select>
-                                </div>
+                                    <!-- Filter เดือน -->
+                                    <div class="flex-1 min-w-[150px]">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">เดือน</label>
+                                        <select name="searchMonth" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                                            <option value="">ทั้งหมด</option>
+                                            <option value="01" <%= searchMonth === '01' ? 'selected' : '' %>>มกราคม</option>
+                                            <option value="02" <%= searchMonth === '02' ? 'selected' : '' %>>กุมภาพันธ์</option>
+                                            <option value="03" <%= searchMonth === '03' ? 'selected' : '' %>>มีนาคม</option>
+                                            <option value="04" <%= searchMonth === '04' ? 'selected' : '' %>>เมษายน</option>
+                                            <option value="05" <%= searchMonth === '05' ? 'selected' : '' %>>พฤษภาคม</option>
+                                            <option value="06" <%= searchMonth === '06' ? 'selected' : '' %>>มิถุนายน</option>
+                                            <option value="07" <%= searchMonth === '07' ? 'selected' : '' %>>กรกฎาคม</option>
+                                            <option value="08" <%= searchMonth === '08' ? 'selected' : '' %>>สิงหาคม</option>
+                                            <option value="09" <%= searchMonth === '09' ? 'selected' : '' %>>กันยายน</option>
+                                            <option value="10" <%= searchMonth === '10' ? 'selected' : '' %>>ตุลาคม</option>
+                                            <option value="11" <%= searchMonth === '11' ? 'selected' : '' %>>พฤศจิกายน</option>
+                                            <option value="12" <%= searchMonth === '12' ? 'selected' : '' %>>ธันวาคม</option>
+                                        </select>
+                                    </div>
 
-                                <!-- Filter ปี -->
-                                <div class="flex-1 min-w-[120px]">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">ปี</label>
-                                    <select name="searchYear" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                                        <option value="">ทั้งหมด</option>
-                                        <% 
-                                            const currentYear = new Date().getFullYear();
-                                            for (let i = 0; i <= 9; i++) {
-                                                const year = currentYear - i;
-                                                const buddhistYear = year + 543;
-                                        %>
-                                            <option value="<%= year %>" <%= searchYear == year.toString() ? 'selected' : '' %>>
-                                                <%= buddhistYear %>
-                                            </option>
-                                        <% } %>
-                                    </select>
-                                </div>
-
-                                <!-- Filter หมู่บ้าน -->
-                                <div class="flex-1 min-w-[180px]">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">หมู่บ้าน</label>
-                                    <select name="villageId" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                                        <option value="">ทั้งหมด</option>
-                                        <% villages.forEach(village => { %>
-                                            <option value="<%= village._id %>" <%= villageId == village._id ? 'selected' : '' %>>
-                                                หมู่ <%= village.villageNumber %> - <%= village.villageName %>
-                                            </option>
-                                        <% }); %>
-                                    </select>
-                                </div>
-
-                                <!-- ค้นหาเลขบัญชี -->
-                                <div class="flex-1 min-w-[150px]">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">เลขบัญชี</label>
-                                    <input type="text" name="accountId" value="<%= accountId %>" placeholder="เลขที่บัญชี" 
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                                </div>
-
-                                <!-- ปุ่มค้นหา -->
-                                <div class="flex gap-2">
-                                    <button type="submit" class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 whitespace-nowrap">
-                                        <i class="fas fa-search mr-2"></i>ค้นหา
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Current Filter Display -->
-                            <% if (searchDate || searchMonth || searchYear || villageId || accountId) { %>
-                                <div class="mt-3 flex flex-wrap items-center gap-2">
-                                    <span class="text-sm text-gray-600">ตัวกรองปัจจุบัน:</span>
-                                    
-                                    <!-- แสดงวันที่ที่เลือก -->
-                                    <% if (searchDate) { %>
-                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                            <i class="fas fa-calendar-day mr-1"></i>วันที่ 
+                                    <!-- Filter ปี -->
+                                    <div class="flex-1 min-w-[120px]">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">ปี</label>
+                                        <select name="searchYear" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                                            <option value="">ทั้งหมด</option>
                                             <% 
-                                                const dateObj = new Date(searchDate);
-                                                const thaiDate = dateObj.toLocaleDateString('th-TH', { 
-                                                    year: 'numeric', 
-                                                    month: 'long', 
-                                                    day: 'numeric' 
-                                                });
+                                                const currentYear = new Date().getFullYear();
+                                                for (let i = 0; i <= 9; i++) {
+                                                    const year = currentYear - i;
+                                                    const buddhistYear = year + 543;
                                             %>
-                                            <%= thaiDate %>
-                                        </span>
-                                    <% } %>
+                                                <option value="<%= year %>" <%= searchYear == year.toString() ? 'selected' : '' %>>
+                                                    <%= buddhistYear %>
+                                                </option>
+                                            <% } %>
+                                        </select>
+                                    </div>
 
-                                    <!-- แสดงเดือนที่เลือก -->
-                                    <% if (searchMonth) { %>
-                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                            <i class="fas fa-calendar mr-1"></i>
-                                            <% 
-                                                const monthNames = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
-                                                                    'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
-                                                const monthName = monthNames[parseInt(searchMonth) - 1];
-                                            %>
-                                            <%= monthName %>
-                                        </span>
-                                    <% } %>
+                                    <!-- Filter หมู่บ้าน -->
+                                    <div class="flex-1 min-w-[180px]">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">หมู่บ้าน</label>
+                                        <select name="villageId" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                                            <option value="">ทั้งหมด</option>
+                                            <% villages.forEach(village => { %>
+                                                <option value="<%= village._id %>" <%= villageId == village._id ? 'selected' : '' %>>
+                                                    หมู่ <%= village.villageNumber %> - <%= village.villageName %>
+                                                </option>
+                                            <% }); %>
+                                        </select>
+                                    </div>
 
-                                    <!-- แสดงปีที่เลือก -->
-                                    <% if (searchYear) { %>
-                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                                            <i class="fas fa-calendar-alt mr-1"></i>ปี <%= parseInt(searchYear) + 543 %>
-                                        </span>
-                                    <% } %>
-                                    
-                                    <!-- แสดงหมู่บ้านที่เลือก -->
-                                    <% if (villageId) { %>
-                                        <% 
-                                            const selectedVillage = villages.find(v => v._id.toString() === villageId.toString());
-                                        %>
-                                        <% if (selectedVillage) { %>
-                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                <i class="fas fa-map-marker-alt mr-1"></i>หมู่ <%= selectedVillage.villageNumber %> - <%= selectedVillage.villageName %>
+                                    <!-- ค้นหาเลขบัญชี -->
+                                    <div class="flex-1 min-w-[150px]">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">เลขบัญชี</label>
+                                        <input type="text" name="accountId" value="<%= accountId %>" placeholder="เลขที่บัญชี" 
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    </div>
+
+                                    <!-- ปุ่มค้นหา -->
+                                    <div class="flex gap-2">
+                                        <button type="submit" class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 whitespace-nowrap">
+                                            <i class="fas fa-search mr-2"></i>ค้นหา
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Current Filter Display -->
+                                <% if (searchDate || searchMonth || searchYear || villageId || accountId) { %>
+                                    <div class="mt-3 flex flex-wrap items-center gap-2">
+                                        <span class="text-sm text-gray-600">ตัวกรองปัจจุบัน:</span>
+                                        
+                                        <!-- แสดงวันที่ที่เลือก -->
+                                        <% if (searchDate) { %>
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                                <i class="fas fa-calendar-day mr-1"></i>วันที่ 
+                                                <% 
+                                                    const dateObj = new Date(searchDate);
+                                                    const thaiDate = dateObj.toLocaleDateString('th-TH', { 
+                                                        year: 'numeric', 
+                                                        month: 'long', 
+                                                        day: 'numeric' 
+                                                    });
+                                                %>
+                                                <%= thaiDate %>
                                             </span>
                                         <% } %>
-                                    <% } %>
 
-                                    <!-- แสดงเลขบัญชีที่ค้นหา -->
-                                    <% if (accountId) { %>
-                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                            <i class="fas fa-id-card mr-1"></i>บัญชี: <%= accountId %>
-                                        </span>
-                                    <% } %>
-
-                                    <!-- ปุ่มล้างตัวกรอง -->
-                                    <a href="/employee/wastePurchaseTotal" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors">
-                                        <i class="fas fa-times mr-1"></i>ล้างตัวกรอง
-                                    </a>
-                                </div>
-                            <% } %>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Stats cards -->
-                <div class="mx-4 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm text-gray-600">จำนวนการรับซื้อ</p>
-                                <p class="text-2xl font-bold text-blue-900 mt-1">
-                                    <%= purchaseCount %>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm text-gray-600">จำนวนลูกค้า</p>
-                                <p class="text-2xl font-bold text-green-900 mt-1">
-                                    <%= customerCount %>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm text-gray-600">ยอดการรับซื้อ</p>
-                                <p class="text-2xl font-bold text-purple-900 mt-1">
-                                    <%= totalAmount.toLocaleString('th-TH') %> บาท
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Search form and table -->
-                <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
-                    <div class="overflow-x-auto">
-                        <h2 class="text-base font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-4">
-                            ข้อมูลการรับซื้อ <span class="text-blue-600 text-base font-normal">
-                                <%= purchaseCount %> รายการ
-                            </span>
-                        </h2>
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-100">
-                                <tr>
-                                    <th
-                                        class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">
-                                        ลำดับที่</th>
-                                    <th
-                                        class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">
-                                        หมู่ที่</th>
-                                    <th
-                                        class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-700 uppercase">
-                                        เลขที่บัญชี</th>
-                                    <!-- <th
-                                        class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-700 uppercase">
-                                        ชื่อบัญชี</th> -->
-                                    <th
-                                        class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-700 uppercase">
-                                        ผู้ขาย</th>
-                                    <th
-                                        class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">
-                                        ยอดรวม (฿)</th>
-                                    <th
-                                        class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">
-                                        วัน-เวลาที่รับซื้อ</th>
-                                    <th
-                                        class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">
-                                        รายการขยะ</th>
-                                    <th
-                                        class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-700 uppercase">
-                                        พนักงาน</th>
-                                    <th
-                                        class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">
-                                        จัดการ</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <% if (wastePurchases.length> 0) { %>
-                                    <% wastePurchases.forEach((purchase, index)=> { %>
-                                        <tr class="hover:bg-gray-50 transition-colors">
-                                            <td class="px-6 py-4 text-center text-sm text-gray-900">
-                                                <%= startIndex + index + 1 %>
-                                            </td>
-
-                                            <!-- หมู่ที่ (ใหม่) -->
-                                            <td class="px-6 py-4 text-center text-sm text-gray-900">
-                                                <% if (purchase.accountId && purchase.accountId.length> 0 &&
-                                                    purchase.accountId[0].familyID &&
-                                                    purchase.accountId[0].familyID.village) { %>
-                                                    หมู่ <%= purchase.accountId[0].familyID.village.villageNumber %>
-                                                        <% } else { %>
-                                                            -
-                                                            <% } %>
-                                            </td>
-
-                                            <td class="px-6 py-4 text-sm text-gray-900">
-                                                <%= purchase.accountId && purchase.accountId.length> 0 ?
-                                                    purchase.accountId[0].AccountNumber : '-' %>
-                                            </td>
-                                            <!-- <td class="px-6 py-4 text-sm text-gray-900">
-                                                <%= purchase.accountId && purchase.accountId.length> 0 ?
-                                                    purchase.accountId[0].AccountName : '-' %>
-                                            </td> -->
-
-                                            <!-- ชื่อผู้ขาย (ใหม่) -->
-                                            <td class="px-6 py-4 text-sm text-gray-900">
-                                                <% if (purchase.accountId && purchase.accountId.length> 0 &&
-                                                    purchase.accountId[0].familyID &&
-                                                    purchase.accountId[0].familyID.members &&
-                                                    purchase.accountId[0].familyID.members.length > 0) { %>
-                                                    <div class="flex flex-col">
-                                                        <% purchase.accountId[0].familyID.members.forEach((member,
-                                                            idx)=> { %>
-                                                            <span class="<%= idx > 0 ? 'mt-1' : '' %>">
-                                                                <%= member.name %>
-                                                            </span>
-                                                            <% }); %>
-                                                    </div>
-                                                    <% } else { %>
-                                                        -
-                                                        <% } %>
-                                            </td>
-
-                                            <td class="px-6 py-4 text-center text-sm text-gray-900">
-                                                <%= (purchase.totalAmount || 0).toLocaleString('th-TH') %> บาท
-                                            </td>
-
-                                        
-                                                <td class="px-6 py-4 text-center text-sm text-gray-900">
-                                                    <%= purchase.purchaseDate.toLocaleDateString('th-TH') %>
-                                                    <%= purchase.purchaseDate.toLocaleTimeString('th-TH', { hour:'numeric', minute:'numeric' }) %>
-                                                </td>
-
-                                                <td class="px-6 py-4 text-center text-sm">
-                                                    <a href="#" data-items="<%= JSON.stringify({ 
-                                            wasteItems: purchase.wasteItems, 
-                                            accountId: purchase.accountId, 
-                                            purchaseDate: purchase.purchaseDate,
-                                            purchaseAddby: purchase.addByName 
-                                        }) %>" class="item-link text-blue-600 hover:text-blue-800 hover:underline flex items-center justify-center">
-                                                        <i class="fas fa-receipt mr-1"></i> รายการขยะ
-                                                    </a>
-                                                </td>
-
-                                                <td class="px-6 py-4 text-sm text-gray-900">
-                                                    <%= purchase.addByName ? purchase.addByName : 'Unknown' %>
-                                                </td>
-
-                                                <td class="px-6 py-4 text-center text-sm font-medium">
-                                                    <div class="flex items-center justify-center gap-2">
-                                                        <button
-                                                            onclick="showModalDelete('<%= index + 1 %>','<%= purchase._id %>')"
-                                                            class="delete-btn">
-                                                            <i class="fa fa-trash"></i>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                        </tr>
-                                        <% }); %>
-                                            <% } else { %>
-                                                <tr>
-                                                    <td colspan="10" class="px-6 py-10 text-center text-gray-500">-
-                                                        ยังไม่มีข้อมูล -</td>
-                                                </tr>
-                                                <% } %>
-                            </tbody>
-                        </table>
-                        
-                        <!-- Pagination -->
-                        <% 
-                            // สร้าง Query String สำหรับคงค่า Filter ต่างๆ
-                            const filterParams = (searchDate ? '&searchDate=' + searchDate : '') + 
-                                                (searchMonth ? '&searchMonth=' + searchMonth : '') + 
-                                                (searchYear ? '&searchYear=' + searchYear : '') + 
-                                                (villageId ? '&villageId=' + villageId : '') + 
-                                                (accountId ? '&accountId=' + accountId : '') + 
-                                                (search ? '&search=' + search : '');
-                        %>
-
-                        <div class="mx-4 mb-6 mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-                            <div class="text-sm text-gray-700">
-                                แสดง <%= totalCount > 0 ? ((pageNumber - 1) * limit) + 1 : 0 %> 
-                                ถึง <%= Math.min(pageNumber * limit, totalCount) %> 
-                                จาก <%= totalCount %> รายการ
-                            </div>
-
-                            <div class="flex items-center gap-2">
-                                <% if (pageNumber > 1) { %>
-                                <a href="?page=1<%= filterParams %>" 
-                                class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
-                                    <ion-icon name="play-back-outline"></ion-icon>
-                                </a>
-                                <% } %>
-
-                                <% if (pageNumber > 1) { %>
-                                <a href="?page=<%= pageNumber - 1 %><%= filterParams %>" 
-                                class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
-                                    <ion-icon name="chevron-back-outline"></ion-icon>
-                                </a>
-                                <% } else { %>
-                                <button disabled 
-                                        class="px-3 py-2 rounded-md bg-gray-100 border border-gray-300 text-sm text-gray-400 cursor-not-allowed">
-                                    <ion-icon name="chevron-back-outline"></ion-icon>
-                                </button>
-                                <% } %>
-
-                                <% 
-                                const maxPagesToShow = 5;
-                                let startPage = Math.max(1, pageNumber - Math.floor(maxPagesToShow / 2));
-                                let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
-                                
-                                if (endPage - startPage < maxPagesToShow - 1) {
-                                    startPage = Math.max(1, endPage - maxPagesToShow + 1);
-                                }
-                                
-                                if (startPage > 1) { %>
-                                    <span class="px-2 text-gray-500">...</span>
-                                <% } 
-                                
-                                for (let i = startPage; i <= endPage; i++) { %>
-                                    <% if (i === pageNumber) { %>
-                                    <button class="px-4 py-2 rounded-md bg-green-600 text-white text-sm font-medium">
-                                        <%= i %>
-                                    </button>
-                                    <% } else { %>
-                                    <a href="?page=<%= i %><%= filterParams %>" 
-                                    class="px-4 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
-                                        <%= i %>
-                                    </a>
-                                    <% } %>
-                                <% } 
-                                
-                                if (endPage < totalPages) { %>
-                                    <span class="px-2 text-gray-500">...</span>
-                                <% } %>
-
-                                <% if (pageNumber < totalPages) { %>
-                                <a href="?page=<%= pageNumber + 1 %><%= filterParams %>" 
-                                class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
-                                    <ion-icon name="chevron-forward-outline"></ion-icon>
-                                </a>
-                                <% } else { %>
-                                <button disabled 
-                                        class="px-3 py-2 rounded-md bg-gray-100 border border-gray-300 text-sm text-gray-400 cursor-not-allowed">
-                                    <ion-icon name="chevron-forward-outline"></ion-icon>
-                                </button>
-                                <% } %>
-
-                                <% if (pageNumber < totalPages) { %>
-                                <a href="?page=<%= totalPages %><%= filterParams %>" 
-                                class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
-                                    <ion-icon name="play-forward-outline"></ion-icon>
-                                </a>
-                                <% } %>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <% if (wasteSummary && wasteSummary.length > 0) { %>
-                <div class="mx-4 mb-6 bg-white rounded-lg shadow">
-                    
-                    <!-- Header ที่สามารถคลิกได้ -->
-                    <div class="p-4 cursor-pointer hover:bg-gray-50 transition-colors" onclick="toggleSummaryTable()">
-                        <div class="flex justify-between items-center">
-                            <div class="flex items-center gap-3">
-                                <div class="bg-green-100 p-2 rounded-lg">
-                                    <i class="fas fa-chart-bar text-green-600 text-lg"></i>
-                                </div>
-                                <div>
-                                    <h2 class="text-lg font-semibold text-gray-800">
-                                        สรุปยอดขายแยกตามประเภทขยะ
-                                        <% if (searchMonth || searchYear || villageId || accountId) { %>
-                                        <span class="text-sm font-normal text-gray-500">(กรองแล้ว)</span>
+                                        <!-- แสดงเดือนที่เลือก -->
+                                        <% if (searchMonth) { %>
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                <i class="fas fa-calendar mr-1"></i>
+                                                <% 
+                                                    const monthNames = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+                                                                        'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+                                                    const monthName = monthNames[parseInt(searchMonth) - 1];
+                                                %>
+                                                <%= monthName %>
+                                            </span>
                                         <% } %>
-                                    </h2>
-                                    <p class="text-sm text-gray-500 mt-1">
-                                        รวม <%= wasteSummary.length %> รายการ | 
-                                        น้ำหนัก <%= grandTotal.totalQuantity.toFixed(2) %> กก. | 
-                                        มูลค่า <%= grandTotal.totalAmount.toLocaleString('th-TH') %> บาท
+
+                                        <!-- แสดงปีที่เลือก -->
+                                        <% if (searchYear) { %>
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                                <i class="fas fa-calendar-alt mr-1"></i>ปี <%= parseInt(searchYear) + 543 %>
+                                            </span>
+                                        <% } %>
+                                        
+                                        <!-- แสดงหมู่บ้านที่เลือก -->
+                                        <% if (villageId) { %>
+                                            <% 
+                                                const selectedVillage = villages.find(v => v._id.toString() === villageId.toString());
+                                            %>
+                                            <% if (selectedVillage) { %>
+                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    <i class="fas fa-map-marker-alt mr-1"></i>หมู่ <%= selectedVillage.villageNumber %> - <%= selectedVillage.villageName %>
+                                                </span>
+                                            <% } %>
+                                        <% } %>
+
+                                        <!-- แสดงเลขบัญชีที่ค้นหา -->
+                                        <% if (accountId) { %>
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                <i class="fas fa-id-card mr-1"></i>บัญชี: <%= accountId %>
+                                            </span>
+                                        <% } %>
+
+                                        <!-- ปุ่มล้างตัวกรอง -->
+                                        <a href="/employee/wastePurchaseTotal" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors">
+                                            <i class="fas fa-times mr-1"></i>ล้างตัวกรอง
+                                        </a>
+                                    </div>
+                                <% } %>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Stats cards -->
+                    <div class="mx-4 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-600">จำนวนการรับซื้อ</p>
+                                    <p class="text-2xl font-bold text-blue-900 mt-1">
+                                        <%= purchaseCount %>
                                     </p>
                                 </div>
                             </div>
-                            <div class="flex items-center gap-3">
-                                <span class="text-sm text-gray-500">คลิกเพื่อแสดง/ซ่อน</span>
-                                <div id="toggle-icon" class="transform transition-transform duration-300">
-                                    <i class="fas fa-chevron-down text-gray-600 text-xl"></i>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-600">จำนวนลูกค้า</p>
+                                    <p class="text-2xl font-bold text-green-900 mt-1">
+                                        <%= customerCount %>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-600">ยอดการรับซื้อ</p>
+                                    <p class="text-2xl font-bold text-purple-900 mt-1">
+                                        <%= totalAmount.toLocaleString('th-TH') %> บาท
+                                    </p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- เนื้อหาที่ซ่อน/แสดงได้ -->
-                    <div id="summary-table-content" class="hidden">
-                        <div class="p-4 border-t border-gray-200" id="printable-summary-section">
-                            
-                            <!-- Header สำหรับพิมพ์ (ซ่อนในหน้าจอปกติ) -->
-                            <div id="print-header" style="display: none;">
-                                <h1>รายงานสรุปยอดขายแยกตามประเภทขยะ</h1>
-                                <p>วันที่พิมพ์: <%= new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %></p>
-                                <% if (searchDate || searchMonth || searchYear || villageId || accountId) { %>
-                                <p>เงื่อนไข: 
-                                    <%= searchDate ? 'วันที่ ' + new Date(searchDate).toLocaleDateString('th-TH') : '' %>
-                                    <%= searchMonth && !searchDate ? ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'][parseInt(searchMonth) - 1] : '' %>
-                                    <%= searchYear && !searchDate ? ' ปี ' + (parseInt(searchYear) + 543) : '' %>
-                                    <% if (villageId && villages) { %>
-                                        <% const selectedVillage = villages.find(v => v._id.toString() === villageId.toString()); %>
-                                        <%= selectedVillage ? 'หมู่ ' + selectedVillage.villageNumber + ' - ' + selectedVillage.villageName : '' %>
-                                    <% } %>
-                                    <%= accountId ? ' เลขบัญชี: ' + accountId : '' %>
-                                </p>
-                                <% } else { %>
-                                <p>แสดงข้อมูลทั้งหมด</p>
-                                <% } %>
-                            </div>
-                            
-                            <!-- ปุ่มควบคุม (แสดงเมื่อเปิดตาราง) -->
-                            <div class="mb-4 flex justify-end gap-2 no-print">
-                                <button onclick="printSummaryReport()" 
-                                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition border border-blue-600 text-sm">
-                                    <i class="fas fa-print mr-2"></i>พิมพ์รายงาน
-                                </button>
-                                <button onclick="exportWasteSummaryToCSV()" 
-                                        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition border border-green-600 text-sm">
-                                    <i class="fas fa-file-csv mr-2"></i>ส่งออก CSV
-                                </button>
-                            </div>
+                    <!-- Search form and table -->
+                    <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+                        <div class="overflow-x-auto">
+                            <h2 class="text-base font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-4">
+                                ข้อมูลการรับซื้อ <span class="text-blue-600 text-base font-normal">
+                                    <%= purchaseCount %> รายการ
+                                </span>
+                            </h2>
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th
+                                            class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">
+                                            ลำดับที่</th>
+                                        <th
+                                            class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">
+                                            หมู่ที่</th>
+                                        <th
+                                            class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-700 uppercase">
+                                            เลขที่บัญชี</th>
+                                        <!-- <th
+                                            class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-700 uppercase">
+                                            ชื่อบัญชี</th> -->
+                                        <th
+                                            class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-700 uppercase">
+                                            ผู้ขาย</th>
+                                        <th
+                                            class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">
+                                            ยอดรวม (฿)</th>
+                                        <th
+                                            class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">
+                                            วัน-เวลาที่รับซื้อ</th>
+                                        <th
+                                            class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">
+                                            รายการขยะ</th>
+                                        <th
+                                            class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-700 uppercase">
+                                            พนักงาน</th>
+                                        <th
+                                            class="px-6 py-3 text-xs font-medium tracking-wider text-center text-gray-700 uppercase">
+                                            จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <% if (wastePurchases.length> 0) { %>
+                                        <% wastePurchases.forEach((purchase, index)=> { %>
+                                            <tr class="hover:bg-gray-50 transition-colors">
+                                                <td class="px-6 py-4 text-center text-sm text-gray-900">
+                                                    <%= startIndex + index + 1 %>
+                                                </td>
 
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-100">
-                                        <tr>
-                                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                                หมู่ที่ / ลำดับ
-                                            </th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                                ชื่อขยะ / รายการ
-                                            </th>
-                                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                                จำนวน<br>(ครัวเรือน)
-                                            </th>
-                                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                                น้ำหนักรวม<br>(กก.)
-                                            </th>
-                                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                                จำนวนเงิน
-                                            </th>
-                                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                                หมายเหตุ
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        <% if (!wasteSummary || wasteSummary.length === 0) { %>
-                                        <tr>
-                                            <td colspan="6" class="px-6 py-8 text-center text-gray-500">
-                                                ไม่พบข้อมูล
-                                            </td>
-                                        </tr>
-                                        <% } else { %>
-                                            <% let globalIndex = 0; %>
-                                            <% wasteSummary.forEach((village, villageIdx) => { %>
-                                                <% village.wasteItems.forEach((item, itemIdx) => { %>
-                                                    <% globalIndex++; %>
-                                                    <tr class="<%= globalIndex % 2 === 0 ? 'bg-gray-50' : 'bg-white' %> hover:bg-blue-50">
-                                                        <td class="px-6 py-4 text-center text-sm text-gray-900">
-                                                            <% if (itemIdx === 0) { %>
-                                                                <div class="font-bold text-blue-700 text-base">
-                                                                    หมู่ <%= village._id.villageNumber %>
-                                                                </div>
+                                                <!-- หมู่ที่ (ใหม่) -->
+                                                <td class="px-6 py-4 text-center text-sm text-gray-900">
+                                                    <% if (purchase.accountId && purchase.accountId.length> 0 &&
+                                                        purchase.accountId[0].familyID &&
+                                                        purchase.accountId[0].familyID.village) { %>
+                                                        หมู่ <%= purchase.accountId[0].familyID.village.villageNumber %>
                                                             <% } else { %>
-                                                                <span class="text-gray-400">-</span>
-                                                            <% } %>
-                                                        </td>
-                                                        <td class="px-6 py-4 text-sm text-gray-900">
-                                                            <%= item.wasteName %>
-                                                        </td>
-                                                        <td class="px-6 py-4 text-center text-sm text-gray-900">
-                                                            <%= item.householdCount %>
-                                                        </td>
-                                                        <td class="px-6 py-4 text-center text-sm text-gray-900">
-                                                            <div class="font-medium"><%= item.totalQuantity.toFixed(2) %></div>
-                                                        </td>
-                                                        <td class="px-6 py-4 text-center text-sm font-semibold text-green-600">
-                                                            <%= item.totalAmount.toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>
-                                                        </td>
-                                                        <td class="px-6 py-4 text-center text-sm text-gray-500">
+                                                                -
+                                                                <% } %>
+                                                </td>
+
+                                                <td class="px-6 py-4 text-sm text-gray-900">
+                                                    <%= purchase.accountId && purchase.accountId.length> 0 ?
+                                                        purchase.accountId[0].AccountNumber : '-' %>
+                                                </td>
+                                                <!-- <td class="px-6 py-4 text-sm text-gray-900">
+                                                    <%= purchase.accountId && purchase.accountId.length> 0 ?
+                                                        purchase.accountId[0].AccountName : '-' %>
+                                                </td> -->
+
+                                                <!-- ชื่อผู้ขาย (ใหม่) -->
+                                                <td class="px-6 py-4 text-sm text-gray-900">
+                                                    <% if (purchase.accountId && purchase.accountId.length> 0 &&
+                                                        purchase.accountId[0].familyID &&
+                                                        purchase.accountId[0].familyID.members &&
+                                                        purchase.accountId[0].familyID.members.length > 0) { %>
+                                                        <div class="flex flex-col">
+                                                            <% purchase.accountId[0].familyID.members.forEach((member,
+                                                                idx)=> { %>
+                                                                <span class="<%= idx > 0 ? 'mt-1' : '' %>">
+                                                                    <%= member.name %>
+                                                                </span>
+                                                                <% }); %>
+                                                        </div>
+                                                        <% } else { %>
                                                             -
-                                                        </td>
-                                                    </tr>
-                                                <% }); %>
-                                                
-                                                <!-- แถวรวมของแต่ละหมู่บ้าน -->
-                                                <tr class="bg-blue-50 font-semibold">
-                                                    <td colspan="2" class="px-6 py-3 text-right text-sm">
-                                                        รวมหมู่ <%= village._id.villageNumber %> 
-                                                        <span class="text-xs font-normal text-gray-600">
-                                                            (<%= village._id.villageName %>)
-                                                        </span>
-                                                    </td>
-                                                    <td class="px-6 py-3 text-center text-sm text-blue-700">
-                                                        <%= village.villageTotalHouseholds %>
-                                                    </td>
-                                                    <td class="px-6 py-3 text-center text-sm text-blue-700">
-                                                        <%= village.villageTotalQuantity.toFixed(2) %>
-                                                    </td>
-                                                    <td class="px-6 py-3 text-center text-sm text-blue-700">
-                                                        <%= village.villageTotalAmount.toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>
-                                                    </td>
-                                                    <td class="px-6 py-3"></td>
-                                                </tr>
-                                            <% }); %>
+                                                            <% } %>
+                                                </td>
+
+                                                <td class="px-6 py-4 text-center text-sm text-gray-900">
+                                                    <%= (purchase.totalAmount || 0).toLocaleString('th-TH') %> บาท
+                                                </td>
+
                                             
-                                            <!-- แถวรวมทั้งหมด -->
-                                            <tr class="bg-yellow-50 border-t-2 border-yellow-300 font-bold">
-                                                <td colspan="2" class="px-6 py-4 text-right text-sm">
-                                                    รวมทั้งหมด (<%= grandTotal.villageCount %> หมู่บ้าน)
-                                                </td>
-                                                <td class="px-6 py-4 text-center text-sm text-green-700">
-                                                    <%= grandTotal.totalHouseholds %>
-                                                </td>
-                                                <td class="px-6 py-4 text-center text-sm text-green-700">
-                                                    <%= grandTotal.totalQuantity.toFixed(2) %>
-                                                </td>
-                                                <td class="px-6 py-4 text-center text-sm text-green-700">
-                                                    <%= grandTotal.totalAmount.toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>
-                                                </td>
-                                                <td class="px-6 py-4"></td>
+                                                    <td class="px-6 py-4 text-center text-sm text-gray-900">
+                                                        <%= purchase.purchaseDate.toLocaleDateString('th-TH') %>
+                                                        <%= purchase.purchaseDate.toLocaleTimeString('th-TH', { hour:'numeric', minute:'numeric' }) %>
+                                                    </td>
+
+                                                    <td class="px-6 py-4 text-center text-sm">
+                                                        <a href="#" data-items="<%= JSON.stringify({ 
+                                                wasteItems: purchase.wasteItems, 
+                                                accountId: purchase.accountId, 
+                                                purchaseDate: purchase.purchaseDate,
+                                                purchaseAddby: purchase.addByName 
+                                            }) %>" class="item-link text-blue-600 hover:text-blue-800 hover:underline flex items-center justify-center">
+                                                            <i class="fas fa-receipt mr-1"></i> รายการขยะ
+                                                        </a>
+                                                    </td>
+
+                                                    <td class="px-6 py-4 text-sm text-gray-900">
+                                                        <%= purchase.addByName ? purchase.addByName : 'Unknown' %>
+                                                    </td>
+
+                                                    <td class="px-6 py-4 text-center text-sm font-medium">
+                                                        <div class="flex items-center justify-center gap-2">
+                                                            <button
+                                                                onclick="showModalDelete('<%= index + 1 %>','<%= purchase._id %>')"
+                                                                class="delete-btn">
+                                                                <i class="fa fa-trash"></i>
+                                                            </button>
+                                                        </div>
+                                                    </td>
                                             </tr>
-                                        <% } %>
-                                    </tbody>
-                                </table>
-                            </div>
+                                            <% }); %>
+                                                <% } else { %>
+                                                    <tr>
+                                                        <td colspan="10" class="px-6 py-10 text-center text-gray-500">-
+                                                            ยังไม่มีข้อมูล -</td>
+                                                    </tr>
+                                                    <% } %>
+                                </tbody>
+                            </table>
                             
-                            <!-- Footer สำหรับพิมพ์ -->
-                            <div id="print-footer" style="display: none;">
-                                เอกสารนี้สร้างโดยระบบกองทุนขยะรีไซเคิล เมื่อ <%= new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %>
+                            <!-- Pagination -->
+                            <% 
+                                // สร้าง Query String สำหรับคงค่า Filter ต่างๆ
+                                const filterParams = (searchDate ? '&searchDate=' + searchDate : '') + 
+                                                    (searchMonth ? '&searchMonth=' + searchMonth : '') + 
+                                                    (searchYear ? '&searchYear=' + searchYear : '') + 
+                                                    (villageId ? '&villageId=' + villageId : '') + 
+                                                    (accountId ? '&accountId=' + accountId : '') + 
+                                                    (search ? '&search=' + search : '');
+                            %>
+
+                            <div class="mx-4 mb-6 mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                <div class="text-sm text-gray-700">
+                                    แสดง <%= totalCount > 0 ? ((pageNumber - 1) * limit) + 1 : 0 %> 
+                                    ถึง <%= Math.min(pageNumber * limit, totalCount) %> 
+                                    จาก <%= totalCount %> รายการ
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <% if (pageNumber > 1) { %>
+                                    <a href="?page=1<%= filterParams %>" 
+                                    class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
+                                        <ion-icon name="play-back-outline"></ion-icon>
+                                    </a>
+                                    <% } %>
+
+                                    <% if (pageNumber > 1) { %>
+                                    <a href="?page=<%= pageNumber - 1 %><%= filterParams %>" 
+                                    class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
+                                        <ion-icon name="chevron-back-outline"></ion-icon>
+                                    </a>
+                                    <% } else { %>
+                                    <button disabled 
+                                            class="px-3 py-2 rounded-md bg-gray-100 border border-gray-300 text-sm text-gray-400 cursor-not-allowed">
+                                        <ion-icon name="chevron-back-outline"></ion-icon>
+                                    </button>
+                                    <% } %>
+
+                                    <% 
+                                    const maxPagesToShow = 5;
+                                    let startPage = Math.max(1, pageNumber - Math.floor(maxPagesToShow / 2));
+                                    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+                                    
+                                    if (endPage - startPage < maxPagesToShow - 1) {
+                                        startPage = Math.max(1, endPage - maxPagesToShow + 1);
+                                    }
+                                    
+                                    if (startPage > 1) { %>
+                                        <span class="px-2 text-gray-500">...</span>
+                                    <% } 
+                                    
+                                    for (let i = startPage; i <= endPage; i++) { %>
+                                        <% if (i === pageNumber) { %>
+                                        <button class="px-4 py-2 rounded-md bg-green-600 text-white text-sm font-medium">
+                                            <%= i %>
+                                        </button>
+                                        <% } else { %>
+                                        <a href="?page=<%= i %><%= filterParams %>" 
+                                        class="px-4 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
+                                            <%= i %>
+                                        </a>
+                                        <% } %>
+                                    <% } 
+                                    
+                                    if (endPage < totalPages) { %>
+                                        <span class="px-2 text-gray-500">...</span>
+                                    <% } %>
+
+                                    <% if (pageNumber < totalPages) { %>
+                                    <a href="?page=<%= pageNumber + 1 %><%= filterParams %>" 
+                                    class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
+                                        <ion-icon name="chevron-forward-outline"></ion-icon>
+                                    </a>
+                                    <% } else { %>
+                                    <button disabled 
+                                            class="px-3 py-2 rounded-md bg-gray-100 border border-gray-300 text-sm text-gray-400 cursor-not-allowed">
+                                        <ion-icon name="chevron-forward-outline"></ion-icon>
+                                    </button>
+                                    <% } %>
+
+                                    <% if (pageNumber < totalPages) { %>
+                                    <a href="?page=<%= totalPages %><%= filterParams %>" 
+                                    class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
+                                        <ion-icon name="play-forward-outline"></ion-icon>
+                                    </a>
+                                    <% } %>
+                                </div>
                             </div>
                         </div>
                     </div>
+
+                    <% if (wasteSummary && wasteSummary.length > 0) { %>
+                    <div class="mx-4 mb-6 bg-white rounded-lg shadow">
+                        
+                        <!-- Header ที่สามารถคลิกได้ -->
+                        <div class="p-4 cursor-pointer hover:bg-gray-50 transition-colors" onclick="toggleSummaryTable()">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-3">
+                                    <div class="bg-green-100 p-2 rounded-lg">
+                                        <i class="fas fa-chart-bar text-green-600 text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <h2 class="text-lg font-semibold text-gray-800">
+                                            สรุปยอดขายแยกตามประเภทขยะ
+                                            <% if (searchMonth || searchYear || villageId || accountId) { %>
+                                            <span class="text-sm font-normal text-gray-500">(กรองแล้ว)</span>
+                                            <% } %>
+                                        </h2>
+                                        <p class="text-sm text-gray-500 mt-1">
+                                            รวม <%= wasteSummary.length %> รายการ | 
+                                            น้ำหนัก <%= grandTotal.totalQuantity.toFixed(2) %> กก. | 
+                                            มูลค่า <%= grandTotal.totalAmount.toLocaleString('th-TH') %> บาท
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-sm text-gray-500">คลิกเพื่อแสดง/ซ่อน</span>
+                                    <div id="toggle-icon" class="transform transition-transform duration-300">
+                                        <i class="fas fa-chevron-down text-gray-600 text-xl"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- เนื้อหาที่ซ่อน/แสดงได้ -->
+                        <div id="summary-table-content" class="hidden">
+                            <div class="p-4 border-t border-gray-200" id="printable-summary-section">
+                                
+                                <!-- Header สำหรับพิมพ์ (ซ่อนในหน้าจอปกติ) -->
+                                <div id="print-header" style="display: none;">
+                                    <h1>รายงานสรุปยอดขายแยกตามประเภทขยะ</h1>
+                                    <p>วันที่พิมพ์: <%= new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %></p>
+                                    <% if (searchDate || searchMonth || searchYear || villageId || accountId) { %>
+                                    <p>เงื่อนไข: 
+                                        <%= searchDate ? 'วันที่ ' + new Date(searchDate).toLocaleDateString('th-TH') : '' %>
+                                        <%= searchMonth && !searchDate ? ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'][parseInt(searchMonth) - 1] : '' %>
+                                        <%= searchYear && !searchDate ? ' ปี ' + (parseInt(searchYear) + 543) : '' %>
+                                        <% if (villageId && villages) { %>
+                                            <% const selectedVillage = villages.find(v => v._id.toString() === villageId.toString()); %>
+                                            <%= selectedVillage ? 'หมู่ ' + selectedVillage.villageNumber + ' - ' + selectedVillage.villageName : '' %>
+                                        <% } %>
+                                        <%= accountId ? ' เลขบัญชี: ' + accountId : '' %>
+                                    </p>
+                                    <% } else { %>
+                                    <p>แสดงข้อมูลทั้งหมด</p>
+                                    <% } %>
+                                </div>
+                                
+                                <!-- ปุ่มควบคุม (แสดงเมื่อเปิดตาราง) -->
+                                <div class="mb-4 flex justify-end gap-2 no-print">
+                                    <button onclick="printSummaryReport()" 
+                                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition border border-blue-600 text-sm">
+                                        <i class="fas fa-print mr-2"></i>พิมพ์รายงาน
+                                    </button>
+                                    <button onclick="exportWasteSummaryToCSV()" 
+                                            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition border border-green-600 text-sm">
+                                        <i class="fas fa-file-csv mr-2"></i>ส่งออก CSV
+                                    </button>
+                                </div>
+
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-100">
+                                            <tr>
+                                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                                    หมู่ที่ / ลำดับ
+                                                </th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                                    ชื่อขยะ / รายการ
+                                                </th>
+                                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                                    จำนวน<br>(ครัวเรือน)
+                                                </th>
+                                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                                    น้ำหนักรวม<br>(กก.)
+                                                </th>
+                                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                                    จำนวนเงิน
+                                                </th>
+                                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                                    หมายเหตุ
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            <% if (!wasteSummary || wasteSummary.length === 0) { %>
+                                            <tr>
+                                                <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                                                    ไม่พบข้อมูล
+                                                </td>
+                                            </tr>
+                                            <% } else { %>
+                                                <% let globalIndex = 0; %>
+                                                <% wasteSummary.forEach((village, villageIdx) => { %>
+                                                    <% village.wasteItems.forEach((item, itemIdx) => { %>
+                                                        <% globalIndex++; %>
+                                                        <tr class="<%= globalIndex % 2 === 0 ? 'bg-gray-50' : 'bg-white' %> hover:bg-blue-50">
+                                                            <td class="px-6 py-4 text-center text-sm text-gray-900">
+                                                                <% if (itemIdx === 0) { %>
+                                                                    <div class="font-bold text-blue-700 text-base">
+                                                                        หมู่ <%= village._id.villageNumber %>
+                                                                    </div>
+                                                                <% } else { %>
+                                                                    <span class="text-gray-400">-</span>
+                                                                <% } %>
+                                                            </td>
+                                                            <td class="px-6 py-4 text-sm text-gray-900">
+                                                                <%= item.wasteName %>
+                                                            </td>
+                                                            <td class="px-6 py-4 text-center text-sm text-gray-900">
+                                                                <%= item.householdCount %>
+                                                            </td>
+                                                            <td class="px-6 py-4 text-center text-sm text-gray-900">
+                                                                <div class="font-medium"><%= item.totalQuantity.toFixed(2) %></div>
+                                                            </td>
+                                                            <td class="px-6 py-4 text-center text-sm font-semibold text-green-600">
+                                                                <%= item.totalAmount.toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>
+                                                            </td>
+                                                            <td class="px-6 py-4 text-center text-sm text-gray-500">
+                                                                -
+                                                            </td>
+                                                        </tr>
+                                                    <% }); %>
+                                                    
+                                                    <!-- แถวรวมของแต่ละหมู่บ้าน -->
+                                                    <tr class="bg-blue-50 font-semibold">
+                                                        <td colspan="2" class="px-6 py-3 text-right text-sm">
+                                                            รวมหมู่ <%= village._id.villageNumber %> 
+                                                            <span class="text-xs font-normal text-gray-600">
+                                                                (<%= village._id.villageName %>)
+                                                            </span>
+                                                        </td>
+                                                        <td class="px-6 py-3 text-center text-sm text-blue-700">
+                                                            <%= village.villageTotalHouseholds %>
+                                                        </td>
+                                                        <td class="px-6 py-3 text-center text-sm text-blue-700">
+                                                            <%= village.villageTotalQuantity.toFixed(2) %>
+                                                        </td>
+                                                        <td class="px-6 py-3 text-center text-sm text-blue-700">
+                                                            <%= village.villageTotalAmount.toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>
+                                                        </td>
+                                                        <td class="px-6 py-3"></td>
+                                                    </tr>
+                                                <% }); %>
+                                                
+                                                <!-- แถวรวมทั้งหมด -->
+                                                <tr class="bg-yellow-50 border-t-2 border-yellow-300 font-bold">
+                                                    <td colspan="2" class="px-6 py-4 text-right text-sm">
+                                                        รวมทั้งหมด (<%= grandTotal.villageCount %> หมู่บ้าน)
+                                                    </td>
+                                                    <td class="px-6 py-4 text-center text-sm text-green-700">
+                                                        <%= grandTotal.totalHouseholds %>
+                                                    </td>
+                                                    <td class="px-6 py-4 text-center text-sm text-green-700">
+                                                        <%= grandTotal.totalQuantity.toFixed(2) %>
+                                                    </td>
+                                                    <td class="px-6 py-4 text-center text-sm text-green-700">
+                                                        <%= grandTotal.totalAmount.toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>
+                                                    </td>
+                                                    <td class="px-6 py-4"></td>
+                                                </tr>
+                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <!-- Footer สำหรับพิมพ์ -->
+                                <div id="print-footer" style="display: none;">
+                                    เอกสารนี้สร้างโดยระบบกองทุนขยะรีไซเคิล เมื่อ <%= new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <% } %>
                 </div>
-                <% } %>
             </div>
 </body>
 

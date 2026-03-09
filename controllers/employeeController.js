@@ -1355,7 +1355,7 @@ const memberRegister = async (req, res) => {
 
         // สร้างเลขบัญชี
         const villageNumber = String(village.villageNumber).padStart(2, '0');
-        const currentYear = new Date().getFullYear() + 543;
+        const currentYear = new Date().getFullYear() + 542;
         const yearSuffix = String(currentYear).slice(-2);
         
         const latestAccount = await WasteBankAccount.find({

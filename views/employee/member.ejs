@@ -14,7 +14,6 @@
 
 <body>
     <%- include('../partials/employeePartials/empHeader.ejs') %>
-        <%- include('../partials/employeePartials/empSidebar.ejs') %>
             <script>
                 // เช็คข้อความที่ส่งมาจาก URL
                 const urlParams = new URLSearchParams(window.location.search);
@@ -44,270 +43,273 @@
                 }
             </script>
 
-            <div class="content bg-gray-50 min-screen">
-                <div class="mt-4 mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
-                    <div>
-                        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
-                            สมาชิกกองทุนขยะรีไซเคิล</h1>
-                        <p class="text-gray-600">ข้อมูลสมาชิกกองทุนขยะรีไซเคิลทั้งหมด</p>
+            <div class="flex w-full">
+                <%- include('../partials/employeePartials/empSidebar.ejs') %>
+                <div class="content bg-gray-50 min-screen">
+                    <div class="mt-4 mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
+                        <div>
+                            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
+                                สมาชิกกองทุนขยะรีไซเคิล</h1>
+                            <p class="text-gray-600">ข้อมูลสมาชิกกองทุนขยะรีไซเคิลทั้งหมด</p>
+                        </div>
+
+                        <div>
+                            <button type="button"
+                                class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition duration-300"
+                                onclick="ShowAddFamilyForm()">เพิ่มสมาชิก</button>
+                        </div>
                     </div>
 
-                    <div>
-                        <button type="button"
-                            class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition duration-300"
-                            onclick="ShowAddFamilyForm()">เพิ่มสมาชิก</button>
-                    </div>
-                </div>
 
-
-                <!-- Search and Filter Section -->
-                <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
-                    <form action="" method="GET">
-                        <div class="flex flex-col md:flex-row gap-4">
-                            <div class="flex-1">
-                                <div class="relative">
-                                    <input type="text" id="search" name="familyName"
-                                        value="<%= query.familyName || '' %>" placeholder="ชื่อครัวเรือน..."
-                                        class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                                    <div class="absolute left-3 top-2.5 text-gray-400">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                        </svg>
+                    <!-- Search and Filter Section -->
+                    <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+                        <form action="" method="GET">
+                            <div class="flex flex-col md:flex-row gap-4">
+                                <div class="flex-1">
+                                    <div class="relative">
+                                        <input type="text" id="search" name="familyName"
+                                            value="<%= query.familyName || '' %>" placeholder="ชื่อครัวเรือน..."
+                                            class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                        <div class="absolute left-3 top-2.5 text-gray-400">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                            </svg>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="flex-1 md:flex-1">
-                                <div class="relative">
-                                    <input type="text" id="searchAccountNumber" name="AccountNumber"
-                                        value="<%= query.AccountNumber || '' %>" placeholder="เลขบัญชี..."
-                                        class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                                    <div class="absolute left-3 top-2.5 text-gray-400">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                        </svg>
+                                <div class="flex-1 md:flex-1">
+                                    <div class="relative">
+                                        <input type="text" id="searchAccountNumber" name="AccountNumber"
+                                            value="<%= query.AccountNumber || '' %>" placeholder="เลขบัญชี..."
+                                            class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                        <div class="absolute left-3 top-2.5 text-gray-400">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                            </svg>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="md:w-64">
-                                <select name="village"
-                                    class="w-full py-2 px-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                                    <option value="">เลือกหมู่บ้าน</option>
-                                    <% villages.forEach(v=> { %>
-                                        <option value="<%= v._id %>" <%=query.village==v._id ? 'selected' : '' %>><%=
-                                                v.villageName %>
+                                <div class="md:w-64">
+                                    <select name="village"
+                                        class="w-full py-2 px-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                        <option value="">เลือกหมู่บ้าน</option>
+                                        <% villages.forEach(v=> { %>
+                                            <option value="<%= v._id %>" <%=query.village==v._id ? 'selected' : '' %>><%=
+                                                    v.villageName %>
+                                            </option>
+                                            <% }) %>
+                                    </select>
+                                </div>
+                                <div class="md:w-64">
+                                    <select name="Type"
+                                        class="w-full py-2 px-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                        <option value="">เลือกประเภท</option>
+                                        <option value="household" <%=query.Type==='household' ? 'selected' : '' %>>บ้าน
                                         </option>
-                                        <% }) %>
-                                </select>
+                                        <option value="school" <%=query.Type==='school' ? 'selected' : '' %>>โรงเรียน
+                                        </option>
+                                        <option value="municipality" <%=query.Type==='municipality' ? 'selected' : '' %>
+                                            >อปท.</option>
+                                        <option value="community" <%=query.Type==='community' ? 'selected' : '' %>>ชุมชน
+                                        </option>>
+                                        <option value="temple" <%=query.Type==='temple' ? 'selected' : '' %>>วัด</option>>
+                                    </select>
+                                </div>
+                                <div>
+                                    <button
+                                        class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                        <i class="fas fa-search mr-2"></i>ค้นหา
+                                    </button>
+                                </div>
                             </div>
-                            <div class="md:w-64">
-                                <select name="Type"
-                                    class="w-full py-2 px-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                                    <option value="">เลือกประเภท</option>
-                                    <option value="household" <%=query.Type==='household' ? 'selected' : '' %>>บ้าน
-                                    </option>
-                                    <option value="school" <%=query.Type==='school' ? 'selected' : '' %>>โรงเรียน
-                                    </option>
-                                    <option value="municipality" <%=query.Type==='municipality' ? 'selected' : '' %>
-                                        >อปท.</option>
-                                    <option value="community" <%=query.Type==='community' ? 'selected' : '' %>>ชุมชน
-                                    </option>>
-                                    <option value="temple" <%=query.Type==='temple' ? 'selected' : '' %>>วัด</option>>
-                                </select>
-                            </div>
-                            <div>
-                                <button
-                                    class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                                    <i class="fas fa-search mr-2"></i>ค้นหา
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
-                    <div class="mb-4 border-b border-gray-200 border-b border-gray-200 pb-4">
-                        <h2 class="text-base font-semibold text-gray-800 mb-4 md:mb-0">
-                            จำนวนสมาชิกทั้งหมด <span class="text-blue-600 text-base font-normal">
-                                <%= totalFamilies %> รายการ
-                            </span>
-                        </h2>
+                        </form>
                     </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-100">
-                                <tr>
-                                    <th
-                                        class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">
-                                        ลำดับที่</th>
-                                    <th
-                                        class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">
-                                        เลขบัญชี</th>
-                                    <th
-                                        class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">
-                                        ชื่อครัวเรือน</th>
-                                    <th
-                                        class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">
-                                        ชื่อบัญชีครัวเรือน</th>
-                                    <th
-                                        class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">
-                                        ที่อยู่</th>
-                                    <th
-                                        class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">
-                                        หมู่บ้าน</th>
-                                    <th
-                                        class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">
-                                        จำนวนสมาชิก</th>
-                                    <th
-                                        class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">
-                                        ประเภท</th>
-                                    <th
-                                        class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">
-                                        จัดการ</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <% if (allFamilies.length> 0) { %>
-                                    <% allFamilies.forEach((family, index)=> { %>
-                                        <tr class="hover:bg-gray-50 transition-colors">
-                                            <td class="px-4 py-3 text-sm whitespace-nowrap text-center">
-                                                <%= ((pagination.currentPage - 1) * pagination.itemsPerPage) + index + 1 %>
-                                            </td>
-                                            <td class="px-4 py-3 text-sm whitespace-nowrap">
-                                                <%= family.AccountNumber %>
-                                            </td>
-                                            <td class="px-4 py-3 text-sm whitespace-nowrap">
-                                                <%= family.familyName %>
-                                            </td>
-                                            <td class="px-4 py-3 text-sm whitespace-nowrap">
-                                                <%= family.AccountName %>
-                                            </td>
-                                            <td class="px-4 py-3 text-sm whitespace-nowrap">
-                                                <a href="#" onclick='ShowLocation(<%= JSON.stringify(family) %>)'
-                                                    class="text-blue-500 hover:text-blue-700 hover:underline transition-colors">
-                                                    ข้อมูลที่อยู่ของครัวเรือน
-                                                </a>
-                                            </td>
-                                            <td class="px-4 py-3 text-sm whitespace-nowrap">
-                                                <%= family.village.villageName %>
-                                            </td>
-                                            <td class="px-4 py-3 text-sm whitespace-nowrap text-center">
-                                                <%= family.NumFamilyMembers %>
-                                            </td>
-                                            <td class="px-4 py-3 text-sm whitespace-nowrap">
-                                                <span class="px-2 py-1 rounded-full text-sm font-medium">
-                                                    <%= family.typeThai %>
-                                                </span>
-                                            </td>
-                                            <td class="px-4 py-3 whitespace-nowrap text-center">
-                                                <div class="flex items-center justify-center gap-2"> <button onclick="showEditModal('<%= family._id %>')" 
-                                                        class="h-8 w-8 rounded bg-blue-500 text-white hover:bg-blue-600 transition-colors flex items-center justify-center"
-                                                        title="แก้ไข">
-                                                        <i class="fa-solid fa-pen-to-square text-xs"></i>
-                                                    </button>
-
-                                                    <button onclick="showChangeRepresentativeModal('<%= family._id %>')" 
-                                                        class="h-8 w-8 rounded bg-purple-500 text-white hover:bg-purple-600 transition-colors flex items-center justify-center"
-                                                        title="เปลี่ยนตัวแทนครัวเรือน">
-                                                        <i class="fa-solid fa-user-check text-xs"></i>
-                                                    </button>
-
-                                                    <button onclick="showModalDelete('<%= ((pagination.currentPage - 1) * pagination.itemsPerPage) + index + 1 %>', '<%= family._id %>','<%= family.AccountNumber %>','<%= family.familyName %>')" 
-                                                        class="h-8 w-8 rounded bg-red-500 text-white hover:bg-red-600 transition-colors flex items-center justify-center"
-                                                        title="ลบ">
-                                                        <i class="fa-solid fa-trash text-xs"></i>
-                                                    </button>
-                                                    
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <% }); %>
-                                            <% } else { %>
-                                                <tr>
-                                                    <td colspan="8" class="text-center py-4 text-gray-500">
-                                                        -ไม่พบข้อมูลสมาชิก -</td>
-                                                </tr>
-                                            <% } %>
-                            </tbody>
-                        </table>
-                    </div>
-                    <!-- Pagination Controls -->
-                    <% if (pagination) { %>
-                    <div class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t pt-4">
-                        <div class="text-sm text-gray-700">
-                            แสดง <%= ((pagination.currentPage - 1) * pagination.itemsPerPage) + 1 %>
-                            ถึง <%= Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems) %>
-                            จาก <%= pagination.totalItems %> รายการ
+                    <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
+                        <div class="mb-4 border-b border-gray-200 border-b border-gray-200 pb-4">
+                            <h2 class="text-base font-semibold text-gray-800 mb-4 md:mb-0">
+                                จำนวนสมาชิกทั้งหมด <span class="text-blue-600 text-base font-normal">
+                                    <%= totalFamilies %> รายการ
+                                </span>
+                            </h2>
                         </div>
 
-                        <div class="flex items-center gap-2">
-                            <!-- ปุ่มหน้าแรก -->
-                            <% if (pagination.currentPage > 1) { %>
-                            <a href="?<%= new URLSearchParams({...query, page: 1}).toString() %>"
-                                class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
-                                «
-                            </a>
-                            <% } %>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th
+                                            class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">
+                                            ลำดับที่</th>
+                                        <th
+                                            class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">
+                                            เลขบัญชี</th>
+                                        <th
+                                            class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">
+                                            ชื่อครัวเรือน</th>
+                                        <th
+                                            class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">
+                                            ชื่อบัญชีครัวเรือน</th>
+                                        <th
+                                            class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">
+                                            ที่อยู่</th>
+                                        <th
+                                            class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">
+                                            หมู่บ้าน</th>
+                                        <th
+                                            class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">
+                                            จำนวนสมาชิก</th>
+                                        <th
+                                            class="px-4 py-3 text-sm font-medium tracking-wider text-left text-gray-700 uppercase">
+                                            ประเภท</th>
+                                        <th
+                                            class="px-4 py-3 text-sm font-medium tracking-wider text-center text-gray-700 uppercase">
+                                            จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <% if (allFamilies.length> 0) { %>
+                                        <% allFamilies.forEach((family, index)=> { %>
+                                            <tr class="hover:bg-gray-50 transition-colors">
+                                                <td class="px-4 py-3 text-sm whitespace-nowrap text-center">
+                                                    <%= ((pagination.currentPage - 1) * pagination.itemsPerPage) + index + 1 %>
+                                                </td>
+                                                <td class="px-4 py-3 text-sm whitespace-nowrap">
+                                                    <%= family.AccountNumber %>
+                                                </td>
+                                                <td class="px-4 py-3 text-sm whitespace-nowrap">
+                                                    <%= family.familyName %>
+                                                </td>
+                                                <td class="px-4 py-3 text-sm whitespace-nowrap">
+                                                    <%= family.AccountName %>
+                                                </td>
+                                                <td class="px-4 py-3 text-sm whitespace-nowrap">
+                                                    <a href="#" onclick='ShowLocation(<%= JSON.stringify(family) %>)'
+                                                        class="text-blue-500 hover:text-blue-700 hover:underline transition-colors">
+                                                        ข้อมูลที่อยู่ของครัวเรือน
+                                                    </a>
+                                                </td>
+                                                <td class="px-4 py-3 text-sm whitespace-nowrap">
+                                                    <%= family.village.villageName %>
+                                                </td>
+                                                <td class="px-4 py-3 text-sm whitespace-nowrap text-center">
+                                                    <%= family.NumFamilyMembers %>
+                                                </td>
+                                                <td class="px-4 py-3 text-sm whitespace-nowrap">
+                                                    <span class="px-2 py-1 rounded-full text-sm font-medium">
+                                                        <%= family.typeThai %>
+                                                    </span>
+                                                </td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-center">
+                                                    <div class="flex items-center justify-center gap-2"> <button onclick="showEditModal('<%= family._id %>')" 
+                                                            class="h-8 w-8 rounded bg-blue-500 text-white hover:bg-blue-600 transition-colors flex items-center justify-center"
+                                                            title="แก้ไข">
+                                                            <i class="fa-solid fa-pen-to-square text-xs"></i>
+                                                        </button>
 
-                            <!-- ปุ่มหน้าก่อนหน้า -->
-                            <% if (pagination.hasPrevPage) { %>
-                            <a href="?<%= new URLSearchParams({...query, page: pagination.currentPage - 1}).toString() %>"
-                                class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
-                                ‹
-                            </a>
-                            <% } else { %>
-                            <button disabled class="px-3 py-2 rounded-md bg-gray-100 border border-gray-300 text-sm text-gray-400 cursor-not-allowed">‹</button>
-                            <% } %>
+                                                        <button onclick="showChangeRepresentativeModal('<%= family._id %>')" 
+                                                            class="h-8 w-8 rounded bg-purple-500 text-white hover:bg-purple-600 transition-colors flex items-center justify-center"
+                                                            title="เปลี่ยนตัวแทนครัวเรือน">
+                                                            <i class="fa-solid fa-user-check text-xs"></i>
+                                                        </button>
 
-                            <!-- เลขหน้า -->
-                            <%
-                            const maxPagesToShow = 5;
-                            let startPage = Math.max(1, pagination.currentPage - Math.floor(maxPagesToShow / 2));
-                            let endPage = Math.min(pagination.totalPages, startPage + maxPagesToShow - 1);
-                            if (endPage - startPage < maxPagesToShow - 1) {
-                                startPage = Math.max(1, endPage - maxPagesToShow + 1);
-                            }
-                            if (startPage > 1) { %>
-                                <span class="px-2 text-gray-500">...</span>
-                            <% }
-                            for (let i = startPage; i <= endPage; i++) { %>
-                                <% if (i === pagination.currentPage) { %>
-                                <button class="px-4 py-2 rounded-md bg-green-600 text-white text-sm font-medium"><%= i %></button>
-                                <% } else { %>
-                                <a href="?<%= new URLSearchParams({...query, page: i}).toString() %>"
-                                    class="px-4 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
-                                    <%= i %>
+                                                        <button onclick="showModalDelete('<%= ((pagination.currentPage - 1) * pagination.itemsPerPage) + index + 1 %>', '<%= family._id %>','<%= family.AccountNumber %>','<%= family.familyName %>')" 
+                                                            class="h-8 w-8 rounded bg-red-500 text-white hover:bg-red-600 transition-colors flex items-center justify-center"
+                                                            title="ลบ">
+                                                            <i class="fa-solid fa-trash text-xs"></i>
+                                                        </button>
+                                                        
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <% }); %>
+                                                <% } else { %>
+                                                    <tr>
+                                                        <td colspan="8" class="text-center py-4 text-gray-500">
+                                                            -ไม่พบข้อมูลสมาชิก -</td>
+                                                    </tr>
+                                                <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- Pagination Controls -->
+                        <% if (pagination) { %>
+                        <div class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t pt-4">
+                            <div class="text-sm text-gray-700">
+                                แสดง <%= ((pagination.currentPage - 1) * pagination.itemsPerPage) + 1 %>
+                                ถึง <%= Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems) %>
+                                จาก <%= pagination.totalItems %> รายการ
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <!-- ปุ่มหน้าแรก -->
+                                <% if (pagination.currentPage > 1) { %>
+                                <a href="?<%= new URLSearchParams({...query, page: 1}).toString() %>"
+                                    class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
+                                    «
                                 </a>
                                 <% } %>
-                            <% }
-                            if (endPage < pagination.totalPages) { %>
-                                <span class="px-2 text-gray-500">...</span>
-                            <% } %>
 
-                            <!-- ปุ่มหน้าถัดไป -->
-                            <% if (pagination.hasNextPage) { %>
-                            <a href="?<%= new URLSearchParams({...query, page: pagination.currentPage + 1}).toString() %>"
-                                class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
-                                ›
-                            </a>
-                            <% } else { %>
-                            <button disabled class="px-3 py-2 rounded-md bg-gray-100 border border-gray-300 text-sm text-gray-400 cursor-not-allowed">›</button>
-                            <% } %>
+                                <!-- ปุ่มหน้าก่อนหน้า -->
+                                <% if (pagination.hasPrevPage) { %>
+                                <a href="?<%= new URLSearchParams({...query, page: pagination.currentPage - 1}).toString() %>"
+                                    class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
+                                    ‹
+                                </a>
+                                <% } else { %>
+                                <button disabled class="px-3 py-2 rounded-md bg-gray-100 border border-gray-300 text-sm text-gray-400 cursor-not-allowed">‹</button>
+                                <% } %>
 
-                            <!-- ปุ่มหน้าสุดท้าย -->
-                            <% if (pagination.currentPage < pagination.totalPages) { %>
-                            <a href="?<%= new URLSearchParams({...query, page: pagination.totalPages}).toString() %>"
-                                class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
-                                »
-                            </a>
-                            <% } %>
+                                <!-- เลขหน้า -->
+                                <%
+                                const maxPagesToShow = 5;
+                                let startPage = Math.max(1, pagination.currentPage - Math.floor(maxPagesToShow / 2));
+                                let endPage = Math.min(pagination.totalPages, startPage + maxPagesToShow - 1);
+                                if (endPage - startPage < maxPagesToShow - 1) {
+                                    startPage = Math.max(1, endPage - maxPagesToShow + 1);
+                                }
+                                if (startPage > 1) { %>
+                                    <span class="px-2 text-gray-500">...</span>
+                                <% }
+                                for (let i = startPage; i <= endPage; i++) { %>
+                                    <% if (i === pagination.currentPage) { %>
+                                    <button class="px-4 py-2 rounded-md bg-green-600 text-white text-sm font-medium"><%= i %></button>
+                                    <% } else { %>
+                                    <a href="?<%= new URLSearchParams({...query, page: i}).toString() %>"
+                                        class="px-4 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
+                                        <%= i %>
+                                    </a>
+                                    <% } %>
+                                <% }
+                                if (endPage < pagination.totalPages) { %>
+                                    <span class="px-2 text-gray-500">...</span>
+                                <% } %>
+
+                                <!-- ปุ่มหน้าถัดไป -->
+                                <% if (pagination.hasNextPage) { %>
+                                <a href="?<%= new URLSearchParams({...query, page: pagination.currentPage + 1}).toString() %>"
+                                    class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
+                                    ›
+                                </a>
+                                <% } else { %>
+                                <button disabled class="px-3 py-2 rounded-md bg-gray-100 border border-gray-300 text-sm text-gray-400 cursor-not-allowed">›</button>
+                                <% } %>
+
+                                <!-- ปุ่มหน้าสุดท้าย -->
+                                <% if (pagination.currentPage < pagination.totalPages) { %>
+                                <a href="?<%= new URLSearchParams({...query, page: pagination.totalPages}).toString() %>"
+                                    class="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
+                                    »
+                                </a>
+                                <% } %>
+                            </div>
                         </div>
+                        <% } %>
                     </div>
-                    <% } %>
                 </div>
             </div>
 
@@ -753,21 +755,26 @@
             </div>
 
             <!-- แสดงข้อมูลที่อยู่ของครัวเรือน -->
-            <div id="ShowLocationModal"
-                class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-                <div class="bg-white p-6 w-1/2 rounded-lg relative">
-                    <h3 class="text-xl font-medium leading-6 text-gray-800">ข้อมูลที่อยู่ของครัวเรือน</h3>
-                    <hr class="my-3">
-                    <div class="bg-gray-50 p-4">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <label class="block text-gray-700 mb-2">ชื่อครัวเรือน</label>
-                                <input type="text" name="familyName" class="w-full p-2 border rounded" disabled>
-                            </div>
+            <div id="ShowLocationModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 p-4">
+                <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+                    <div class="flex items-center justify-between border-b pb-4 mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">ข้อมูลที่อยู่ของครัวเรือน</h3>
+                        <button class="text-gray-400 hover:text-gray-600 transition" onclick="CloseLocationModal()">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
 
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-gray-700 mb-2">ประเภทครัวเรือน</label>
-                                <select name="Type" class="w-full p-2 border rounded" disabled>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อครัวเรือน</label>
+                                <input type="text" name="familyName" class="w-full p-2 border rounded-lg bg-gray-50" disabled>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">ประเภทครัวเรือน</label>
+                                <select name="Type" class="w-full p-2 border rounded-lg bg-gray-50" disabled>
                                     <option value="household">บ้านเรือน</option>
                                     <option value="school">โรงเรียน</option>
                                     <option value="municipality">อปท.</option>
@@ -775,47 +782,46 @@
                                 </select>
                             </div>
                         </div>
-                        <h3 class="font-medium text-gray-700 mt-4 mb-2">ที่อยู่</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label class="block text-gray-700 mb-2">บ้านเลขที่</label>
-                                <input type="text" name="houseNumber" class="w-full p-2 border rounded" disabled>
-                            </div>
 
-                            <div>
-                                <label class="block text-gray-700 mb-2">ถนน</label>
-                                <input type="text" name="road" class="w-full p-2 border rounded" disabled>
-                            </div>
+                        <h4 class="text-sm font-medium text-gray-700 pt-2 border-t">ที่อยู่</h4>
 
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
-                                <label class="block text-gray-700 mb-2">ตำบล</label>
-                                <input type="text" name="subdistrict" class="w-full p-2 border rounded" disabled>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">บ้านเลขที่</label>
+                                <input type="text" name="houseNumber" class="w-full p-2 border rounded-lg bg-gray-50" disabled>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">ถนน</label>
+                                <input type="text" name="road" class="w-full p-2 border rounded-lg bg-gray-50" disabled>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">ตำบล</label>
+                                <input type="text" name="subdistrict" class="w-full p-2 border rounded-lg bg-gray-50" disabled>
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
-                                <label class="block text-gray-700 mb-2">อำเภอ</label>
-                                <input type="text" name="district" class="w-full p-2 border rounded" disabled>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">อำเภอ</label>
+                                <input type="text" name="district" class="w-full p-2 border rounded-lg bg-gray-50" disabled>
                             </div>
                             <div>
-                                <label class="block text-gray-700 mb-2">จังหวัด</label>
-                                <input type="text" name="province" class="w-full p-2 border rounded" value="ขอนแก่น"
-                                    disabled>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">จังหวัด</label>
+                                <input type="text" name="province" class="w-full p-2 border rounded-lg bg-gray-50" value="ขอนแก่น" disabled>
                             </div>
                             <div>
-                                <label class="block text-gray-700 mb-2">รหัสไปรษณีย์</label>
-                                <input type="text" name="postalCode" class="w-full md:w-1/3 p-2 border rounded"
-                                    disabled>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">รหัสไปรษณีย์</label>
+                                <input type="text" name="postalCode" class="w-full p-2 border rounded-lg bg-gray-50" disabled>
                             </div>
-                        </div>
-                        <hr class="my-6">
-                        <div class="mt-4 flex justify-end">
-                            <button class="bg-red-500 text-white px-4 py-2 rounded"
-                                onclick="CloseLocationModal()">ปิด</button>
                         </div>
                     </div>
+
+                    <div class="mt-6 flex justify-end">
+                        <button class="px-6 py-2.5 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition"
+                            onclick="CloseLocationModal()">ปิด</button>
+                    </div>
                 </div>
-            </div>
+</div>
 
             <!-- Modal แก้ไขข้อมูลครัวเรือน -->
             <div id="editFamilyModal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-30">
@@ -1376,6 +1382,14 @@
                 e.target.setSelectionRange(cursorPosition + diff, cursorPosition + diff);
             });
         });
+    }
+
+    function maskThaiID(value) {
+        const digits = value.replace(/\D/g, '');
+        if (digits.length !== 13) return formatThaiID(value);
+        // แสดง: X-XXXX-XXXXX-XX-X → เปิดเฉพาะ 4 ตัวแรก และตัวสุดท้าย
+        // รูปแบบ: 1-2345-XXXXX-XX-X
+        return `${digits.substr(0, 1)}-${digits.substr(1, 4)}-XXXXX-XX-${digits.substr(12, 1)}`;
     }
 
     // ============================================
@@ -2044,7 +2058,7 @@
                 </div>
                 <div>
                     <label class="block text-gray-600 text-sm">เลขบัตรประชาชน</label>
-                    <p class="font-medium">${formatThaiID(currentRepresentative.idCardNumber)}</p>
+                    <p class="font-medium">${maskThaiID(currentRepresentative.idCardNumber)}</p>
                 </div>
                 <div>
                     <label class="block text-gray-600 text-sm">เบอร์โทร</label>

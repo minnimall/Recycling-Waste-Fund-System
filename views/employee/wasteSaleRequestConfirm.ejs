@@ -134,7 +134,6 @@
 
 <body>
     <%- include('../partials/employeePartials/empHeader.ejs') %>
-    <%- include('../partials/employeePartials/empSidebar.ejs') %>
     
     <script>
         // เช็คข้อความที่ส่งมาจาก URL
@@ -195,451 +194,452 @@
         OTHER: 'อื่น ๆ'
     };
     %>
-    <div class="content bg-gray-50 min-screen">
-        <div class="mt-4 mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center w-full">
-                <div>
-                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
-                        คำขอขายขยะ
-                    </h1>
-                    <p class="text-gray-600 mt-2">ตรวจสอบและตอบกลับคำขอจากผู้ใช้</p>
+
+    <div class="flex w-full">
+        <%- include('../partials/employeePartials/empSidebar.ejs') %>
+        <div class="content bg-gray-50 min-screen">
+            <div class="mt-4 mx-4 mb-6 bg-white rounded-lg shadow p-4 flex justify-between items-center">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center w-full">
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
+                            คำขอขายขยะ
+                        </h1>
+                        <p class="text-gray-600 mt-2">ตรวจสอบและตอบกลับคำขอจากผู้ใช้</p>
+                    </div>
+                    <a href="/employee/wasteSaleRequest" class="bg-red-700 text-white px-4 py-2 rounded-md hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-200 flex items-center">
+                        <i class="fa-solid fa-arrow-left mr-2"></i>ย้อนกลับ
+                    </a>
                 </div>
-                <a href="/employee/wasteSaleRequest" class="bg-red-700 text-white px-4 py-2 rounded-md hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-200 flex items-center">
-                    <i class="fa-solid fa-arrow-left mr-2"></i>ย้อนกลับ
-                </a>
             </div>
-        </div>
 
-            <!-- Request Details Card -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <!-- Left Column - Request Info -->
-            <div class="lg:col-span-7 space-y-6">
-                <!-- Status and Date -->
-                <div class="w-full bg-white rounded-lg shadow p-4 mx-4 mb-6 text-black">
-                    <div class="flex items-center justify-between mb-6 ">
-                        <div>
-                            <h3 class="text-lg font-semibold mb-2">รายละเอียดคำขอ</h3>
-                            <!-- <p class="text-sm text-gray-500">ID: <%= request._id  %></p> -->
-                        </div>
-                        <% if (request.status === 'resolved') { %><span class="text-sm text-green-600 bg-green-100 px-2 py-1 rounded-full border border-green-200">เสร็จสิ้น</span>
-                        <% } else if (request.status === 'pending') { %><span class="text-sm text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full border border-yellow-200">รอการอนุมัติ</span>
-                        <% } else if (request.status === 'waitingUser') { %><span class="text-sm text-orange-600 bg-orange-100 px-2 py-1 rounded-full border border-orange-200">รอผู้ใช้ยืนยัน</span>
-                        <% } else if (request.status === 'in-progress') { %><span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded-full border border-blue-200">กำลังเข้าจัดเก็บ</span>
-                        <% } else if (request.status === 'confirmed') { %><span class="text-sm text-indigo-600 bg-indigo-100 px-2 py-1 rounded-full border border-indigo-200">รอการดำเนินการ</span>
-                        <% } else if (request.status === 'cancelled') { %><span class="text-sm text-red-600 bg-red-100 px-2 py-1 rounded-full border border-red-200">ยกเลิกโดยผู้ใช้</span>
-                        <% } else if (request.status === 'rejected') { %><span class="text-sm text-red-600 bg-red-100 px-2 py-1 rounded-full border border-red-200">ปฏิเสธคำขอ</span>
-                        <% } else if (request.status === 'failed') { %><span class="text-sm text-gray-600 bg-gray-200 px-2 py-1 rounded-full border border-gray-300">ไม่สำเร็จ</span>
-                        <% } else { %><span class="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded-full border border-gray-200">ไม่ทราบ</span><% } %>
-                    </div>
-
-                    <div class="space-y-0">
-                        <div class="info-row">
-                            <span class="info-label"><i class="fas fa-user-circle text-gray-600 mr-2"></i> ผู้ขาย:</span>
-                            <span class="info-value" id="requestDate"><%= request.family.familyName %></span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label"><i class="far fa-calendar-alt text-green-600 mr-2"></i> วันที่ให้เข้ารับซื้อ:</span>
-                            <span class="info-value" id="requestDate"><%= request.date.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) %></span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label"><i class="fas fa-weight text-blue-500 mr-2"></i> น้ำหนัก:</span>
-                            <span class="info-value" id="weight"><%= request.weight %></span>
-                        </div>
-                        <!-- <div class="info-row">
-                            <span class="info-label">ประเภทขยะ:</span>
-                            <span class="info-value" id="wasteTypes">กำลังโหลด...</span>
-                        </div> -->
-                        <div class="info-row">
-                            <span class="info-label"><i class="fas fa-map-marker-alt text-red-500 mr-2"></i> สถานที่:</span>
-                            <span class="info-value" id="location"><%= request.location  %></span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">รายละเอียดเพิ่มเติม:</span>
-                            <span class="info-value" id="locationDetail">-</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label"><i class="fas fa-map-pin text-red-500 mr-2"></i> พิกัด:</span>
-                            <span class="info-value">
-                                <a href="https://www.google.com/maps?q=<%= request.latitude %>,<%= request.longitude %>" id="mapLink" class="text-[#22c55e] hover:underline" target="_blank">
-                                    <%= request.latitude  %>, <%= request.longitude  %>
-                                </a>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="w-full bg-white rounded-lg shadow p-6 mx-4 mb-6 text-black">
-                    <h3 class="text-lg font-semibold mb-4">
-                        <i class="fa-solid fa-clock-rotate-left mr-2"></i>
-                        บันทึกคำขอขายขยะ
-                    </h3>
-
-                    <div class="relative border-l-2 border-gray-200 ml-4 space-y-6">
-                            <div class="relative pl-6">
-
-                                <span class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-yellow-500"></span>
-
-                                <div class="bg-yellow-50 border border-yellow-300 rounded-lg p-4">
-                                    <div class="flex justify-between">
-                                        <div>
-                                            <p class="font-semibold text-yellow-800">
-                                                แจ้งความประสงค์ขายขยะ
-                                            </p>
-                                            <p class="text-sm text-gray-600">
-                                                <span class="font-bold">ดำเนินการโดย:</span> <%= request.family.familyName %>
-                                            </p>
-
-                                        </div>
-
-                                        <div class="text-sm text-gray-500">
-                                            <%= request.createdAt.toLocaleString('th-TH') %>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                <% if (logs && logs.length > 0) { %>
-                        <% logs.forEach(log => { %>
-                            <% if (log.status === 'CANCELLED_BY_USER') { %>
-                                <div class="relative pl-6">
-                                    <span class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-red-500"></span>
-                                    <div class="bg-red-50 border border-red-300 rounded-lg p-4">
-                                        <div class="flex justify-between">
-                                            <div>
-                                                <p class="font-semibold text-red-800">
-                                                    <%= statusMap[log.status] || log.status %>
-                                                </p>
-
-                                                <p class="text-sm text-gray-600">
-                                                    <span class="font-bold">ดำเนินการโดย:</span> <%= log.actionBy %>
-                                                </p>
-
-                                                <% if (log.reason) { %>
-                                                    <p class="text-sm text-red-600 mt-1">
-                                                        เหตุผล: <%= reasonMap[log.reason] || log.reason %>
-                                                    </p>
-                                                <% } %>
-                                            </div>
-
-                                            <div class="text-sm text-gray-500">
-                                                <%= new Date(log.createdAt).toLocaleString('th-TH') %>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            <%} else if (log.status === 'REJECTED') { %>
-                                <div class="relative pl-6">
-                                    <span class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-red-500"></span>
-                                    <div class="bg-red-50 border border-red-300 rounded-lg p-4">
-                                        <div class="flex justify-between">
-                                            <div>
-                                                <p class="font-semibold text-red-800">
-                                                    <%= statusMap[log.status] || log.status %>
-                                                </p>
-
-                                                <p class="text-sm text-gray-600">
-                                                    <span class="font-bold">ดำเนินการโดย:</span> <%= log.actionBy %>
-                                                </p>
-
-                                                <% if (log.reason) { %>
-                                                    <p class="text-sm text-red-600 mt-1">
-                                                        เหตุผล: <%= reasonMap[log.reason] || log.reason %>
-                                                    </p>
-                                                <% } %>
-                                            </div>
-
-                                            <div class="text-sm text-gray-500">
-                                                <%= new Date(log.createdAt).toLocaleString('th-TH') %>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            <%} else if (log.status === 'REJECTED_BY_SYSTEM') { %>
-                                <div class="relative pl-6">
-                                    <span class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-red-500"></span>
-                                    <div class="bg-red-50 border border-red-300 rounded-lg p-4">
-                                        <div class="flex justify-between">
-                                            <div>
-                                                <p class="font-semibold text-red-800">
-                                                    <%= statusMap[log.status] || log.status %>
-                                                </p>
-
-                                                <p class="text-sm text-gray-600">
-                                                    <span class="font-bold">ดำเนินการโดย:</span> <%= log.actionBy %>
-                                                </p>
-
-                                                <p class="text-sm text-gray-600">
-                                                    โน๊ต: <%= log.note %>
-                                                </p>
-
-                                                <% if (log.reason) { %>
-                                                    <p class="text-sm text-red-600 mt-1">
-                                                        เหตุผล: <%= reasonMap[log.reason] || log.reason %>
-                                                    </p>
-                                                <% } %>
-                                            </div>
-
-                                            <div class="text-sm text-gray-500">
-                                                <%= new Date(log.createdAt).toLocaleString('th-TH') %>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            <% } else if (log.status === 'APPROVED') { %>
-                                <div class="relative pl-6">
-                                    <span class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-blue-500"></span>
-                                    <div class="bg-blue-50 border border-blue-300 rounded-lg p-4">
-                                        <div class="flex justify-between">
-                                            <div>
-                                                <p class="font-semibold text-blue-800">
-                                                    <%= statusMap[log.status] || log.status %>
-                                                </p>
-
-                                                <p class="text-sm text-gray-600 my-2">
-                                                    <span class="font-bold">วันที่นัดรับที่กำหนด:</span> <%= request.approvePickupDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) %> 
-                                                </p>
-
-                                                <% if (request.responseMessage) {%> 
-                                                <p class="text-sm text-gray-600 my-2">
-                                                    <span class="font-bold">ข้อความตอบกลับ:</span> <%= request.responseMessage %> 
-                                                </p>    
-                                                <% } %>
-                                                <p class="text-sm text-gray-600">
-                                                    <span class="font-bold">ดำเนินการโดย:</span> <%= log.actionBy %>
-                                                </p>
-
-                                                <% if (log.reason) { %>
-                                                    <p class="text-sm text-blue-600 mt-1">
-                                                        เหตุผล: <%= reasonMap[log.reason] || log.reason %>
-                                                    </p>
-                                                <% } %>
-                                            </div>
-
-                                            <div class="text-sm text-gray-500">
-                                                <%= new Date(log.createdAt).toLocaleString('th-TH') %>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                             <%} else if (log.status === 'CONFIRMED') { %>
-                                <div class="relative pl-6">
-                                    <span class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-green-500"></span>
-                                    <div class="bg-green-50 border border-green-300 rounded-lg p-4">
-                                        <div class="flex justify-between">
-                                            <div>
-                                                <p class="font-semibold text-green-800">
-                                                    <%= statusMap[log.status] || log.status %>
-                                                </p>
-                                                <p class="text-sm text-gray-600 my-2">
-                                                    <span class="font-bold">กำหนดการรับซื้อ:</span> <%= request.approvePickupDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) %> 
-                                                </p>
-
-                                                <p class="text-sm text-gray-600">
-                                                    ดำเนินการโดย: <%= log.actionBy %>
-                                                </p>
-
-                                                <% if (log.reason) { %>
-                                                    <p class="text-sm text-green-600 mt-1">
-                                                        เหตุผล: <%= reasonMap[log.reason] || log.reason %>
-                                                    </p>
-                                                <% } %>
-                                            </div>
-
-                                            <div class="text-sm text-gray-500">
-                                                <%= new Date(log.createdAt).toLocaleString('th-TH') %>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                             <%} else if (log.status === 'IN_PROGRESS') { %>
-                                <div class="relative pl-6">
-                                    <span class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-blue-500"></span>
-                                    <div class="bg-blue-50 border border-blue-300 rounded-lg p-4">
-                                        <div class="flex justify-between">
-                                            <div>
-                                                <p class="font-semibold text-blue-800">
-                                                    <%= statusMap[log.status] || log.status %>
-                                                </p>
-                                                <p class="text-sm text-gray-600 my-2">
-                                                    <span class="font-bold">กำหนดการรับซื้อ:</span> <%= request.approvePickupDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) %> 
-                                                </p>
-
-                                                <p class="text-sm text-gray-600">
-                                                    ดำเนินการโดย: <%= log.actionBy %>
-                                                </p>
-
-                                                <% if (log.reason) { %>
-                                                    <p class="text-sm text-blue-600 mt-1">
-                                                        เหตุผล: <%= reasonMap[log.reason] || log.reason %>
-                                                    </p>
-                                                <% } %>
-                                            </div>
-
-                                            <div class="text-sm text-gray-500">
-                                                <%= new Date(log.createdAt).toLocaleString('th-TH') %>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            <% } else if (log.status === 'COMPLETED') { %>
-                                <div class="relative pl-6">
-                                    <span class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-green-500"></span>
-                                    <div class="bg-green-50 border border-green-300 rounded-lg p-4">
-                                        <div class="flex justify-between">
-                                            <div>
-                                                <p class="font-semibold text-green-800">
-                                                    <%= statusMap[log.status] || log.status %>
-                                                </p>
-                                                <p class="text-sm text-gray-600 my-2">
-                                                    <span class="font-bold">ข้อความ:</span> <a class="underline font-bold" href="/employee/routeList/<%= route._id %>"><%= log.approveText %></a>
-                                                </p>
-                                                <p class="text-sm text-gray-600 my-2">
-                                                    <span class="font-bold">กำหนดการรับซื้อ:</span> <%= request.approvePickupDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) %> 
-                                                </p>
-
-                                                <p class="text-sm text-gray-600">
-                                                    ดำเนินการโดย: <%= log.actionBy %>
-                                                </p>
-
-                                                <% if (log.reason) { %>
-                                                    <p class="text-sm text-green-600 mt-1">
-                                                        เหตุผล: <%= reasonMap[log.reason] || log.reason %>
-                                                    </p>
-                                                <% } %>
-                                            </div>
-
-                                            <div class="text-sm text-gray-500">
-                                                <%= new Date(log.createdAt).toLocaleString('th-TH') %>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            <% } else if (log.status === 'CANCELLED_BY_USER') { %>
-                            <% } else { %>
-                            <% } %>
-                        <% }) %>
-                <% } %>
-                    </div>
-                </div>
-
-                <% if (request.img !== '/img/no_image.jpg' && request.img !== null) { %> 
-
-                    <!-- Image -->
+                <!-- Request Details Card -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left Column - Request Info -->
+                <div class="lg:col-span-7 space-y-6">
+                    <!-- Status and Date -->
                     <div class="w-full bg-white rounded-lg shadow p-4 mx-4 mb-6 text-black">
-                        <h3 class="text-lg font-semibold mb-4">รูปภาพขยะ</h3>
-                        <div class="relative aspect-video rounded-lg overflow-hidden cursor-pointer" onclick="openImageModal()">
-                            <img 
-                                id="wasteImage" 
-                                src="<%= request.img  %>" 
-                                alt="รูปภาพขยะ" 
-                                class="w-full h-full object-cover"
-                            />
-                            <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all flex items-center justify-center">
-                                <svg class="w-12 h-12 text-white opacity-0 hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
-                                </svg>
+                        <div class="flex items-center justify-between mb-6 ">
+                            <div>
+                                <h3 class="text-lg font-semibold mb-2">รายละเอียดคำขอ</h3>
+                                <!-- <p class="text-sm text-gray-500">ID: <%= request._id  %></p> -->
                             </div>
+                            <% if (request.status === 'resolved') { %><span class="text-sm text-green-600 bg-green-100 px-2 py-1 rounded-full border border-green-200">เสร็จสิ้น</span>
+                            <% } else if (request.status === 'pending') { %><span class="text-sm text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full border border-yellow-200">รอการอนุมัติ</span>
+                            <% } else if (request.status === 'waitingUser') { %><span class="text-sm text-orange-600 bg-orange-100 px-2 py-1 rounded-full border border-orange-200">รอผู้ใช้ยืนยัน</span>
+                            <% } else if (request.status === 'in-progress') { %><span class="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded-full border border-blue-200">กำลังเข้าจัดเก็บ</span>
+                            <% } else if (request.status === 'confirmed') { %><span class="text-sm text-indigo-600 bg-indigo-100 px-2 py-1 rounded-full border border-indigo-200">รอการดำเนินการ</span>
+                            <% } else if (request.status === 'cancelled') { %><span class="text-sm text-red-600 bg-red-100 px-2 py-1 rounded-full border border-red-200">ยกเลิกโดยผู้ใช้</span>
+                            <% } else if (request.status === 'rejected') { %><span class="text-sm text-red-600 bg-red-100 px-2 py-1 rounded-full border border-red-200">ปฏิเสธคำขอ</span>
+                            <% } else if (request.status === 'failed') { %><span class="text-sm text-gray-600 bg-gray-200 px-2 py-1 rounded-full border border-gray-300">ไม่สำเร็จ</span>
+                            <% } else { %><span class="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded-full border border-gray-200">ไม่ทราบ</span><% } %>
                         </div>
-                    </div>                
-                <% } %>
-            </div>
 
-            <!-- Right Column - Response Form -->
-            <div class="lg:col-span-5">
-                <div class="sticky top-8 bg-white rounded-xl shadow-lg border border-gray-100 p-6 mx-4 mb-6 text-black">
-                    <div class="flex items-center border-b border-gray-100 pb-4 mb-5">
-                        <div class="bg-green-100 w-12 h-12 p-2.5 rounded-lg mr-3 shadow-sm text-green-600 flex items-center justify-center">
-                            <i class="fa-solid fa-reply text-lg"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold text-gray-800">จัดการคำขอ</h3>
-                            <p class="text-sm text-gray-500 mt-0.5">ตอบกลับและปรับปรุงสถานะ</p>
+                        <div class="space-y-0">
+                            <div class="info-row">
+                                <span class="info-label"><i class="fas fa-user-circle text-gray-600 mr-2"></i> ผู้ขาย:</span>
+                                <span class="info-value" id="requestDate"><%= request.family.familyName %></span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label"><i class="far fa-calendar-alt text-green-600 mr-2"></i> วันที่ให้เข้ารับซื้อ:</span>
+                                <span class="info-value" id="requestDate"><%= request.date.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) %></span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label"><i class="fas fa-weight text-blue-500 mr-2"></i> น้ำหนัก:</span>
+                                <span class="info-value" id="weight"><%= request.weight %></span>
+                            </div>
+                            <!-- <div class="info-row">
+                                <span class="info-label">ประเภทขยะ:</span>
+                                <span class="info-value" id="wasteTypes">กำลังโหลด...</span>
+                            </div> -->
+                            <div class="info-row">
+                                <span class="info-label"><i class="fas fa-map-marker-alt text-red-500 mr-2"></i> สถานที่:</span>
+                                <span class="info-value" id="location"><%= request.location  %></span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">รายละเอียดเพิ่มเติม:</span>
+                                <span class="info-value" id="locationDetail">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label"><i class="fas fa-map-pin text-red-500 mr-2"></i> พิกัด:</span>
+                                <span class="info-value">
+                                    <a href="https://www.google.com/maps?q=<%= request.latitude %>,<%= request.longitude %>" id="mapLink" class="text-[#22c55e] hover:underline" target="_blank">
+                                        <%= request.latitude  %>, <%= request.longitude  %>
+                                    </a>
+                                </span>
+                            </div>
                         </div>
                     </div>
-                    
-                    <form id="responseForm" class="space-y-5" action="/employee/wasteSaleRequestApprove/<%= request._id  %>" method="POST">
 
-                        <!-- Response Message -->
-                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 shadow-sm">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">ข้อความตอบกลับด่วน</label>
-                            <div class="relative mb-4">
-                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                    <i class="fa-solid fa-bolt"></i>
-                                </span>
-                                <select id="responseTemplate" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full pl-10 p-2.5 transition-all shadow-sm hover:border-green-400 cursor-pointer" onchange="applyTemplate()">
-                                    <option value="">-- เลือกข้อความตอบกลับอัตโนมัติ --</option>
-                                    <option value="ยืนยันการรับซื้อตามเวลาที่นัดหมาย หากมีการเปลี่ยนแปลงจะแจ้งให้ทราบล่วงหน้าครับ">ยืนยันการรับซื้อตามนัด</option>
-                                    <option value="ขอรบกวนเลื่อนวันรับซื้อ เนื่องจากเจ้าหน้าที่ติดภารกิจ จะติดต่อกลับเพื่อนนัดหมายใหม่ครับ">ขอเลื่อนนัด (ติดภารกิจ)</option>
-                                    <option value="ขอปฏิเสธคำขอเนื่องจากข้อมูลไม่ถูกต้อง รบกวนตรวจสอบและส่งคำขอใหม่อีกครั้งครับ">ปฏิเสธ (ข้อมูลไม่ถูกต้อง)</option>
-                                    <option value="ขอปฏิเสธคำขอเนื่องจากอยู่นอกพื้นที่ให้บริการครับ">ปฏิเสธ (อยู่นอกพื้นที่)</option>
-                                </select>
-                            </div>
+                    <div class="w-full bg-white rounded-lg shadow p-6 mx-4 mb-6 text-black">
+                        <h3 class="text-lg font-semibold mb-4">
+                            <i class="fa-solid fa-clock-rotate-left mr-2"></i>
+                            บันทึกคำขอขายขยะ
+                        </h3>
 
-                            <label class="block text-sm font-semibold text-gray-700 mb-2 mt-4">ข้อความที่จะส่งให้ผู้ใช้ <span class="text-red-500">*</span></label>
-                            <textarea 
-                                id="responseMessage"
-                                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-3 transition-all shadow-sm resize-none min-h-[200px] focus:bg-white"
-                                rows="3"
-                                placeholder="พิมพ์ข้อความตอบกลับที่นี่..."
-                                name="responseMessage"
-                                required
-                            ><%= request.responseMessage || '' %></textarea>
+                        <div class="relative border-l-2 border-gray-200 ml-4 space-y-6">
+                                <div class="relative pl-6">
+
+                                    <span class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-yellow-500"></span>
+
+                                    <div class="bg-yellow-50 border border-yellow-300 rounded-lg p-4">
+                                        <div class="flex justify-between">
+                                            <div>
+                                                <p class="font-semibold text-yellow-800">
+                                                    แจ้งความประสงค์ขายขยะ
+                                                </p>
+                                                <p class="text-sm text-gray-600">
+                                                    <span class="font-bold">ดำเนินการโดย:</span> <%= request.family.familyName %>
+                                                </p>
+
+                                            </div>
+
+                                            <div class="text-sm text-gray-500">
+                                                <%= request.createdAt.toLocaleString('th-TH') %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                    <% if (logs && logs.length > 0) { %>
+                            <% logs.forEach(log => { %>
+                                <% if (log.status === 'CANCELLED_BY_USER') { %>
+                                    <div class="relative pl-6">
+                                        <span class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-red-500"></span>
+                                        <div class="bg-red-50 border border-red-300 rounded-lg p-4">
+                                            <div class="flex justify-between">
+                                                <div>
+                                                    <p class="font-semibold text-red-800">
+                                                        <%= statusMap[log.status] || log.status %>
+                                                    </p>
+
+                                                    <p class="text-sm text-gray-600">
+                                                        <span class="font-bold">ดำเนินการโดย:</span> <%= log.actionBy %>
+                                                    </p>
+
+                                                    <% if (log.reason) { %>
+                                                        <p class="text-sm text-red-600 mt-1">
+                                                            เหตุผล: <%= reasonMap[log.reason] || log.reason %>
+                                                        </p>
+                                                    <% } %>
+                                                </div>
+
+                                                <div class="text-sm text-gray-500">
+                                                    <%= new Date(log.createdAt).toLocaleString('th-TH') %>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <%} else if (log.status === 'REJECTED') { %>
+                                    <div class="relative pl-6">
+                                        <span class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-red-500"></span>
+                                        <div class="bg-red-50 border border-red-300 rounded-lg p-4">
+                                            <div class="flex justify-between">
+                                                <div>
+                                                    <p class="font-semibold text-red-800">
+                                                        <%= statusMap[log.status] || log.status %>
+                                                    </p>
+
+                                                    <p class="text-sm text-gray-600">
+                                                        <span class="font-bold">ดำเนินการโดย:</span> <%= log.actionBy %>
+                                                    </p>
+
+                                                    <% if (log.reason) { %>
+                                                        <p class="text-sm text-red-600 mt-1">
+                                                            เหตุผล: <%= reasonMap[log.reason] || log.reason %>
+                                                        </p>
+                                                    <% } %>
+                                                </div>
+
+                                                <div class="text-sm text-gray-500">
+                                                    <%= new Date(log.createdAt).toLocaleString('th-TH') %>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <%} else if (log.status === 'REJECTED_BY_SYSTEM') { %>
+                                    <div class="relative pl-6">
+                                        <span class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-red-500"></span>
+                                        <div class="bg-red-50 border border-red-300 rounded-lg p-4">
+                                            <div class="flex justify-between">
+                                                <div>
+                                                    <p class="font-semibold text-red-800">
+                                                        <%= statusMap[log.status] || log.status %>
+                                                    </p>
+
+                                                    <p class="text-sm text-gray-600">
+                                                        <span class="font-bold">ดำเนินการโดย:</span> <%= log.actionBy %>
+                                                    </p>
+
+                                                    <p class="text-sm text-gray-600">
+                                                        โน๊ต: <%= log.note %>
+                                                    </p>
+
+                                                    <% if (log.reason) { %>
+                                                        <p class="text-sm text-red-600 mt-1">
+                                                            เหตุผล: <%= reasonMap[log.reason] || log.reason %>
+                                                        </p>
+                                                    <% } %>
+                                                </div>
+
+                                                <div class="text-sm text-gray-500">
+                                                    <%= new Date(log.createdAt).toLocaleString('th-TH') %>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% } else if (log.status === 'APPROVED') { %>
+                                    <div class="relative pl-6">
+                                        <span class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-blue-500"></span>
+                                        <div class="bg-blue-50 border border-blue-300 rounded-lg p-4">
+                                            <div class="flex justify-between">
+                                                <div>
+                                                    <p class="font-semibold text-blue-800">
+                                                        <%= statusMap[log.status] || log.status %>
+                                                    </p>
+
+                                                    <p class="text-sm text-gray-600 my-2">
+                                                        <span class="font-bold">วันที่นัดรับที่กำหนด:</span> <%= request.approvePickupDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) %> 
+                                                    </p>
+
+                                                    <% if (request.responseMessage) {%> 
+                                                    <p class="text-sm text-gray-600 my-2">
+                                                        <span class="font-bold">ข้อความตอบกลับ:</span> <%= request.responseMessage %> 
+                                                    </p>    
+                                                    <% } %>
+                                                    <p class="text-sm text-gray-600">
+                                                        <span class="font-bold">ดำเนินการโดย:</span> <%= log.actionBy %>
+                                                    </p>
+
+                                                    <% if (log.reason) { %>
+                                                        <p class="text-sm text-blue-600 mt-1">
+                                                            เหตุผล: <%= reasonMap[log.reason] || log.reason %>
+                                                        </p>
+                                                    <% } %>
+                                                </div>
+
+                                                <div class="text-sm text-gray-500">
+                                                    <%= new Date(log.createdAt).toLocaleString('th-TH') %>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <%} else if (log.status === 'CONFIRMED') { %>
+                                    <div class="relative pl-6">
+                                        <span class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-green-500"></span>
+                                        <div class="bg-green-50 border border-green-300 rounded-lg p-4">
+                                            <div class="flex justify-between">
+                                                <div>
+                                                    <p class="font-semibold text-green-800">
+                                                        <%= statusMap[log.status] || log.status %>
+                                                    </p>
+                                                    <p class="text-sm text-gray-600 my-2">
+                                                        <span class="font-bold">กำหนดการรับซื้อ:</span> <%= request.approvePickupDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) %> 
+                                                    </p>
+
+                                                    <p class="text-sm text-gray-600">
+                                                        ดำเนินการโดย: <%= log.actionBy %>
+                                                    </p>
+
+                                                    <% if (log.reason) { %>
+                                                        <p class="text-sm text-green-600 mt-1">
+                                                            เหตุผล: <%= reasonMap[log.reason] || log.reason %>
+                                                        </p>
+                                                    <% } %>
+                                                </div>
+
+                                                <div class="text-sm text-gray-500">
+                                                    <%= new Date(log.createdAt).toLocaleString('th-TH') %>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <%} else if (log.status === 'IN_PROGRESS') { %>
+                                    <div class="relative pl-6">
+                                        <span class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-blue-500"></span>
+                                        <div class="bg-blue-50 border border-blue-300 rounded-lg p-4">
+                                            <div class="flex justify-between">
+                                                <div>
+                                                    <p class="font-semibold text-blue-800">
+                                                        <%= statusMap[log.status] || log.status %>
+                                                    </p>
+                                                    <p class="text-sm text-gray-600 my-2">
+                                                        <span class="font-bold">กำหนดการรับซื้อ:</span> <%= request.approvePickupDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) %> 
+                                                    </p>
+
+                                                    <p class="text-sm text-gray-600">
+                                                        ดำเนินการโดย: <%= log.actionBy %>
+                                                    </p>
+
+                                                    <% if (log.reason) { %>
+                                                        <p class="text-sm text-blue-600 mt-1">
+                                                            เหตุผล: <%= reasonMap[log.reason] || log.reason %>
+                                                        </p>
+                                                    <% } %>
+                                                </div>
+
+                                                <div class="text-sm text-gray-500">
+                                                    <%= new Date(log.createdAt).toLocaleString('th-TH') %>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% } else if (log.status === 'COMPLETED') { %>
+                                    <div class="relative pl-6">
+                                        <span class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-green-500"></span>
+                                        <div class="bg-green-50 border border-green-300 rounded-lg p-4">
+                                            <div class="flex justify-between">
+                                                <div>
+                                                    <p class="font-semibold text-green-800">
+                                                        <%= statusMap[log.status] || log.status %>
+                                                    </p>
+                                                    <p class="text-sm text-gray-600 my-2">
+                                                        <span class="font-bold">ข้อความ:</span> <a class="underline font-bold" href="/employee/routeList/<%= route._id %>"><%= log.approveText %></a>
+                                                    </p>
+                                                    <p class="text-sm text-gray-600 my-2">
+                                                        <span class="font-bold">กำหนดการรับซื้อ:</span> <%= request.approvePickupDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) %> 
+                                                    </p>
+
+                                                    <p class="text-sm text-gray-600">
+                                                        ดำเนินการโดย: <%= log.actionBy %>
+                                                    </p>
+
+                                                    <% if (log.reason) { %>
+                                                        <p class="text-sm text-green-600 mt-1">
+                                                            เหตุผล: <%= reasonMap[log.reason] || log.reason %>
+                                                        </p>
+                                                    <% } %>
+                                                </div>
+
+                                                <div class="text-sm text-gray-500">
+                                                    <%= new Date(log.createdAt).toLocaleString('th-TH') %>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% } else if (log.status === 'CANCELLED_BY_USER') { %>
+                                <% } else { %>
+                                <% } %>
+                            <% }) %>
+                    <% } %>
                         </div>
+                    </div>
 
-                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 shadow-sm">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">วันที่นัดรับ (หรือวันที่เลื่อน) <span class="text-red-500">*</span></label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                    <i class="fa-regular fa-calendar"></i>
-                                </span>
-                                <input 
-                                    type="date"
-                                    id="pickupDate"
-                                    name="pickupDate"
-                                    class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full pl-10 p-2.5 transition-all shadow-sm"
-                                    value="<%= request.date ? new Date(request.date).toISOString().split('T')[0] : '' %>"
-                                    required
+                    <% if (request.img !== '/img/no_image.jpg' && request.img !== null) { %> 
+
+                        <!-- Image -->
+                        <div class="w-full bg-white rounded-lg shadow p-4 mx-4 mb-6 text-black">
+                            <h3 class="text-lg font-semibold mb-4">รูปภาพขยะ</h3>
+                            <div class="relative aspect-video rounded-lg overflow-hidden cursor-pointer" onclick="openImageModal()">
+                                <img 
+                                    id="wasteImage" 
+                                    src="<%= request.img  %>" 
+                                    alt="รูปภาพขยะ" 
+                                    class="w-full h-full object-cover"
                                 />
-                            </div>
-
-                            <% if (request.date) { 
-                                const d = new Date(request.date);
-                                const buddhistYear = d.getFullYear() + 543;
-                                const formattedDate = d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth() + 1).toString().padStart(2, '0') + '/' + buddhistYear;
-                            %>
-                            <div class="mt-3 flex items-start text-sm text-blue-700 bg-blue-100/50 px-3 py-2.5 rounded-md border border-blue-200">
-                                <i class="fa-solid fa-circle-info mt-0.5 mr-2"></i>
-                                <div>
-                                    <p>วันที่ผู้ใช้ต้องการให้เข้ารับ:</p>
-                                    <p class="font-bold text-blue-800"><%= formattedDate %></p>
+                                <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all flex items-center justify-center">
+                                    <svg class="w-12 h-12 text-white opacity-0 hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
+                                    </svg>
                                 </div>
                             </div>
-                            <% } %>
+                        </div>                
+                    <% } %>
+                </div>
+
+                <!-- Right Column - Response Form -->
+                <div class="lg:col-span-5">
+                    <div class="sticky top-8 bg-white rounded-xl shadow-lg border border-gray-100 p-6 mx-4 mb-6 text-black">
+                        <div class="flex items-center border-b border-gray-100 pb-4 mb-5">
+                            <div class="bg-green-100 w-12 h-12 p-2.5 rounded-lg mr-3 shadow-sm text-green-600 flex items-center justify-center">
+                                <i class="fa-solid fa-reply text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800">จัดการคำขอ</h3>
+                                <p class="text-sm text-gray-500 mt-0.5">ตอบกลับและปรับปรุงสถานะ</p>
+                            </div>
                         </div>
+                        
+                        <form id="responseForm" class="space-y-5" action="/employee/wasteSaleRequestApprove/<%= request._id  %>" method="POST">
 
-                        <!-- Action Buttons -->
-                        <div class="pt-2 space-y-3 mt-4">
-                            <button type="button"
-                                    class="w-full flex items-center justify-center gap-2 text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-3 text-center transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 active:translate-y-0"
-                                    onclick="confirmAction('approve')">
-                                <i class="fa-solid fa-check-circle text-lg"></i>
-                                อนุมัติและบันทึก
-                            </button>
+                            <!-- Response Message -->
+                            <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 shadow-sm">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">ข้อความตอบกลับด่วน</label>
+                                <div class="relative mb-4">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                        <i class="fa-solid fa-bolt"></i>
+                                    </span>
+                                    <select id="responseTemplate" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full pl-10 p-2.5 transition-all shadow-sm hover:border-green-400 cursor-pointer" onchange="applyTemplate()">
+                                        <option value="">-- เลือกข้อความตอบกลับอัตโนมัติ --</option>
+                                        <option value="ยืนยันการรับซื้อตามเวลาที่นัดหมาย หากมีการเปลี่ยนแปลงจะแจ้งให้ทราบล่วงหน้าครับ">ยืนยันการรับซื้อตามนัด</option>
+                                        <option value="ขอรบกวนเลื่อนวันรับซื้อ เนื่องจากเจ้าหน้าที่ติดภารกิจ จะติดต่อกลับเพื่อนนัดหมายใหม่ครับ">ขอเลื่อนนัด (ติดภารกิจ)</option>
+                                        <option value="ขอปฏิเสธคำขอเนื่องจากข้อมูลไม่ถูกต้อง รบกวนตรวจสอบและส่งคำขอใหม่อีกครั้งครับ">ปฏิเสธ (ข้อมูลไม่ถูกต้อง)</option>
+                                        <option value="ขอปฏิเสธคำขอเนื่องจากอยู่นอกพื้นที่ให้บริการครับ">ปฏิเสธ (อยู่นอกพื้นที่)</option>
+                                    </select>
+                                </div>
 
-                            <button type="button"
-                                    class="w-full flex items-center justify-center gap-2 text-red-600 bg-white border border-red-200 hover:bg-red-50 hover:text-red-700 focus:ring-4 focus:ring-red-100 font-medium rounded-lg text-sm px-5 py-3 text-center transition-all transform hover:-translate-y-0.5 active:translate-y-0"
-                                    onclick="confirmAction('reject')">
-                                <i class="fa-solid fa-times-circle text-lg"></i>
-                                ปฏิเสธคำขอ
-                            </button>
-                        </div>
-                    </form>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2 mt-4">ข้อความที่จะส่งให้ผู้ใช้ <span class="text-red-500">*</span></label>
+                                <textarea 
+                                    id="responseMessage"
+                                    class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-3 transition-all shadow-sm resize-none min-h-[200px] focus:bg-white"
+                                    rows="3"
+                                    placeholder="พิมพ์ข้อความตอบกลับที่นี่..."
+                                    name="responseMessage"
+                                    required
+                                ><%= request.responseMessage || '' %></textarea>
+                            </div>
 
+                            <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 shadow-sm">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">วันที่นัดรับ (หรือวันที่เลื่อน) <span class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                        <i class="fa-regular fa-calendar"></i>
+                                    </span>
+                                    <input 
+                                        type="date"
+                                        id="pickupDate"
+                                        name="pickupDate"
+                                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full pl-10 p-2.5 transition-all shadow-sm"
+                                        value="<%= request.date ? new Date(request.date).toISOString().split('T')[0] : '' %>"
+                                        required
+                                    />
+                                </div>
+
+                                <% if (request.date) { 
+                                    const d = new Date(request.date);
+                                    const buddhistYear = d.getFullYear() + 543;
+                                    const formattedDate = d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth() + 1).toString().padStart(2, '0') + '/' + buddhistYear;
+                                %>
+                                <div class="mt-3 flex items-start text-sm text-blue-700 bg-blue-100/50 px-3 py-2.5 rounded-md border border-blue-200">
+                                    <i class="fa-solid fa-circle-info mt-0.5 mr-2"></i>
+                                    <div>
+                                        <p>วันที่ผู้ใช้ต้องการให้เข้ารับ:</p>
+                                        <p class="font-bold text-blue-800"><%= formattedDate %></p>
+                                    </div>
+                                </div>
+                                <% } %>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="pt-2 space-y-3 mt-4">
+                                <button type="button"
+                                        class="w-full flex items-center justify-center gap-2 text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-3 text-center transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 active:translate-y-0"
+                                        onclick="confirmAction('approve')">
+                                    <i class="fa-solid fa-check-circle text-lg"></i>
+                                    อนุมัติและบันทึก
+                                </button>
+
+                                <button type="button"
+                                        class="w-full flex items-center justify-center gap-2 text-red-600 bg-white border border-red-200 hover:bg-red-50 hover:text-red-700 focus:ring-4 focus:ring-red-100 font-medium rounded-lg text-sm px-5 py-3 text-center transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+                                        onclick="confirmAction('reject')">
+                                    <i class="fa-solid fa-times-circle text-lg"></i>
+                                    ปฏิเสธคำขอ
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-
-
     </div>
     
 </body>

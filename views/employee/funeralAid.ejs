@@ -157,524 +157,523 @@
 
 <body class="bg-gray-50">
     <%- include('../partials/employeePartials/empHeader.ejs') %>
-    <%- include('../partials/employeePartials/empSidebar.ejs') %>
-    
-    <script>
-    </script>
 
-    <div class="content bg-gray-50 min-screen">
-        <!-- Page Header -->
-        <div class="mt-4 mx-4 mb-6 bg-white rounded-lg shadow p-4">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
-                <div>
-                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
-                        ฌาปนกิจสงเคราะห์
-                    </h1>
-                    <p class="text-gray-600 mt-2">ระบบจัดการเงินช่วยเหลือฌาปนกิจสงเคราะห์สำหรับครัวเรือนในชุมชน</p>
+    <div class="flex w-full">
+        <%- include('../partials/employeePartials/empSidebar.ejs') %>
+        <div class="content bg-gray-50 min-screen">
+            <!-- Page Header -->
+            <div class="mt-4 mx-4 mb-6 bg-white rounded-lg shadow p-4">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
+                            ฌาปนกิจสงเคราะห์
+                        </h1>
+                        <p class="text-gray-600 mt-2">ระบบจัดการเงินช่วยเหลือฌาปนกิจสงเคราะห์สำหรับครัวเรือนในชุมชน</p>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Main Content -->
-        <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 grid grid-cols-1 lg:grid-cols-1 gap-6">
-            <!-- Form Section -->
-            <div class="lg:col-span-2">
-                <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                    <div class="bg-blue-50 px-6 py-4 border-b border-gray-200">
-                        <h2 class="text-xl font-semibold text-gray-800 flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            แบบฟอร์มขอรับเงินช่วยเหลือฌาปนกิจสงเคราะห์
-                        </h2>
-                    </div>
-                    
-                    <form id="funeralForm" action="/employee/funeral-assistance/submit" method="POST" class="p-6">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Main Content -->
+            <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4 grid grid-cols-1 lg:grid-cols-1 gap-6">
+                <!-- Form Section -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div class="bg-blue-50 px-6 py-4 border-b border-gray-200">
+                            <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                แบบฟอร์มขอรับเงินช่วยเหลือฌาปนกิจสงเคราะห์
+                            </h2>
+                        </div>
+                        
+                        <form id="funeralForm" action="/employee/funeral-assistance/submit" method="POST" class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-                            <div class="md:col-span-3">
-                                <p class="block text-sm font-bold text-xl text-gray-700 mb-1">เงื่อนไขรับเงินช่วยเหลือฌาปนกิจสงเคราะห์ <span class="text-red-500">*</span></p>
-                                <p class="block text-sm font-medium text-gray-700 mb-1">ต้องสมัครเข้าร่วมกองทุนขยะรีไซเคิลครบ 6 เดือน และมีการนำขยะมาขายให้ครบยอดเงินขั้นต่ำ 300 บาท</p>
-                            </div>
-                            
-                            <!-- ค้นหาครัวเรือน -->
-                            <div class="md:col-span-3">
-                                <label for="householdSearch" class="block text-sm font-medium text-gray-700 mb-1">ค้นหาครัวเรือน <span class="text-red-500">*</span></label>
-                                <div class="relative">
-                                    <input type="text" id="householdSearch" name="householdSearch" placeholder="ค้นหาด้วยรหัสครัวเรือนหรือชื่อหัวหน้าครัวเรือน" class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" autocomplete="off" required>
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                    </svg>
-                                    <div id="householdDropdown" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto hidden">
-                                        <div id="householdList" class="py-1">
-                                        </div>
-                                        <div id="noResults" class="px-4 py-3 text-sm text-gray-500 text-center hidden">
-                                            ไม่พบข้อมูลครัวเรือน
-                                        </div>
-                                    </div>
+                                <div class="md:col-span-3">
+                                    <p class="block text-sm font-bold text-xl text-gray-700 mb-1">เงื่อนไขรับเงินช่วยเหลือฌาปนกิจสงเคราะห์ <span class="text-red-500">*</span></p>
+                                    <p class="block text-sm font-medium text-gray-700 mb-1">ต้องสมัครเข้าร่วมกองทุนขยะรีไซเคิลครบ 6 เดือน และมีการนำขยะมาขายให้ครบยอดเงินขั้นต่ำ 300 บาท</p>
                                 </div>
-                            </div>
-                            
-                            <!-- ข้อมูลครัวเรือน (จะแสดงหลังจากค้นหา) -->
-                            <div class="md:col-span-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hidden" id="householdInfo">
-                                <h3 class="font-medium text-gray-800 mb-2">ข้อมูลครัวเรือน</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <p class="text-sm text-gray-500">เลขบัญชี</p>
-                                        <p class="font-medium" id="householdId">-</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm text-gray-500">ชื่อตัวแทนครัวเรือน</p>
-                                        <p class="font-medium" id="householdHead">-</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm text-gray-500">ที่อยู่</p>
-                                        <p class="font-medium" id="householdAddress">-</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm text-gray-500">จำนวนสมาชิก</p>
-                                        <p class="font-medium" id="memberCount">-</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- เพิ่มส่วนตรวจสอบคุณสมบัติ -->
-                            <div class="md:col-span-3 hidden" id="eligibilitySection">
-                                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border-2 border-blue-200 p-6">
-                                    <div class="flex items-center mb-4">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                
+                                <!-- ค้นหาครัวเรือน -->
+                                <div class="md:col-span-3">
+                                    <label for="householdSearch" class="block text-sm font-medium text-gray-700 mb-1">ค้นหาครัวเรือน <span class="text-red-500">*</span></label>
+                                    <div class="relative">
+                                        <input type="text" id="householdSearch" name="householdSearch" placeholder="ค้นหาด้วยรหัสครัวเรือนหรือชื่อหัวหน้าครัวเรือน" class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" autocomplete="off" required>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                         </svg>
-                                        <h3 class="text-lg font-semibold text-gray-800">ตรวจสอบคุณสมบัติ</h3>
-                                    </div>
-                                    
-                                    <div class="space-y-3">
-                                        <!-- เงื่อนไข 1: สมัครครบ 6 เดือน -->
-                                        <div class="flex items-start bg-white rounded-lg p-4 shadow-sm">
-                                            <div class="flex-shrink-0 mr-3">
-                                                <div class="w-8 h-8 rounded-full flex items-center justify-center" id="condition1Icon">
-                                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                                    </svg>
-                                                </div>
+                                        <div id="householdDropdown" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto hidden">
+                                            <div id="householdList" class="py-1">
                                             </div>
-                                            <div class="flex-1">
-                                                <p class="font-medium text-gray-800">สมัครเข้าร่วมกองทุนครบ 6 เดือน</p>
-                                                <p class="text-sm text-gray-600 mt-1" id="condition1Detail">กำลังตรวจสอบ...</p>
-                                            </div>
-                                        </div>
-
-                                        <!-- เงื่อนไข 2: ขายขยะครบ 300 บาท -->
-                                        <div class="flex items-start bg-white rounded-lg p-4 shadow-sm">
-                                            <div class="flex-shrink-0 mr-3">
-                                                <div class="w-8 h-8 rounded-full flex items-center justify-center" id="condition2Icon">
-                                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                                    </svg>
-                                                </div>
-                                            </div>
-                                            <div class="flex-1">
-                                                <p class="font-medium text-gray-800">ขายขยะรีไซเคิลครบ 300 บาท</p>
-                                                <p class="text-sm text-gray-600 mt-1" id="condition2Detail">กำลังตรวจสอบ...</p>
-                                            </div>
-                                        </div>
-
-                                        <!-- สรุปผลการตรวจสอบ -->
-                                        <div class="mt-4 p-4 rounded-lg" id="eligibilityResult">
-                                            <div class="flex items-center">
-                                                <svg class="w-6 h-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" id="resultIcon">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                                <p class="font-semibold text-lg" id="resultText">กำลังตรวจสอบคุณสมบัติ...</p>
+                                            <div id="noResults" class="px-4 py-3 text-sm text-gray-500 text-center hidden">
+                                                ไม่พบข้อมูลครัวเรือน
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            <!-- ชื่อผู้รับผิดชอบในการจัดทำศพ -->
-                            <div class="md:col-span-2">
-                                <label for="responsiblePersonName" class="block text-sm font-medium text-gray-700 mb-1">
-                                    ชื่อผู้รับผิดชอบในการจัดทำศพ <span class="text-red-500">*</span>
-                                </label>
-                                <select id="responsiblePersonName" name="responsiblePersonName" required 
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <option value="">-- เลือกผู้รับผิดชอบ --</option>
-                                </select>
-                                <input type="hidden" id="responsiblePersonId" name="responsiblePersonId">
-                            </div>
-
-                            <!-- เพิ่มฟิลด์มีความเกี่ยวข้องกับผู้ตายในฐานะ -->
-                            <div>
-                                <label for="deceasedRelationshipDetail" class="block text-sm font-medium text-gray-700 mb-1">มีความเกี่ยวข้องกับผู้ตายในฐานะ <span class="text-red-500">*</span></label>
-                                <select id="relationship" name="relationship" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <option value="" disabled selected>-- เลือกความสัมพันธ์ --</option>
-                                    <option value="หัวหน้าครัวเรือน">หัวหน้าครัวเรือน</option>
-                                    <option value="คู่สมรส">คู่สมรส</option>
-                                    <option value="บุตร">บุตร</option>
-                                    <option value="บิดา/มารดา">บิดา/มารดา</option>
-                                    <option value="ญาติ">ญาติ</option>
-                                    <option value="อื่นๆ">อื่นๆ</option>
-                                </select>
-                            </div>
-
-                            <!-- ข้อมูลผู้เสียชีวิต -->
-                            <div class="md:col-span-3">
-                                <p class="block text-base font-medium text-gray-700 mb-1">ข้อมูลผู้เสียชีวิต</p>
-                            </div>
-                            
-                            <!-- ชื่อผู้เสียชีวิต -->
-                            <div class="">
-                                <label for="deceasedName" class="block text-sm font-medium text-gray-700 mb-1">
-                                    ชื่อผู้เสียชีวิต <span class="text-red-500">*</span>
-                                </label>
-                                <select id="deceasedName" name="deceasedName" required 
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <option value="">-- เลือกผู้เสียชีวิต --</option>
-                                </select>
-                                <input type="hidden" id="deceasedId" name="deceasedId">
-                            </div>
-
-                            <!-- อายุผู้เสียชีวิต -->
-                            <div>
-                                <label for="deceasedAge" class="block text-sm font-medium text-gray-700 mb-1">
-                                    อายุ (ปี) <span class="text-red-500">*</span>
-                                </label>
-                                <input type="number" id="deceasedAge" name="deceasedAge" required 
-                                    placeholder="ระบุอายุ" min="0"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-
-                            <!-- หมายเลขบัตรประชาชน -->
-                            <div>
-                                <label for="idCard" class="block text-sm font-medium text-gray-700 mb-1">
-                                    หมายเลขบัตรประชาชน <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="idCard" name="idCard" required 
-                                    placeholder="X-XXXX-XXXXX-XX-X" maxlength="17"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-
-                            <!-- โทรศัพท์ -->
-                            <div>
-                                <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">
-                                    โทรศัพท์ <span class="text-red-500">*</span>
-                                </label>
-                                <input type="tel" id="phone" name="phone" required 
-                                    placeholder="0XX-XXX-XXXX" 
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-
-                            <!-- สาเหตุการเสียชีวิต -->
-                            <div>
-                                <label for="causeOfDeath" class="block text-sm font-medium text-gray-700 mb-1">
-                                    ถึงแก่กรรมด้วยสาเหตุ <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="causeOfDeath" name="causeOfDeath" required 
-                                    placeholder="ระบุสาเหตุการเสียชีวิต" 
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            
-                            <!-- วันที่เสียชีวิต -->
-                            <div>
-                                <label for="dateOfDeath" class="block text-sm font-medium text-gray-700 mb-1">
-                                    วันที่เสียชีวิต <span class="text-red-500">*</span>
-                                </label>
-                                <input type="date" id="dateOfDeath" name="dateOfDeath" required 
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-
-                            <!-- ที่อยู่ - มีตัวเลือก -->
-                            <!-- <div class="md:col-span-3">
-                                <p class="block text-base font-medium text-gray-700 mb-3">ที่อยู่</p>
-                            </div> -->
-
-                            <!-- ตัวเลือกใช้ที่อยู่เดิมหรือกรอกใหม่ -->
-                            <div class="md:col-span-3 mb-4">
-                                <label class="block text-sm font-medium text-gray-700 mb-3">เลือกที่อยู่</label>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="address-option selected border-2 rounded-lg p-4" id="useExistingAddress" onclick="selectAddressOption('existing')">
-                                        <div class="flex items-start">
-                                            <input type="radio" name="addressOption" value="existing" checked class="mt-1 mr-3">
-                                            <div class="flex-1">
-                                                <p class="font-semibold text-gray-800 mb-1">ใช้ที่อยู่ที่บันทึกไว้</p>
-                                                <p class="text-sm text-gray-600" id="existingAddressPreview">
-                                                    กรุณาเลือกครัวเรือนก่อน
-                                                </p>
-                                            </div>
+                                
+                                <!-- ข้อมูลครัวเรือน (จะแสดงหลังจากค้นหา) -->
+                                <div class="md:col-span-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hidden" id="householdInfo">
+                                    <h3 class="font-medium text-gray-800 mb-2">ข้อมูลครัวเรือน</h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <p class="text-sm text-gray-500">เลขบัญชี</p>
+                                            <p class="font-medium" id="householdId">-</p>
                                         </div>
-                                    </div>
-
-                                    <div class="address-option border-2 rounded-lg p-4" id="useNewAddress" onclick="selectAddressOption('new')">
-                                        <div class="flex items-start">
-                                            <input type="radio" name="addressOption" value="new" class="mt-1 mr-3">
-                                            <div class="flex-1">
-                                                <p class="font-semibold text-gray-800 mb-1">กรอกที่อยู่ใหม่</p>
-                                                <p class="text-sm text-gray-600">กรอกข้อมูลที่อยู่ด้วยตนเอง</p>
-                                            </div>
+                                        <div>
+                                            <p class="text-sm text-gray-500">ชื่อตัวแทนครัวเรือน</p>
+                                            <p class="font-medium" id="householdHead">-</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm text-gray-500">ที่อยู่</p>
+                                            <p class="font-medium" id="householdAddress">-</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm text-gray-500">จำนวนสมาชิก</p>
+                                            <p class="font-medium" id="memberCount">-</p>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <!-- ฟอร์มกรอกที่อยู่ -->
-                            <div>
-                                <label for="deceasedAddress" class="block text-sm font-medium text-gray-700 mb-1">
-                                    บ้านเลขที่ <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="deceasedAddress" name="deceasedAddress" required 
-                                    placeholder="ระบุบ้านเลขที่" 
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-
-                            <div>
-                                <label for="deceasedVillage" class="block text-sm font-medium text-gray-700 mb-1">
-                                    หมู่ที่ <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="deceasedVillage" name="deceasedVillage" required 
-                                    placeholder="ระบุหมู่ที่" 
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-
-                            <div>
-                                <label for="subDistrict" class="block text-sm font-medium text-gray-700 mb-1">
-                                    ตำบล <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="subDistrict" name="subDistrict" required 
-                                    placeholder="ระบุตำบล" 
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-
-                            <div>
-                                <label for="district" class="block text-sm font-medium text-gray-700 mb-1">
-                                    อำเภอ <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="district" name="district" required 
-                                    placeholder="ระบุอำเภอ" 
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-
-                            <div>
-                                <label for="province" class="block text-sm font-medium text-gray-700 mb-1">
-                                    จังหวัด <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="province" name="province" required 
-                                    placeholder="ระบุจังหวัด" 
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-
-                            <div>
-                                <label for="postalCode" class="block text-sm font-medium text-gray-700 mb-1">
-                                    รหัสไปรษณีย์ <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="postalCode" name="postalCode" required 
-                                    placeholder="XXXXX" maxlength="5"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-
-                            <!-- เพิ่มส่วนอัปโหลดไฟล์ก่อน "หมายเหตุ" -->
-                            <div class="md:col-span-3">
-                                <p class="block text-base font-medium text-gray-700 mb-3 mt-4">เอกสารประกอบ</p>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    สำเนาใบมรณะบัตร <span class="text-red-500">*</span>
-                                </label>
-                                <div class="file-upload-wrapper">
-                                    <input type="file" name="deathCertificate" id="deathCertificate" 
-                                        accept="image/*,.pdf" 
-                                        class="file-input hidden">
-                                    <label for="deathCertificate" class="file-upload-label">
-                                        <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                        </svg>
-                                        <span class="file-upload-text">คลิกเพื่อเลือกไฟล์</span>
-                                        <span class="file-upload-subtext">หรือลากไฟล์มาวางที่นี่</span>
-                                    </label>
-                                </div>
-                                <div id="deathCertificatePreview" class="mt-2"></div>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    สำเนาบัตรประชาชนผู้ตาย <span class="text-red-500">*</span>
-                                </label>
-                                <div class="file-upload-wrapper">
-                                    <input type="file" name="deceasedIdCard" id="deceasedIdCard" 
-                                        accept="image/*,.pdf" 
-                                        class="file-input hidden">
-                                    <label for="deceasedIdCard" class="file-upload-label">
-                                        <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                        </svg>
-                                        <span class="file-upload-text">คลิกเพื่อเลือกไฟล์</span>
-                                        <span class="file-upload-subtext">หรือลากไฟล์มาวางที่นี่</span>
-                                    </label>
-                                </div>
-                                <div id="deceasedIdCardPreview" class="mt-2"></div>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    สำเนาทะเบียนบ้านผู้ตาย <span class="text-red-500">*</span>
-                                </label>
-                                <div class="file-upload-wrapper">
-                                    <input type="file" name="deceasedHouseRegistration" id="deceasedHouseRegistration" 
-                                        accept="image/*,.pdf" 
-                                        class="file-input hidden">
-                                    <label for="deceasedHouseRegistration" class="file-upload-label">
-                                        <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                        </svg>
-                                        <span class="file-upload-text">คลิกเพื่อเลือกไฟล์</span>
-                                        <span class="file-upload-subtext">หรือลากไฟล์มาวางที่นี่</span>
-                                    </label>
-                                </div>
-                                <div id="deceasedHouseRegistrationPreview" class="mt-2"></div>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    สำเนาบัตรประชาชนผู้ยื่นคำขอ <span class="text-red-500">*</span>
-                                </label>
-                                <div class="file-upload-wrapper">
-                                    <input type="file" name="applicantIdCard" id="applicantIdCard" 
-                                        accept="image/*,.pdf" 
-                                        class="file-input hidden">
-                                    <label for="applicantIdCard" class="file-upload-label">
-                                        <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                        </svg>
-                                        <span class="file-upload-text">คลิกเพื่อเลือกไฟล์</span>
-                                        <span class="file-upload-subtext">หรือลากไฟล์มาวางที่นี่</span>
-                                    </label>
-                                </div>
-                                <div id="applicantIdCardPreview" class="mt-2"></div>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    สำเนาทะเบียนบ้านผู้ยื่นคำขอ <span class="text-red-500">*</span>
-                                </label>
-                                <div class="file-upload-wrapper">
-                                    <input type="file" name="applicantHouseRegistration" id="applicantHouseRegistration" 
-                                        accept="image/*,.pdf" 
-                                        class="file-input hidden">
-                                    <label for="applicantHouseRegistration" class="file-upload-label">
-                                        <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                        </svg>
-                                        <span class="file-upload-text">คลิกเพื่อเลือกไฟล์</span>
-                                        <span class="file-upload-subtext">หรือลากไฟล์มาวางที่นี่</span>
-                                    </label>
-                                </div>
-                                <div id="applicantHouseRegistrationPreview" class="mt-2"></div>
-                            </div>
-
-                            <!-- หมายเหตุ -->
-                            <div class="md:col-span-3">
-                                <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ</label>
-                                <textarea id="notes" name="notes" rows="2" 
-                                    placeholder="ระบุหมายเหตุเพิ่มเติม (ถ้ามี)" 
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                            </div>
-                            
-                            <!-- จำนวนเงินช่วยเหลือ -->
-                            <div class="md:col-span-3">
-                                <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">
-                                    จำนวนเงินช่วยเหลือ (บาท) <span class="text-red-500">*</span>
-                                </label>
-                                <input type="number" id="amount" name="amount" required 
-                                    placeholder="0.00" min="0" step="0.01" 
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-
-                            <!-- เพิ่มส่วนคำนวณเงินฌาปนกิจ -->
-                            <div class="md:col-span-3 hidden" id="calculationSection">
-                                <div class="rounded-lg border-2 border-gray-200 p-6">
-                                    <div class="flex items-center mb-4">
-                                        <h3 class="text-lg font-semibold text-gray-800">การคำนวณเงินฌาปนกิจ</h3>
-                                    </div>
-
-                                    <!-- สรุปยอดเงิน -->
-                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                        <div class="bg-white rounded-lg p-4 shadow-sm">
-                                            <p class="text-sm text-gray-600 mb-1">จำนวนเงินที่ต้องจ่าย</p>
-                                            <p class="text-2xl font-bold text-emerald-600" id="totalAmount">0 บาท</p>
-                                        </div>
-                                        <div class="bg-white rounded-lg p-4 shadow-sm">
-                                            <p class="text-sm text-gray-600 mb-1">จำนวนบัญชีในระบบ</p>
-                                            <p class="text-2xl font-bold text-blue-600" id="totalAccounts">0 บัญชี</p>
-                                        </div>
-                                        <div class="bg-white rounded-lg p-4 shadow-sm">
-                                            <p class="text-sm text-gray-600 mb-1">หักจากบัญชีละ</p>
-                                            <p class="text-2xl font-bold text-orange-600" id="perAccountAmount">0 บาท</p>
-                                        </div>
-                                    </div>
-
-                                    <!-- รายละเอียดการกระจายเงิน -->
-                                    <div class="bg-white rounded-lg p-4 shadow-sm">
-                                        <div class="flex items-center justify-between mb-3">
-                                            <h4 class="font-medium text-gray-800">รายละเอียดการกระจายภาระ</h4>
-                                            <button type="button" id="toggleDetails" class="text-sm text-blue-600 hover:text-blue-800 flex items-center">
-                                                <span>ดูรายละเอียด</span>
-                                                <svg class="w-4 h-4 ml-1 transform transition-transform" id="toggleIcon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                                </svg>
-                                            </button>
+                                <!-- เพิ่มส่วนตรวจสอบคุณสมบัติ -->
+                                <div class="md:col-span-3 hidden" id="eligibilitySection">
+                                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border-2 border-blue-200 p-6">
+                                        <div class="flex items-center mb-4">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            <h3 class="text-lg font-semibold text-gray-800">ตรวจสอบคุณสมบัติ</h3>
                                         </div>
                                         
-                                        <div class="hidden" id="detailsContent">
-                                            <div class="border-t border-gray-200 pt-3">
-                                                <p class="text-sm text-gray-600 mb-2">การคำนวณ:</p>
-                                                <div class="bg-gray-50 rounded p-3 font-mono text-sm">
-                                                    <p class="text-gray-700">เงินฌาปนกิจ = <span id="calc1">6,000</span> บาท</p>
-                                                    <p class="text-gray-700">จำนวนบัญชี = <span id="calc2">150</span> บัญชี</p>
-                                                    <p class="text-gray-700 border-t border-gray-300 mt-2 pt-2">หักจากบัญชีละ = <span id="calc3">6,000</span> ÷ <span id="calc4">150</span> = <span class="font-bold text-emerald-600" id="calc5">40.00</span> บาท</p>
-                                                </div>
-                                                
-                                                <div class="mt-4">
-                                                    <p class="text-sm text-gray-600 mb-2">ยอดเงินคงเหลือในกองทุน:</p>
-                                                    <div class="flex items-center justify-between bg-blue-50 rounded p-3">
-                                                        <div>
-                                                            <p class="text-sm text-gray-600">ก่อนหัก</p>
-                                                            <p class="text-lg font-bold text-gray-800" id="beforeBalance">45,000 บาท</p>
-                                                        </div>
-                                                        <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                        <div class="space-y-3">
+                                            <!-- เงื่อนไข 1: สมัครครบ 6 เดือน -->
+                                            <div class="flex items-start bg-white rounded-lg p-4 shadow-sm">
+                                                <div class="flex-shrink-0 mr-3">
+                                                    <div class="w-8 h-8 rounded-full flex items-center justify-center" id="condition1Icon">
+                                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                                         </svg>
-                                                        <div>
-                                                            <p class="text-sm text-gray-600">หลังหัก</p>
-                                                            <p class="text-lg font-bold text-emerald-600" id="afterBalance">39,000 บาท</p>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-1">
+                                                    <p class="font-medium text-gray-800">สมัครเข้าร่วมกองทุนครบ 6 เดือน</p>
+                                                    <p class="text-sm text-gray-600 mt-1" id="condition1Detail">กำลังตรวจสอบ...</p>
+                                                </div>
+                                            </div>
+
+                                            <!-- เงื่อนไข 2: ขายขยะครบ 300 บาท -->
+                                            <div class="flex items-start bg-white rounded-lg p-4 shadow-sm">
+                                                <div class="flex-shrink-0 mr-3">
+                                                    <div class="w-8 h-8 rounded-full flex items-center justify-center" id="condition2Icon">
+                                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-1">
+                                                    <p class="font-medium text-gray-800">ขายขยะรีไซเคิลครบ 300 บาท</p>
+                                                    <p class="text-sm text-gray-600 mt-1" id="condition2Detail">กำลังตรวจสอบ...</p>
+                                                </div>
+                                            </div>
+
+                                            <!-- สรุปผลการตรวจสอบ -->
+                                            <div class="mt-4 p-4 rounded-lg" id="eligibilityResult">
+                                                <div class="flex items-center">
+                                                    <svg class="w-6 h-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" id="resultIcon">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                    <p class="font-semibold text-lg" id="resultText">กำลังตรวจสอบคุณสมบัติ...</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- ชื่อผู้รับผิดชอบในการจัดทำศพ -->
+                                <div class="md:col-span-2">
+                                    <label for="responsiblePersonName" class="block text-sm font-medium text-gray-700 mb-1">
+                                        ชื่อผู้รับผิดชอบในการจัดทำศพ <span class="text-red-500">*</span>
+                                    </label>
+                                    <select id="responsiblePersonName" name="responsiblePersonName" required 
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="">-- เลือกผู้รับผิดชอบ --</option>
+                                    </select>
+                                    <input type="hidden" id="responsiblePersonId" name="responsiblePersonId">
+                                </div>
+
+                                <!-- เพิ่มฟิลด์มีความเกี่ยวข้องกับผู้ตายในฐานะ -->
+                                <div>
+                                    <label for="deceasedRelationshipDetail" class="block text-sm font-medium text-gray-700 mb-1">มีความเกี่ยวข้องกับผู้ตายในฐานะ <span class="text-red-500">*</span></label>
+                                    <select id="relationship" name="relationship" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="" disabled selected>-- เลือกความสัมพันธ์ --</option>
+                                        <option value="หัวหน้าครัวเรือน">หัวหน้าครัวเรือน</option>
+                                        <option value="คู่สมรส">คู่สมรส</option>
+                                        <option value="บุตร">บุตร</option>
+                                        <option value="บิดา/มารดา">บิดา/มารดา</option>
+                                        <option value="ญาติ">ญาติ</option>
+                                        <option value="อื่นๆ">อื่นๆ</option>
+                                    </select>
+                                </div>
+
+                                <!-- ข้อมูลผู้เสียชีวิต -->
+                                <div class="md:col-span-3">
+                                    <p class="block text-base font-medium text-gray-700 mb-1">ข้อมูลผู้เสียชีวิต</p>
+                                </div>
+                                
+                                <!-- ชื่อผู้เสียชีวิต -->
+                                <div class="">
+                                    <label for="deceasedName" class="block text-sm font-medium text-gray-700 mb-1">
+                                        ชื่อผู้เสียชีวิต <span class="text-red-500">*</span>
+                                    </label>
+                                    <select id="deceasedName" name="deceasedName" required 
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="">-- เลือกผู้เสียชีวิต --</option>
+                                    </select>
+                                    <input type="hidden" id="deceasedId" name="deceasedId">
+                                </div>
+
+                                <!-- อายุผู้เสียชีวิต -->
+                                <div>
+                                    <label for="deceasedAge" class="block text-sm font-medium text-gray-700 mb-1">
+                                        อายุ (ปี) <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="number" id="deceasedAge" name="deceasedAge" required 
+                                        placeholder="ระบุอายุ" min="0"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+
+                                <!-- หมายเลขบัตรประชาชน -->
+                                <div>
+                                    <label for="idCard" class="block text-sm font-medium text-gray-700 mb-1">
+                                        หมายเลขบัตรประชาชน <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" id="idCard" name="idCard" required 
+                                        placeholder="X-XXXX-XXXXX-XX-X" maxlength="17"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+
+                                <!-- โทรศัพท์ -->
+                                <div>
+                                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">
+                                        โทรศัพท์ <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="tel" id="phone" name="phone" required 
+                                        placeholder="0XX-XXX-XXXX" 
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+
+                                <!-- สาเหตุการเสียชีวิต -->
+                                <div>
+                                    <label for="causeOfDeath" class="block text-sm font-medium text-gray-700 mb-1">
+                                        ถึงแก่กรรมด้วยสาเหตุ <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" id="causeOfDeath" name="causeOfDeath" required 
+                                        placeholder="ระบุสาเหตุการเสียชีวิต" 
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                
+                                <!-- วันที่เสียชีวิต -->
+                                <div>
+                                    <label for="dateOfDeath" class="block text-sm font-medium text-gray-700 mb-1">
+                                        วันที่เสียชีวิต <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="date" id="dateOfDeath" name="dateOfDeath" required 
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+
+                                <!-- ที่อยู่ - มีตัวเลือก -->
+                                <!-- <div class="md:col-span-3">
+                                    <p class="block text-base font-medium text-gray-700 mb-3">ที่อยู่</p>
+                                </div> -->
+
+                                <!-- ตัวเลือกใช้ที่อยู่เดิมหรือกรอกใหม่ -->
+                                <div class="md:col-span-3 mb-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-3">เลือกที่อยู่</label>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div class="address-option selected border-2 rounded-lg p-4" id="useExistingAddress" onclick="selectAddressOption('existing')">
+                                            <div class="flex items-start">
+                                                <input type="radio" name="addressOption" value="existing" checked class="mt-1 mr-3">
+                                                <div class="flex-1">
+                                                    <p class="font-semibold text-gray-800 mb-1">ใช้ที่อยู่ที่บันทึกไว้</p>
+                                                    <p class="text-sm text-gray-600" id="existingAddressPreview">
+                                                        กรุณาเลือกครัวเรือนก่อน
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="address-option border-2 rounded-lg p-4" id="useNewAddress" onclick="selectAddressOption('new')">
+                                            <div class="flex items-start">
+                                                <input type="radio" name="addressOption" value="new" class="mt-1 mr-3">
+                                                <div class="flex-1">
+                                                    <p class="font-semibold text-gray-800 mb-1">กรอกที่อยู่ใหม่</p>
+                                                    <p class="text-sm text-gray-600">กรอกข้อมูลที่อยู่ด้วยตนเอง</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- ฟอร์มกรอกที่อยู่ -->
+                                <div>
+                                    <label for="deceasedAddress" class="block text-sm font-medium text-gray-700 mb-1">
+                                        บ้านเลขที่ <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" id="deceasedAddress" name="deceasedAddress" required 
+                                        placeholder="ระบุบ้านเลขที่" 
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+
+                                <div>
+                                    <label for="deceasedVillage" class="block text-sm font-medium text-gray-700 mb-1">
+                                        หมู่ที่ <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" id="deceasedVillage" name="deceasedVillage" required 
+                                        placeholder="ระบุหมู่ที่" 
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+
+                                <div>
+                                    <label for="subDistrict" class="block text-sm font-medium text-gray-700 mb-1">
+                                        ตำบล <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" id="subDistrict" name="subDistrict" required 
+                                        placeholder="ระบุตำบล" 
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+
+                                <div>
+                                    <label for="district" class="block text-sm font-medium text-gray-700 mb-1">
+                                        อำเภอ <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" id="district" name="district" required 
+                                        placeholder="ระบุอำเภอ" 
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+
+                                <div>
+                                    <label for="province" class="block text-sm font-medium text-gray-700 mb-1">
+                                        จังหวัด <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" id="province" name="province" required 
+                                        placeholder="ระบุจังหวัด" 
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+
+                                <div>
+                                    <label for="postalCode" class="block text-sm font-medium text-gray-700 mb-1">
+                                        รหัสไปรษณีย์ <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" id="postalCode" name="postalCode" required 
+                                        placeholder="XXXXX" maxlength="5"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+
+                                <!-- เพิ่มส่วนอัปโหลดไฟล์ก่อน "หมายเหตุ" -->
+                                <div class="md:col-span-3">
+                                    <p class="block text-base font-medium text-gray-700 mb-3 mt-4">เอกสารประกอบ</p>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        สำเนาใบมรณะบัตร <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="file-upload-wrapper">
+                                        <input type="file" name="deathCertificate" id="deathCertificate" 
+                                            accept="image/*,.pdf" 
+                                            class="file-input hidden">
+                                        <label for="deathCertificate" class="file-upload-label">
+                                            <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                            </svg>
+                                            <span class="file-upload-text">คลิกเพื่อเลือกไฟล์</span>
+                                            <span class="file-upload-subtext">หรือลากไฟล์มาวางที่นี่</span>
+                                        </label>
+                                    </div>
+                                    <div id="deathCertificatePreview" class="mt-2"></div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        สำเนาบัตรประชาชนผู้ตาย <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="file-upload-wrapper">
+                                        <input type="file" name="deceasedIdCard" id="deceasedIdCard" 
+                                            accept="image/*,.pdf" 
+                                            class="file-input hidden">
+                                        <label for="deceasedIdCard" class="file-upload-label">
+                                            <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                            </svg>
+                                            <span class="file-upload-text">คลิกเพื่อเลือกไฟล์</span>
+                                            <span class="file-upload-subtext">หรือลากไฟล์มาวางที่นี่</span>
+                                        </label>
+                                    </div>
+                                    <div id="deceasedIdCardPreview" class="mt-2"></div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        สำเนาทะเบียนบ้านผู้ตาย <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="file-upload-wrapper">
+                                        <input type="file" name="deceasedHouseRegistration" id="deceasedHouseRegistration" 
+                                            accept="image/*,.pdf" 
+                                            class="file-input hidden">
+                                        <label for="deceasedHouseRegistration" class="file-upload-label">
+                                            <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                            </svg>
+                                            <span class="file-upload-text">คลิกเพื่อเลือกไฟล์</span>
+                                            <span class="file-upload-subtext">หรือลากไฟล์มาวางที่นี่</span>
+                                        </label>
+                                    </div>
+                                    <div id="deceasedHouseRegistrationPreview" class="mt-2"></div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        สำเนาบัตรประชาชนผู้ยื่นคำขอ <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="file-upload-wrapper">
+                                        <input type="file" name="applicantIdCard" id="applicantIdCard" 
+                                            accept="image/*,.pdf" 
+                                            class="file-input hidden">
+                                        <label for="applicantIdCard" class="file-upload-label">
+                                            <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                            </svg>
+                                            <span class="file-upload-text">คลิกเพื่อเลือกไฟล์</span>
+                                            <span class="file-upload-subtext">หรือลากไฟล์มาวางที่นี่</span>
+                                        </label>
+                                    </div>
+                                    <div id="applicantIdCardPreview" class="mt-2"></div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        สำเนาทะเบียนบ้านผู้ยื่นคำขอ <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="file-upload-wrapper">
+                                        <input type="file" name="applicantHouseRegistration" id="applicantHouseRegistration" 
+                                            accept="image/*,.pdf" 
+                                            class="file-input hidden">
+                                        <label for="applicantHouseRegistration" class="file-upload-label">
+                                            <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                            </svg>
+                                            <span class="file-upload-text">คลิกเพื่อเลือกไฟล์</span>
+                                            <span class="file-upload-subtext">หรือลากไฟล์มาวางที่นี่</span>
+                                        </label>
+                                    </div>
+                                    <div id="applicantHouseRegistrationPreview" class="mt-2"></div>
+                                </div>
+
+                                <!-- หมายเหตุ -->
+                                <div class="md:col-span-3">
+                                    <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ</label>
+                                    <textarea id="notes" name="notes" rows="2" 
+                                        placeholder="ระบุหมายเหตุเพิ่มเติม (ถ้ามี)" 
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                                </div>
+                                
+                                <!-- จำนวนเงินช่วยเหลือ -->
+                                <div class="md:col-span-3">
+                                    <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">
+                                        จำนวนเงินช่วยเหลือ (บาท) <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="number" id="amount" name="amount" required 
+                                        placeholder="0.00" min="0" step="0.01" 
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+
+                                <!-- เพิ่มส่วนคำนวณเงินฌาปนกิจ -->
+                                <div class="md:col-span-3 hidden" id="calculationSection">
+                                    <div class="rounded-lg border-2 border-gray-200 p-6">
+                                        <div class="flex items-center mb-4">
+                                            <h3 class="text-lg font-semibold text-gray-800">การคำนวณเงินฌาปนกิจ</h3>
+                                        </div>
+
+                                        <!-- สรุปยอดเงิน -->
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                            <div class="bg-white rounded-lg p-4 shadow-sm">
+                                                <p class="text-sm text-gray-600 mb-1">จำนวนเงินที่ต้องจ่าย</p>
+                                                <p class="text-2xl font-bold text-emerald-600" id="totalAmount">0 บาท</p>
+                                            </div>
+                                            <div class="bg-white rounded-lg p-4 shadow-sm">
+                                                <p class="text-sm text-gray-600 mb-1">จำนวนบัญชีในระบบ</p>
+                                                <p class="text-2xl font-bold text-blue-600" id="totalAccounts">0 บัญชี</p>
+                                            </div>
+                                            <div class="bg-white rounded-lg p-4 shadow-sm">
+                                                <p class="text-sm text-gray-600 mb-1">หักจากบัญชีละ</p>
+                                                <p class="text-2xl font-bold text-orange-600" id="perAccountAmount">0 บาท</p>
+                                            </div>
+                                        </div>
+
+                                        <!-- รายละเอียดการกระจายเงิน -->
+                                        <div class="bg-white rounded-lg p-4 shadow-sm">
+                                            <div class="flex items-center justify-between mb-3">
+                                                <h4 class="font-medium text-gray-800">รายละเอียดการกระจายภาระ</h4>
+                                                <button type="button" id="toggleDetails" class="text-sm text-blue-600 hover:text-blue-800 flex items-center">
+                                                    <span>ดูรายละเอียด</span>
+                                                    <svg class="w-4 h-4 ml-1 transform transition-transform" id="toggleIcon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                            
+                                            <div class="hidden" id="detailsContent">
+                                                <div class="border-t border-gray-200 pt-3">
+                                                    <p class="text-sm text-gray-600 mb-2">การคำนวณ:</p>
+                                                    <div class="bg-gray-50 rounded p-3 font-mono text-sm">
+                                                        <p class="text-gray-700">เงินฌาปนกิจ = <span id="calc1">6,000</span> บาท</p>
+                                                        <p class="text-gray-700">จำนวนบัญชี = <span id="calc2">150</span> บัญชี</p>
+                                                        <p class="text-gray-700 border-t border-gray-300 mt-2 pt-2">หักจากบัญชีละ = <span id="calc3">6,000</span> ÷ <span id="calc4">150</span> = <span class="font-bold text-emerald-600" id="calc5">40.00</span> บาท</p>
+                                                    </div>
+                                                    
+                                                    <div class="mt-4">
+                                                        <p class="text-sm text-gray-600 mb-2">ยอดเงินคงเหลือในกองทุน:</p>
+                                                        <div class="flex items-center justify-between bg-blue-50 rounded p-3">
+                                                            <div>
+                                                                <p class="text-sm text-gray-600">ก่อนหัก</p>
+                                                                <p class="text-lg font-bold text-gray-800" id="beforeBalance">45,000 บาท</p>
+                                                            </div>
+                                                            <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                                            </svg>
+                                                            <div>
+                                                                <p class="text-sm text-gray-600">หลังหัก</p>
+                                                                <p class="text-lg font-bold text-emerald-600" id="afterBalance">39,000 บาท</p>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <!-- คำเตือน -->
-                                    <div class="mt-4 flex items-start bg-amber-50 border border-amber-200 rounded-lg p-3">
-                                        <svg class="w-5 h-5 text-amber-600 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                        </svg>
-                                        <p class="text-sm text-amber-800">เงินจะถูกหักจากบัญชีของทุกครัวเรือนในระบบกองทุนขยะรีไซเคิลเท่ากัน</p>
+                                        <!-- คำเตือน -->
+                                        <div class="mt-4 flex items-start bg-amber-50 border border-amber-200 rounded-lg p-3">
+                                            <svg class="w-5 h-5 text-amber-600 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                            </svg>
+                                            <p class="text-sm text-amber-800">เงินจะถูกหักจากบัญชีของทุกครัวเรือนในระบบกองทุนขยะรีไซเคิลเท่ากัน</p>
+                                        </div>
                                     </div>
                                 </div>
+                                
                             </div>
                             
-                        </div>
-                        
-                        <div class="mt-8 flex justify-end space-x-3">
-                            <button type="button" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                ยกเลิก
-                            </button>
-                            <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                บันทึกข้อมูล
-                            </button>
-                        </div>
-                    </form>
+                            <div class="mt-8 flex justify-end space-x-3">
+                                <button type="button" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    ยกเลิก
+                                </button>
+                                <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    บันทึกข้อมูล
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
             
