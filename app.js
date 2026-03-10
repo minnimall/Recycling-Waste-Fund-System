@@ -237,6 +237,10 @@ app.get('/logout', (req, res) => {
 //     })
 // })
 
+app.get('/health', (req, res) => {
+    res.send("OK");
+});
+
 app.use((req,res) => {
     res.status(404).render('404', { mytitle: '404'})
 }) 
