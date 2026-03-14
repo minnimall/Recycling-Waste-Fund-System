@@ -1,0 +1,6 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="200" rx="10" fill="#F3F4F6"/>
+  <path d="M100 60C88.9543 60 80 68.9543 80 80C80 91.0457 88.9543 100 100 100C111.046 100 120 91.0457 120 80C120 68.9543 111.046 60 100 60Z" stroke="#9CA3AF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M140 140V130C140 118.954 131.046 110 120 110H80C68.9543 110 60 118.954 60 130V140" stroke="#9CA3AF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="50%" y="165" dominant-baseline="middle" text-anchor="middle" fill="#9CA3AF" font-family="sans-serif" font-size="14" font-weight="bold">ไม่มีรูปภาพ</text>
+</svg>

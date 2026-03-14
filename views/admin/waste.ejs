@@ -167,7 +167,7 @@
                             <!-- Image Preview (แสดงเมื่อมีรูป) -->
                             <div id="addImagePreview" class="hidden">
                                 <div class="relative group">
-                                    <img id="addPreviewImg" src="/placeholder.svg" alt="Preview" 
+                                    <img id="addPreviewImg" src="/placeholder-waste.svg" alt="Preview" 
                                         class="w-full h-64 object-contain rounded-lg border-2 border-gray-300 bg-gray-50">
                                     
                                     <!-- Overlay with Change Button -->
@@ -254,7 +254,7 @@
                             <!-- Image Preview (แสดงเมื่อมีรูป) -->
                             <div id="editImagePreview">
                                 <div class="relative group">
-                                    <img id="editPreviewImg" src="/placeholder.svg" alt="Preview" 
+                                    <img id="editPreviewImg" src="/placeholder-waste.svg" alt="Preview" 
                                         class="w-full h-64 object-contain rounded-lg border-2 border-gray-300 bg-gray-50">
                                     
                                     <!-- Overlay with Change Button -->
@@ -400,7 +400,7 @@
             addFileInput.value = '';
             addUploadZone.classList.remove('hidden');
             addImagePreview.classList.add('hidden');
-            addPreviewImg.src = '/placeholder.svg';
+            addPreviewImg.src = '/placeholder-waste.svg';
         }
     }
     
@@ -457,7 +457,7 @@
         // รีเซ็ตการแสดงรูปภาพ Add Form
         addUploadZone.classList.remove('hidden');
         addImagePreview.classList.add('hidden');
-        addPreviewImg.src = '/placeholder.svg';
+        addPreviewImg.src = '/placeholder-waste.svg';
         
         // รีเซ็ตฟอร์ม Edit
         document.getElementById('editWasteName').value = '';
@@ -466,7 +466,7 @@
         editFileInput.value = '';
         
         // รีเซ็ตการแสดงรูปภาพ Edit Form
-        editPreviewImg.src = '/placeholder.svg';
+        editPreviewImg.src = '/placeholder-waste.svg';
         editUploadZone.classList.add('hidden');
         editImagePreview.classList.add('hidden');
         
@@ -494,7 +494,7 @@
             // ถ้าไม่มีไฟล์ (เช่น user กด cancel ใน file dialog)
             currentImage.classList.add('hidden');
             placeholder.classList.remove('hidden');
-            currentImage.src = '/placeholder.svg';
+            currentImage.src = '/placeholder-waste.svg';
         }
     });
 
@@ -552,7 +552,7 @@
                 <td class="px-4 py-3 text-sm whitespace-nowrap">${item.wasteType.wasteTypeName}</td>
                 <td class="px-4 py-3 text-sm whitespace-nowrap text-center">${item.pricePerUnit}</td>
                 <td class="px-4 py-3 text-sm whitespace-nowrap">
-                    ${item.img ? `<img src="${item.img}" alt="รูป" class="waste-img" />` : "<span>ไม่มีรูปภาพ</span>"}
+                    <img src="${item.img || '/placeholder-waste.svg'}" alt="รูป" class="waste-img w-12 h-12 object-cover rounded shadow-sm border border-gray-100" />
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-left">
                     <button type="button" class="was-row-${index + 1} row-active edit-btn" 
@@ -758,12 +758,12 @@
 
     // ฟังก์ชันสำหรับตั้งค่ารูปภาพเดิมใน Edit Form
     function setExistingEditImage(imageUrl) {
-        if (imageUrl && imageUrl !== '' && imageUrl !== '/placeholder.svg') {
+        if (imageUrl && imageUrl !== '' && imageUrl !== '/placeholder-waste.svg') {
             editPreviewImg.src = imageUrl;
             editUploadZone.classList.add('hidden');
             editImagePreview.classList.remove('hidden');
         } else {
-            editPreviewImg.src = '/placeholder.svg';
+            editPreviewImg.src = '/placeholder-waste.svg';
             editUploadZone.classList.remove('hidden');
             editImagePreview.classList.add('hidden');
         }
