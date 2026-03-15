@@ -20,13 +20,21 @@
                 const successMessage = urlParams.get('message');
                 const errorMessage = urlParams.get('error');
 
+                if (successMessage || errorMessage) {
+                    // ลบ message และ error ออกจาก URL ทันที ก่อนแสดง alert
+                    urlParams.delete('message');
+                    urlParams.delete('error');
+                    const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+                    history.replaceState(null, '', newUrl);
+                }
+
                 if (successMessage) {
                     Swal.fire({
                         icon: 'success',
                         title: 'สำเร็จ!',
                         text: successMessage,
                         confirmButtonText: 'ตกลง',
-                        confirmButtonColor: '#28a745', // สีเขียวสำหรับความสำเร็จ
+                        confirmButtonColor: '#28a745',
                         timer: 3000
                     });
                 }
@@ -817,11 +825,11 @@
                     </div>
 
                     <div class="mt-6 flex justify-end">
-                        <button class="px-6 py-2.5 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition"
+                        <button class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition"
                             onclick="CloseLocationModal()">ปิด</button>
                     </div>
                 </div>
-</div>
+            </div>
 
             <!-- Modal แก้ไขข้อมูลครัวเรือน -->
             <div id="editFamilyModal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-30">
@@ -1974,7 +1982,8 @@
             confirmButtonColor: "#d33",
             cancelButtonColor: "#6b7280",
             cancelButtonText: "ยกเลิก",
-            confirmButtonText: "ยืนยัน"
+            confirmButtonText: "ยืนยัน",
+            reverseButtons: true
         }).then((result) => {
             if (result.isConfirmed) {
                 Swal.fire({

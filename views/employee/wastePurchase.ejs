@@ -177,7 +177,23 @@
                                                     <!-- ข้อมูลขยะ -->
                                                     <td class="px-2 sm:px-4 py-3">
                                                         <div class="flex items-center gap-2 sm:gap-3">
-                                                            <img class="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-lg shadow-sm border border-gray-200 flex-shrink-0" src="<%= item.img %>" alt="รูป <%= item.wasteName %>">
+                                                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg shadow-sm border border-gray-200 flex-shrink-0 overflow-hidden bg-gray-100 flex items-center justify-center">
+                                                                <% if (item.img) { %>
+                                                                    <img class="w-full h-full object-cover" 
+                                                                        src="<%= item.img %>" 
+                                                                        alt="รูป <%= item.wasteName %>"
+                                                                        onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                                                                    <div class="w-full h-full hidden items-center justify-center">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                                                        </svg>
+                                                                    </div>
+                                                                <% } else { %>
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                                                    </svg>
+                                                                <% } %>
+                                                            </div>
                                                             <div class="min-w-0">
                                                                 <p class="font-medium text-gray-800 text-sm sm:text-base truncate"><%= item.wasteName %></p>
                                                             </div>
@@ -230,7 +246,35 @@
                                             <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-md hover:shadow-xl hover:border-green-300 transition-all duration-300 group" id="waste-card-<%= index %>">
                                                 <!-- Image Container -->
                                                 <div class="relative overflow-hidden">
-                                                    <img class="w-full h-24 sm:h-28 lg:h-32 object-cover group-hover:scale-105 transition-transform duration-300" src="<%= item.img %>" alt="รูป <%= item.wasteName %>">
+                                                    <div class="relative overflow-hidden bg-gray-100 flex items-center justify-center" style="height: 6rem;">
+                                                        <% if (item.img) { %>
+                                                            <img class="w-full h-24 sm:h-28 lg:h-32 object-cover group-hover:scale-105 transition-transform duration-300" 
+                                                                src="<%= item.img %>" 
+                                                                alt="รูป <%= item.wasteName %>"
+                                                                onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                                                            <div class="w-full h-24 sm:h-28 lg:h-32 hidden items-center justify-center bg-gray-100">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                                                </svg>
+                                                            </div>
+                                                        <% } else { %>
+                                                            <div class="w-full h-24 sm:h-28 lg:h-32 flex items-center justify-center bg-gray-100">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                                                </svg>
+                                                            </div>
+                                                            <!-- Price Badge ย้ายมาใส่ด้านนอกด้วย -->
+                                                            <div class="absolute top-2 right-2 bg-gradient-to-r from-green-700 to-green-600 text-white text-xs px-2 py-1 rounded-full font-semibold shadow-lg">
+                                                                ฿<%= item.pricePerUnit %>
+                                                            </div>
+                                                        <% } %>
+                                                        <!-- Price Badge สำหรับกรณีมีรูป -->
+                                                        <% if (item.img) { %>
+                                                            <div class="absolute top-2 right-2 bg-gradient-to-r from-green-700 to-green-600 text-white text-xs px-2 py-1 rounded-full font-semibold shadow-lg">
+                                                                ฿<%= item.pricePerUnit %>
+                                                            </div>
+                                                        <% } %>
+                                                    </div>
                                                     <!-- Price Badge -->
                                                     <div class="absolute top-2 right-2 bg-gradient-to-r from-green-700 to-green-600 text-white text-xs px-2 py-1 rounded-full font-semibold shadow-lg">
                                                         ฿<%= item.pricePerUnit %>

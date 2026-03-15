@@ -2336,24 +2336,18 @@ const updateComplaintStatus = async (req, res) => {
 const wasteSaleRequestIndex = async (req, res) => {
     try {
         const wasteSaleRequests = await wasteSaleRequest
-            .find({ isDeleted: false, status: { $ne: 'archived' } }) // ซ่อนรายการที่ถูก archive
-            .populate('waste') // ดึงข้อมูลขยะจาก ObjectId
-            .populate('family') // ดึงข้อมูลครอบครัว
-            .sort({ createdAt: -1 }); // เรียงตามวันที่สร้างล่าสุด
+            .find({ isDeleted: false, status: { $ne: 'archived' } })
+            .populate('waste')
+            .populate('family')
+            .sort({ createdAt: -1 });
 
-        console.log('Fetched requests:', wasteSaleRequests.length); // Debug log
-        
-        // Debug log เพื่อดูข้อมูลที่ดึงมา
-        if (wasteSaleRequests.length > 0) {
-            console.log('Sample request coordinates:', {
-                latitude: wasteSaleRequests[0].latitude,
-                longitude: wasteSaleRequests[0].longitude
-            });
-        }
+        const validRequests = wasteSaleRequests.filter(r => r.family !== null);
+
+        console.log(`Total: ${wasteSaleRequests.length}, Valid: ${validRequests.length}`);
 
         res.render('employee/wasteSaleRequest', {
             mytitle: 'พนักงาน | ความประสงค์ขายขยะ',
-            wasteSaleRequests,
+            wasteSaleRequests: validRequests,
             currentPage: 'wasteSaleRequest',
         });
     } catch (error) {

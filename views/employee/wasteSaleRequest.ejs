@@ -292,8 +292,8 @@
                 <% if (wasteSaleRequests.length > 0) { %>
                     <% wasteSaleRequests.forEach(request => { %>
                         <div class="group bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden" 
-                             data-status="<%= request.status %>" 
-                             data-search="<%= request.family.familyName %> <%= request.location %> <%= request.waste.map(w => w.wasteName).join(' ') %>">
+                            data-status="<%= request.status %>" 
+                            data-search="<%= request.family?.familyName ?? '' %> <%= request.location %> <%= request.waste.map(w => w.wasteName).join(' ') %>">
                             
                             <!-- Header: User Info & Status -->
                             <div class="px-5 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-100 bg-gray-50/50">
@@ -302,7 +302,9 @@
                                         <i class="fas fa-user text-lg"></i>
                                     </div>
                                     <div>
-                                        <h3 class="text-base font-semibold text-gray-900"><%= request.family.familyName %></h3>
+                                        <h3 class="text-base font-semibold text-gray-900">
+                                            <%= request.family ? request.family.familyName : '(ไม่พบข้อมูลครอบครัว)' %>
+                                        </h3>
                                         <p class="text-xs text-gray-500">รหัสคำขอ: #<%= request._id.toString().slice(-6) %></p>
                                     </div>
                                 </div>
@@ -425,10 +427,9 @@
                                         <div class="space-y-5">
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700 mb-2">ผู้ขาย</label>
-                                                <div class="flex items-center space-x-2 px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
-                                                    <!-- <ion-icon name="person-circle-outline" class="text-gray-600 text-xl"></ion-icon> -->
-                                                    <span class="text-gray-800 font-medium"><%= request.family.familyName %></span>
-                                                </div>
+                                                <span class="text-gray-800 font-medium">
+                                                    <%= request.family ? request.family.familyName : '(ไม่พบข้อมูลครอบครัว)' %>
+                                                </span>
                                             </div>
 
                                             <div>

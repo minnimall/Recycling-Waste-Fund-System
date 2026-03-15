@@ -258,7 +258,7 @@
             <!-- Main -->
             <div class="flex w-full">
                 <%- include('../partials/employeePartials/empSidebar.ejs') %>
-                <div class="content bg-gray-50 min-screen">
+                <div class="content bg-gray-50 min-h-screen">
                     <div class="mt-4 mx-4 mb-6 bg-white rounded-lg shadow p-4">
                         <div>
                             <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">สรุปการรับซื้อขยะ
@@ -1011,7 +1011,8 @@
             confirmButtonColor: "#d33",
             cancelButtonColor: "#6b7280",
             cancelButtonText: "ยกเลิก",
-            confirmButtonText: "ยืนยัน"
+            confirmButtonText: "ยืนยัน",
+            reverseButtons: true
         }).then((result) => {
             if (result.isConfirmed) {
                 fetch(`/employee/wastePurchaseDelete/${id}`, {

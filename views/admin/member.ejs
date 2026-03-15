@@ -753,21 +753,26 @@
             </div>
 
             <!-- แสดงข้อมูลที่อยู่ของครัวเรือน -->
-            <div id="ShowLocationModal"
-                class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-                <div class="bg-white p-6 w-1/2 rounded-lg relative">
-                    <h3 class="text-xl font-medium leading-6 text-gray-800">ข้อมูลที่อยู่ของครัวเรือน</h3>
-                    <hr class="my-3">
-                    <div class="bg-gray-50 p-4">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <label class="block text-gray-700 mb-2">ชื่อครัวเรือน</label>
-                                <input type="text" name="familyName" class="w-full p-2 border rounded" disabled>
-                            </div>
+            <div id="ShowLocationModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 p-4">
+                <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+                    <div class="flex items-center justify-between border-b pb-4 mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">ข้อมูลที่อยู่ของครัวเรือน</h3>
+                        <button class="text-gray-400 hover:text-gray-600 transition" onclick="CloseLocationModal()">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
 
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-gray-700 mb-2">ประเภทครัวเรือน</label>
-                                <select name="Type" class="w-full p-2 border rounded" disabled>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อครัวเรือน</label>
+                                <input type="text" name="familyName" class="w-full p-2 border rounded-lg bg-gray-50" disabled>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">ประเภทครัวเรือน</label>
+                                <select name="Type" class="w-full p-2 border rounded-lg bg-gray-50" disabled>
                                     <option value="household">บ้านเรือน</option>
                                     <option value="school">โรงเรียน</option>
                                     <option value="municipality">อปท.</option>
@@ -775,44 +780,43 @@
                                 </select>
                             </div>
                         </div>
-                        <h3 class="font-medium text-gray-700 mt-4 mb-2">ที่อยู่</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label class="block text-gray-700 mb-2">บ้านเลขที่</label>
-                                <input type="text" name="houseNumber" class="w-full p-2 border rounded" disabled>
-                            </div>
 
-                            <div>
-                                <label class="block text-gray-700 mb-2">ถนน</label>
-                                <input type="text" name="road" class="w-full p-2 border rounded" disabled>
-                            </div>
+                        <h4 class="text-sm font-medium text-gray-700 pt-2 border-t">ที่อยู่</h4>
 
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
-                                <label class="block text-gray-700 mb-2">ตำบล</label>
-                                <input type="text" name="subdistrict" class="w-full p-2 border rounded" disabled>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">บ้านเลขที่</label>
+                                <input type="text" name="houseNumber" class="w-full p-2 border rounded-lg bg-gray-50" disabled>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">ถนน</label>
+                                <input type="text" name="road" class="w-full p-2 border rounded-lg bg-gray-50" disabled>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">ตำบล</label>
+                                <input type="text" name="subdistrict" class="w-full p-2 border rounded-lg bg-gray-50" disabled>
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
-                                <label class="block text-gray-700 mb-2">อำเภอ</label>
-                                <input type="text" name="district" class="w-full p-2 border rounded" disabled>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">อำเภอ</label>
+                                <input type="text" name="district" class="w-full p-2 border rounded-lg bg-gray-50" disabled>
                             </div>
                             <div>
-                                <label class="block text-gray-700 mb-2">จังหวัด</label>
-                                <input type="text" name="province" class="w-full p-2 border rounded" value="ขอนแก่น"
-                                    disabled>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">จังหวัด</label>
+                                <input type="text" name="province" class="w-full p-2 border rounded-lg bg-gray-50" value="ขอนแก่น" disabled>
                             </div>
                             <div>
-                                <label class="block text-gray-700 mb-2">รหัสไปรษณีย์</label>
-                                <input type="text" name="postalCode" class="w-full md:w-1/3 p-2 border rounded"
-                                    disabled>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">รหัสไปรษณีย์</label>
+                                <input type="text" name="postalCode" class="w-full p-2 border rounded-lg bg-gray-50" disabled>
                             </div>
                         </div>
-                        <hr class="my-6">
-                        <div class="mt-4 flex justify-end">
-                            <button class="bg-red-500 text-white px-4 py-2 rounded"
-                                onclick="CloseLocationModal()">ปิด</button>
-                        </div>
+                    </div>
+
+                    <div class="mt-6 flex justify-end">
+                        <button class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition"
+                            onclick="CloseLocationModal()">ปิด</button>
                     </div>
                 </div>
             </div>
