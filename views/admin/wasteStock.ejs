@@ -238,7 +238,7 @@
                                     ลำดับที่
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    ชนิดขยะ
+                                    ชื่อรายการขยะ
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     น้ำหนักรวม (กก.)
@@ -272,7 +272,14 @@
                                     <%= index + 1 %>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900"><%= item._id || 'ไม่ระบุ' %></div>
+                                    <div class="text-sm font-medium text-gray-900 flex items-center gap-2">
+                                        <%= item._id || 'ไม่ระบุ' %>
+                                        <% if (!item.currentPrice || item.currentPrice === 0) { %>
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700">
+                                                รายการขยะนี้ถูกลบออกแล้ว
+                                            </span>
+                                        <% } %>
+                                    </div>
                                     <div class="text-xs text-gray-500">
                                         รับซื้อ <%= item.purchaseCount || 0 %> ครั้ง
                                         <% if (item.monthlyBreakdown && item.monthlyBreakdown.length > 1) { %>
@@ -301,9 +308,16 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
-                                    <div class="text-sm font-medium <%= (item.priceDifference || 0) >= 0 ? 'text-green-600' : 'text-red-600' %>">
-                                        <%= (item.currentValueIfSoldToday || 0).toLocaleString() %>
-                                    </div>
+                                    <% if (!item.currentPrice || item.currentPrice === 0) { %>
+                                        <div class="text-sm text-gray-400 italic">ไม่มีราคาปัจจุบัน</div>
+                                    <% } else { %>
+                                        <div class="text-sm font-medium <%= (item.priceDifference || 0) >= 0 ? 'text-green-600' : 'text-red-600' %>">
+                                            <%= (item.currentValueIfSoldToday || 0).toLocaleString() %>
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            <%= (item.priceDifference || 0) >= 0 ? '+' : '' %><%= ((item.currentValueIfSoldToday || 0) - (item.historicalTotalAmount || 0)).toLocaleString() %>
+                                        </div>
+                                    <% } %>
                                     <div class="text-xs text-gray-500">
                                         <%= (item.priceDifference || 0) >= 0 ? '+' : '' %><%= ((item.currentValueIfSoldToday || 0) - (item.historicalTotalAmount || 0)).toLocaleString() %>
                                     </div>

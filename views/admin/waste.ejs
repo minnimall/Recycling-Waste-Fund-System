@@ -552,7 +552,21 @@
                 <td class="px-4 py-3 text-sm whitespace-nowrap">${item.wasteType.wasteTypeName}</td>
                 <td class="px-4 py-3 text-sm whitespace-nowrap text-center">${item.pricePerUnit}</td>
                 <td class="px-4 py-3 text-sm whitespace-nowrap">
-                    <img src="${item.img || '/placeholder-waste.svg'}" alt="รูป" class="waste-img w-12 h-12 object-cover rounded shadow-sm border border-gray-100" />
+                    ${item.img 
+                        ? `<img src="${item.img}" alt="รูป" 
+                                class="waste-img w-12 h-12 object-cover rounded shadow-sm border border-gray-100"
+                                onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                        <div style="display:none" class="w-12 h-12 rounded border border-gray-100 bg-gray-100 items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                            </svg>
+                        </div>`
+                        : `<div class="w-12 h-12 rounded border border-gray-100 bg-gray-100 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                            </svg>
+                        </div>`
+                    }
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-left">
                     <button type="button" class="was-row-${index + 1} row-active edit-btn" 
@@ -758,12 +772,18 @@
 
     // ฟังก์ชันสำหรับตั้งค่ารูปภาพเดิมใน Edit Form
     function setExistingEditImage(imageUrl) {
-        if (imageUrl && imageUrl !== '' && imageUrl !== '/placeholder-waste.svg') {
+        if (imageUrl && imageUrl !== '' && imageUrl !== 'undefined') {
             editPreviewImg.src = imageUrl;
+            editPreviewImg.onerror = function() {
+                // โหลดรูปไม่สำเร็จ → แสดง Upload Zone แทน
+                this.onerror = null;
+                editUploadZone.classList.remove('hidden');
+                editImagePreview.classList.add('hidden');
+            };
             editUploadZone.classList.add('hidden');
             editImagePreview.classList.remove('hidden');
         } else {
-            editPreviewImg.src = '/placeholder-waste.svg';
+            // ไม่มีรูป → แสดง Upload Zone
             editUploadZone.classList.remove('hidden');
             editImagePreview.classList.add('hidden');
         }
