@@ -228,6 +228,7 @@ const dashboardIndex = async (req, res) => {
             todayDataResult,
             yesterdayDataResult,
             lastMonthDataResult,
+            selectedDateDataResult,
             highestWaste,
             villageDataResult,
             wasteSummaryResult,
@@ -256,6 +257,16 @@ const dashboardIndex = async (req, res) => {
             // 4. Last Month Data
             WastePurchase.aggregate([
                 ...buildPipeline(lastMonthStart, lastMonthEnd, null),
+                ...getSummaryGroupStage()
+            ]),
+
+            //  5. Selected Date Data — ถ้าเลือกวันที่/เดือน/ปี ก็ query ตามนั้น
+            WastePurchase.aggregate([
+                ...buildPipeline(
+                    filterStartDate || todayStart,
+                    filterEndDate   || todayEnd,
+                    village || null
+                ),
                 ...getSummaryGroupStage()
             ]),
             
@@ -409,7 +420,7 @@ const dashboardIndex = async (req, res) => {
                         }
                     },
                     { $sort: { totalAmount: -1 } },
-                    { $limit: 5 }
+                    { $limit: 10 }
                 ]);
             })()
         ]);
@@ -420,6 +431,7 @@ const dashboardIndex = async (req, res) => {
         const todayData = todayDataResult[0] || { totalAmount: 0, totalTransactions: 0 };
         const yesterdayData = yesterdayDataResult[0] || { totalAmount: 0, totalTransactions: 0 };
         const lastMonthData = lastMonthDataResult[0] || { totalAmount: 0, totalQuantity: 0 };
+        const selectedDateData = selectedDateDataResult[0] || { totalAmount: 0 };
 
         // คำนวณเปอร์เซ็นต์การเปลี่ยนแปลง
         const calculatePercentChange = (current, previous) => {
@@ -462,6 +474,8 @@ const dashboardIndex = async (req, res) => {
             totalQuantity: totalData.totalQuantity,
             totalAmount: totalData.totalAmount,
             totalTransactions: totalData.totalTransactions,
+            todayTotal: todayData.totalAmount, 
+            selectedDateTotal: selectedDateData.totalAmount,
             
             // เปรียบเทียบ
             todayTotal: todayData.totalAmount,
@@ -908,18 +922,16 @@ const activityPost = (req, res) => {
 const deleteActivity = async (req, res) => {
     try {
         const { id } = req.params;
-
         const result = await myActivity.findByIdAndUpdate(id, { isDeleted: true });
 
         if (!result) {
-            console.log(`Activity with ID ${id} not found.`);
-            return res.status(404).redirect('/admin/activity?error=ไม่พบข้อมูลที่ต้องการลบ');
+            return res.status(404).json({ success: false, message: 'ไม่พบข้อมูลที่ต้องการลบ' });
         }
 
-        res.redirect('/admin/activity?message=ลบกิจกรรมสำเร็จ (Soft Delete)');
+        res.status(200).json({ success: true, message: 'ลบกิจกรรมสำเร็จ' });
     } catch (err) {
         console.error('Error deleting activity:', err);
-        res.status(500).redirect('/admin/activity?error=ลบกิจกรรมไม่สำเร็จ');
+        res.status(500).json({ success: false, message: 'ลบกิจกรรมไม่สำเร็จ' });
     }
 };
 // แก้ไขกิจกรรม
