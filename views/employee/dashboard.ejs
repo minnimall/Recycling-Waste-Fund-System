@@ -255,27 +255,29 @@
                 <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-yellow-500 transition-transform hover:scale-105">
                     <div class="flex justify-between items-start">
                         <div>
-                            <p class="text-gray-500 mb-1">ยอดรับซื้อวันนี้</p>
+                            <p class="text-gray-500 mb-1">
+                                <% if (filterInfo.searchDate || filterInfo.searchMonth || filterInfo.searchYear) { %>
+                                    ยอดรับซื้อตามช่วงที่เลือก
+                                <% } else { %>
+                                    ยอดรับซื้อวันนี้
+                                <% } %>
+                            </p>
                             <h2 class="text-2xl font-bold text-gray-800">
-                                ฿<%= todayTotal.toLocaleString() %>
+                                ฿<%= selectedDateTotal.toLocaleString() %>
                             </h2>
+                            <!-- <% if (filterInfo.searchDate || filterInfo.searchMonth || filterInfo.searchYear) { %>
+                                <p class="text-xs text-gray-400 mt-1">
+                                    วันนี้: ฿<%= todayTotal.toLocaleString() %>
+                                </p>
+                            <% } %> -->
                         </div>
                         <div class="p-3 bg-yellow-100 rounded-full">
                             <i class="fas fa-chart-line text-yellow-500 text-xl"></i>
                         </div>
                     </div>
-                    <!-- <div class="mt-4 flex items-center">
-                        <% if (todayPercentChange >= 0) { %>
-                            <span class="text-green-500 flex items-center text-sm">
-                                <i class="fas fa-arrow-up mr-1"></i> <%= todayPercentChange %>%
-                            </span>
-                        <% } else { %>
-                            <span class="text-red-500 flex items-center text-sm">
-                                <i class="fas fa-arrow-down mr-1"></i> <%= Math.abs(todayPercentChange) %>%
-                            </span>
-                        <% } %>
-                        <span class="text-gray-400 ml-2 text-sm">จากเมื่อวาน</span>
-                    </div> -->
+                    <div class="mt-4 flex items-center">
+                        <span class="text-gray-500 text-sm">ยอดรับซื้อรวมในแต่ละวัน</span>
+                    </div>
                 </div>
             </div>
 
@@ -369,7 +371,7 @@
             </div>
 
             <!-- Additional Stats Section -->
-            <div class="mx-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="mx-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 <div class="bg-white rounded-lg shadow p-4">
                     <div class="flex items-center">
                         <div class="p-3 bg-orange-100 rounded-full">
@@ -391,21 +393,21 @@
                             <i class="fas fa-calendar-day text-teal-500"></i>
                         </div>
                         <div class="ml-4">
-                            <p class="text-sm text-gray-500">ธุรกรรมวันนี้</p>
-                            <p class="text-lg font-semibold text-gray-800"><%= transactionToday %></p>
-                            <p class="text-sm text-teal-600">
+                            <p class="text-sm text-gray-500">ธุรกรรมรับซื้อขยะวันนี้</p>
+                            <p class="text-lg font-semibold text-gray-800"><%= transactionToday %> ครั้ง</p>
+                            <!-- <p class="text-sm text-teal-600">
                                 <% if (transactionPercentChange >= 0) { %>
                                     <i class="fas fa-arrow-up"></i> <%= transactionPercentChange %>%
                                 <% } else { %>
                                     <i class="fas fa-arrow-down"></i> <%= Math.abs(transactionPercentChange) %>%
                                 <% } %>
                                 จากเมื่อวาน
-                            </p>
+                            </p> -->
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-lg shadow p-4">
+                <!-- <div class="bg-white rounded-lg shadow p-4">
                     <div class="flex items-center">
                         <div class="p-3 bg-pink-100 rounded-full">
                             <i class="fas fa-balance-scale text-pink-500"></i>
@@ -418,7 +420,7 @@
                             <p class="text-sm text-pink-600">฿<%= lastMonthTotal.toLocaleString() %></p>
                         </div>
                     </div>
-                </div>
+                </div> -->
 
                 <div class="bg-white rounded-lg shadow p-4">
                     <div class="flex items-center">
@@ -467,7 +469,7 @@
                                     <% 
                                     const rankColors = [
                                         'bg-gradient-to-br from-yellow-400 to-yellow-500 text-white',    
-                                        'bg-gradient-to-br from-gray-300 to-gray-400 text-white',       
+                                        'bg-gradient-to-br from-pink-300 to-pink-400 text-white',       
                                         'bg-gradient-to-br from-orange-600 to-red-600 text-white',    
                                         'bg-gradient-to-br from-sky-400 to-blue-500 text-white',    
                                         'bg-gradient-to-br from-indigo-400 to-purple-500 text-white' 

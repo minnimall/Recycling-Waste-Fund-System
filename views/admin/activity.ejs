@@ -218,11 +218,11 @@
         addMoreBtn.addEventListener('click', () => addFileInput.click());
 
         addFileInput.addEventListener('change', function(e) {
-            handleFileSelect(e.target.files, addPreviewGrid, addUploadZone, addImgPreview, addFileInput);
+            handleFileSelect(e.target.files, addPreviewGrid, addUploadZone, addImgPreview, addFileInput, addFileStore);
         });
 
         function openAddModal() {
-            resetImageArea(addFileInput, addUploadZone, addImgPreview, addPreviewGrid);
+            resetImageArea(addFileInput, addUploadZone, addImgPreview, addPreviewGrid, addFileStore);
             document.getElementById('addActivityForm').reset();
             addModal.classList.remove('hidden');
         }
@@ -230,7 +230,7 @@
         function closeAddModal() {
             addModal.classList.add('hidden');
             document.getElementById('addActivityForm').reset();
-            resetImageArea(addFileInput, addUploadZone, addImgPreview, addPreviewGrid);
+            resetImageArea(addFileInput, addUploadZone, addImgPreview, addPreviewGrid, addFileStore);
         }
 
 
@@ -246,7 +246,7 @@
         editAddMoreBtn.addEventListener('click', () => editFileInput.click());
 
         editFileInput.addEventListener('change', function(e) {
-            handleFileSelect(e.target.files, editPreviewGrid, editUploadZone, editImgPreview, editFileInput);
+            handleFileSelect(e.target.files, editPreviewGrid, editUploadZone, editImgPreview, editFileInput, editFileStore);
         });
 
         function openEditModal(id, title, content, imgs) {
@@ -255,7 +255,7 @@
             document.getElementById('editContent').value = content;
 
             // แสดงรูปเดิม
-            resetImageArea(editFileInput, editUploadZone, editImgPreview, editPreviewGrid);
+            resetImageArea(editFileInput, editUploadZone, editImgPreview, editPreviewGrid, editFileStore);
             const imgArray = Array.isArray(imgs) ? imgs : (imgs ? [imgs] : []);
             if (imgArray.length > 0) {
                 imgArray.forEach(url => {
@@ -271,14 +271,18 @@
         function closeEditModal() {
             editModal.classList.add('hidden');
             document.getElementById('editActivityForm').reset();
-            resetImageArea(editFileInput, editUploadZone, editImgPreview, editPreviewGrid);
+            resetImageArea(editFileInput, editUploadZone, editImgPreview, editPreviewGrid, editFileStore);
         }
 
 
         // ==================== SHARED FUNCTIONS ====================
 
+        // เพิ่มตัวแปร DataTransfer สำหรับแต่ละ modal
+        const addFileStore  = { current: new DataTransfer() };
+        const editFileStore = { current: new DataTransfer() };
+
         // ตรวจสอบและแสดง preview ไฟล์ที่เลือก
-        function handleFileSelect(fileList, previewGrid, uploadZone, imgPreview, fileInput) {
+        function handleFileSelect(fileList, previewGrid, uploadZone, imgPreview, fileInput, fileStore) {
             const files = Array.from(fileList);
             if (files.length === 0) return;
 
@@ -286,32 +290,33 @@
 
             for (const file of files) {
                 if (file.size > 5 * 1024 * 1024) {
-                    Swal.fire({ icon: 'error', title: 'ไฟล์ใหญ่เกินไป', text: `"${file.name}" มีขนาดเกิน 5MB`, confirmButtonColor: '#3085d6' });
-                    fileInput.value = '';
+                    Swal.fire({ icon: 'error', title: 'ไฟล์ใหญ่เกินไป', text: `"${file.name}" มีขนาดเกิน 5MB` });
                     return;
                 }
                 if (!validTypes.includes(file.type)) {
-                    Swal.fire({ icon: 'error', title: 'ประเภทไฟล์ไม่ถูกต้อง', text: `"${file.name}" ไม่ใช่ไฟล์ PNG, JPG หรือ GIF`, confirmButtonColor: '#3085d6' });
-                    fileInput.value = '';
+                    Swal.fire({ icon: 'error', title: 'ประเภทไฟล์ไม่ถูกต้อง', text: `"${file.name}" ไม่ใช่ PNG, JPG หรือ GIF` });
                     return;
                 }
             }
 
             files.forEach(file => {
+                fileStore.current.items.add(file);
+
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    appendPreviewImage(event.target.result, file.name, previewGrid, uploadZone, imgPreview);
+                    appendPreviewImage(event.target.result, file.name, previewGrid, uploadZone, imgPreview, fileStore, fileInput);
                 };
                 reader.readAsDataURL(file);
             });
 
+            fileInput.files = fileStore.current.files;
+
             uploadZone.classList.add('hidden');
             imgPreview.classList.remove('hidden');
-            fileInput.value = ''; // reset เพื่อให้เลือกซ้ำได้
         }
 
         // สร้าง element รูป preview (จากไฟล์ที่เลือก)
-        function appendPreviewImage(src, altText, previewGrid, uploadZone, imgPreview) {
+        function appendPreviewImage(src, altText, previewGrid, uploadZone, imgPreview, fileStore, fileInput) {
             const wrapper = document.createElement('div');
             wrapper.className = 'relative group';
 
@@ -325,6 +330,13 @@
             deleteBtn.className = 'absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 text-xs opacity-0 group-hover:opacity-100 transition flex items-center justify-center';
             deleteBtn.innerHTML = '✕';
             deleteBtn.addEventListener('click', () => {
+                const newStore = new DataTransfer();
+                Array.from(fileStore.current.files).forEach(f => {
+                    if (f.name !== altText) newStore.items.add(f);
+                });
+                fileStore.current = newStore;
+                fileInput.files = fileStore.current.files;
+
                 wrapper.remove();
                 if (previewGrid.children.length === 0) {
                     imgPreview.classList.add('hidden');
@@ -361,12 +373,16 @@
         }
 
         // รีเซ็ต image area
-        function resetImageArea(fileInput, uploadZone, imgPreview, previewGrid) {
-            fileInput.value = '';
+        function resetImageArea(fileInput, uploadZone, imgPreview, previewGrid, fileStore) {
+            fileStore.current = new DataTransfer();
+            fileInput.files = fileStore.current.files;
             previewGrid.innerHTML = '';
             uploadZone.classList.remove('hidden');
             imgPreview.classList.add('hidden');
         }
+        // อัปเดตทุกที่ที่เรียก resetImageArea
+        resetImageArea(addFileInput, addUploadZone, addImgPreview, addPreviewGrid, addFileStore);
+        resetImageArea(editFileInput, editUploadZone, editImgPreview, editPreviewGrid, editFileStore);
 
 
         // ==================== DELETE ====================

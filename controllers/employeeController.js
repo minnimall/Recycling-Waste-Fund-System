@@ -229,6 +229,7 @@ const dashboardIndex = async (req, res) => {
             todayDataResult,
             yesterdayDataResult,
             lastMonthDataResult,
+            selectedDateDataResult,
             highestWaste,
             villageDataResult,
             wasteSummaryResult,
@@ -257,6 +258,16 @@ const dashboardIndex = async (req, res) => {
             // 4. Last Month Data
             WastePurchase.aggregate([
                 ...buildPipeline(lastMonthStart, lastMonthEnd, null),
+                ...getSummaryGroupStage()
+            ]),
+
+            //  5. Selected Date Data — ถ้าเลือกวันที่/เดือน/ปี ก็ query ตามนั้น
+            WastePurchase.aggregate([
+                ...buildPipeline(
+                    filterStartDate || todayStart,
+                    filterEndDate   || todayEnd,
+                    village || null
+                ),
                 ...getSummaryGroupStage()
             ]),
             
@@ -410,7 +421,7 @@ const dashboardIndex = async (req, res) => {
                         }
                     },
                     { $sort: { totalAmount: -1 } },
-                    { $limit: 5 }
+                    { $limit: 10 }
                 ]);
             })()
         ]);
@@ -421,6 +432,7 @@ const dashboardIndex = async (req, res) => {
         const todayData = todayDataResult[0] || { totalAmount: 0, totalTransactions: 0 };
         const yesterdayData = yesterdayDataResult[0] || { totalAmount: 0, totalTransactions: 0 };
         const lastMonthData = lastMonthDataResult[0] || { totalAmount: 0, totalQuantity: 0 };
+        const selectedDateData = selectedDateDataResult[0] || { totalAmount: 0 };
 
         // คำนวณเปอร์เซ็นต์การเปลี่ยนแปลง
         const calculatePercentChange = (current, previous) => {
@@ -463,6 +475,8 @@ const dashboardIndex = async (req, res) => {
             totalQuantity: totalData.totalQuantity,
             totalAmount: totalData.totalAmount,
             totalTransactions: totalData.totalTransactions,
+            todayTotal: todayData.totalAmount, 
+            selectedDateTotal: selectedDateData.totalAmount,
             
             // เปรียบเทียบ
             todayTotal: todayData.totalAmount,
