@@ -61,65 +61,15 @@
             <!-- รูปภาพและรายละเอียดกิจกรรม -->
             <div class="grid md:grid-cols-12 gap-4">
                 <div class="md:col-span-5">
-                    <% if (activity.img && activity.img.length > 1) { %>
-                        <!-- Carousel สำหรับหลายรูป -->
-                        <div id="activityCarousel" class="carousel slide rounded-lg shadow-sm overflow-hidden" data-bs-ride="carousel">
-                            <div class="carousel-indicators">
-                                <% activity.img.forEach((img, index) => { %>
-                                    <button 
-                                        type="button" 
-                                        data-bs-target="#activityCarousel" 
-                                        data-bs-slide-to="<%= index %>"
-                                        class="<%= index === 0 ? 'active' : '' %>"
-                                        aria-label="Slide <%= index + 1 %>"
-                                    ></button>
-                                <% }) %>
-                            </div>
-
-                            <div class="carousel-inner">
-                                <% activity.img.forEach((img, index) => { %>
-                                    <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
-                                        <img 
-                                            src="<%= img %>" 
-                                            class="d-block w-100 object-cover"
-                                            style="height: 320px; object-fit: cover;"
-                                            alt="รูปภาพกิจกรรม <%= index + 1 %>"
-                                        >
-                                    </div>
-                                <% }) %>
-                            </div>
-
-                            <button class="carousel-control-prev" type="button" data-bs-target="#activityCarousel" data-bs-slide="prev">
-                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            </button>
-                            <button class="carousel-control-next" type="button" data-bs-target="#activityCarousel" data-bs-slide="next">
-                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            </button>
-                        </div>
-
-                        <!-- Thumbnail ด้านล่าง -->
-                        <div class="flex gap-2 mt-2 overflow-x-auto pb-1">
-                            <% activity.img.forEach((img, index) => { %>
-                                <img 
-                                    src="<%= img %>" 
-                                    class="rounded cursor-pointer border-2 flex-shrink-0 transition-all duration-200"
-                                    style="width: 60px; height: 60px; object-fit: cover;"
-                                    alt="thumbnail <%= index + 1 %>"
-                                    onclick="goToSlide(<%= index %>)"
-                                    id="thumb-<%= index %>"
-                                >
-                            <% }) %>
-                        </div>
-
-                    <% } else if (activity.img && activity.img.length === 1) { %>
-                        <!-- รูปเดียว -->
+                    <!-- ✅ รูปปก (รูปแรก) -->
+                    <% if (activity.img && activity.img.length > 0) { %>
                         <img 
                             src="<%= activity.img[0] %>" 
-                            class="w-full h-auto rounded-lg shadow-sm object-cover" 
-                            alt="รูปภาพกิจกรรม"
+                            class="w-full rounded-lg shadow-sm object-cover" 
+                            style="height: 320px; object-fit: cover;"
+                            alt="รูปหน้าปกกิจกรรม"
                         >
                     <% } else { %>
-                        <!-- ไม่มีรูป -->
                         <div class="w-full rounded-lg shadow-sm bg-gray-100 flex items-center justify-center" style="height: 320px;">
                             <p class="text-gray-400"><i class="fas fa-image mr-2"></i>ไม่มีรูปภาพ</p>
                         </div>
@@ -127,7 +77,6 @@
                 </div>
                 
                 <div class="md:col-span-7">
-                    <!-- หัวข้อ + วันที่ในบรรทัดเดียวกัน -->
                     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 gap-2">
                         <h2 class="text-xl font-semibold text-gray-800 m-0">
                             <%= activity.title %>
@@ -142,14 +91,29 @@
                         <%= activity.content %>
                     </p>
                     
-                    <a 
-                        href="/" 
-                        class="inline-flex items-center text-green-600 hover:text-green-700 hover:underline transition-colors"
-                    >
+                    <a href="/" class="inline-flex items-center text-green-600 hover:text-green-700 hover:underline transition-colors">
                         <i class="fas fa-arrow-left mr-1"></i>กลับหน้าหลัก
                     </a>
                 </div>
             </div>
+
+            <!-- ✅ รูปกิจกรรมอื่นๆ (รูปที่ 2 เป็นต้นไป) -->
+            <% if (activity.img && activity.img.length > 1) { %>
+                <div class="mt-6 pt-4 border-t border-gray-200">
+                    <h3 class="text-base font-semibold text-gray-700 mb-3">รูปภาพกิจกรรม</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                        <% activity.img.slice(1).forEach((img, index) => { %>
+                            <img 
+                                src="<%= img %>" 
+                                class="w-full rounded-lg shadow-sm object-cover cursor-pointer hover:opacity-90 transition"
+                                style="height: 160px; object-fit: cover;"
+                                alt="รูปกิจกรรม <%= index + 2 %>"
+                                onclick="openLightbox('<%= img %>')"
+                            >
+                        <% }) %>
+                    </div>
+                </div>
+            <% } %>
             
             <!-- เพิ่มส่วนกิจกรรมอื่นๆ ที่สามารถคลิกเพื่อดูรายละเอียดเพิ่มเติม -->
             <div class="mt-8 pt-6 border-t border-gray-200">
@@ -181,32 +145,22 @@
     </div>
 
 
-    <%- include('../partials/userPartials/footer.ejs') %>
+    
+    <!-- Lightbox -->
+    <div id="lightbox" class="fixed inset-0 z-50 bg-black bg-opacity-80 hidden flex items-center justify-center" onclick="closeLightbox()">
+        <img id="lightboxImg" src="" class="max-w-3xl max-h-[85vh] rounded-lg object-contain shadow-lg">
+        <button class="absolute top-4 right-6 text-white text-3xl font-bold">&times;</button>
+    </div>
+
     <script>
-        const carousel = document.getElementById('activityCarousel');
-        if (carousel) {
-            // Highlight thumbnail ที่ active
-            const updateThumbs = (index) => {
-                document.querySelectorAll('[id^="thumb-"]').forEach((thumb, i) => {
-                    thumb.classList.toggle('border-green-500', i === index);
-                    thumb.classList.toggle('border-transparent', i !== index);
-                    thumb.classList.toggle('opacity-60', i !== index);
-                });
-            };
-
-            updateThumbs(0);
-
-            carousel.addEventListener('slid.bs.carousel', (e) => {
-                updateThumbs(e.to);
-            });
+        function openLightbox(src) {
+            document.getElementById('lightboxImg').src = src;
+            document.getElementById('lightbox').classList.remove('hidden');
         }
-
-        function goToSlide(index) {
-            const carouselEl = document.getElementById('activityCarousel');
-            if (carouselEl) {
-                bootstrap.Carousel.getInstance(carouselEl)?.to(index);
-            }
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.add('hidden');
         }
     </script>
+    <%- include('../partials/userPartials/footer.ejs') %>
 </body>
 </html>

@@ -433,16 +433,18 @@
 
         function createCard(act) {
             const images = Array.isArray(act.img) ? act.img : (act.img ? [act.img] : []);
-            const imgHtml = images.length > 0
-                ? images.map(url => `<img src="${url}" class="w-full h-[150px] object-cover rounded mb-1">`).join('')
-                : `<div class="w-full h-[150px] bg-gray-200 rounded mb-1 flex items-center justify-center text-gray-400 text-sm">ไม่มีรูปภาพ</div>`;
+            
+            // ✅ เอารูปแรกเป็นหน้าปก ที่เหลือเป็นรูปกิจกรรม
+            const coverImg = images[0];
+            const otherImgs = images.slice(1);
 
-            // ส่ง array imgs ไปให้ openEditModal
-            const imgsJson = JSON.stringify(images).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const coverHtml = coverImg
+                ? `<img src="${coverImg}" class="w-full h-[150px] object-cover rounded mb-1">`
+                : `<div class="w-full h-[150px] bg-gray-200 rounded mb-1 flex items-center justify-center text-gray-400 text-sm">ไม่มีรูปภาพ</div>`;
 
             return `
                 <div class="bg-gray-100 border border-gray-300 p-4 rounded-lg shadow-md transition-transform transform hover:scale-105 relative">
-                    ${imgHtml}
+                    ${coverHtml}
                     <h2 class="text-lg font-medium mt-2 h-[100px] overflow-hidden">${act.title}</h2>
                     <p class="text-gray-400 text-xs mt-1">วันที่เพิ่ม ${formatDate(act.createdAt)}</p>
                     <div class="flex flex-auto items-center justify-end">

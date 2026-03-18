@@ -606,6 +606,7 @@ const wastePurchasePost = async (req, res) => {
             for (const item of parsedWasteItems) {
                 if (item && item.name) {
                     const newWasteItem = new WasteItem({
+                        wasteId: item.wasteId,
                         name: item.name,
                         quantity: item.weight,
                         pricePerUnit: item.pricePerUnit,
@@ -790,16 +791,16 @@ const wastePurchasePost = async (req, res) => {
         await session.commitTransaction();
 
         console.log(`
-========================================
-✅ บันทึกการรับซื้อสำเร็จ
-========================================
-บัญชี: ${wasteBankAccount.AccountNumber}
-ยอดขาย: ${totalAmount.toFixed(2)} บาท
-ยอดขายสะสม: ${oldTotalSales.toFixed(2)} → ${wasteBankAccount.TotalSalesAmount.toFixed(2)} บาท
-ยอดคงเหลือ: ${oldBalance.toFixed(2)} → ${wasteBankAccount.Balance.toFixed(2)} บาท
-${deductedPending > 0 ? `หักเงินค้าง: ${deductedPending.toFixed(2)} บาท\nเงินค้างคงเหลือ: ${oldPendingDeductions.toFixed(2)} → ${wasteBankAccount.PendingDeductions.toFixed(2)} บาท` : ''}
-สถานะสมาชิก: ${becameNewMember ? '🎉 เพิ่งเป็นสมาชิกใหม่!' : (membershipRestored ? '🎊 คืนสิทธิ์สมาชิก!' : (wasteBankAccount.IsMember ? '✅ เป็นสมาชิกอยู่' : '⏳ รอยอดเกิน 300'))}
-========================================
+            ========================================
+            ✅ บันทึกการรับซื้อสำเร็จ
+            ========================================
+            บัญชี: ${wasteBankAccount.AccountNumber}
+            ยอดขาย: ${totalAmount.toFixed(2)} บาท
+            ยอดขายสะสม: ${oldTotalSales.toFixed(2)} → ${wasteBankAccount.TotalSalesAmount.toFixed(2)} บาท
+            ยอดคงเหลือ: ${oldBalance.toFixed(2)} → ${wasteBankAccount.Balance.toFixed(2)} บาท
+            ${deductedPending > 0 ? `หักเงินค้าง: ${deductedPending.toFixed(2)} บาท\nเงินค้างคงเหลือ: ${oldPendingDeductions.toFixed(2)} → ${wasteBankAccount.PendingDeductions.toFixed(2)} บาท` : ''}
+            สถานะสมาชิก: ${becameNewMember ? '🎉 เพิ่งเป็นสมาชิกใหม่!' : (membershipRestored ? '🎊 คืนสิทธิ์สมาชิก!' : (wasteBankAccount.IsMember ? '✅ เป็นสมาชิกอยู่' : '⏳ รอยอดเกิน 300'))}
+            ========================================
         `);
 
         // สร้าง success message
@@ -1143,17 +1144,37 @@ const wastePurchaseTotalIndex = async (req, res) => {
         const totalCount = await WastePurchase.countDocuments(query);
         const totalPages = Math.ceil(totalCount / limit);
         const purchaseCount = await WastePurchase.countDocuments(query);
-        const customerCount = new Set(
-            wastePurchases
-                .filter(purchase => purchase.accountId && purchase.accountId.length > 0)
-                .map(purchase => purchase.accountId[0]._id.toString())
-        ).size;
+        const uniqueCustomers = await WastePurchase.distinct('accountId', query);
+        const customerCount = uniqueCustomers.length;
 
         // คำนวณยอดเงินรวม
-        const totalWastePurchases = await WastePurchase.find(query);
-        const totalAmount = totalWastePurchases.reduce((sum, purchase) =>
-            sum + (purchase.totalAmount || 0), 0
-        );
+        const totalAmountAgg = await WastePurchase.aggregate([
+            { $match: query },
+            {
+                $lookup: {
+                    from: 'wasteitems',
+                    localField: 'wasteItems',
+                    foreignField: '_id',
+                    as: 'wasteItemDetails'
+                }
+            },
+            { $unwind: '$wasteItemDetails' },
+            {
+                $group: {
+                    _id: null,
+                    totalAmount: {
+                        $sum: {
+                            $multiply: [
+                                '$wasteItemDetails.quantity',
+                                '$wasteItemDetails.pricePerUnit'
+                            ]
+                        }
+                    }
+                }
+            }
+        ]);
+
+        const totalAmount = totalAmountAgg.length > 0 ? totalAmountAgg[0].totalAmount : 0;
 
         // ดึงรายการหมู่บ้านทั้งหมดสำหรับ dropdown
         const villages = await Village.find({ isDeleted: false }).sort({ villageNumber: 1 });
@@ -1277,7 +1298,7 @@ const memberIndex = async (req, res) => {
         }
 
         // ─── Pagination ───────────────────────────────────────────
-        const itemsPerPage = 10;
+        const itemsPerPage = 20;
         const totalItems = familiesWithAccount.length;
         const totalPages = Math.ceil(totalItems / itemsPerPage);
         const currentPage = Math.max(1, Math.min(parseInt(page) || 1, totalPages || 1));
@@ -2734,31 +2755,36 @@ const wasteStockIndex = async (req, res) => {
             { $unwind: '$wasteItemDetails' }
         );
 
-        // ถ้าใส่ชื่อขยะ
-        if (wasteName && wasteName.trim() !== '') {
-            pipeline.push({
-                $match: { 
-                    'wasteItemDetails.name': { 
-                        $regex: wasteName.trim(), 
-                        $options: 'i' 
-                    } 
-                }
-            });
-            console.log('Added waste name filter:', wasteName);
-        }
-
         // Join กับ Waste model
         pipeline.push(
             {
                 $lookup: {
                     from: 'wastes',
-                    localField: 'wasteItemDetails.name',
-                    foreignField: 'wasteName',
-                    as: 'currentWasteInfo'
+                    localField: 'wasteItemDetails.wasteId',
+                    foreignField: '_id',
+                    as: 'currentWasteInfoById'
                 }
             },
-            
-            // เพิ่ม field เดือน/ปี สำหรับ grouping
+            {
+                $lookup: {
+                    from: 'wastes',
+                    localField: 'wasteItemDetails.name',
+                    foreignField: 'wasteName',
+                    as: 'currentWasteInfoByName'
+                }
+            },
+            {
+                $addFields: {
+                    // ใช้ผลจาก Id ก่อน ถ้าไม่เจอค่อยใช้ Name (fallback สำหรับข้อมูลเก่า)
+                    currentWasteInfo: {
+                        $cond: {
+                            if: { $gt: [{ $size: '$currentWasteInfoById' }, 0] },
+                            then: '$currentWasteInfoById',
+                            else: '$currentWasteInfoByName'
+                        }
+                    }
+                }
+            },
             {
                 $addFields: {
                     purchaseMonth: { 
@@ -2769,13 +2795,8 @@ const wasteStockIndex = async (req, res) => {
                         } 
                     },
                     purchaseYear: { $year: "$purchaseDate" },
-                    // ป้องกัน null/undefined values
-                    wasteQuantity: { 
-                        $ifNull: ['$wasteItemDetails.quantity', 0] 
-                    },
-                    wastePricePerUnit: { 
-                        $ifNull: ['$wasteItemDetails.pricePerUnit', 0] 
-                    },
+                    wasteQuantity: { $ifNull: ['$wasteItemDetails.quantity', 0] },
+                    wastePricePerUnit: { $ifNull: ['$wasteItemDetails.pricePerUnit', 0] },
                     currentPricePerUnit: {
                         $ifNull: [{ $arrayElemAt: ['$currentWasteInfo.pricePerUnit', 0] }, 0]
                     }
@@ -2783,51 +2804,71 @@ const wasteStockIndex = async (req, res) => {
             }
         );
 
+        // ถ้าใส่ชื่อขยะ
+        if (wasteName && wasteName.trim() !== '') {
+            pipeline.push({
+                $match: {
+                    $or: [
+                        // ค้นจากชื่อตอนซื้อ (snapshot)
+                        { 
+                            'wasteItemDetails.name': { 
+                                $regex: wasteName.trim(), 
+                                $options: 'i' 
+                            }
+                        },
+                        // ค้นจากชื่อปัจจุบันใน Waste collection
+                        { 
+                            'currentWasteInfo.wasteName': { 
+                                $regex: wasteName.trim(), 
+                                $options: 'i' 
+                            }
+                        }
+                    ]
+                }
+            });
+        }
+
         // Group แบบใหม่ - แยกตาม wasteName และ เดือน
         pipeline.push(
             {
                 $group: {
                     _id: {
-                        wasteName: '$wasteItemDetails.name',
+                        // ถ้าไม่มี wasteId ให้ใช้ชื่อแทน (ข้อมูลเก่า)
+                        wasteId: {
+                            $ifNull: ['$wasteItemDetails.wasteId', '$wasteItemDetails.name']
+                        },
                         month: '$purchaseMonth'
                     },
+                    wasteName: { $first: '$wasteItemDetails.name' },
+                    currentWasteName: { $first: { $arrayElemAt: ['$currentWasteInfo.wasteName', 0] } },
                     totalQuantityKg: { $sum: '$wasteQuantity' },
                     avgPriceInMonth: { $avg: '$wastePricePerUnit' },
                     monthlyAmount: { 
-                        $sum: { 
-                            $multiply: ['$wasteQuantity', '$wastePricePerUnit'] 
-                        } 
+                        $sum: { $multiply: ['$wasteQuantity', '$wastePricePerUnit'] } 
                     },
                     currentPrice: { $first: '$currentPricePerUnit' },
                     currentMonthlyValue: { 
-                        $sum: { 
-                            $multiply: ['$wasteQuantity', '$currentPricePerUnit'] 
-                        } 
+                        $sum: { $multiply: ['$wasteQuantity', '$currentPricePerUnit'] } 
                     },
                     purchaseCount: { $sum: 1 },
                     purchaseDates: { $push: '$purchaseDate' }
                 }
             },
-            
-            // Group อีกครั้งเพื่อรวมทุกเดือนของแต่ละประเภทขยะ
+
+            // group สอง - ใช้ wasteId   Group อีกครั้งเพื่อรวมทุกเดือนของแต่ละประเภทขยะ
             {
                 $group: {
-                    _id: '$_id.wasteName',
+                    _id: '$_id.wasteId',
+                    displayName: { $first: '$currentWasteName' },
+                    snapshotName: { $first: '$wasteName' },
                     totalQuantityKg: { $sum: '$totalQuantityKg' },
-                    
-                    // รวมยอดเงินจากทุกเดือน (แม่นยำ)
                     historicalTotalAmount: { $sum: '$monthlyAmount' },
                     currentTotalAmount: { $sum: '$currentMonthlyValue' },
-                    
-                    // เก็บข้อมูลสำหรับคำนวณราคาเฉลี่ย
                     totalMonthlyAmount: { $sum: '$monthlyAmount' },
                     totalMonthlyQuantity: { $sum: '$totalQuantityKg' },
-                    
                     currentPrice: { $first: '$currentPrice' },
                     purchaseCount: { $sum: '$purchaseCount' },
                     lastUpdated: { $max: { $max: '$purchaseDates' } },
-                    
-                    // เก็บรายละเอียดรายเดือน
                     monthlyBreakdown: {
                         $push: {
                             month: '$_id.month',
@@ -2885,7 +2926,7 @@ const wasteStockIndex = async (req, res) => {
                 }
             },
             
-            { $sort: { _id: 1 } }
+            { $sort: { displayName: 1 } }
         );
 
         console.log('Executing main aggregation pipeline...');

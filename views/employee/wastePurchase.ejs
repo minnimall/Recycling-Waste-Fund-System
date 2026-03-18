@@ -209,7 +209,7 @@
                                                     <td class="px-2 sm:px-4 py-3 text-center">
                                                         <input type="number" min="0.1" step="0.1" placeholder="0.0" 
                                                             class="w-20 sm:w-24 px-2 py-1.5 sm:px-3 sm:py-2 border-2 border-gray-200 rounded-xl text-center text-sm font-medium focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 hover:border-green-300 transition-all"
-                                                            id="table-weight-<%= index %>" data-index="<%= index %>" data-name="<%= item.wasteName %>" data-price="<%= item.pricePerUnit %>" data-layout="table"
+                                                            id="table-weight-<%= index %>" data-index="<%= index %>" data-name="<%= item.wasteName %>" data-price="<%= item.pricePerUnit %>" data-wasteid="<%= item._id %>" data-layout="table"
                                                             oninput="handleWeightInput('<%= index %>', 'table')"
                                                             onblur="handleWeightBlur('<%= index %>', 'table')"
                                                         >
@@ -292,7 +292,7 @@
                                                     </p>
                                                     <input type="number" min="0.1" step="0.1" placeholder="0.0" 
                                                         class="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg text-center font-medium focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 hover:border-green-300 transition-all"
-                                                        id="card-weight-<%= index %>" data-index="<%= index %>" data-name="<%= item.wasteName %>" data-price="<%= item.pricePerUnit %>" data-layout="card"
+                                                        id="card-weight-<%= index %>" data-index="<%= index %>" data-name="<%= item.wasteName %>" data-price="<%= item.pricePerUnit %>" data-wasteid="<%= item._id %>" data-layout="card"
                                                         oninput="handleWeightInput('<%= index %>', 'card')"
                                                         onblur="handleWeightBlur('<%= index %>', 'card')"
                                                     >
@@ -1248,24 +1248,21 @@
         const weightInput = document.getElementById(inputId);
         const weight = parseFloat(weightInput.value);
         
-        if (!weight || weight <= 0) {
-            return; // ไม่แสดงเตือนเมื่อไม่มีค่า
-        }
+        if (!weight || weight <= 0) return;
 
         const name = weightInput.dataset.name;
         const pricePerUnit = parseFloat(weightInput.dataset.price);
+        const wasteId = weightInput.dataset.wasteid;
         const totalPrice = (weight * pricePerUnit).toFixed(2);
 
-        // ตรวจสอบว่ามีสินค้านี้ในรายการแล้วหรือไม่
         const existingIndex = selectedWaste.findIndex(item => item.name === name);
         
         if (existingIndex >= 0) {
-            // ถ้ามีแล้ว ให้อัพเดทน้ำหนัก
             selectedWaste[existingIndex].weight = weight;
             selectedWaste[existingIndex].totalPrice = totalPrice;
         } else {
-            // ถ้ายังไม่มี ให้เพิ่มใหม่
             selectedWaste.push({ 
+                wasteId: wasteId,
                 name: name, 
                 pricePerUnit: pricePerUnit, 
                 weight: weight, 
@@ -1273,13 +1270,8 @@
             });
         }
 
-        // Sync ค่าไปยัง layout อื่น
         syncWeightInputs(index, weight, name);
-
-        // อัพเดทรายการ
         updateSelectedWasteList();
-
-
 
         // แสดงข้อความสำเร็จ
         Swal.fire({

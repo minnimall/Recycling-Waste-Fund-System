@@ -696,7 +696,7 @@ const uploadFileToCloudinary = (fileBuffer, mimeType, folderName = 'news_files')
             {
                 folder: folderName,
                 resource_type: isPDF ? 'raw' : 'image',
-                format: isPDF ? 'pdf' : undefined,
+                // ✅ ลบ format: isPDF ? 'pdf' : undefined ออก
                 type: 'upload',
                 access_mode: 'public'
             },
@@ -726,13 +726,9 @@ const newsPost = async (req, res) => {
             let fileNews = '/img/no_PDF.pdf';
 
             if (req.file) {
-                    const result = await uploadFileToCloudinary(req.file.buffer, req.file.mimetype);
-                    const isPDF = req.file.mimetype === 'application/pdf';
-                    // ต่อ .pdf เฉพาะถ้า URL ยังไม่มี .pdf ต่อท้าย
-                    fileNews = isPDF && !result.secure_url.endsWith('.pdf') 
-                        ? result.secure_url + '.pdf' 
-                        : result.secure_url;
-                }
+                const result = await uploadFileToCloudinary(req.file.buffer, req.file.mimetype);
+                fileNews = result.secure_url;
+            }
 
             const newNews = new myNews({
                 newsTitle,
@@ -789,11 +785,7 @@ const newsEdit = async (req, res) => {
             // ถ้ามีการอัปโหลดไฟล์ใหม่
             if (req.file) {
                 const result = await uploadFileToCloudinary(req.file.buffer, req.file.mimetype);
-                const isPDF = req.file.mimetype === 'application/pdf';
-                // ต่อ .pdf เฉพาะถ้า URL ยังไม่มี .pdf ต่อท้าย
-                fileNews = isPDF && !result.secure_url.endsWith('.pdf') 
-                    ? result.secure_url + '.pdf' 
-                    : result.secure_url;
+                fileNews = result.secure_url;
             }
 
             // อัปเดตข้อมูล
@@ -1561,31 +1553,36 @@ const wasteStockIndex = async (req, res) => {
             { $unwind: '$wasteItemDetails' }
         );
 
-        // ถ้าใส่ชื่อขยะ
-        if (wasteName && wasteName.trim() !== '') {
-            pipeline.push({
-                $match: { 
-                    'wasteItemDetails.name': { 
-                        $regex: wasteName.trim(), 
-                        $options: 'i' 
-                    } 
-                }
-            });
-            console.log('Added waste name filter:', wasteName);
-        }
-
         // Join กับ Waste model
         pipeline.push(
             {
                 $lookup: {
                     from: 'wastes',
-                    localField: 'wasteItemDetails.name',
-                    foreignField: 'wasteName',
-                    as: 'currentWasteInfo'
+                    localField: 'wasteItemDetails.wasteId',
+                    foreignField: '_id',
+                    as: 'currentWasteInfoById'
                 }
             },
-            
-            // เพิ่ม field เดือน/ปี สำหรับ grouping
+            {
+                $lookup: {
+                    from: 'wastes',
+                    localField: 'wasteItemDetails.name',
+                    foreignField: 'wasteName',
+                    as: 'currentWasteInfoByName'
+                }
+            },
+            {
+                $addFields: {
+                    // ใช้ผลจาก Id ก่อน ถ้าไม่เจอค่อยใช้ Name (fallback สำหรับข้อมูลเก่า)
+                    currentWasteInfo: {
+                        $cond: {
+                            if: { $gt: [{ $size: '$currentWasteInfoById' }, 0] },
+                            then: '$currentWasteInfoById',
+                            else: '$currentWasteInfoByName'
+                        }
+                    }
+                }
+            },
             {
                 $addFields: {
                     purchaseMonth: { 
@@ -1596,13 +1593,8 @@ const wasteStockIndex = async (req, res) => {
                         } 
                     },
                     purchaseYear: { $year: "$purchaseDate" },
-                    // ป้องกัน null/undefined values
-                    wasteQuantity: { 
-                        $ifNull: ['$wasteItemDetails.quantity', 0] 
-                    },
-                    wastePricePerUnit: { 
-                        $ifNull: ['$wasteItemDetails.pricePerUnit', 0] 
-                    },
+                    wasteQuantity: { $ifNull: ['$wasteItemDetails.quantity', 0] },
+                    wastePricePerUnit: { $ifNull: ['$wasteItemDetails.pricePerUnit', 0] },
                     currentPricePerUnit: {
                         $ifNull: [{ $arrayElemAt: ['$currentWasteInfo.pricePerUnit', 0] }, 0]
                     }
@@ -1610,51 +1602,71 @@ const wasteStockIndex = async (req, res) => {
             }
         );
 
+        // ถ้าใส่ชื่อขยะ
+        if (wasteName && wasteName.trim() !== '') {
+            pipeline.push({
+                $match: {
+                    $or: [
+                        // ค้นจากชื่อตอนซื้อ (snapshot)
+                        { 
+                            'wasteItemDetails.name': { 
+                                $regex: wasteName.trim(), 
+                                $options: 'i' 
+                            }
+                        },
+                        // ค้นจากชื่อปัจจุบันใน Waste collection
+                        { 
+                            'currentWasteInfo.wasteName': { 
+                                $regex: wasteName.trim(), 
+                                $options: 'i' 
+                            }
+                        }
+                    ]
+                }
+            });
+        }
+
         // Group แบบใหม่ - แยกตาม wasteName และ เดือน
         pipeline.push(
             {
                 $group: {
                     _id: {
-                        wasteName: '$wasteItemDetails.name',
+                        // ถ้าไม่มี wasteId ให้ใช้ชื่อแทน (ข้อมูลเก่า)
+                        wasteId: {
+                            $ifNull: ['$wasteItemDetails.wasteId', '$wasteItemDetails.name']
+                        },
                         month: '$purchaseMonth'
                     },
+                    wasteName: { $first: '$wasteItemDetails.name' },
+                    currentWasteName: { $first: { $arrayElemAt: ['$currentWasteInfo.wasteName', 0] } },
                     totalQuantityKg: { $sum: '$wasteQuantity' },
                     avgPriceInMonth: { $avg: '$wastePricePerUnit' },
                     monthlyAmount: { 
-                        $sum: { 
-                            $multiply: ['$wasteQuantity', '$wastePricePerUnit'] 
-                        } 
+                        $sum: { $multiply: ['$wasteQuantity', '$wastePricePerUnit'] } 
                     },
                     currentPrice: { $first: '$currentPricePerUnit' },
                     currentMonthlyValue: { 
-                        $sum: { 
-                            $multiply: ['$wasteQuantity', '$currentPricePerUnit'] 
-                        } 
+                        $sum: { $multiply: ['$wasteQuantity', '$currentPricePerUnit'] } 
                     },
                     purchaseCount: { $sum: 1 },
                     purchaseDates: { $push: '$purchaseDate' }
                 }
             },
-            
-            // Group อีกครั้งเพื่อรวมทุกเดือนของแต่ละประเภทขยะ
+
+            // group สอง - ใช้ wasteId   Group อีกครั้งเพื่อรวมทุกเดือนของแต่ละประเภทขยะ
             {
                 $group: {
-                    _id: '$_id.wasteName',
+                    _id: '$_id.wasteId',
+                    displayName: { $first: '$currentWasteName' },
+                    snapshotName: { $first: '$wasteName' },
                     totalQuantityKg: { $sum: '$totalQuantityKg' },
-                    
-                    // รวมยอดเงินจากทุกเดือน (แม่นยำ)
                     historicalTotalAmount: { $sum: '$monthlyAmount' },
                     currentTotalAmount: { $sum: '$currentMonthlyValue' },
-                    
-                    // เก็บข้อมูลสำหรับคำนวณราคาเฉลี่ย
                     totalMonthlyAmount: { $sum: '$monthlyAmount' },
                     totalMonthlyQuantity: { $sum: '$totalQuantityKg' },
-                    
                     currentPrice: { $first: '$currentPrice' },
                     purchaseCount: { $sum: '$purchaseCount' },
                     lastUpdated: { $max: { $max: '$purchaseDates' } },
-                    
-                    // เก็บรายละเอียดรายเดือน
                     monthlyBreakdown: {
                         $push: {
                             month: '$_id.month',
@@ -1712,7 +1724,7 @@ const wasteStockIndex = async (req, res) => {
                 }
             },
             
-            { $sort: { _id: 1 } }
+            { $sort: { displayName: 1 } }
         );
 
         console.log('Executing main aggregation pipeline...');

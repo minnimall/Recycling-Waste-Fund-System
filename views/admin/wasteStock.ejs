@@ -9,7 +9,85 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <link rel="stylesheet" href="/style_employee/wasteStock.css">
         <title><%= mytitle %></title>
+<style>
+        @media print {
+        .no-print {
+            display: none !important;
+        }
 
+        nav, header, aside, footer {
+            display: none !important;
+        }
+
+        .flex.w-full {
+            display: block !important;
+        }
+
+        .content {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            /* ลบ min-screen หรือ height ที่จำกัดความสูง */
+            height: auto !important;
+            overflow: visible !important;
+        }
+
+        /* สำคัญมาก - ป้องกันการตัดเนื้อหา */
+        body {
+            overflow: visible !important;
+            height: auto !important;
+        }
+
+        * {
+            overflow: visible !important;
+        }
+
+        #report-header {
+            display: block !important;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th,
+        table td {
+            border: 1px solid #333;
+            padding: 6px 8px;
+            font-size: 11px;
+            color: #000;
+        }
+
+        table th {
+            background-color: #f3f4f6 !important;
+            font-weight: bold;
+        }
+
+        tr {
+            page-break-inside: avoid;
+        }
+
+        /* ให้ตารางข้ามหน้าได้ */
+        table {
+            page-break-inside: auto;
+        }
+
+        thead {
+            /* ให้ header ตารางซ้ำทุกหน้า */
+            display: table-header-group;
+        }
+
+        tbody {
+            display: table-row-group;
+        }
+
+        @page {
+            size: A4;
+            margin: 15mm;
+        }
+    }
+    </style>
 </head>
 
     <body>
@@ -18,8 +96,8 @@
                 
     <!-- Main content -->
     <div class="flex w-full">
-            <%- include('../partials/adminPartials/adminSidebar.ejs') %>
-            <div class="content bg-gray-50 min-screen print-area">
+        <%- include('../partials/adminPartials/adminSidebar.ejs') %>
+        <div class="content bg-gray-50 min-screen print-area">
             
             <!-- Report Header (Visible only in Print) -->
             <div id="report-header">
@@ -155,6 +233,20 @@
                 <div class="bg-white rounded-lg shadow p-6">
                     <div class="flex items-center justify-between">
                         <div>
+                            <p class="text-sm text-gray-600">ขยะทั้งหมดในสต๊อก</p>
+                            <p class="text-2xl font-bold text-purple-900 mt-1">
+                                <%= (stockData && stockData.length) || 0 %>
+                            </p>
+                            <p class="text-xs text-purple-700">รายการ</p>
+                        </div>
+                        <div class="h-12 w-12 bg-purple-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-box text-purple-600"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
                             <p class="text-sm text-gray-600">น้ำหนักรวม</p>
                             <p class="text-2xl font-bold text-blue-900 mt-1">
                                 <% if (typeof stockData !== 'undefined' && stockData && stockData.length > 0) { %>
@@ -163,7 +255,7 @@
                                 0.00
                                 <% } %> กก.
                             </p>
-                            <!-- <p class="text-xs text-blue-700"><%= (stockData && stockData.length) || 0 %> ประเภท</p> -->
+                            <p class="text-xs text-blue-700">กิโลกรัม</p>
                         </div>
                         <div class="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
                             <i class="fas fa-weight text-blue-600"></i>
@@ -173,7 +265,7 @@
                 <div class="bg-white rounded-lg shadow p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm text-gray-600">มูลค่าที่จ่ายจริง</p>
+                            <p class="text-sm text-gray-600">มูลค่าทั้งหมด</p>
                             <p class="text-2xl font-bold text-green-900 mt-1">
                                 <% if (typeof stockData !== 'undefined' && stockData && stockData.length > 0) { %>
                                 <%= stockData.reduce((sum, item) => sum + (item.historicalTotalAmount || 0), 0).toLocaleString() %>
@@ -181,28 +273,10 @@
                                 0
                                 <% } %> บาท
                             </p>
-                            <p class="text-xs text-green-700">จากการรับซื้อจริง</p>
+                            <p class="text-xs text-green-700">จากการรับซื้อขยะ</p>
                         </div>
                         <div class="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
                             <i class="fas fa-money-bill-wave text-green-600"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white rounded-lg shadow p-6">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-600">มูลค่าราคาปัจจุบัน</p>
-                            <p class="text-2xl font-bold text-yellow-900 mt-1">
-                                <% if (typeof stockData !== 'undefined' && stockData && stockData.length > 0) { %>
-                                <%= stockData.reduce((sum, item) => sum + (item.currentValueIfSoldToday || 0), 0).toLocaleString() %>
-                                <% } else { %>
-                                0
-                                <% } %> บาท
-                            </p>
-                            <p class="text-xs text-yellow-700">หากขายวันนี้</p>
-                        </div>
-                        <div class="h-12 w-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                            <i class="fas fa-chart-line text-yellow-600"></i>
                         </div>
                     </div>
                 </div>
@@ -231,7 +305,7 @@
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
+                    <table class="w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -244,13 +318,10 @@
                                     น้ำหนักรวม (กก.)
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    ราคาเฉลี่ย / ปัจจุบัน
+                                    ราคาขยะปัจจุบัน
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     มูลค่าที่จ่ายจริง
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    มูลค่าราคาปัจจุบัน
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider no-print">
                                     รายละเอียด
@@ -260,7 +331,7 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             <% if (!stockData || stockData.length === 0) { %>
                             <tr>
-                                <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+                                <td colspan="6" class="px-6 py-8 text-center text-gray-500">
                                     <i class="fas fa-inbox text-4xl mb-2 block"></i>
                                     ไม่พบข้อมูลสต๊อกขยะตามเงื่อนไขที่เลือก
                                 </td>
@@ -273,8 +344,8 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm font-medium text-gray-900 flex items-center gap-2">
-                                        <%= item._id || 'ไม่ระบุ' %>
-                                        <% if (!item.currentPrice || item.currentPrice === 0) { %>
+                                        <%= item.displayName || item.snapshotName || 'ไม่ระบุ' %>
+                                        <% if ((!item.displayName && !item.snapshotName) || (!item.currentPrice || item.currentPrice === 0)) { %>
                                             <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700">
                                                 รายการขยะนี้ถูกลบออกแล้ว
                                             </span>
@@ -293,33 +364,18 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
-                                    <div class="text-sm text-gray-900">
-                                        <%= (item.avgHistoricalPrice || 0).toFixed(2) %>
+                                    <div class="text-sm text-gray-900 font-semibold">
+                                        <%= (item.avgHistoricalPrice || 0).toFixed(2) %> บาท
                                     </div>
-                                    <div class="text-xs font-medium <%= (item.priceDifference || 0) >= 0 ? 'text-green-600' : 'text-red-600' %>">
+                                    <!-- <div class="text-xs font-medium <%= (item.priceDifference || 0) >= 0 ? 'text-green-600' : 'text-red-600' %>">
                                         <%= (item.currentPrice || 0).toFixed(2) %> 
-                                        <!-- <%= (item.priceDifference || 0) >= 0 ? '↗' : '↘' %>
-                                        <%= Math.abs(item.priceDifference || 0).toFixed(2) %> -->
-                                    </div>
+                                        <%= (item.priceDifference || 0) >= 0 ? '↗' : '↘' %>
+                                        <%= Math.abs(item.priceDifference || 0).toFixed(2) %>
+                                    </div> -->
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                     <div class="text-sm font-medium text-gray-900">
                                         <%= (item.historicalTotalAmount || 0).toLocaleString() %>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center">
-                                    <% if (!item.currentPrice || item.currentPrice === 0) { %>
-                                        <div class="text-sm text-gray-400 italic">ไม่มีราคาปัจจุบัน</div>
-                                    <% } else { %>
-                                        <div class="text-sm font-medium <%= (item.priceDifference || 0) >= 0 ? 'text-green-600' : 'text-red-600' %>">
-                                            <%= (item.currentValueIfSoldToday || 0).toLocaleString() %>
-                                        </div>
-                                        <div class="text-xs text-gray-500">
-                                            <%= (item.priceDifference || 0) >= 0 ? '+' : '' %><%= ((item.currentValueIfSoldToday || 0) - (item.historicalTotalAmount || 0)).toLocaleString() %>
-                                        </div>
-                                    <% } %>
-                                    <div class="text-xs text-gray-500">
-                                        <%= (item.priceDifference || 0) >= 0 ? '+' : '' %><%= ((item.currentValueIfSoldToday || 0) - (item.historicalTotalAmount || 0)).toLocaleString() %>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center no-print">
@@ -332,9 +388,9 @@
                             
                             <!-- Monthly Breakdown Row (Hidden by default) -->
                             <tr id="monthly-detail-<%= index %>" class="hidden bg-blue-50 no-print">
-                                <td colspan="7" class="px-6 py-4">
+                                <td colspan="6" class="px-6 py-4">
                                     <div class="bg-white rounded-lg p-4 border border-blue-200">
-                                        <h4 class="font-medium text-gray-800 mb-3">รายละเอียดรายเดือน: <%= item._id || 'ไม่ระบุ' %></h4>
+                                        <h4 class="font-medium text-gray-800 mb-3">รายละเอียดรายเดือน: <%= item.displayName || item.snapshotName || 'ไม่ระบุ' %></h4>
                                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                             <% if (item.monthlyBreakdown && item.monthlyBreakdown.length > 0) { %>
                                             <% item.monthlyBreakdown.sort((a, b) => new Date(b.month) - new Date(a.month)).forEach(monthly => { %>
@@ -361,17 +417,14 @@
                             
                             <!-- Total Summary Footer (Visible in Print/Table) -->
                             <tr class="bg-gray-100 font-bold">
-                                <td colspan="2" class="px-6 py-4 text-right">รวมทั้งหมด</td>
-                                <td class="px-6 py-4 text-center">
-                                    <%= stockData.reduce((sum, item) => sum + (item.totalQuantityKg || 0), 0).toFixed(2) %>
-                                </td>
+                                <td colspan="3" class="px-6 py-4 text-right">รวมทั้งหมด</td>
                                 <td class="px-6 py-4"></td>
                                 <td class="px-6 py-4 text-center">
                                     <%= stockData.reduce((sum, item) => sum + (item.historicalTotalAmount || 0), 0).toLocaleString() %>
                                 </td>
-                                <td class="px-6 py-4 text-center">
+                                <!-- <td class="px-6 py-4 text-center">
                                     <%= stockData.reduce((sum, item) => sum + (item.currentValueIfSoldToday || 0), 0).toLocaleString() %>
-                                </td>
+                                </td> -->
                                 <td class="px-6 py-4 no-print"></td>
                             </tr>
                             <% } %>
@@ -429,76 +482,67 @@
             <% if (stockData && stockData.length > 0) { %>
             const stockData = <%- JSON.stringify(stockData) %>;
             
-            // ข้อมูลส่วนหัวรายงาน (Metadata)
-            const reportDate = new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            const reportDate = new Date().toLocaleDateString('th-TH', { 
+                year: 'numeric', month: 'long', day: 'numeric', 
+                hour: '2-digit', minute: '2-digit' 
+            });
             
-            // สร้าง Filter string
             let filterText = 'เงื่อนไข: แสดงรายการทั้งหมด';
             <% if (selectedVillageId || selectedMonth || selectedYear || searchName) { %>
                 let filters = [];
                 <% if (selectedVillageId && typeof villages !== 'undefined') { %>
-                   const villageName = "<%= villages.find(v => v._id == selectedVillageId)?.villageName || '' %>";
-                   if(villageName) filters.push('หมู่บ้าน: ' + villageName);
+                const villageName = "<%= villages.find(v => v._id == selectedVillageId)?.villageName || '' %>";
+                if(villageName) filters.push('หมู่บ้าน: ' + villageName);
                 <% } %>
                 <% if (selectedMonth) { %>
-                   filters.push('เดือน: ' + "<%= new Date(selectedMonth + '-01').toLocaleDateString('th-TH', { month: 'long', year: 'numeric' }) %>");
+                filters.push('เดือน: ' + "<%= new Date(selectedMonth + '-01').toLocaleDateString('th-TH', { month: 'long', year: 'numeric' }) %>");
                 <% } %>
                 <% if (selectedYear && !selectedMonth) { %>
-                   filters.push('ปี: ' + "<%= parseInt(selectedYear) + 543 %>");
+                filters.push('ปี: ' + "<%= parseInt(selectedYear) + 543 %>");
                 <% } %>
                 <% if (searchName) { %>
-                   filters.push('ค้นหา: ' + "<%= searchName %>");
+                filters.push('ค้นหา: ' + "<%= searchName %>");
                 <% } %>
                 if(filters.length > 0) filterText = 'เงื่อนไข: ' + filters.join(', ');
             <% } %>
 
-            // สร้าง BOM (Byte Order Mark) สำหรับ UTF-8
             const BOM = '\uFEFF';
             let csvContent = BOM;
 
-            // 1. เพิ่ม Header ของรายงาน
             csvContent += `รายงานสรุปสต๊อกขยะกองทุน\n`;
             csvContent += `วันที่พิมพ์,${reportDate}\n`;
-            csvContent += `"${filterText}"\n\n`; // เว้นบรรทัด
+            csvContent += `"${filterText}"\n\n`;
             
-            // 2. Headings ตาราง
-            csvContent += "ลำดับที่,ชนิดขยะ,น้ำหนักรวม(กก.),ราคาเฉลี่ย(บาท/กก.),ราคาปัจจุบัน(บาท/กก.),มูลค่าที่จ่ายจริง(บาท),มูลค่าราคาปัจจุบัน(บาท),ส่วนต่าง(บาท),จำนวนครั้ง\n";
+            csvContent += "ลำดับที่,ชื่อรายการขยะ,จำนวนรับซื้อ,น้ำหนักรวม(กก.),ราคาขยะปัจจุบัน(บาท),มูลค่าที่จ่ายจริง(บาท)\n";
             
-            // 3. Data Rows
             let totalWeight = 0;
             let totalPaid = 0;
-            let totalCurrentVal = 0;
 
             stockData.forEach((item, index) => {
-                const difference = (item.currentValueIfSoldToday || 0) - (item.historicalTotalAmount || 0);
-                
-                // Accumulate totals
                 totalWeight += (item.totalQuantityKg || 0);
                 totalPaid += (item.historicalTotalAmount || 0);
-                totalCurrentVal += (item.currentValueIfSoldToday || 0);
 
-                csvContent += `${index + 1},"${item._id || 'ไม่ระบุ'}",${(item.totalQuantityKg || 0).toFixed(2)},${(item.avgHistoricalPrice || 0).toFixed(2)},${(item.currentPrice || 0).toFixed(2)},${(item.historicalTotalAmount || 0)},${(item.currentValueIfSoldToday || 0)},${difference},${item.purchaseCount || 0}\n`;
+                // จำนวนเดือนสำหรับ sub-text
+                const monthCount = item.monthlyBreakdown ? item.monthlyBreakdown.length : 0;
+                const purchaseInfo = monthCount > 1 
+                    ? `${item.purchaseCount || 0} ครั้ง ใน ${monthCount} เดือน`
+                    : `${item.purchaseCount || 0} ครั้ง`;
+
+                csvContent += `${index + 1},"${item.displayName || item.snapshotName || 'ไม่ระบุ'}","${purchaseInfo}",${(item.totalQuantityKg || 0).toFixed(2)},${(item.avgHistoricalPrice || 0).toFixed(2)},${(item.historicalTotalAmount || 0)}\n`;
             });
 
-            // 4. Summary Row (Footer)
-            csvContent += `,,${totalWeight.toFixed(2)},,,${totalPaid},${totalCurrentVal},,\n`;
+            // footer รวม ตรงกับ footer ในตาราง
+            csvContent += `รวมทั้งหมด,,,${totalWeight.toFixed(2)},,${totalPaid}\n`;
             csvContent += `\nข้อมูล ณ วันที่ ${reportDate} โดยระบบกองทุนขยะรีไซเคิล`;
 
-            // สร้าง Blob ด้วย UTF-8 encoding และ BOM
-            const blob = new Blob([csvContent], { 
-                type: 'text/csv;charset=utf-8;' 
-            });
-            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
             
-            // สร้างชื่อไฟล์ด้วยวันที่ปัจจุบัน
             const now = new Date();
             const dateStr = now.toISOString().split('T')[0];
-            const fileName = `รายงานสต๊อกขยะ_${dateStr}.csv`;
-            
-            link.setAttribute('download', fileName);
+            link.setAttribute('download', `รายงานสต๊อกขยะ_${dateStr}.csv`);
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
@@ -510,81 +554,72 @@
 
         // Initialize Charts
         <% if (stockData && stockData.length > 0) { %>
-        document.addEventListener('DOMContentLoaded', function() {
-            const stockData = <%- JSON.stringify(stockData) %>;
-            
-            // Quantity Chart
-            const quantityCtx = document.getElementById('quantityChart');
-            if (quantityCtx) {
-                new Chart(quantityCtx.getContext('2d'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: stockData.map(item => item._id || 'ไม่ระบุ'),
-                        datasets: [{
-                            data: stockData.map(item => item.totalQuantityKg || 0),
-                            backgroundColor: [
-                                '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
-                                '#06B6D4', '#84CC16', '#F97316', '#EC4899', '#6B7280'
-                            ]
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: 'สัดส่วนน้ำหนักขยะแต่ละประเภท'
-                            },
-                            legend: {
-                                position: 'bottom'
+            document.addEventListener('DOMContentLoaded', function() {
+                // ✅ เปลี่ยนชื่อเป็น chartData
+                const chartData = <%- JSON.stringify(stockData) %>;
+                
+                const quantityCtx = document.getElementById('quantityChart');
+                if (quantityCtx) {
+                    new Chart(quantityCtx.getContext('2d'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: chartData.map(item => item._id || 'ไม่ระบุ'),
+                            datasets: [{
+                                data: chartData.map(item => item.totalQuantityKg || 0),
+                                backgroundColor: [
+                                    '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
+                                    '#06B6D4', '#84CC16', '#F97316', '#EC4899', '#6B7280'
+                                ]
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                title: { display: true, text: 'สัดส่วนน้ำหนักขยะแต่ละประเภท' },
+                                legend: { position: 'bottom' }
                             }
                         }
-                    }
-                });
-            }
+                    });
+                }
 
-            // Value Comparison Chart
-            const valueCtx = document.getElementById('valueChart');
-            if (valueCtx) {
-                new Chart(valueCtx.getContext('2d'), {
-                    type: 'bar',
-                    data: {
-                        labels: stockData.map(item => item._id || 'ไม่ระบุ'),
-                        datasets: [
-                            {
-                                label: 'มูลค่าที่จ่ายจริง',
-                                data: stockData.map(item => item.historicalTotalAmount || 0),
-                                backgroundColor: '#10B981'
-                            },
-                            {
-                                label: 'มูลค่าราคาปัจจุบัน',
-                                data: stockData.map(item => item.currentValueIfSoldToday || 0),
-                                backgroundColor: '#F59E0B'
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: 'เปรียบเทียบมูลค่าขยะ'
-                            }
+                const valueCtx = document.getElementById('valueChart');
+                if (valueCtx) {
+                    new Chart(valueCtx.getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: chartData.map(item => item._id || 'ไม่ระบุ'),
+                            datasets: [
+                                {
+                                    label: 'มูลค่าที่จ่ายจริง',
+                                    data: chartData.map(item => item.historicalTotalAmount || 0),
+                                    backgroundColor: '#10B981'
+                                },
+                                {
+                                    label: 'มูลค่าราคาปัจจุบัน',
+                                    data: chartData.map(item => item.currentValueIfSoldToday || 0),
+                                    backgroundColor: '#F59E0B'
+                                }
+                            ]
                         },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    callback: function(value) {
-                                        return value.toLocaleString() + ' บาท';
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                title: { display: true, text: 'เปรียบเทียบมูลค่าขยะ' }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return value.toLocaleString() + ' บาท';
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                });
-            }
-        });
+                    });
+                }
+            });
         <% } %>
     </script>
 </body>

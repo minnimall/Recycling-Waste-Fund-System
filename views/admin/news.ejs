@@ -293,6 +293,13 @@
             document.getElementById('newsEditForm').action = `/admin/newsPostEdit/${id}`;
         }
 
+        function openEditModalFromBtn(btn) {
+            const id = btn.dataset.id;
+            const title = btn.dataset.title;
+            const desc = btn.dataset.desc;
+            openEditModal(id, title, desc);
+        }
+
         // ✅ ปิด Modal แบบใหม่
         function closeModal() {
             modal.classList.add('hidden');
@@ -388,7 +395,11 @@
                 </td>
                 <td class="px-6 py-4 text-center">
                     <div class="flex items-center justify-center gap-2 opacity-70 group-hover:opacity-100 transition-opacity">
-                        <button onclick="openEditModal('${item._id}','${item.newsTitle}','${item.newsDescription}')"
+                        <button 
+                            data-id="${item._id}" 
+                            data-title="${item.newsTitle.replace(/"/g, '&quot;')}" 
+                            data-desc="${item.newsDescription.replace(/"/g, '&quot;')}"
+                            onclick="openEditModalFromBtn(this)"
                             class="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors" title="แก้ไข">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>

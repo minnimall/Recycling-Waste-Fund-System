@@ -198,85 +198,85 @@
         <!-- Stats cards -->
         <div class="mx-4 grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <!-- Card 1: ปริมาณขยะทั้งหมด -->
-            <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-blue-500 transition-transform hover:scale-105">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-gray-500 mb-1">ปริมาณขยะทั้งหมด</p>
-                        <h2 class="text-3xl font-bold text-gray-800">
-                            <%= totalQuantity.toLocaleString() %> <span class="text-sm font-normal">กก.</span>
-                        </h2>
-                    </div>
-                    <div class="p-3 bg-blue-100 rounded-full">
-                        <i class="fas fa-weight-hanging text-blue-500 text-xl"></i>
-                    </div>
-                </div>
-                <div class="mt-4 flex items-center">
-                    <span class="text-gray-500 text-sm">ปริมาณขยะที่รับซื้อทั้งหมด</span>
-                </div>
-            </div>
-            
-            <!-- Card 2: ยอดเงินทั้งหมด -->
-            <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-green-500 transition-transform hover:scale-105">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-gray-500 mb-1">ยอดเงินทั้งหมด</p>
-                        <h2 class="text-3xl font-bold text-gray-800">
-                            ฿<%= totalAmount.toLocaleString() %>
-                        </h2>
-                    </div>
-                    <div class="p-3 bg-green-100 rounded-full">
-                        <i class="fas fa-money-bill-wave text-green-500 text-xl"></i>
-                    </div>
-                </div>
-                <div class="mt-4 flex items-center">
-                    <span class="text-gray-500 text-sm">มูลค่าการรับซื้อขยะทั้งหมด</span>
-                </div>
-            </div>
-            
-            <!-- Card 3: จำนวนธุรกรรมทั้งหมด -->
-            <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-purple-500 transition-transform hover:scale-105">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-gray-500 mb-1">จำนวนธุรกรรม</p>
-                        <h2 class="text-3xl font-bold text-gray-800"><%= totalTransactions.toLocaleString() %></h2>
-                    </div>
-                    <div class="p-3 bg-purple-100 rounded-full">
-                        <i class="fas fa-exchange-alt text-purple-500 text-xl"></i>
-                    </div>
-                </div>
-                <div class="mt-4 flex items-center">
-                    <span class="text-gray-500 text-sm">ธุรกรรมการรับซื้อขยะทั้งหมด</span>
-                </div>
-            </div>
-            
-            <!-- Card 4: ยอดรับซื้อวันนี้ -->
-            <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-yellow-500 transition-transform hover:scale-105">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-gray-500 mb-1">
-                            <% if (filterInfo.searchDate || filterInfo.searchMonth || filterInfo.searchYear) { %>
-                                ยอดรับซื้อตามช่วงที่เลือก
-                            <% } else { %>
-                                ยอดรับซื้อวันนี้
-                            <% } %>
-                        </p>
-                        <h2 class="text-2xl font-bold text-gray-800">
-                            ฿<%= selectedDateTotal.toLocaleString() %>
-                        </h2>
-                        <!-- <% if (filterInfo.searchDate || filterInfo.searchMonth || filterInfo.searchYear) { %>
-                            <p class="text-xs text-gray-400 mt-1">
-                                วันนี้: ฿<%= todayTotal.toLocaleString() %>
+                <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-blue-500">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-500 mb-1">ปริมาณขยะทั้งหมด</p>
+                            <p class="text-2xl font-bold text-gray-800">
+                                <%= totalQuantity.toLocaleString() %> <span class="text-sm font-normal">กก.</span>
                             </p>
-                        <% } %> -->
+                        </div>
+                        <div class="p-3 bg-blue-100 rounded-full">
+                            <i class="fas fa-weight-hanging text-blue-500 text-xl"></i>
+                        </div>
                     </div>
-                    <div class="p-3 bg-yellow-100 rounded-full">
-                        <i class="fas fa-chart-line text-yellow-500 text-xl"></i>
+                    <div class="mt-4 flex items-center">
+                        <span class="text-gray-500 text-sm">ปริมาณขยะที่รับซื้อทั้งหมด</span>
                     </div>
                 </div>
-                <div class="mt-4 flex items-center">
-                    <span class="text-gray-500 text-sm">ยอดรับซื้อรวมในแต่ละวัน</span>
+                
+                <!-- Card 2: ยอดเงินทั้งหมด -->
+                <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-green-500">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-500 mb-1">ยอดเงินทั้งหมด</p>
+                            <p class="text-2xl font-bold text-gray-800">
+                                ฿<%= totalAmount.toLocaleString() %>
+                            </p>
+                        </div>
+                        <div class="p-3 bg-green-100 rounded-full">
+                            <i class="fas fa-money-bill-wave text-green-500 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center">
+                        <span class="text-gray-500 text-sm">มูลค่าการรับซื้อขยะทั้งหมด</span>
+                    </div>
                 </div>
-            </div>
+                
+                <!-- Card 3: จำนวนธุรกรรมทั้งหมด -->
+                <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-purple-500">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-500 mb-1">จำนวนธุรกรรม</p>
+                            <p class="text-2xl font-bold text-gray-800"><%= totalTransactions.toLocaleString() %></p>
+                        </div>
+                        <div class="p-3 bg-purple-100 rounded-full">
+                            <i class="fas fa-exchange-alt text-purple-500 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center">
+                        <span class="text-gray-500 text-sm">ธุรกรรมการรับซื้อขยะทั้งหมด</span>
+                    </div>
+                </div>
+                
+                <!-- Card 4: ยอดรับซื้อวันนี้ -->
+                <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-yellow-500 "><!-- transition-transform hover:scale-105 -->
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-500 mb-1">
+                                <% if (filterInfo.searchDate || filterInfo.searchMonth || filterInfo.searchYear) { %>
+                                    ยอดรับซื้อตามช่วงที่เลือก
+                                <% } else { %>
+                                    ยอดรับซื้อวันนี้
+                                <% } %>
+                            </p>
+                            <p class="text-2xl font-bold text-gray-800">
+                                ฿<%= selectedDateTotal.toLocaleString() %>
+                            </p>
+                            <!-- <% if (filterInfo.searchDate || filterInfo.searchMonth || filterInfo.searchYear) { %>
+                                <p class="text-xs text-gray-400 mt-1">
+                                    วันนี้: ฿<%= todayTotal.toLocaleString() %>
+                                </p>
+                            <% } %> -->
+                        </div>
+                        <div class="p-3 bg-yellow-100 rounded-full">
+                            <i class="fas fa-chart-line text-yellow-500 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center">
+                        <span class="text-gray-500 text-sm">ยอดรับซื้อรวมในแต่ละวัน</span>
+                    </div>
+                </div>
         </div>
 
         <!-- Main dashboard sections -->

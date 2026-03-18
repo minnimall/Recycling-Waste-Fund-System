@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const wasteItemSchema = new mongoose.Schema({
+  wasteId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Waste',
+    required: true
+  },
   name: {
     type: String,
     required: true,
@@ -17,7 +22,7 @@ const wasteItemSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     }
-});
+}, { timestamps: true });
 
 const WasteItem = mongoose.model('WasteItem', wasteItemSchema);
 
