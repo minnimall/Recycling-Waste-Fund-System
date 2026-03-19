@@ -929,47 +929,39 @@ const deleteActivity = async (req, res) => {
 // แก้ไขกิจกรรม
 const activityEdit = async (req, res) => {
     upload(req, res, async (err) => {
-        if (err) {
-            console.error('Error uploading file:', err);
-            return res.status(400).send('เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ');
-        }
+        if (err) return res.status(400).send('เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ');
 
         try {
-            const { title, content } = req.body;
+            const { title, content, existingImages } = req.body;
             const activityId = req.params.id;
 
             const activity = await myActivity.findById(activityId);
-            if (!activity) {
-                return res.status(404).redirect('/admin/activity?error=ไม่พบกิจกรรม');
+            if (!activity) return res.status(404).redirect('/admin/activity?error=ไม่พบกิจกรรม');
+
+            let keptImages = [];
+            if (existingImages) {
+                try {
+                    keptImages = JSON.parse(existingImages);
+                } catch { keptImages = []; }
             }
 
-            let imageUrls = activity.img; // ค่าเริ่มต้น = รูปเดิม
-
-            // ถ้ามีการอัปโหลดรูปใหม่
+            let newImageUrls = [];
             if (req.files && req.files.length > 0) {
-                const uploadPromises = req.files.map(file => {
-                    return new Promise((resolve, reject) => {
-                        const stream = cloudinary.uploader.upload_stream(
-                            { folder: 'activity_images', resource_type: 'image' },
-                            (error, result) => {
-                                if (result) resolve(result.secure_url);
-                                else reject(error);
-                            }
-                        );
-                        streamifier.createReadStream(file.buffer).pipe(stream);
-                    });
-                });
-                imageUrls = await Promise.all(uploadPromises);
+                const uploadPromises = req.files.map(file => new Promise((resolve, reject) => {
+                    const stream = cloudinary.uploader.upload_stream(
+                        { folder: 'activity_images', resource_type: 'image' },
+                        (error, result) => result ? resolve(result.secure_url) : reject(error)
+                    );
+                    streamifier.createReadStream(file.buffer).pipe(stream);
+                }));
+                newImageUrls = await Promise.all(uploadPromises);
             }
 
-            // อัปเดตข้อมูล
             activity.title = title || activity.title;
             activity.content = content || activity.content;
-            activity.img = imageUrls;
+            activity.img = [...keptImages, ...newImageUrls];
 
             await activity.save();
-
-            console.log('Activity updated successfully');
             res.redirect('/admin/activity?message=แก้ไขกิจกรรมสำเร็จ');
 
         } catch (error) {

@@ -144,6 +144,8 @@
             <form id="editActivityForm" action="" method="POST" enctype="multipart/form-data"
                 class="bg-white rounded-xl shadow-lg p-6 space-y-5 w-full max-w-2xl">
 
+                <input type="hidden" name="existingImages" id="existingImagesInput">
+
                 <!-- หัวฟอร์ม -->
                 <div class="flex items-center space-x-3 border-b pb-3">
                     <ion-icon name="create-outline" class="text-blue-500 text-2xl"></ion-icon>
@@ -167,7 +169,7 @@
                 <!-- รูปภาพ -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">รูปภาพกิจกรรม</label>
-                    <p class="text-xs text-gray-400 mb-2">* หากเลือกรูปใหม่จะแทนที่รูปเดิมทั้งหมด</p>
+                    <p class="text-xs text-gray-400 mb-2">* สามารถแก้ไขเพิ่มลบรูปภาพ</p>
                     <input type="file" name="img" id="editImg" accept="image/png, image/gif, image/jpeg" class="hidden" multiple>
 
                     <!-- Upload Zone -->
@@ -249,23 +251,31 @@
             handleFileSelect(e.target.files, editPreviewGrid, editUploadZone, editImgPreview, editFileInput, editFileStore);
         });
 
+        let existingImageUrls = [];
+
         function openEditModal(id, title, content, imgs) {
             document.getElementById('editActivityForm').setAttribute('action', '/admin/activityEdit/' + id);
             document.getElementById('editTitle').value = title;
             document.getElementById('editContent').value = content;
 
-            // แสดงรูปเดิม
             resetImageArea(editFileInput, editUploadZone, editImgPreview, editPreviewGrid, editFileStore);
+            
+            existingImageUrls = [];
+            
             const imgArray = Array.isArray(imgs) ? imgs : (imgs ? [imgs] : []);
-            if (imgArray.length > 0) {
-                imgArray.forEach(url => {
-                    if (url && url !== 'null' && url !== '') {
-                        appendExistingImage(url, editPreviewGrid, editUploadZone, editImgPreview);
-                    }
-                });
-            }
+            imgArray.forEach(url => {
+                if (url && url !== 'null' && url !== '') {
+                    existingImageUrls.push(url);
+                    appendExistingImage(url, editPreviewGrid, editUploadZone, editImgPreview);
+                }
+            });
 
+            updateExistingImagesInput();
             editModal.classList.remove('hidden');
+        }
+
+        function updateExistingImagesInput() {
+            document.getElementById('existingImagesInput').value = JSON.stringify(existingImageUrls);
         }
 
         function closeEditModal() {
@@ -359,20 +369,32 @@
             img.alt = 'existing image';
             img.className = 'w-full h-32 object-cover rounded-lg border-2 border-blue-300 bg-gray-50';
 
-            // badge "รูปเดิม"
             const badge = document.createElement('span');
             badge.className = 'absolute bottom-1 left-1 bg-blue-500 text-white text-xs px-1.5 py-0.5 rounded';
             badge.textContent = 'รูปเดิม';
 
+            const deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.className = 'absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 text-xs opacity-0 group-hover:opacity-100 transition flex items-center justify-center';
+            deleteBtn.innerHTML = '✕';
+            deleteBtn.addEventListener('click', () => {
+                existingImageUrls = existingImageUrls.filter(u => u !== url);
+                updateExistingImagesInput();
+                wrapper.remove();
+                if (editPreviewGrid.children.length === 0) {
+                    editImgPreview.classList.add('hidden');
+                    editUploadZone.classList.remove('hidden');
+                }
+            });
+
             wrapper.appendChild(img);
             wrapper.appendChild(badge);
+            wrapper.appendChild(deleteBtn);
             previewGrid.appendChild(wrapper);
 
             uploadZone.classList.add('hidden');
             imgPreview.classList.remove('hidden');
         }
-
-        // รีเซ็ต image area
         function resetImageArea(fileInput, uploadZone, imgPreview, previewGrid, fileStore) {
             fileStore.current = new DataTransfer();
             fileInput.files = fileStore.current.files;

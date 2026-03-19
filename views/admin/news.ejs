@@ -18,7 +18,6 @@
         
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
-            // เช็คข้อความที่ส่งมาจาก URL
             const urlParams = new URLSearchParams(window.location.search);
             const successMessage = urlParams.get('message');
             const errorMessage = urlParams.get('error');
@@ -60,7 +59,6 @@
             </div>
 
             <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
-                <!-- ค้นหา + เลือกจำนวน -->
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                     <div class="relative flex-1">
                     <input type="text" id="searchInput" placeholder="ค้นหาข่าวสาร" 
@@ -85,8 +83,6 @@
             </div>
 
             <div id="newsTableContainer" class="mx-4 mb-6 bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-                
-                <!-- Header Section -->
                 <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
@@ -109,14 +105,13 @@
                     </div>
                 </div>
 
-                <!-- Table Section -->
                 <div class="overflow-x-auto">
                     <table class="min-w-full">
                         <thead class="bg-gray-50 border-b border-gray-200">
                             <tr>
                                 <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center w-[8%]">
                                     <div class="flex items-center justify-center gap-1">
-                                        <span>#</span>
+                                        <span>ลำดับ</span>
                                     </div>
                                 </th>
                                 <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-left w-[25%]">
@@ -162,7 +157,6 @@
                     </table>
                 </div>
 
-                <!-- Pagination Section -->
                 <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
                     <div id="pagination" class="flex justify-center items-center space-x-2"></div>
                 </div>
@@ -174,38 +168,32 @@
                             <form action="/admin/newsPost" method="POST" enctype="multipart/form-data"
                                 class="bg-white rounded-xl shadow-lg p-6 space-y-5" id="newsForm">
 
-                                <!-- หัวฟอร์ม -->
                                 <div class="flex items-center space-x-3 border-b pb-3">
                                     <ion-icon name="information-circle-outline" class="text-blue-500 text-2xl"></ion-icon>
                                     <span class="text-xl font-semibold text-gray-800">เพิ่มกิจกรรม/ข่าวสาร</span>
                                 </div>
 
-                                <!-- หัวข้อกิจกรรม -->
                                 <div>
                                     <label for="newsTitle" class="block text-sm font-medium text-gray-700 mb-1">หัวข้อข่าวสาร <span class="text-red-500">*</span></label>
                                     <input type="text" name="newsTitle" id="newsTitle" required placeholder="ระบุหัวข้อข่าวสาร"
                                         class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
                                 </div>
 
-                                <!-- คำอธิบาย -->
                                 <div>
                                     <label for="newsDescription" class="block text-sm font-medium text-gray-700 mb-1">คำอธิบาย <span class="text-red-500">*</span></label>
                                     <textarea rows="6" type="text" name="newsDescription" id="newsDescription" required placeholder="คำอธิบาย"
                                         class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" ></textarea>
                                 </div>
 
-                                <!-- ผู้เขียน -->
                                 <input type="hidden" name="newsAuthor" id="newsAuthor" value="<%= username %>" />
 
-                                <!-- อัปโหลด PDF -->
                                 <div>
                                     <label for="newsFile" class="block text-sm font-medium text-gray-700 mb-1">รายละเอียดข่าวสาร (ไฟล์
                                         PDF) <span class="text-red-500">*</span></label>
                                     <input type="file" name="newsFile" id="newsFile" accept=".pdf,image/*" required
                                         class="block w-full text-sm text-slate-500 border border-gray-300 rounded-lg px-4 py-2 bg-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100" />
                                 </div>
-
-                                <!-- ปุ่ม -->
+                                
                                 <div class="flex justify-end space-x-3 pt-2">
                                     <button type="button" onclick="closeModal()"
                                         class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition">ยกเลิก</button>
@@ -223,34 +211,29 @@
                             <form action="/admin/newsEdit" id="newsEditForm" method="POST" enctype="multipart/form-data"
                                 class="bg-white rounded-xl shadow-lg p-6 space-y-5" id="newsEditForm">
                     
-                                <!-- หัวฟอร์ม -->
                                 <div class="flex items-center space-x-3 border-b pb-3">
                                     <ion-icon name="information-circle-outline" class="text-blue-500 text-2xl"></ion-icon>
                                     <span class="text-xl font-semibold text-gray-800">แก้ไขกิจกรรม/ข่าวสาร</span>
                                 </div>
                     
-                                <!-- หัวข้อกิจกรรม -->
                                 <div>
                                     <label for="newsTitle" class="block text-sm font-medium text-gray-700 mb-1">หัวข้อกิจกรรม</label>
                                     <input type="text" name="newsEditTitle" id="newsEditTitle" required placeholder="ระบุหัวข้อกิจกรรม"
                                         class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" />
                                 </div>
                     
-                                <!-- คำอธิบาย -->
                                 <div>
                                     <label for="newsEditDescription" class="block text-sm font-medium text-gray-700 mb-1">คำอธิบาย</label>
                                     <textarea rows="6" type="text" name="newsEditDescription" id="newsEditDescription" required placeholder="คำอธิบาย"
                                         class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500" ></textarea>
                                 </div>
                     
-                                <!-- อัปโหลด PDF -->
                                 <div>
                                     <label for="newsEditFile" class="block text-sm font-medium text-gray-700 mb-1">รายละเอียดกิจกรรม (ไฟล์
                                         PDF)</label>
                                     <input type="file" name="newsEditFile" id="newsEditFile" accept=".pdf,image/*"
                                         class="block w-full text-sm text-slate-500 border border-gray-300 rounded-lg px-4 py-2 bg-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100" />
                     
-                                <!-- ปุ่ม -->
                                 <div class="flex justify-end space-x-3 pt-2">
                                     <button type="button" onclick="closeModal()"
                                         class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition">ยกเลิก</button>
@@ -264,7 +247,6 @@
 </body>
     <%- include('../partials/adminPartials/adminFooter.ejs') %>
     <script>
-        // ✅ แปลงวันที่เป็นรูปแบบไทย
         function formatDateToThai(date) {
             const monthNames = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
                 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
@@ -277,10 +259,8 @@
         const modal = document.getElementById('modal');
         const modalEdit = document.getElementById('modalEdit');
 
-        // ✅ เปิด Modal แบบใหม่
         function openModal() {
             modal.classList.remove('hidden');
-            // ล้างค่า input ถ้าต้องการ
             document.getElementById('newsForm')?.reset();
         }
 
@@ -300,7 +280,6 @@
             openEditModal(id, title, desc);
         }
 
-        // ✅ ปิด Modal แบบใหม่
         function closeModal() {
             modal.classList.add('hidden');
             modalEdit.classList.add('hidden');
@@ -308,7 +287,6 @@
             document.getElementById('newsEditForm')?.reset();
         }
 
-        // ✅ ฟังก์ชันลบข่าว/กิจกรรม
         function deleteNews(id, title) {
             Swal.fire({
                 title: `ลบข้อมูล "${title}" หรือไม่?`,
@@ -327,7 +305,7 @@
                             'Content-Type': 'application/json',
                         },
                     })
-                    .then(response => response.json()) // เซิร์ฟเวอร์ควรส่ง `{ success: true }`
+                    .then(response => response.json())
                     .then(data => {
                         if (data.success) {
                             Swal.fire('ลบข้อมูลสำเร็จ', 'ข้อมูลสื่อความรู้ถูกลบเรียบร้อยแล้ว', 'success')
