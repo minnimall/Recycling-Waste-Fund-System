@@ -205,7 +205,7 @@
                                                     data-lat="<%= request.latitude %>"
                                                     data-lng="<%= request.longitude %>"
                                                     data-location="<%= request.location %>"
-                                                    data-family="<%= request.family ? (request.family.firstname + ' ' + request.family.lastname) : 'N/A' %>"
+                                                    data-family="<%= request.family ? (request.family.familyName) : 'ไม่ระบุชื่อ' %>"
                                                     data-familyname="<%= request.family ? request.family.familyName : '' %>"
                                                     data-pickup-date="<%= request.approvePickupDate ? new Date(request.approvePickupDate).toISOString().split('T')[0] : '' %>"
                                                     onclick="toggleRequestSelection(this)">

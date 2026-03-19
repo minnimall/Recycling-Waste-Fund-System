@@ -251,20 +251,25 @@
                                     <div class="flex-1 min-w-0">
                                         <p class="text-sm font-medium text-gray-800 break-words <%= point.status === 'complete' ? 'line-through text-gray-500' : '' %>"
                                         id="address-text-<%= point._id %>">
-                                            <%= point.address %>
+                                            <%= point.address ? point.address.replace('undefined undefined - ', '') : '' %>
                                         </p>
                                         <div class="flex items-center gap-2 mt-1">
                                             <% if (index === 0) { %>
-                                                <span class="text-[10px] px-2 py-0.5 rounded-full bg-green-100 text-green-700">
-                                                    📍 จุดเริ่มต้น
+                                                <span class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+                                                    <ion-icon name="location"></ion-icon> จุดเริ่มต้น
                                                 </span>
                                             <% } else { %>
                                                 <span id="status-badge-<%= point._id %>" 
-                                                    class="text-[10px] px-2 py-0.5 rounded-full 
+                                                    class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full 
                                                         <%= point.status === 'complete' ? 'bg-green-100 text-green-700' : 
                                                            (point.status === 'failed' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700') %>">
-                                                    <%= point.status === 'complete' ? '✅ เสร็จสิ้น' : 
-                                                       (point.status === 'failed' ? '❌ มีปัญหา' : '⏳ รอดำเนินการ') %>
+                                                    <% if (point.status === 'complete') { %>
+                                                        <ion-icon name="checkmark-circle"></ion-icon> เสร็จสิ้น
+                                                    <% } else if (point.status === 'failed') { %>
+                                                        <ion-icon name="close-circle"></ion-icon> มีปัญหา
+                                                    <% } else { %>
+                                                        <ion-icon name="time"></ion-icon> รอดำเนินการ
+                                                    <% } %>
                                                 </span>
                                             <% } %>
                                             <p class="text-[10px] text-gray-400">
@@ -598,8 +603,8 @@
                     const infoWindow = new google.maps.InfoWindow({
                         content: `<div style="padding:6px;">
                             <b>จุดที่ ${point.id}</b><br>
-                            <div style="font-size:13px; margin-top:4px;">${point.address}</div>
-                            ${isStart ? '<div style="color:#059669; font-size:12px;">🎯 จุดเริ่มต้น/สิ้นสุด</div>' : ''}
+                            <div style="font-size:13px; margin-top:4px;">${point.address ? point.address.replace('undefined undefined - ', '') : ''}</div>
+                            ${isStart ? '<div style="color:#059669; font-size:12px; display:flex; align-items:center; gap:4px;"><ion-icon name="locate"></ion-icon> จุดเริ่มต้น/สิ้นสุด</div>' : ''}
                         </div>`
                     });
 
@@ -746,7 +751,7 @@
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-medium text-gray-800 break-words">
-                                    ${point.address}
+                                    ${point.address ? point.address.replace('undefined undefined - ', '') : ''}
                                 </p>
                                 <p class="text-xs text-gray-500 mt-1">
                                     ${point.lat.toFixed(6)}, ${point.lng.toFixed(6)}
@@ -1469,14 +1474,14 @@
                                 <div style="background: ${markerColor}; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
                                     ${index + 1}
                                 </div>
-                                <b style="color: #059669; font-size: 15px;">
-                                    ${isStart ? '🚀 จุดเริ่มต้น' : (isEnd ? '🏁 จุดสุดท้าย' : `จุดที่ ${index + 1}`)}
+                                <b style="color: #059669; font-size: 15px; display:flex; align-items:center; gap:4px;">
+                                    ${isStart ? '<ion-icon name="rocket"></ion-icon> จุดเริ่มต้น' : (isEnd ? '<ion-icon name="flag"></ion-icon> จุดสุดท้าย' : `จุดที่ ${index + 1}`)}
                                 </b>
                             </div>
                             <div style="color: #4B5563; font-size: 13px; margin-top: 4px;">
-                                ${point.address}
+                                ${point.address ? point.address.replace('undefined undefined - ', '') : ''}
                             </div>
-                            ${point.requestId ? '<div style="color: #10B981; font-size: 12px; margin-top: 4px;">📋 จากคำขอขายขยะ</div>' : ''}
+                            ${point.requestId ? '<div style="color: #10B981; font-size: 12px; margin-top: 4px; display:flex; align-items:center; gap:4px;"><ion-icon name="clipboard"></ion-icon> จากคำขอขายขยะ</div>' : ''}
                         </div>`
                     });
 
@@ -1519,7 +1524,7 @@
                                     <div><strong>เวลารวม:</strong> ${Math.round(totalDuration)} นาที</div>
                                 </div>
                                 <div class="text-sm bg-blue-50 p-3 rounded-lg border border-blue-200">
-                                    <div class="font-semibold mb-2 text-blue-800">💡 คำอธิบายสีเส้นทาง:</div>
+                                    <div class="font-semibold mb-2 text-blue-800 flex items-center gap-1"><ion-icon name="bulb"></ion-icon> คำอธิบายสีเส้นทาง:</div>
                                     <div class="space-y-1 text-xs">
                                         <div class="flex items-center gap-2">
                                             <div style="width: 30px; height: 4px; background: #10B981; border-radius: 2px;"></div>
@@ -1690,13 +1695,13 @@
                             </div>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <div class="font-medium text-gray-800 text-sm">${point.address}</div>
+                            <div class="font-medium text-gray-800 text-sm">${point.address ? point.address.replace('undefined undefined - ', '') : ''}</div>
 
                             <div class="text-xs text-gray-500 mt-1">
                                 ${point.lat.toFixed(4)}, ${point.lng.toFixed(4)}
                             </div>
 
-                            ${isFromRequest ? '<div class="text-xs text-green-600 mt-1">📋 จากคำขอขายขยะ</div>' : ''}
+                            ${isFromRequest ? '<div class="text-xs text-green-600 mt-1 flex items-center gap-1"><ion-icon name="clipboard"></ion-icon> จากคำขอขายขยะ</div>' : ''}
                             
                             ${!isLast && segment ? `
                                 <div class="mt-2 p-2 bg-white rounded border-l-4 border-blue-400">
@@ -2061,13 +2066,13 @@
                 if (result.success) {
                     Swal.fire({
                         toast: true, position: 'top-end', icon: 'success',
-                        title: '✅ อัปเดตเสร็จสิ้น', showConfirmButton: false, timer: 1500
+                        title: 'อัปเดตเสร็จสิ้น', showConfirmButton: false, timer: 1500
                     });
                     if (result.isAllComplete) {
                         setTimeout(() => {
                             Swal.fire({
                                 icon: 'success',
-                                title: '🎉 ครบทุกจุดแล้ว!',
+                                title: 'ครบทุกจุดแล้ว!',
                                 text: 'เส้นทางนี้เสร็จสมบูรณ์',
                                 timer: 2500
                             }).then(() => window.location.reload());
@@ -2110,7 +2115,7 @@
                 if (result.success) {
                     Swal.fire({
                         toast: true, position: 'top-end', icon: 'info',
-                        title: '❌ บันทึกปัญหาแล้ว', showConfirmButton: false, timer: 1500
+                        title: 'บันทึกปัญหาแล้ว', showConfirmButton: false, timer: 1500
                     });
                     setTimeout(() => window.location.reload(), 1500);
                 } else {
@@ -2155,7 +2160,7 @@
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#16A34A',
-                confirmButtonText: '✅ ยืนยัน จบงานทั้งหมด',
+                confirmButtonText: 'ยืนยัน จบงานทั้งหมด',
                 cancelButtonText: 'ยกเลิก'
             });
             if (!confirm.isConfirmed) return;
@@ -2170,7 +2175,7 @@
                 if (result.success) {
                     Swal.fire({
                         icon: 'success',
-                        title: '🎉 จบงานทั้งหมดสำเร็จ!',
+                        title: 'จบงานทั้งหมดสำเร็จ!',
                         text: result.message,
                         timer: 2500,
                         showConfirmButton: false
