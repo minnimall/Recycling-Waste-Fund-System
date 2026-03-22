@@ -5,10 +5,7 @@
     <%- include('../partials/employeePartials/doctype.ejs') %>
     <title><%= mytitle %></title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- ⭐ เพิ่ม jQuery ก่อน Select2 -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
@@ -98,7 +95,6 @@
     </script>
 
     <main class="content bg-gray-50 min-screen">
-        <!-- Page Header -->
         <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
                 <div>
@@ -119,11 +115,8 @@
 
         <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                <!-- Control Panel -->
                 <div class="lg:col-span-1">
                     <div class="bg-white rounded-lg shadow-lg p-6 sticky top-4 max-h-[calc(100vh-100px)] overflow-y-auto">
-                        
-                        <!-- Header -->
                         <div class="mb-6 pb-4 border-b border-gray-200">
                             <h2 class="text-xl font-bold text-gray-800 flex items-center">
                                 <!-- <ion-icon name="settings-outline" class="text-2xl mr-2 text-blue-600"></ion-icon> -->
@@ -132,7 +125,6 @@
                             <p class="text-sm text-gray-500 mt-1">เลือกจุดและวิเคราะห์เส้นทาง</p>
                         </div>
 
-                        <!-- Step 1: Organization Start Point -->
                         <div class="mb-6">
                             <div class="flex items-center mb-3">
                                 <div class="bg-blue-600 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold mr-2">1</div>
@@ -146,20 +138,17 @@
                                         onchange="toggleOrganizationStartPoint()">
                                     <div class="flex-1">
                                         <div class="font-medium text-gray-800 text-sm">เริ่มจาก อบต.ขามป้อม</div>
-                                        <!-- <p class="text-xs text-gray-600 mt-1">15.9487, 102.8552</p> -->
                                     </div>
                                 </label>
                             </div>
                         </div>
 
-                        <!-- Step 2: Select Points -->
                         <div class="mb-6">
                             <div class="flex items-center mb-3">
                                 <div class="bg-blue-600 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold mr-2">2</div>
                                 <h3 class="text-base font-semibold text-gray-800">เลือกจุดรับซื้อ</h3>
                             </div>
 
-                            <!-- 2.1 Waste Sale Requests -->
                             <div class="mb-4">
                                 <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
                                     <div class="flex justify-between items-center mb-3">
@@ -263,7 +252,6 @@
                                 </div>
                             </div>
 
-                            <!-- 2.2 Manual Search -->
                             <div class="">
                                 <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                                     <ion-icon name="search-outline" class="mr-1"></ion-icon>
@@ -287,7 +275,6 @@
                             </div>
                         </div>
 
-                        <!-- Step 3: Selected Points Summary -->
                         <div class="mb-6">
                             <div class="flex items-center mb-3">
                                 <div class="bg-blue-600 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold mr-2">3</div>
@@ -303,7 +290,6 @@
                             </div>
                         </div>
 
-                        <!-- Step 4: Actions -->
                         <div class="mb-6">
                             <div class="flex items-center mb-3">
                                 <div class="bg-blue-600 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold mr-2">4</div>
@@ -320,21 +306,18 @@
                                     <button id="saveRouteBtn" 
                                             onclick="saveCurrentRoute()"
                                             class="flex flex-col items-center justify-center gap-1 bg-blue-600 text-white py-4 px-2 rounded-2xl hover:bg-blue-500 active:scale-95 transition-all disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed shadow-sm">
-                                        <!-- <ion-icon name="save-outline" class="text-2xl mb-1"></ion-icon> -->
                                         <ion-icon name="bookmark-outline" class="text-2xl mb-1"></ion-icon>
                                         <span class="text-sm font-bold">บันทึกเส้นทาง</span>
                                     </button>
                                 </div>
 
                                 <button id="clearBtn" 
-                                        class="w-full flex items-center justify-center gap-2 bg-gray-100 text-gray-600 py-3 px-4 rounded-xl hover:bg-red-600 hover:text-white transition-all duration-300 ease-in-out font-medium text-sm">
-                                    <!-- <ion-icon name="trash-outline" class="text-lg"></ion-icon> -->
+                                    class="w-full flex items-center justify-center gap-2 bg-gray-100 text-gray-600 py-3 px-4 rounded-xl hover:bg-red-600 hover:text-white transition-all duration-300 ease-in-out font-medium text-sm">
                                     <span class="text-sm font-bold">ล้างข้อมูลทั้งหมด</span>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Route Analysis Results -->
                         <div id="routeResults" class="hidden">
                             <div class="flex items-center mb-3">
                                 <div class="bg-teal-600 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold mr-2">
@@ -354,16 +337,13 @@
                 <!-- Map Section -->
                 <div class="lg:col-span-3">
                     <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                        <!-- Map Header -->
                         <div class="bg-gradient-to-r from-green-600 to-green-700 p-4 text-white">
                             <h2 class="text-xl font-bold flex items-center">
-                                <!-- <ion-icon name="map-outline" class="text-2xl mr-2"></ion-icon> -->
                                 แผนที่เส้นทาง
                             </h2>
                             <p class="text-sm text-gray-100 mt-1">คลิกบนแผนที่เพื่อเพิ่มจุดเพิ่มเติม</p>
                         </div>
 
-                        <!-- Info Banner -->
                         <div class="bg-blue-50 p-3 border-b border-blue-100">
                             <div class="flex items-start text-sm text-blue-800">
                                 <ion-icon name="information-circle" class="text-xl mr-2 flex-shrink-0 mt-0.5"></ion-icon>
@@ -467,7 +447,6 @@
         
         function initMap() { 
             if (mapInitialized) {
-                console.warn('⚠️ Map already initialized');
                 return;
             }
             
@@ -493,9 +472,6 @@
                 
                 const lat = e.latLng.lat();
                 const lng = e.latLng.lng();
-                
-                console.log(`🖱️ dblclick ที่ lat:${lat}, lng:${lng}`);
-                console.log(`🔍 isWithinTambol: ${isWithinTambol(lat, lng)}`);
                 
                 //เช็คพื้นที่ก่อน reverseGeocode
                 if (!isWithinTambol(lat, lng)) {
@@ -553,7 +529,7 @@
             
             // บังคับ zoom หลัง fitBounds
             google.maps.event.addListenerOnce(map, 'bounds_changed', function() {
-                map.setZoom(13); // ปรับตัวเลขนี้ได้เลยครับ
+                map.setZoom(13);
             });
         }
 
@@ -847,7 +823,7 @@
 
         function filterByDate() {
             const dateInput = document.getElementById('dateFilter');
-            const filterValue = dateInput.value; // e.g. '2026-02-23' or ''
+            const filterValue = dateInput.value;
             const items = document.querySelectorAll('.request-item');
             let visibleCount = 0;
 
@@ -858,7 +834,6 @@
                     visibleCount++;
                 } else {
                     item.style.display = 'none';
-                    // Deselect hidden items
                     if (item.classList.contains('selected')) {
                         item.classList.remove('selected');
                         const cb = item.querySelector('.request-checkbox');
@@ -867,7 +842,6 @@
                 }
             });
 
-            // Update counter badge
             const badge = document.getElementById('requestCountBadge');
             if (badge) {
                 const total = items.length;
@@ -966,7 +940,6 @@
                 saveRouteBtn.disabled = !routeAnalysisData || optimizedRoutePoints.length < 2;
             }
         }
-
 
 
         // --------- การค้นหาสถานที่ ---------- ( 762 ถึง 973)
@@ -2779,7 +2752,6 @@
             if (mapInitialized) {
                 clearInterval(waitForMap);
                 
-                // ตั้งค่า event listeners หหลังจาก map พร้อมแล้ว
                 setupEnhancedSearch();
                 
                 document.getElementById('analyzeBtn').addEventListener('click', analyzeRoute);
@@ -2790,7 +2762,6 @@
             }
         }, 100);
         
-        // Timeout 10 วินาที
         setTimeout(() => {
             clearInterval(waitForMap);
             if (!mapInitialized) {

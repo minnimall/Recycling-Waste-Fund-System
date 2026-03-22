@@ -301,13 +301,13 @@
               <div class="comments-section bg-gray-50/50 hidden border-t border-gray-100" id="comments-<%= post._id %>">
                 <div class="p-6">
                   <div class="space-y-4 max-h-64 overflow-y-auto mb-4 scrollbar-hide">
-                    <% post.comments.forEach(comment=> { %>
+                    <% post.comments.forEach(comment => { %>
                       <div class="flex space-x-3">
                         <div class="flex-shrink-0 w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-[10px] text-gray-500 font-bold uppercase">
-                          <%= (comment.author.familyName || 'U').substring(0,1) %>
+                          <%= ((comment.author?.familyName) || 'U').substring(0,1) %>
                         </div>
                         <div class="flex-1 bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-gray-100">
-                          <p class="font-bold text-xs text-gray-800 mb-1"><%= comment.author.familyName || 'ผู้ใช้งาน' %></p>
+                          <p class="font-bold text-xs text-gray-800 mb-1"><%= comment.author?.familyName || 'ผู้ใช้งานที่ถูกลบ' %></p>
                           <p class="text-gray-600 text-sm"><%= comment.content %></p>
                         </div>
                       </div>

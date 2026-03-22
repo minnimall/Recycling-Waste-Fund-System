@@ -163,7 +163,7 @@
                         <img src="<%= act.img[0] %>" class="h-48 w-full object-cover" alt="<%= act.title %>">
                     </div>
                     <div class="p-6">
-                        <span class="text-sm text-primary-green font-semibold">5 มกราคม 2568</span>
+                        <span class="text-sm text-primary-green font-semibold"><%= act.createdAt %></span>
                         <p class="text- font-semibold text-gray-800 mt-2 mb-3"><%= act.title %></p>
                         <!-- <p class="text-gray-600">แจ้งการเปลี่ยนแปลงตารางเก็บขยะในช่วงวันหยุดยาว...</p> -->
                         <a href="/user/detailActivity/<%= act._id %>" class="text-primary-green font-semibold hover:underline mt-4 inline-block">อ่านต่อ</a>
@@ -886,6 +886,56 @@
         const initialLat = 15.948741697876695;
         const initialLng = 102.85523133360921;
 
+        // ขอบเขตของตำบลขามป้อม
+        const KHAMPO_POLYGON_COORDS = [
+            { lat: 15.9917406, lng: 102.9022698 },
+            { lat: 15.9847685, lng: 102.9053383 },
+            { lat: 15.9805724, lng: 102.905049 },
+            { lat: 15.9736823, lng: 102.9033324 },
+            { lat: 15.9674935, lng: 102.9031393 },
+            { lat: 15.9622328, lng: 102.9013798 },
+            { lat: 15.9578798, lng: 102.8959725 },
+            { lat: 15.9531553, lng: 102.897217 },
+            { lat: 15.9505557, lng: 102.8983757 },
+            { lat: 15.9452121, lng: 102.8965089 },
+            { lat: 15.9417871, lng: 102.8927109 },
+            { lat: 15.9387954, lng: 102.8906724 },
+            { lat: 15.9372067, lng: 102.890651 },
+            { lat: 15.9362163, lng: 102.891874 },
+            { lat: 15.934318, lng: 102.8916165 },
+            { lat: 15.9333483, lng: 102.8911874 },
+            { lat: 15.9316151, lng: 102.8925607 },
+            { lat: 15.9268487, lng: 102.8976032 },
+            { lat: 15.9231964, lng: 102.8980538 },
+            { lat: 15.9195854, lng: 102.8975174 },
+            { lat: 15.9167997, lng: 102.9001138 },
+            { lat: 15.9117028, lng: 102.9021308 },
+            { lat: 15.9087312, lng: 102.9032895 },
+            { lat: 15.9058009, lng: 102.9032895 },
+            { lat: 15.902788, lng: 102.9043195 },
+            { lat: 15.9017149, lng: 102.9014012 },
+            { lat: 15.8994036, lng: 102.8953073 },
+            { lat: 15.8968034, lng: 102.8912732 },
+            { lat: 15.8967621, lng: 102.8874967 },
+            { lat: 15.8978352, lng: 102.8839776 },
+            { lat: 15.9017562, lng: 102.8802869 },
+            { lat: 15.9028293, lng: 102.8745792 },
+            { lat: 15.9033659, lng: 102.8739354 },
+            { lat: 15.9024166, lng: 102.8714892 },
+            { lat: 15.8993211, lng: 102.8696439 },
+            { lat: 15.89961, lng: 102.8648803 },
+            { lat: 15.9010133, lng: 102.862477 },
+            { lat: 15.9043564, lng: 102.862992 },
+            { lat: 15.9225968, lng: 102.8317473 },
+            { lat: 15.9290346, lng: 102.8333781 },
+            { lat: 15.938691, lng: 102.8343222 },
+            { lat: 15.953381, lng: 102.8323481 },
+            { lat: 15.9575806, lng: 102.8497956 },
+            { lat: 15.9756524, lng: 102.8656742 },
+            { lat: 15.9906697, lng: 102.8862736 },
+            { lat: 15.9917406, lng: 102.9022698 }
+        ];
+
         const map = L.map('map').setView([initialLat, initialLng], 13);
 
         // Add tile layer (แผนที่)
@@ -897,6 +947,22 @@
             attribution: '© Google',
             maxZoom: 20
         }).addTo(map);
+
+        const polygonLatLngs = KHAMPO_POLYGON_COORDS.map(c => [c.lat, c.lng]);
+        const khampoPolygon = L.polygon(polygonLatLngs, {
+            color: '#2563EB',
+            weight: 2.5,
+            opacity: 0.85,
+            fillColor: '#3B82F6',
+            fillOpacity: 0.08,
+            dashArray: '6, 4'
+        }).addTo(map);
+
+        khampoPolygon.bindTooltip('ขอบเขตตำบลขามป้อม', {
+            permanent: false,
+            direction: 'center',
+            className: 'polygon-tooltip'
+        });
 
         // กำหนด Custom icons ตามประเภทจุดรับซื้อ
         const icons = {
@@ -956,7 +1022,7 @@
 
                 // สร้าง Popup แบบเรียบง่าย
                 const popupContent = `
-                    <div class="popup-wrapper" style="min-width: 280px; max-width: 320px;">
+                    <div class="popup-wrapper" style="min-width: 0; max-width: 100%; width: 100%;">
                         <!-- Header -->
                         <div class="popup-header" style="
                             background: linear-gradient(135deg, 
@@ -1142,7 +1208,7 @@
 
                 // Bind popup
                 marker.bindPopup(popupContent, {
-                    maxWidth: 320,
+                    maxWidth: Math.min(280, window.innerWidth - 40),  // ← เปลี่ยนจาก 320
                     className: 'custom-popup'
                 });
 
@@ -1292,10 +1358,12 @@
                 padding: 0;
                 border-radius: 12px;
                 box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+                max-width: calc(100vw - 40px) !important;  /* ← เพิ่ม */
             }
             .custom-popup .leaflet-popup-content {
                 margin: 0;
                 width: auto !important;
+                max-width: calc(100vw - 40px) !important;  /* ← เพิ่ม */
             }
             .custom-popup .leaflet-popup-tip {
                 background: white;
@@ -1307,6 +1375,14 @@
             }
             .custom-div-icon:hover {
                 transform: scale(1.1);
+            }
+
+            /* เพิ่ม responsive สำหรับมือถือ */
+            @media (max-width: 480px) {
+                .popup-wrapper { font-size: 13px; }
+                .popup-header { padding: 0.75rem !important; }
+                .popup-header div:first-child { width: 36px !important; height: 36px !important; font-size: 1.1rem !important; }
+                .popup-header h4 { font-size: 0.95rem !important; }
             }
         `;
         document.head.appendChild(style);

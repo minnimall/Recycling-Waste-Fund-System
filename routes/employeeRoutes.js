@@ -95,6 +95,7 @@ router.delete('/routeList/:routeId', employeeController.deleteRoute);
 router.put('/routeList/:routeId/updateRoute', employeeController.updateRoutePoints);
 router.patch('/routeList/:routeId/point/:pointId/status', employeeController.RoutePointsComplete);
 router.patch('/routeList/:routeId/complete-all', employeeController.RoutePointsCompleteAll);
+
 // ปฏิทินตารางการดำเนินการ
 router.get('/routeCalendar', employeeController.routeCalendarIndex);
 
@@ -106,13 +107,13 @@ router.post('/roundEdit', employeeController.roundEdit);
 router.delete('/roundDelete/:id', employeeController.roundDelete);
 
 // จัดการจุดรับซื้อ
-router.get('/wastePoint', employeeController.wastePointIndex);
-router.get('/wastePoint/create', employeeController.wastePointCreate);
-router.get('/wastePoint/edit/:id', employeeController.wastePointEdit);
-router.post('/wastePointUpdate/:id', employeeController.wastePointUpdate);
-router.get('/wastePoint/toggle/:id', employeeController.wastePointToggle);
-router.post('/wastePointPost', employeeController.wastePointPost);
-router.get('/wastePoint/delete/:id', employeeController.wastePointDelete);
+// router.get('/wastePoint', employeeController.wastePointIndex);
+// router.get('/wastePoint/create', employeeController.wastePointCreate);
+// router.get('/wastePoint/edit/:id', employeeController.wastePointEdit);
+// router.post('/wastePointUpdate/:id', employeeController.wastePointUpdate);
+// router.get('/wastePoint/toggle/:id', employeeController.wastePointToggle);
+// router.post('/wastePointPost', employeeController.wastePointPost);
+// router.get('/wastePoint/delete/:id', employeeController.wastePointDelete);
 
 
 

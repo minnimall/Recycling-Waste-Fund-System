@@ -400,137 +400,61 @@
             <div class="max-w-6xl mx-auto">
                 <!-- Tab Navigation -->
                 <div class="bg-white rounded-lg shadow-lg mb-6">
-                    <!-- <div class="border-b border-gray-200 overflow-x-auto">
-                        <nav class="flex flex-nowrap min-w-max">
-                            <button class="tab-btn active px-4 md:px-6 py-3 md:py-4 text-sm md:text-base text-primary border-b-2 border-primary font-semibold whitespace-nowrap" data-tab="personal">
-                                <i class="fas fa-user mr-1 md:mr-2"></i>ข้อมูลส่วนตัว
-                            </button>
-                            <button class="tab-btn px-4 md:px-6 py-3 md:py-4 text-sm md:text-base text-gray-500 hover:text-primary transition-colors whitespace-nowrap" data-tab="family">
-                                <i class="fas fa-users mr-1 md:mr-2"></i>สมาชิกครอบครัว
-                            </button>
-                            <button class="tab-btn px-4 md:px-6 py-3 md:py-4 text-sm md:text-base text-gray-500 hover:text-primary transition-colors whitespace-nowrap" data-tab="requests">
-                                <i class="fas fa-clipboard-list mr-1 md:mr-2"></i>ประวัติแจ้งความประสงค์
-                            </button>
-                            <button class="tab-btn px-4 md:px-6 py-3 md:py-4 text-sm md:text-base text-gray-500 hover:text-primary transition-colors whitespace-nowrap" data-tab="complaints">
-                                <i class="fas fa-exclamation-triangle mr-1 md:mr-2"></i>ประวัติคำร้องเรียน
-                            </button>
-                            <button class="tab-btn px-4 md:px-6 py-3 md:py-4 text-sm md:text-base text-gray-500 hover:text-primary transition-colors whitespace-nowrap" data-tab="ideas">
-                                <i class="fas fa-lightbulb mr-1 md:mr-2"></i>ไอเดียของฉัน
-                            </button>
-                            <button class="tab-btn px-4 md:px-6 py-3 md:py-4 text-sm md:text-base text-gray-500 hover:text-primary transition-colors whitespace-nowrap" data-tab="sales">
-                                <i class="fas fa-shopping-cart mr-1 md:mr-2"></i>ประวัติการขาย
-                            </button>
-                            <button class="tab-btn px-4 md:px-6 py-3 md:py-4 text-sm md:text-base text-gray-500 hover:text-primary transition-colors whitespace-nowrap" data-tab="account">
-                                <i class="fas fa-book mr-1 md:mr-2"></i>สมุดบัญชี
-                            </button>
-                        </nav>
-                    </div> -->
                     <div class="border-b border-gray-200">
                         <nav class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8">
                             
                             <!-- ข้อมูลส่วนตัว -->
-                            <button
-                                class="tab-btn active
-                                    px-2 py-3
-                                    text-[10px] md:text-xs
-                                    text-primary font-semibold
-                                    border-b-2 border-primary
-                                    flex flex-col items-center gap-1 text-center
-                                    transition"
-                                data-tab="personal">
+                            <button class="tab-btn active px-2 py-3 text-[10px] md:text-xs text-primary font-semibold border-b-2 border-primary flex flex-col items-center gap-1 text-center transition" data-tab="personal">
                                 <i class="fas fa-user text-base md:text-lg"></i>
                                 <span class="leading-tight">ข้อมูลส่วนตัว</span>
                             </button>
 
                             <!-- สมาชิกครอบครัว -->
                             <button
-                                class="tab-btn px-2 py-3
-                                    text-[10px] md:text-xs
-                                    text-gray-500 hover:text-primary
-                                    border-b-2 border-transparent hover:border-primary transition
-                                    flex flex-col items-center gap-1 text-center"
-                                data-tab="family">
+                                class="tab-btn px-2 py-3 text-[10px] md:text-xs text-gray-500 hover:text-primary border-b-2 border-transparent hover:border-primary transition flex flex-col items-center gap-1 text-center" data-tab="family">
                                 <i class="fas fa-users text-base md:text-lg"></i>
                                 <span class="leading-tight">สมาชิกครอบครัว</span>
                             </button>
 
                             <!-- ประสงค์ขายขยะ -->
-                            <button
-                                class="tab-btn px-2 py-3
-                                    text-[10px] md:text-xs
-                                    text-gray-500 hover:text-primary
-                                    border-b-2 border-transparent hover:border-primary transition
-                                    flex flex-col items-center gap-1 text-center"
-                                data-tab="requests">
+                            <button class="tab-btn px-2 py-3 text-[10px] md:text-xs text-gray-500 hover:text-primary border-b-2 border-transparent hover:border-primary transition flex flex-col items-center gap-1 text-center" data-tab="requests">
                                 <i class="fas fa-clipboard-list text-base md:text-lg"></i>
                                 <span class="leading-tight">ประสงค์ขายขยะ</span>
                             </button>
 
                             <!-- คำร้องเรียน -->
-                            <button
-                                class="tab-btn px-2 py-3
-                                    text-[10px] md:text-xs
-                                    text-gray-500 hover:text-primary
-                                    border-b-2 border-transparent hover:border-primary transition
-                                    flex flex-col items-center gap-1 text-center"
-                                data-tab="complaints">
+                            <button class="tab-btn px-2 py-3 text-[10px] md:text-xs text-gray-500 hover:text-primary border-b-2 border-transparent hover:border-primary transition flex flex-col items-center gap-1 text-center" data-tab="complaints">
                                 <i class="fas fa-exclamation-triangle text-base md:text-lg"></i>
                                 <span class="leading-tight">คำร้องเรียน</span>
                             </button>
 
                             <!-- ไอเดียของฉัน -->
-                            <button
-                                class="tab-btn px-2 py-3
-                                    text-[10px] md:text-xs
-                                    text-gray-500 hover:text-primary
-                                    border-b-2 border-transparent hover:border-primary transition
-                                    flex flex-col items-center gap-1 text-center"
-                                data-tab="ideas">
+                            <button class="tab-btn px-2 py-3 text-[10px] md:text-xs text-gray-500 hover:text-primary border-b-2 border-transparent hover:border-primary transition flex flex-col items-center gap-1 text-center" data-tab="ideas">
                                 <i class="fas fa-lightbulb text-base md:text-lg"></i>
                                 <span class="leading-tight">ไอเดียของฉัน</span>
                             </button>
 
                             <!-- ประวัติการขายขยะ -->
-                            <button
-                                class="tab-btn px-2 py-3
-                                    text-[10px] md:text-xs
-                                    text-gray-500 hover:text-primary
-                                    border-b-2 border-transparent hover:border-primary transition
-                                    flex flex-col items-center gap-1 text-center"
-                                data-tab="sales">
+                            <button class="tab-btn px-2 py-3 text-[10px] md:text-xs text-gray-500 hover:text-primary border-b-2 border-transparent hover:border-primary transition flex flex-col items-center gap-1 text-center" data-tab="sales">
                                 <i class="fas fa-shopping-cart text-base md:text-lg"></i>
                                 <span class="leading-tight">ประวัติการขายขยะ</span>
                             </button>
 
                             <!-- สมุดบัญชี -->
-                            <button
-                                class="tab-btn px-2 py-3
-                                    text-[10px] md:text-xs
-                                    text-gray-500 hover:text-primary
-                                    border-b-2 border-transparent hover:border-primary transition
-                                    flex flex-col items-center gap-1 text-center"
-                                data-tab="account">
+                            <button class="tab-btn px-2 py-3 text-[10px] md:text-xs text-gray-500 hover:text-primary border-b-2 border-transparent hover:border-primary transition flex flex-col items-center gap-1 text-center" data-tab="account">
                                 <i class="fas fa-book text-base md:text-lg"></i>
                                 <span class="leading-tight">สมุดบัญชี</span>
                             </button>
 
                             <!-- คำขอฌาปนกิจ -->
-                            <button
-                                class="tab-btn px-2 py-3
-                                    text-[10px] md:text-xs
-                                    text-gray-500 hover:text-primary
-                                    border-b-2 border-transparent hover:border-primary transition
-                                    flex flex-col items-center gap-1 text-center"
-                                data-tab="funeral">
+                            <button class="tab-btn px-2 py-3 text-[10px] md:text-xs text-gray-500 hover:text-primary border-b-2 border-transparent hover:border-primary transition flex flex-col items-center gap-1 text-center" data-tab="funeral">
                                 <i class="fa-solid fa-ribbon text-base md:text-lg"></i>
                                 <span class="leading-tight">คำขอฌาปนกิจ</span>
                             </button>
                         </nav>
                     </div>
 
-                    <!-- Tab Content -->
                     <div class="p-6">
-                        <!-- Personal Information Tab -->
                         <div id="personal" class="tab-content">
                             <div class="flex justify-between items-center mb-6">
                                 <h3 class="text-xl font-semibold text-gray-800">ข้อมูลส่วนตัว</h3>
@@ -561,10 +485,10 @@
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">เบอร์โทรศัพท์</label>
                                         <input type="tel" value="<%= member.phone %>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" readonly>
                                     </div>
-                                    <div>
+                                    <!-- <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">อีเมล</label>
                                         <input type="email" value="<%= member.email %>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" readonly>
-                                    </div>
+                                    </div> -->
                                 </div>
                                 <div class="space-y-6">
                                     <div>
@@ -576,27 +500,19 @@
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">เลขบัญชี</label>
                                         <input type="text" value="<%= wasteBankAccount ? wasteBankAccount.AccountNumber : '-' %>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" readonly>
                                     </div>
-                                    <div>
+                                    <!-- <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">วันที่เข้าร่วมกองทุน</label>
                                         <input type="text" value="<%= createdAt.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) %>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" readonly>
-                                    </div>
+                                    </div> -->
                                 </div>
                                 <% }) %>
                             </div>
-                            <!-- <div class="mt-6 flex justify-end">
-                                <button class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors">
-                                    <i class="fas fa-save mr-2"></i>บันทึกข้อมูล
-                                </button>
-                            </div> -->
                         </div>
 
                         <!-- Family Members Tab -->
                         <div id="family" class="tab-content hidden">
                             <div class="flex justify-between items-center mb-6">
                                 <h3 class="text-xl font-semibold text-gray-800">สมาชิกในครอบครัว</h3>
-                                <!-- <button class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors">
-                                    <i class="fas fa-plus mr-2"></i>เพิ่มสมาชิก
-                                </button> -->
                             </div>
                             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 
@@ -686,7 +602,6 @@
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <% wasteSaleRequests.forEach((request) => { %>
                                         <div class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group">
-                                            <!-- Validating Status -->
                                             <% 
                                                 let statusColor = "gray";
                                                 let statusText = "ไม่ทราบสถานะ";
@@ -715,7 +630,6 @@
                                                 }
                                             %>
                                             
-                                            <!-- Card Header -->
                                             <div class="px-4 py-3 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
                                                 <div class="flex items-center gap-2 text-sm text-gray-500">
                                                     <i class="far fa-calendar-alt"></i>
@@ -730,7 +644,6 @@
                                             <!-- Card Body -->
                                             <div class="p-4">
                                                 <div class="flex gap-4">
-                                                    <!-- Image Thumbnail -->
                                                     <div class="flex-shrink-0">
                                                         <% if (request.img) { %>
                                                             <div class="relative w-20 h-20 rounded-lg overflow-hidden border border-gray-200 group-hover:border-primary/50 transition-colors cursor-pointer" onclick="showImageModal('<%= request.img %>')">
@@ -746,7 +659,6 @@
                                                         <% } %>
                                                     </div>
 
-                                                    <!-- Content -->
                                                     <div class="flex-1 min-w-0">
                                                         <h5 class="text-sm font-bold text-gray-800 mb-1 truncate">รายการขยะที่แจ้งขาย</h5>
                                                         <div class="flex flex-wrap gap-1 mb-2">
@@ -759,7 +671,6 @@
                                                     </div>
                                                 </div>
 
-                                                <!-- Officer Response / Pickup Info -->
                                                 <div class="mt-4 pt-3 border-t border-gray-100 text-xs">
                                                     <% if (request.approvePickupDate) { %>
                                                         <div class="flex items-center gap-2 mb-1.5 text-blue-600 font-medium">
@@ -780,7 +691,6 @@
                                     <% }); %>
                                     </div>
                                 <% } else { %>
-                                    <!-- Empty State -->
                                     <div class="text-center py-10 bg-white rounded-xl border border-dashed border-gray-300">
                                         <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
                                             <i class="fas fa-inbox text-gray-400 text-2xl"></i>
@@ -878,12 +788,10 @@
                                                     <% } %>
                                                 </div>
 
-                                                <!-- Content -->
                                                 <div class="bg-gray-50 rounded-lg p-4 mb-4 border border-gray-100">
                                                     <p class="text-gray-700 text-sm whitespace-pre-line leading-relaxed"><%= com.complaintMessage %></p>
                                                 </div>
 
-                                                <!-- Image -->
                                                 <% if (com.image) { %>
                                                     <div class="mb-4">
                                                         <div class="relative group cursor-pointer overflow-hidden rounded-lg border border-gray-200 w-fit" onclick="showImageModal('<%= com.image %>')">
@@ -949,7 +857,6 @@
                                     <% }); %>
                                     </div>
                                 <% } else { %>
-                                    <!-- Empty State -->
                                     <div class="text-center py-12">
                                         <div class="mx-auto h-24 w-24 text-gray-300 mb-4">
                                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -1021,7 +928,6 @@
                                 <article class="idea-post bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col h-full group"
                                     data-category="<%= post.category %>" data-post-id="<%= post._id %>">
                                     
-                                    <!-- Card Header -->
                                     <div class="p-5 border-b border-gray-100 flex justify-between items-start">
                                         <div class="flex items-center gap-3">
                                             <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm text-white font-bold text-sm">
@@ -1059,7 +965,7 @@
                                                     data-dropdown-id="dropdown-<%= post._id %>">
                                                     <i class="fas fa-ellipsis-v"></i>
                                                 </button>
-                                                <!-- Dropdown Menu -->
+
                                                 <div id="dropdown-<%= post._id %>"
                                                     class="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-xl shadow-lg hidden z-50 overflow-hidden">
                                                     <button onclick="openEditModal(
@@ -1363,7 +1269,6 @@
                                 </button>
                             </div>
 
-                            <!-- Loading State -->
                             <div id="funeralLoadingState" class="text-center py-8">
                                 <i class="fas fa-spinner fa-spin text-3xl text-green-600"></i>
                                 <p class="mt-2 text-gray-600">กำลังโหลดข้อมูล...</p>
@@ -1374,14 +1279,10 @@
                                 <!-- จะถูก inject ด้วย JavaScript -->
                             </div>
 
-                            <!-- Empty State -->
                             <div id="funeralEmptyState" class="hidden text-center py-12 bg-gray-50 rounded-lg">
                                 <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
                                 <h3 class="text-lg font-medium text-gray-700 mb-2">ไม่พบคำขอ</h3>
                                 <p class="text-gray-500 mb-4">คุณยังไม่เคยยื่นคำขอฌาปนกิจสงเคราะห์</p>
-                                <a href="/user/funeral" class="inline-block px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                                    <i class="fas fa-plus mr-2"></i>ยื่นคำขอใหม่
-                                </a>
                             </div>
                         </div>
 
@@ -1389,7 +1290,6 @@
                         <div id="funeralDetailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
                             <div class="min-h-screen px-4 py-8 flex items-center justify-center">
                                 <div class="bg-white rounded-xl shadow-2xl max-w-6xl w-full mx-auto transform transition-all">
-                                    <!-- Header with Gradient -->
                                     <div class="px-8 py-6 rounded-t-xl" style="background: linear-gradient(to right, #376939, #4a7c4e);">
                                         <div class="flex justify-between items-center">
                                             <div class="flex items-center gap-3">
@@ -1410,12 +1310,10 @@
                                         </div>
                                     </div>
 
-                                    <!-- Content -->
                                     <div id="funeralModalContent" class="p-8 max-h-[65vh] overflow-y-auto">
                                         <!-- จะถูก inject ด้วย JavaScript -->
                                     </div>
 
-                                    <!-- Footer -->
                                     <div class="px-8 py-5 border-t border-gray-200 bg-gradient-to-b from-gray-50 to-white rounded-b-xl">
                                         <div class="flex justify-end items-center">
                                             <div class="flex gap-3">
@@ -1436,7 +1334,6 @@
         <div id="pdfViewerModal" class="hidden fixed inset-0 bg-black bg-opacity-75 z-[60]">
             <div class="min-h-screen px-4 py-8 flex items-center justify-center">
                 <div class="bg-white rounded-lg shadow-2xl w-full max-w-6xl h-[90vh] flex flex-col">
-                    <!-- Header -->
                     <div class="flex items-center justify-between p-4 border-b bg-gray-50 rounded-t-lg">
                         <h3 id="pdfTitle" class="text-lg font-bold text-gray-800"></h3>
                         <button onclick="closePDFModal()" class="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-200 transition-colors">
@@ -1446,7 +1343,6 @@
                         </button>
                     </div>
                     
-                    <!-- PDF Viewer -->
                     <div class="flex-1 overflow-hidden bg-gray-100">
                         <iframe id="pdfFrame" class="w-full h-full border-0"></iframe>
                     </div>
