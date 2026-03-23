@@ -211,26 +211,40 @@
     <!-- Posts Section -->
     <section class="py-12 bg-gray-50">
       <div class="container mx-auto px-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="posts-container">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="posts-container">
           <% posts.forEach(post => { %>
             <article class="idea-post group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col"
               data-category="<%= post.category %>" data-post-id="<%= post._id %>">
               
               <% if (post.imageUrl && post.imageUrl !== "no_image") { %>
-                <div class="relative overflow-hidden aspect-video">
+                <div class="relative overflow-hidden h-40">
                   <img src="<%= post.imageUrl %>" alt="Post thumbnail" 
                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                  <div class="absolute top-4 left-4">
-                    <span class="bg-white/90 backdrop-blur-sm text-blue-600 px-3 py-1 rounded-full text-xs font-bold shadow-sm">
+                  <div class="absolute top-3 left-3">
+                    <span class="bg-white/90 backdrop-blur-sm text-blue-600 px-2 py-0.5 rounded-full text-xs font-bold shadow-sm">
                       <% const categoryNames={ reduce: 'ลดการใช้' , reuse: 'นำกลับมาใช้' , recycle: 'รีไซเคิล' , diy: 'DIY/ทำเอง' , community: 'โครงการชุมชน' , other: 'อื่นๆ' }; %>
                       <%= categoryNames[post.category] || post.category %>
                     </span>
                   </div>
                 </div>
+              <% } else { %>
+                <div class="relative h-40 bg-gradient-to-br from-green-50 to-emerald-100 flex flex-col items-center justify-center">
+                  <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-sm mb-2">
+                    <% const categoryIcons = { reduce: 'fa-leaf', reuse: 'fa-recycle', recycle: 'fa-sync-alt', diy: 'fa-tools', community: 'fa-users', other: 'fa-lightbulb' }; %>
+                    <% const categoryColors = { reduce: 'text-green-500', reuse: 'text-blue-500', recycle: 'text-teal-500', diy: 'text-orange-500', community: 'text-purple-500', other: 'text-yellow-500' }; %>
+                    <i class="fas <%= categoryIcons[post.category] || 'fa-lightbulb' %> text-2xl <%= categoryColors[post.category] || 'text-gray-400' %>"></i>
+                  </div>
+                  <div class="absolute top-3 left-3">
+                    <span class="bg-white/90 backdrop-blur-sm text-blue-600 px-2 py-0.5 rounded-full text-xs font-bold shadow-sm">
+                      <% const categoryNames2={ reduce: 'ลดการใช้' , reuse: 'นำกลับมาใช้' , recycle: 'รีไซเคิล' , diy: 'DIY/ทำเอง' , community: 'โครงการชุมชน' , other: 'อื่นๆ' }; %>
+                      <%= categoryNames2[post.category] || post.category %>
+                    </span>
+                  </div>
+                </div>
               <% } %>
 
-              <div class="p-6 flex-1 flex flex-col">
-                <div class="flex items-center justify-between mb-5">
+              <div class="p-4 flex-1 flex flex-col">
+                <div class="flex items-center justify-between mb-3">
                   <div class="flex items-center space-x-3">
                     <div class="w-10 h-10 bg-gradient-to-tr from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-inner">
                       <i class="fas fa-user text-white text-sm"></i>

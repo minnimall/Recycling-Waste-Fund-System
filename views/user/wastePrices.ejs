@@ -10,7 +10,7 @@
     <section class="bg-gradient-to-r from-primary-green to-secondary-green text-white py-16">
         <div class="container mx-auto px-4 text-center">
             <h2 class="text-4xl md:text-5xl font-bold mb-4">ข้อมูลราคารับซื้อขยะ</h2>
-            <p class="text-xl opacity-90">อัปเดตราคาขยะรีไซเคิลประจำเดือน</p>
+            <p class="text-xl opacity-90">อัปเดตราคาขยะรีไซเคิล ณ ราคาปัจจุบันในการรับซื้อ</p>
         </div>
     </section>
     <main class="container mx-auto px-4 py-8">
@@ -18,9 +18,9 @@
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
             <input type="text" id="searchInput" placeholder="ค้นหาประเภทขยะ..." class="w-full md:max-w-md px-4 py-2 border rounded-lg shadow-sm">
             <select id="itemsPerPage" class="px-3 py-2 border rounded-lg">
-                <option value="6">6 รายการ</option>
-                <option value="12">12 รายการ</option>
-                <option value="18">18 รายการ</option>
+                <option value="10">10 รายการ</option>
+                <option value="15">15 รายการ</option>
+                <option value="20">20 รายการ</option>
             </select>
         </div>
 
@@ -28,7 +28,7 @@
         <div id="cardsContainer" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6"></div>
 
         <!-- Pagination -->
-        <div id="pagination" class="flex justify-center mt-8 space-x-2"></div>
+        <div id="pagination" class="flex justify-center items-center mt-10 gap-1"></div>
 
         <!-- No results -->
         <div id="noResults" class="text-center mt-12 hidden">
@@ -56,6 +56,96 @@
 
     <%- include('../partials/userPartials/footer.ejs') %>
 
+    <style>
+        /* ========== Placeholder Icon ========== */
+        .waste-img-wrapper {
+            position: relative;
+            height: 12rem; /* h-48 */
+            background-color: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .waste-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .waste-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            height: 100%;
+        }
+        .waste-placeholder svg {
+            width: 56px;
+            height: 56px;
+            opacity: 0.55;
+        }
+        .waste-placeholder span {
+            font-size: 11px;
+            color: #9ca3af;
+            letter-spacing: 0.02em;
+        }
+
+        /* ========== Pagination ========== */
+        #pagination {
+            gap: 4px;
+        }
+        .pg-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 38px;
+            height: 38px;
+            padding: 0 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1.5px solid #e5e7eb;
+            background: #ffffff;
+            color: #374151;
+            transition: all 0.18s ease;
+            user-select: none;
+        }
+        .pg-btn:hover:not(.pg-active):not(.pg-disabled) {
+            background: #f0fdf4;
+            border-color: #86efac;
+            color: #15803d;
+        }
+        .pg-active {
+            background: #16a34a;
+            border-color: #16a34a;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(22,163,74,0.25);
+            cursor: default;
+        }
+        .pg-disabled {
+            opacity: 0.38;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .pg-ellipsis {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 38px;
+            color: #9ca3af;
+            font-size: 15px;
+            letter-spacing: 1px;
+        }
+        .pg-arrow svg {
+            width: 16px;
+            height: 16px;
+        }
+    </style>
+
     <script>
         const wasteData = <%- JSON.stringify(waste) %>;
 
@@ -69,46 +159,137 @@
         let itemsPerPage = parseInt(itemsPerPageSelect.value);
         let filteredData = [...wasteData];
 
+        /* ---------- Placeholder SVG icons by waste type ---------- */
+        function getPlaceholderIcon(wasteTypeName) {
+            const name = (wasteTypeName || '').toLowerCase();
+
+            /* กระดาษ */
+            if (name.includes('กระดาษ') || name.includes('paper')) {
+                return `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="14" y="8" width="32" height="40" rx="3" stroke="#9ca3af" stroke-width="2.5" fill="#e5e7eb"/>
+                    <path d="M22 20h20M22 27h20M22 34h14" stroke="#9ca3af" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M38 8v10h8" stroke="#9ca3af" stroke-width="2.2" stroke-linejoin="round" fill="none"/>
+                </svg>`;
+            }
+            /* พลาสติก / ขวด */
+            if (name.includes('พลาสติก') || name.includes('ขวด') || name.includes('plastic') || name.includes('bottle')) {
+                return `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M24 14h16v6l4 8v18a4 4 0 01-4 4H24a4 4 0 01-4-4V28l4-8V14z" stroke="#9ca3af" stroke-width="2.5" fill="#e5e7eb"/>
+                    <rect x="26" y="10" width="12" height="6" rx="2" stroke="#9ca3af" stroke-width="2" fill="#d1d5db"/>
+                    <path d="M22 32h20M24 40h16" stroke="#9ca3af" stroke-width="2" stroke-linecap="round"/>
+                </svg>`;
+            }
+            /* โลหะ / เหล็ก / อะลูมิเนียม */
+            if (name.includes('โลหะ') || name.includes('เหล็ก') || name.includes('อะลูมิ') || name.includes('metal') || name.includes('กระป๋อง')) {
+                return `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="20" y="16" width="24" height="32" rx="6" stroke="#9ca3af" stroke-width="2.5" fill="#e5e7eb"/>
+                    <ellipse cx="32" cy="16" rx="12" ry="4" stroke="#9ca3af" stroke-width="2" fill="#d1d5db"/>
+                    <ellipse cx="32" cy="48" rx="12" ry="4" stroke="#9ca3af" stroke-width="2" fill="#d1d5db"/>
+                    <path d="M26 28h12M26 34h12" stroke="#9ca3af" stroke-width="2" stroke-linecap="round"/>
+                </svg>`;
+            }
+            /* แก้ว */
+            if (name.includes('แก้ว') || name.includes('glass')) {
+                return `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M22 12h20l-4 32H26L22 12z" stroke="#9ca3af" stroke-width="2.5" fill="#e5e7eb"/>
+                    <path d="M22 12h20" stroke="#9ca3af" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M24.5 44h15" stroke="#9ca3af" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M27 20l1 16M31 20v16" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+                </svg>`;
+            }
+            /* อิเล็กทรอนิกส์ / e-waste */
+            if (name.includes('อิเล็ก') || name.includes('electronic') || name.includes('e-waste') || name.includes('คอม') || name.includes('มือถือ')) {
+                return `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="14" y="18" width="36" height="24" rx="3" stroke="#9ca3af" stroke-width="2.5" fill="#e5e7eb"/>
+                    <rect x="26" y="42" width="12" height="4" fill="#d1d5db"/>
+                    <path d="M20 46h24" stroke="#9ca3af" stroke-width="2.5" stroke-linecap="round"/>
+                    <circle cx="32" cy="30" r="5" stroke="#9ca3af" stroke-width="2" fill="none"/>
+                    <path d="M24 26h2M38 26h2M24 34h2M38 34h2" stroke="#9ca3af" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>`;
+            }
+            /* ยาง / รถ */
+            if (name.includes('ยาง') || name.includes('rubber') || name.includes('tire')) {
+                return `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="32" cy="32" r="18" stroke="#9ca3af" stroke-width="2.5" fill="#e5e7eb"/>
+                    <circle cx="32" cy="32" r="9" stroke="#9ca3af" stroke-width="2" fill="#d1d5db"/>
+                    <path d="M32 14v6M32 44v6M14 32h6M44 32h6M19.5 19.5l4.2 4.2M40.3 40.3l4.2 4.2M44.5 19.5l-4.2 4.2M23.7 40.3l-4.2 4.2" stroke="#9ca3af" stroke-width="2" stroke-linecap="round"/>
+                </svg>`;
+            }
+            /* อินทรีย์ / เศษอาหาร / ใบไม้ */
+            if (name.includes('อินทรีย์') || name.includes('อาหาร') || name.includes('ใบไม้') || name.includes('organic') || name.includes('food')) {
+                return `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M32 52C32 52 14 38 14 26a18 18 0 0136 0c0 12-18 26-18 26z" stroke="#9ca3af" stroke-width="2.5" fill="#e5e7eb"/>
+                    <path d="M32 52V30" stroke="#9ca3af" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M32 38c0 0-8-6-8-14" stroke="#9ca3af" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/>
+                    <path d="M32 34c0 0 7-5 7-12" stroke="#9ca3af" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/>
+                </svg>`;
+            }
+            /* อันตราย / เคมี */
+            if (name.includes('อันตราย') || name.includes('เคมี') || name.includes('hazard') || name.includes('chemical')) {
+                return `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M32 10L56 52H8L32 10z" stroke="#9ca3af" stroke-width="2.5" fill="#e5e7eb" stroke-linejoin="round"/>
+                    <path d="M32 28v10" stroke="#9ca3af" stroke-width="2.8" stroke-linecap="round"/>
+                    <circle cx="32" cy="44" r="2.2" fill="#9ca3af"/>
+                </svg>`;
+            }
+            /* Default: ถุงขยะทั่วไป */
+            return `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 20h24l-3 28H23L20 20z" stroke="#9ca3af" stroke-width="2.5" fill="#e5e7eb" stroke-linejoin="round"/>
+                <path d="M16 20h32" stroke="#9ca3af" stroke-width="2.5" stroke-linecap="round"/>
+                <path d="M27 14c0-2 2-3 5-3s5 1 5 3" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" fill="none"/>
+                <path d="M26 28l1 16M32 28v16M38 28l-1 16" stroke="#9ca3af" stroke-width="1.8" stroke-linecap="round" opacity="0.5"/>
+            </svg>`;
+        }
+
         function createCard(item) {
-            // กำหนดรูปภาพ default ถ้าไม่มีรูป
-            const imgSrc = item.img || '/images/default-waste.png';
-            
+            const imgSrc = item.img || '';
+            const typeName = item.wasteType ? item.wasteType.wasteTypeName : '';
+            const colorTheme = item.wasteType ? item.wasteType.colorTheme : 'green';
+
+            const imageSection = imgSrc
+                ? `<div class="waste-img-wrapper">
+                    <img src="${imgSrc}" alt="${item.wasteName}" onerror="this.closest('.waste-img-wrapper').innerHTML = placeholderHtml('${typeName.replace(/'/g, "\\'")}')">
+                    </div>`
+                : `<div class="waste-img-wrapper">
+                        <div class="waste-placeholder">
+                            ${getPlaceholderIcon(typeName)}
+                            <span>${typeName || 'ขยะรีไซเคิล'}</span>
+                        </div>
+                    </div>`;
+
             return `
                 <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
-                    <div class="bg-${item.wasteType.colorTheme}-500 h-2"></div>
-                    
-                    <!-- รูปภาพขยะ -->
-                    <div class="relative h-48 bg-gray-100">
-                        <img 
-                            src="${imgSrc}" 
-                            alt="${item.wasteName}"
-                            class="w-full h-full object-cover"
-                            onerror="this.src='/images/default-waste.png'"
-                        >
-                    </div>
-                    
-                    <div class="p-6">
-                        <div class="flex items-start justify-between mb-4">
-                            <div class="flex-1">
-                                <h3 class="text-lg font-semibold text-gray-800 mb-1">${item.wasteName}</h3>
-                                <span class="inline-block px-2 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded-full">
-                                    ${item.wasteType.wasteTypeName}
+                    <div class="bg-${colorTheme}-500 h-2"></div>
+                    ${imageSection}
+                    <div class="p-4">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex-1 pr-2">
+                                <h3 class="text-sm font-semibold text-gray-800 mb-1 leading-tight">${item.wasteName}</h3>
+                                <span class="inline-block px-2 py-0.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-full">
+                                    ${typeName}
                                 </span>
                             </div>
-                            <div class="text-right">
-                                <div class="text-2xl font-bold text-green-600">${item.pricePerUnit}</div>
-                                <div class="text-sm text-gray-500">บาท/กก.</div>
+                            <div class="text-right shrink-0">
+                                <div class="text-xl font-bold text-green-600">${item.pricePerUnit}</div>
+                                <div class="text-xs text-gray-500">บาท/กก.</div>
                             </div>
                         </div>
-                        <div class="mt-4 pt-4 border-t border-gray-100">
-                            <div class="flex items-center justify-between text-sm text-gray-500">
+                        ${/* 
+                        <div class="pt-3 border-t border-gray-100">
+                            <div class="flex items-center justify-between text-xs text-gray-500">
                                 <span>หน่วย: กิโลกรัม</span>
-                                <span class="text-green-600 font-medium">💰 ${item.pricePerUnit} บาท</span>
+                                <span class="text-green-600 font-medium"> ${item.pricePerUnit} บาท</span>
                             </div>
                         </div>
+                        */''}
                     </div>
                 </div>
             `;
+        }
+
+        /* helper สำหรับ onerror callback */
+        function placeholderHtml(typeName) {
+            return `<div class="waste-placeholder">${getPlaceholderIcon(typeName)}<span>${typeName || 'ขยะรีไซเคิล'}</span></div>`;
         }
 
         function displayData() {
@@ -130,18 +311,53 @@
 
         function renderPagination() {
             const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-            if (totalPages <= 1) return pagination.innerHTML = '';
+            if (totalPages <= 1) { pagination.innerHTML = ''; return; }
+
+            const arrowLeft = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4L6 8l4 4"/></svg>`;
+            const arrowRight = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"/></svg>`;
 
             let html = '';
 
-            for (let i = 1; i <= totalPages; i++) {
-                html += `<button onclick="goToPage(${i})" class="px-3 py-1 border rounded ${i === currentPage ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'}">${i}</button>`;
-            }
+            /* Prev */
+            html += `<button class="pg-btn pg-arrow ${currentPage === 1 ? 'pg-disabled' : ''}" onclick="goToPage(${currentPage - 1})" aria-label="หน้าก่อน">${arrowLeft}</button>`;
+
+            /* Page numbers with ellipsis */
+            const pages = getPaginationRange(currentPage, totalPages);
+            pages.forEach(p => {
+                if (p === '...') {
+                    html += `<span class="pg-ellipsis">···</span>`;
+                } else {
+                    html += `<button class="pg-btn ${p === currentPage ? 'pg-active' : ''}" onclick="goToPage(${p})">${p}</button>`;
+                }
+            });
+
+            /* Next */
+            html += `<button class="pg-btn pg-arrow ${currentPage === totalPages ? 'pg-disabled' : ''}" onclick="goToPage(${currentPage + 1})" aria-label="หน้าถัดไป">${arrowRight}</button>`;
 
             pagination.innerHTML = html;
         }
 
+        /* สร้าง array ของหมายเลขหน้า พร้อม ellipsis */
+        function getPaginationRange(current, total) {
+            if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+            const result = [];
+            const delta = 1; /* จำนวนหน้าข้างๆ current */
+
+            const left = Math.max(2, current - delta);
+            const right = Math.min(total - 1, current + delta);
+
+            result.push(1);
+            if (left > 2) result.push('...');
+            for (let i = left; i <= right; i++) result.push(i);
+            if (right < total - 1) result.push('...');
+            result.push(total);
+
+            return result;
+        }
+
         function goToPage(page) {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            if (page < 1 || page > totalPages) return;
             currentPage = page;
             displayData();
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -149,8 +365,8 @@
 
         searchInput.addEventListener('input', () => {
             const term = searchInput.value.toLowerCase();
-            filteredData = wasteData.filter(w => 
-                w.wasteName.toLowerCase().includes(term) || 
+            filteredData = wasteData.filter(w =>
+                w.wasteName.toLowerCase().includes(term) ||
                 w.wasteType.wasteTypeName.toLowerCase().includes(term)
             );
             currentPage = 1;

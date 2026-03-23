@@ -369,7 +369,7 @@
         </div>
 
         <!-- Additional Stats Section -->
-        <div class="mx-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="mx-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             <div class="bg-white rounded-lg shadow p-4">
                 <div class="flex items-center">
                     <div class="p-3 bg-orange-100 rounded-full">
@@ -393,14 +393,6 @@
                     <div class="ml-4">
                         <p class="text-sm text-gray-500">ธุรกรรมวันนี้</p>
                         <p class="text-lg font-semibold text-gray-800"><%= transactionToday %></p>
-                        <!-- <p class="text-sm text-teal-600">
-                            <% if (transactionPercentChange >= 0) { %>
-                                <i class="fas fa-arrow-up"></i> <%= transactionPercentChange %>%
-                            <% } else { %>
-                                <i class="fas fa-arrow-down"></i> <%= Math.abs(transactionPercentChange) %>%
-                            <% } %>
-                            จากเมื่อวาน
-                        </p> -->
                     </div>
                 </div>
             </div>
@@ -436,7 +428,7 @@
             </div>
         </div>
         <!-- Top 5 Families Section -->
-        <div class="mx-4 mb-8">
+        <!-- <div class="mx-4 mb-8">
             <div class="bg-white rounded-lg shadow p-6">
                 <div class="flex justify-between items-center mb-6">
                     <div>
@@ -449,7 +441,6 @@
                 </div>
 
                 <% if (topFamilies && topFamilies.length > 0) { %>
-                    <!-- Desktop View -->
                     <div class="hidden md:block overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
@@ -489,9 +480,6 @@
                                         </td>
                                         <td class="px-6 py-4">
                                             <div class="flex items-center">
-                                                <!-- <div class="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
-                                                    <i class="fas fa-home text-gray-600"></i>
-                                                </div> -->
                                                 <div class="ml-4 text-sm font-semibold text-gray-900">
                                                     <%= family.familyName %>
                                                 </div>
@@ -499,7 +487,6 @@
                                         </td>
                                         <td class="px-6 py-4 text-center">
                                             <span class="px-3 py-1.5 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                                                <!-- <i class="fas fa-hashtag text-[10px] mr-1"></i> -->
                                                 <%= family.accountNumber %>
                                             </span>
                                         </td>
@@ -513,7 +500,6 @@
                                         </td>
                                         <td class="px-6 py-4 text-right">
                                             <div class="inline-flex items-center px-3 py-1.5 rounded-md font-bold text-sm bg-green-50 text-green-700 border border-green-200">
-                                                <!-- <span class="text-xs mr-0.5">฿</span> -->
                                                 <%= family.totalAmount.toLocaleString() %>
                                             </div>
                                         </td>
@@ -527,31 +513,6 @@
                             </tbody>
                         </table>
                     </div>
-
-                    <!-- Summary Stats -->
-                    <!-- <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <% 
-                        const totalTopAmount = topFamilies.reduce((sum, f) => sum + f.totalAmount, 0);
-                        const totalTopQuantity = topFamilies.reduce((sum, f) => sum + f.totalQuantity, 0);
-                        const totalTopTransactions = topFamilies.reduce((sum, f) => sum + f.transactionCount, 0);
-                        %>
-                        
-                        <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4">
-                            <p class="text-xs text-green-600 font-medium">รวมมูลค่า Top 5</p>
-                            <p class="text-lg font-bold text-green-700">฿<%= totalTopAmount.toLocaleString() %></p>
-                        </div>
-                        
-                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4">
-                            <p class="text-xs text-blue-600 font-medium">รวมปริมาณ Top 5</p>
-                            <p class="text-lg font-bold text-blue-700"><%= totalTopQuantity.toLocaleString() %> กก.</p>
-                        </div>
-                        
-                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4">
-                            <p class="text-xs text-purple-600 font-medium">รวมธุรกรรม Top 5</p>
-                            <p class="text-lg font-bold text-purple-700"><%= totalTopTransactions.toLocaleString() %> ครั้ง</p>
-                        </div>
-                    </div> -->
-
                 <% } else { %>
                     <div class="text-center py-12">
                         <i class="fas fa-trophy text-6xl text-gray-300 mb-4"></i>
@@ -559,7 +520,7 @@
                     </div>
                 <% } %>
             </div>
-        </div>
+        </div> -->
     </div>
 
     <script>

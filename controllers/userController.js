@@ -53,17 +53,36 @@ const user_index = async (req, res) => {
                 .sort({ createdAt: 1 })
         ]);
 
+        
+        // เพิ่มฟิลด์ formattedDate ให้กับกิจกรรมที่เลือก
+        const formattedActivity = activitiesResult.map(activity => ({
+            ...activity._doc,
+            formattedDate: moment(activity.createdAt).format('YYYY-MM-DD')
+        }));
+
         // ดึงประวัติราคาล่าสุดของขยะแต่ละตัว
         const wasteWithChangeRaw = await Promise.all(
             wasteResult.map(async (waste) => {
-                const lastHistory = await WastePriceHistory.findOne({ wasteId: waste._id })
-                    .sort({ createdAt: -1 });
+                const histories = await WastePriceHistory.find({ wasteId: waste._id })
+                    .sort({ createdAt: -1 })
+                    .limit(2); // ดึง 2 อันล่าสุด
+
+                const lastHistory = histories[0];  // ราคาล่าสุด
+                const prevHistory = histories[1];  // ราคาก่อนหน้า
 
                 const latestPrice = lastHistory ? lastHistory.pricePerUnit : waste.pricePerUnit;
                 const latestPriceDate = lastHistory ? lastHistory.createdAt : null;
 
-                const priceChange = lastHistory
-                    ? (waste.pricePerUnit - lastHistory.pricePerUnit)
+                const priceChange = (lastHistory && prevHistory)
+                    ? (lastHistory.pricePerUnit - prevHistory.pricePerUnit)
+                    : null;
+
+                const percentChange = (priceChange !== null && prevHistory.pricePerUnit !== 0)
+                    ? Math.abs((priceChange / prevHistory.pricePerUnit) * 100)
+                    : null;
+
+                const changeDirection = priceChange !== null
+                    ? (priceChange > 0 ? 'up' : priceChange < 0 ? 'down' : 'none')
                     : null;
 
                 return {
@@ -71,8 +90,8 @@ const user_index = async (req, res) => {
                     latestPrice,
                     latestPriceDate,
                     priceChange,
-                    percentChange: lastHistory ? lastHistory.percentChange : null,
-                    changeDirection: lastHistory ? lastHistory.changeDirection : null
+                    percentChange,
+                    changeDirection
                 };
             })
         );
@@ -117,7 +136,7 @@ const user_index = async (req, res) => {
 
         res.render('user/main', {
             mytitle: 'Admindashboard | Activity',
-            activity: activitiesResult,
+            activity: formattedActivity,
             waste: wasteWithChange,
             village: villageResult,
             roundsByVillage,

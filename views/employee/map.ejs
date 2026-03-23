@@ -161,7 +161,6 @@
                                         </span>
                                     </div>
 
-                                    <!-- Date Filter -->
                                     <div class="mb-3 p-3 bg-white rounded-lg border border-blue-100">
                                         <label class="block text-xs font-medium text-gray-600 mb-1.5 flex items-center">
                                             <ion-icon name="calendar-outline" class="mr-1 text-blue-500"></ion-icon>
@@ -334,7 +333,6 @@
                     </div>
                 </div>
 
-                <!-- Map Section -->
                 <div class="lg:col-span-3">
                     <div class="bg-white rounded-lg shadow-lg overflow-hidden">
                         <div class="bg-gradient-to-r from-green-600 to-green-700 p-4 text-white">
@@ -552,25 +550,6 @@
         // ----------- จัดการจุดบนแผนที่ ---------- (426 ถึง 758)
         // เพิ่มการตรวจสอบระยะทางก่อนเพิ่มจุดใหม่
         function addPoint(lat, lng, address, requestId = null, familyName = null) {
-            // if (!isWithinMaxDistance(lat, lng, 20)) {
-            //     const distance = calculateStraightLineDistance(
-            //         { lat: organizationPoint.lat, lng: organizationPoint.lng },
-            //         { lat: lat, lng: lng }
-            //     );
-            //     Swal.fire({
-            //         icon: 'error',
-            //         title: 'จุดอยู่นอกพื้นที่',
-            //         html: `
-            //             <div class="text-left">
-            //                 <p class="mb-2">จุดนี้อยู่ห่างจาก อบต.ขามป้อม <strong>${distance.toFixed(2)} กม.</strong></p>
-            //                 <p class="text-sm text-gray-600">สามารถปักหมุดได้เฉพาะจุดที่อยู่ในระยะไม่เกิน <strong>20 กม.</strong> เท่านั้น</p>
-            //             </div>
-            //         `,
-            //         confirmButtonText: 'ตกลง',
-            //         confirmButtonColor: '#EF4444'
-            //     });
-            //     return;
-            // }
             if (!isWithinTambol(lat, lng)) {
                 Swal.fire({
                     icon: 'error',

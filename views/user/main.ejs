@@ -108,7 +108,7 @@
             <div class="flex flex-col sm:flex-row gap-4 justify-center ">
                 <a href="/user/wasteSaleRequest" class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-green transition-colors">แจ้งประสงค์ขายขยะ</a>
                 <a href="/user/complaint" class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-green transition-colors">ร้องเรียน</a>
-                <a href="/user/ideas" class="border-2 border-white  text-primary-green px-8 py-3 rounded-lg font-semibold bg-white hover:bg-primary hover:text-white transition-colors">💡ไอเดียการจัดการขยะ</a>
+                <a href="/user/ideas" class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-green transition-colors">ไอเดียการจัดการขยะ</a>
             </div>
         </div>
     </section>
@@ -117,13 +117,13 @@
     <section class="py-16 mx-4">
         <div class="container mx-auto px-4">
             <h2 class="text-3xl font-bold text-center text-primary mb-12">บริการของเรา</h2>
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
                     <div class="w-16 h-16 bg-primary-green rounded-full flex items-center justify-center mb-4 mx-auto">
                         <i class="fas fa-recycle text-white text-2xl"></i>
                     </div>
-                    <h3 class="text-xl font-semibold text-center mb-3">จัดการขยะ</h3>
-                    <p class="text-gray-600 text-center">บริการจัดเก็บและแยกประเภทขยะในชุมชน</p>
+                    <h3 class="text-xl font-semibold text-center mb-3">รับซื้อขยะ</h3>
+                    <p class="text-gray-600 text-center">บริการรับซื้อขยะประเภทต่างๆในชุมชน</p>
                 </div>
                 <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
                     <div class="w-16 h-16 bg-primary-green rounded-full flex items-center justify-center mb-4 mx-auto">
@@ -154,19 +154,20 @@
     <section class="py-16 bg-gray-100">
         <div class="container mx-auto px-4">
             <h3 class="text-3xl font-bold text-center text-gray-800 mb-12">กิจกรรมของ อบต.ขามป้อม</h3>
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 px-4">
-                
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 px-4">  
             <% if (activity.length = 4) {  %>
                 <% activity.forEach(act => { %>
-                <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex flex-col">
                     <div class="h-48 bg-gradient-to-r from-primary-green to-secondary-green">
                         <img src="<%= act.img[0] %>" class="h-48 w-full object-cover" alt="<%= act.title %>">
                     </div>
-                    <div class="p-6">
-                        <span class="text-sm text-primary-green font-semibold"><%= act.createdAt %></span>
-                        <p class="text- font-semibold text-gray-800 mt-2 mb-3"><%= act.title %></p>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <!-- <span class="text-sm text-primary-green font-semibold">ลงเมื่อ <%= act.formattedDate %></span> -->
+                        <div>
+                            <p class="text-base font-semibold text-gray-800 mt-2 mb-3"><%= act.title %></p>
+                        </div>
                         <!-- <p class="text-gray-600">แจ้งการเปลี่ยนแปลงตารางเก็บขยะในช่วงวันหยุดยาว...</p> -->
-                        <a href="/user/detailActivity/<%= act._id %>" class="text-primary-green font-semibold hover:underline mt-4 inline-block">อ่านต่อ</a>
+                        <a href="/user/detailActivity/<%= act._id %>" class="text-primary-green font-semibold hover:underline mt-auto inline-block">อ่านต่อ</a>
                     </div>
                 </article>
                 <% }) %>
@@ -175,7 +176,6 @@
             <% } %>
             </div>
         </div>
-
         <div class="text-center mt-12">
             <a href="/user/allActivity" class="bg-primary-green text-white px-8 py-3 rounded-lg hover:bg-primary-dark transition-colors inline-flex items-center">
                 <span>ดูกิจกรรมทั้งหมด</span>
@@ -199,21 +199,21 @@
                 </div>
             </div>
 
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 px-4">
+            <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 px-4">
                 <% if (waste.length >= 4) { %>
                     <% waste.slice(0, 4).forEach((item) => { %>
                         <div class="bg-white rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
                             <div class="flex items-center justify-between mb-4">
                                 <div class="flex items-center">
-                                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                    <!-- <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
                                         <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                         </svg>
-                                    </div>
+                                    </div> -->
                                     <div>
-                                        <h4 class="font-semibold text-gray-800"><%= item.wasteName %></h4>
-                                        <p class="text-sm text-gray-500"><%= item.wasteType.wasteTypeName %></p>
+                                        <h4 class="font-semibold text-gray-800 text-sm"><%= item.wasteName %></h4>
+                                        <p class="text-sm text-gray-500">ประเภท : <%= item.wasteType.wasteTypeName %></p>
                                     </div>
                                 </div>
 
@@ -235,10 +235,10 @@
                                         </svg>
                                     <% } %>
 
-                                    <% if (item.priceChange !== null && item.percentChange !== null) { %>
-                                        <%= item.priceChange > 0 ? '+' : '' %> (<%= item.percentChange.toFixed(2) %>%)
+                                    <% if (item.percentChange !== null && item.changeDirection !== 'none') { %>
+                                        <%= item.changeDirection === 'up' ? 'เพิ่มขึ้น' : 'ลดลง' %> <%= item.percentChange.toFixed(2) %>%
                                     <% } else { %>
-                                        -
+                                        ไม่มีการเปลี่ยนแปลง
                                     <% } %>
                                 </div>
                             </div>
@@ -265,23 +265,27 @@
             </div>
 
             <!-- Additional Waste Types -->
-            <div class="grid md:grid-cols-3 lg:grid-cols-6 gap-4 mt-8 px-4">
+            <div class="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-4 mt-8 px-4">
                 <% if (waste.length >= 11) { %>
                     <% waste.slice(5, 11).forEach((item) => { %>
                         <div class="bg-white bg-opacity-10 rounded-lg p-4 text-center">
-                            <h5 class="text-white font-semibold mb-1"><%= item.wasteName %></h5>
-                            <div class="text-2xl font-bold text-white"><%= item.pricePerUnit %></div>
+                            <h5 class="text-sm text-white font-semibold mb-1"><%= item.wasteName %></h5>
+                            <div class="text-base font-bold text-white">ราคา <%= item.pricePerUnit %></div>
 
                             <% if (item.percentChange !== null) { %>
                                 <div class="text-xs
                                     <% if (item.changeDirection === 'up') { %> text-green-300
                                     <% } else if (item.changeDirection === 'down') { %> text-red-300
                                     <% } else { %> text-gray-300 <% } %>">
+                                    
+                                    <% if (item.changeDirection !== 'none') { %>
+                                        <%= item.changeDirection === 'up' ? 'เพิ่มขึ้น' : 'ลดลง' %>
+                                    <% } %>
                                     <%= item.changeDirection === 'up' ? '+' : '' %><%= item.priceChange.toFixed(2) %>
                                     (<%= item.percentChange.toFixed(2) %>%)
                                 </div>
                             <% } else { %>
-                                <div class="text-xs text-gray-300">-</div>
+                                <div class="text-xs text-gray-300">ไม่มีการเปลี่ยนแปลง</div>
                             <% } %>
                         </div>
                     <% }); %>
@@ -360,7 +364,7 @@
                                                 <%= item.createdAt ? new Date(item.createdAt).toLocaleDateString('th-TH') : 'ไม่ระบุ' %>
                                             </span>
                                         </div>
-                                        <h4 class="font-semibold text-gray-800 text-sm sm:text-base mb-1 break-words line-clamp-2 group-hover:text-green-600 transition-colors">
+                                        <h4 class="font-semibold text-gray-800 text-sm sm:text-base mb-1 break-words line-clamp-2">
                                             <%= item.newsTitle %>
                                         </h4>
                                         <p class="text-gray-500 text-xs sm:text-sm break-words line-clamp-2 leading-relaxed">
@@ -409,11 +413,20 @@
                 <div class="flex-1 overflow-hidden bg-gray-100">
                     <iframe id="pdfFrame" class="w-full h-full border-0"></iframe>
                 </div>
+                <div class="bg-gray-50 border-t p-4 flex justify-end gap-3 flex-shrink-0">
+                    <button type="button" onclick="closePDFModal()"
+                        class="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition">ปิด</button>
+                    <button type="button" id="pdfDownloadBtn"
+                        class="px-6 py-2 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition flex items-center gap-2">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>ดาวน์โหลด</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Image Viewer Modal -->
+    <!-- Image Viewer Modal — เหมือนเดิมทุกอย่าง -->
     <div id="imageViewerModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
         <div class="relative w-full max-w-4xl bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden max-h-[90vh]">
             <div class="flex items-center justify-between border-b bg-gray-50 p-4 flex-shrink-0">
@@ -848,14 +861,14 @@
                                 <h3 class="text-base md:text-lg font-semibold text-gray-800">
                                     แผนที่จุดรับซื้อขยะ
                                 </h3>
-                                <div class="flex space-x-2 w-full sm:w-auto">
+                                <!-- <div class="flex space-x-2 w-full sm:w-auto">
                                     <button id="map-view-btn" class="flex-1 sm:flex-initial bg-primary text-white px-3 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition">
                                         <i class="fas fa-map mr-1"></i>แผนที่
                                     </button>
                                     <button id="satellite-view-btn" class="flex-1 sm:flex-initial bg-gray-200 text-gray-700 px-3 py-1.5 md:py-2 rounded-lg text-xs md:text-sm hover:bg-gray-300 transition font-medium">
                                         <i class="fas fa-satellite mr-1"></i>ดาวเทียม
                                     </button>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                         <div id="map" class="h-64 sm:h-80 md:h-96 lg:h-[600px] z-10 relative"></div>
@@ -1489,7 +1502,6 @@
 </script>
 
 <script>
-    // ✅ ฟังก์ชันเพิ่มเติมสำหรับหน้า news — แยก PDF vs รูปภาพ
     function openFileViewerUser(url, title) {
         const isPDF = url.toLowerCase().includes('raw/upload');
         if (isPDF) {
@@ -1499,12 +1511,23 @@
         }
     }
 
-    // ✅ copy มาจากฌาปนกิจ ไม่ต้องเปลี่ยนอะไร
+    function openFileViewerUser(url, title) {
+        const isPDF = url.toLowerCase().includes('.pdf') || url.includes('/raw/');
+        if (isPDF) {
+            openPDFModal(url, title);
+        } else {
+            openImageModal(url, title);
+        }
+    }
+
     function openPDFModal(url, title) {
         const modal = document.getElementById('pdfViewerModal');
         const iframe = document.getElementById('pdfFrame');
-        const titleElement = document.getElementById('pdfTitle');
-        titleElement.textContent = title;
+        document.getElementById('pdfTitle').textContent = title;
+
+        // ✅ ผูกปุ่มดาวน์โหลดกับ url และ title
+        document.getElementById('pdfDownloadBtn').onclick = () => downloadPDF(url, title);
+
         const pdfViewerUrl = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(url)}`;
         iframe.src = pdfViewerUrl;
         modal.classList.remove('hidden');
@@ -1516,9 +1539,6 @@
         document.getElementById('pdfFrame').src = '';
         document.body.style.overflow = 'auto';
     }
-
-    let currentImageUrl = '';
-    let currentImageTitle = '';
 
     function openImageModal(url, title) {
         const modal = document.getElementById('imageViewerModal');
@@ -1537,6 +1557,9 @@
         currentImageUrl = '';
         currentImageTitle = '';
     }
+
+    let currentImageUrl = '';
+    let currentImageTitle = '';
 
     async function downloadCurrentImage() {
         if (!currentImageUrl) return;
@@ -1557,6 +1580,26 @@
             Swal.fire({ icon: 'success', title: 'สำเร็จ', text: 'ดาวน์โหลดเรียบร้อย', timer: 2000, showConfirmButton: false });
         } catch (error) {
             Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถดาวน์โหลดได้', 'error');
+        }
+    }
+
+    async function downloadPDF(url, filename) {
+        try {
+            Swal.fire({ title: 'กำลังดาวน์โหลด...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            const response = await fetch(url);
+            const blob = await response.blob();
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = filename + '.pdf';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(downloadUrl);
+            Swal.close();
+            Swal.fire({ icon: 'success', title: 'สำเร็จ', text: 'ดาวน์โหลดไฟล์เรียบร้อย', timer: 2000, showConfirmButton: false });
+        } catch (error) {
+            Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถดาวน์โหลดไฟล์ได้', 'error');
         }
     }
 
