@@ -101,7 +101,7 @@
     <script>
         const familyAddress = {
             houseNumber: '<%= family.address?.houseNumber || "" %>',
-            moo: '<%= family.village?.villageNumber || family.address?.moo || "" %>',
+            moo: '<%= family.village?.villageNumber != null ? family.village.villageNumber : (family.address?.moo || "") %>',
             villageName: '<%= family.village?.villageName || "" %>',
             subdistrict: '<%= family.address?.subdistrict || "" %>',
             district: '<%= family.address?.district || "" %>',
@@ -306,7 +306,7 @@
                                                 <p class="text-sm text-gray-600">
                                                     <% if (family.address?.houseNumber) { %>
                                                         บ้านเลขที่: <%= family.address.houseNumber %> 
-                                                        หมู่: <%= family.village?.villageNumber || "" %>
+                                                        หมู่: <%= family.village?.villageNumber != null ? family.village.villageNumber : (family.address?.moo || "") %>
                                                         ตำบล: <%= family.address.subdistrict || '-' %> 
                                                         อำเภอ: <%= family.address.district || '-' %><br>
                                                         จังหวัด: <%= family.address.province || '-' %> 
@@ -569,14 +569,8 @@
 
             // โหลดรายชื่อสมาชิก
             loadFamilyMembers();
-            
-            // ตั้งค่าที่อยู่เดิมเมื่อโหลดหน้า
-            fillExistingAddress();
 
-            // ตั้งค่าฟอร์แมตเลขบัตรประชาชน
-            setupIDCardFormatter();
-
-            setupFilePreview(); // เพิ่มบรรทัดนี้
+            setupFilePreview();
         });
 
         // ฟังก์ชัน Setup Drag & Drop และ Preview

@@ -375,7 +375,7 @@
                                         <label class="block text-sm font-medium text-gray-700 mb-2">
                                             ชื่อผู้ใช้ (Username) <span class="text-red-500">*</span>
                                         </label>
-                                        <input type="text" name="username" 
+                                        <input type="text" name="username" pattern="[a-zA-Z0-9ก-๙]{5,20}" minlength="5" maxlength="20"
                                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition" 
                                             required>
                                         <p class="text-xs text-gray-500 mt-1">ชื่อผู้ใช้ต้องมี 5-20 ตัวอักษร และไม่มีอักขระพิเศษ</p>
@@ -385,7 +385,7 @@
                                         <label class="block text-sm font-medium text-gray-700 mb-2">
                                             รหัสผ่าน (ตัวเลข 6-8 หลัก) <span class="text-red-500">*</span>
                                         </label>
-                                        <input type="password" name="password" id="password"
+                                        <input type="password" name="password" id="password" pattern="\d{6,8}" minlength="6" maxlength="8"
                                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 transition" 
                                             placeholder="กรอกรหัสผ่าน"
                                             required>
