@@ -62,8 +62,11 @@ const routeSchema = new mongoose.Schema({
     isAllComplete: {
         type: Boolean,
         default: false
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
     }
-    
 }, {
     timestamps: true
 });

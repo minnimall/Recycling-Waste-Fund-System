@@ -5728,7 +5728,7 @@ const saveRoute = async (req, res) => {
 // ดูรายการเส้นทางที่บันทึกไว้ทั้งหมด
 const getAllRoutes = async (req, res) => {
     try {
-        const routes = await Route.find()
+        const routes = await Route.find({ isDeleted: false })
         .sort({ actionDate: -1, createdAt: -1 })
         .populate('createdBy', 'firstname lastname')
         .populate('wasteSaleRequests'); // ดึงข้อมูล wasteSaleRequest มาด้วย
@@ -5817,7 +5817,7 @@ const deleteRoute = async (req, res) => {
         
         const route = await Route.findOneAndUpdate(
             { _id: routeId },
-            { status: 'archived' },
+            { isDeleted: true },
             { new: true }
         );
         
