@@ -2749,7 +2749,26 @@ const wasteSaleRequestReject = async (req, res) => {
             stage: 'SUBMITTED',
             actionBy: 'EMPLOYEE'
         });
-        logs.save()
+        await logs.save();
+        
+        if (wastesaleRequest && wastesaleRequest.family) {
+            const contentList = `
+                <div>
+                    <p><strong>หมวดหมู่:</strong> แจ้งขายขยะ</p>
+                    <p><strong>ข้อความ:</strong> คำขอขายขยะของคุณถูกยกเลิกโดยเจ้าหน้าที่</p>
+                    <hr class="my-2">
+                    <p><strong>ระบบ:</strong></p>
+                    <p>เจ้าหน้าที่ได้ทำการยกเลิกคำขอของคุณ</p>
+                </div>
+            `;
+            await Notification.create({
+                userId: wastesaleRequest.family._id, // เจ้าของคำร้อง
+                type: 'waste-request',
+                title: `ได้รับการตอบกลับจากพนักงานแล้ว`,
+                content: contentList,
+                isRead: false,
+            });
+        }
 
         res.redirect('/employee/wasteSaleRequest?success=' + encodeURIComponent('ปธิเสธคำข้อเรียบร้อย'));
     } catch {
@@ -2776,13 +2795,13 @@ const wasteSaleRequestApprovePost = async (req, res) => {
 
         // ================= ปฏิเสธ =================
         if (action === 'reject') {
-            await wasteSaleRequest.findByIdAndUpdate(id, {
+            const request = await wasteSaleRequest.findByIdAndUpdate(id, {
                 $set: {
                     status: 'rejected',
                     responseMessage: responseMessage || 'ปฏิเสธคำขอ',
                     rejectedAt: now
                 }
-            });
+            }).populate('family');
 
             await wasteSaleRequestLog.create({
                 wasteSaleRequest: id,
@@ -2790,6 +2809,25 @@ const wasteSaleRequestApprovePost = async (req, res) => {
                 approveText: responseMessage,
                 actionBy: 'EMPLOYEE'
             });
+            
+            if (request && request.family) {
+                const contentList = `
+                    <div>
+                        <p><strong>หมวดหมู่:</strong> แจ้งขายขยะ</p>
+                        <p><strong>ข้อความ:</strong> คำขอขายขยะของคุณถูกปฏิเสธ</p>
+                        <hr class="my-2">
+                        <p><strong>คำตอบจากพนักงาน:</strong></p>
+                        <p>${responseMessage || 'ปฏิเสธคำขอ'}</p>
+                    </div>
+                `;
+                await Notification.create({
+                    userId: request.family._id, // เจ้าของคำร้อง
+                    type: 'waste-request',
+                    title: `ได้รับการตอบกลับจากพนักงานแล้ว`,
+                    content: contentList,
+                    isRead: false,
+                });
+            }
 
             return res.redirect(
                 `/employee/wasteSaleRequest/${id}?success=` +
@@ -2799,7 +2837,7 @@ const wasteSaleRequestApprovePost = async (req, res) => {
 
         // ================= อนุมัติ =================
         if (action === 'approve') {
-            await wasteSaleRequest.findByIdAndUpdate(id, {
+            const request = await wasteSaleRequest.findByIdAndUpdate(id, {
                 $set: {
                     status: 'confirmed',
                     approvedAt: now,                // UTC
@@ -2807,7 +2845,7 @@ const wasteSaleRequestApprovePost = async (req, res) => {
                     responseMessage: responseMessage || 'ไม่ระบุ',
                     approvePickupDate: pickupDateUTC // ✅ UTC
                 }
-            });
+            }).populate('family');
 
             await wasteSaleRequestLog.create({
                 wasteSaleRequest: id,
@@ -2815,6 +2853,27 @@ const wasteSaleRequestApprovePost = async (req, res) => {
                 approveText: responseMessage,
                 actionBy: 'EMPLOYEE'
             });
+            
+            if (request && request.family) {
+                const contentList = `
+                    <div>
+                        <p><strong>หมวดหมู่:</strong> แจ้งขายขยะ</p>
+                        <p><strong>ข้อความ:</strong> คำขอขายขยะของคุณได้รับการอนุมัติ และยืนยันวันนัดรับแล้ว</p>
+                        <hr class="my-2">
+                        <p><strong>คำตอบจากพนักงาน:</strong></p>
+                        <p>${responseMessage || 'ไม่ระบุ'}</p>
+                        <p><strong>วันที่นัดรับ:</strong> ${pickupDateUTC.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                        <p><strong>หมายเหตุ:</strong> ${request.note || 'ไม่ระบุ'}</p>
+                    </div>
+                `;
+                await Notification.create({
+                    userId: request.family._id, // เจ้าของคำร้อง
+                    type: 'waste-request',
+                    title: `ได้รับการตอบกลับจากพนักงานแล้ว`,
+                    content: contentList,
+                    isRead: false,
+                });
+            }
 
             return res.redirect(
                 `/employee/wasteSaleRequest/${id}?success=` +
@@ -5834,8 +5893,7 @@ const updateRoutePoints = async (req, res) => {
         
         const route = await Route.findOneAndUpdate(
             { 
-                _id: routeId, 
-                createdBy: req.user._id
+                _id: routeId
             },
             { 
                 points: points,
@@ -5848,12 +5906,12 @@ const updateRoutePoints = async (req, res) => {
                 new: true, 
                 runValidators: true 
             }
-        ).populate('createdBy', 'firstname lastname');
+        );
         
         if (!route) {
             return res.status(404).json({
                 success: false,
-                message: 'ไม่พบเส้นทางที่ต้องการแก้ไข หรือคุณไม่มีสิทธิ์แก้ไข'
+                message: 'ไม่พบเส้นทางที่ต้องการแก้ไข'
             });
         }
         
@@ -5927,6 +5985,26 @@ const RoutePointsComplete = async (req, res) => {
                     approveText: `รับซื้อสำเร็จ (เส้นทาง: ${route.routeName})`,
                     actionBy: 'EMPLOYEE'
                 });
+                const request = await wasteSaleRequest.findById(point.requestId).populate('family');
+                if (request && request.family) {
+                    const contentList = `
+                        <div>
+                            <p><strong>หมวดหมู่:</strong> แจ้งขายขยะ</p>
+                            <p><strong>ข้อความ:</strong> การรับซื้อขยะสำเร็จ</p>
+                            <hr class="my-2">
+                            <p><strong>ระบบ:</strong></p>
+                            <p>เจ้าหน้าที่รับซื้อขยะตามคำขอของคุณเรียบร้อยแล้ว ขอบคุณที่ร่วมกิจกรรมคัดแยกขยะกับเรา</p>
+                        </div>
+                    `;
+                    await Notification.create({
+                        userId: request.family._id, // เจ้าของคำร้อง
+                        type: 'waste-request',
+                        title: `การรับซื้อขยะเสร็จสมบูรณ์`,
+                        content: contentList,
+                        isRead: false,
+                        category: 'waste-request'
+                    });
+                }
             } else if (status === 'failed') {
                 await wasteSaleRequest.findByIdAndUpdate(point.requestId, { status: 'failed' });
                 await wasteSaleRequestLog.create({
@@ -5936,6 +6014,26 @@ const RoutePointsComplete = async (req, res) => {
                     approveText: `เข้ารับไม่ได้ (เส้นทาง: ${route.routeName})`,
                     actionBy: 'EMPLOYEE'
                 });
+                const request = await wasteSaleRequest.findById(point.requestId).populate('family');
+                if (request && request.family) {
+                    const contentList = `
+                        <div>
+                            <p><strong>หมวดหมู่:</strong> แจ้งขายขยะ</p>
+                            <p><strong>ข้อความ:</strong> การรับซื้อขยะไม่สำเร็จ</p>
+                            <hr class="my-2">
+                            <p><strong>ระบบ:</strong></p>
+                            <p>เจ้าหน้าที่เข้ารับซื้อขยะตามคำขอของคุณไม่สำเร็จเนื่องจาก ${reason || 'ไม่ระบุเหตุผล'} ขอบคุณที่ร่วมกิจกรรมคัดแยกขยะกับเรา</p>
+                        </div>
+                    `;
+                    await Notification.create({
+                        userId: request.family._id, // เจ้าของคำร้อง
+                        type: 'waste-request',
+                        title: `การรับซื้อขยะไม่สำเร็จ`,
+                        content: contentList,
+                        isRead: false,
+                        category: 'waste-request'
+                    });
+                }
             } else if (status === 'in-progress') {
                 await wasteSaleRequest.findByIdAndUpdate(point.requestId, { status: 'in-progress' });
             }
@@ -5994,8 +6092,30 @@ const RoutePointsCompleteAll = async (req, res) => {
                 approveText: `รับซื้อสำเร็จ (เส้นทาง: ${route.routeName})`,
                 actionBy: 'EMPLOYEE'
             }));
-
             await wasteSaleRequestLog.insertMany(logs);
+            
+            // Loop for notifications
+            for (const id of requestIds) {
+                const req = await wasteSaleRequest.findById(id).populate('family');
+                if (req && req.family) {
+                    const contentList = `
+                        <div>
+                            <p><strong>หมวดหมู่:</strong> แจ้งขายขยะ</p>
+                            <p><strong>ข้อความ:</strong> การรับซื้อขยะสำเร็จ</p>
+                            <hr class="my-2">
+                            <p><strong>ระบบ:</strong></p>
+                            <p>เจ้าหน้าที่รับซื้อขยะตามคำขอของคุณเรียบร้อยแล้วรวมกับจุดอื่นๆ ในเส้นทาง ขอบคุณที่ร่วมกิจกรรมคัดแยกขยะกับเรา</p>
+                        </div>
+                    `;
+                    await Notification.create({
+                        userId: req.family._id,
+                        type: 'waste-request',
+                        title: `การรับซื้อขยะเสร็จสมบูรณ์`,
+                        content: contentList,
+                        isRead: false,
+                    });
+                }
+            }
         }
 
         res.json({ 

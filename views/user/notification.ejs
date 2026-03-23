@@ -396,6 +396,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     n.type === 'purchase' ? 'bg-green-600' :
                     n.type === 'round' ? 'bg-green-400' :
                     n.type === 'price_update' ? 'bg-yellow-600' :
+                    n.type === 'waste-request' ? 'bg-green-600' :
                     'bg-gray-400'
                 } rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
                     <i class="${
@@ -406,6 +407,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         n.type === 'purchase' ? 'fas fa-money-bill' :
                         n.type === 'round' ? 'fas fa-truck' :
                         n.type === 'price_update' ? 'fas fa-tag' :
+                        n.type === 'waste-request' ? 'fas fa-money-bill' :
                         'fas fa-bell'
                     } text-white text-xl"></i>
                 </div>
