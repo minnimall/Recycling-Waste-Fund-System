@@ -527,7 +527,7 @@
       const routesData = <%- JSON.stringify(routes.map(r => ({
           id: r._id,
           title: r.routeName,
-          date: r.createdAt,
+          date: r.actionDate || r.createdAt,
           isAllComplete: r.isAllComplete,
           status: r.status,
           totalDistance: r.totalDistance,

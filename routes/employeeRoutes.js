@@ -99,6 +99,10 @@ router.patch('/routeList/:routeId/complete-all', employeeController.RoutePointsC
 // ปฏิทินตารางการดำเนินการ
 router.get('/routeCalendar', employeeController.routeCalendarIndex);
 
+// หน้าทดสอบสำหรับช่าง/พนักงาน (Mobile View)
+router.get('/test-requests', employeeController.testRequestsIndex);
+router.post('/test-requests/update/:id', employeeController.testRequestsUpdate);
+
 
 
 router.get('/round', employeeController.roundIndex);

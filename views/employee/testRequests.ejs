@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title><%= mytitle || 'ทดสอบสถานะคำขอ (Mobile)' %></title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body { font-family: 'Kanit', sans-serif; background-color: #f8fafc; }
+        .smooth { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .glass-header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(16, 185, 129, 0.1); }
+        /* Custom Select Arrow */
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+        }
+        /* Hide scrollbar for clean look */
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
+    </style>
+</head>
+<body class="text-gray-800 pb-20">
+
+    <!-- Minimal Header -->
+    <div class="glass-header sticky top-0 z-50 px-5 py-4 flex items-center justify-between shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                <ion-icon name="flask" class="text-xl"></ion-icon>
+            </div>
+            <div>
+                <h1 class="text-base font-semibold text-gray-900 leading-tight">Test Console</h1>
+                <p class="text-[10px] text-emerald-600 font-medium tracking-wide uppercase">Waste Requests Simulator</p>
+            </div>
+        </div>
+        <a href="/employee/map" class="w-10 h-10 rounded-2xl bg-white border border-gray-100 shadow-sm text-gray-400 flex items-center justify-center hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-100 smooth focus:ring-4 focus:ring-emerald-50">
+            <ion-icon name="map-outline" class="text-xl"></ion-icon>
+        </a>
+    </div>
+
+    <!-- Search Section -->
+    <div class="px-5 pt-6 pb-2">
+        <div class="relative group">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-emerald-400 opacity-70 group-focus-within:opacity-100 smooth">
+                <ion-icon name="search" class="text-lg"></ion-icon>
+            </div>
+            <input type="text" id="searchInput" onkeyup="filterRequests()" 
+                class="bg-white border-none text-gray-800 text-[13px] rounded-2xl focus:ring-2 focus:ring-emerald-400 focus:outline-none block w-full pl-12 pr-4 py-3.5 smooth shadow-[0_2px_10px_-4px_rgba(16,185,129,0.15)]"
+                placeholder="ค้นหาชื่อครอบครัว หรือรหัส ID...">
+        </div>
+    </div>
+
+    <!-- Request List -->
+    <div class="px-5 py-4 space-y-4" id="requestsContainer">
+        <% if (requests && requests.length > 0) { %>
+            <% requests.forEach(request => { %>
+                <div class="request-card bg-white rounded-3xl p-5 shadow-[0_4px_20px_-8px_rgba(16,185,129,0.1)] border border-gray-50 overflow-hidden relative smooth hover:shadow-[0_8px_30px_-12px_rgba(16,185,129,0.2)]"
+                     data-request-id="<%= request._id.toString() %>"
+                     data-family-name="<%= request.family ? request.family.familyName : 'ไม่ระบุชื่อครอบครัว' %>">
+                    
+                    <!-- Subtle Header Info -->
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex-1 pr-4">
+                            <h3 class="font-medium text-gray-900 text-[15px] truncate">
+                                <%= request.family ? request.family.familyName : 'ไม่ระบุชื่อครอบครัว' %>
+                            </h3>
+                            <div class="flex items-center gap-2 mt-1.5 opacity-60">
+                                <span class="text-[10px] font-medium tracking-wider uppercase flex items-center gap-1">
+                                    <ion-icon name="finger-print"></ion-icon> <%= request._id.toString().substring(18, 24) %>
+                                </span>
+                                <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                                <span class="text-[10px] flex items-center gap-1">
+                                    <ion-icon name="time-outline"></ion-icon>
+                                    <%= new Date(request.createdAt).toLocaleDateString('th-TH', {day:'numeric', month:'short'}) %>
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- Status Dot -->
+                        <% 
+                            let dotStyle = 'bg-gray-200 border-gray-300';
+                            if(request.status === 'pending') dotStyle = 'bg-amber-100 border-amber-400';
+                            if(request.status === 'confirmed') dotStyle = 'bg-sky-100 border-sky-400';
+                            if(request.status === 'in-progress') dotStyle = 'bg-purple-100 border-purple-400';
+                            if(request.status === 'completed') dotStyle = 'bg-emerald-100 border-emerald-400';
+                            if(request.status === 'cancelled') dotStyle = 'bg-red-100 border-red-400';
+                        %>
+                        <div class="w-3.5 h-3.5 rounded-full border-[2.5px] shadow-sm <%= dotStyle %> mt-1 shrink-0 bg-opacity-50"></div>
+                    </div>
+
+                    <!-- Edit Form -->
+                    <form onsubmit="updateRequest(event, '<%= request._id %>')" class="space-y-4">
+                        <!-- Fields Container -->
+                        <div class="bg-emerald-50/30 p-4 rounded-2xl border border-emerald-100/50 space-y-3.5">
+                            
+                            <!-- Dropdown -->
+                            <div>
+                                <label class="block text-[10px] font-medium text-emerald-600/80 mb-1 ml-1 uppercase tracking-wider">สถานะการดำเนินการ</label>
+                                <select id="status-<%= request._id %>" 
+                                    class="w-full bg-white border border-emerald-100/80 text-gray-700 text-[13px] rounded-xl focus:ring-2 focus:ring-emerald-300/50 focus:border-emerald-400 block px-3.5 py-3 outline-none smooth font-medium shadow-sm">
+                                    <option value="pending" <%= request.status === 'pending' ? 'selected' : '' %>>รอตรวจสอบ (pending)</option>
+                                    <option value="confirmed" <%= request.status === 'confirmed' ? 'selected' : '' %>>รอจัดเส้นทาง (confirmed)</option>
+                                    <option value="in-progress" <%= request.status === 'in-progress' ? 'selected' : '' %>>กำลังดำเนินการ (in-progress)</option>
+                                    <option value="completed" <%= request.status === 'completed' ? 'selected' : '' %>>เสร็จสิ้น (completed)</option>
+                                    <option value="cancelled" <%= request.status === 'cancelled' ? 'selected' : '' %>>ยกเลิก (cancelled)</option>
+                                </select>
+                            </div>
+
+                            <!-- Date Picker -->
+                            <div>
+                                <label class="block text-[10px] font-medium text-emerald-600/80 mb-1 ml-1 uppercase tracking-wider">วันที่นัดรับ (Pickup Date)</label>
+                                <div class="relative">
+                                    <input type="date" id="date-<%= request._id %>"
+                                        value="<%= request.approvePickupDate ? new Date(request.approvePickupDate).toISOString().split('T')[0] : '' %>"
+                                        class="w-full bg-white border border-emerald-100/80 text-gray-700 text-[13px] rounded-xl focus:ring-2 focus:ring-emerald-300/50 focus:border-emerald-400 block px-3.5 py-3 outline-none smooth shadow-sm font-medium">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex items-center justify-between pt-1">
+                            <!-- Toggle Delete -->
+                            <label class="flex items-center gap-2.5 cursor-pointer group px-2 py-1">
+                                <div class="relative w-9 h-5 rounded-full overflow-hidden smooth">
+                                    <input type="checkbox" id="delete-<%= request._id %>" <%= request.isDeleted ? 'checked' : '' %>
+                                        class="peer sr-only">
+                                    <div class="absolute inset-0 bg-gray-200 peer-checked:bg-red-500 smooth shadow-inner"></div>
+                                    <div class="absolute left-0.5 top-0.5 w-4 h-4 rounded-full bg-white shadow-sm smooth peer-checked:translate-x-4 flex items-center justify-center"></div>
+                                </div>
+                                <span class="text-[11px] font-medium text-gray-400 group-hover:text-red-500 smooth select-none mt-0.5">ลบข้อมูล</span>
+                            </label>
+
+                            <!-- Save Button -->
+                            <button type="submit" 
+                                class="flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 focus:ring-4 focus:ring-emerald-500/20 text-white font-medium rounded-xl text-[13px] px-5 py-2.5 smooth shadow-[0_4px_10px_-2px_rgba(16,185,129,0.3)] hover:shadow-[0_6px_15px_-4px_rgba(16,185,129,0.4)]">
+                                <ion-icon name="checkmark-circle" class="text-[16px]"></ion-icon>
+                                <span>บันทึก</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            <% }) %>
+        <% } else { %>
+            <div class="text-center py-16 px-4">
+                <div class="w-20 h-20 bg-emerald-50 rounded-[2rem] flex items-center justify-center mx-auto mb-4 border border-emerald-100/50">
+                    <ion-icon name="planet-outline" class="text-3xl text-emerald-400"></ion-icon>
+                </div>
+                <h3 class="text-gray-700 font-semibold mb-1">ยังไม่มีคำขอขายขยะ</h3>
+                <p class="text-gray-400 text-xs px-6">ไม่มีข้อมูลให้ทดสอบ คริสตัลเคลียร์สุดๆ</p>
+            </div>
+        <% } %>
+    </div>
+
+    <!-- Script container -->
+    <script>
+        function filterRequests() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const cards = document.querySelectorAll('.request-card');
+
+            cards.forEach(card => {
+                const familyName = card.getAttribute('data-family-name').toLowerCase();
+                const requestId = card.getAttribute('data-request-id').toLowerCase();
+                if (familyName.includes(filter) || requestId.includes(filter)) {
+                    card.style.display = "";
+                    card.style.opacity = "1";
+                    card.style.transform = "scale(1)";
+                } else {
+                    card.style.display = "none";
+                    card.style.opacity = "0";
+                    card.style.transform = "scale(0.95)";
+                }
+            });
+        }
+
+        async function updateRequest(event, reqId) {
+            event.preventDefault();
+            
+            const btn = event.target.querySelector('button[type="submit"]');
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = '<ion-icon name="sync-outline" class="animate-spin text-[16px]"></ion-icon> <span>บันทึก...</span>';
+            btn.disabled = true;
+            btn.classList.add('opacity-80', 'cursor-not-allowed');
+
+            const status = document.getElementById(`status-${reqId}`).value;
+            const approvePickupDate = document.getElementById(`date-${reqId}`).value || null;
+            const isDeleted = document.getElementById(`delete-${reqId}`).checked;
+
+            try {
+                const response = await fetch(`/employee/test-requests/update/${reqId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status, approvePickupDate, isDeleted })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'บันทึกสำเร็จ!',
+                        text: 'อัปเดตสถานะจำลองเรียบร้อยแล้ว',
+                        timer: 1500,
+                        showConfirmButton: false,
+                        customClass: {
+                            popup: 'rounded-3xl',
+                            title: 'font-kanit',
+                            content: 'font-kanit font-light'
+                        }
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ข้อผิดพลาด',
+                    text: error.message || 'ไม่สามารถอัปเดตได้',
+                    customClass: { popup: 'rounded-3xl', title: 'font-kanit' }
+                });
+                btn.innerHTML = originalIcon;
+                btn.disabled = false;
+                btn.classList.remove('opacity-80', 'cursor-not-allowed');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -205,7 +205,7 @@
                                 <% routes.forEach(route => { %>
                                     <div class="route-card group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col h-full relative"
                                         data-name="<%= route.routeName.toLowerCase() %>"
-                                        data-date="<%= new Date(route.createdAt).getTime() %>"
+                                        data-date="<%= new Date(route.actionDate || route.createdAt).getTime() %>"
                                         data-distance="<%= route.totalDistance %>"
                                         data-status="<%= route.isAllComplete ? 'completed' : 'active' %>">
                                         
@@ -219,8 +219,8 @@
                                                     <ion-icon name="<%= route.isAllComplete ? 'checkmark-circle' : 'map' %>" class="text-2xl"></ion-icon>
                                                 </div>
                                                 <!-- Date Badge -->
-                                                <span class="px-3 py-1 bg-gray-50 text-gray-500 rounded-full text-xs font-medium border border-gray-100">
-                                                    <%= new Date(route.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }) %>
+                                                <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold border border-blue-100">
+                                                    <%= new Date(route.actionDate || route.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' }) %>
                                                 </span>
                                             </div>
                                             

@@ -2772,9 +2772,7 @@ const wasteSaleRequestApprovePost = async (req, res) => {
         const now = new Date(); // UTC now
 
         // 🔥 แปลง pickupDate (TH) → UTC
-        const pickupDateUTC = new Date(
-            new Date(pickupDate).getTime() - (7 * 60 * 60 * 1000)
-        );
+        const pickupDateUTC = new Date(pickupDate); // รูปแบบ 'YYYY-MM-DD' จะเป็น UTC เที่ยงคืนโดยอัตโนมัติ
 
         // ================= ปฏิเสธ =================
         if (action === 'reject') {
@@ -5589,26 +5587,34 @@ const rejectRequest = async (req, res) => {
 // หน้าแผนที่ - ดึงข้อมูล wasteSaleRequest ที่ status = 'pending'
 const mapIndex = async (req, res) => {
     try {
-        // ดึงข้อมูล wasteSaleRequest ที่ status = 'pending' และยังไม่ถูกลบ
-        const pendingRequests = await wasteSaleRequest.find({ 
-            status: 'confirmed',
+        // 1. หา Route ทั้งหมดที่ active เพื่อดูว่า request ไหนถูกนำไปจัดเส้นทางแล้ว
+        const activeRoutes = await Route.find({ status: { $ne: 'archived' } });
+        const routedRequestIds = activeRoutes.reduce((acc, route) => {
+            return acc.concat(route.wasteSaleRequests || []);
+        }, []);
+
+        // 2. ดึงข้อมูล wasteSaleRequest ที่เป็น 'confirmed' หรือ 'in-progress' (ที่ถูกปรับโดย Cron)
+        // และยังไม่ได้ถูกจัดลงใน Route (ID ไม่ได้อยู่ใน routedRequestIds)
+        const confirmedRequests = await wasteSaleRequest.find({ 
+            status: { $in: ['confirmed', 'in-progress'] },
+            _id: { $nin: routedRequestIds },
             isDeleted: false
         })
         .populate('waste') // ดึงข้อมูลขยะมาด้วย
         .populate('family') // ดึงข้อมูลครอบครัวมาด้วย
-        .sort({ createdAt: -1 }); // เรียงจากใหม่สุดไปเก่าสุด
+        .sort({ approvePickupDate: 1, createdAt: 1 }); // เรียงตามวันนัดรับจากวันนี้ไปในอนาคต
 
         res.render('employee/map', {
             mytitle: 'พนักงาน | แผนที่จุดเข้ารับซื้อ',
             currentPage: 'map',
-            pendingRequests: pendingRequests // ส่งข้อมูลไปยัง view
+            confirmedRequests: confirmedRequests // ส่งข้อมูลไปยัง view
         });
     } catch (error) {
         console.error('Error loading map:', error);
         res.render('employee/map', {
             mytitle: 'พนักงาน | แผนที่จุดเข้ารับซื้อ',
             currentPage: 'map',
-            pendingRequests: []
+            confirmedRequests: []
         });
     }
 };
@@ -5616,19 +5622,22 @@ const mapIndex = async (req, res) => {
 // บันทึกเส้นทาง
 const saveRoute = async (req, res) => {
     try {
-        const { routeName, points, totalDistance, totalDuration, note, requestIds } = req.body;
+        const { routeName, actionDate, points, totalDistance, totalDuration, note, requestIds } = req.body;
         
         // ตรวจสอบข้อมูลพื้นฐาน
-        if (!routeName || !points || points.length < 2) {
+        if (!routeName || !actionDate || !points || points.length < 2) {
             return res.status(400).json({
                 success: false,
                 message: 'กรุณากรอกข้อมูลให้ครบถ้วน และต้องมีอย่างน้อย 2 จุด'
             });
         }
         
+        const plannedDate = new Date(actionDate);
+        
         // สร้างเส้นทางใหม่
         const newRoute = new Route({
             routeName: routeName,
+            actionDate: plannedDate,
             points: points,
             totalDistance: totalDistance,
             totalDuration: totalDuration,
@@ -5640,14 +5649,6 @@ const saveRoute = async (req, res) => {
         
         // บันทึกลงฐานข้อมูล
         await newRoute.save();
-
-        // อัปเดตสถานะของ wasteSaleRequest ที่ถูกเลือกเป็น 'in-progress'
-        if (requestIds && requestIds.length > 0) {
-            await wasteSaleRequest.updateMany(
-                { _id: { $in: requestIds } },
-                { status: 'in-progress' }
-            );
-        }
         
         res.status(201).json({
             success: true,
@@ -5669,7 +5670,7 @@ const saveRoute = async (req, res) => {
 const getAllRoutes = async (req, res) => {
     try {
         const routes = await Route.find()
-        .sort({ createdAt: -1 })
+        .sort({ actionDate: -1, createdAt: -1 })
         .populate('createdBy', 'firstname lastname')
         .populate('wasteSaleRequests'); // ดึงข้อมูล wasteSaleRequest มาด้วย
         
@@ -5689,7 +5690,7 @@ const getAllRoutes = async (req, res) => {
 const routeCalendarIndex = async (req, res) => {
     try {
         const routes = await Route.find()
-        .sort({ createdAt: -1 })
+        .sort({ actionDate: 1, createdAt: -1 })
         .populate('createdBy', 'firstname lastname')
         .populate({
             path: 'points.requestId',
@@ -6351,6 +6352,45 @@ const roundDelete = (req, res) => {
         });
 };
 
+// ==================== สำหรับหน้าทดสอบการตั้งสถานะ (Mobile) ====================
+const testRequestsIndex = async (req, res) => {
+    try {
+        const requests = await wasteSaleRequest.find()
+            .populate('family')
+            .sort({ createdAt: -1 });
+
+        res.render('employee/testRequests', {
+            mytitle: 'ทดสอบสถานะคำขอ (Mobile)',
+            currentPage: 'testRequests',
+            requests
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error loading test page');
+    }
+};
+
+const testRequestsUpdate = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status, approvePickupDate, isDeleted } = req.body;
+        
+        const updateData = {};
+        if (status) updateData.status = status;
+        if (approvePickupDate !== undefined) {
+            updateData.approvePickupDate = approvePickupDate ? new Date(`${approvePickupDate}T00:00:00.000Z`) : null;
+        }
+        if (isDeleted !== undefined) {
+            updateData.isDeleted = isDeleted === 'true' || isDeleted === true;
+        }
+
+        await wasteSaleRequest.findByIdAndUpdate(id, updateData);
+        res.json({ success: true, message: 'อัปเดตสถานะสำเร็จ' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาด' });
+    }
+};
 
 module.exports = {
     //หน้าแดชบอร์ด
@@ -6380,5 +6420,7 @@ module.exports = {
     //หน้าจัดการจุดรับซื้อ
     wastePointIndex,wastePointPost,wastePointCreate,wastePointToggle,wastePointEdit,wastePointUpdate,wastePointDelete,
     //หน้าจัดการรอบการรับซื้อ
-    roundIndex,roundPost,roundEdit,roundDelete
+    roundIndex,roundPost,roundEdit,roundDelete,
+    //หน้าจำลองเปลี่ยนสถานะ
+    testRequestsIndex,testRequestsUpdate
 }

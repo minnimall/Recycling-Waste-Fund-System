@@ -55,6 +55,10 @@ const routeSchema = new mongoose.Schema({
         enum: ['active', 'archived'],
         default: 'active'
     },
+    actionDate: {
+        type: Date,
+        required: true
+    },
     isAllComplete: {
         type: Boolean,
         default: false
