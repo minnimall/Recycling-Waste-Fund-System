@@ -23,8 +23,10 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
     <style>
       .content {
-        margin-left: 0;
+        flex: 1;
+        min-width: 0;
         padding: 20px;
+        background-color: #f9fafb;
       }
 
       /* FullCalendar Custom Styles */
@@ -32,6 +34,7 @@
         background: white;
         border-radius: 12px;
         overflow: hidden;
+        width: 100%;
       }
       .fc .fc-toolbar-title {
         font-size: 1.25rem !important;
@@ -98,6 +101,20 @@
       .fc .fc-daygrid-more-link {
         color: #3b82f6;
         font-weight: 600;
+      }
+
+      /* Force full width for the grid */
+      .fc-scrollgrid, 
+      .fc-scrollgrid table,
+      .fc .fc-daygrid-body,
+      .fc .fc-scrollgrid-sync-table {
+        width: 100% !important;
+      }
+      .fc .fc-view-harness {
+        width: 100% !important;
+      }
+      .fc .fc-daygrid {
+        width: 100% !important;
       }
 
       /* Legend */
@@ -187,10 +204,12 @@
   </head>
 
   <body>
-    <%- include('../partials/employeePartials/empHeader.ejs') %> <%-
-    include('../partials/employeePartials/empSidebar.ejs') %>
-
-    <main class="content bg-gray-50 min-screen">
+    <%- include('../partials/employeePartials/empHeader.ejs') %>
+    
+    <div class="flex w-full">
+      <%- include('../partials/employeePartials/empSidebar.ejs') %>
+      
+      <main class="content bg-gray-50 min-screen">
       <!-- Page Header -->
       <div class="mx-4 mb-6 bg-white rounded-lg shadow p-4">
         <div
@@ -319,10 +338,11 @@
       </div>
 
       <!-- Calendar -->
-      <div class="mx-4 mb-6 bg-white rounded-xl shadow p-4">
-        <div id="calendar"></div>
+      <div class="mx-4 mb-6 bg-white rounded-xl shadow p-4" style="overflow: hidden;">
+        <div id="calendar" style="width: 100%;"></div>
       </div>
     </main>
+  </div>
 
     <!-- Custom Route Detail Modal -->
     <div
@@ -574,6 +594,7 @@
                   week: 'สัปดาห์'
               },
               height: 'auto',
+              expandRows: true,
               events: events,
               eventClick: function(info) {
                   showRouteDetail(info.event.extendedProps);
@@ -586,6 +607,12 @@
           });
 
           calendar.render();
+          
+          // Use ResizeObserver to catch any layout changes (sidebar toggle, font load, etc)
+          const resizeObserver = new ResizeObserver(() => {
+              calendar.updateSize();
+          });
+          resizeObserver.observe(calendarEl);
       });
 
       const reasonMap = {

@@ -56,7 +56,7 @@ async function seed() {
             {
                 waste: [wasteId1, wasteId2],
                 weight: 20,
-                date: getUTCDate(1), // tomorrow
+                date: getUTCDate(0), // today
                 location: "บ้านเลขที่ 124",
                 locationMoreDetail: "ซอย 2",
                 latitude: 15.9340,
@@ -67,7 +67,7 @@ async function seed() {
             {
                 waste: [wasteId1],
                 weight: 5,
-                date: getUTCDate(2), // 2 days later
+                date: getUTCDate(0), // today
                 location: "บ้านเลขที่ 125",
                 locationMoreDetail: "ซอย 3",
                 latitude: 15.9294,
@@ -78,11 +78,11 @@ async function seed() {
             {
                 waste: [wasteId2],
                 weight: 15,
-                date: getUTCDate(3), // 3 days later
+                date: getUTCDate(1), // tomorrow
                 location: "บ้านเลขที่ 126",
                 locationMoreDetail: "ซอย 4",
-                latitude: 15.9490,
-                longitude: 102.8555,
+                latitude: 15.9446,
+                longitude: 102.8678,
                 family: familyId2,
                 status: 'pending'
             }

@@ -923,7 +923,7 @@
                             
                             <div class="grid gap-4 md:gap-6">
                                 <div class="container mx-auto px-0">
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="posts-container">
+                            <div class="grid grid-cols-1 lg:grid-cols-1 gap-6" id="posts-container">
                                 <% posts.forEach(post => { %>
                                 <article class="idea-post bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col h-full group"
                                     data-category="<%= post.category %>" data-post-id="<%= post._id %>">
@@ -1047,11 +1047,11 @@
                                                     <% post.comments.forEach(comment => { %>
                                                         <div class="flex gap-3">
                                                             <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 text-gray-500 text-xs">
-                                                                <%= comment.author.familyName ? comment.author.familyName.charAt(0).toUpperCase() : 'U' %>
+                                                                <%= (comment.author && comment.author.familyName) ? comment.author.familyName.charAt(0).toUpperCase() : 'U' %>
                                                             </div>
                                                             <div class="flex-1 bg-white p-3 rounded-lg rounded-tl-none border border-gray-100 shadow-sm">
                                                                 <div class="flex justify-between items-center mb-1">
-                                                                    <span class="font-bold text-xs text-gray-800"><%= comment.author.familyName || 'ไม่ระบุ' %></span>
+                                                                    <span class="font-bold text-xs text-gray-800"><%= (comment.author && comment.author.familyName) ? comment.author.familyName : 'ไม่ระบุ' %></span>
                                                                     <span class="text-[10px] text-gray-400 post-time" data-time="<%= comment.createdAt.toISOString() %>"></span>
                                                                 </div>
                                                                 <p class="text-sm text-gray-600"><%= comment.content %></p>
