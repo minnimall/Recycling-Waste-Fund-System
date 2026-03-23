@@ -2123,13 +2123,13 @@
                                     directionsRenderers.push(renderer);
                                     resolve();
                                 } else {
-                                    console.error(`❌ Directions API Error (segment ${i + 1}): ${status}`);
+                                    console.error(`Directions API Error (segment ${i + 1}): ${status}`);
                                     reject(new Error(`ไม่สามารถวาดเส้นทาง: ${status}`));
                                 }
                             });
                         });
                     } catch (segmentError) {
-                        console.error(`❌ Error in segment ${i + 1}:`, segmentError);
+                        console.error(`Error in segment ${i + 1}:`, segmentError);
                         throw segmentError;
                     }
                 }
@@ -2213,7 +2213,7 @@
                     totalDuration: totalDuration
                 };
                 
-                console.log('✅ สรุป:', {
+                console.log('สรุป:', {
                     totalDistance: totalDistance.toFixed(2) + ' km',
                     totalDuration: Math.round(totalDuration) + ' นาที',
                     segments: routeSegments.length
@@ -2231,7 +2231,7 @@
                                     <div><strong>เวลารวม:</strong> ${Math.round(totalDuration)} นาที</div>
                                 </div>
                                 <div class="text-sm bg-blue-50 p-3 rounded-lg border border-blue-200">
-                                    <div class="font-semibold mb-2 text-blue-800">💡 คำอธิบายสีเส้นทาง:</div>
+                                    <div class="font-semibold mb-2 text-blue-800">คำอธิบายสีเส้นทาง:</div>
                                     <div class="space-y-1 text-xs">
                                         <div class="flex items-center gap-2">
                                             <div style="width: 30px; height: 4px; background: #10B981; border-radius: 2px;"></div>
@@ -2255,7 +2255,7 @@
                 }, 1000);
                 
             } catch (error) {
-                console.error('❌ Error in displayOptimizedRoute:', error);
+                console.error('Error in displayOptimizedRoute:', error);
                 console.error('Error stack:', error.stack);
                 throw error;
             }

@@ -490,6 +490,17 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="mt-4">
+                            <button type="button" onclick="viewAccountList()" 
+                                id="viewAccountListBtn"
+                                class="w-full px-4 py-2 bg-white bg-opacity-20 border border-white border-opacity-50 text-white rounded-lg hover:bg-opacity-30 transition-colors flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                                ดูรายการบัญชีที่จะหักทั้งหมด
+                            </button>
+                        </div>
                     </div>
                 </div>
             `;
@@ -818,38 +829,180 @@
             }
         });
 
-        // ฟังก์ชันคำนวณใหม่เมื่อปรับยอดเงิน (เพิ่มใหม่)
+        // เพิ่มตัวแปร global
+        let fullAccountsPreview = [];
+
+        // แก้ recalculateFuneral() ให้เก็บข้อมูลบัญชีทั้งหมดไว้
         function recalculateFuneral() {
             const newAmount = parseFloat(document.getElementById('approvedAmount').value) || 2000;
             const totalAccounts = parseInt(document.getElementById('displayTotalAccounts').textContent);
             const perAccount = newAmount / totalAccounts;
             
-            // ✅ คำนวณใหม่จากข้อมูล accountsPreview
+            // คำนวณจาก accountsPreview
             if (currentDetail && currentDetail.accountsPreview) {
                 const sufficientCount = currentDetail.accountsPreview.filter(
                     acc => acc.balanceBefore >= perAccount
                 ).length;
                 
-                const insufficientCount = currentDetail.accountsPreview.filter(
-                    acc => acc.balanceBefore < perAccount
-                ).length;
-                
-                // อัปเดตการแสดงผล
                 document.getElementById('displaySufficient').textContent = sufficientCount;
-                
-                // ถ้ามีช่องแสดงบัญชีเงินไม่พอ ก็อัปเดตด้วย
-                const insufficientElement = document.getElementById('displayInsufficient');
-                if (insufficientElement) {
-                    insufficientElement.textContent = insufficientCount;
-                }
             }
             
-            // อัพเดทการแสดงผลอื่นๆ
             document.getElementById('displayTotalAmount').textContent = newAmount.toLocaleString() + ' บาท';
             document.getElementById('displayPerAccount').textContent = perAccount.toFixed(2) + ' บาท';
             
-            console.log(`📊 คำนวณใหม่: ${newAmount} บาท ÷ ${totalAccounts} บัญชี = ${perAccount.toFixed(2)} บาท/บัญชี`);
+            // อัปเดตปุ่มดูรายการ
+            const btn = document.getElementById('viewAccountListBtn');
+            if (btn) {
+                btn.textContent = `ดูรายการบัญชีที่จะหักทั้งหมด (${totalAccounts} บัญชี)`;
+            }
         }
+
+        // เพิ่มฟังก์ชันดูรายการบัญชี — ดึงข้อมูลใหม่จาก API ตามยอดเงินปัจจุบัน
+        async function viewAccountList() {
+            const newAmount = parseFloat(document.getElementById('approvedAmount').value) || 2000;
+            
+            try {
+                Swal.fire({
+                    title: 'กำลังโหลดรายการบัญชี...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
+
+                // เรียก API เดียวกับหน้า funeralAid
+                const response = await fetch('/employee/funeral-assistance/calculate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount: newAmount })
+                });
+
+                const result = await response.json();
+                Swal.close();
+
+                if (result.success) {
+                    showAccountListModal(result.data);
+                } else {
+                    Swal.fire('เกิดข้อผิดพลาด', result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถโหลดรายการบัญชีได้', 'error');
+            }
+        }
+
+        function showAccountListModal(accountDetails) {
+            const { sufficientAccounts, insufficientAccounts } = accountDetails;
+            
+            let tableHTML = `
+                <div class="text-left max-h-96 overflow-y-auto">
+                    <div class="mb-4">
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div class="bg-green-50 p-3 rounded-lg">
+                                <p class="text-sm text-gray-600">บัญชีที่หักได้</p>
+                                <p class="text-2xl font-bold text-green-600">${sufficientAccounts.length}</p>
+                            </div>
+                            <div class="bg-red-50 p-3 rounded-lg">
+                                <p class="text-sm text-gray-600">บัญชีเงินไม่พอ</p>
+                                <p class="text-2xl font-bold text-red-600">${insufficientAccounts.length}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${sufficientAccounts.length > 0 ? `
+                        <div class="mb-6">
+                            <h3 class="font-semibold text-green-700 mb-2 flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                บัญชีที่หักได้ปกติ (${sufficientAccounts.length} บัญชี)
+                            </h3>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full text-sm">
+                                    <thead class="bg-gray-100">
+                                        <tr>
+                                            <th class="px-3 py-2 text-left">ลำดับ</th>
+                                            <th class="px-3 py-2 text-left">เลขบัญชี</th>
+                                            <th class="px-3 py-2 text-left">ชื่อครัวเรือน</th>
+                                            <th class="px-3 py-2 text-right">ยอดคงเหลือ</th>
+                                            <th class="px-3 py-2 text-right">หัก</th>
+                                            <th class="px-3 py-2 text-right">คงเหลือหลังหัก</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                                        ${sufficientAccounts.map((acc, idx) => `
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="px-3 py-2">${idx + 1}</td>
+                                                <td class="px-3 py-2 font-medium">${acc.accountNumber}</td>
+                                                <td class="px-3 py-2">${acc.familyName}</td>
+                                                <td class="px-3 py-2 text-right">${acc.currentBalance.toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
+                                                <td class="px-3 py-2 text-right text-orange-600">${acc.deductAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
+                                                <td class="px-3 py-2 text-right font-medium text-green-600">${acc.balanceAfter.toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${insufficientAccounts.length > 0 ? `
+                        <div>
+                            <h3 class="font-semibold text-red-700 mb-2 flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                                บัญชีที่เงินไม่พอหัก (${insufficientAccounts.length} บัญชี)
+                            </h3>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full text-sm">
+                                    <thead class="bg-red-50">
+                                        <tr>
+                                            <th class="px-3 py-2 text-left">ลำดับ</th>
+                                            <th class="px-3 py-2 text-left">เลขบัญชี</th>
+                                            <th class="px-3 py-2 text-left">ชื่อครัวเรือน</th>
+                                            <th class="px-3 py-2 text-right">ยอดคงเหลือ</th>
+                                            <th class="px-3 py-2 text-right">ควรหัก</th>
+                                            <th class="px-3 py-2 text-right">ขาด</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                                        ${insufficientAccounts.map((acc, idx) => `
+                                            <tr class="hover:bg-red-50">
+                                                <td class="px-3 py-2">${idx + 1}</td>
+                                                <td class="px-3 py-2 font-medium">${acc.accountNumber}</td>
+                                                <td class="px-3 py-2">${acc.familyName}</td>
+                                                <td class="px-3 py-2 text-right">${acc.currentBalance.toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
+                                                <td class="px-3 py-2 text-right">${acc.deductAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
+                                                <td class="px-3 py-2 text-right font-medium text-red-600">${acc.shortage.toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                <p class="text-sm text-yellow-800">
+                                    <svg class="inline w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                    </svg>
+                                    ระบบจะหักเงินจากบัญชีเหล่านี้จนเป็น 0 บาท และบันทึกยอดค้างชำระ
+                                </p>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            Swal.fire({
+                title: 'รายการบัญชีที่จะหักเงิน',
+                html: tableHTML,
+                width: '900px',
+                showCloseButton: true,
+                showConfirmButton: false,
+                customClass: {
+                    popup: 'text-left'
+                }
+            });
+        }
+
         // ฟังก์ชันอนุมัติพร้อมส่งยอดเงิน (แก้ไข)
         async function approveRequestWithAmount() {
         const approvedAmount = parseFloat(document.getElementById('approvedAmount').value);
@@ -873,7 +1026,7 @@
                     </div>
                     <div class="bg-yellow-50 border border-yellow-200 rounded p-3 mt-3">
                         <p class="text-sm text-yellow-800">
-                            <strong>⚠️ หมายเหตุ:</strong> เมื่อกดยืนยันแล้ว ระบบจะทำการหักเงินจากทุกบัญชีทันที
+                            <strong>หมายเหตุ:</strong> เมื่อกดยืนยันแล้ว ระบบจะทำการหักเงินจากทุกบัญชีทันที
                         </p>
                     </div>
                 </div>
