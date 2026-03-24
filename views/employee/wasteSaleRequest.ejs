@@ -436,7 +436,7 @@
                                                 <label class="block text-sm font-medium text-gray-700 mb-2">วันที่ให้เข้ารับซื้อ</label>
                                                 <div class="flex items-center space-x-2 px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
                                                     <!-- <ion-icon name="calendar-outline" class="text-green-500 text-xl"></ion-icon> -->
-                                                    <span class="text-gray-800"><%= request.date.toISOString().split('T')[0] %></span>
+                                                    <span class="text-gray-800"><%= request.date.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }) %></span>
                                                 </div>
                                             </div>
                                             
