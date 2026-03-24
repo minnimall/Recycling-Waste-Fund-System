@@ -1508,7 +1508,7 @@ const user_profile = async (req, res) => {
         const transactions = await transactionMoney.find(transactionQuery)
             .sort({ transactionDate: -1 });
 
-        // ⭐ ดึงข้อมูลฌาปนกิจ - เฉพาะรายการที่บัญชีนี้ถูกหัก (ต้องเป็นสมาชิกก่อน)
+        // ดึงข้อมูลฌาปนกิจ - เฉพาะรายการที่บัญชีนี้ถูกหัก (ต้องเป็นสมาชิกก่อน)
         let funeralAssistances = [];
         
         // ตรวจสอบว่าบัญชีนี้เป็นสมาชิกหรือไม่
@@ -1573,7 +1573,7 @@ const user_profile = async (req, res) => {
             });
         });
 
-        // ⭐ รายการหักเงินฌาปนกิจ - เฉพาะบัญชีสมาชิก
+        // รายการหักเงินฌาปนกิจ - เฉพาะบัญชีสมาชิก
         if (wasteBankAccount.IsMember && funeralAssistances.length > 0) {
             funeralAssistances.forEach(funeral => {
                 // หาข้อมูลการหักของบัญชีนี้

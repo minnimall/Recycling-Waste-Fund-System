@@ -1400,12 +1400,12 @@
                 const service = new google.maps.DistanceMatrixService();
                 
                 service.getDistanceMatrix({
-                    origins: [{ lat: point1.lat, lng: point1.lng }],
+                    origins: [{ lat: point1.lat, lng: point1.lng }], //พิกัดละติจูด/ลองจิจูดของจุดเริ่มต้นและจุดหมาย
                     destinations: [{ lat: point2.lat, lng: point2.lng }],
-                    travelMode: 'DRIVING',
-                    avoidHighways: false,
+                    travelMode: 'DRIVING', //คำนวณสำหรับของรถยนต์
+                    avoidHighways: false, 
                     avoidTolls: false,
-                    unitSystem: google.maps.UnitSystem.METRIC
+                    unitSystem: google.maps.UnitSystem.METRIC //ผลลัพธ์กลับมาเป็นระบบเมตริก (เมตร/วินาที)
                 }, (response, status) => {
                     console.log(`API Status: ${status}`);
                     
@@ -1582,9 +1582,9 @@
 
         // ฟังก์ชัน Nearest Neighbor แบบบังคับให้เริ่มจากจุดใกล้ที่สุด
         async function nearestNeighborStrict(startIdx, distMatrix, n) {
-            const route = [startIdx];
-            const visited = new Set([startIdx]);
-            let currentIdx = startIdx;
+            const route = [startIdx];        // เส้นทางเริ่มต้น เช่น [0]
+            const visited = new Set([startIdx]); // จุดที่เคยไปแล้ว เช่น {0}
+            let currentIdx = startIdx;       // ตอนนี้อยู่ที่จุดไหน
 
             while (route.length < n) {
                 let nearestIdx = -1;
@@ -1592,8 +1592,8 @@
 
                 // หาจุดที่ใกล้ที่สุดจากจุดปัจจุบัน
                 for (let i = 0; i < n; i++) {
-                    if (!visited.has(i) && distMatrix[currentIdx][i] < nearestDistance) {
-                        nearestDistance = distMatrix[currentIdx][i];
+                    if (!visited.has(i) && distMatrix[currentIdx][i] < nearestDistance) { // ยังไม่เคยไปเช็คจุดปัจจุบันไปหา i
+                        nearestDistance = distMatrix[currentIdx][i]; // อัพเดทระยะใกล้สุด
                         nearestIdx = i;
                     }
                 }
@@ -1611,8 +1611,8 @@
 
         // Nearest Neighbor โดยบังคับจุดที่ 2 และคำนึงถึงระยะกลับ
         async function nearestNeighborFromSecond(startIdx, secondIdx, distMatrix, n) {
-            const route = [startIdx, secondIdx];
-            const visited = new Set([startIdx, secondIdx]);
+            const route = [startIdx, secondIdx]; // บังคับเริ่ม 2 จุดแรกเลย เช่น [0, 3]
+            const visited = new Set([startIdx, secondIdx]); // ทั้ง 2 จุดถือว่าไปแล้ว
             let currentIdx = secondIdx;
 
             while (route.length < n) {
@@ -1623,9 +1623,9 @@
                 if (route.length === n - 1) {
                     for (let i = 0; i < n; i++) {
                         if (!visited.has(i)) {
-                            const distToCurrent = distMatrix[currentIdx][i];
-                            const distToStart = distMatrix[i][startIdx];
-                            const totalDist = distToCurrent + distToStart;
+                            const distToCurrent = distMatrix[currentIdx][i]; // ระยะไปจุด i
+                            const distToStart = distMatrix[i][startIdx];     // ระยะจากจุด i กลับจุดเริ่ม
+                            const totalDist = distToCurrent + distToStart;   // รวมกัน
                             
                             if (totalDist < nearestDistance) {
                                 nearestDistance = totalDist;

@@ -951,7 +951,7 @@ const wastePurchasePost = async (req, res) => {
         // ========== 6. อัพเดทยอดคงเหลือ ==========
         wasteBankAccount.Balance += amountToBalance;
 
-        // ⭐ ========== 7. ตรวจสอบและคืนสิทธิ์สมาชิก ==========
+        // ========== 7. ตรวจสอบและคืนสิทธิ์สมาชิก ==========
         let membershipRestored = false;
         if (hadMembershipDate && !wasActiveMember && wasteBankAccount.Balance >= 300) {
             wasteBankAccount.IsMember = true;
@@ -1004,7 +1004,7 @@ const wastePurchasePost = async (req, res) => {
             `;
         }
 
-        // ⭐ แจ้งเตือนถ้าคืนสิทธิ์สมาชิก
+        // แจ้งเตือนถ้าคืนสิทธิ์สมาชิก
         if (membershipRestored) {
             notificationTitle = `🎊 ยินดีด้วย! สิทธิ์สมาชิกกลับมาแล้ว`;
             contentList += `
@@ -1482,7 +1482,6 @@ const wastePurchaseTotalIndex = async (req, res) => {
             villages: villages,
             currentPage: 'wastePurchaseTotal',
             query: req.query,
-            // ⭐ เพิ่มตัวแปรใหม่
             wasteSummary: wasteSummary,
             grandTotal: grandTotal
         });
@@ -1636,7 +1635,7 @@ const memberRegister = async (req, res) => {
             return res.redirect('/employee/member?error=ชื่อผู้ใช้ต้องมี 5-20 ตัวอักษร และไม่มีอักขระพิเศษ');
         }
 
-        // ตรวจสอบ password 
+        // ตรวจสอบ password โ
         const passwordRegex = /^\d{6,8}$/;
         if (!passwordRegex.test(req.body.password)) {
             await session.abortTransaction();
@@ -3430,6 +3429,7 @@ const wasteStockIndex = async (req, res) => {
 
         // ---- 8. รวมข้อมูลแยกตามชื่อขยะ ----
         // stockMap = { wasteName: { name, totalQuantity, totalAmount, pricePerUnit, count } }
+        // ---- 8. รวมข้อมูลแยกตามชื่อขยะ ----
         const stockMap = {};
 
         for (const item of allWasteItems) {
@@ -3442,22 +3442,54 @@ const wasteStockIndex = async (req, res) => {
                     totalQuantityKg: 0,
                     totalAmount: 0,
                     purchaseCount: 0,
-                    pricePerUnit: item.pricePerUnit, // ราคาล่าสุด
+                    pricePerUnit: item.pricePerUnit,
+                    monthlyBreakdown: {}, // เพิ่มตรงนี้
                 };
             }
 
             stockMap[key].totalQuantityKg += item.quantity;
             stockMap[key].totalAmount += item.quantity * item.pricePerUnit;
             stockMap[key].purchaseCount += 1;
+
+            // ---- หา purchaseDate จาก purchase ที่มี item นี้ ----
+            const parentPurchase = allPurchases.find(p =>
+                p.wasteItems.some(wId => wId.toString() === item._id.toString())
+            );
+
+            if (parentPurchase && parentPurchase.purchaseDate) {
+                const d = new Date(parentPurchase.purchaseDate);
+                const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+
+                if (!stockMap[key].monthlyBreakdown[monthKey]) {
+                    stockMap[key].monthlyBreakdown[monthKey] = {
+                        month: monthKey,
+                        quantity: 0,
+                        amount: 0,
+                        purchases: 0,
+                    };
+                }
+
+                stockMap[key].monthlyBreakdown[monthKey].quantity += item.quantity;
+                stockMap[key].monthlyBreakdown[monthKey].amount += item.quantity * item.pricePerUnit;
+                stockMap[key].monthlyBreakdown[monthKey].purchases += 1;
+            }
         }
 
-        // ---- 9. คำนวณราคาเฉลี่ย ----
-        const stockData = Object.values(stockMap).map(stock => ({
-            ...stock,
-            avgPricePerUnit: stock.totalQuantityKg > 0
-                ? stock.totalAmount / stock.totalQuantityKg
-                : 0
-        }));
+        // ---- 9. คำนวณราคาเฉลี่ย + แปลง monthlyBreakdown เป็น array ----
+        const stockData = Object.values(stockMap).map(stock => {
+            const monthlyArray = Object.values(stock.monthlyBreakdown).map(m => ({
+                ...m,
+                avgPrice: m.quantity > 0 ? m.amount / m.quantity : 0,
+            }));
+
+            return {
+                ...stock,
+                monthlyBreakdown: monthlyArray, // แปลงเป็น array
+                avgPricePerUnit: stock.totalQuantityKg > 0
+                    ? stock.totalAmount / stock.totalQuantityKg
+                    : 0,
+            };
+        });
 
         // เรียงตามชื่อ
         stockData.sort((a, b) => a.name.localeCompare(b.name, 'th'));
