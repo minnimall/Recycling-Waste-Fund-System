@@ -5748,7 +5748,7 @@ const getAllRoutes = async (req, res) => {
 // ปฏิทินตารางการดำเนินการ
 const routeCalendarIndex = async (req, res) => {
     try {
-        const routes = await Route.find()
+        const routes = await Route.find( { isDeleted: false })
         .sort({ actionDate: 1, createdAt: -1 })
         .populate('createdBy', 'firstname lastname')
         .populate({
